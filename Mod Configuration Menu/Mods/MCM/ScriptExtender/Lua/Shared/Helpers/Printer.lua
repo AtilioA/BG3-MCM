@@ -1,30 +1,30 @@
-ISFPrinter = VolitionCabinetPrinter:New { Prefix = "Mod Configuration Menu", ApplyColor = true, DebugLevel = Config:GetCurrentDebugLevel() }
+MCMPrinter = VolitionCabinetPrinter:New { Prefix = "Mod Configuration Menu", ApplyColor = true, DebugLevel = Config:GetCurrentDebugLevel() }
 
-function ISFPrint(debugLevel, ...)
-    ISFPrinter:SetFontColor(0, 255, 255)
-    ISFPrinter:Print(debugLevel, ...)
+function MCMPrint(debugLevel, ...)
+    MCMPrinter:SetFontColor(0, 255, 255)
+    MCMPrinter:Print(debugLevel, ...)
 end
 
-function ISFTest(debugLevel, ...)
-    ISFPrinter:SetFontColor(100, 200, 150)
-    ISFPrinter:PrintTest(debugLevel, ...)
+function MCMTest(debugLevel, ...)
+    MCMPrinter:SetFontColor(100, 200, 150)
+    MCMPrinter:PrintTest(debugLevel, ...)
 end
 
-function ISFDebug(debugLevel, ...)
-    ISFPrinter:SetFontColor(200, 200, 0)
-    ISFPrinter:PrintDebug(debugLevel, ...)
+function MCMDebug(debugLevel, ...)
+    MCMPrinter:SetFontColor(200, 200, 0)
+    MCMPrinter:PrintDebug(debugLevel, ...)
 end
 
-function ISFWarn(debugLevel, ...)
-    ISFPrinter:SetFontColor(255, 100, 50)
-    ISFPrinter:PrintWarning(debugLevel, ...)
+function MCMWarn(debugLevel, ...)
+    MCMPrinter:SetFontColor(255, 100, 50)
+    MCMPrinter:PrintWarning(debugLevel, ...)
 end
 
-function ISFDump(debugLevel, ...)
-    ISFPrinter:SetFontColor(190, 150, 225)
-    ISFPrinter:Dump(debugLevel, ...)
+function MCMDump(debugLevel, ...)
+    MCMPrinter:SetFontColor(190, 150, 225)
+    MCMPrinter:Dump(debugLevel, ...)
 end
 
-function ISFDumpArray(debugLevel, ...)
-    ISFPrinter:DumpArray(debugLevel, ...)
+function MCMDumpArray(debugLevel, ...)
+    MCMPrinter:DumpArray(debugLevel, ...)
 end

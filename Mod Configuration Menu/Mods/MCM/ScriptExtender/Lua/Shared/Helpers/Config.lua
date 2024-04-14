@@ -17,7 +17,7 @@ Config = VCHelpers.Config:New({
 Config:UpdateCurrentConfig()
 
 Config:AddConfigReloadedCallback(function(configInstance)
-    ISFPrinter.DebugLevel = configInstance:GetCurrentDebugLevel()
-    ISFPrint(0, "Config reloaded: " .. Ext.Json.Stringify(configInstance:getCfg(), { Beautify = true }))
+    MCMPrinter.DebugLevel = configInstance:GetCurrentDebugLevel()
+    MCMPrint(0, "Config reloaded: " .. Ext.Json.Stringify(configInstance:getCfg(), { Beautify = true }))
 end)
 Config:RegisterReloadConfigCommand("mcm_reload")

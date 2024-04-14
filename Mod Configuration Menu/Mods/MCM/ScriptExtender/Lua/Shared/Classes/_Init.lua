@@ -1,5 +1,6 @@
 RequireFiles("Shared/Classes/", {
-    "ModSetting",
+    "SettingSchema/_Init",
+    "ModConfig",
     "JsonLayer",
     "MCM",
 })

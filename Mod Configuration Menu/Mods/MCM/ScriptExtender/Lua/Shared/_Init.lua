@@ -24,13 +24,13 @@ end
 
 local MODVERSION = Ext.Mod.GetMod(ModuleUUID).Info.ModVersion
 if MODVERSION == nil then
-    ISFWarn(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu loaded (version unknown)")
+    MCMWarn(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu loaded (version unknown)")
 else
     -- Remove the last element (build/revision number) from the MODVERSION table
     table.remove(MODVERSION)
 
     local versionNumber = table.concat(MODVERSION, ".")
-    ISFPrint(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu version " .. versionNumber .. " loaded")
+    MCMPrint(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu version " .. versionNumber .. " loaded")
 end
 
 BG3MCM = MCM:New({}, "BG3MCM")

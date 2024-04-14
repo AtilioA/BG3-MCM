@@ -32,26 +32,51 @@ JsonLayer = _Class:Create("HelperJsonLayer", Helper, {
 -- Patterns for the potential JSON and JSONc config file paths to be loaded
 JsonLayer.ConfigFilePathPatternJSON = string.gsub("Mods/%s/MCM_schema.json", "'", "\'")
 
+function JsonLayer:LoadJSONConfig(filePath)
+    local configFileContent = Ext.IO.LoadFile(filePath)
+    if not configFileContent or configFileContent == "" then
+        MCMDebug(2, "Config file not found: " .. filePath)
+        return nil
+    end
+
+    local success, data = pcall(Ext.Json.Parse, configFileContent)
+    if not success then
+        MCMWarn(0, "Failed to parse config file: " .. filePath)
+        return nil
+    end
+
+    return data
+end
+
+--- Saves the given settings to a JSON file.
+--- @param filePath string The file path to save the settings to.
+--- @param settings table The settings table to save.
+function JsonLayer:SaveJSONConfig(filePath, config)
+    local configFileContent = Ext.Json.Stringify(config, { Beautify = true })
+    Ext.IO.SaveFile(filePath, configFileContent)
+end
+
 --- Load the JSON file for the mod and build the settings index
 ---@param configStr string The string representation of the JSONc file
 ---@param modGUID GUIDSTRING The UUID of the mod that the config file belongs to
 ---@return table|nil The parsed JSON data, or nil if the JSON could not be parsed
 function JsonLayer:TryLoadConfig(configStr, modGUID)
     if modGUID == nil then
-        ISFWarn(1, "modGUID is nil. Cannot load config.")
+        MCMWarn(1, "modGUID is nil. Cannot load config.")
         return nil
     end
 
-    ISFDebug(2, "Entering TryLoadConfig with parameters: " .. configStr .. ", " .. modGUID)
+    MCMDebug(2, "Entering TryLoadConfig with parameters: " .. configStr .. ", " .. modGUID)
 
     local success, data = pcall(Ext.Json.Parse, configStr)
     if success then
         self:BuildSettingsIndex(data)
-        _D(self.settings_index)
+        MCMDebug(4, "Settings index built:")
+        MCMDebug(4, self.settings_index)
         return data
     else
-        ISFWarn(0,
-            "Invalid ISF config JSON file for mod " ..
+        MCMWarn(0,
+            "Invalid MCM config JSON file for mod " ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
             ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " for assistance.")
         return nil
@@ -82,7 +107,7 @@ function JsonLayer:GetSetting(settingName)
     if setting then
         return setting.setting
     else
-        ISFWarn(1, "Setting " .. settingName .. " not found.")
+        MCMWarn(1, "Setting " .. settingName .. " not found.")
         return nil
     end
 end
@@ -94,6 +119,6 @@ function JsonLayer:UpdateSetting(settingName, newValue)
     local setting = self:GetSetting(settingName)
     if setting then
         setting.Default = newValue
-        ISFDebug(3, "Updated " .. settingName .. " to " .. tostring(newValue))
+        MCMDebug(3, "Updated " .. settingName .. " to " .. tostring(newValue))
     end
 end

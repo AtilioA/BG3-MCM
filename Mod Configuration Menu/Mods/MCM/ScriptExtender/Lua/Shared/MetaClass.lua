@@ -30,9 +30,9 @@ function _MetaClass.New(class, o)
     setmetatable(o, class)
     class.__index = class
 
-    if class.Init then
-        o:Init()
-    end
+    -- if class.Init then
+    --     o:Init()
+    -- end
 
     return o
 end
