@@ -33,7 +33,7 @@ else
     ISFPrint(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu version " .. versionNumber .. " loaded")
 end
 
-BG3MCM = ItemShipment:New()
+BG3MCM = MCM:New({}, "BG3MCM")
 if Config:getCfg().DEBUG.level > 1 then
     -- Add debug wrapper to BG3MCM (very useful for logging writes and reads)
     BG3MCM = _MetaClass._Debug(BG3MCM)

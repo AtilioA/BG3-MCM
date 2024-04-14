@@ -1,0 +1,91 @@
+{
+    "FileVersion": 1,
+    "Sections": [
+        {
+            "SectionName": "General Settings",
+            "SectionDescription": "General configuration settings for the application.",
+            "Settings": [
+                {
+                    "Name": "MyInt",
+                    "Type": "int",
+                    "Default": 0,
+                    "Description": "This is a setting that does something."
+                },
+                {
+                    "Name": "MyFloat",
+                    "Type": "float",
+                    "Default": 0.0,
+                    "Description": "This is a setting that does something else."
+                }
+            ]
+        },
+        {
+            "SectionName": "Advanced Settings",
+            "SectionDescription": "Advanced options for power users.",
+            "Settings": [
+                {
+                    "Name": "MyCheckbox",
+                    "Type": "checkbox",
+                    "Default": false,
+                    "Description": "This is a setting that does something else."
+                },
+                {
+                    "Name": "MyText",
+                    "Type": "text",
+                    "Default": "default",
+                    "Description": "This is a setting that does something else."
+                },
+                {
+                    "Name": "MyEnum",
+                    "Type": "enum", // This is an enum and will be represented as a combobox/dropdown in the ImGui window
+                    "Default": "Option1",
+                    "Options": {
+                        "Choices": [
+                            "Option1",
+                            "Option2",
+                            "Option3"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "SectionName": "Debugging",
+            "SectionDescription": "Settings for debugging the mod.",
+            "Settings": [
+                {
+                    "Name": "MySlider",
+                    "Type": "slider",
+                    "Default": 50,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 100,
+                    },
+                    "Description": "This is a setting that uses a slider input."
+                },
+                {
+                    "Name": "MyRadio",
+                    "Type": "radio",
+                    "Default": "Option1",
+                    "Options": {
+                        "Choices": [
+                            "Option1",
+                            "Option2",
+                            "Option3"
+                        ]
+                    },
+                    "Description": "This is a setting that uses a radio button group."
+                },
+                {
+                    "Name": "MyDict",
+                    "Type": "dict", // Use a dictionary input for this setting. The dictionary will be a key-value pair.
+                    "Default": {
+                        "key1": "value1",
+                        "key2": "value2"
+                    }, // Set the default value to a dictionary with two key-value pairs
+                    "Description": "This is a setting that uses a dictionary input. You can add or remove key-value pairs, or change the values of the key-value pairs."
+                }
+            ]
+        }
+    ]
+}

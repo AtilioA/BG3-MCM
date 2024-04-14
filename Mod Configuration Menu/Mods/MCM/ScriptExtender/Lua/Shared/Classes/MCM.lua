@@ -24,12 +24,11 @@
 --     SOFTWARE.
 -- --]]
 
--- ---@class MCM: MetaClass
--- MCM = _Class:Create("MCM", nil, {
---     mods = {},
---     shipmentTrigger = nil,
---     hasNotifiedForThisShipment = nil,
--- })
+---@class MCM: MetaClass
+---@field mods table<string, table> A table containing settings data for each mod
+MCM = _Class:Create("MCM", nil, {
+    mods = {},
+})
 
 -- -- NOTE: When introducing new (breaking) versions of the config file, add a new function to parse the new version and update the version number in the config file
 -- -- local versionHandlers = {
@@ -38,50 +37,46 @@
 -- -- }
 
 
--- --- Submit the data to the MCM instance
--- ---@param data table The item data to submit
--- ---@param modGUID string The UUID of the mod that the item data belongs to
--- function MCM:SubmitData(data, modGUID)
---     local preprocessedData = ISDataPreprocessing:PreprocessData(data, modGUID)
---     if not preprocessedData then
---         return
---     end
+--- Submit the data to the MCM instance
+---@param data table The item data to submit
+---@param modGUID string The UUID of the mod that the item data belongs to
+function MCM:SubmitData(data, modGUID)
+    local preprocessedData = DataPreprocessing:PreprocessData(data, modGUID)
+    if not preprocessedData then
+        return
+    end
 
---     ISUtils:InitializeMailboxesTable()
---     ISUtils:InitializeModVarsForMod(preprocessedData, modGUID)
---     self.mods[modGUID] = preprocessedData
--- end
+    -- ISUtils:InitializeModVarsForMod(preprocessedData, modGUID)
+    self.mods[modGUID] = preprocessedData
+end
 
--- --- Load config files for each mod in the load order, if they exist. The config file should be named "MCMFrameworkConfig.jsonc" and be located in the mod's directory, alongside the mod's meta.lsx file.
--- function MCM:LoadShipments()
---     -- Ensure ModVars table is initialized
---     -- self:InitializeModVars()
+--- Load config files for each mod in the load order, if they exist. The config file should be named "MCMFrameworkConfig.jsonc" and be located in the mod's directory, alongside the mod's meta.lsx file.
+function MCM:LoadSettings()
+    -- Ensure ModVars table is initialized
+    -- self:InitializeModVars()
 
---     -- If only we had `continue` in Lua...
---     for _, uuid in pairs(Ext.Mod.GetLoadOrder()) do
---         local modData = Ext.Mod.GetMod(uuid)
---         ISFDebug(3, "Checking mod: " .. modData.Info.Name)
+    -- If only we had `continue` in Lua...
+    for _, uuid in pairs(Ext.Mod.GetLoadOrder()) do
+        local modData = Ext.Mod.GetMod(uuid)
+        ISFDebug(3, "Checking mod: " .. modData.Info.Name)
 
---         local filePath = ISJsonLoad.ConfigFilePathPatternJSONC:format(modData.Info.Directory)
---         local config = Ext.IO.LoadFile(filePath, "data")
---         if config == nil then
---             filePath = ISJsonLoad.ConfigFilePathPatternJSON:format(modData.Info.Directory)
---             config = Ext.IO.LoadFile(filePath, "data")
---         end
---         if config ~= nil and config ~= "" then
---             ISFDebug(2, "Found config for mod: " .. Ext.Mod.GetMod(uuid).Info.Name)
---             local data = ISJsonLoad:TryLoadConfig(config, uuid)
---             if data ~= nil then
---                 self:SubmitData(data, uuid)
---             else
---                 ISFWarn(0,
---                     "Failed to load ISF config JSON file for mod: " ..
---                     Ext.Mod.GetMod(uuid).Info.Name ..
---                     ". Please contact " .. Ext.Mod.GetMod(uuid).Info.Author .. " about this issue.")
---             end
---         end
---     end
--- end
+        local filePath = JsonLayer.ConfigFilePathPatternJSON:format(modData.Info.Directory)
+        local config = Ext.IO.LoadFile(filePath, "data")
+        if config ~= nil and config ~= "" then
+            ISFDebug(2, "Found config for mod: " .. Ext.Mod.GetMod(uuid).Info.Name)
+            local data = JsonLayer:TryLoadConfig(config, uuid)
+            _D(data)
+            if data ~= nil and type(data) == "table" then
+                self:SubmitData(data, uuid)
+            else
+                ISFWarn(0,
+                    "Failed to load ISF config JSON file for mod: " ..
+                    Ext.Mod.GetMod(uuid).Info.Name ..
+                    ". Please contact " .. Ext.Mod.GetMod(uuid).Info.Author .. " about this issue.")
+            end
+        end
+    end
+end
 
 -- --- Set the trigger for the shipment, e.g. "ConsoleCommand", "LevelGameplayStarted", "EndTheDayRequested"
 -- ---@param trigger string|nil The trigger/reason to set
