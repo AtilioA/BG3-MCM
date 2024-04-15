@@ -50,6 +50,12 @@ function ModConfig:SaveSettingsForMod(modGUID)
     JsonLayer:SaveJSONConfig(configFilePath, self.settingsValues[modGUID])
 end
 
+function ModConfig:UpdateSettingsForMod(modGUID, settings)
+    self.settingsValues[modGUID] = settings
+    -- TODO: Validate and sanitize data
+    self:SaveSettingsForMod(modGUID)
+end
+
 --- SECTION: SETTINGS HANDLING
 
 --- Load the schema for each mod and try to load the settings from the settings file.
