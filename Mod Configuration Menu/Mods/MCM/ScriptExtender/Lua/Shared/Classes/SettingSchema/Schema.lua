@@ -33,8 +33,8 @@ end
 ---@param settingName string The name/key of the setting to retrieve the default value for
 ---@return any setting.Default The default value for the setting
 function Schema:RetrieveDefaultValueForSetting(settingName)
-    for _, section in ipairs(self.sections) do
-        for _, setting in ipairs(section.settings) do
+    for _, section in ipairs(self.Sections) do
+        for _, setting in ipairs(section.Settings) do
             if setting.Name == settingName then
                 return setting.Default
             end
