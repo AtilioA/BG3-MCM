@@ -76,6 +76,7 @@ end
 ---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
     self:LoadSchemas()
+    DataPreprocessing:SanitizeSchemas(self.mods)
     self:LoadSettings()
 
     self:SaveAllSettings()
@@ -107,6 +108,8 @@ function ModConfig:HandleLoadedSettings(modGUID, schema, config, configFilePath)
     -- Add new settings, remove deprecated settings, update JSON file
     self:AddKeysMissingFromSchema(schema, config)
     self:RemoveDeprecatedKeys(schema, config)
+
+    config = DataPreprocessing:ValidateAndFixSettings(schema, config)
     JsonLayer:SaveJSONConfig(configFilePath, config)
 
     self.mods[modGUID].settingsValues = config
@@ -127,7 +130,7 @@ end
 
 --- Add missing keys from the settings file based on the schema
 --- @param schema Schema The schema to use for the settings
---- @param settings table The settings to update
+--- @param settings SchemaSetting The settings to update
 function ModConfig:AddKeysMissingFromSchema(schema, settings)
     for _, section in ipairs(schema:GetSections()) do
         for _, setting in ipairs(section:GetSettings()) do
@@ -139,14 +142,14 @@ function ModConfig:AddKeysMissingFromSchema(schema, settings)
 end
 
 --- Clean up settings entries that are not present in the schema
----@param schema table The schema for the mod
----@param settings table The settings to clean up
+---@param schema Schema The schema for the mod
+---@param settings SchemaSetting The settings to clean up
 function ModConfig:RemoveDeprecatedKeys(schema, settings)
     -- Create a set of valid setting names from the schema
     local validSettings = {}
-    for _, section in ipairs(schema.Sections) do
-        for _, setting in ipairs(section.Settings) do
-            validSettings[setting.Name] = true
+    for _, section in ipairs(schema:GetSections()) do
+        for _, setting in ipairs(section:GetSettings()) do
+            validSettings[setting:GetId()] = true
         end
     end
 

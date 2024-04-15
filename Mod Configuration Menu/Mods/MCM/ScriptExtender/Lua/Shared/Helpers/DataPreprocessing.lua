@@ -62,41 +62,31 @@ function DataPreprocessing:SanitizeSchema(schema, modGUID)
     return schema
 end
 
---- Check if Schema data is well-formed
-function DataPreprocessing:SanitizeSchemas(schemas)
-    for modGUID, schema in pairs(schemas) do
-        local self:SanitizeSchema(schema, modGUID)
-    end
-end
-
---- Check if Schema data has correct types and respect constraints
-function DataPreprocessing:ValidateSchemas(schemas)
-    self:SanitizeSchemas(schemas)
-end
-
---- Check if settings data has correct types and respect constraints
-function DataPreprocessing:ValidateSettings(schemas, settingsValues)
-    for modGUID, schema in pairs(schemas) do
-        local settings = settingsValues[modGUID]
-        if settings then
-            local self:ValidateSettings(schema, settings)
+function DataPreprocessing:SanitizeSchemas(mods)
+    for modGUID, mcmTable in pairs(mods) do
+        if not self:SanitizeSchema(mcmTable.schema, modGUID) then
+            mods[modGUID] = nil
+            MCMWarn(0,
+                "Schema validation failed for mod: " ..
+                Ext.Mod.GetMod(modGUID).Info.Name ..
+                ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         end
     end
 end
 
 --- Validate the settings based on the schema
----@param schema table The schema data
----@param settings table The settings data
----@return boolean, string[] True if all settings are valid, and a list of invalid settings
-function DataPreprocessing:ValidateSettings(schemas, settings)
+---@param schema Schema The schema data
+---@param settings SchemaSetting The settings data
+---@return boolean, string[] True if all settings are valid, and a list of invalid settings' IDs
+function DataPreprocessing:ValidateSettings(schema, settings)
     local invalidSettings = {}
 
-    for _, section in ipairs(schema.Sections) do
-        for _, setting in ipairs(section.Settings) do
-            local value = settings[setting.Name]
-            local validator = SettingValidators[setting.Type]
-            if not validator(setting, value) then
-                table.insert(invalidSettings, setting.Name)
+    for _, section in ipairs(schema:GetSections()) do
+        for _, setting in ipairs(section:GetSettings()) do
+            local value = settings[setting:GetId()]
+            local validator = SettingValidators[setting:GetType()]
+            if validator and not validator(setting, value) then
+                table.insert(invalidSettings, setting:GetId())
             end
         end
     end
@@ -104,6 +94,21 @@ function DataPreprocessing:ValidateSettings(schemas, settings)
     return #invalidSettings == 0, invalidSettings
 end
 
+function DataPreprocessing:ValidateAndFixSettings(schema, config)
+    local isValid, invalidSettings = DataPreprocessing:ValidateSettings(schema, config)
+    if not isValid then
+        for _, settingID in ipairs(invalidSettings) do
+            local defaultValue = schema:RetrieveDefaultValueForSetting(settingID)
+            MCMWarn(0,
+                "Invalid value for setting: " ..
+                settingID ..
+                ". Resetting it to default value from the schema (" ..
+                tostring(defaultValue) .. ").")
+            config[settingID] = defaultValue
+        end
+    end
+    return config
+end
 
 --- Check if the data table has a SchemaVersions table
 ---@param data table The item data to check
@@ -152,6 +157,7 @@ function DataPreprocessing:PreprocessData(data, modGUID)
     for i, section in ipairs(data.Sections) do
         for j, setting in ipairs(section.Settings) do
             local setting = SchemaSetting:New({
+                Id = setting.Id,
                 Name = setting.Name,
                 Type = setting.Type,
                 Default = setting.Default,
