@@ -13,7 +13,9 @@ SchemaSetting = _Class:Create("SchemaSetting", nil, {
     Default = nil,
     Description = "",
     Section = "General",
-    Options = {}
+    Options = {},
+    -- TODO: Show setting on UI only when other settings are set to specific values?
+    -- ShowWhen = { SettingId = "", Value = "" }
 })
 
 function SchemaSetting:GetName()

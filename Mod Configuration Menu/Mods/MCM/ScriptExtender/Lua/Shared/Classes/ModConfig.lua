@@ -24,9 +24,15 @@
 --     SOFTWARE.
 -- --]]
 
+---@class ModsConfig
+---@field mods table<string, ModConfigData>
+
+---@class ModConfigData
+---@field schemas Schema[]
+---@field settings table<string, any>
 
 ---@class ModConfig
----@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
+---@field private mods ModsConfig A table of modGUIDs that has a table of schemas and settings for each mod
 ModConfig = _Class:Create("ModConfig", nil, {
     mods = {}
 })
@@ -132,7 +138,9 @@ end
 --- @param schema Schema The schema to use for the settings
 --- @param settings SchemaSetting The settings to update
 function ModConfig:AddKeysMissingFromSchema(schema, settings)
+    -- _D(schema)
     for _, section in ipairs(schema:GetSections()) do
+        -- _D(section)
         for _, setting in ipairs(section:GetSettings()) do
             if settings[setting:GetId()] == nil then
                 settings[setting:GetId()] = setting:GetDefault()
@@ -179,7 +187,9 @@ function ModConfig:SubmitSchema(data, modGUID)
     end
 
     -- ISUtils:InitializeModVarsForMod(preprocessedData, modGUID)
-    self.mods[modGUID].schemas = Schema:New(preprocessedData)
+    self.mods[modGUID] = {
+        schemas = Schema:New(preprocessedData),
+    }
 
     MCMWarn(1, "Schema is ready for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
 end

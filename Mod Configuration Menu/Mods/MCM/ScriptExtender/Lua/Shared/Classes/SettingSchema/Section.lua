@@ -1,7 +1,7 @@
 ---@class SchemaSection
 ---@field private SectionName string
 ---@field private SectionDescription string
----@field private Settings table<number, SchemaSetting>
+---@field private Settings SchemaSetting[]
 SchemaSection = _Class:Create("SchemaSection", nil, {
     SectionName = "",
     SectionDescription = "",
@@ -28,8 +28,26 @@ function SchemaSection:SetSectionDescription(value)
     self.SectionDescription = value
 end
 
+--- Constructor for the SchemaSection class.
+--- @param options table
+function SchemaSection:New(options)
+    local self = setmetatable({}, SchemaSection)
+    self.SectionName = options.sectionName or ""
+    self.SectionDescription = options.sectionDescription or ""
+    self.Settings = {}
+
+    if options.Settings then
+        for _, settingOptions in ipairs(options.Settings) do
+            local setting = SchemaSetting:New(settingOptions)
+            table.insert(self.Settings, setting)
+        end
+    end
+
+    return self
+end
+
 function SchemaSection:AddSetting(name, type, default, description, options, sectionName)
-    local setting = SchemaSetting:Create({
+    local setting = SchemaSetting:New({
         Name = name,
         Type = type,
         Default = default,

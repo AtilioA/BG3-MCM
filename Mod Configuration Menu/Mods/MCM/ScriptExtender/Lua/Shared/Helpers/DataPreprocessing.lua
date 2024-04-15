@@ -62,9 +62,11 @@ function DataPreprocessing:SanitizeSchema(schema, modGUID)
     return schema
 end
 
+--- Remove elements in the table that do not have a SchemaVersions, etc.
+---@param mods table<string, table> The mods data to sanitize
 function DataPreprocessing:SanitizeSchemas(mods)
     for modGUID, mcmTable in pairs(mods) do
-        if not self:SanitizeSchema(mcmTable.schema, modGUID) then
+        if not self:SanitizeSchema(mcmTable.schemas, modGUID) then
             mods[modGUID] = nil
             MCMWarn(0,
                 "Schema validation failed for mod: " ..

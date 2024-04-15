@@ -1,6 +1,6 @@
 ---@class Schema
 ---@field private SchemaVersion number
----@field private Sections table<number, SchemaSection>
+---@field private Sections SchemaSection[]
 Schema = _Class:Create("Schema", nil, {
     SchemaVersion = 1,
     Sections = {}
@@ -24,7 +24,16 @@ end
 function Schema:New(options)
     local self = setmetatable({}, Schema)
     self.SchemaVersion = options.SchemaVersion or 1 -- Default to version 1 if not provided
-    self.Sections = options.Sections or {}
+
+    -- Call SchemaSection constructor for each section
+    self.Sections = {}
+    if options.Sections then
+        for _, sectionOptions in ipairs(options.Sections) do
+            local section = SchemaSection:New(sectionOptions)
+            table.insert(self.Sections, section)
+        end
+    end
+
     return self
 end
 
@@ -33,7 +42,7 @@ end
 ---@param description string The description of the section
 ---@return SchemaSection section The newly created section
 function Schema:AddSection(name, description)
-    local section = SchemaSection:Create({
+    local section = SchemaSection:New({
         sectionName = name,
         sectionDescription = description
     })
