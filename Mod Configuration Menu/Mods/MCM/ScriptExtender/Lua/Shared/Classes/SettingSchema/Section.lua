@@ -1,12 +1,32 @@
 ---@class SchemaSection
----@field sectionName string
----@field sectionDescription string
----@field settings table<number, SchemaSetting>
+---@field private SectionName string
+---@field private SectionDescription string
+---@field private Settings table<number, SchemaSetting>
 SchemaSection = _Class:Create("SchemaSection", nil, {
-    sectionName = "",
-    sectionDescription = "",
-    settings = {}
+    SectionName = "",
+    SectionDescription = "",
+    Settings = {}
 })
+
+function SchemaSection:GetSectionName()
+    return self.SectionName
+end
+
+function SchemaSection:GetSectionDescription()
+    return self.SectionDescription
+end
+
+function SchemaSection:GetSettings()
+    return self.Settings
+end
+
+function SchemaSection:SetSectionName(value)
+    self.SectionName = value
+end
+
+function SchemaSection:SetSectionDescription(value)
+    self.SectionDescription = value
+end
 
 function SchemaSection:AddSetting(name, type, default, description, options, sectionName)
     local setting = SchemaSetting:Create({
@@ -14,9 +34,9 @@ function SchemaSection:AddSetting(name, type, default, description, options, sec
         Type = type,
         Default = default,
         Description = description,
-        SchemaSection = sectionName or self.sectionName,
+        SchemaSection = sectionName or self.SectionName,
         Options = options or {}
     })
-    table.insert(self.settings, setting)
+    table.insert(self.Settings, setting)
     return self
 end

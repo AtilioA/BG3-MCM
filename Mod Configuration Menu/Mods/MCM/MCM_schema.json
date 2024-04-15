@@ -2,11 +2,18 @@
     "SchemaVersion": 1,
     "Sections": [
         {
+            "SectionID": "GENERAL",
             "SectionName": "General Settings",
             "SectionDescription": "General configuration settings for the application.",
             "Settings": [
                 {
                     "Name": "MyInt",
+                    "Type": "int",
+                    "Default": 0,
+                    "Description": "This is a setting that does something."
+                },
+                {
+                    "Name": "MyInt2",
                     "Type": "int",
                     "Default": 0,
                     "Description": "This is a setting that does something."
@@ -20,9 +27,16 @@
             ]
         },
         {
+            "sect": "Advanced Settings",
             "SectionName": "Advanced Settings",
             "SectionDescription": "Advanced options for power users.",
             "Settings": [
+                {
+                    "Name": "MyFloat2",
+                    "Type": "float",
+                    "Default": 0.0,
+                    "Description": "This is a setting that does something else."
+                },
                 {
                     "Name": "MyCheckbox",
                     "Type": "checkbox",

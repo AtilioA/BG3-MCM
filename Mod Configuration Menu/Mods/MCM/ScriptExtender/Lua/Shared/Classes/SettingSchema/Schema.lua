@@ -1,10 +1,22 @@
 ---@class Schema
----@field schemaVersion number
----@field sections table<number, SchemaSection>
+---@field private SchemaVersion number
+---@field private Sections table<number, SchemaSection>
 Schema = _Class:Create("Schema", nil, {
-    schemaVersion = 1,
-    sections = {}
+    SchemaVersion = 1,
+    Sections = {}
 })
+
+function Schema:GetSchemaVersion()
+    return self.SchemaVersion
+end
+
+function Schema:GetSections()
+    return self.Sections
+end
+
+function Schema:SetSections(value)
+    self.Sections = value
+end
 
 --- Constructor for the Schema class.
 --- @class Schema
@@ -25,7 +37,7 @@ function Schema:AddSection(name, description)
         sectionName = name,
         sectionDescription = description
     })
-    table.insert(self.sections, section)
+    table.insert(self.Sections, section)
     return section
 end
 
@@ -34,9 +46,9 @@ end
 ---@return any setting.Default The default value for the setting
 function Schema:RetrieveDefaultValueForSetting(settingName)
     for _, section in ipairs(self.Sections) do
-        for _, setting in ipairs(section.Settings) do
-            if setting.Name == settingName then
-                return setting.Default
+        for _, setting in ipairs(section:GetSettings()) do
+            if setting:GetName() == settingName then
+                return setting:GetDefault()
             end
         end
     end
@@ -50,8 +62,8 @@ end
 function Schema:GetDefaultSettingsFromSchema(schema)
     local settings = {}
     for _, section in ipairs(schema.Sections) do
-        for _, setting in ipairs(section.Settings) do
-            settings[setting.Name] = setting.Default
+        for _, setting in ipairs(section:GetSettings()) do
+            settings[setting:GetName()] = setting:GetDefault()
         end
     end
     return settings

@@ -26,15 +26,19 @@
 
 
 ---@class ModConfig
+---@field schemas table<string, Schema> A table of schemas for each mod
+---@field settingsValues table<string, table> A table of settings for each mod
+---@field sectionsValues table<string, table> A table of sections for each mod
 ModConfig = _Class:Create("ModConfig", nil, {
     schemas = {},
     settingsValues = {},
     sectionsValues = {}
 })
 
+--- SECTION: FILE HANDLING
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modGUID string The mod's UUID to get the path for.
---- @return string The full path to the config file.
+--- @return string The full path to the settings file.
 function ModConfig:GetModFolderPath(modGUID)
     local MCMPath = Ext.Mod.GetMod(ModuleUUID).Info.Directory
     local modFolderName = Ext.Mod.GetMod(modGUID).Info.Directory
@@ -50,6 +54,12 @@ function ModConfig:SaveSettingsForMod(modGUID)
     JsonLayer:SaveJSONConfig(configFilePath, self.settingsValues[modGUID])
 end
 
+function ModConfig:SaveAllSettings()
+    for modGUID, settings in pairs(self.settingsValues) do
+        self:SaveSettingsForMod(modGUID)
+    end
+end
+
 function ModConfig:UpdateSettingsForMod(modGUID, settings)
     self.settingsValues[modGUID] = settings
     -- TODO: Validate and sanitize data
@@ -58,6 +68,12 @@ function ModConfig:UpdateSettingsForMod(modGUID, settings)
 end
 
 --- SECTION: SETTINGS HANDLING
+--- Load the settings for each mod from the settings file.
+function ModConfig:LoadSettings()
+    for modGUID, schema in pairs(self.schemas) do
+        self:LoadSettingsForMod(modGUID, schema)
+    end
+end
 
 --- Load the schema for each mod and try to load the settings from the settings file.
 --- If the settings file does not exist, the default values from the schema are used and the settings file is created.
@@ -66,27 +82,10 @@ end
 function ModConfig:GetSettings()
     self:LoadSchemas()
     self:LoadSettings()
-    self:ValidateSettings()
+
+    self:SaveAllSettings()
 
     return self.schemas, self.settingsValues
-end
-
---- Load the settings for each mod from the settings file.
-function ModConfig:LoadSettings()
-    for modGUID, schema in pairs(self.schemas) do
-        self:LoadSettingsForMod(modGUID, schema)
-    end
-end
-
---- Sanitize the settings for each mod based on the schema.
-function ModConfig:ValidateSettings()
-    for modGUID, schema in pairs(self.schemas) do
-        local settings = self.settingsValues[modGUID]
-        if settings then
-            self:CleanupSettings(schema, settings)
-        end
-        ModConfig:SaveSettingsForMod(modGUID)
-    end
 end
 
 --- Load the settings for a mod from the settings file.
@@ -110,8 +109,11 @@ end
 function ModConfig:HandleLoadedSettings(modGUID, schema, config, configFilePath)
     MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
 
-    self:UpdateSettingsFromSchema(schema, config)
+    -- Add new settings, remove deprecated settings, update JSON file
+    self:AddKeysMissingFromSchema(schema, config)
+    self:RemoveDeprecatedKeys(schema, config)
     JsonLayer:SaveJSONConfig(configFilePath, config)
+
     self.settingsValues[modGUID] = config
 
     MCMTest(1, Ext.Json.Stringify(self.settingsValues[modGUID]))
@@ -123,20 +125,19 @@ end
 ---@param configFilePath string The file path of the settings.json file
 function ModConfig:HandleMissingSettings(modGUID, schema, configFilePath)
     local defaultSettingsJSON = Schema:GetDefaultSettingsFromSchema(schema)
-    MCMPrinter:PrintWarning(1, "Settings not found for mod '%s', trying to save default settings JSON: %s",
+    MCMPrinter:PrintWarning(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
         Ext.Mod.GetMod(modGUID).Info.Name, configFilePath)
     JsonLayer:SaveJSONConfig(configFilePath, defaultSettingsJSON)
 end
 
---- Add missing keys from the config file based on the schema, and remove keys that are not present in the schema.
+--- Add missing keys from the settings file based on the schema
 --- @param schema Schema The schema to use for the settings
 --- @param settings table The settings to update
-function ModConfig:UpdateSettingsFromSchema(schema, settings)
-    for _, section in ipairs(schema.Sections) do
-        for _, setting in ipairs(section.Settings) do
-            -- _D(setting)
-            if settings[setting.Name] == nil then
-                settings[setting.Name] = setting.Default
+function ModConfig:AddKeysMissingFromSchema(schema, settings)
+    for _, section in ipairs(schema:GetSections()) do
+        for _, setting in ipairs(section:GetSettings()) do
+            if settings[setting:GetName()] == nil then
+                settings[setting:GetName()] = setting:GetDefault()
             end
         end
     end
@@ -145,7 +146,7 @@ end
 --- Clean up settings entries that are not present in the schema
 ---@param schema table The schema for the mod
 ---@param settings table The settings to clean up
-function ModConfig:CleanupSettings(schema, settings)
+function ModConfig:RemoveDeprecatedKeys(schema, settings)
     -- Create a set of valid setting names from the schema
     local validSettings = {}
     for _, section in ipairs(schema.Sections) do
@@ -172,16 +173,20 @@ end
 function ModConfig:SubmitSchema(data, modGUID)
     local preprocessedData = DataPreprocessing:PreprocessData(data, modGUID)
     if not preprocessedData then
+        MCMWarn(0,
+            "Failed to preprocess data for mod: " ..
+            Ext.Mod.GetMod(modGUID).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return
     end
 
     -- ISUtils:InitializeModVarsForMod(preprocessedData, modGUID)
     self.schemas[modGUID] = Schema:New(preprocessedData)
-    
+
     MCMWarn(1, "Schema is ready for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
 end
 
---- Load config files for each mod in the load order, if they exist. The config file should be named "MCMFrameworkConfig.jsonc" and be located in the mod's directory, alongside the mod's meta.lsx file.
+--- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCMFrameworkConfig.jsonc" and be located in the mod's directory, alongside the mod's meta.lsx file.
 --- If the file is found, the data is submitted to the ModConfig instance.
 --- If the file is not found, a warning is logged. If the file is found but cannot be parsed, an error is logged.
 ---@return nil

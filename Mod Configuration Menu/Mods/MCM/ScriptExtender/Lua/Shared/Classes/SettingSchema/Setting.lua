@@ -14,6 +14,54 @@ SchemaSetting = _Class:Create("SchemaSetting", nil, {
     Options = {}
 })
 
+function SchemaSetting:GetName()
+    return self.Name
+end
+
+function SchemaSetting:GetType()
+    return self.Type
+end
+
+function SchemaSetting:GetDefault()
+    return self.Default
+end
+
+function SchemaSetting:GetDescription()
+    return self.Description
+end
+
+function SchemaSetting:GetSection()
+    return self.Section
+end
+
+function SchemaSetting:GetOptions()
+    return self.Options
+end
+
+function SchemaSetting:SetName(value)
+    self.Name = value
+end
+
+function SchemaSetting:SetType(value)
+    self.Type = value
+end
+
+function SchemaSetting:SetDefault(value)
+    self.Default = value
+end
+
+function SchemaSetting:SetDescription(value)
+    self.Description = value
+end
+
+function SchemaSetting:SetSection(value)
+    self.Section = value
+end
+
+function SchemaSetting:SetOptions(value)
+    self.Options = value
+end
+
 -- --- Create a new SchemaSetting instance
 -- ---@param settingData table The setting data from the MCM schema
 -- function SchemaSetting:New(settingData)
