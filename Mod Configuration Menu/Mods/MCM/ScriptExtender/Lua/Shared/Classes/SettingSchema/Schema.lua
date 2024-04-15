@@ -47,7 +47,7 @@ end
 function Schema:RetrieveDefaultValueForSetting(settingName)
     for _, section in ipairs(self.Sections) do
         for _, setting in ipairs(section:GetSettings()) do
-            if setting:GetName() == settingName then
+            if setting:GetId() == settingName then
                 return setting:GetDefault()
             end
         end
@@ -63,7 +63,7 @@ function Schema:GetDefaultSettingsFromSchema(schema)
     local settings = {}
     for _, section in ipairs(schema.Sections) do
         for _, setting in ipairs(section:GetSettings()) do
-            settings[setting:GetName()] = setting:GetDefault()
+            settings[setting:GetId()] = setting:GetDefault()
         end
     end
     return settings

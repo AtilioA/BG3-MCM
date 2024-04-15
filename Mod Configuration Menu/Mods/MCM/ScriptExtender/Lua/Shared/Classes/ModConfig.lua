@@ -136,8 +136,8 @@ end
 function ModConfig:AddKeysMissingFromSchema(schema, settings)
     for _, section in ipairs(schema:GetSections()) do
         for _, setting in ipairs(section:GetSettings()) do
-            if settings[setting:GetName()] == nil then
-                settings[setting:GetName()] = setting:GetDefault()
+            if settings[setting:GetId()] == nil then
+                settings[setting:GetId()] = setting:GetDefault()
             end
         end
     end

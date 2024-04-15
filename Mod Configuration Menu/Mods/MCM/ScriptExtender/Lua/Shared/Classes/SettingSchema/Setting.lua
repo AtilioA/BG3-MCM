@@ -1,4 +1,5 @@
 ---@class SchemaSetting
+---@field private Id string
 ---@field private Name string
 ---@field private Type string
 ---@field private Default any
@@ -6,6 +7,7 @@
 ---@field private Section string
 ---@field private Options table
 SchemaSetting = _Class:Create("SchemaSetting", nil, {
+    Id = "",
     Name = "",
     Type = "",
     Default = nil,
@@ -16,6 +18,10 @@ SchemaSetting = _Class:Create("SchemaSetting", nil, {
 
 function SchemaSetting:GetName()
     return self.Name
+end
+
+function SchemaSetting:GetId()
+    return self.Id
 end
 
 function SchemaSetting:GetType()
@@ -40,6 +46,10 @@ end
 
 function SchemaSetting:SetName(value)
     self.Name = value
+end
+
+function SchemaSetting:SetId(value)
+    self.Id = value
 end
 
 function SchemaSetting:SetType(value)

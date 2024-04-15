@@ -2,24 +2,26 @@
     "SchemaVersion": 1,
     "Sections": [
         {
-            "SectionID": "GENERAL",
             "SectionName": "General Settings",
             "SectionDescription": "General configuration settings for the application.",
             "Settings": [
                 {
-                    "Name": "MyInt",
+                    "Id": "MyInt",
+                    "Name": "My Int",
                     "Type": "int",
                     "Default": 0,
                     "Description": "This is a setting that does something."
                 },
                 {
-                    "Name": "MyInt2",
+                    "Id": "MyInt2",
+                    "Name": "My Int2",
                     "Type": "int",
                     "Default": 0,
                     "Description": "This is a setting that does something."
                 },
                 {
-                    "Name": "MyFloat",
+                    "Id": "MyFloat",
+                    "Name": "My Float",
                     "Type": "float",
                     "Default": 0.0,
                     "Description": "This is a setting that does something else."
@@ -27,30 +29,33 @@
             ]
         },
         {
-            "sect": "Advanced Settings",
             "SectionName": "Advanced Settings",
             "SectionDescription": "Advanced options for power users.",
             "Settings": [
                 {
-                    "Name": "MyFloat2",
+                    "Id": "MyFloat2",
+                    "Name": "My Float2",
                     "Type": "float",
                     "Default": 0.0,
                     "Description": "This is a setting that does something else."
                 },
                 {
-                    "Name": "MyCheckbox",
+                    "Id": "MyCheckbox",
+                    "Name": "My Checkbox",
                     "Type": "checkbox",
                     "Default": false,
                     "Description": "This is a setting that does something else."
                 },
                 {
-                    "Name": "MyText",
+                    "Id": "MyText",
+                    "Name": "My Text",
                     "Type": "text",
                     "Default": "default",
                     "Description": "This is a setting that does something else."
                 },
                 {
-                    "Name": "MyEnum",
+                    "Id": "MyEnum",
+                    "Name": "My Enum",
                     "Type": "enum", // This is an enum and will be represented as a combobox/dropdown in the ImGui window
                     "Default": "Option1",
                     "Options": {
@@ -68,7 +73,8 @@
             "SectionDescription": "Settings for debugging the mod.",
             "Settings": [
                 {
-                    "Name": "MySlider",
+                    "Id": "MySlider",
+                    "Name": "My Slider",
                     "Type": "slider",
                     "Default": 50,
                     "Options": {
@@ -78,7 +84,8 @@
                     "Description": "This is a setting that uses a slider input."
                 },
                 {
-                    "Name": "MyRadio",
+                    "Id": "MyRadio",
+                    "Name": "My Radio",
                     "Type": "radio",
                     "Default": "Option1",
                     "Options": {
@@ -91,7 +98,8 @@
                     "Description": "This is a setting that uses a radio button group."
                 },
                 {
-                    "Name": "MyDict",
+                    "Id": "MyDict",
+                    "Name": "My Dict",
                     "Type": "dict", // Use a dictionary input for this setting. The dictionary will be a key-value pair.
                     "Default": {
                         "key1": "value1",
