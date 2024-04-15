@@ -26,13 +26,9 @@
 
 
 ---@class ModConfig
----@field schemas table<string, Schema> A table of schemas for each mod
----@field settingsValues table<string, table> A table of settings for each mod
----@field sectionsValues table<string, table> A table of sections for each mod
+---@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 ModConfig = _Class:Create("ModConfig", nil, {
-    schemas = {},
-    settingsValues = {},
-    sectionsValues = {}
+    mods = {}
 })
 
 --- SECTION: FILE HANDLING
@@ -51,17 +47,17 @@ end
 
 function ModConfig:SaveSettingsForMod(modGUID)
     local configFilePath = self:GetConfigFilePath(modGUID)
-    JsonLayer:SaveJSONConfig(configFilePath, self.settingsValues[modGUID])
+    JsonLayer:SaveJSONConfig(configFilePath, self.mods[modGUID].settingsValues)
 end
 
 function ModConfig:SaveAllSettings()
-    for modGUID, settings in pairs(self.settingsValues) do
+    for modGUID, settingsTable in pairs(self.mods) do
         self:SaveSettingsForMod(modGUID)
     end
 end
 
-function ModConfig:UpdateSettingsForMod(modGUID, settings)
-    self.settingsValues[modGUID] = settings
+function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
+    self.mods[modGUID].settingsValues = settings
     -- TODO: Validate and sanitize data
     self:SaveSettingsForMod(modGUID)
     Ext.Net.BroadcastMessage("MCM", Ext.Json.Stringify({ modGUID = modGUID, settings = settings }))
@@ -70,22 +66,21 @@ end
 --- SECTION: SETTINGS HANDLING
 --- Load the settings for each mod from the settings file.
 function ModConfig:LoadSettings()
-    for modGUID, schema in pairs(self.schemas) do
-        self:LoadSettingsForMod(modGUID, schema)
+    for modGUID, settingsTable in pairs(self.mods) do
+        self:LoadSettingsForMod(modGUID, self.mods[modGUID].schemas)
     end
 end
 
 --- Load the schema for each mod and try to load the settings from the settings file.
 --- If the settings file does not exist, the default values from the schema are used and the settings file is created.
----@return Schema self.schemas The schemas for each mod
----@return table<string, table> self.settingsValues The settings for each mod
+---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
     self:LoadSchemas()
     self:LoadSettings()
 
     self:SaveAllSettings()
 
-    return self.schemas, self.settingsValues
+    return self.mods
 end
 
 --- Load the settings for a mod from the settings file.
@@ -114,9 +109,9 @@ function ModConfig:HandleLoadedSettings(modGUID, schema, config, configFilePath)
     self:RemoveDeprecatedKeys(schema, config)
     JsonLayer:SaveJSONConfig(configFilePath, config)
 
-    self.settingsValues[modGUID] = config
+    self.mods[modGUID].settingsValues = config
 
-    MCMTest(1, Ext.Json.Stringify(self.settingsValues[modGUID]))
+    MCMTest(1, Ext.Json.Stringify(self.mods[modGUID].settingsValues))
 end
 
 --- Handle the missing settings for a mod. If the settings file is missing, the default settings from the schema are saved to the file.
@@ -181,7 +176,7 @@ function ModConfig:SubmitSchema(data, modGUID)
     end
 
     -- ISUtils:InitializeModVarsForMod(preprocessedData, modGUID)
-    self.schemas[modGUID] = Schema:New(preprocessedData)
+    self.mods[modGUID].schemas = Schema:New(preprocessedData)
 
     MCMWarn(1, "Schema is ready for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
 end

@@ -1,9 +1,7 @@
 ---@class MCM: MetaClass
----@field private schemas table<string, Schema> A table of schemas for each mod
----@field private settings table<string, table> A table of settings for each mod
+---@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 MCM = _Class:Create("MCM", nil, {
-    schemas = {},
-    settings = {}
+    mods = {}
 })
 
 -- -- NOTE: When introducing new (breaking) versions of the config file, add a new function to parse the new version and update the version number in the config file
@@ -13,28 +11,28 @@ MCM = _Class:Create("MCM", nil, {
 -- -- }
 
 function MCM:LoadConfigs()
-    self.schemas, self.settings = ModConfig:GetSettings()
+    self.mods = ModConfig:GetSettings()
 end
 
 --- Get the settings table for a mod
 ---@param modGUID? string The UUID of the mod. When not provided, the settings for the current mod are returned (ModuleUUID is used)
----@return table<string, table> self.settings settings table for the mod
+---@return table<string, table> self.mods[modGUID].settings settings table for the mod
 function MCM:GetModSettings(modGUID)
     if modGUID then
-        return self.settings[modGUID]
+        return self.mods[modGUID].settings
     else
-        return self.settings[ModuleUUID]
+        return self.mods[ModuleUUID].settings
     end
 end
 
 --- Get the Schema table for a mod
 ---@param modGUID? string The UUID of the mod. When not provided, the schema for the current mod is returned (ModuleUUID is used)
----@return Schema self.schema The Schema for the mod
+---@return Schema - The Schema for the mod
 function MCM:GetModSchema(modGUID)
     if modGUID then
-        return self.schemas[modGUID]
+        return self.mods[modGUID].schemas
     else
-        return self.schemas[ModuleUUID]
+        return self.mods[ModuleUUID].schemas
     end
 end
 
@@ -61,7 +59,7 @@ function MCM:SetConfigValue(settingName, value, modGUID)
     local modSettingsTable = self:GetModSettings(modGUID)
 
     modSettingsTable[settingName] = value
-    ModConfig:UpdateSettingsForMod(modGUID, modSettingsTable)
+    ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 end
 
 ---@param settingName string The name of the setting to reset
@@ -85,7 +83,7 @@ function MCM:ResetAllSettings(modGUID)
     local modSchema = self.schemas[modGUID]
     local defaultSettings = Schema:GetDefaultSettingsFromSchema(modSchema)
 
-    ModConfig:UpdateSettingsForMod(modGUID, defaultSettings)
+    ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
 end
 
 -- --- Reset all settings from a section to their default values
