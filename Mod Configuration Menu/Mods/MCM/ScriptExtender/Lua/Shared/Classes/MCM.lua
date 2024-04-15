@@ -14,7 +14,6 @@ MCM = _Class:Create("MCM", nil, {
 function MCM:LoadConfigs()
     self.schemas, self.settings = ModConfig:GetSettings()
 
-    _D(self:GetConfigValue("MyInt"))
     self:SetConfigValue("MyInt", 40)
 end
 
