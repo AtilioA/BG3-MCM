@@ -122,25 +122,10 @@ end
 ---@param schema table The schema for the mod
 ---@param configFilePath string The file path of the settings.json file
 function ModConfig:HandleMissingSettings(modGUID, schema, configFilePath)
-    local defaultSettingsJSON = ModConfig:GetDefaultSettingsFromSchema(schema)
+    local defaultSettingsJSON = Schema:GetDefaultSettingsFromSchema(schema)
     MCMPrinter:PrintWarning(1, "Settings not found for mod '%s', trying to save default settings JSON: %s",
         Ext.Mod.GetMod(modGUID).Info.Name, configFilePath)
     JsonLayer:SaveJSONConfig(configFilePath, defaultSettingsJSON)
-end
-
---- Produce a table with all settings for a mod and their default values as values. The sections will be used as keys, with a table of settings as values. Each setting will be a table with the setting name as key and the default value as value.
---- @param schema Schema The schema to use for the settings
---- @return table settings The settings table with default values
-function ModConfig:GetDefaultSettingsFromSchema(schema)
-    local settings = {}
-    for _, section in ipairs(schema.Sections) do
-        -- _D(section)
-        -- settings[section.SectionName] = {}
-        for _, setting in ipairs(section.Settings) do
-            settings[setting.Name] = setting.Default
-        end
-    end
-    return settings
 end
 
 --- Add missing keys from the config file based on the schema, and remove keys that are not present in the schema.
@@ -192,7 +177,7 @@ function ModConfig:SubmitSchema(data, modGUID)
 
     -- ISUtils:InitializeModVarsForMod(preprocessedData, modGUID)
     self.schemas[modGUID] = Schema:New(preprocessedData)
-
+    
     MCMWarn(1, "Schema is ready for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
 end
 

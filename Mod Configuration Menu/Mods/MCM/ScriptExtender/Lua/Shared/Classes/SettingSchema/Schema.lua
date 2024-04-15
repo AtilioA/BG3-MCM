@@ -43,3 +43,16 @@ function Schema:RetrieveDefaultValueForSetting(settingName)
 
     return nil
 end
+
+--- Retrieve all the default values for all the settings in the schema
+--- @param schema Schema The schema to use for the settings
+--- @return table<string, any> settings The plain settings table with default values
+function Schema:GetDefaultSettingsFromSchema(schema)
+    local settings = {}
+    for _, section in ipairs(schema.Sections) do
+        for _, setting in ipairs(section.Settings) do
+            settings[setting.Name] = setting.Default
+        end
+    end
+    return settings
+end
