@@ -41,78 +41,134 @@ function ModConfig:GetModFolderPath(modGUID)
     return MCMPath .. '/' .. modFolderName
 end
 
+function ModConfig:GetConfigFilePath(modGUID)
+    return self:GetModFolderPath(modGUID) .. "/settings.json"
+end
+
+function ModConfig:SaveSettingsForMod(modGUID)
+    local configFilePath = self:GetConfigFilePath(modGUID)
+    JsonLayer:SaveJSONConfig(configFilePath, self.settingsValues[modGUID])
+end
+
 --- SECTION: SETTINGS HANDLING
 
 --- Load the schema for each mod and try to load the settings from the settings file.
 --- If the settings file does not exist, the default values from the schema are used and the settings file is created.
-function ModConfig:LoadData()
+---@return Schema self.schemas The schemas for each mod
+---@return table<string, table> self.settingsValues The settings for each mod
+function ModConfig:GetSettings()
     self:LoadSchemas()
     self:LoadSettings()
+    self:ValidateSettings()
+
+    return self.schemas, self.settingsValues
 end
 
+--- Load the settings for each mod from the settings file.
 function ModConfig:LoadSettings()
-    -- Read values from JSONs if they exist.
-    -- If they don't, use the default values present in the schema.
     for modGUID, schema in pairs(self.schemas) do
-        local configFilePath = self:GetModFolderPath(modGUID) .. "/settings.json"
-        local config = JsonLayer:LoadJSONConfig(configFilePath)
-        if config then
-            -- Update the settings object with the values from the config file
-        else
-            -- Use the default values from the schema
-            -- self.settings[modGUID] = self:GetDefaultSettingsFromSchema(schema)
-            local defaultSettingsJSON = ModConfig:GetDefaultSettingsFromSchema(schema)
-            _D("Trying to save default settings JSON: " .. configFilePath)
-            JsonLayer:SaveJSONConfig(configFilePath, defaultSettingsJSON)
-        end
+        self:LoadSettingsForMod(modGUID, schema)
     end
 end
 
+--- Sanitize the settings for each mod based on the schema.
+function ModConfig:ValidateSettings()
+    for modGUID, schema in pairs(self.schemas) do
+        local settings = self.settingsValues[modGUID]
+        if settings then
+            self:CleanupSettings(schema, settings)
+        end
+        ModConfig:SaveSettingsForMod(modGUID)
+    end
+end
+
+--- Load the settings for a mod from the settings file.
+---@param modGUID string The UUID of the mod
+---@param schema table The schema for the mod
+function ModConfig:LoadSettingsForMod(modGUID, schema)
+    local configFilePath = self:GetModFolderPath(modGUID) .. "/settings.json"
+    local config = JsonLayer:LoadJSONConfig(configFilePath)
+    if config then
+        self:HandleLoadedSettings(modGUID, schema, config, configFilePath)
+    else
+        self:HandleMissingSettings(modGUID, schema, configFilePath)
+    end
+end
+
+--- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the schema.
+---@param modGUID string The UUID of the mod
+---@param schema table The schema for the mod
+---@param config table The loaded settings config
+---@param configFilePath string The file path of the settings.json file
+function ModConfig:HandleLoadedSettings(modGUID, schema, config, configFilePath)
+    MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
+
+    self:UpdateSettingsFromSchema(schema, config)
+    JsonLayer:SaveJSONConfig(configFilePath, config)
+    self.settingsValues[modGUID] = config
+
+    MCMTest(1, Ext.Json.Stringify(self.settingsValues[modGUID]))
+end
+
+--- Handle the missing settings for a mod. If the settings file is missing, the default settings from the schema are saved to the file.
+---@param modGUID string The UUID of the mod
+---@param schema table The schema for the mod
+---@param configFilePath string The file path of the settings.json file
+function ModConfig:HandleMissingSettings(modGUID, schema, configFilePath)
+    local defaultSettingsJSON = ModConfig:GetDefaultSettingsFromSchema(schema)
+    MCMPrinter:PrintWarning(1, "Settings not found for mod '%s', trying to save default settings JSON: %s",
+        Ext.Mod.GetMod(modGUID).Info.Name, configFilePath)
+    JsonLayer:SaveJSONConfig(configFilePath, defaultSettingsJSON)
+end
+
 --- Produce a table with all settings for a mod and their default values as values. The sections will be used as keys, with a table of settings as values. Each setting will be a table with the setting name as key and the default value as value.
+--- @param schema Schema The schema to use for the settings
+--- @return table settings The settings table with default values
 function ModConfig:GetDefaultSettingsFromSchema(schema)
     local settings = {}
     for _, section in ipairs(schema.Sections) do
-        _D(section)
-        settings[section.SectionName] = {}
+        -- _D(section)
+        -- settings[section.SectionName] = {}
         for _, setting in ipairs(section.Settings) do
-            settings[section.SectionName][setting.Name] = setting.Default
+            settings[setting.Name] = setting.Default
         end
     end
     return settings
 end
 
---- Maybe these two will not be needed
--- function ModConfig:UpdateSettingsFromSchema(schema, config)
---     local settings = {}
---     for _, section in ipairs(schema.Sections) do
---         for _, setting in ipairs(section.Settings) do
---             local settingName = setting.Name
---             if config[settingName] ~= nil then
---                 settings[settingName] = config[settingName]
---             else
---                 settings[settingName] = setting.Default
---             end
---         end
---     end
---     return settings
--- end
+--- Add missing keys from the config file based on the schema, and remove keys that are not present in the schema.
+--- @param schema Schema The schema to use for the settings
+--- @param settings table The settings to update
+function ModConfig:UpdateSettingsFromSchema(schema, settings)
+    for _, section in ipairs(schema.Sections) do
+        for _, setting in ipairs(section.Settings) do
+            -- _D(setting)
+            if settings[setting.Name] == nil then
+                settings[setting.Name] = setting.Default
+            end
+        end
+    end
+end
 
--- --- Produce a table with all sections for a mod and their settings as values
--- ---@param modGUID string The UUID of the mod to get the settings for
--- ---@return table<string, string[]> sectionSettings table with section names as keys and tables of setting names as values
--- function ModConfig:GetSettingsBySection(modGUID)
---     local sectionSettings = {}
---     local schema = self.schemas[modGUID]
---     if schema then
---         for _, section in ipairs(schema.Sections) do
---             sectionSettings[section.Name] = {}
---             for _, setting in ipairs(section.Settings) do
---                 table.insert(sectionSettings[section.Name], setting.Name)
---             end
---         end
---     end
---     return sectionSettings
--- end
+--- Clean up settings entries that are not present in the schema
+---@param schema table The schema for the mod
+---@param settings table The settings to clean up
+function ModConfig:CleanupSettings(schema, settings)
+    -- Create a set of valid setting names from the schema
+    local validSettings = {}
+    for _, section in ipairs(schema.Sections) do
+        for _, setting in ipairs(section.Settings) do
+            validSettings[setting.Name] = true
+        end
+    end
+
+    -- Remove any settings that are not in the valid set
+    for key in pairs(settings) do
+        if not validSettings[key] then
+            settings[key] = nil
+        end
+    end
+end
 
 --- !SECTION: SETTINGS HANDLING
 --- SECTION: SCHEMA HANDLING
@@ -162,5 +218,4 @@ function ModConfig:LoadSchemas()
             end
         end
     end
-    _D(self:GetModFolderPath("15230bba-a3ab-4352-92f6-1c4c86d2a1e3"))
 end
