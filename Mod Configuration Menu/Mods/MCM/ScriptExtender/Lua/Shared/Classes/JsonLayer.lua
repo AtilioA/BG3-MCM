@@ -26,7 +26,6 @@
 
 ---@class HelperJsonLayer: Helper
 JsonLayer = _Class:Create("HelperJsonLayer", Helper, {
-    settings_index = {}
 })
 
 -- Patterns for the potential JSON and JSONc config file paths to be loaded
@@ -70,9 +69,6 @@ function JsonLayer:TryLoadConfig(configStr, modGUID)
 
     local success, data = pcall(Ext.Json.Parse, configStr)
     if success then
-        self:BuildSettingsIndex(data)
-        MCMDebug(4, "Settings index built:")
-        MCMDebug(4, self.settings_index)
         return data
     else
         MCMWarn(0,
@@ -80,45 +76,5 @@ function JsonLayer:TryLoadConfig(configStr, modGUID)
             Ext.Mod.GetMod(modGUID).Info.Name ..
             ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " for assistance.")
         return nil
-    end
-end
-
---- Build an index for direct setting access
----@param data table
-function JsonLayer:BuildSettingsIndex(data)
-    self.settings_index = {}
-    if data.Sections then
-        for _, section in ipairs(data.Sections) do
-            for _, setting in ipairs(section.Settings) do
-                self.settings_index[setting.Name] = {
-                    section = section.SectionName,
-                    setting = setting
-                }
-            end
-        end
-    end
-end
-
---- Get a setting by name
----@param settingName string
----@return table
-function JsonLayer:GetSetting(settingName)
-    local setting = self.settings_index[settingName]
-    if setting then
-        return setting.setting
-    else
-        MCMWarn(1, "Setting " .. settingName .. " not found.")
-        return nil
-    end
-end
-
---- Update a setting by name
----@param settingName string
----@param newValue any
-function JsonLayer:UpdateSetting(settingName, newValue)
-    local setting = self:GetSetting(settingName)
-    if setting then
-        setting.Default = newValue
-        MCMDebug(3, "Updated " .. settingName .. " to " .. tostring(newValue))
     end
 end
