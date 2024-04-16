@@ -66,7 +66,6 @@ function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
     self.mods[modGUID].settingsValues = settings
     -- TODO: Validate and sanitize data
     self:SaveSettingsForMod(modGUID)
-    Ext.Net.BroadcastMessage("MCM", Ext.Json.Stringify({ modGUID = modGUID, settings = settings }))
 end
 
 --- SECTION: SETTINGS HANDLING

@@ -12,6 +12,7 @@ MCM = _Class:Create("MCM", nil, {
 
 function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
+    Ext.Net.BroadcastMessage("MCM_Settings_To_Client", Ext.Json.Stringify(self.mods))
 end
 
 --- Get the settings table for a mod
