@@ -24,6 +24,11 @@
 --     SOFTWARE.
 -- --]]
 
+---@class ModsProfiles
+---@field DefaultProfileName string
+---@field SelectedProfile string
+---@field Profiles table<string, string>
+
 ---@class ModsConfig
 ---@field mods table<string, ModConfigData>
 
@@ -33,39 +38,103 @@
 
 ---@class ModConfig
 ---@field private mods ModsConfig A table of modGUIDs that has a table of schemas and settings for each mod
+---@field private profiles ModsProfiles A table of modGUIDs that has a table of schemas and settings for each mod
 ModConfig = _Class:Create("ModConfig", nil, {
-    mods = {}
+    mods = {},
+    profiles = {}
 })
 
 --- SECTION: FILE HANDLING
 --- Generates the full path to a settings file, starting from the Script Extender folder.
---- @param modGUID string The mod's UUID to get the path for.
+--- @param modGUID GUIDSTRING The mod's UUID to get the path for.
 --- @return string The full path to the settings file.
 function ModConfig:GetModFolderPath(modGUID)
     local MCMPath = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+    local profileName = self:GetCurrentProfile()
+    local profilePath = MCMPath .. '/' .. "Profiles" .. '/' .. profileName
+
     local modFolderName = Ext.Mod.GetMod(modGUID).Info.Directory
-    return MCMPath .. '/' .. modFolderName
+    return profilePath .. '/' .. modFolderName
 end
 
+--- Generates the full path to a settings file, starting from the Script Extender folder.
+--- @param modGUID GUIDSTRING The mod's UUID to get the path for.
 function ModConfig:GetConfigFilePath(modGUID)
     return self:GetModFolderPath(modGUID) .. "/settings.json"
 end
 
+--- Save the settings for a mod to the settings file.
+--- @param modGUID GUIDSTRING The mod's UUID to save the settings for.
 function ModConfig:SaveSettingsForMod(modGUID)
     local configFilePath = self:GetConfigFilePath(modGUID)
     JsonLayer:SaveJSONConfig(configFilePath, self.mods[modGUID].settingsValues)
 end
 
+--- Save the settings for all mods to the settings files.
 function ModConfig:SaveAllSettings()
     for modGUID, settingsTable in pairs(self.mods) do
         self:SaveSettingsForMod(modGUID)
     end
 end
 
+--- Update the settings for a mod and save them to the settings file.
 function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
     self.mods[modGUID].settingsValues = settings
     -- TODO: Validate and sanitize data
     self:SaveSettingsForMod(modGUID)
+end
+
+--- SECTION: PROFILE HANDLING
+-- Retrieve the currently selected profile from the MCM configuration
+function ModConfig:GetCurrentProfile()
+    -- Fallback to default if no profile data is found
+    if not self.profiles or #self.profiles == 0 then
+        return "Default"
+    end
+
+    if self.profiles.SelectedProfile then
+        return self.profiles.SelectedProfile
+    end
+
+    return self.profiles.DefaultProfileName
+end
+
+-- Set the currently selected profile
+function ModConfig:SetCurrentProfile(profileName)
+    if not self.profiles then
+        MCMWarn(1, "Profile feature is not properly configured in MCM.")
+        return false
+    end
+
+    if not table.contains(self.profiles.Profiles, profileName) then
+        MCMWarn(1,
+            "Profile " ..
+            profileName .. " does not exist. Available profiles: " .. self.profiles.Profiles)
+        return false
+    end
+
+    self.profiles.Profiles.SelectedProfile = profileName
+    return true
+end
+
+function ModConfig:LoadMCMConfig()
+    local mcmFolder = ModConfig:GetModFolderPath(ModuleUUID)
+    local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
+
+    local configFileContent = Ext.IO.LoadFile(configFilePath)
+    if not configFileContent or configFileContent == "" then
+        MCMDebug(2, "MCM config file not found: " .. configFilePath)
+        return nil
+    end
+
+    local success, data = pcall(Ext.Json.Parse, configFileContent)
+    if not success then
+        MCMWarn(0, "Failed to parse MCM config file: " .. configFilePath)
+        return nil
+    end
+
+    self.profiles = data.Profiles
+    return data
 end
 
 --- SECTION: SETTINGS HANDLING
@@ -80,20 +149,29 @@ end
 --- If the settings file does not exist, the default values from the schema are used and the settings file is created.
 ---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
+    -- Load the base MCM configuration file, which contains the profiles
+    self:LoadMCMConfig()
+
+    -- Get settings for each mod given the profile
     self:LoadSchemas()
     DataPreprocessing:SanitizeSchemas(self.mods)
     self:LoadSettings()
 
+    -- Save the sanitized and validated settings back to the JSON files
     self:SaveAllSettings()
 
     return self.mods
+end
+
+function ModConfig:GetProfiles()
+    return self.profiles
 end
 
 --- Load the settings for a mod from the settings file.
 ---@param modGUID string The UUID of the mod
 ---@param schema table The schema for the mod
 function ModConfig:LoadSettingsForMod(modGUID, schema)
-    local configFilePath = self:GetModFolderPath(modGUID) .. "/settings.json"
+    local configFilePath = self:GetConfigFilePath(modGUID)
     local config = JsonLayer:LoadJSONConfig(configFilePath)
     if config then
         self:HandleLoadedSettings(modGUID, schema, config, configFilePath)
@@ -128,7 +206,8 @@ end
 ---@param configFilePath string The file path of the settings.json file
 function ModConfig:HandleMissingSettings(modGUID, schema, configFilePath)
     local defaultSettingsJSON = Schema:GetDefaultSettingsFromSchema(schema)
-    MCMPrinter:PrintWarning(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
+    self.mods[modGUID].settingsValues = defaultSettingsJSON
+    MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
         Ext.Mod.GetMod(modGUID).Info.Name, configFilePath)
     JsonLayer:SaveJSONConfig(configFilePath, defaultSettingsJSON)
 end
@@ -168,9 +247,7 @@ function ModConfig:RemoveDeprecatedKeys(schema, settings)
     end
 end
 
---- !SECTION: SETTINGS HANDLING
 --- SECTION: SCHEMA HANDLING
-
 --- Submit the schema data to the ModConfig instance
 ---@param data table The mod schema data to submit
 ---@param modGUID string The UUID of the mod that the schema data belongs to

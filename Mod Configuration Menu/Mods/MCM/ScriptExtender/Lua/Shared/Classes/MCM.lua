@@ -1,7 +1,8 @@
 ---@class MCM: MetaClass
 ---@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 MCM = _Class:Create("MCM", nil, {
-    mods = {}
+    mods = {},
+    profiles = {},
 })
 
 -- -- NOTE: When introducing new (breaking) versions of the config file, add a new function to parse the new version and update the version number in the config file
@@ -12,7 +13,11 @@ MCM = _Class:Create("MCM", nil, {
 
 function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
-    Ext.Net.BroadcastMessage("MCM_Settings_To_Client", Ext.Json.Stringify(self.mods))
+    self.profiles = ModConfig:GetProfiles()
+    -- FIXME: profiles must be loaded after settings for some janky reason
+    _D(self.profiles)
+    -- Ext.Net.BroadcastMessage("MCM_Settings_To_Client", Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
+end
 end
 
 --- Get the settings table for a mod
@@ -87,6 +92,7 @@ function MCM:ResetAllSettings(modGUID)
     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
 end
 
+-- TODO:
 -- --- Reset all settings from a section to their default values
 -- ---@param sectionName string The name of the section
 -- ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
