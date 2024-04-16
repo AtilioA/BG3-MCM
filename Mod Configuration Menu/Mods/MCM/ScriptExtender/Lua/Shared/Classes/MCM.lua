@@ -18,7 +18,33 @@ function MCM:LoadConfigs()
     _D(self.profiles)
     -- Ext.Net.BroadcastMessage("MCM_Settings_To_Client", Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
 end
+
+--- Create a new MCM profile
+---@param profileName string The name of the new profile
+function MCM:CreateProfile(profileName)
+    ModConfig:CreateProfile(profileName)
 end
+
+--- Get the table of MCM profiles
+---@return table<string, table> The table of profiles
+function MCM:GetProfiles()
+    return ModConfig:GetProfiles()
+end
+
+--- Get the current MCM profile's name
+---@return string The name of the current profile
+function MCM:GetCurrentProfile()
+    return ModConfig:GetCurrentProfile()
+end
+
+--- Set the current MCM profile to the specified profile. This will also update the settings to reflect the new profile settings. If the profile does not exist, it will be created.
+---@param profileName string The name of the profile to set as the current profile
+---@return boolean success Whether the profile was successfully set
+function MCM:SetProfile(profileName)
+    return ModConfig:SetCurrentProfile(profileName)
+end
+
+-- TODO: Implement profile deletion
 
 --- Get the settings table for a mod
 ---@param modGUID? string The UUID of the mod. When not provided, the settings for the current mod are returned (ModuleUUID is used)

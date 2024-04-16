@@ -48,7 +48,7 @@ ModConfig = _Class:Create("ModConfig", nil, {
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modGUID GUIDSTRING The mod's UUID to get the path for.
 --- @return string The full path to the settings file.
-function ModConfig:GetModFolderPath(modGUID)
+function ModConfig:GetModProfileSettingsPath(modGUID)
     local MCMPath = Ext.Mod.GetMod(ModuleUUID).Info.Directory
     local profileName = self:GetCurrentProfile()
     local profilePath = MCMPath .. '/' .. "Profiles" .. '/' .. profileName
@@ -60,7 +60,7 @@ end
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modGUID GUIDSTRING The mod's UUID to get the path for.
 function ModConfig:GetConfigFilePath(modGUID)
-    return self:GetModFolderPath(modGUID) .. "/settings.json"
+    return self:GetModProfileSettingsPath(modGUID) .. "/settings.json"
 end
 
 --- Save the settings for a mod to the settings file.
@@ -85,42 +85,11 @@ function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
 end
 
 --- SECTION: PROFILE HANDLING
--- Retrieve the currently selected profile from the MCM configuration
-function ModConfig:GetCurrentProfile()
-    -- Fallback to default if no profile data is found
-    if not self.profiles or #self.profiles == 0 then
-        return "Default"
-    end
-
-    if self.profiles.SelectedProfile then
-        return self.profiles.SelectedProfile
-    end
-
-    return self.profiles.DefaultProfileName
-end
-
--- Set the currently selected profile
-function ModConfig:SetCurrentProfile(profileName)
-    if not self.profiles then
-        MCMWarn(1, "Profile feature is not properly configured in MCM.")
-        return false
-    end
-
-    if not table.contains(self.profiles.Profiles, profileName) then
-        MCMWarn(1,
-            "Profile " ..
-            profileName .. " does not exist. Available profiles: " .. self.profiles.Profiles)
-        return false
-    end
-
-    self.profiles.Profiles.SelectedProfile = profileName
-    return true
-end
-
 function ModConfig:LoadMCMConfig()
-    local mcmFolder = ModConfig:GetModFolderPath(ModuleUUID)
+    local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
     local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
 
+    -- TODO: create a default config file if it doesn't exist
     local configFileContent = Ext.IO.LoadFile(configFilePath)
     if not configFileContent or configFileContent == "" then
         MCMDebug(2, "MCM config file not found: " .. configFilePath)
@@ -133,8 +102,83 @@ function ModConfig:LoadMCMConfig()
         return nil
     end
 
-    self.profiles = data.Profiles
     return data
+end
+
+-- Retrieve the currently selected profile from the MCM configuration
+function ModConfig:GetCurrentProfile()
+    -- Fallback to default if no profile data is found
+    if not self.profiles or type(self.profiles) ~= "table" then
+        return "Default"
+    end
+
+    if self.profiles.SelectedProfile then
+        return self.profiles.SelectedProfile
+    end
+
+    return self.profiles.DefaultProfileName
+end
+
+--- Save the currently selected profile to the MCM configuration JSON file (mcm_config.json)
+function ModConfig:SaveProfileValuesToConfig()
+    local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+    local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
+
+    local data = self:LoadMCMConfig()
+    if data then
+        data.Features.Profiles = self.profiles
+        JsonLayer:SaveJSONConfig(configFilePath, data)
+    else
+        MCMWarn(1, "MCM config file not found: " .. configFilePath)
+    end
+end
+
+--- Set the currently selected profile
+---@param profileName string The name of the profile to set as the current profile
+function ModConfig:SetCurrentProfile(profileName)
+    if not profileName then
+        MCMWarn(1, "Profile name is required.")
+        return false
+    end
+
+    if not self.profiles then
+        MCMWarn(1, "Profile feature is not properly configured in MCM.")
+        return false
+    end
+
+    if not table.contains(self.profiles.Profiles, profileName) then
+        MCMWarn(1,
+            "Profile " ..
+            profileName .. " does not exist. Available profiles: " .. table.concat(self.profiles.Profiles, ", "))
+        return false
+    end
+
+    self.profiles.SelectedProfile = profileName
+
+    MCMPrint(1, "Profile set to: " .. profileName)
+    ModConfig:SaveProfileValuesToConfig()
+
+    return true
+end
+
+--- Create a new profile and save it to the MCM configuration JSON file (mcm_config.json)
+---@param profileName string The name of the new profile
+function ModConfig:CreateProfile(profileName)
+    if not self.profiles then
+        MCMWarn(1, "Profile feature is not properly configured in MCM.")
+        return false
+    end
+
+    if table.contains(self.profiles.Profiles, profileName) then
+        MCMWarn(1, "Profile " .. profileName .. " already exists.")
+        return false
+    end
+
+    table.insert(self.profiles.Profiles, profileName)
+
+    ModConfig:SaveProfileValuesToConfig()
+
+    return true
 end
 
 --- SECTION: SETTINGS HANDLING
@@ -150,7 +194,7 @@ end
 ---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
     -- Load the base MCM configuration file, which contains the profiles
-    self:LoadMCMConfig()
+    self.profiles = self:LoadMCMConfig().Features.Profiles
 
     -- Get settings for each mod given the profile
     self:LoadSchemas()
