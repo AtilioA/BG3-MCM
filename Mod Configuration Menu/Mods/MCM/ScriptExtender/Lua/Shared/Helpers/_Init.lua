@@ -1,4 +1,5 @@
 RequireFiles("Shared/Helpers/", {
+    "Validators/_Init",
     "Config",
     "Printer",
     "Messages",

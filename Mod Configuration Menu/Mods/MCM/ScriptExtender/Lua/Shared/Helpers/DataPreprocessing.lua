@@ -1,33 +1,40 @@
 ---@class HelperDataPreprocessing: Helper
 DataPreprocessing = _Class:Create("HelperDataPreprocessing", Helper)
 
+-- Utility function to check if a table contains a value
+function table.contains(table, element)
+    for _, value in pairs(table) do
+        if value == element then
+            return true
+        end
+    end
+    return false
+end
+
 local SettingValidators = {
     ["int"] = function(setting, value)
-        return type(value) == "number" and math.floor(value) == value
+        return IntValidator.Validate(setting, value)
     end,
     ["float"] = function(setting, value)
-        return type(value) == "number"
+        return FloatValidator.Validate(setting, value)
     end,
     ["checkbox"] = function(setting, value)
-        return type(value) == "boolean"
+        return CheckboxValidator.Validate(setting, value)
     end,
     ["text"] = function(setting, value)
-        return type(value) == "string"
+        return TextValidator.Validate(setting, value)
     end,
     ["enum"] = function(setting, value)
-        local options = setting.Options.Choices
-        return table.contains(options, value)
+        return EnumValidator.Validate(setting, value)
     end,
     ["slider"] = function(setting, value)
-        local min, max = setting.Options.Min, setting.Options.Max
-        return type(value) == "number" and value >= min and value <= max
+        return SliderValidator.Validate(setting, value)
     end,
     ["radio"] = function(setting, value)
-        local options = setting.Options.Choices
-        return table.contains(options, value)
+        return RadioValidator.Validate(setting, value)
     end,
     ["dict"] = function(setting, value)
-        return type(value) == "table"
+        return DictValidator.Validate(setting, value)
     end
 }
 
@@ -87,6 +94,9 @@ function DataPreprocessing:ValidateSettings(schema, settings)
         for _, setting in ipairs(section:GetSettings()) do
             local value = settings[setting:GetId()]
             local validator = SettingValidators[setting:GetType()]
+            MCMDebug(2,
+                "Validating setting: " ..
+                setting:GetId() .. " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
             if validator and not validator(setting, value) then
                 table.insert(invalidSettings, setting:GetId())
             end
