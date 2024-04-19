@@ -81,62 +81,99 @@ function MCM:GetConfigValue(settingName, modGUID)
     end
 end
 
-local InputWidgets = {
-    ["int"] = function(group, setting, settingValue, modGUID)
+--- Factory for creating IMGUI widgets based on the type of setting
+local InputWidgetFactory = {
+    int = function(group, setting, settingValue, modGUID)
         return IntIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
-    ["float"] = function(group, setting, settingValue, modGUID)
+    float = function(group, setting, settingValue, modGUID)
         return FloatIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
-    ["checkbox"] = function(group, setting, settingValue, modGUID)
+    checkbox = function(group, setting, settingValue, modGUID)
         return CheckboxIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
-    ["text"] = function(group, setting, settingValue, modGUID)
+    text = function(group, setting, settingValue, modGUID)
         return TextIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
-    ["enum"] = function(group, setting, settingValue, modGUID)
+    enum = function(group, setting, settingValue, modGUID)
         return EnumIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
-    ["slider"] = function(group, setting, settingValue, modGUID)
+    slider = function(group, setting, settingValue, modGUID)
         return SliderIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
-    ["radio"] = function(group, setting, settingValue, modGUID)
+    radio = function(group, setting, settingValue, modGUID)
         return RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
-    ["dict"] = function(group, setting, settingValue, modGUID)
+    dict = function(group, setting, settingValue, modGUID)
         return DictIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end
 }
 
+--- Create the main MCM menu, which contains a tab for each mod that has MCM settings
+---@return nil
 function MCM:CreateModMenu()
     -- Add the main tab bar for the mods
-    local tabBar = IMGUI_WINDOW:AddTabBar("general")
+    local tabBar = IMGUI_WINDOW:AddTabBar("Mods")
     self.mod_tabs = {}
 
     -- Iterate over all mods and create a tab for each
     for modGUID, _ in pairs(self.mods) do
-        local modInfo = Ext.Mod.GetMod(modGUID).Info
-        local modSchema = self:GetModSchema(modGUID)
-        local modSettings = self:GetModSettings(modGUID)
-        local modTab = tabBar:AddTabItem(modInfo.Name)
-
-        -- Save reference to the mod tab
+        local modTab = tabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
         self.mod_tabs[modGUID] = modTab
+        self:CreateModMenuTab(modGUID)
+    end
+end
 
-        -- Create a new IMGUI group for each mod to hold all settings
-        local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
-        _D(modSchema)
-        -- Iterate over each section in the mod schema
-        for _, section in ipairs(modSchema:GetSections()) do
-            _D(section)
-            modGroup:AddTabBar(section.SectionName)
-            -- Iterate over each setting in the section
-            for _, setting in pairs(section:GetSettings()) do
-                local settingValue = modSettings[setting.Id]
-                local createWidget = InputWidgets[setting:GetType()]
-                createWidget(modGroup, setting, settingValue, modGUID)
-            end
-        end
+--- Create a new tab for a mod in the MCM
+---@param modGUID string The UUID of the mod
+---@return nil
+function MCM:CreateModMenuTab(modGUID)
+    local modInfo = Ext.Mod.GetMod(modGUID).Info
+    local modSchema = self:GetModSchema(modGUID)
+    local modSettings = self:GetModSettings(modGUID)
+    local modTab = self.mod_tabs[modGUID]
+
+    -- Create a new IMGUI group for the mod to hold all settings
+    local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
+
+    -- Iterate over each section in the mod schema to create a tab for each
+    for _, section in ipairs(modSchema:GetSections()) do
+        self:CreateModMenuSection(modGroup, section, modSettings, modGUID)
+    end
+end
+
+--- Create a new section for a mod in the MCM
+---@param modGroup any The IMGUI group for the mod
+---@param section SchemaSection The section to create a tab for
+---@param modSettings table<string, table> The settings for the mod
+---@param modGUID string The UUID of the mod
+---@return nil
+function MCM:CreateModMenuSection(modGroup, section, modSettings, modGUID)
+    modGroup:AddTabBar(section.SectionName)
+
+    -- Iterate over each setting in the section to create a widget for each
+    for _, setting in pairs(section:GetSettings()) do
+        self:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
+    end
+end
+
+--- Create a new setting for a mod in the MCM
+---@param modGroup any The IMGUI group for the mod
+---@param setting SchemaSetting The setting to create a widget for
+---@param modSettings table<string, table> The settings for the mod
+---@param modGUID string The UUID of the mod
+---@return nil
+---@see InputWidgetFactory
+function MCM:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
+    local settingValue = modSettings[setting.Id]
+    local createWidget = InputWidgetFactory[setting:GetType()]
+    if createWidget == nil then
+        MCMWarn(0,
+            "No widget factory found for setting type '" ..
+            setting:GetType() ..
+            "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+    else
+        createWidget(modGroup, setting, settingValue, modGUID)
     end
 end
 
@@ -162,7 +199,9 @@ function MCM:ResetConfigValue(settingName, modGUID)
 
     local defaultValue = schema:RetrieveDefaultValueForSetting(settingName)
     if defaultValue == nil then
-        MCMWarn(1, "Setting '" .. settingName .. "' not found in the schema for mod '" .. modGUID .. "'.")
+        MCMWarn(1,
+            "Setting '" .. settingName .. "' not found in the schema for mod '" .. modGUID .. "'. Please contact " ..
+            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetConfigValue(settingName, defaultValue, modGUID)
     end
