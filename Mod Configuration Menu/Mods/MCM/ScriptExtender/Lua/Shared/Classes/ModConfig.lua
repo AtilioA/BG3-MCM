@@ -157,6 +157,7 @@ function ModConfig:SetCurrentProfile(profileName)
 
     MCMPrint(1, "Profile set to: " .. profileName)
     ModConfig:SaveProfileValuesToConfig()
+    ModConfig:LoadSettings()
 
     return true
 end
