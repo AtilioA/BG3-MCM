@@ -3,7 +3,7 @@ Validator = _Class:Create("Validator", nil, {})
 
 function Validator:New()
     error(
-        "This is an abstract class and cannot be instantiated directly. Validator:new() must be overridden in a derived class")
+        "This is an abstract class and cannot be instantiated directly. Validator:New() must be overridden in a derived class")
 end
 
 --- Validate the given value against the settings.
