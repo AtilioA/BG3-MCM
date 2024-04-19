@@ -5,6 +5,10 @@ IntValidator = _Class:Create("IntValidator", Validator)
 ---@return boolean
 function IntValidator.Validate(settings, value)
     local isValueNumber = type(value) == "number"
+    if not isValueNumber then
+        return false
+    end
+
     local isValueInteger = math.floor(value) == value
     return isValueNumber and isValueInteger
 end
