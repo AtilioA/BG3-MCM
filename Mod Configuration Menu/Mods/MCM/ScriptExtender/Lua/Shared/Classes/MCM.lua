@@ -103,15 +103,64 @@ local InputWidgetFactory = {
     end,
     radio = function(group, setting, settingValue, modGUID)
         return RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
-    end,
-    dict = function(group, setting, settingValue, modGUID)
-        return DictIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end
+    -- dict = function(group, setting, settingValue, modGUID)
+    --     return DictIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+    -- end
 }
 
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
 ---@return nil
 function MCM:CreateModMenu()
+    -- TODO: modularize etc
+    -- Add a combobox to switch between profiles
+    local profiles = self:GetProfiles()
+    local currentProfile = self:GetCurrentProfile()
+    local profileIndex = nil
+    for i, name in ipairs(profiles.Profiles) do
+        if name == currentProfile then
+            profileIndex = i
+            break
+        end
+    end
+
+    local profileCombo = IMGUI_WINDOW:AddCombo("Profiles")
+
+    profileCombo.Options = { "Select a setting profile", table.unpack(profiles.Profiles) }
+    profileCombo.SelectedIndex = profileIndex or 1
+    profileCombo.OnChange = function(inputChange)
+        local selectedIndex = inputChange.SelectedIndex + 1
+        local selectedProfile = inputChange.Options[selectedIndex]
+        _P(selectedIndex, selectedProfile)
+        self:SetProfile(selectedProfile)
+        -- Refresh the mod settings after switching profiles
+        -- self:CreateModMenuTab(modGUID)
+    end
+
+    local profileButton = IMGUI_WINDOW:AddButton("New Profile")
+    local newProfileName = IMGUI_WINDOW:AddInputText("New Profile Name")
+    newProfileName.SameLine = true
+    profileButton.OnClick = function()
+        _D(newProfileName)
+        if newProfileName.Text ~= "" then
+            self:CreateProfile(newProfileName.Text)
+            profileCombo.Options = { "Select a setting profile", table.unpack(self:GetProfiles().Profiles) }
+        end
+    end
+
+    local deleteProfileButton = IMGUI_WINDOW:AddButton("Delete Profile (WIP)")
+    deleteProfileButton.OnClick = function()
+        local currentProfile = self:GetCurrentProfile()
+        if currentProfile ~= "Default" then
+            -- self:DeleteProfile(currentProfile)
+            profileCombo.Options = { "Select a setting profile", table.unpack(self:GetProfiles().Profiles) }
+        else
+            MCMWarn(0, "Cannot delete the default profile.")
+        end
+    end
+
+    -- REFACTOR: improve this spacing logic nonsense
+    IMGUI_WINDOW:AddSpacing()
     -- Add the main tab bar for the mods
     local tabBar = IMGUI_WINDOW:AddTabBar("Mods")
     self.mod_tabs = {}
@@ -149,7 +198,11 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function MCM:CreateModMenuSection(modGroup, section, modSettings, modGUID)
-    modGroup:AddTabBar(section.SectionName)
+    local tabBar = modGroup:AddSeparator(section:GetSectionName())
+    local sectionHeader = modGroup:AddText(section:GetSectionName())
+
+    -- TODO: Set the style for the section header text somehow
+    -- sectionHeader:SetStyleVar???
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section:GetSettings()) do
@@ -165,7 +218,7 @@ end
 ---@return nil
 ---@see InputWidgetFactory
 function MCM:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
-    local settingValue = modSettings[setting.Id]
+    local settingValue = modSettings[setting:GetId()]
     local createWidget = InputWidgetFactory[setting:GetType()]
     if createWidget == nil then
         MCMWarn(0,
