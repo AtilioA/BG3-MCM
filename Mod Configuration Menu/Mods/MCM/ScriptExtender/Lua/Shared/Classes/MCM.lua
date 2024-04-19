@@ -81,6 +81,33 @@ function MCM:GetConfigValue(settingName, modGUID)
     end
 end
 
+local InputWidgets = {
+    ["int"] = function(group, setting, settingValue, modGUID)
+        return IntIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end,
+    ["float"] = function(group, setting, settingValue, modGUID)
+        return FloatIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end,
+    ["checkbox"] = function(group, setting, settingValue, modGUID)
+        return CheckboxIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end,
+    ["text"] = function(group, setting, settingValue, modGUID)
+        return TextIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end,
+    ["enum"] = function(group, setting, settingValue, modGUID)
+        return EnumIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end,
+    ["slider"] = function(group, setting, settingValue, modGUID)
+        return SliderIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end,
+    ["radio"] = function(group, setting, settingValue, modGUID)
+        return RadioIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end,
+    ["dict"] = function(group, setting, settingValue, modGUID)
+        return DictIMGUIWidget.Create(group, setting, settingValue, modGUID)
+    end
+}
+
 function MCM:CreateModMenu()
     -- Add the main tab bar for the mods
     local tabBar = IMGUI_WINDOW:AddTabBar("general")
@@ -106,69 +133,8 @@ function MCM:CreateModMenu()
             -- Iterate over each setting in the section
             for _, setting in pairs(section:GetSettings()) do
                 local settingValue = modSettings[setting.Id]
-                self:AddSettingWidget(modGroup, setting, settingValue, modGUID)
-            end
-        end
-    end
-end
-
---- Create a new setting widget for a mod, based on the setting type, and add it to the group
----@param group any The group to add the setting widget to
----@param setting table The setting object
----@param settingValue any The value of the setting
----@param modGUID GUIDSTRING The UUID of the mod
----@return void
-function MCM:AddSettingWidget(group, setting, settingValue, modGUID)
-    -- Determine the type of widget to add based on the setting type
-    local settingName = setting.Name
-    if setting.Type == "int" then
-        local inputInt = group:AddInputInt(settingName, settingValue)
-        inputInt.OnChange = function(value)
-            self:SetConfigValue(setting.Id, value.Value[1], modGUID)
-        end
-    elseif setting.Type == "float" then
-        local inputScalar = group:AddInputScalar(settingName, settingValue)
-        local tooltip = inputScalar:Tooltip()
-        local tooltipText = tooltip:AddText(setting.Description)
-        inputScalar.OnChange = function(value)
-            -- _D(value)
-            self:SetConfigValue(setting.Id, value.Value[1], modGUID)
-        end
-    elseif setting.Type == "slider" then
-        local slider = group:AddSlider(settingName, settingValue, setting.Options.Min, setting.Options.Max)
-        local tooltip = slider:Tooltip()
-        local tooltipText = tooltip:AddText(setting.Description)
-        slider.OnChange = function(value)
-            _D(value.Value[1])
-            self:SetConfigValue(setting.Id, value.Value[1], modGUID)
-        end
-    elseif setting.Type == "checkbox" then
-        local checkbox = group:AddCheckbox(settingName, settingValue)
-        local tooltip = checkbox:Tooltip()
-        local tooltipText = tooltip:AddText(setting.Description)
-        checkbox.OnChange = function(value)
-            _D(value.Checked)
-            self:SetConfigValue(setting.Id, value.Checked, modGUID)
-        end
-    elseif setting.Type == "text" then
-        local inputText = group:AddInputText(settingName, settingValue)
-        inputText.OnChange = function(value)
-            self:SetConfigValue(setting.Id, value, modGUID)
-        end
-    elseif setting.Type == "enum" then
-        local options = { table.unpack(setting.Options.Choices) }
-        local comboInput = group:AddCombo(settingName, settingValue, options)
-        comboInput.OnChange = function(index)
-            self:SetConfigValue(setting.Id, options[index], modGUID)
-        end
-    elseif setting.Type == "radio" then
-        -- Does not work yet
-        local options = { table.unpack(setting.Options.Choices) }
-        for i, option in ipairs(options) do
-            local radioButton = group:AddRadioButton(settingName, option == settingValue)
-            radioButton.OnChange = function(value)
-                _D(value)
-                self:SetConfigValue(setting.Id, value.Active, modGUID)
+                local createWidget = InputWidgets[setting:GetType()]
+                createWidget(modGroup, setting, settingValue, modGUID)
             end
         end
     end
