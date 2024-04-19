@@ -83,28 +83,28 @@ end
 
 local InputWidgets = {
     ["int"] = function(group, setting, settingValue, modGUID)
-        return IntIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return IntIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
     ["float"] = function(group, setting, settingValue, modGUID)
-        return FloatIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return FloatIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
     ["checkbox"] = function(group, setting, settingValue, modGUID)
-        return CheckboxIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return CheckboxIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
     ["text"] = function(group, setting, settingValue, modGUID)
-        return TextIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return TextIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
     ["enum"] = function(group, setting, settingValue, modGUID)
-        return EnumIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return EnumIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
     ["slider"] = function(group, setting, settingValue, modGUID)
-        return SliderIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return SliderIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
     ["radio"] = function(group, setting, settingValue, modGUID)
-        return RadioIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end,
     ["dict"] = function(group, setting, settingValue, modGUID)
-        return DictIMGUIWidget.Create(group, setting, settingValue, modGUID)
+        return DictIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end
 }
 

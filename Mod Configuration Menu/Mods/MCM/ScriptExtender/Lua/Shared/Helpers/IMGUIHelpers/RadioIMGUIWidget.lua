@@ -3,7 +3,7 @@ RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
 ---@param value number
 ---@return table buttons The buttons created
-function RadioIMGUIWidget.Create(group, setting, settingValue, modGUID)
+function RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     local buttons = {}
     local options = { table.unpack(setting.Options.Choices) }
     for i, option in ipairs(options) do
