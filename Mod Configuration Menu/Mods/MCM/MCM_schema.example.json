@@ -1,10 +1,18 @@
 {
     "SchemaVersion": 1,
-    "Sections": [
+    "Tabs": [
         {
-            "SectionName": "General Settings",
-            "SectionDescription": "General configuration settings for the application.",
+            "TabId": "general_settings",
+            "TabName": "General Settings",
             "Settings": [
+                {
+                    "Id": "MyInt",
+                    "Name": "My Int",
+                    "Type": "int",
+                    "Default": 0,
+                    "Tooltip": "This is a setting that does something.",
+                    "Description": "This is a setting that does something, but this text is longer."
+                },
                 {
                     "Id": "MyInt",
                     "Name": "My Int",
@@ -32,51 +40,63 @@
             ]
         },
         {
-            "SectionName": "Advanced Settings",
-            "SectionDescription": "Advanced options for power users.",
-            "Settings": [
+            "TabId": "advanced_settings",
+            "TabName": "Advanced Settings",
+            "Sections": [
                 {
-                    "Id": "MyFloat2",
-                    "Name": "My Float2",
-                    "Type": "float",
-                    "Default": 0.0,
-                    "Tooltip": "This is a setting that does something else.",
-                    "Description": "This is a setting that does something else, but this text is longer."
+                    "SectionId": "section1",
+                    "SectionName": "Section 1",
+                    "Settings": [
+                        {
+                            "Id": "MyFloat2",
+                            "Name": "My Float2",
+                            "Type": "float",
+                            "Default": 0.0,
+                            "Tooltip": "This is a setting that does something else.",
+                            "Description": "This is a setting that does something else, but this text is longer."
+                        },
+                        {
+                            "Id": "MyCheckbox",
+                            "Name": "My Checkbox",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Tooltip": "This is a setting that does something else.",
+                            "Description": "This is a setting that does something else, but this text is longer."
+                        }
+                    ]
                 },
                 {
-                    "Id": "MyCheckbox",
-                    "Name": "My Checkbox",
-                    "Type": "checkbox",
-                    "Default": false,
-                    "Tooltip": "This is a setting that does something else.",
-                    "Description": "This is a setting that does something else, but this text is longer."
-                },
-                {
-                    "Id": "MyText",
-                    "Name": "My Text",
-                    "Type": "text",
-                    "Default": "default",
-                    "Tooltip": "This is a setting that does something else.",
-                    "Description": "This is a setting that does something else, but this text is longer."
-                },
-                {
-                    "Id": "MyEnum",
-                    "Name": "My Enum",
-                    "Type": "enum", // This is an enum and will be represented as a combobox/dropdown in the ImGui window
-                    "Default": "Option1",
-                    "Options": {
-                        "Choices": [
-                            "Option1",
-                            "Option2",
-                            "Option3"
-                        ]
-                    }
+                    "SectionId": "section2",
+                    "SectionName": "Section 2",
+                    "Settings": [
+                        {
+                            "Id": "MyText",
+                            "Name": "My Text",
+                            "Type": "text",
+                            "Default": "default",
+                            "Tooltip": "This is a setting that does something else.",
+                            "Description": "This is a setting that does something else, but this text is longer."
+                        },
+                        {
+                            "Id": "MyEnum",
+                            "Name": "My Enum",
+                            "Type": "enum", // This is an enum and will be represented as a combobox/dropdown in the ImGui window
+                            "Default": "Option1",
+                            "Options": {
+                                "Choices": [
+                                    "Option1",
+                                    "Option2",
+                                    "Option3"
+                                ]
+                            }
+                        }
+                    ]
                 }
             ]
         },
         {
-            "SectionName": "Debugging",
-            "SectionDescription": "Settings for debugging the mod.",
+            "TabId": "debugging",
+            "TabName": "Debugging",
             "Settings": [
                 {
                     "Id": "MySlider",
@@ -113,8 +133,8 @@
                         "key1": "value1",
                         "key2": "value2"
                     }, // Set the default value to a dictionary with two key-value pairs
-                    "Description": "This is a setting that uses a dictionary input. You can add or remove items",
-                    "Tooltip": "This is a setting that uses a dictionary input. You can add or remove key-value pairs, or change the values of the key-value pair"
+                    "Tooltip": "This is a setting that uses a key-value input.",
+                    "Description": "This is a setting that uses a dictionary input. You can add key-value pairs, or change the values of the key-value pairs"
                 }
             ]
         }
