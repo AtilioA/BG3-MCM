@@ -13,56 +13,7 @@
             "description": "The tabs that will be displayed in the MCM menu. Each tab can contain either sections or settings, but not both. Tabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
             "type": "array",
             "items": {
-                "type": "object",
-                "properties": {
-                    "TabName": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "The name of the tab that will be displayed in the MCM menu, on the tab's button."
-                    },
-                    "TabId": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "The unique identifier for the tab. This value should be unique across all tabs in the settings file."
-                    },
-                    // "TabDescription": {
-                    //     "type": "string",
-                    //     "minLength": 1,
-                    //     "description": "The description of the tab that will be displayed in the MCM menu."
-                    // },
-                    "Sections": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/Section"
-                        },
-                        "description": "The sections that will be displayed within the tab. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
-                    },
-                    "Settings": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/Setting"
-                        },
-                        "description": "The settings that will be displayed within the tab."
-                    }
-                },
-                "oneOf": [
-                    {
-                        "required": [
-                            "Sections"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "Settings"
-                        ]
-                    }
-                ],
-                "required": [
-                    "TabId",
-                    "TabName"
-                ],
-                "additionalProperties": false,
-                "description": "A single tab in the MCM menu."
+                "$ref": "#/definitions/Tab"
             }
         },
         "Settings": {
@@ -90,6 +41,58 @@
         }
     ],
     "definitions": {
+        "Tab": {
+            "type": "object",
+            "description": "A single tab in the MCM menu.",
+            "properties": {
+                "TabName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The name of the tab that will be displayed in the MCM menu, on the tab's button."
+                },
+                "TabId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The unique identifier for the tab. This value should be unique across all tabs in the settings file."
+                },
+                // "TabDescription": {
+                //     "type": "string",
+                //     "minLength": 1,
+                //     "description": "The description of the tab that will be displayed in the MCM menu."
+                // },
+                "Sections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Section"
+                    },
+                    "description": "The sections that will be displayed within the tab. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
+                },
+                "Settings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Setting"
+                    },
+                    "description": "The settings that will be displayed within the tab."
+                }
+            },
+            "additionalProperties": false,
+            "oneOf": [
+                {
+                    "required": [
+                        "Sections"
+                    ]
+                },
+                {
+                    "required": [
+                        "Settings"
+                    ]
+                }
+            ],
+            "required": [
+                "TabId",
+                "TabName"
+            ]
+        },
         "Setting": {
             "type": "object",
             "required": [
