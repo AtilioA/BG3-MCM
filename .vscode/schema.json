@@ -6,36 +6,43 @@
     "properties": {
         "SchemaVersion": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "description": "The version of the schema that this file uses. This is used to ensure that the file is compatible with the version of MCM that is being used. Do not change this value unless you know what you are doing."
         },
         "Tabs": {
+            "description": "The tabs that will be displayed in the MCM menu. Each tab can contain either sections or settings, but not both. Tabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "TabName": {
                         "type": "string",
-                        "minLength": 1
+                        "minLength": 1,
+                        "description": "The name of the tab that will be displayed in the MCM menu, on the tab's button."
                     },
                     "TabId": {
                         "type": "string",
-                        "minLength": 1
+                        "minLength": 1,
+                        "description": "The unique identifier for the tab. This value should be unique across all tabs in the settings file."
                     },
-                    "TabDescription": {
-                        "type": "string",
-                        "minLength": 1
-                    },
+                    // "TabDescription": {
+                    //     "type": "string",
+                    //     "minLength": 1,
+                    //     "description": "The description of the tab that will be displayed in the MCM menu."
+                    // },
                     "Sections": {
                         "type": "array",
                         "items": {
                             "$ref": "#/definitions/Section"
-                        }
+                        },
+                        "description": "The sections that will be displayed within the tab. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
                     },
                     "Settings": {
                         "type": "array",
                         "items": {
                             "$ref": "#/definitions/Setting"
-                        }
+                        },
+                        "description": "The settings that will be displayed within the tab."
                     }
                 },
                 "oneOf": [
@@ -54,7 +61,8 @@
                     "TabId",
                     "TabName"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "A single tab in the MCM menu."
             }
         },
         "Settings": {
@@ -62,7 +70,8 @@
             "minItems": 1,
             "items": {
                 "$ref": "#/definitions/Setting"
-            }
+            },
+            "description": "The list of sections to be displayed outside of any tabs in the MCM menu. It is advised to use tabs and sections instead of this list, as this can lead to an unorganized MCM menu."
         }
     },
     "required": [
@@ -93,11 +102,13 @@
             "properties": {
                 "Id": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API."
                 },
                 "Name": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "The name of the setting that will be displayed in the MCM menu."
                 },
                 "Type": {
                     "type": "string",
@@ -111,7 +122,8 @@
                         "slider",
                         "radio",
                         "dict"
-                    ]
+                    ],
+                    "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
                 },
                 "Default": {
                     "anyOf": [
@@ -131,15 +143,18 @@
                         {
                             "type": "object"
                         }
-                    ]
+                    ],
+                    "description": "The default value of the setting."
                 },
                 "Tooltip": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "The tooltip that will be displayed when the user hovers over the setting in the MCM menu."
                 },
                 "Description": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "The description of the setting that will be displayed as text next to the ImGui widget in the MCM menu."
                 },
                 "Options": {
                     "type": "object",
@@ -149,15 +164,19 @@
                             "items": {
                                 "type": "string",
                                 "minLength": 1
-                            }
+                            },
+                            "description": "The available choices for the setting, used for enum and radio types."
                         },
                         "Min": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "The minimum value for the setting, used for slider type."
                         },
                         "Max": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "The maximum value for the setting, used for slider type."
                         }
-                    }
+                    },
+                    "description": "Additional options for the setting, depending on its type."
                 }
             },
             "if": {
@@ -212,7 +231,8 @@
                         }
                     }
                 }
-            }
+            },
+            "description": "A single setting in the MCM menu."
         },
         "Section": {
             "type": "object",
@@ -220,25 +240,29 @@
             "properties": {
                 "SectionId": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "The unique identifier for the section. This value should be unique across all sections in the settings file."
                 },
                 "SectionName": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "The name of the section that will be displayed as a header in the MCM menu"
                 },
                 "Settings": {
                     "type": "array",
                     "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/Setting"
-                    }
+                    },
+                    "description": "The settings that will be displayed within the section."
                 }
             },
             "required": [
                 "SectionName",
                 "SectionId",
                 "Settings"
-            ]
+            ],
+            "description": "A section within a tab in the MCM menu."
         }
     }
 }
