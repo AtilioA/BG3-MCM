@@ -44,3 +44,4 @@ output/
 *.pak
 *.code-workspace
 .vscode/settings.json
+*cursor*
