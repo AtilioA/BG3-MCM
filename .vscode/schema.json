@@ -144,11 +144,13 @@
                             "type": "boolean"
                         },
                         {
-                            "type": "string",
-                            "minLength": 1
+                            "type": "string"
                         },
                         {
                             "type": "object"
+                        },
+                        {
+                            "type": "null"
                         }
                     ],
                     "description": "The default value of the setting. It will be used for initialization and as a fallback if the setting is not found or is invalid in the settings file."
