@@ -72,6 +72,10 @@ function SchemaSetting:SetDescription(value)
     self.Description = value
 end
 
+function SchemaSetting:SetTooltip(value)
+    self.Tooltip = value
+end
+
 function SchemaSetting:SetSection(value)
     self.Section = value
 end
