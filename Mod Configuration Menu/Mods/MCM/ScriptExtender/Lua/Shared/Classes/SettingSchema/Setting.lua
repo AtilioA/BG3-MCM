@@ -4,6 +4,7 @@
 ---@field private Type string
 ---@field private Default any
 ---@field private Description string
+---@field private Tooltip string
 ---@field private Section string
 ---@field private Options table
 SchemaSetting = _Class:Create("SchemaSetting", nil, {
@@ -12,6 +13,7 @@ SchemaSetting = _Class:Create("SchemaSetting", nil, {
     Type = "",
     Default = nil,
     Description = "",
+    Tooltip = "",
     Section = "General",
     Options = {},
     -- TODO: Show setting on UI only when other settings are set to specific values?
@@ -36,6 +38,10 @@ end
 
 function SchemaSetting:GetDescription()
     return self.Description
+end
+
+function SchemaSetting:GetTooltip()
+    return self.Tooltip
 end
 
 function SchemaSetting:GetSection()

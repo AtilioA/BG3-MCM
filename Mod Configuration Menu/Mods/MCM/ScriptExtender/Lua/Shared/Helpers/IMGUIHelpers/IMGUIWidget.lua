@@ -11,7 +11,7 @@ end
 ---@param setting SchemaSetting The setting associated with the widget
 function IMGUIWidget:SetupTooltip(widget, setting)
     local tooltip = widget:Tooltip()
-    tooltip:AddText(setting:GetDescription())
+    tooltip:AddText(setting:GetTooltip())
 end
 
 --- Create a new IMGUI widget and add it to the specified group.
@@ -23,6 +23,7 @@ end
 ---@return any widget The created widget
 function IMGUIWidget:Create(group, setting, settingValue, modGUID)
     local widget = self:CreateWidget(group, setting, settingValue, modGUID)
+    widget:AddText(setting:GetDescription())
     self:SetupTooltip(widget, setting)
     return widget
 end
