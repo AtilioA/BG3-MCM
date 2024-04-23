@@ -3,7 +3,8 @@
     "type": "object",
     "properties": {
         "SchemaVersion": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1
         },
         "Tabs": {
             "type": "array",
@@ -52,6 +53,18 @@
     },
     "required": [
         "SchemaVersion"
+    ],
+    "oneOf": [
+        {
+            "required": [
+                "Tabs"
+            ]
+        },
+        {
+            "required": [
+                "Settings"
+            ]
+        }
     ],
     "definitions": {
         "Setting": {
