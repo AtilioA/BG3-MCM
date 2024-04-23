@@ -202,6 +202,10 @@
         "Section": {
             "type": "object",
             "properties": {
+                "SectionId": {
+                    "type": "string",
+                    "minLength": 1
+                },
                 "SectionName": {
                     "type": "string",
                     "minLength": 1
@@ -216,6 +220,7 @@
             },
             "required": [
                 "SectionName",
+                "SectionId",
                 "Settings"
             ]
         }
