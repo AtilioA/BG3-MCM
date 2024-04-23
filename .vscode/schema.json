@@ -36,6 +36,18 @@
                         }
                     }
                 },
+                "oneOf": [
+                    {
+                        "required": [
+                            "Sections"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "Settings"
+                        ]
+                    }
+                ],
                 "required": [
                     "TabId",
                     "TabName",
