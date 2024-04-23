@@ -1,0 +1,205 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "SchemaVersion": {
+            "type": "integer"
+        },
+        "Tabs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "TabName": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "TabId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "TabDescription": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "Sections": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "SectionName"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "SectionName": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "Settings": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Setting"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Settings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Setting"
+                        }
+                    }
+                },
+                "required": [
+                    "TabId",
+                    "TabName",
+                    "Sections"
+                ]
+            }
+        },
+        "Settings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/definitions/Setting"
+            }
+        }
+    },
+    "required": [
+        "SchemaVersion"
+    ],
+    "definitions": {
+        "Setting": {
+            "type": "object",
+            "required": [
+                "Id",
+                "Name",
+                "Type",
+                "Default"
+            ],
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "Name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "Type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "enum": [
+                        "int",
+                        "float",
+                        "checkbox",
+                        "text",
+                        "enum",
+                        "slider",
+                        "radio",
+                        "dict"
+                    ]
+                },
+                "Default": {
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        {
+                            "type": "object"
+                        }
+                    ]
+                },
+                "Tooltip": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "Description": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "Options": {
+                    "type": "object",
+                    "properties": {
+                        "Choices": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "Min": {
+                            "type": "number"
+                        },
+                        "Max": {
+                            "type": "number"
+                        }
+                    }
+                }
+            },
+            "if": {
+                "properties": {
+                    "Type": {
+                        "enum": [
+                            "enum",
+                            "radio"
+                        ]
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "Options": {
+                        "required": [
+                            "Choices"
+                        ]
+                    }
+                },
+                "required": [
+                    "Options"
+                ]
+            },
+            "else": {
+                "if": {
+                    "properties": {
+                        "Type": {
+                            "enum": [
+                                "slider"
+                            ]
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "Options": {
+                            "required": [
+                                "Min",
+                                "Max"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "Options"
+                    ]
+                },
+                "else": {
+                    "properties": {
+                        "Options": {
+                            "not": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
