@@ -15,8 +15,8 @@ function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
     -- FIXME: profiles must be loaded after settings for some janky reason
-    IMGUILayer:CreateModMenu(self.mods, self.profiles)
-    -- Ext.Net.BroadcastMessage("MCM_Settings_To_Client", Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
+    -- IMGUILayer:CreateModMenu(self.mods, self.profiles)
+    Ext.Net.BroadcastMessage("MCM_Settings_To_Client", Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
 end
 
 --- Create a new MCM profile
@@ -129,3 +129,7 @@ end
 --     local defaultSettings = Schema:GetDefaultSettingsFromSchema(modSchema)
 --     local modSettings = self.settings[modGUID]
 -- end
+
+Ext.RegisterConsoleCommand('mcm_reload', function(cmd)
+    MCM:LoadConfigs()
+end)

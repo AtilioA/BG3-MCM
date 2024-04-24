@@ -37,54 +37,60 @@ local InputWidgetFactory = {
 }
 
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
+---@param mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
+---@param profiles table<string, table> A table of settings profiles for the MCM
 ---@return nil
-function IMGUILayer:CreateModMenu()
+function IMGUILayer:CreateModMenu(mods, profiles)
+    self.mods = mods
+    self.profiles = profiles
     -- TODO: modularize etc
     -- Add a combobox to switch between profiles
-    local profiles = MCM:GetProfiles()
-    local currentProfile = MCM:GetCurrentProfile()
-    local profileIndex = nil
-    for i, name in ipairs(profiles.Profiles) do
-        if name == currentProfile then
-            profileIndex = i
-            break
-        end
-    end
 
-    local profileCombo = IMGUI_WINDOW:AddCombo("Profiles")
+    -- TODO: reintroduce after client/server mess is sorted
+    -- local profiles = MCM:GetProfiles()
+    -- local currentProfile = MCM:GetCurrentProfile()
+    -- local profileIndex = nil
+    -- for i, name in ipairs(profiles.Profiles) do
+    --     if name == currentProfile then
+    --         profileIndex = i
+    --         break
+    --     end
+    -- end
 
-    profileCombo.Options = { "Select a setting profile", table.unpack(profiles.Profiles) }
-    profileCombo.SelectedIndex = profileIndex or 1
-    profileCombo.OnChange = function(inputChange)
-        local selectedIndex = inputChange.SelectedIndex + 1
-        local selectedProfile = inputChange.Options[selectedIndex]
-        _P(selectedIndex, selectedProfile)
-        MCM:SetProfile(selectedProfile)
-        -- Refresh the mod settings after switching profiles
-        -- self:CreateModMenuTab(modGUID)
-    end
+    -- local profileCombo = IMGUI_WINDOW:AddCombo("Profiles")
 
-    local profileButton = IMGUI_WINDOW:AddButton("New Profile")
-    local newProfileName = IMGUI_WINDOW:AddInputText("New Profile Name")
-    newProfileName.SameLine = true
-    profileButton.OnClick = function()
-        _D(newProfileName)
-        if newProfileName.Text ~= "" then
-            MCM:CreateProfile(newProfileName.Text)
-            profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
-        end
-    end
+    -- profileCombo.Options = { "Select a setting profile", table.unpack(profiles.Profiles) }
+    -- profileCombo.SelectedIndex = profileIndex or 1
+    -- profileCombo.OnChange = function(inputChange)
+    --     local selectedIndex = inputChange.SelectedIndex + 1
+    --     local selectedProfile = inputChange.Options[selectedIndex]
+    --     _P(selectedIndex, selectedProfile)
+    --     MCM:SetProfile(selectedProfile)
+    --     -- Refresh the mod settings after switching profiles
+    --     -- self:CreateModMenuTab(modGUID)
+    -- end
 
-    local deleteProfileButton = IMGUI_WINDOW:AddButton("Delete Profile (WIP)")
-    deleteProfileButton.OnClick = function()
-        local currentProfile = MCM:GetCurrentProfile()
-        if currentProfile ~= "Default" then
-            -- MCM:DeleteProfile(currentProfile)
-            profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
-        else
-            MCMWarn(0, "Cannot delete the default profile.")
-        end
-    end
+    -- local profileButton = IMGUI_WINDOW:AddButton("New Profile")
+    -- local newProfileName = IMGUI_WINDOW:AddInputText("New Profile Name")
+    -- newProfileName.SameLine = true
+    -- profileButton.OnClick = function()
+    --     _D(newProfileName)
+    --     if newProfileName.Text ~= "" then
+    --         MCM:CreateProfile(newProfileName.Text)
+    --         profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
+    --     end
+    -- end
+
+    -- local deleteProfileButton = IMGUI_WINDOW:AddButton("Delete Profile (WIP)")
+    -- deleteProfileButton.OnClick = function()
+    --     local currentProfile = MCM:GetCurrentProfile()
+    --     if currentProfile ~= "Default" then
+    --         -- MCM:DeleteProfile(currentProfile)
+    --         profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
+    --     else
+    --         MCMWarn(0, "Cannot delete the default profile.")
+    --     end
+    -- end
 
     -- REFACTOR: improve this spacing logic nonsense
     IMGUI_WINDOW:AddSpacing()
@@ -104,9 +110,12 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuTab(modGUID)
+    modGUID = modGUID or ModuleUUID
     local modInfo = Ext.Mod.GetMod(modGUID).Info
-    local modSchema = MCM:GetModSchema(modGUID)
-    local modSettings = MCM:GetModSettings(modGUID)
+    -- local modSchema = MCM:GetModSchema(modGUID)
+    local modSchema = self.mods[modGUID].schemas
+    local modSettings = self.mods[modGUID].settingsValues
+    -- local modSettings = MCM:GetModSettings(modGUID)
     local modTab = self.mod_tabs[modGUID]
 
     -- Create a new IMGUI group for the mod to hold all settings
