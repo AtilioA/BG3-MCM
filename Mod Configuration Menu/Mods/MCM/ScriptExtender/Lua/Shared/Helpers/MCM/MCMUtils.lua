@@ -1,0 +1,2 @@
+-- ---@class HelperMCMUtils: Helper
+-- MCMUtils = _Class:Create("HelperMCMUtils", Helper)

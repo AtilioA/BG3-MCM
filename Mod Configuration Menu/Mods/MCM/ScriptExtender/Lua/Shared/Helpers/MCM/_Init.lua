@@ -1,6 +1,4 @@
-RequireFiles("Shared/Helpers/ItemShipment/", {
-    -- "MCMUtils",
-    -- "MCMDataPreprocessing",
-    -- "MCMJsonLoad",
-    -- "MCMCommands",
+RequireFiles("Shared/Helpers/MCM/", {
+    "MCMUtils",
+    "MCMCommands",
 })
