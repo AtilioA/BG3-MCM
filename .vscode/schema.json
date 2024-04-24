@@ -103,7 +103,8 @@
                 "Id",
                 "Name",
                 "Type",
-                "Default"
+                "Default",
+                "Tooltip"
             ],
             "additionalProperties": false,
             "properties": {
