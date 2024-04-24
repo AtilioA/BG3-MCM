@@ -123,7 +123,7 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     local modTabs = modGroup:AddTabBar(modInfo.Name .. "_TABS")
 
     -- Iterate over each tab in the mod schema to create a subtab for each
-    for _, tab in ipairs(modSchema:GetTabs()) do
+    for _, tab in ipairs(modSchema.Tabs) do
         self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     end
 end
@@ -135,9 +135,9 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
-    local tabHeader = modTabs:AddTabItem(tab:GetTabName())
+    local tabHeader = modTabs:AddTabItem(tab.TabName)
 
-    for _, section in ipairs(tab:GetSections()) do
+    for _, section in ipairs(tab.Sections) do
         self:CreateModMenuSection(tabHeader, section, modSettings, modGUID)
     end
 end
@@ -149,14 +149,14 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuSection(modGroup, section, modSettings, modGUID)
-    local tabBar = modGroup:AddSeparator(section:GetSectionName())
-    local sectionHeader = modGroup:AddText(section:GetSectionName())
+    local tabBar = modGroup:AddSeparator(section.SectionName)
+    local sectionHeader = modGroup:AddText(section.SectionName)
 
     -- TODO: Set the style for the section header text somehow
     -- sectionHeader:SetStyleVar???
 
     -- Iterate over each setting in the section to create a widget for each
-    for _, setting in pairs(section:GetSettings()) do
+    for _, setting in pairs(section.Settings) do
         self:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
     end
 end
@@ -169,12 +169,12 @@ end
 ---@return nil
 ---@see InputWidgetFactory
 function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
-    local settingValue = modSettings[setting:GetId()]
-    local createWidget = InputWidgetFactory[setting:GetType()]
+    local settingValue = modSettings[setting.Id]
+    local createWidget = InputWidgetFactory[setting.Type]
     if createWidget == nil then
         MCMWarn(0,
             "No widget factory found for setting type '" ..
-            setting:GetType() ..
+            setting.Type ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
         createWidget(modGroup, setting, settingValue, modGUID)
