@@ -1,21 +1,33 @@
 ---@class Schema
 ---@field private SchemaVersion number
----@field private Sections SchemaSection[]
+---@field private Tabs? SchemaTab[]
+---@field private Settings? SchemaSetting[]
 Schema = _Class:Create("Schema", nil, {
     SchemaVersion = 1,
-    Sections = {}
+    Tabs = {}
 })
 
 function Schema:GetSchemaVersion()
     return self.SchemaVersion
 end
 
-function Schema:GetSections()
-    return self.Sections
+function Schema:GetTabs()
+    return self.Tabs
 end
 
-function Schema:SetSections(value)
-    self.Sections = value
+function Schema:SetTabs(value)
+    self.Tabs = value
+end
+
+--- Returns the settings of the schema, if any.
+---@return SchemaSetting[] settings The settings of the schema
+---@return nil If there are no settings
+function Schema:GetSettings()
+    return self.Settings
+end
+
+function Schema:SetSettings(value)
+    self.Tabs = value
 end
 
 --- Constructor for the Schema class.
@@ -26,11 +38,11 @@ function Schema:New(options)
     self.SchemaVersion = options.SchemaVersion or 1 -- Default to version 1 if not provided
 
     -- Call SchemaSection constructor for each section
-    self.Sections = {}
-    if options.Sections then
-        for _, sectionOptions in ipairs(options.Sections) do
-            local section = SchemaSection:New(sectionOptions)
-            table.insert(self.Sections, section)
+    self.Tabs = {}
+    if options.Tabs then
+        for _, tabOptions in ipairs(options.Tabs) do
+            local tab = SchemaTab:New(tabOptions)
+            table.insert(self.Tabs, tab)
         end
     end
 
@@ -46,7 +58,7 @@ function Schema:AddSection(name, description)
         sectionName = name,
         sectionDescription = description
     })
-    table.insert(self.Sections, section)
+    table.insert(self.Tabs, section)
     return section
 end
 
@@ -54,7 +66,7 @@ end
 ---@param settingName string The name/key of the setting to retrieve the default value for
 ---@return any setting.Default The default value for the setting
 function Schema:RetrieveDefaultValueForSetting(settingName)
-    for _, section in ipairs(self.Sections) do
+    for _, section in ipairs(self.Tabs) do
         for _, setting in ipairs(section:GetSettings()) do
             if setting:GetId() == settingName then
                 return setting:GetDefault()
@@ -70,10 +82,31 @@ end
 --- @return table<string, any> settings The plain settings table with default values
 function Schema:GetDefaultSettingsFromSchema(schema)
     local settings = {}
-    for _, section in ipairs(schema.Sections) do
-        for _, setting in ipairs(section:GetSettings()) do
+
+    if schema.Tabs then
+        for _, tab in ipairs(schema.Tabs) do
+            local tabSections = tab:GetSections()
+            local tabSettings = tab:GetSettings()
+
+            if tabSections then
+                for _, section in ipairs(tab:GetSections()) do
+                    for _, setting in ipairs(section:GetSettings()) do
+                        settings[setting:GetId()] = setting:GetDefault()
+                    end
+                end
+            end
+
+            if tabSettings then
+                for _, setting in ipairs(tab:GetSettings()) do
+                    settings[setting:GetId()] = setting:GetDefault()
+                end
+            end
+        end
+    elseif schema.Settings then
+        for _, setting in ipairs(schema.Settings) do
             settings[setting:GetId()] = setting:GetDefault()
         end
     end
+
     return settings
 end

@@ -232,7 +232,6 @@ end
 ---@param configFilePath string The file path of the settings.json file
 function ModConfig:HandleLoadedSettings(modGUID, schema, config, configFilePath)
     MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
-
     -- Add new settings, remove deprecated settings, update JSON file
     self:AddKeysMissingFromSchema(schema, config)
     self:RemoveDeprecatedKeys(schema, config)
@@ -251,6 +250,7 @@ end
 ---@param configFilePath string The file path of the settings.json file
 function ModConfig:HandleMissingSettings(modGUID, schema, configFilePath)
     local defaultSettingsJSON = Schema:GetDefaultSettingsFromSchema(schema)
+    -- _D(defaultSettingsJSON)
     self.mods[modGUID].settingsValues = defaultSettingsJSON
     MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
         Ext.Mod.GetMod(modGUID).Info.Name, configFilePath)
@@ -261,12 +261,26 @@ end
 --- @param schema Schema The schema to use for the settings
 --- @param settings SchemaSetting The settings to update
 function ModConfig:AddKeysMissingFromSchema(schema, settings)
-    -- _D(schema)
-    for _, section in ipairs(schema:GetSections()) do
-        -- _D(section)
-        for _, setting in ipairs(section:GetSettings()) do
+    local schemaSettings = schema:GetSettings()
+    local schemaTabs = schema:GetTabs()
+
+    if schemaSettings then
+        for _, setting in ipairs(schemaSettings) do
             if settings[setting:GetId()] == nil then
                 settings[setting:GetId()] = setting:GetDefault()
+            end
+        end
+    end
+
+    if schemaTabs then
+        for _, tab in ipairs(schemaTabs) do
+            -- _D(tab)
+            for _, section in ipairs(tab:GetSections()) do
+                for _, setting in ipairs(section:GetSettings()) do
+                    if settings[setting:GetId()] == nil then
+                        settings[setting:GetId()] = setting:GetDefault()
+                    end
+                end
             end
         end
     end
@@ -278,9 +292,23 @@ end
 function ModConfig:RemoveDeprecatedKeys(schema, settings)
     -- Create a set of valid setting names from the schema
     local validSettings = {}
-    for _, section in ipairs(schema:GetSections()) do
-        for _, setting in ipairs(section:GetSettings()) do
+
+    local schemaSettings = schema:GetSettings()
+    local schemaTabs = schema:GetTabs()
+
+    if schemaSettings then
+        for _, setting in ipairs(schemaSettings) do
             validSettings[setting:GetId()] = true
+        end
+    end
+
+    if schemaTabs then
+        for _, tab in ipairs(schemaTabs) do
+            for _, section in ipairs(tab:GetSections()) do
+                for _, setting in ipairs(section:GetSettings()) do
+                    validSettings[setting:GetId()] = true
+                end
+            end
         end
     end
 

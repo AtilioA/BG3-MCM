@@ -65,7 +65,7 @@ function JsonLayer:TryLoadConfig(configStr, modGUID)
         return nil
     end
 
-    MCMDebug(2, "Entering TryLoadConfig with parameters: " .. configStr .. ", " .. modGUID)
+    MCMDebug(4, "Entering TryLoadConfig with parameters: " .. configStr .. ", " .. modGUID)
 
     local success, data = pcall(Ext.Json.Parse, configStr)
     if success then

@@ -2,8 +2,8 @@
 DataPreprocessing = _Class:Create("HelperDataPreprocessing", Helper)
 
 -- Utility function to check if a table contains a value
-function table.contains(table, element)
-    for _, value in pairs(table) do
+function table.contains(tbl, element)
+    for _, value in pairs(tbl) do
         if value == element then
             return true
         end
@@ -11,6 +11,7 @@ function table.contains(table, element)
     return false
 end
 
+-- Validator functions for different setting types
 local SettingValidators = {
     ["int"] = function(setting, value)
         return IntValidator.Validate(setting, value)
@@ -38,38 +39,31 @@ local SettingValidators = {
     end
 }
 
--- Function to convert string booleans to actual booleans
-local function convertStringBooleans(table)
-    for key, value in pairs(table) do
+-- Convert string representations of booleans to actual boolean values in a table
+local function convertStringBooleans(tbl)
+    for key, value in pairs(tbl) do
         if type(value) == "table" then
-            -- Recursively convert nested tables
             convertStringBooleans(value)
         elseif value == "true" then
-            table[key] = true
+            tbl[key] = true
         elseif value == "false" then
-            table[key] = false
+            tbl[key] = false
         end
     end
 end
 
---- Remove elements in the table that do not have a SchemaVersions, etc.
+--- Sanitizes schema data by removing elements without SchemaVersions and converting string booleans
 ---@param schema table The schema data to sanitize
+---@param modGUID string The mod's unique identifier
 function DataPreprocessing:SanitizeSchema(schema, modGUID)
     if not self:HasSchemaVersionsEntry(schema, modGUID) then
         return
     end
-
-    if not self:HasSectionsEntry(schema, modGUID) then
-        return
-    end
-
-    -- Turn string booleans into actual booleans
     convertStringBooleans(schema)
-
     return schema
 end
 
---- Remove elements in the table that do not have a SchemaVersions, etc.
+--- Sanitize all schemas for a given set of mods
 ---@param mods table<string, table> The mods data to sanitize
 function DataPreprocessing:SanitizeSchemas(mods)
     for modGUID, mcmTable in pairs(mods) do
@@ -80,23 +74,46 @@ function DataPreprocessing:SanitizeSchemas(mods)
                 Ext.Mod.GetMod(modGUID).Info.Name ..
                 ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         end
+        _D(mcmTable.schemas)
     end
 end
 
---- Validate the settings based on the schema
+--- Validate the settings based on the schema and collect any invalid settings
 ---@param schema Schema The schema data
 ---@param settings SchemaSetting The settings data
 ---@return boolean, string[] True if all settings are valid, and a list of invalid settings' IDs
 function DataPreprocessing:ValidateSettings(schema, settings)
     local invalidSettings = {}
 
-    for _, section in ipairs(schema:GetSections()) do
-        for _, setting in ipairs(section:GetSettings()) do
+    local schemaTabs = schema:GetTabs()
+    local schemaSettings = schema:GetSettings()
+
+    if schemaTabs then
+        for _, tab in ipairs(schemaTabs) do
+            for _, section in ipairs(tab:GetSections()) do
+                for _, setting in ipairs(section:GetSettings()) do
+                    local value = settings[setting:GetId()]
+                    local validator = SettingValidators[setting:GetType()]
+                    MCMDebug(2,
+                        "Validating setting: " ..
+                        setting:GetId() ..
+                        " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
+                    if validator and not validator(setting, value) then
+                        table.insert(invalidSettings, setting:GetId())
+                    end
+                end
+            end
+        end
+    end
+
+    if schemaSettings then
+        for _, setting in ipairs(schemaSettings) do
             local value = settings[setting:GetId()]
             local validator = SettingValidators[setting:GetType()]
             MCMDebug(2,
                 "Validating setting: " ..
-                setting:GetId() .. " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
+                setting:GetId() ..
+                " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
             if validator and not validator(setting, value) then
                 table.insert(invalidSettings, setting:GetId())
             end
@@ -106,6 +123,10 @@ function DataPreprocessing:ValidateSettings(schema, settings)
     return #invalidSettings == 0, invalidSettings
 end
 
+--- Attempt to fix invalid settings by resetting them to default values
+---@param schema Schema The schema data
+---@param config table The configuration settings
+---@return table The updated configuration settings
 function DataPreprocessing:ValidateAndFixSettings(schema, config)
     local isValid, invalidSettings = DataPreprocessing:ValidateSettings(schema, config)
     if not isValid then
@@ -122,10 +143,10 @@ function DataPreprocessing:ValidateAndFixSettings(schema, config)
     return config
 end
 
---- Check if the data table has a SchemaVersions table
+--- Check if the data table has a SchemaVersions table and validate its contents
 ---@param data table The item data to check
 ---@param modGUID string The UUID of the mod being processed
----@return boolean True if the data table has a SchemaVersions table, false otherwise
+---@return boolean True if the data table has a SchemaVersions table and it is valid, false otherwise
 function DataPreprocessing:HasSchemaVersionsEntry(data, modGUID)
     if not data.SchemaVersion then
         MCMWarn(0,
@@ -140,7 +161,6 @@ function DataPreprocessing:HasSchemaVersionsEntry(data, modGUID)
             ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return false
     end
-
     return true
 end
 
@@ -156,48 +176,81 @@ function DataPreprocessing:HasSectionsEntry(data, modGUID)
             ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return false
     end
-
     return true
 end
 
---- Preprocess the data and create SchemaSetting instances
+--- Preprocess the data and create SchemaSetting instances for each setting found in the Tabs and Sections
 ---@param data table The item data to preprocess
 ---@param modGUID string The UUID of the mod that the item data belongs to
 ---@return table<string, SchemaSetting>|nil The preprocessed data, or nil if the preprocessing failed
 function DataPreprocessing:PreprocessData(data, modGUID)
-    local preprocessedData = data
-    for i, section in ipairs(data.Sections) do
-        for j, setting in ipairs(section.Settings) do
-            local setting = SchemaSetting:New({
-                Id = setting.Id,
-                Name = setting.Name,
-                Type = setting.Type,
-                Default = setting.Default,
-                Description = setting.Description,
-                Section = setting.Section or "General",
-                Options = setting.Options or {}
-            })
-            preprocessedData["Sections"][i]["Settings"][j] = setting
+    local preprocessedData = {}
+    preprocessedData["Tabs"] = {}
+
+    -- Iterate through each tab in the data
+    for i, tab in ipairs(data.Tabs) do
+        local tabData = {
+            TabId = tab.TabId,
+            TabName = tab.TabName,
+            Settings = {},
+            Sections = {}
+        }
+        -- Handle settings directly in tabs
+        if tab.Settings then
+            for j, setting in ipairs(tab.Settings) do
+                local newSetting = SchemaSetting:New({
+                    Id = setting.Id,
+                    Name = setting.Name,
+                    Type = setting.Type,
+                    Default = setting.Default,
+                    Description = setting.Description,
+                    Tooltip = setting.Tooltip,
+                    Options = setting.Options or {}
+                })
+                table.insert(tabData.Settings, newSetting)
+            end
+        else
+            MCMWarn(0,
+                "No 'Settings' section found in tab: " ..
+                tab.TabId ..
+                " for mod: " ..
+                Ext.Mod.GetMod(modGUID).Info.Name ..
+                ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         end
+
+        -- Handle sections containing settings
+        if tab.Sections then
+            for k, section in ipairs(tab.Sections) do
+                local sectionData = {
+                    SectionId = section.SectionId,
+                    SectionName = section.SectionName,
+                    Settings = {}
+                }
+                for l, setting in ipairs(section.Settings) do
+                    local newSetting = SchemaSetting:New({
+                        Id = setting.Id,
+                        Name = setting.Name,
+                        Type = setting.Type,
+                        Default = setting.Default,
+                        Description = setting.Description,
+                        Tooltip = setting.Tooltip,
+                        Options = setting.Options or {}
+                    })
+                    table.insert(sectionData.Settings, newSetting)
+                end
+                table.insert(tabData.Sections, sectionData)
+            end
+        else
+            MCMWarn(0,
+                "No 'Sections' section found in tab: " ..
+                tab.TabId ..
+                " for mod: " ..
+                Ext.Mod.GetMod(modGUID).Info.Name ..
+                ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        end
+
+        table.insert(preprocessedData.Tabs, tabData)
     end
 
     return preprocessedData
-end
-
---- PreprocessConfig is a wrapper function that calls the SanitizeData and ApplyDefaultValues functions.
----@param data table The item data to process
----@param modGUID string The GUID of the mod that the data belongs to
----@return table|nil The processed item data, or nil if the data could not be processed (e.g. if it failed sanitization due to invalid data)
-function DataPreprocessing:PreprocessConfig(data, modGUID)
-    local sanitizedData = self:SanitizeData(data, modGUID)
-    if not sanitizedData then
-        MCMWarn(0,
-            "Failed to sanitize MCM config JSON data for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-        return
-    end
-    -- return sanitizedData
-
-    -- return self:ApplyDefaultValues(data)
 end

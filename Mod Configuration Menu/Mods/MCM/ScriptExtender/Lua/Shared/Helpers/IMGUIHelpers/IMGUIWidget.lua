@@ -6,6 +6,7 @@ function IMGUIWidget:New()
         "This is an abstract class and cannot be instantiated directly. IMGUIWidget:New() must be overridden in a derived class")
 end
 
+-- TODO: borked
 --- Set up the tooltip for the IMGUI widget
 ---@param widget any The IMGUI widget to set up the tooltip for
 ---@param setting SchemaSetting The setting associated with the widget
