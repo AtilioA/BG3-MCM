@@ -184,10 +184,25 @@ function MCM:CreateModMenuTab(modGUID)
 
     -- Create a new IMGUI group for the mod to hold all settings
     local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
+    local modTabs = modGroup:AddTabBar(modInfo.Name .. "_TABS")
 
-    -- Iterate over each section in the mod schema to create a tab for each
-    for _, section in ipairs(modSchema:GetSections()) do
-        self:CreateModMenuSection(modGroup, section, modSettings, modGUID)
+    -- Iterate over each tab in the mod schema to create a subtab for each
+    for _, tab in ipairs(modSchema:GetTabs()) do
+        self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
+    end
+end
+
+--- Create a new tab for a mod in the MCM
+---@param modsTab any The main tab for the mod
+---@param tab SchemaTab The tab to create a tab for
+---@param modSettings table<string, table> The settings for the mod
+---@param modGUID string The UUID of the mod
+---@return nil
+function MCM:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
+    local tabHeader = modTabs:AddTabItem(tab:GetTabName())
+
+    for _, section in ipairs(tab:GetSections()) do
+        self:CreateModMenuSection(tabHeader, section, modSettings, modGUID)
     end
 end
 
