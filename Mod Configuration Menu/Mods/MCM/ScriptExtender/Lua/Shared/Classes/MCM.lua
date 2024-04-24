@@ -130,6 +130,27 @@ end
 --     local modSettings = self.settings[modGUID]
 -- end
 
-Ext.RegisterConsoleCommand('mcm_reload', function(cmd)
+function MCM:ResetCommand()
+    MCMDebug(1, "Reloading MCM settings...")
     MCM:LoadConfigs()
+    Ext.Net.BroadcastMessage("MCM_Settings_To_Client",
+        Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
+end
+
+Ext.RegisterConsoleCommand('mcm_reset', function() MCM:ResetCommand() end)
+
+Ext.Events.ResetCompleted:Subscribe(function()
+    VCHelpers.Timer:OnTime(1000, function()
+        MCM:ResetCommand()
+    end)
+end)
+
+Ext.RegisterNetListener("MCM_SetConfigValue", function(_, payload)
+    local payload = Ext.Json.Parse(payload)
+    local settingId = payload.settingId
+    local value = payload.value
+    local modGUID = payload.modGUID
+
+    MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
+    MCM:SetConfigValue(settingId, value, modGUID)
 end)
