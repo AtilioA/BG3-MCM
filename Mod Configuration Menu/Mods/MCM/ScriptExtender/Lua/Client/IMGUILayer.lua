@@ -180,3 +180,16 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
         createWidget(modGroup, setting, settingValue, modGUID)
     end
 end
+
+--- Send a message to the server to update a setting value
+---@param settingId string The ID of the setting to update
+---@param value any The new value of the setting
+---@param modGUID string The UUID of the mod
+function IMGUILayer:SetConfigValue(settingId, value, modGUID)
+    -- Send a message to the server to update the setting value
+    Ext.Net.PostMessageToServer("MCM_SetConfigValue", Ext.Json.Stringify({
+        modGUID = modGUID,
+        settingId = settingId,
+        value = value
+    }))
+end
