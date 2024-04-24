@@ -103,8 +103,19 @@
                 "Id",
                 "Name",
                 "Type",
-                "Default",
-                "Tooltip"
+                "Default"
+            ],
+            "anyOf": [
+                {
+                    "required": [
+                        "Tooltip"
+                    ]
+                },
+                {
+                    "required": [
+                        "Description"
+                    ]
+                }
             ],
             "additionalProperties": false,
             "properties": {
