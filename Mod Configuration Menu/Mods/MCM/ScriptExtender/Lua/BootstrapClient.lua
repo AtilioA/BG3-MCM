@@ -8,6 +8,12 @@ ClientGlobals = {
     MOD_SETTINGS = {}
 }
 
+Ext.Events.ResetCompleted:Subscribe(function()
+    Ext.Net.PostMessageToServer("MCM_Settings_Request", Ext.Json.Stringify({
+        message = "Client reset has completed. Requesting MCM settings from server."
+    }))
+end)
+
 Ext.RegisterNetListener("MCM_Settings_To_Client", function(_, payload)
     ClientGlobals.MOD_SETTINGS = Ext.Json.Parse(payload)
     local mods = ClientGlobals.MOD_SETTINGS.mods

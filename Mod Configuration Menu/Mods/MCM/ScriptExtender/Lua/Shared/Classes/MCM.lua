@@ -138,10 +138,9 @@ end
 
 Ext.RegisterConsoleCommand('mcm_reset', function() MCM:ResetCommand() end)
 
-Ext.Events.ResetCompleted:Subscribe(function()
-    VCHelpers.Timer:OnTime(1000, function()
-        MCM:ResetCommand()
-    end)
+Ext.RegisterNetListener("MCM_Settings_Request", function(_)
+    MCMDebug(1, "Received MCM settings request")
+    MCM:ResetCommand()
 end)
 
 Ext.RegisterNetListener("MCM_SetConfigValue", function(_, payload)
