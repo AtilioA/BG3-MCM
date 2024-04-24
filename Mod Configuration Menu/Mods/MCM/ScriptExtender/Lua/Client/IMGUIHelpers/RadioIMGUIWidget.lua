@@ -9,7 +9,7 @@ function RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     for i, option in ipairs(options) do
         local radioButton = group:AddRadioButton(setting.Name, setting.Name == settingValue)
         radioButton.OnChange = function(value)
-            BG3MCM:SetConfigValue(setting.Id, value.Value[1], modGUID)
+            IMGUILayer:SetConfigValue(setting.Id, value.Value[1], modGUID)
         end
         table.insert(buttons, radioButton)
     end

@@ -1,4 +1,4 @@
-RequireFiles("Shared/Helpers/IMGUIHelpers/", {
+RequireFiles("Client/IMGUIHelpers/", {
     -- "DictIMGUIWidget",
     "CheckboxIMGUIWidget",
     "EnumIMGUIWidget",

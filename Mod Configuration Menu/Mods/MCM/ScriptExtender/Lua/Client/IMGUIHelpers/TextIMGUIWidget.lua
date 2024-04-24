@@ -6,7 +6,7 @@ TextIMGUIWidget = _Class:Create("TextIMGUIWidget", IMGUIWidget)
 function TextIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     local text = group:AddInputText(setting.Name, settingValue)
     text.OnChange = function(value)
-        BG3MCM:SetConfigValue(setting.Id, value.Value, modGUID)
+        IMGUILayer:SetConfigValue(setting.Id, value.Value, modGUID)
     end
     return text
 end

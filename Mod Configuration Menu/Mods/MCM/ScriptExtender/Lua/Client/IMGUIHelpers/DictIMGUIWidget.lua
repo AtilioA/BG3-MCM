@@ -7,6 +7,6 @@ function DictIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     -- I don't even know what I should use for this
     -- local dict = group:AddDict(setting.Name, settingValue)
     -- dict.OnChange = function(value)
-    --     BG3MCM:SetConfigValue(setting.Id, value.Value, modGUID)
+    --     IMGUILayer:SetConfigValue(setting.Id, value.Value, modGUID)
     -- end
 end
