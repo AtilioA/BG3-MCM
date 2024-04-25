@@ -1,4 +1,4 @@
-Config = VCHelpers.Config:New({
+Config = VCConfig:New({
     folderName = "BG3MCM",
     configFilePath = "mod_configuration_menu_config.json",
     defaultConfig = {

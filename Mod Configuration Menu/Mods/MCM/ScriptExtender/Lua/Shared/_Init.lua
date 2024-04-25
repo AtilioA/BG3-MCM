@@ -1,5 +1,3 @@
-setmetatable(Mods.BG3MCM, { __index = Mods.VolitionCabinet })
-
 ---Ext.Require files at the path
 ---@param path string
 ---@param files string[]
@@ -16,11 +14,6 @@ RequireFiles("Shared/", {
     "SubscribedEvents",
     "EventHandlers",
 })
-
-local VCModuleUUID = "f97b43be-7398-4ea5-8fe2-be7eb3d4b5ca"
-if (not Ext.Mod.IsModLoaded(VCModuleUUID)) then
-    Ext.Utils.Print("VOLITION CABINET HAS NOT BEEN LOADED. PLEASE MAKE SURE IT IS ENABLED IN YOUR MOD MANAGER.")
-end
 
 local MODVERSION = Ext.Mod.GetMod(ModuleUUID).Info.ModVersion
 if MODVERSION == nil then

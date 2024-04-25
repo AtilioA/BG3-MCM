@@ -1,4 +1,4 @@
-MCMPrinter = VolitionCabinetPrinter:New { Prefix = "Mod Configuration Menu", ApplyColor = true, DebugLevel = Config:GetCurrentDebugLevel() }
+MCMPrinter = Printer:New { Prefix = "Mod Configuration Menu", ApplyColor = true, DebugLevel = Config:GetCurrentDebugLevel() }
 
 function MCMPrint(debugLevel, ...)
     MCMPrinter:SetFontColor(0, 255, 255)
