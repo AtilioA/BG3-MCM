@@ -5,12 +5,6 @@ MCM = _Class:Create("MCM", nil, {
     profiles = {},
 })
 
--- -- NOTE: When introducing new (breaking) versions of the config file, add a new function to parse the new version and update the version number in the config file
--- -- local versionHandlers = {
--- --   [1] = parseVersion1Config,
--- --   [2] = parseVersion2Config,
--- -- }
-
 function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()

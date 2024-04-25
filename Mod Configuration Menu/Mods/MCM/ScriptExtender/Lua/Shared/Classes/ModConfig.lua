@@ -44,6 +44,12 @@ ModConfig = _Class:Create("ModConfig", nil, {
     profiles = {}
 })
 
+-- -- NOTE: When introducing new (breaking) versions of the config file, add a new function to parse the new version and update the version number in the config file?
+-- -- local versionHandlers = {
+-- --   [1] = parseVersion1Config,
+-- --   [2] = parseVersion2Config,
+-- -- }
+
 --- SECTION: FILE HANDLING
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modGUID GUIDSTRING The mod's UUID to get the path for.
@@ -72,7 +78,7 @@ end
 
 --- Save the settings for all mods to the settings files.
 function ModConfig:SaveAllSettings()
-    for modGUID, settingsTable in pairs(self.mods) do
+    for modGUID, _settingsTable in pairs(self.mods) do
         self:SaveSettingsForMod(modGUID)
     end
 end
@@ -85,15 +91,24 @@ function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
 end
 
 --- SECTION: PROFILE HANDLING
-function ModConfig:LoadMCMConfig()
-    local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
-    local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
-
-    -- TODO: create a default config file if it doesn't exist
+--- TODO: probably move to a separate file
+function ModConfig:LoadMCMConfigFromFile(configFilePath)
     local configFileContent = Ext.IO.LoadFile(configFilePath)
     if not configFileContent or configFileContent == "" then
         MCMDebug(2, "MCM config file not found: " .. configFilePath)
-        return nil
+        local defaultConfig = {
+            Features = {
+                Profiles = {
+                    DefaultProfileName = "Default",
+                    SelectedProfile = "Default",
+                    Profiles = {
+                        "Default"
+                    }
+                }
+            }
+        }
+        JsonLayer:SaveJSONConfig(configFilePath, defaultConfig)
+        return defaultConfig
     end
 
     local success, data = pcall(Ext.Json.Parse, configFileContent)
@@ -103,6 +118,12 @@ function ModConfig:LoadMCMConfig()
     end
 
     return data
+end
+
+function ModConfig:LoadMCMConfig()
+    local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+    local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
+    return self:LoadMCMConfigFromFile(configFilePath)
 end
 
 -- Retrieve the currently selected profile from the MCM configuration
@@ -286,6 +307,7 @@ function ModConfig:AddKeysMissingFromSchema(schema, settings)
     end
 end
 
+--- TODO: modularize after 'final' schema structure is decided
 --- Clean up settings entries that are not present in the schema
 ---@param schema Schema The schema for the mod
 ---@param settings SchemaSetting The settings to clean up
