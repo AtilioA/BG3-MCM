@@ -8,6 +8,7 @@ MCM = _Class:Create("MCM", nil, {
 function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
+    _D("Done loading MCM configs")
     -- FIXME: profiles must be loaded after settings for some janky reason
     -- IMGUILayer:CreateModMenu(self.mods, self.profiles)
 end
@@ -15,7 +16,7 @@ end
 --- Create a new MCM profile
 ---@param profileName string The name of the new profile
 function MCM:CreateProfile(profileName)
-    ModConfig:CreateProfile(profileName)
+    ModConfig.profiles:CreateProfile(profileName)
 end
 
 --- Get the table of MCM profiles
@@ -27,27 +28,50 @@ end
 --- Get the current MCM profile's name
 ---@return string The name of the current profile
 function MCM:GetCurrentProfile()
-    return ModConfig:GetCurrentProfile()
+    return ModConfig.profiles:GetCurrentProfile()
 end
 
 --- Set the current MCM profile to the specified profile. This will also update the settings to reflect the new profile settings. If the profile does not exist, it will be created.
 ---@param profileName string The name of the profile to set as the current profile
 ---@return boolean success Whether the profile was successfully set
 function MCM:SetProfile(profileName)
-    return ModConfig:SetCurrentProfile(profileName)
+    return ModConfig.profiles:SetCurrentProfile(profileName)
 end
 
 -- TODO: Implement profile deletion
 
 --- Get the settings table for a mod
 ---@param modGUID? string The UUID of the mod. When not provided, the settings for the current mod are returned (ModuleUUID is used)
----@return table<string, table> self.mods[modGUID].settings settings table for the mod
+---@return table<string, table> - The settings table for the mod
 function MCM:GetModSettings(modGUID)
-    if modGUID then
-        return self.mods[modGUID].settingsValues
-    else
-        return self.mods[ModuleUUID].settingsValues
+    if not modGUID then
+        MCMWarn(0, "modGUID is nil. Cannot get mod settings. Please contact " ..
+            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+        return {}
     end
+
+    local mod = self.mods[modGUID]
+    if not mod then
+        MCMWarn(1, "Mod " .. modGUID .. " not found in MCM settings")
+        return {}
+    end
+
+    return mod.settingsValues
+
+
+    -- if modGUID then
+    --     if self.mods[modGUID] == nil then
+    --         MCMWarn(1, "Mod " .. modGUID .. " not found in MCM settings")
+    --         return nil
+    --     end
+    --     return self.mods[modGUID].settingsValues
+    -- else
+    --     if self.mods[ModuleUUID] == nil then
+    --         MCMWarn(1, "Mod " .. ModuleUUID .. " not found in MCM settings")
+    --         return nil
+    --     end
+    --     return self.mods[ModuleUUID].settingsValues
+    -- end
 end
 
 --- Get the Schema table for a mod
@@ -129,8 +153,6 @@ function MCM:ResetCommand()
     Ext.Net.BroadcastMessage("MCM_Settings_To_Client",
         Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
 end
-
-Ext.RegisterConsoleCommand('mcm_reset', function() MCM:ResetCommand() end)
 
 Ext.RegisterNetListener("MCM_Settings_Request", function(_)
     MCMDebug(1, "Received MCM settings request")
