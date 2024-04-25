@@ -74,7 +74,6 @@ function DataPreprocessing:SanitizeSchemas(mods)
                 Ext.Mod.GetMod(modGUID).Info.Name ..
                 ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         end
-        _D(mcmTable.schemas)
     end
 end
 
@@ -149,10 +148,9 @@ end
 ---@return boolean True if the data table has a SchemaVersions table and it is valid, false otherwise
 function DataPreprocessing:HasSchemaVersionsEntry(data, modGUID)
     if not data.SchemaVersion then
-        MCMWarn(0,
+        MCMDebug(2,
             "No 'SchemaVersion' section found in data for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(modGUID).Info.Name)
         return false
     elseif type(data.SchemaVersion) ~= "number" then
         MCMWarn(0,
@@ -170,10 +168,8 @@ end
 ---@return boolean True if the data table has a Sections table, false otherwise
 function DataPreprocessing:HasSectionsEntry(data, modGUID)
     if not data.Sections then
-        MCMWarn(0,
-            "No 'Sections' section found in data for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        MCMDebug(2,
+            "No 'Sections' section found in data for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
         return false
     end
     return true
@@ -210,12 +206,9 @@ function DataPreprocessing:PreprocessData(data, modGUID)
                 table.insert(tabData.Settings, newSetting)
             end
         else
-            MCMWarn(0,
+            MCMDebug(2,
                 "No 'Settings' section found in tab: " ..
-                tab.TabId ..
-                " for mod: " ..
-                Ext.Mod.GetMod(modGUID).Info.Name ..
-                ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                tab.TabId .. " for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
         end
 
         -- Handle sections containing settings
@@ -241,12 +234,8 @@ function DataPreprocessing:PreprocessData(data, modGUID)
                 table.insert(tabData.Sections, sectionData)
             end
         else
-            MCMWarn(0,
-                "No 'Sections' section found in tab: " ..
-                tab.TabId ..
-                " for mod: " ..
-                Ext.Mod.GetMod(modGUID).Info.Name ..
-                ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            MCMDebug(2,
+                "No 'Sections' section found in tab: " .. tab.TabId .. " for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
         end
 
         table.insert(preprocessedData.Tabs, tabData)
