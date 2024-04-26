@@ -1,3 +1,5 @@
+-- NOTE: this might be used to handle localization in the future, but at least during the alpha it won't be used. (this is taken from ISF)
+
 ---@class HelperMessages: Helper
 Messages = _Class:Create("HelperMessages", Helper)
 

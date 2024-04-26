@@ -32,7 +32,7 @@ if Config:getCfg().DEBUG.level > 1 then
     MCMAPI = _MetaClass._Debug(MCMAPI)
 end
 
--- Unfortunately needed since postponing this will cause problems with mods that need to use the API right away
+-- Unfortunately needed since postponing this will cause problems with mods that need to use the API during script initialization
 MCMAPI:LoadConfigs()
 
 SubscribedEvents.SubscribeToEvents()

@@ -74,6 +74,7 @@ function DataPreprocessing:SanitizeSchemas(mods)
     end
 end
 
+-- TODO: modularize this when the schema has been defined
 --- Validate the settings based on the schema and collect any invalid settings
 ---@param schema Schema The schema data
 ---@param settings SchemaSetting The settings data
@@ -119,6 +120,7 @@ function DataPreprocessing:ValidateSettings(schema, settings)
     return #invalidSettings == 0, invalidSettings
 end
 
+-- TODO: modularize this when the schema has been defined
 --- Attempt to fix invalid settings by resetting them to default values
 ---@param schema Schema The schema data
 ---@param config table The configuration settings
@@ -172,6 +174,7 @@ function DataPreprocessing:HasSectionsEntry(data, modGUID)
     return true
 end
 
+-- TODO: modularize this when the schema has been defined
 --- Preprocess the data and create SchemaSetting instances for each setting found in the Tabs and Sections
 ---@param data table The item data to preprocess
 ---@param modGUID string The UUID of the mod that the item data belongs to
