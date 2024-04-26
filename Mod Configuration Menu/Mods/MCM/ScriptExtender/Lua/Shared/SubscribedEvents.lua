@@ -11,7 +11,7 @@ function SubscribedEvents.SubscribeToEvents()
         -- Ext.Osiris.RegisterListener("CastedSpell", 5, "after", EHandlers.OnCastedSpell)
 
         -- When resetting Lua states
-        Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
+        -- Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
 
         Ext.Osiris.RegisterListener("LevelGameplayStarted", 2, "before", EHandlers.OnLevelGameplayStarted)
     end

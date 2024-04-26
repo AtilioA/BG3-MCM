@@ -26,10 +26,14 @@ else
     MCMPrint(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu version " .. versionNumber .. " loaded")
 end
 
-BG3MCM = MCM:New({}, "BG3MCM")
+MCMAPI = MCM:New({}, "BG3MCM")
 if Config:getCfg().DEBUG.level > 1 then
     -- Add debug wrapper to BG3MCM (very useful for logging writes and reads)
-    BG3MCM = _MetaClass._Debug(BG3MCM)
+    MCMAPI = _MetaClass._Debug(MCMAPI)
 end
+
+-- Unfortunately needed since postponing this will cause problems with mods that need to use the API right away
+MCMAPI:LoadConfigs()
+MCMAPI:SetProfile("Profile1")
 
 SubscribedEvents.SubscribeToEvents()

@@ -1,11 +1,11 @@
 EHandlers = {}
 
-function EHandlers.OnReset()
-    BG3MCM:LoadConfigs()
-end
+-- function EHandlers.OnReset()
+    -- MCMAPI:LoadConfigs()
+-- end
 
 function EHandlers.OnLevelGameplayStarted()
-    BG3MCM:LoadConfigs()
+    MCMAPI:LoadConfigs()
 end
 
 return EHandlers
