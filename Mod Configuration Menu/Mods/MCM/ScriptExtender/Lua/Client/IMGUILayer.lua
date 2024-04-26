@@ -2,6 +2,15 @@
 ---@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 ---@field private profiles table<string, table> A table of settings profiles for the MCM
 ---@field private mod_tabs table<string, any> A table of tabs for each mod in the MCM
+-- The IMGUILayer class is responsible for creating and managing the IMGUI user interface for MCM.
+-- It acts as the bridge between MCM's core business logic and MCM's IMGUI window, handling the rendering and interaction of the mod configuration UI.
+-- It relies on settings and profiles sent by the MCM (API) class, and then translates this data into a user-friendly IMGUI interface.
+--
+-- IMGUILayer provides methods for:
+-- - Creating the main MCM menu, which contains a tab for each mod that has MCM settings
+-- - Creating new tabs and sections for each mod, based on the mod's schema
+-- - Creating IMGUI widgets for each setting in the mod's schema
+-- - Sending messages to the server to update setting values
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
     profiles = {},
@@ -32,6 +41,7 @@ local InputWidgetFactory = {
         return IMGUIWidget:Create(group, setting, settingValue, modGUID, RadioIMGUIWidget)
     end
 }
+
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
 ---@param mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 ---@param profiles table<string, table> A table of settings profiles for the MCM
