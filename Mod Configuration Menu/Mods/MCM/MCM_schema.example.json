@@ -88,7 +88,8 @@
                                     "Option2",
                                     "Option3"
                                 ]
-                            }
+                            },
+                            "Tooltip": "This is a setting that does something else."
                         }
                     ]
                 }
@@ -124,17 +125,6 @@
                     },
                     "Tooltip": "This is a setting that uses a radio button group.",
                     "Description": "This is a setting that uses a radio button group, but this text is longer."
-                },
-                {
-                    "Id": "MyDict",
-                    "Name": "My Dict",
-                    "Type": "dict", // Use a dictionary input for this setting. The dictionary will be a key-value pair.
-                    "Default": {
-                        "key1": "value1",
-                        "key2": "value2"
-                    }, // Set the default value to a dictionary with two key-value pairs
-                    "Tooltip": "This is a setting that uses a key-value input.",
-                    "Description": "This is a setting that uses a dictionary input. You can add key-value pairs, or change the values of the key-value pairs"
                 }
             ]
         }
