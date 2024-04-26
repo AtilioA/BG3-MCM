@@ -2,6 +2,7 @@
 ---@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 -- The MCM (Mod Configuration Menu) class is the main entry point for interacting with the Mod Configuration Menu system.
 -- It acts as a high-level interface to the underlying ModConfig and ProfileManager classes, which handle the low-level details of loading, saving, and managing the mod configurations and user profiles, as well as JSON file handling from the JsonLayer class.
+--
 -- The MCM class is responsible for providing a consistent and user-friendly API for mod authors and the IMGUI client to interact with the Mod Configuration Menu system.
 -- It provides methods for managing the configuration of mods, including:
 -- - Loading the configurations for all mods

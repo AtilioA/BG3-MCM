@@ -27,6 +27,7 @@
 ---@class HelperJsonLayer: Helper
 -- The JsonLayer class is a helper class that provides functionality for loading and saving JSON configuration files.
 -- It is used throughout MCM to manage the loading and saving of mod configuration settings in a standardized way and isolate the details of working with JSON files.
+--
 -- The main responsibilities of the JsonLayer class are:
 -- - Loading JSON configuration files from a specified file path
 -- - Parsing the JSON data and returning it as a Lua table

@@ -36,8 +36,9 @@
 ---@field private profiles ProfileManager A table of profile data
 -- The ModConfig class orchestrates the management of mod configuration values within MCM.
 -- It provides methods for loading settings, saving settings, updating settings, calling validation, and managing the overall configuration *state* of the mods.
--- It relies on several helper classes, such as the JsonLayer and ProfileManager, to handle the details of working with JSON files and managing user profiles.
--- It is responsible for:
+-- It relies on helper classes such as the JsonLayer and ProfileManager to handle the details of working with JSON files and managing user profiles.
+--
+-- ModConfig is responsible for:
 -- - Loading and managing the configuration data for each mod
 -- - Handling the loading, saving, and updating of mod settings
 -- - Interfacing with the ProfileManager to manage user profiles
