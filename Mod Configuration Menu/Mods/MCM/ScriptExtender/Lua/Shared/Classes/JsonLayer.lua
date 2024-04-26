@@ -25,12 +25,23 @@
 --]]
 
 ---@class HelperJsonLayer: Helper
+-- The JsonLayer class is a helper class that provides functionality for loading and saving JSON configuration files.
+-- It is used throughout MCM to manage the loading and saving of mod configuration settings in a standardized way and isolate the details of working with JSON files.
+-- The main responsibilities of the JsonLayer class are:
+-- - Loading JSON configuration files from a specified file path
+-- - Parsing the JSON data and returning it as a Lua table
+-- - Saving Lua tables as JSON configuration files
+-- - Trying to load a JSON configuration file for a specific mod, handling
+--   errors and providing feedback to the user
 JsonLayer = _Class:Create("HelperJsonLayer", Helper, {
 })
 
--- Patterns for the potential JSON and JSONc config file paths to be loaded
+-- Patterns for the potential JSON config file paths to be loaded
 JsonLayer.ConfigFilePathPatternJSON = string.gsub("Mods/%s/MCM_schema.json", "'", "\'")
 
+---Loads a JSON configuration file from the specified file path.
+---@param filePath string The file path of the JSON configuration file to load.
+---@return table|nil data The parsed JSON data, or nil if the file could not be loaded or parsed.
 function JsonLayer:LoadJSONConfig(filePath)
     local configFileContent = Ext.IO.LoadFile(filePath)
     if not configFileContent or configFileContent == "" then
