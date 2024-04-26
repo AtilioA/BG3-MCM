@@ -4,6 +4,8 @@ Ext.Require("Client/_Init.lua")
 IMGUI_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
 IMGUI_WINDOW.Closeable = true
 IMGUI_WINDOW.Visible = true
+-- TODO: add stuff to the menu bar
+IMGUI_WINDOW.MenuBar = true
 ClientGlobals = {
     MOD_SETTINGS = {}
 }
@@ -20,6 +22,11 @@ Ext.RegisterNetListener("MCM_Settings_To_Client", function(_, payload)
     local profiles = ClientGlobals.MOD_SETTINGS.profiles
 
     IMGUILayer:CreateModMenu(mods, profiles)
+end)
+
+Ext.RegisterNetListener("MCM_Relay_To_Servers", function(_, metapayload)
+    local data = Ext.Json.Parse(metapayload)
+    Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
 end)
 
 -- function CreateModMenu()

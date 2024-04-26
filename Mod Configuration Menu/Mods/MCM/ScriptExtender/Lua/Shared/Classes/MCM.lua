@@ -109,6 +109,11 @@ function MCM:SetConfigValue(settingName, value, modGUID)
 
     modSettingsTable[settingName] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
+
+    -- This is kind of a hacky way to emit events to other servers
+    -- TODO: check if there's a better way to do this, emit more events (e.g. profile changed)
+    Ext.Net.BroadcastMessage("MCM_Relay_To_Servers",
+        Ext.Json.Stringify({ channel = "MCM_Saved_Setting", payload = { modGUID = modGUID, settingName = settingName, value = value } }))
 end
 
 ---@param settingName string The name of the setting to reset
