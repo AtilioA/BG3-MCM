@@ -161,12 +161,12 @@ end
 ---@param modGUID string The UUID of the mod
 ---@param schema table The schema for the mod
 function ModConfig:LoadSettingsForMod(modGUID, schema)
-    local configFilePath = self:GetConfigFilePath(modGUID)
-    local config = JsonLayer:LoadJSONConfig(configFilePath)
+    local settingsFilePath = self:GetSettingsFilePath(modGUID)
+    local config = JsonLayer:LoadJSONConfig(settingsFilePath)
     if config then
-        self:HandleLoadedSettings(modGUID, schema, config, configFilePath)
+        self:HandleLoadedSettings(modGUID, schema, config, settingsFilePath)
     else
-        self:HandleMissingSettings(modGUID, schema, configFilePath)
+        self:HandleMissingSettings(modGUID, schema, settingsFilePath)
     end
 end
 
@@ -174,15 +174,15 @@ end
 ---@param modGUID string The UUID of the mod
 ---@param schema table The schema for the mod
 ---@param config table The loaded settings config
----@param configFilePath string The file path of the settings.json file
-function ModConfig:HandleLoadedSettings(modGUID, schema, config, configFilePath)
+---@param settingsFilePath string The file path of the settings.json file
+function ModConfig:HandleLoadedSettings(modGUID, schema, config, settingsFilePath)
     MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
     -- Add new settings, remove deprecated settings, update JSON file
     self:AddKeysMissingFromSchema(schema, config)
     self:RemoveDeprecatedKeys(schema, config)
 
     config = DataPreprocessing:ValidateAndFixSettings(schema, config)
-    JsonLayer:SaveJSONConfig(configFilePath, config)
+    JsonLayer:SaveJSONConfig(settingsFilePath, config)
 
     self.mods[modGUID].settingsValues = config
 
@@ -192,16 +192,16 @@ end
 --- Handle the missing settings for a mod. If the settings file is missing, the default settings from the schema are saved to the file.
 ---@param modGUID string The UUID of the mod
 ---@param schema table The schema for the mod
----@param configFilePath string The file path of the settings.json file
-function ModConfig:HandleMissingSettings(modGUID, schema, configFilePath)
+---@param settingsFilePath string The file path of the settings.json file
+function ModConfig:HandleMissingSettings(modGUID, schema, settingsFilePath)
     local defaultSettingsJSON = Schema:GetDefaultSettingsFromSchema(schema)
-    -- _D(defaultSettingsJSON)
     self.mods[modGUID].settingsValues = defaultSettingsJSON
     MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
-        Ext.Mod.GetMod(modGUID).Info.Name, configFilePath)
-    JsonLayer:SaveJSONConfig(configFilePath, defaultSettingsJSON)
+        Ext.Mod.GetMod(modGUID).Info.Name, settingsFilePath)
+    JsonLayer:SaveJSONConfig(settingsFilePath, defaultSettingsJSON)
 end
 
+--- TODO: modularize after 'final' schema structure is decided
 --- Add missing keys from the settings file based on the schema
 --- @param schema Schema The schema to use for the settings
 --- @param settings SchemaSetting The settings to update
@@ -219,11 +219,21 @@ function ModConfig:AddKeysMissingFromSchema(schema, settings)
 
     if schemaTabs then
         for _, tab in ipairs(schemaTabs) do
-            -- _D(tab)
-            for _, section in ipairs(tab:GetSections()) do
-                for _, setting in ipairs(section:GetSettings()) do
+            local tabSections = tab.Sections
+            local tabSettings = tab:GetSettings()
+
+            if tabSettings then
+                for _, setting in ipairs(tabSettings) do
                     if settings[setting:GetId()] == nil then
                         settings[setting:GetId()] = setting:GetDefault()
+                    end
+                end
+            elseif tabSections then
+                for _, section in ipairs(tabSections) do
+                    for _, setting in ipairs(section.Settings) do
+                        if settings[setting:GetId()] == nil then
+                            settings[setting:GetId()] = setting:GetDefault()
+                        end
                     end
                 end
             end
@@ -250,9 +260,18 @@ function ModConfig:RemoveDeprecatedKeys(schema, settings)
 
     if schemaTabs then
         for _, tab in ipairs(schemaTabs) do
-            for _, section in ipairs(tab:GetSections()) do
-                for _, setting in ipairs(section:GetSettings()) do
+            local tabSections = tab.Sections
+            local tabSettings = tab:GetSettings()
+
+            if #tabSettings > 0 then
+                for _, setting in ipairs(tabSettings) do
                     validSettings[setting:GetId()] = true
+                end
+            elseif #tabSections > 0 then
+                for _, section in ipairs(tab.Sections) do
+                    for _, setting in ipairs(section.Settings) do
+                        validSettings[setting:GetId()] = true
+                    end
                 end
             end
         end
@@ -281,22 +300,18 @@ function ModConfig:SubmitSchema(data, modGUID)
         return
     end
 
-    -- ISUtils:InitializeModVarsForMod(preprocessedData, modGUID)
     self.mods[modGUID] = {
         schemas = Schema:New(preprocessedData),
     }
 
-    MCMWarn(1, "Schema is ready for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
+    MCMTest(1, "Schema for mod " .. Ext.Mod.GetMod(modGUID).Info.Name .. " is ready to be used.")
 end
 
---- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCMFrameworkConfig.jsonc" and be located in the mod's directory, alongside the mod's meta.lsx file.
+--- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_schema.json" and be located in the mod's directory, alongside the mod's meta.lsx file.
 --- If the file is found, the data is submitted to the ModConfig instance.
 --- If the file is not found, a warning is logged. If the file is found but cannot be parsed, an error is logged.
 ---@return nil
 function ModConfig:LoadSchemas()
-    -- Ensure ModVars table is initialized
-    -- self:InitializeModVars()
-
     -- If only we had `continue` in Lua...
     for _, uuid in pairs(Ext.Mod.GetLoadOrder()) do
         local modData = Ext.Mod.GetMod(uuid)
@@ -307,7 +322,6 @@ function ModConfig:LoadSchemas()
         if config ~= nil and config ~= "" then
             MCMDebug(2, "Found config for mod: " .. Ext.Mod.GetMod(uuid).Info.Name)
             local data = JsonLayer:TryLoadConfig(config, uuid)
-            -- _D(data)
             if data ~= nil and type(data) == "table" then
                 self:SubmitSchema(data, uuid)
             else
