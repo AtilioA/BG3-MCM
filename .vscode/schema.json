@@ -139,8 +139,7 @@
                         "text",
                         "enum",
                         "slider",
-                        "radio",
-                        "dict"
+                        "radio"
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
                 },
