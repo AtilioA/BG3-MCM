@@ -34,6 +34,5 @@ end
 
 -- Unfortunately needed since postponing this will cause problems with mods that need to use the API right away
 MCMAPI:LoadConfigs()
-MCMAPI:SetProfile("Profile1")
 
 SubscribedEvents.SubscribeToEvents()

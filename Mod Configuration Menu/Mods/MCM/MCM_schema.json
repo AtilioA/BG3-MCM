@@ -109,7 +109,9 @@
                     "Default": "Option1",
                     "Options": {
                         "Choices": [
-                            "a"
+                            "a",
+                            "b",
+                            "c"
                         ]
                     },
                     "Tooltip": "This is a setting that uses a radio button group.",
