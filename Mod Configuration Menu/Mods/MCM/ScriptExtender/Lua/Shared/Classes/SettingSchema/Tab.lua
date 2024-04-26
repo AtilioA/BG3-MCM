@@ -59,12 +59,14 @@ end
 
 --- Get the Sections of the SchemaTab.
 --- @return SchemaSection[]
+--- @return nil - If there are no sections
 function SchemaTab:GetSections()
     return self.Sections
 end
 
 --- Get the Settings of the SchemaTab.
 --- @return SchemaSetting[]
+--- @return nil - If there are no settings
 function SchemaTab:GetSettings()
     return self.Settings
 end

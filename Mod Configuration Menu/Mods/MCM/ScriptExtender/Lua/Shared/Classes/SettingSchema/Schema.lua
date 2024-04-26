@@ -11,6 +11,9 @@ function Schema:GetSchemaVersion()
     return self.SchemaVersion
 end
 
+--- Returns the tabs of the schema, if any.
+---@return SchemaTab[] tabs The tabs of the schema
+---@return nil - If there are no tabs
 function Schema:GetTabs()
     return self.Tabs
 end
@@ -21,7 +24,7 @@ end
 
 --- Returns the settings of the schema, if any.
 ---@return SchemaSetting[] settings The settings of the schema
----@return nil If there are no settings
+---@return nil - If there are no settings
 function Schema:GetSettings()
     return self.Settings
 end

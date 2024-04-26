@@ -8,7 +8,7 @@ MCM = _Class:Create("MCM", nil, {
 function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
-    _D("Done loading MCM configs")
+    MCMTest(0, "Done loading MCM configs")
     -- FIXME: profiles must be loaded after settings for some janky reason
     -- IMGUILayer:CreateModMenu(self.mods, self.profiles)
 end

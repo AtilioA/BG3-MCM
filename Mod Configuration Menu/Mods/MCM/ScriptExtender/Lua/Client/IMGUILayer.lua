@@ -101,6 +101,8 @@ function IMGUILayer:CreateModMenu(mods, profiles)
     -- Iterate over all mods and create a tab for each
     for modGUID, _ in pairs(self.mods) do
         local modTab = tabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
+
+        -- modTab:Tooltip():AddText(Ext.Mod.GetMod(modGUID).Info.Name) -- Add tooltip to main mod tab
         self.mod_tabs[modGUID] = modTab
         self:CreateModMenuTab(modGUID)
     end
@@ -121,6 +123,10 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     -- Create a new IMGUI group for the mod to hold all settings
     local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
     local modTabs = modGroup:AddTabBar(modInfo.Name .. "_TABS")
+
+    -- local modVersion = table.concat(Ext.Mod.GetMod(modGUID).Info.ModVersion, ".")
+    -- _D("Current mod: " .. modInfo.Name .. " version " .. modVersion)
+    -- _D(modTab)
 
     -- Iterate over each tab in the mod schema to create a subtab for each
     for _, tab in ipairs(modSchema.Tabs) do
