@@ -1,16 +1,26 @@
 ---@class MCM: MetaClass
 ---@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
+-- The MCM (Mod Configuration Menu) class is the main entry point for interacting with the Mod Configuration Menu system.
+-- It acts as a high-level interface to the underlying ModConfig and ProfileManager classes, which handle the low-level details of loading, saving, and managing the mod configurations and user profiles, as well as JSON file handling from the JsonLayer class.
+-- The MCM class is responsible for providing a consistent and user-friendly API for mod authors and the IMGUI client to interact with the Mod Configuration Menu system.
+-- It provides methods for managing the configuration of mods, including:
+-- - Loading the configurations for all mods
+-- - Creating and managing user profiles
+-- - Retrieving the settings and schemas for individual mods
+-- - Setting and getting the values of configuration settings
+-- - Resetting settings to their default values
 MCM = _Class:Create("MCM", nil, {
     mods = {},
     profiles = {},
 })
 
+--- Loads the profile manager and the configurations for all mods.
+---@return nil
 function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
     MCMTest(0, "Done loading MCM configs")
     -- FIXME: profiles must be loaded after settings for some janky reason
-    -- IMGUILayer:CreateModMenu(self.mods, self.profiles)
 end
 
 --- Create a new MCM profile
@@ -57,21 +67,6 @@ function MCM:GetModSettings(modGUID)
     end
 
     return mod.settingsValues
-
-
-    -- if modGUID then
-    --     if self.mods[modGUID] == nil then
-    --         MCMWarn(1, "Mod " .. modGUID .. " not found in MCM settings")
-    --         return nil
-    --     end
-    --     return self.mods[modGUID].settingsValues
-    -- else
-    --     if self.mods[ModuleUUID] == nil then
-    --         MCMWarn(1, "Mod " .. ModuleUUID .. " not found in MCM settings")
-    --         return nil
-    --     end
-    --     return self.mods[ModuleUUID].settingsValues
-    -- end
 end
 
 --- Get the Schema table for a mod
@@ -143,9 +138,9 @@ function MCM:ResetAllSettings(modGUID)
 end
 
 -- TODO:
--- --- Reset all settings from a section to their default values
+-- --- Reset all settings from a section to their default values?
 -- ---@param sectionName string The name of the section
--- ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
+-- ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used) (actually, this is not how it works :| )
 -- function MCM:ResetSectionValues(sectionName, modGUID)
 --     local modSchema = self.schemas[modGUID]
 --     local defaultSettings = Schema:GetDefaultSettingsFromSchema(modSchema)
@@ -159,11 +154,13 @@ function MCM:ResetCommand()
         Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
 end
 
+--- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
 Ext.RegisterNetListener("MCM_Settings_Request", function(_)
     MCMDebug(1, "Received MCM settings request")
     MCM:ResetCommand()
 end)
 
+--- Message handler for when the (IMGUI) client requests a setting to be set
 Ext.RegisterNetListener("MCM_SetConfigValue", function(_, payload)
     local payload = Ext.Json.Parse(payload)
     local settingId = payload.settingId
