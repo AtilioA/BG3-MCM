@@ -1,7 +1,6 @@
 ---@class TextIMGUIWidget: IMGUIWidget
 TextIMGUIWidget = _Class:Create("TextIMGUIWidget", IMGUIWidget)
 
----@param value string
 ---@return any
 function TextIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     local text = group:AddInputText(setting.Name, settingValue)

@@ -11,28 +11,27 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
 --- Factory for creating IMGUI widgets based on the type of setting
 local InputWidgetFactory = {
     int = function(group, setting, settingValue, modGUID)
-        return IntIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, IntIMGUIWidget)
     end,
     float = function(group, setting, settingValue, modGUID)
-        return FloatIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, FloatIMGUIWidget)
     end,
     checkbox = function(group, setting, settingValue, modGUID)
-        return CheckboxIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, CheckboxIMGUIWidget)
     end,
     text = function(group, setting, settingValue, modGUID)
-        return TextIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, TextIMGUIWidget)
     end,
     enum = function(group, setting, settingValue, modGUID)
-        return EnumIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, EnumIMGUIWidget)
     end,
     slider = function(group, setting, settingValue, modGUID)
-        return SliderIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, SliderIMGUIWidget)
     end,
     radio = function(group, setting, settingValue, modGUID)
-        return RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, RadioIMGUIWidget)
     end
 }
-
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
 ---@param mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 ---@param profiles table<string, table> A table of settings profiles for the MCM
@@ -150,9 +149,7 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
             self:CreateModMenuSection(tabHeader, section, modSettings, modGUID)
         end
     elseif #tabSettings > 0 then
-        _D("Creating settings for tab: " .. tab.TabName)
         for _, setting in ipairs(tabSettings) do
-            _D("Creating setting: " .. setting.Id)
             self:CreateModMenuSetting(tabHeader, setting, modSettings, modGUID)
         end
     end
