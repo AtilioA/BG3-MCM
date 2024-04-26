@@ -21,7 +21,6 @@ function ProfileManager:Create(mcmConfig)
         return
     end
 
-    _D(mcmConfig)
     profile.SelectedProfile = mcmConfig.Features.Profiles.SelectedProfile
     profile.Profiles = mcmConfig.Features.Profiles.Profiles
     profile.DefaultProfile = mcmConfig.Features.Profiles.DefaultProfile
@@ -31,7 +30,6 @@ end
 
 function ProfileManager:GetCurrentProfile()
     -- Fallback to default if no profile data is found
-    _D(self)
     if not self.Profiles or type(self.Profiles) ~= "table" then
         return "Default"
     end
@@ -49,15 +47,11 @@ function ProfileManager:SaveProfileValuesToConfig(profileData)
 
     local data = ModConfig:LoadMCMConfig()
     if data then
-        _D(data)
-        _D("=== Saving profile values to config ===")
-        _D(self)
         data.Features.Profiles = {
             SelectedProfile = self.SelectedProfile,
             Profiles = self.Profiles,
             DefaultProfile = self.DefaultProfile
         }
-        _D(data)
         JsonLayer:SaveJSONConfig(configFilePath, data)
     else
         MCMWarn(1, "MCM config file not found: " .. configFilePath)

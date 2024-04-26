@@ -124,6 +124,7 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
     local modTabs = modGroup:AddTabBar(modInfo.Name .. "_TABS")
 
+    -- TODO: Add mod version somewhere (tooltip isn't working correctly)
     -- local modVersion = table.concat(Ext.Mod.GetMod(modGUID).Info.ModVersion, ".")
     -- _D("Current mod: " .. modInfo.Name .. " version " .. modVersion)
     -- _D(modTab)
@@ -143,8 +144,20 @@ end
 function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     local tabHeader = modTabs:AddTabItem(tab.TabName)
 
-    for _, section in ipairs(tab.Sections) do
-        self:CreateModMenuSection(tabHeader, section, modSettings, modGUID)
+    -- REFACTOR: as always, this is a mess and should be abstracted away somehow throughout the application if you're reading this im sorry lol given up with the commas too smh also I created classes for all these lil elements but I'm not using them here because something was not instantiated and I was focused on something else so it just slipped by
+    local tabSections = tab.Sections
+    local tabSettings = tab.Settings
+
+    if #tabSections > 0 then
+        for _, section in ipairs(tab.Sections) do
+            self:CreateModMenuSection(tabHeader, section, modSettings, modGUID)
+        end
+    elseif #tabSettings > 0 then
+        _D("Creating settings for tab: " .. tab.TabName)
+        for _, setting in ipairs(tabSettings) do
+            _D("Creating setting: " .. setting.Id)
+            self:CreateModMenuSetting(tabHeader, setting, modSettings, modGUID)
+        end
     end
 end
 
@@ -155,11 +168,9 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuSection(modGroup, section, modSettings, modGUID)
+    -- TODO: Set the style for the section header text somehow
     local tabBar = modGroup:AddSeparator(section.SectionName)
     local sectionHeader = modGroup:AddText(section.SectionName)
-
-    -- TODO: Set the style for the section header text somehow
-    -- sectionHeader:SetStyleVar???
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section.Settings) do
@@ -178,8 +189,8 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
     local settingValue = modSettings[setting.Id]
     local createWidget = InputWidgetFactory[setting.Type]
     if createWidget == nil then
-        MCMWarn(0,
-            "No widget factory found for setting type '" ..
+        -- TODO: use MCMWarn after Shared-Server mess is sorted
+        _P("No widget factory found for setting type '" ..
             setting.Type ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
