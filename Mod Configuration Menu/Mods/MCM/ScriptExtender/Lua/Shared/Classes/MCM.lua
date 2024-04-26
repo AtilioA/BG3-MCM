@@ -148,17 +148,18 @@ end
 --     local modSettings = self.settings[modGUID]
 -- end
 
-function MCM:ResetCommand()
+-- TODO: modularize these later
+local function resetCommand()
     MCMDebug(1, "Reloading MCM settings...")
     MCM:LoadConfigs()
     Ext.Net.BroadcastMessage("MCM_Settings_To_Client",
-        Ext.Json.Stringify({ mods = self.mods, profiles = self.profiles }))
+        Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
 end
 
 --- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
 Ext.RegisterNetListener("MCM_Settings_Request", function(_)
     MCMDebug(1, "Received MCM settings request")
-    MCM:ResetCommand()
+    resetCommand()
 end)
 
 --- Message handler for when the (IMGUI) client requests a setting to be set
