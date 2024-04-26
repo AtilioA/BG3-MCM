@@ -1,3 +1,11 @@
+-- The ProfileManager class manages the profiles for the Mod Configuration Menu system.
+-- It handles loading, saving, and switching between different profiles, which allow users to have multiple configurations for their mod settings.
+-- The ProfileManager class is responsible for:
+-- - Maintaining the list of available profiles
+-- - Keeping track of the currently selected profile
+-- - Loading and saving profile data to the MCM configuration file
+-- - Creating new profiles
+-- - Setting the current profile
 ---@class ProfileManager
 ---@field DefaultProfile string The name of the default profile
 ---@field SelectedProfile string The name of the currently selected profile
@@ -28,10 +36,12 @@ function ProfileManager:Create(mcmConfig)
     return profile
 end
 
+--- Get the currently selected profile.
+---@return string The name of the currently selected profile, or the default profile if no profile data is found.
 function ProfileManager:GetCurrentProfile()
     -- Fallback to default if no profile data is found
     if not self.Profiles or type(self.Profiles) ~= "table" then
-        return "Default"
+        return self.DefaultProfile or "Default"
     end
 
     if self.SelectedProfile then
@@ -41,21 +51,23 @@ function ProfileManager:GetCurrentProfile()
     return self.DefaultProfile
 end
 
-function ProfileManager:SaveProfileValuesToConfig(profileData)
+--- Save the profile values to the MCM configuration file.
+function ProfileManager:SaveProfileValuesToConfig()
     local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
     local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
 
     local data = ModConfig:LoadMCMConfig()
-    if data then
-        data.Features.Profiles = {
-            SelectedProfile = self.SelectedProfile,
-            Profiles = self.Profiles,
-            DefaultProfile = self.DefaultProfile
-        }
-        JsonLayer:SaveJSONConfig(configFilePath, data)
-    else
+    if not data then
         MCMWarn(1, "MCM config file not found: " .. configFilePath)
+        return
     end
+
+    data.Features.Profiles = {
+        SelectedProfile = self.SelectedProfile,
+        Profiles = self.Profiles,
+        DefaultProfile = self.DefaultProfile
+    }
+    JsonLayer:SaveJSONConfig(configFilePath, data)
 end
 
 --- Set the currently selected profile
