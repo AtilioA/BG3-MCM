@@ -124,6 +124,14 @@ function ModConfig:LoadMCMConfig()
     return self:LoadMCMConfigFromFile(configFilePath)
 end
 
+---Get the ProfileManager instance used by ModConfig
+---@return ProfileManager self.profiles The ProfileManager instance
+function ModConfig:GetProfiles()
+    return self.profiles
+end
+
+-- TODO: Implement profile deletion
+
 --- SECTION: SETTINGS HANDLING
 --- Load the settings for each mod from the settings file.
 function ModConfig:LoadSettings()

@@ -84,6 +84,7 @@ end
 
 --- Set the currently selected profile
 ---@param profileName string The name of the profile to set as the current profile
+---@return boolean success Whether the profile was successfully set
 function ProfileManager:SetCurrentProfile(profileName)
     if not profileName then
         MCMWarn(1, "Profile name is required.")
@@ -113,6 +114,7 @@ end
 
 --- Create a new profile and save it to the MCM configuration JSON file (mcm_config.json)
 ---@param profileName string The name of the new profile
+---@return boolean success Whether the profile was successfully created
 function ProfileManager:CreateProfile(profileName)
     if not self.Profiles then
         MCMWarn(1, "Profile feature is not properly configured in MCM.")
@@ -125,6 +127,36 @@ function ProfileManager:CreateProfile(profileName)
     end
 
     table.insert(self.Profiles, profileName)
+
+    ProfileManager:SaveProfileValuesToConfig()
+
+    return true
+end
+
+--- Delete a profile and save the changes to the MCM configuration JSON file (mcm_config.json)
+---@param profileName string The name of the profile to delete
+---@return boolean Whether the profile was successfully deleted
+function ProfileManager:DeleteProfile(profileName)
+    if not self.Profiles then
+        MCMWarn(1, "Profile feature is not properly configured in MCM.")
+        return false
+    end
+
+    if not table.contains(self.Profiles, profileName) then
+        MCMWarn(1, "Profile " .. profileName .. " does not exist and cannot be deleted.")
+        return false
+    end
+
+    if profileName == self.DefaultProfile then
+        MCMWarn(1, "Cannot delete the default profile.")
+        return false
+    end
+
+    table.remove(self.Profiles, table.indexOf(self.Profiles, profileName))
+
+    if self.SelectedProfile == profileName then
+        self.SelectedProfile = self.DefaultProfile
+    end
 
     ProfileManager:SaveProfileValuesToConfig()
 

@@ -1,16 +1,6 @@
 ---@class HelperDataPreprocessing: Helper
 DataPreprocessing = _Class:Create("HelperDataPreprocessing", Helper)
 
--- Utility function to check if a table contains a value
-function table.contains(tbl, element)
-    for _, value in pairs(tbl) do
-        if value == element then
-            return true
-        end
-    end
-    return false
-end
-
 -- Validator functions for different setting types
 local SettingValidators = {
     ["int"] = function(setting, value)
