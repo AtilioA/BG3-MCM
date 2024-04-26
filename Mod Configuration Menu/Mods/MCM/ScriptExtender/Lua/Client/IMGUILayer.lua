@@ -31,9 +31,6 @@ local InputWidgetFactory = {
     radio = function(group, setting, settingValue, modGUID)
         return RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
     end
-    -- dict = function(group, setting, settingValue, modGUID)
-    --     return DictIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
-    -- end
 }
 
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings

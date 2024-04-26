@@ -33,9 +33,6 @@ local SettingValidators = {
     end,
     ["radio"] = function(setting, value)
         return RadioValidator.Validate(setting, value)
-    end,
-    ["dict"] = function(setting, value)
-        return DictValidator.Validate(setting, value)
     end
 }
 

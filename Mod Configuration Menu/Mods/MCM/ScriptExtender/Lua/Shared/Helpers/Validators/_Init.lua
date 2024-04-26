@@ -1,6 +1,5 @@
 RequireFiles("Shared/Helpers/Validators/", {
     "CheckboxValidator",
-    "DictValidator",
     "EnumValidator",
     "FloatValidator",
     "IntValidator",

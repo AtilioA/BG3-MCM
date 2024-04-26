@@ -1,5 +1,4 @@
 RequireFiles("Client/IMGUIHelpers/", {
-    -- "DictIMGUIWidget",
     "CheckboxIMGUIWidget",
     "EnumIMGUIWidget",
     "FloatIMGUIWidget",
