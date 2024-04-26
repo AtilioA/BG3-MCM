@@ -165,11 +165,6 @@ function ModConfig:GetSettings()
     return self.mods
 end
 
----Get the ProfileManager instance used by ModConfig
----@return ProfileManager self.profiles The ProfileManager instance
-function ModConfig:GetProfiles()
-    return self.profiles
-end
 
 --- Load the settings for a mod from the settings file.
 ---@param modGUID string The UUID of the mod
