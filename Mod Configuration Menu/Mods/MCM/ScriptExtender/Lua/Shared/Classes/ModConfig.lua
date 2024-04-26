@@ -166,7 +166,6 @@ function ModConfig:GetSettings()
     return self.mods
 end
 
-
 --- Load the settings for a mod from the settings file.
 ---@param modGUID string The UUID of the mod
 ---@param schema table The schema for the mod
@@ -322,24 +321,47 @@ end
 --- If the file is not found, a warning is logged. If the file is found but cannot be parsed, an error is logged.
 ---@return nil
 function ModConfig:LoadSchemas()
-    -- If only we had `continue` in Lua...
     for _, uuid in pairs(Ext.Mod.GetLoadOrder()) do
-        local modData = Ext.Mod.GetMod(uuid)
-        MCMDebug(3, "Checking mod: " .. modData.Info.Name)
+        self:LoadSchemaForMod(uuid)
+    end
+end
 
-        local filePath = JsonLayer.ConfigFilePathPatternJSON:format(modData.Info.Directory)
-        local config = Ext.IO.LoadFile(filePath, "data")
-        if config ~= nil and config ~= "" then
-            MCMDebug(2, "Found config for mod: " .. Ext.Mod.GetMod(uuid).Info.Name)
-            local data = JsonLayer:TryLoadConfig(config, uuid)
-            if data ~= nil and type(data) == "table" then
-                self:SubmitSchema(data, uuid)
-            else
-                MCMWarn(0,
-                    "Failed to load MCM config JSON file for mod: " ..
-                    Ext.Mod.GetMod(uuid).Info.Name ..
-                    ". Please contact " .. Ext.Mod.GetMod(uuid).Info.Author .. " about this issue.")
-            end
+--- Load the schema for a mod and submit it to the ModConfig instance.
+---@param uuid string The UUID of the mod to load the schema for
+---@return nil
+function ModConfig:LoadSchemaForMod(uuid)
+    local modData = Ext.Mod.GetMod(uuid)
+    MCMDebug(3, "Checking mod: " .. modData.Info.Name)
+
+    local status, err = pcall(function()
+        local data = JsonLayer:LoadConfigForMod(modData)
+        if data then
+            self:SubmitSchema(data, modData.Info.ModuleUUID)
         end
+    end)
+
+    if not status then
+        self:HandleLoadSchemaError(modData, err)
+    end
+end
+
+--- Handle errors that occur when loading a schema for a mod.
+---@param modData table The mod data for the mod that the schema was being loaded for
+---@param err table The error that occurred when loading the schema (thrown by JsonLayer)
+function ModConfig:HandleLoadSchemaError(modData, err)
+    if not err then
+        MCMWarn(0, "An unexpected error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
+            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+        return
+    end
+
+    if err.code == "JSONParseError" then
+        MCMWarn(0, err.message)
+    elseif err.code == "FileNotFoundError" then
+        MCMWarn(3, err.message)
+    else
+        -- Handle other unexpected errors (which ones lol)
+        MCMWarn(0, "An unexpected error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
+            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     end
 end

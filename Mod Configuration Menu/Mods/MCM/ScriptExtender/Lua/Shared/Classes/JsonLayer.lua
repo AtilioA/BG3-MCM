@@ -90,3 +90,33 @@ function JsonLayer:TryLoadConfig(configStr, modGUID)
         return nil
     end
 end
+
+-- Custom exception for file-related issues
+function JsonLayer:FileNotFoundError(message)
+    error({ code = "FileNotFoundError", message = message })
+end
+
+function JsonLayer:JSONParseError(message)
+    error({ code = "JSONParseError", message = message })
+end
+
+--- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_schema.json" and be located in the mod's directory, alongside the mod's meta.lsx file.
+--- If the file is found, the data is submitted to the ModConfig instance.
+--- If the file is not found, a warning is logged. If the file is found but cannot be parsed, an error is logged.
+---@param modData table
+---@return table|nil data The schema data, or an error message if the schema could not be loaded
+function JsonLayer:LoadConfigForMod(modData)
+    local filePath = self.ConfigFilePathPatternJSON:format(modData.Info.Directory)
+    local config = Ext.IO.LoadFile(filePath, "data")
+    if config == nil or config == "" then
+        return self:FileNotFoundError("Config file not found for mod: " .. modData.Info.Name)
+    end
+
+    local data = self:TryLoadConfig(config, modData.Info.ModuleUUID)
+    if data == nil or type(data) ~= "table" then
+        return JsonLayer:JSONParseError("Failed to load MCM config JSON file for mod: " ..
+            modData.Info.Name .. ". Please contact " .. modData.Info.Author .. " about this issue.")
+    end
+
+    return data
+end
