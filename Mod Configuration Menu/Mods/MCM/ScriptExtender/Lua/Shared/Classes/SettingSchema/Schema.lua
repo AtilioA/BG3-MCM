@@ -69,8 +69,36 @@ end
 ---@param settingName string The name/key of the setting to retrieve the default value for
 ---@return any setting.Default The default value for the setting
 function Schema:RetrieveDefaultValueForSetting(settingName)
-    for _, section in ipairs(self.Tabs) do
-        for _, setting in ipairs(section:GetSettings()) do
+    -- TODO: CLEAN THIS GODAWFUL MESS UP
+    local tabs = self:GetTabs()
+    if tabs then
+        for _, tab in ipairs(tabs) do
+            local sections = tab:GetSections()
+            local settings = tab:GetSettings()
+
+            if sections then
+                for _, section in ipairs(sections) do
+                    for _, setting in ipairs(section:GetSettings()) do
+                        if setting:GetId() == settingName then
+                            return setting:GetDefault()
+                        end
+                    end
+                end
+            end
+
+            if settings then
+                for _, setting in ipairs(settings) do
+                    if setting:GetId() == settingName then
+                        return setting:GetDefault()
+                    end
+                end
+            end
+        end
+    end
+
+    local settings = self:GetSettings()
+    if settings then
+        for _, setting in ipairs(settings) do
             if setting:GetId() == settingName then
                 return setting:GetDefault()
             end
