@@ -1,4 +1,4 @@
--- TODO: refactor VC Printer to allow changing DebugLevel on the fly
+-- TODO: refactor VC Printer to allow changing DebugLevel on the fly? Actually we can just update when receiving messages from MCM (like Auto Send Food)
 MCMPrinter = Printer:New { Prefix = "Mod Configuration Menu", ApplyColor = true, DebugLevel = Config:GetCurrentDebugLevel() }
 
 function MCMPrint(debugLevel, ...)

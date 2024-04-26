@@ -64,9 +64,9 @@ function Printer:Print(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
         if self.DebugLevel > 0 then
-            s = string.format("[%s][D%s]: ", self.Prefix, self.DebugLevel)
+            s = string.format("[%s][D%s][%s]: ", self.Prefix, self.DebugLevel, self.Machine)
         else
-            s = string.format("[%s]: ", self.Prefix)
+            s = string.format("[%s][%s]: ", self.Prefix, self.Machine)
         end
 
         if self.ApplyColor then
@@ -88,9 +88,9 @@ function Printer:PrintTest(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
         if self.DebugLevel > 1 then
-            s = string.format("[%s][%s%s]: ", self.Prefix, "TEST-", debugLevel)
+            s = string.format("[%s][%s%s][%s]: ", self.Prefix, "TEST-", debugLevel, self.Machine)
         else
-            s = string.format("[%s][%s%s]: ", self.Prefix, "TEST-", debugLevel)
+            s = string.format("[%s][%s%s][%s]: ", self.Prefix, "TEST-", debugLevel, self.Machine)
         end
 
         if self.ApplyColor then
@@ -112,9 +112,9 @@ function Printer:PrintWarning(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
         if self.DebugLevel > 1 then
-            s = string.format("[%s][%s]: ", self.Prefix, "WARN")
+            s = string.format("[%s][%s][%s]: ", self.Prefix, "WARN", self.Machine)
         else
-            s = string.format("[%s][%s]: ", self.Prefix, "WARN")
+            s = string.format("[%s][%s][%s]: ", self.Prefix, "WARN", self.Machine)
         end
 
         if self.ApplyColor then
@@ -136,9 +136,9 @@ function Printer:PrintDebug(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
         if self.DebugLevel > 1 then
-            s = string.format("[%s][%s%s]: ", self.Prefix, "DEBUG-", debugLevel)
+            s = string.format("[%s][%s%s][%s]: ", self.Prefix, "DEBUG-", debugLevel, self.Machine)
         else
-            s = string.format("[%s][%s%s]: ", self.Prefix, "DEBUG-", debugLevel)
+            s = string.format("[%s][%s%s][%s]: ", self.Prefix, "DEBUG-", debugLevel, self.Machine)
         end
 
         if self.ApplyColor then
@@ -158,7 +158,7 @@ end
 
 function Printer:Dump(info, useOptions, includeTime)
     if self.DebugLevel > 0 then
-        s = string.format("[%s][%s]: ", self.Prefix, "DUMP")
+        s = string.format("[%s][%s][%s]: ", self.Prefix, "DUMP", self.Machine)
 
         if self.ApplyColor then
             s = self:Colorize(s)
