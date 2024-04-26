@@ -10,10 +10,22 @@
 ---@field DefaultProfile string The name of the default profile
 ---@field SelectedProfile string The name of the currently selected profile
 ---@field Profiles table<string> A list of profile names
+---@field DefaultConfig table The default configuration settings
 ProfileManager = _Class:Create("ProfileManager", nil, {
     DefaultProfile = "Default",
     SelectedProfile = "Default",
-    Profiles = { "Default" }
+    Profiles = { "Default" },
+    DefaultConfig = {
+        Features = {
+            Profiles = {
+                DefaultProfile = "Default",
+                SelectedProfile = "Default",
+                Profiles = {
+                    "Default"
+                }
+            }
+        }
+    }
 })
 
 function ProfileManager:Create(mcmConfig)

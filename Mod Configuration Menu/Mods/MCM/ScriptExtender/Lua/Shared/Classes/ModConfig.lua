@@ -34,6 +34,15 @@
 ---@class ModConfig
 ---@field private mods ModsConfig A table of modGUIDs that has a table of schemas and settings for each mod
 ---@field private profiles ProfileManager A table of profile data
+-- The ModConfig class orchestrates the management of mod configuration values within MCM.
+-- It provides methods for loading settings, saving settings, updating settings, calling validation, and managing the overall configuration *state* of the mods.
+-- It relies on several helper classes, such as the JsonLayer and ProfileManager, to handle the details of working with JSON files and managing user profiles.
+-- It is responsible for:
+-- - Loading and managing the configuration data for each mod
+-- - Handling the loading, saving, and updating of mod settings
+-- - Interfacing with the ProfileManager to manage user profiles
+-- - Submitting and loading mod schemas
+-- - Ensuring the consistency and integrity of the mod settings
 ModConfig = _Class:Create("ModConfig", nil, {
     mods = {},
     profiles = ProfileManager
@@ -86,21 +95,14 @@ function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
 end
 
 --- SECTION: MCM CONFIG/PROFILE HANDLING
+---Loads the MCM configuration file from the specified file path, used to load the profiles.
+---@param configFilePath string The file path of the MCM configuration file to load.
+---@return table|nil data parsed MCM configuration data, or nil if the file could not be loaded or parsed.
 function ModConfig:LoadMCMConfigFromFile(configFilePath)
     local configFileContent = Ext.IO.LoadFile(configFilePath)
     if not configFileContent or configFileContent == "" then
         MCMWarn(1, "MCM config file not found: " .. configFilePath .. ". Creating default config.")
-        local defaultConfig = {
-            Features = {
-                Profiles = {
-                    DefaultProfile = "Default",
-                    SelectedProfile = "Default",
-                    Profiles = {
-                        "Default"
-                    }
-                }
-            }
-        }
+        local defaultConfig = ProfileManager.DefaultConfig
         JsonLayer:SaveJSONConfig(configFilePath, defaultConfig)
         return defaultConfig
     end
@@ -114,6 +116,8 @@ function ModConfig:LoadMCMConfigFromFile(configFilePath)
     return data
 end
 
+-- TODO: rename this 💀 we already have too much 'name clashing'
+--- Load the MCM configuration file from the mod's directory.
 function ModConfig:LoadMCMConfig()
     local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
     local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
@@ -153,6 +157,8 @@ function ModConfig:GetSettings()
     return self.mods
 end
 
+---Get the ProfileManager instance used by ModConfig
+---@return ProfileManager self.profiles The ProfileManager instance
 function ModConfig:GetProfiles()
     return self.profiles
 end
