@@ -145,8 +145,8 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     local tabSettings = tab.Settings
 
     if #tabSections > 0 then
-        for _, section in ipairs(tab.Sections) do
-            self:CreateModMenuSection(tabHeader, section, modSettings, modGUID)
+        for sectionIndex, section in ipairs(tab.Sections) do
+            self:CreateModMenuSection(sectionIndex, tabHeader, section, modSettings, modGUID)
         end
     elseif #tabSettings > 0 then
         for _, setting in ipairs(tabSettings) do
@@ -156,15 +156,19 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
 end
 
 --- Create a new section for a mod in the MCM
+---@param sectionIndex number The index of the section
 ---@param modGroup any The IMGUI group for the mod
 ---@param section SchemaSection The section to create a tab for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modGUID string The UUID of the mod
 ---@return nil
-function IMGUILayer:CreateModMenuSection(modGroup, section, modSettings, modGUID)
+function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSettings, modGUID)
     -- TODO: Set the style for the section header text somehow
-    local tabBar = modGroup:AddSeparator(section.SectionName)
-    local sectionHeader = modGroup:AddText(section.SectionName)
+    if sectionIndex > 1 then
+        modGroup:AddDummy(0, 5)
+    end
+
+    local tabBar = modGroup:AddSeparatorText(section.SectionName)
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section.Settings) do
