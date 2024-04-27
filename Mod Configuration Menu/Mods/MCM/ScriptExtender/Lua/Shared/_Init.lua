@@ -11,8 +11,6 @@ RequireFiles("Shared/", {
     "MetaClass",
     "Helpers/_Init",
     "Classes/_Init",
-    "SubscribedEvents",
-    "EventHandlers",
 })
 
 local MODVERSION = Ext.Mod.GetMod(ModuleUUID).Info.ModVersion
@@ -34,5 +32,3 @@ end
 
 -- Unfortunately needed since postponing this will cause problems with mods that need to use the API during script initialization
 MCMAPI:LoadConfigs()
-
-SubscribedEvents.SubscribeToEvents()

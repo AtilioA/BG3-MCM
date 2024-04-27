@@ -8,7 +8,7 @@ function RequireFiles(path, files)
 end
 
 RequireFiles("Client/", {
-    "MetaClass",
     "IMGUILayer",
-    "IMGUIHelpers/_Init"
+    "IMGUIHelpers/_Init",
+    "MCMIMGUIAPI",
 })

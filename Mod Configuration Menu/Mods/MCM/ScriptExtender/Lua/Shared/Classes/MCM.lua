@@ -148,11 +148,24 @@ end
 --     local modSettings = self.settings[modGUID]
 -- end
 
+--  Register a new tab to be displayed in the MCM
+-- @param modGUID string The UUID of the mod
+-- @param tabName string The name of the tab to display
+-- @param tabCallback function A callback function that will be called to create the tab content
+-- function MCM:RegisterModTab(modGUID, tabName, tabCallback)
+--     -- Notify the IMGUILayer to add the new tab
+--     Ext.Net.BroadcastMessage("MCM_Mod_Tab_Added", Ext.Json.Stringify({
+--         modGUID = modGUID,
+--         tabName = tabName,
+--         tabCallback = tabCallback
+--     }))
+-- end
+
 -- TODO: modularize these later
 local function resetCommand()
     MCMDebug(1, "Reloading MCM settings...")
     MCM:LoadConfigs()
-    Ext.Net.BroadcastMessage("MCM_Settings_To_Client",
+    Ext.Net.BroadcastMessage("MCM_Server_Send_Settings_To_Client",
         Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
 end
 
@@ -161,6 +174,7 @@ Ext.RegisterNetListener("MCM_Settings_Request", function(_)
     MCMDebug(1, "Received MCM settings request")
     resetCommand()
 end)
+Ext.RegisterConsoleCommand('mcm_reset', function() resetCommand() end)
 
 --- Message handler for when the (IMGUI) client requests a setting to be set
 Ext.RegisterNetListener("MCM_SetConfigValue", function(_, payload)
