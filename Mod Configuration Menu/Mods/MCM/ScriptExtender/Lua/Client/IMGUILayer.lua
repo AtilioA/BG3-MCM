@@ -101,12 +101,17 @@ function IMGUILayer:CreateModMenu(mods, profiles)
     -- REFACTOR: improve this spacing logic nonsense
     IMGUI_WINDOW:AddSpacing()
     -- Add the main tab bar for the mods
-    local tabBar = IMGUI_WINDOW:AddTabBar("Mods")
+    local modsTabBar = IMGUI_WINDOW:AddTabBar("Mods")
+
+    -- Make the tabs under the mods tab bar have a list popup button and be reorderable
+    modsTabBar.TabListPopupButton = true
+    modsTabBar.Reorderable = true
+
     self.mod_tabs = {}
 
     -- Iterate over all mods and create a tab for each
     for modGUID, _ in pairs(self.mods) do
-        local modTab = tabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
+        local modTab = modsTabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
 
         -- modTab:Tooltip():AddText(Ext.Mod.GetMod(modGUID).Info.Name) -- Add tooltip to main mod tab
         self.mod_tabs[modGUID] = modTab
