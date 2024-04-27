@@ -17,6 +17,8 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods_tabs = {}
 })
 
+MCM_IMGUI_API = IMGUILayer:New()
+
 --- Factory for creating IMGUI widgets based on the type of setting
 local InputWidgetFactory = {
     int = function(group, setting, settingValue, modGUID)
@@ -100,21 +102,22 @@ function IMGUILayer:CreateModMenu(mods, profiles)
 
     -- REFACTOR: improve this spacing logic nonsense
     IMGUI_WINDOW:AddSpacing()
+
+    -- TODO: refactor what is part of the class and whatever
     -- Add the main tab bar for the mods
-    local modsTabBar = IMGUI_WINDOW:AddTabBar("Mods")
+    self.modsTabBar = IMGUI_WINDOW:AddTabBar("Mods")
 
     -- Make the tabs under the mods tab bar have a list popup button and be reorderable
-    modsTabBar.TabListPopupButton = true
-    modsTabBar.Reorderable = true
-
-    self.mod_tabs = {}
+    self.modsTabBar.TabListPopupButton = true
+    self.modsTabBar.Reorderable = true
+    self.mods_tabs = {}
 
     -- Iterate over all mods and create a tab for each
     for modGUID, _ in pairs(self.mods) do
-        local modTab = modsTabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
+        local modTab = self.modsTabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
 
         -- modTab:Tooltip():AddText(Ext.Mod.GetMod(modGUID).Info.Name) -- Add tooltip to main mod tab
-        self.mod_tabs[modGUID] = modTab
+        self.mods_tabs[modGUID] = modTab
         self:CreateModMenuTab(modGUID)
     end
 end
@@ -129,11 +132,17 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     local modSchema = self.mods[modGUID].schemas
     local modSettings = self.mods[modGUID].settingsValues
     -- local modSettings = MCM:GetModSettings(modGUID)
-    local modTab = self.mod_tabs[modGUID]
+    local modTab = self.mods_tabs[modGUID]
 
     -- Create a new IMGUI group for the mod to hold all settings
-    local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
-    local modTabs = modGroup:AddTabBar(modInfo.Name .. "_TABS")
+    -- local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
+    local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
+
+    if type(self.mods_tabs[modGUID]) == "table" then
+        self.mods_tabs[modGUID].mod_tab_bar = modTabs
+    else
+        self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
+    end
 
     -- TODO: Add mod version somewhere (tooltip isn't working correctly)
     -- local modVersion = table.concat(Ext.Mod.GetMod(modGUID).Info.ModVersion, ".")
@@ -223,3 +232,57 @@ function IMGUILayer:SetConfigValue(settingId, value, modGUID)
         value = value
     }))
 end
+
+-- TODO: this was just a quick test, needs to be heavily refactored along with IMGUILayer:CreateModMenuTab
+--- Insert a new tab for a mod in the MCM
+---@param modGUID string The UUID of the mod
+---@param tabName string The name of the tab to be inserted
+---@param tabCallback function The callback function to create the tab
+---@return nil
+function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
+    -- Ensure the mods_tabs entry exists for this mod
+    local modInfo = Ext.Mod.GetMod(modGUID).Info
+    _D(modInfo.Name)
+
+    if not self.mods_tabs[modGUID] then
+        self.mods_tabs[modGUID] = {
+            mod_tab_bar = nil
+        }
+    end
+
+    -- Create the mod tab bar if it doesn't exist
+    if not self.mods_tabs[modGUID].mod_tab_bar then
+        local modTab = self.modsTabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
+        self.mods_tabs[modGUID] = modTab
+
+        local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
+
+        if type(self.mods_tabs[modGUID]) == "table" then
+            self.mods_tabs[modGUID].mod_tab_bar = modTabs
+        else
+            self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
+        end
+    end
+
+    -- Update the IMGUILayer to include the new tab
+    local modTabs = self.mods_tabs[modGUID].mod_tab_bar
+    if modTabs then
+        local newTab = modTabs:AddTabItem(tabName)
+        tabCallback(newTab)
+    end
+
+    Ext.Net.PostMessageToServer("MCM_Mod_Tab_Added", Ext.Json.Stringify({
+        modGUID = modGUID,
+        tabName = tabName
+    }))
+end
+
+Ext.RegisterNetListener("MCM_Mod_Tab_Added", function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local modGUID = data.modGUID
+    local tabName = data.tabName
+    local tabCallback = data.tabCallback
+
+    -- Update the IMGUILayer to include the new tab
+    IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
+end)
