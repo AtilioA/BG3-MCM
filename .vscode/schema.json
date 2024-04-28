@@ -79,10 +79,7 @@
                     "description": "The settings that will be displayed within the tab."
                 },
                 "Handles": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/TabHandles"
-                    },
+                    "$ref": "#/definitions/TabHandles",
                     "description": "Handles to localize the tab's strings."
                 }
             },
@@ -209,10 +206,7 @@
                     "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). Will be localized if handles are provided."
                 },
                 "Handles": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/SettingHandles"
-                    },
+                    "$ref": "#/definitions/SettingHandles",
                     "description": "Handles to localize the setting's strings."
                 }
             },
@@ -298,10 +292,7 @@
                     "description": "The settings that will be displayed within the section."
                 },
                 "Handles": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/SectionHandles"
-                    },
+                    "$ref": "#/definitions/SectionHandles",
                     "description": "Handles to localize the section's strings."
                 }
             },
@@ -313,7 +304,7 @@
             "description": "A section within a tab in the MCM menu."
         },
         "TabHandles": {
-            "type": "string",
+            "type": "object",
             "additionalProperties": false,
             "properties": {
                 "NameHandle": {
@@ -333,7 +324,7 @@
             "description": "Handles that can be used to localize tab strings."
         },
         "SectionHandles": {
-            "type": "string",
+            "type": "object",
             "additionalProperties": false,
             "properties": {
                 "NameHandle": {
@@ -348,7 +339,7 @@
             "description": "A list of handles that can be used to localize a section."
         },
         "SettingHandles": {
-            "type": "string",
+            "type": "object",
             "additionalProperties": false,
             "properties": {
                 "NameHandle": {
