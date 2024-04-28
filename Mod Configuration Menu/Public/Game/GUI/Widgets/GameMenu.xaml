@@ -1,0 +1,310 @@
+﻿<ls:UIWidget x:Name="GameMenu"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ls="clr-namespace:ls;assembly=SharedGUI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:System="clr-namespace:System;assembly=mscorlib"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors" mc:Ignorable="d" ls:UIWidget.ContextName="GameMenu" d:DesignWidth="3840" d:DesignHeight="2160">
+
+    <ls:UIWidget.Template>
+        <ControlTemplate>
+            <ControlTemplate.Resources>
+
+                <Thickness x:Key="MainButtonSpacing">0,0,0,8</Thickness>
+                <Thickness x:Key="MainButtonLargeSpacing">0,0,0,32</Thickness>
+                <BitmapImage x:Key="BackgroundFade" UriSource="pack://application:,,,/GustavNoesisGUI;component/Assets/Shared/background_fade.png"/>
+                <BitmapImage x:Key="GameLogo" UriSource="pack://application:,,,/GustavNoesisGUI;component/Assets/MainMenu/menu_logo_2.png"/>
+
+            </ControlTemplate.Resources>
+
+            <Grid>
+                <ls:LSNineSliceImage ImageSource="{StaticResource BackgroundFade}" Slices="0" IconWidth="3740" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+                <Rectangle x:Name="BackgroundGradient" HorizontalAlignment="Center" Width="1200">
+                    <Rectangle.Resources>
+                        <KeyTime x:Key="SimpleFadeInTime">0:0:10</KeyTime>
+                    </Rectangle.Resources>
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00000000" Offset="0.0" />
+                            <GradientStop Color="#B3000000" Offset="0.4" />
+                            <GradientStop Color="#B3000000" Offset="0.6" />
+                            <GradientStop Color="#00000000" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                    <Rectangle.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard Storyboard="{StaticResource SimpleFadeIn}"/>
+                        </EventTrigger>
+                    </Rectangle.Triggers>
+                </Rectangle>
+
+                <Image x:Name="GameLogo" Source="{StaticResource GameLogo}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,260">
+                    <Image.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard Storyboard="{StaticResource SimpleFadeIn}"/>
+                        </EventTrigger>
+                    </Image.Triggers>
+                </Image>
+
+                <StackPanel x:Name="PanelButtons" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,900,0,0" Opacity="0">
+                    <b:Interaction.Triggers>
+                        <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="100" TotalTicks="1">
+                            <b:ChangePropertyAction TargetName="PanelButtons" PropertyName="Opacity" Value="1" />
+                            <b:ControlStoryboardAction ControlStoryboardOption="Play">
+                                <b:ControlStoryboardAction.Storyboard>
+                                    <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
+                                </b:ControlStoryboardAction.Storyboard>
+                            </b:ControlStoryboardAction>
+                        </b:TimerTrigger>
+                    </b:Interaction.Triggers>
+
+                    <ls:LSButton x:Name="ResumeButton" Style="{StaticResource BigBlueButtonStyle}" Content="{Binding Source='h4fbbc7e3ge45ag4c5bga315ga0155b914856', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="CloseGameMenu" IsEnabled="{Binding ExistingSaves.Count, Converter={StaticResource GreaterThanConverter}, ConverterParameter=0}" SoundID="UI_HUD_GameMenu_Resume" Margin="{StaticResource MainButtonLargeSpacing}">
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="SaveGameButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='h294e6fd4gb977g4429g8c81g0775aa1688a7', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding OpenSaveGameDialogCommand}" SoundID="UI_HUD_MainMenu_GameSettings" Margin="{StaticResource MainButtonSpacing}" ToolTipService.IsEnabled="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource InvertBoolConverter}}" ToolTipService.ShowOnDisabled="True" ToolTipService.Placement="Right">
+                        <ls:LSButton.ToolTip>
+                            <ls:LSTooltip x:Name="SaveGameButtonTooltip" Content="{Binding Source='h4270208dg2620g4ca6gad84g29bbe175d031',Converter={StaticResource TranslatedStringConverter}}"/>
+                        </ls:LSButton.ToolTip>
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="LoadGameButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='heb9ae2d4g4fcdg4eb2g821bg97ed63c5ce8c', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="LoadGameOpen" SoundID="UI_HUD_MainMenu_GameSettings" Margin="{StaticResource MainButtonLargeSpacing}" ToolTipService.IsEnabled="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource InvertBoolConverter}}" ToolTipService.ShowOnDisabled="True" ToolTipService.Placement="Right">
+                        <ls:LSButton.ToolTip>
+                            <ls:LSTooltip x:Name="LoadGameButtonTooltip" Content="{Binding Source='h4270208dg2620g4ca6gad84g29bbe175d031',Converter={StaticResource TranslatedStringConverter}}"/>
+                        </ls:LSButton.ToolTip>
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="ConnectivityButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='h908649e6gdfe9g4a44g8bf3ga66cc295f28e', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="CharacterAssignOpen" SoundID="UI_HUD_MainMenu_Credits" Margin="{StaticResource MainButtonSpacing}">
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="SessionButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='h908649e6gdfe9g4a44g8bf3ga66cc295f28e', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="CharacterAssignOpen" SoundID="UI_HUD_GameMenu_Options" Margin="{StaticResource MainButtonSpacing}">
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="CurrentGameSettingsButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='h46616d84g0ebag4586g9230gca30c54e7596', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="OpenDifficultySettings" SoundID="UI_HUD_GameMenu_Options" Margin="{StaticResource MainButtonSpacing}">
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="OptionsButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='hae2bbc06g288dg43dagb3a5g967fa625c769', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="OpenOptions" SoundID="UI_HUD_GameMenu_Options" Margin="{StaticResource MainButtonLargeSpacing}">
+                    </ls:LSButton>
+
+                    <!-- CUSTOM MOD MENU -->
+                    <ls:LSButton x:Name="ModMenuConfigButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='hmodmenuconfig', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="OpenModMenuConfig" SoundID="UI_HUD_GameMenu_Options" Margin="{StaticResource MainButtonSpacing}">
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="MainMenuButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='hf1a302e1ged15g4e4fgae48g5579d02b2605', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding MainMenuCommand}" SoundID="UI_HUD_MainMenu_Credits" Margin="{StaticResource MainButtonSpacing}">
+                    </ls:LSButton>
+
+                    <ls:LSButton x:Name="QuitButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='h8c64e3a9gef47g4fa4g8d07g4c6056b9ab5f', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding QuitGameCommand}" SoundID="UI_HUD_MainMenu_Credits" Margin="{StaticResource MainButtonSpacing}">
+                    </ls:LSButton>
+
+                </StackPanel>
+
+                <Control x:Name="PlayerSlots" Template="{StaticResource PlayerSlotsTemplate}" VerticalAlignment="Bottom" Margin="0,0,0,56"/>
+
+                <ls:LSInputBinding PlayerId="{Binding CurrentPlayer.PlayerId}" BoundEvent="UICancel" Command="{Binding CustomEvent}" CommandParameter="CloseGameMenu" />
+
+                <TextBlock x:Name="VersionString" Text="{Binding Data.VersionString}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,64,36" Foreground="{StaticResource LS_accent75TxtColor}" FontSize="{StaticResource ScaledMediumFontSize}"/>
+
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="Loaded">
+                        <ls:LSPlaySound Sound="UI_HUD_EscapeMenu_Open"/>
+                    </b:EventTrigger>
+
+                    <b:EventTrigger EventName="Unloaded">
+                        <ls:LSPlaySound Sound="UI_HUD_EscapeMenu_Close"/>
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+            </Grid>
+
+            <ControlTemplate.Triggers>
+                <DataTrigger Binding="{Binding ShowQuitButton}" Value="False">
+                    <Setter TargetName="QuitButton" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding IsHost}" Value="False">
+                    <Setter TargetName="SaveGameButton" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="LoadGameButton" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="ConnectivityButton" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Data.IsMultiplayerAllowed}" Value="False">
+                    <Setter TargetName="ConnectivityButton" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="SessionButton" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding IsInCC}" Value="True">
+                    <Setter TargetName="SessionButton" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding IsInCC}" Value="False">
+                    <Setter TargetName="ConnectivityButton" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+
+                <!-- Save button states -->
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedNoServer">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h5861653eg72aeg460dgae25g0db44d7bbca8" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedCurrentlySaving">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h185b5d6ag4f03g43c9g9b8eg059cffa98e29" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedCurrentlyLoading">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h13c1f09egc317g442egbde4g960247a366ce" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedCurrentlySyncing">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h4545105dge9a1g4ac7ga1bbgd5434f4ef1d1" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedInCharacterCreation">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h19513473g6d78g4df8g8bd0g9f129ddb289a" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedInDialog">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h304a028dg335cg4703g95a5g4f8d38d53ac3" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedBySpell">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h1b572aa5g4d6dg4532g9eb6g9ed3dc5534a6" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedInterruptInProgress">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="h9813a0cdg6338g4bc7g8ee6g3393c06487d0" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedOutOfSpace">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="SaveGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="h9d4099fag65cag423ag98ccgd750286a9fa5"/>
+                                <Binding Source="hbf412f23g54d6g4ec7g8ee9g6287f396cc66" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanSaveState}" Value="BlockedUnknown">
+                    <Setter TargetName="SaveGameButton" Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+
+                <!-- Load button states -->
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanLoadState}" Value="BlockedNoServer">
+                    <Setter TargetName="LoadGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="LoadGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="hccf15964gbc93g4d91g955ag3cbc3c7f0682"/>
+                                <Binding Source="h5861653eg72aeg460dgae25g0db44d7bbca8" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanLoadState}" Value="BlockedCurrentlySaving">
+                    <Setter TargetName="LoadGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="LoadGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="hccf15964gbc93g4d91g955ag3cbc3c7f0682"/>
+                                <Binding Source="h185b5d6ag4f03g43c9g9b8eg059cffa98e29" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanLoadState}" Value="BlockedCurrentlyLoading">
+                    <Setter TargetName="LoadGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="LoadGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="hccf15964gbc93g4d91g955ag3cbc3c7f0682"/>
+                                <Binding Source="h13c1f09egc317g442egbde4g960247a366ce" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanLoadState}" Value="BlockedCurrentlySyncing">
+                    <Setter TargetName="LoadGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="LoadGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="hccf15964gbc93g4d91g955ag3cbc3c7f0682"/>
+                                <Binding Source="h4545105dge9a1g4ac7ga1bbgd5434f4ef1d1" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanLoadState}" Value="BlockedInDialog">
+                    <Setter TargetName="LoadGameButton" Property="IsEnabled" Value="False"/>
+                    <Setter TargetName="LoadGameButtonTooltip" Property="Content">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ParameterizedTranslatedStringConverter}">
+                                <Binding Source="hccf15964gbc93g4d91g955ag3cbc3c7f0682"/>
+                                <Binding Source="h304a028dg335cg4703g95a5g4f8d38d53ac3" Converter="{StaticResource TranslatedStringConverter}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPlayer.UIData.CanLoadState}" Value="BlockedUnknown">
+                    <Setter TargetName="LoadGameButton" Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </ls:UIWidget.Template>
+
+</ls:UIWidget>
