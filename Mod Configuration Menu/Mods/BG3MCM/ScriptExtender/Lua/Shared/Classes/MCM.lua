@@ -167,7 +167,7 @@ end
 -- end
 
 -- TODO: modularize these later
-local function resetCommand()
+function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM settings...")
     MCM:LoadConfigs()
     Ext.Net.BroadcastMessage("MCM_Server_Send_Settings_To_Client",
@@ -177,9 +177,9 @@ end
 --- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
 Ext.RegisterNetListener("MCM_Settings_Request", function(_)
     MCMDebug(1, "Received MCM settings request")
-    resetCommand()
+    MCM:LoadAndSendSettings()
 end)
-Ext.RegisterConsoleCommand('mcm_reset', function() resetCommand() end)
+Ext.RegisterConsoleCommand('mcm_reset', function() MCM:LoadAndSendSettings() end)
 
 --- Message handler for when the (IMGUI) client requests a setting to be set
 Ext.RegisterNetListener("MCM_SetConfigValue", function(_, payload)

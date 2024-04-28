@@ -48,6 +48,7 @@ Ext.Events.ResetCompleted:Subscribe(function()
     Ext.Net.PostMessageToServer("MCM_Settings_Request", Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
+    IMGUI_WINDOW.Visible = true
 end)
 
 Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payload)
@@ -64,6 +65,7 @@ Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payloa
             IMGUIAPI:SetConfigValue("my_custom_setting", "new_value", ModuleUUID)
         end
     end)
+    IMGUI_WINDOW.Visible = true
 end)
 
 Ext.RegisterNetListener("MCM_Relay_To_Servers", function(_, metapayload)
