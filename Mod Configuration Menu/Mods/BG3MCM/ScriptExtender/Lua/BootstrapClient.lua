@@ -5,6 +5,18 @@ Ext.Require("Client/_Init.lua")
 IMGUI_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
 IMGUI_WINDOW.Closeable = true
 IMGUI_WINDOW.Visible = true
+
+-- Toggle the window with the INSERT key.
+-- TODO: Modularize and make it configurable
+Ext.Events.KeyInput:Subscribe(function(e)
+    if e.Event == "KeyDown" and e.Repeat == false then
+        if (e.Key == "INSERT") then
+            IMGUI_WINDOW.Visible = not IMGUI_WINDOW.Visible
+            IMGUI_WINDOW.Open = not IMGUI_WINDOW.Open
+        end
+    end
+end)
+
 -- TODO: add stuff to the menu bar
 m = IMGUI_WINDOW:AddMainMenu()
 
