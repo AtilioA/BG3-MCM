@@ -4,6 +4,9 @@
         {
             "TabId": "general_settings",
             "TabName": "General Settings",
+            "Handles": {
+                "NameHandle": "h3b019e17g75fcg48ccg8063g4de5bfcc7792"
+            },
             "Settings": [
                 {
                     "Id": "MyInt",
@@ -11,7 +14,10 @@
                     "Type": "int",
                     "Default": 0,
                     "Tooltip": "This is a setting that does something.",
-                    "Description": "This is a setting that does something, but this text is longer."
+                    "Description": "This is a setting that does something, but this text is longer.",
+                    "Handles": {
+                        "NameHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73"
+                    }
                 },
                 {
                     "Id": "MyInt2",
@@ -55,7 +61,10 @@
                             "Tooltip": "This is a setting that does something else.",
                             "Description": "This is a setting that does something else, but this text is longer."
                         }
-                    ]
+                    ],
+                    "Handles": {
+                        "NameHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73"
+                    }
                 },
                 {
                     "SectionId": "section2",
@@ -80,7 +89,8 @@
                                     "Option2",
                                     "Option3"
                                 ]
-                            }
+                            },
+                            "Tooltip": "This is a setting that does something else."
                         }
                     ]
                 }

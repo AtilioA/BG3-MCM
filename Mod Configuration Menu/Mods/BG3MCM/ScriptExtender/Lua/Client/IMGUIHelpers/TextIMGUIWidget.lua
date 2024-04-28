@@ -2,8 +2,8 @@
 TextIMGUIWidget = _Class:Create("TextIMGUIWidget", IMGUIWidget)
 
 ---@return any
-function TextIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
-    local text = group:AddInputText(setting.Name, settingValue)
+function TextIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
+    local text = group:AddInputText(widgetName, initialValue)
     text.OnChange = function(value)
         IMGUILayer:SetConfigValue(setting.Id, value.Value, modGUID)
     end

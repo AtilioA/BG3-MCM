@@ -2,9 +2,11 @@
 ---@field private SchemaVersion number
 ---@field private Tabs? SchemaTab[]
 ---@field private Settings? SchemaSetting[]
+---@field private Handles table
 Schema = _Class:Create("Schema", nil, {
     SchemaVersion = 1,
-    Tabs = {}
+    Tabs = {},
+    Handles = {}
 })
 
 function Schema:GetSchemaVersion()

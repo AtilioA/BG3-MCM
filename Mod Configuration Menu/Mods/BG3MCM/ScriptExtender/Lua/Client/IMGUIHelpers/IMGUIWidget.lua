@@ -6,13 +6,18 @@ function IMGUIWidget:new()
         "This is an abstract class and cannot be instantiated directly. IMGUIWidget:New() must be overridden in a derived class")
 end
 
-function IMGUIWidget:Create(group, setting, settingValue, modGUID, widgetClass)
-    local widget = widgetClass:CreateWidget(group, setting, settingValue, modGUID)
+function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
+    local widgetName = Ext.Loca.GetTranslatedString(setting.Handles.NameHandle)
+    if widgetName == nil or widgetName == "" then
+        widgetName = setting.Name
+    end
+
+    local widget = widgetClass:CreateWidget(group, widgetName, setting, initialValue, modGUID)
     self:InitializeWidget(widget, setting)
     return widget
 end
 
-function IMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+function IMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
     error("IMGUIWidget:CreateWidget must be overridden in a derived class")
 end
 

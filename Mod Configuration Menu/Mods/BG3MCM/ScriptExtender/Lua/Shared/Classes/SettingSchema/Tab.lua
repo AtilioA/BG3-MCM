@@ -4,12 +4,14 @@
 ---@field private TabDescription string
 ---@field private Sections? SchemaSection[]
 ---@field private Settings? SchemaSetting[]
+---@field private Handles? table
 SchemaTab = _Class:Create("SchemaTab", nil, {
     TabId = "",
     TabName = "",
     TabDescription = "",
     Sections = {},
-    Settings = {}
+    Settings = {},
+    Handles = {}
 })
 
 --- Constructor for the SchemaTab class.
@@ -21,6 +23,7 @@ function SchemaTab:New(options)
     self.TabDescription = options.TabDescription or ""
     self.Sections = {}
     self.Settings = {}
+    self.Handles = options.Handles
 
     if options.Sections then
         for _, sectionOptions in ipairs(options.Sections) do
@@ -87,4 +90,16 @@ function SchemaTab:AddSetting(settingOptions)
     local setting = SchemaSetting:New(settingOptions)
     table.insert(self.Settings, setting)
     return self
+end
+
+--- Get the Handles of the SchemaTab.
+--- @return table
+function SchemaTab:GetHandles()
+    return self.Handles
+end
+
+--- Set the Handles of the SchemaTab.
+--- @param handles table
+function SchemaTab:SetHandles(handles)
+    self.Handles = handles
 end

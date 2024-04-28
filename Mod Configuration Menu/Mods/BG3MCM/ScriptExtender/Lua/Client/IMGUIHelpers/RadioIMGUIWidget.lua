@@ -3,26 +3,26 @@ RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
 ---@param value number
 ---@return table buttons The buttons created
-function RadioIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+function RadioIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
     if not group or not setting or not modGUID then
         return {}
     end
 
-    group:AddText(setting.Name)
-    local buttons = self:CreateRadioButtons(group, setting, settingValue)
+    group:AddText(widgetName)
+    local buttons = self:CreateRadioButtons(group, setting, initialValue)
     self:SetRadioButtonCallbacks(buttons, setting, modGUID)
     return buttons
 end
 
 ---@param group any The IMGUI group to add the radio buttons to
 ---@param setting SchemaSetting The setting containing the radio button options
----@param settingValue any The current value of the setting
+---@param initialValue any The current value of the setting
 ---@return table buttons The created radio buttons
-function RadioIMGUIWidget:CreateRadioButtons(group, setting, settingValue)
+function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
     local buttons = {}
     local options = { table.unpack(setting.Options.Choices) }
     for i, option in ipairs(options) do
-        local isActive = option == settingValue
+        local isActive = option == initialValue
         local radioButton = group:AddRadioButton(option, isActive)
         if i > 1 then
             radioButton.SameLine = true

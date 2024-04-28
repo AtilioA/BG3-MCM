@@ -2,10 +2,12 @@
 ---@field private SectionName string
 ---@field private SectionDescription string
 ---@field private Settings SchemaSetting[]
+---@field private Handles table
 SchemaSection = _Class:Create("SchemaSection", nil, {
     SectionName = "",
     SectionDescription = "",
-    Settings = {}
+    Settings = {},
+    Handles = {}
 })
 
 function SchemaSection:GetSectionName()
@@ -35,6 +37,7 @@ function SchemaSection:New(options)
     self.SectionName = options.SectionName or ""
     self.SectionDescription = options.SectionDescription or ""
     self.Settings = {}
+    self.Handles = options.Handles
 
     if options.Settings then
         for _, settingOptions in ipairs(options.Settings) do

@@ -184,12 +184,13 @@ function DataPreprocessing:PreprocessData(data, modGUID)
 
     -- Iterate through each tab in the data
     for i, tab in ipairs(data.Tabs) do
-        local tabData = {
+        local tabData = SchemaTab:New({
             TabId = tab.TabId,
             TabName = tab.TabName,
             Settings = {},
-            Sections = {}
-        }
+            Sections = {},
+            Handles = tab.Handles or {}
+        })
         -- Handle settings directly in tabs
         if tab.Settings then
             for j, setting in ipairs(tab.Settings) do
@@ -200,7 +201,8 @@ function DataPreprocessing:PreprocessData(data, modGUID)
                     Default = setting.Default,
                     Description = setting.Description,
                     Tooltip = setting.Tooltip,
-                    Options = setting.Options or {}
+                    Options = setting.Options or {},
+                    Handles = setting.Handles or {}
                 })
                 table.insert(tabData.Settings, newSetting)
             end
@@ -213,11 +215,12 @@ function DataPreprocessing:PreprocessData(data, modGUID)
         -- Handle sections containing settings
         if tab.Sections then
             for k, section in ipairs(tab.Sections) do
-                local sectionData = {
+                local sectionData = SchemaSection:New({
                     SectionId = section.SectionId,
                     SectionName = section.SectionName,
-                    Settings = {}
-                }
+                    Settings = {},
+                    Handles = section.Handles or {}
+                })
                 for l, setting in ipairs(section.Settings) do
                     local newSetting = SchemaSetting:New({
                         Id = setting.Id,
@@ -226,7 +229,8 @@ function DataPreprocessing:PreprocessData(data, modGUID)
                         Default = setting.Default,
                         Description = setting.Description,
                         Tooltip = setting.Tooltip,
-                        Options = setting.Options or {}
+                        Options = setting.Options or {},
+                        Handles = setting.Handles or {}
                     })
                     table.insert(sectionData.Settings, newSetting)
                 end

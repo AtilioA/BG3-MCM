@@ -1,14 +1,14 @@
 ---@class EnumIMGUIWidget
 EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 
-function EnumIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
+function EnumIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
     local options = setting.Options.Choices
-    local comboInput = group:AddCombo(setting.Name, settingValue)
+    local comboInput = group:AddCombo(widgetName, initialValue)
     comboInput.Options = options
 
     -- Set initial selection
     for i, value in ipairs(options) do
-        if value == settingValue then
+        if value == initialValue then
             comboInput.SelectedIndex = i - 1
             break
         end

@@ -1,3 +1,4 @@
+-- TODO: refactor to actually use OOP probably but it sucks in Lua
 ---@class IMGUILayer: MetaClass
 ---@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 ---@field private profiles table<string, table> A table of settings profiles for the MCM
@@ -183,11 +184,6 @@ function IMGUILayer:CreateModMenuTab(modGUID)
         self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
     end
 
-    -- TODO: Add mod version somewhere (tooltip isn't working correctly)
-    -- local modVersion = table.concat(Ext.Mod.GetMod(modGUID).Info.ModVersion, ".")
-    -- _D("Current mod: " .. modInfo.Name .. " version " .. modVersion)
-    -- _D(modTab)
-
     -- Iterate over each tab in the mod schema to create a subtab for each
     for _, tab in ipairs(modSchema.Tabs) do
         self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
@@ -201,7 +197,18 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
-    local tabHeader = modTabs:AddTabItem(tab.TabName)
+    -- TODO: modularize
+    local tabName = tab.TabName
+    if tab.Handles then
+        if tab.Handles.NameHandle then
+            local translatedName = Ext.Loca.GetTranslatedString(tab.Handles.NameHandle)
+            if translatedName ~= nil and translatedName ~= "" then
+                tabName = translatedName
+            end
+        end
+    end
+
+    local tabHeader = modTabs:AddTabItem(tabName)
 
     -- REFACTOR: as always, this is a mess and should be abstracted away somehow throughout the application if you're reading this im sorry lol given up with the commas too smh also I created classes for all these lil elements but I'm not using them here because something was not instantiated and I was focused on something else so it just slipped by
     local tabSections = tab.Sections
@@ -231,7 +238,18 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         modGroup:AddDummy(0, 5)
     end
 
-    local tabBar = modGroup:AddSeparatorText(section.SectionName)
+    -- TODO: modularize
+    local sectionName = section.SectionName
+    if section.Handles then
+        if section.Handles.NameHandle then
+            local translatedName = Ext.Loca.GetTranslatedString(section.Handles.NameHandle)
+            if translatedName ~= nil and translatedName ~= "" then
+                sectionName = translatedName
+            end
+        end
+    end
+
+    local tabBar = modGroup:AddSeparatorText(sectionName)
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section.Settings) do
@@ -281,7 +299,6 @@ end
 function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
     -- Ensure the mods_tabs entry exists for this mod
     local modInfo = Ext.Mod.GetMod(modGUID).Info
-    _D(modInfo.Name)
 
     if not self.mods_tabs[modGUID] then
         self.mods_tabs[modGUID] = {

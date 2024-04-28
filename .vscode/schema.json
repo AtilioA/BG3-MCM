@@ -49,7 +49,7 @@
                 "TabName": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The name of the tab that will be displayed in the MCM menu, on the tab's button."
+                    "description": "The name of the tab that will be displayed in the MCM menu, on the tab's button. Will be localized if a handle is provided."
                 },
                 "TabId": {
                     "type": "string",
@@ -59,7 +59,7 @@
                 "TabDescription": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The description of the tab that will be displayed in the MCM menu.",
+                    "description": "The description of the tab that will be displayed in the MCM menu. Will be localized if a handle is provided.",
                     "$comment": "This might not be used at all, but it's here just in case."
                 },
                 "Sections": {
@@ -77,6 +77,13 @@
                         "$ref": "#/definitions/Setting"
                     },
                     "description": "The settings that will be displayed within the tab."
+                },
+                "Handles": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/TabHandles"
+                    },
+                    "description": "Handles to localize the tab's strings."
                 }
             },
             "additionalProperties": false,
@@ -127,7 +134,7 @@
                 "Name": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The name of the setting as it will be displayed in the MCM menu."
+                    "description": "The name of the setting as it will be displayed in the MCM menu. Will be localized if a handle is provided."
                 },
                 "Type": {
                     "type": "string",
@@ -172,12 +179,12 @@
                 "Tooltip": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The tooltip that will be displayed when the user hovers over the setting in the MCM menu."
+                    "description": "The tooltip that will be displayed when the user hovers over the setting in the MCM menu. Will be localized if a handle is provided."
                 },
                 "Description": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The description of the setting that will be displayed as text next to the ImGui widget in the MCM menu."
+                    "description": "The description of the setting that will be displayed as text next to the ImGui widget in the MCM menu. Will be localized if a handle is provided."
                 },
                 "Options": {
                     "type": "object",
@@ -199,7 +206,14 @@
                             "description": "The maximum value for the setting, used for slider type."
                         }
                     },
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). Will be localized if handles are provided."
+                },
+                "Handles": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/SettingHandles"
+                    },
+                    "description": "Handles to localize the setting's strings."
                 }
             },
             "if": {
@@ -273,7 +287,7 @@
                 "SectionName": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The name of the section that will be displayed as a header in the MCM menu."
+                    "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
                 },
                 "Settings": {
                     "type": "array",
@@ -282,6 +296,13 @@
                         "$ref": "#/definitions/Setting"
                     },
                     "description": "The settings that will be displayed within the section."
+                },
+                "Handles": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/SectionHandles"
+                    },
+                    "description": "Handles to localize the section's strings."
                 }
             },
             "required": [
@@ -290,6 +311,74 @@
                 "Settings"
             ],
             "description": "A section within a tab in the MCM menu."
+        },
+        "TabHandles": {
+            "type": "string",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the tab."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the tab."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "Handles that can be used to localize tab strings."
+        },
+        "SectionHandles": {
+            "type": "string",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the section."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "A list of handles that can be used to localize a section."
+        },
+        "SettingHandles": {
+            "type": "string",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the setting."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the setting."
+                },
+                "TooltipHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the tooltip of the setting."
+                },
+                "ChoicesHandles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "description": "Handles that can be used to localize choices for the setting."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "Handles that can be used to localize a setting."
         }
     }
 }

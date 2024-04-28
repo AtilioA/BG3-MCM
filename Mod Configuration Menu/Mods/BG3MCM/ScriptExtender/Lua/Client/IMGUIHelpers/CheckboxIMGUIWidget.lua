@@ -2,8 +2,8 @@
 CheckboxIMGUIWidget = _Class:Create("CheckboxIMGUIWidget", IMGUIWidget)
 
 ---@return any widget
-function CheckboxIMGUIWidget:CreateWidget(group, setting, settingValue, modGUID)
-    local checkbox = group:AddCheckbox(setting.Name, settingValue)
+function CheckboxIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
+    local checkbox = group:AddCheckbox(widgetName, initialValue)
     checkbox.OnChange = function(value)
         IMGUILayer:SetConfigValue(setting.Id, value.Checked, modGUID)
     end
