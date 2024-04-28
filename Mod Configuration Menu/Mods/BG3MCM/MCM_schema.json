@@ -16,7 +16,8 @@
                     "Tooltip": "This is a setting that does something.",
                     "Description": "This is a setting that does something, but this text is longer.",
                     "Handles": {
-                        "NameHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73"
+                        "NameHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73",
+                        "TooltipHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73"
                     }
                 },
                 {
