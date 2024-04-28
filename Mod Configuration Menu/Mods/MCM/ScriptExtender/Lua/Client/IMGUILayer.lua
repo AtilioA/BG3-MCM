@@ -45,7 +45,7 @@ local InputWidgetFactory = {
 }
 
 -- Create widgets for managing profiles (selecting, creating, deleting)
--- TODO: Emit events for these actions
+-- TODO: Emit events for these actions, refactor yadda yadda
 function IMGUILayer:CreateProfileCollapsingHeader()
     function findProfileIndex(profile)
         local profileIndex = nil
@@ -58,25 +58,27 @@ function IMGUILayer:CreateProfileCollapsingHeader()
         return profileIndex
     end
 
+    function getDeleteProfileButtonLabel(profile)
+        if profile == "Default" then
+            return "Cannot delete the default profile."
+        else
+            return "Delete profile '" .. profile .. "'"
+        end
+    end
+
     local profiles = MCM:GetProfiles()
     local currentProfile = MCM:GetCurrentProfile()
     local profileIndex = findProfileIndex(currentProfile)
 
 
     local profileCollapsingHeader = IMGUI_WINDOW:AddCollapsingHeader("Profile management")
-    local profileCombo = profileCollapsingHeader:AddCombo("Profiles")
+    local profileCombo = profileCollapsingHeader:AddCombo("Select profile (WIP)")
 
     profileCombo.Options = { "Select a setting profile", table.unpack(profiles.Profiles) }
     profileCombo.SelectedIndex = profileIndex or 1
-    profileCombo.OnChange = function(inputChange)
-        local selectedIndex = inputChange.SelectedIndex + 1
-        local selectedProfile = inputChange.Options[selectedIndex]
-        MCM:SetProfile(selectedProfile)
-        -- TODO: refresh the settings UI; currently it doesn't update when changing profiles and you need to reopen the MCM window
-    end
 
-    local profileButton = profileCollapsingHeader:AddButton("New Profile")
-    local newProfileName = profileCollapsingHeader:AddInputText("New Profile Name")
+    local profileButton = profileCollapsingHeader:AddButton("Create profile")
+    local newProfileName = profileCollapsingHeader:AddInputText("New profile name")
     newProfileName.SameLine = true
     profileButton.OnClick = function()
         if newProfileName.Text ~= "" then
@@ -88,7 +90,7 @@ function IMGUILayer:CreateProfileCollapsingHeader()
         end
     end
 
-    local deleteProfileButton = profileCollapsingHeader:AddButton("Delete Profile (WIP)")
+    local deleteProfileButton = profileCollapsingHeader:AddButton(getDeleteProfileButtonLabel(MCM:GetCurrentProfile()))
     deleteProfileButton.OnClick = function()
         local currentProfile = MCM:GetCurrentProfile()
         if currentProfile ~= "Default" then
@@ -99,6 +101,17 @@ function IMGUILayer:CreateProfileCollapsingHeader()
         else
             MCMWarn(0, "Cannot delete the default profile.")
         end
+    end
+
+    profileCombo.OnChange = function(inputChange)
+        local selectedIndex = inputChange.SelectedIndex + 1
+        local selectedProfile = inputChange.Options[selectedIndex]
+        MCM:SetProfile(selectedProfile)
+
+        if deleteProfileButton then
+            deleteProfileButton.Label = getDeleteProfileButtonLabel(selectedProfile)
+        end
+        -- TODO: refresh the settings UI; currently it doesn't update when changing profiles and you need to reopen the MCM window
     end
 end
 
