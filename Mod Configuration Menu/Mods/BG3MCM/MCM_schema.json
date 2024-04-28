@@ -72,7 +72,7 @@
                         {
                             "Id": "MyEnum",
                             "Name": "My Enum",
-                            "Type": "enum", // This is an enum and will be represented as a combobox/dropdown in the ImGui window
+                            "Type": "enum",
                             "Default": "Option1",
                             "Options": {
                                 "Choices": [
@@ -108,13 +108,12 @@
                     "Type": "slider_float",
                     "Default": 50,
                     "Options": {
-                        "Min": 0,
-                        "Max": 100
+                        "Min": 0.0,
+                        "Max": 1.0
                     },
                     "Tooltip": "This is a setting that uses a float slider input.",
                     "Description": "This is a setting that uses a slider input, but this text is longer."
                 },
-                // Create the same as the two above, but using `drag` instead of `slider`
                 {
                     "Id": "MyIntDrag",
                     "Name": "My Int Drag",
