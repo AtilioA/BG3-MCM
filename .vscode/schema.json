@@ -138,7 +138,10 @@
                         "checkbox",
                         "text",
                         "enum",
-                        "slider",
+                        "slider_int",
+                        "slider_float",
+                        "drag_int",
+                        "drag_float",
                         "radio"
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
@@ -221,12 +224,16 @@
                     "Options"
                 ]
             },
+            // Sliders/drags do not actually require min/max heh
             "else": {
                 "if": {
                     "properties": {
                         "Type": {
                             "enum": [
-                                "slider"
+                                "slider_int",
+                                "slider_float",
+                                "drag_int",
+                                "drag_float"
                             ]
                         }
                     }

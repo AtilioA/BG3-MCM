@@ -18,8 +18,17 @@ local SettingValidators = {
     ["enum"] = function(setting, value)
         return EnumValidator.Validate(setting, value)
     end,
-    ["slider"] = function(setting, value)
-        return SliderValidator.Validate(setting, value)
+    ["slider_int"] = function(setting, value)
+        return SliderIntValidator.Validate(setting, value)
+    end,
+    ["slider_float"] = function(setting, value)
+        return SliderFloatValidator.Validate(setting, value)
+    end,
+    ["drag_int"] = function(setting, value)
+        return DragIntValidator.Validate(setting, value)
+    end,
+    ["drag_float"] = function(setting, value)
+        return DragFloatValidator.Validate(setting, value)
     end,
     ["radio"] = function(setting, value)
         return RadioValidator.Validate(setting, value)

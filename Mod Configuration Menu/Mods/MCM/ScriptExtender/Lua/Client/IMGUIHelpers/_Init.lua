@@ -5,6 +5,9 @@ RequireFiles("Client/IMGUIHelpers/", {
     "FloatIMGUIWidget",
     "IntIMGUIWidget",
     "RadioIMGUIWidget",
-    "SliderIMGUIWidget",
+    "SliderIntIMGUIWidget",
+    "SliderFloatIMGUIWidget",
+    "DragIntIMGUIWidget",
+    "DragFloatIMGUIWidget",
     "TextIMGUIWidget",
 })

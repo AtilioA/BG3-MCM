@@ -4,6 +4,9 @@ RequireFiles("Shared/Helpers/Validators/", {
     "FloatValidator",
     "IntValidator",
     "RadioValidator",
-    "SliderValidator",
+    "SliderIntValidator",
+    "SliderFloatValidator",
+    "DragIntValidator",
+    "DragFloatValidator",
     "TextValidator",
 })

@@ -36,8 +36,17 @@ local InputWidgetFactory = {
     enum = function(group, setting, settingValue, modGUID)
         return IMGUIWidget:Create(group, setting, settingValue, modGUID, EnumIMGUIWidget)
     end,
-    slider = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, SliderIMGUIWidget)
+    slider_int = function(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, SliderIntIMGUIWidget)
+    end,
+    slider_float = function(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, SliderFloatIMGUIWidget)
+    end,
+    drag_int = function(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, DragIntIMGUIWidget)
+    end,
+    drag_float = function(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, DragFloatIMGUIWidget)
     end,
     radio = function(group, setting, settingValue, modGUID)
         return IMGUIWidget:Create(group, setting, settingValue, modGUID, RadioIMGUIWidget)

@@ -91,16 +91,53 @@
             "TabName": "Debugging",
             "Settings": [
                 {
-                    "Id": "MySlider",
-                    "Name": "My Slider",
-                    "Type": "slider",
+                    "Id": "MyIntSlider",
+                    "Name": "My  Int Slider",
+                    "Type": "slider_int",
                     "Default": 50,
                     "Options": {
                         "Min": 0,
                         "Max": 100
                     },
-                    "Tooltip": "This is a setting that uses a slider input.",
+                    "Tooltip": "This is a setting that uses a integer slider input.",
                     "Description": "This is a setting that uses a slider input, but this text is longer."
+                },
+                {
+                    "Id": "MyFloatSlider",
+                    "Name": "My Float Slider",
+                    "Type": "slider_float",
+                    "Default": 50,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 100
+                    },
+                    "Tooltip": "This is a setting that uses a float slider input.",
+                    "Description": "This is a setting that uses a slider input, but this text is longer."
+                },
+                // Create the same as the two above, but using `drag` instead of `slider`
+                {
+                    "Id": "MyIntDrag",
+                    "Name": "My Int Drag",
+                    "Type": "drag_int",
+                    "Default": 50,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 100
+                    },
+                    "Tooltip": "This is a setting that uses a integer drag input.",
+                    "Description": "This is a setting that uses a drag input, but this text is longer."
+                },
+                {
+                    "Id": "MyFloatDrag",
+                    "Name": "My Float Drag",
+                    "Type": "drag_float",
+                    "Default": 50,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 100
+                    },
+                    "Tooltip": "This is a setting that uses a float drag input.",
+                    "Description": "This is a setting that uses a drag input, but this text is longer."
                 },
                 {
                     "Id": "MyRadio",
