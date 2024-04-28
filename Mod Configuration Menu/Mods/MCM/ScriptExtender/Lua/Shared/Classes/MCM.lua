@@ -49,7 +49,12 @@ function MCM:SetProfile(profileName)
     return ModConfig.profiles:SetCurrentProfile(profileName)
 end
 
--- TODO: Implement profile deletion
+--- Delete a profile from the MCM
+---@param profileName string The name of the profile to delete
+---@return boolean success Whether the profile was successfully deleted
+function MCM:DeleteProfile(profileName)
+    return ModConfig.profiles:DeleteProfile(profileName)
+end
 
 --- Get the settings table for a mod
 ---@param modGUID? string The UUID of the mod. When not provided, the settings for the current mod are returned (ModuleUUID is used)
