@@ -156,7 +156,11 @@ function IMGUILayer:CreateModMenu(mods, profiles)
     for modGUID, _ in pairs(self.mods) do
         local modTab = self.modsTabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
 
-        -- modTab:Tooltip():AddText(Ext.Mod.GetMod(modGUID).Info.Name) -- Add tooltip to main mod tab
+        -- Add tooltip with mod version
+        local modVersion = table.concat(Ext.Mod.GetMod(modGUID).Info.ModVersion, ".")
+        local modTabTooltip = modTab:Tooltip()
+        modTabTooltip:AddText("Version: " .. modVersion)
+
         self.mods_tabs[modGUID] = modTab
         self:CreateModMenuTab(modGUID)
     end
@@ -269,7 +273,7 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
     local createWidget = InputWidgetFactory[setting.Type]
     if createWidget == nil then
         -- TODO: use MCMWarn after Shared-Server mess is sorted
-        _P("No widget factory found for setting type '" ..
+        MCMWarn(0, "No widget factory found for setting type '" ..
             setting.Type ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
