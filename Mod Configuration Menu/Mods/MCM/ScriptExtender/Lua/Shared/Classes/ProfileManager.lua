@@ -129,7 +129,7 @@ function ProfileManager:CreateProfile(profileName)
 
     table.insert(self.Profiles, profileName)
 
-    ProfileManager:SaveProfileValuesToConfig()
+    self:SaveProfileValuesToConfig()
 
     return true
 end
@@ -158,8 +158,7 @@ function ProfileManager:DeleteProfile(profileName)
     if self.SelectedProfile == profileName then
         self.SelectedProfile = self.DefaultProfile
     end
-
-    ProfileManager:SaveProfileValuesToConfig()
+    self:SaveProfileValuesToConfig()
 
     return true
 end
