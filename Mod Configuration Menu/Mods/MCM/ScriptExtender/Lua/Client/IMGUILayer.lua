@@ -80,6 +80,20 @@ function IMGUILayer:CreateProfileCollapsingHeader()
     local profileButton = profileCollapsingHeader:AddButton("Create profile")
     local newProfileName = profileCollapsingHeader:AddInputText("New profile name")
     newProfileName.SameLine = true
+
+    local deleteProfileButton = profileCollapsingHeader:AddButton(getDeleteProfileButtonLabel(MCM:GetCurrentProfile()))
+    deleteProfileButton.OnClick = function()
+        if MCM:GetCurrentProfile() ~= "Default" then
+            MCM:DeleteProfile(MCM:GetCurrentProfile())
+            profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
+            MCM:SetProfile("Default")
+            profileCombo.SelectedIndex = findProfileIndex(MCM:GetCurrentProfile())
+            deleteProfileButton.Label = getDeleteProfileButtonLabel(MCM:GetCurrentProfile())
+        else
+            MCMWarn(0, "Cannot delete the default profile.")
+        end
+    end
+
     profileButton.OnClick = function()
         if newProfileName.Text ~= "" then
             MCM:CreateProfile(newProfileName.Text)
@@ -87,19 +101,7 @@ function IMGUILayer:CreateProfileCollapsingHeader()
             newProfileName.Text = ""
             profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
             profileCombo.SelectedIndex = findProfileIndex(MCM:GetCurrentProfile())
-        end
-    end
-
-    local deleteProfileButton = profileCollapsingHeader:AddButton(getDeleteProfileButtonLabel(MCM:GetCurrentProfile()))
-    deleteProfileButton.OnClick = function()
-        local currentProfile = MCM:GetCurrentProfile()
-        if currentProfile ~= "Default" then
-            MCM:DeleteProfile(currentProfile)
-            profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
-            MCM:SetProfile("Default")
-            profileCombo.SelectedIndex = findProfileIndex(MCM:GetCurrentProfile())
-        else
-            MCMWarn(0, "Cannot delete the default profile.")
+            deleteProfileButton.Label = getDeleteProfileButtonLabel(MCM:GetCurrentProfile())
         end
     end
 
