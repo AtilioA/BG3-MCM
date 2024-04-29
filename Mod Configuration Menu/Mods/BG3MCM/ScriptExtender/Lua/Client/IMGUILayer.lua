@@ -59,90 +59,6 @@ local InputWidgetFactory = {
     end
 }
 
---- Create widgets for managing profiles (selecting, creating, deleting)
--- TODO: Emit events for these actions etc
-function IMGUILayer:CreateProfileCollapsingHeader()
-    local findProfileIndex = function(profile)
-        for i, name in ipairs(MCM:GetProfiles().Profiles) do
-            if name == profile then
-                return i
-            end
-        end
-        return nil
-    end
-
-    local getDeleteProfileButtonLabel = function(profile)
-        if profile == "Default" then
-            return "Cannot delete the default profile."
-        else
-            return "Delete profile '" .. profile .. "'"
-        end
-    end
-
-    local profiles = MCM:GetProfiles()
-    local currentProfile = MCM:GetCurrentProfile()
-    local profileIndex = findProfileIndex(currentProfile)
-
-    local profileCollapsingHeader = IMGUI_WINDOW:AddCollapsingHeader("Profile management")
-    local profileCombo = profileCollapsingHeader:AddCombo("Select profile (WIP)")
-
-    profileCombo.Options = { "Select a setting profile", table.unpack(profiles.Profiles) }
-    profileCombo.SelectedIndex = profileIndex or 1
-
-    local profileButton = profileCollapsingHeader:AddButton("Create profile")
-    local newProfileName = profileCollapsingHeader:AddInputText("New profile name")
-    newProfileName.SameLine = true
-
-    local deleteProfileButton = profileCollapsingHeader:AddButton(getDeleteProfileButtonLabel(MCM:GetCurrentProfile()))
-    self:SetupDeleteProfileButton(deleteProfileButton, profileCombo, getDeleteProfileButtonLabel)
-
-    self:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, getDeleteProfileButtonLabel)
-
-    self:SetupProfileComboOnChange(profileCombo, getDeleteProfileButtonLabel)
-    -- TODO: refresh the settings UI; currently it doesn't update when changing profiles and you need to reopen the MCM window
-end
-
-function IMGUILayer:SetupDeleteProfileButton(deleteProfileButton, profileCombo, getDeleteProfileButtonLabel)
-    deleteProfileButton.OnClick = function()
-        local currentProfile = MCM:GetCurrentProfile()
-        if currentProfile ~= "Default" then
-            MCM:DeleteProfile(currentProfile)
-            profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
-            MCM:SetProfile("Default")
-            profileCombo.SelectedIndex = findProfileIndex(MCM:GetCurrentProfile())
-            deleteProfileButton.Label = getDeleteProfileButtonLabel(MCM:GetCurrentProfile())
-        else
-            MCMWarn(0, "Cannot delete the default profile.")
-        end
-    end
-end
-
-function IMGUILayer:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, getDeleteProfileButtonLabel)
-    profileButton.OnClick = function()
-        if newProfileName.Text ~= "" then
-            MCM:CreateProfile(newProfileName.Text)
-            MCM:SetProfile(newProfileName.Text)
-            newProfileName.Text = ""
-            profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
-            profileCombo.SelectedIndex = findProfileIndex(MCM:GetCurrentProfile())
-            deleteProfileButton.Label = getDeleteProfileButtonLabel(MCM:GetCurrentProfile())
-        end
-    end
-end
-
-function IMGUILayer:SetupProfileComboOnChange(profileCombo, getDeleteProfileButtonLabel)
-    profileCombo.OnChange = function(inputChange)
-        local selectedIndex = inputChange.SelectedIndex + 1
-        local selectedProfile = inputChange.Options[selectedIndex]
-        MCM:SetProfile(selectedProfile)
-
-        local deleteProfileButton = IMGUI_WINDOW:GetWidgetByName("Delete Profile Button")
-        if deleteProfileButton then
-            deleteProfileButton.Label = getDeleteProfileButtonLabel(selectedProfile)
-        end
-    end
-end
-
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
 ---@param mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
 ---@param profiles table<string, table> A table of settings profiles for the MCM
@@ -153,7 +69,7 @@ function IMGUILayer:CreateModMenu(mods, profiles)
     -- TODO: modularize etc
 
     -- Add functionality to manage between profiles
-    IMGUILayer:CreateProfileCollapsingHeader()
+    UIProfileManager:CreateProfileCollapsingHeader()
 
     IMGUI_WINDOW:AddDummy(0, 10)
 
@@ -340,13 +256,3 @@ function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
         tabName = tabName
     }))
 end
-
-Ext.RegisterNetListener("MCM_Mod_Tab_Added", function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
-    local tabName = data.tabName
-    local tabCallback = data.tabCallback
-
-    -- Update the IMGUILayer to include the new tab
-    IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
-end)
