@@ -65,13 +65,14 @@ Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payloa
     local mods = ClientGlobals.MOD_SETTINGS.mods
     local profiles = ClientGlobals.MOD_SETTINGS.profiles
 
+    -- shit why did I name it like this
     MCM_IMGUI_API:CreateModMenu(mods, profiles)
 
     -- Insert a new tab now that the MCM is ready
     MCM_IMGUI_API:InsertModMenuTab(ModuleUUID, "Inserted tab", function(tabHeader)
         local myCustomWidget = tabHeader:AddButton("My Custom Widget")
         myCustomWidget.OnClick = function()
-            IMGUIAPI:SetConfigValue("my_custom_setting", "new_value", ModuleUUID)
+            _D("My custom widget was clicked!")
         end
     end)
     IMGUI_WINDOW.Visible = true
