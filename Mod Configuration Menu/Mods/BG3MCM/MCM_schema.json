@@ -153,7 +153,7 @@
                     "Id": "MyRadio",
                     "Name": "My Radio",
                     "Type": "radio",
-                    "Default": "Option1",
+                    "Default": "a",
                     "Options": {
                         "Choices": [
                             "a",

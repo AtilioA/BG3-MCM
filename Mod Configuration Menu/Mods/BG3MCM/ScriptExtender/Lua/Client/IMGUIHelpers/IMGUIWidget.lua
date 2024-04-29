@@ -31,6 +31,7 @@ end
 
 function IMGUIWidget:AddResetButton(group, setting, modGUID)
     local resetButton = group:AddButton("«")
+    resetButton.IDContext = "ResetButton_" .. setting.Id
     resetButton:Tooltip():AddText("Reset to default")
     resetButton.OnClick = function()
         IMGUIAPI:ResetConfigValue(setting.Id, modGUID)
