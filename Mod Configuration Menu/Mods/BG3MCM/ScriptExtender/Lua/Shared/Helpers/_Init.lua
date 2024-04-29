@@ -3,6 +3,7 @@ RequireFiles("Shared/Helpers/", {
     "Validators/_Init",
     "Config",
     "Printer",
+    "Color",
     "Messages",
     "DataPreprocessing",
     "MCM/_Init",
