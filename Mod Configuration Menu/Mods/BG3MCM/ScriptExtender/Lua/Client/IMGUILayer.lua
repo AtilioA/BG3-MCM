@@ -139,8 +139,7 @@ function IMGUILayer:CreateModMenu(mods, profiles)
     -- Add functionality to manage between profiles
     IMGUILayer:CreateProfileCollapsingHeader()
 
-    -- REFACTOR: improve this spacing logic nonsense
-    IMGUI_WINDOW:AddSpacing()
+    IMGUI_WINDOW:AddDummy(0, 10)
 
     -- TODO: refactor what is part of the class and whatever
     -- Add the main tab bar for the mods
@@ -281,18 +280,6 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
     end
 end
 
---- Send a message to the server to update a setting value
----@param settingId string The ID of the setting to update
----@param value any The new value of the setting
----@param modGUID string The UUID of the mod
-function IMGUILayer:SetConfigValue(settingId, value, modGUID)
-    -- Send a message to the server to update the setting value
-    Ext.Net.PostMessageToServer("MCM_SetConfigValue", Ext.Json.Stringify({
-        modGUID = modGUID,
-        settingId = settingId,
-        value = value
-    }))
-end
 
 -- TODO: this was just a quick test, needs to be heavily refactored along with IMGUILayer:CreateModMenuTab
 --- Insert a new tab for a mod in the MCM

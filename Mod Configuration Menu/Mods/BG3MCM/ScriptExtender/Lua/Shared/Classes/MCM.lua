@@ -100,37 +100,53 @@ function MCM:GetConfigValue(settingName, modGUID)
 end
 
 --- Set the value of a configuration setting
----@param settingName string The name of the setting
+---@param settingId string The id of the setting
 ---@param value any The new value of the setting
 ---@param modGUID? GUIDSTRING The UUID of the mod (optional)
-function MCM:SetConfigValue(settingName, value, modGUID)
+function MCM:SetConfigValue(settingId, value, modGUID, clientRequest)
     modGUID = modGUID or ModuleUUID
 
     local modSettingsTable = self:GetModSettings(modGUID)
 
-    modSettingsTable[settingName] = value
+    modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 
     -- This is kind of a hacky way to emit events to other servers
-    -- TODO: check if there's a better way to do this, emit more events (e.g. profile changed)
+    -- TODO: check if there's a better way to do this; emit more events (e.g. profile changed)
+    -- TODO: Remove settingName before release, I just don't want to break things right now lmao
     Ext.Net.BroadcastMessage("MCM_Relay_To_Servers",
-        Ext.Json.Stringify({ channel = "MCM_Saved_Setting", payload = { modGUID = modGUID, settingName = settingName, value = value } }))
+        Ext.Json.Stringify({ channel = "MCM_Saved_Setting", payload = { modGUID = modGUID, settingId = settingId, settingName = settingId, value = value } }))
+
+    if not clientRequest then
+        -- Notify the client that the setting has been updated
+        Ext.Net.BroadcastMessage("MCM_Setting_Updated", Ext.Json.Stringify({
+            modGUID = modGUID,
+            settingId = settingId,
+            value = value
+        }))
+    end
 end
 
----@param settingName string The name of the setting to reset
+---@param settingId string The id of the setting to reset
 ---@param modGUID? GUIDSTRING The UUID of the mod (optional)
-function MCM:ResetConfigValue(settingName, modGUID)
+---@param clientRequest? boolean Whether the request came from the client
+function MCM:ResetConfigValue(settingId, modGUID, clientRequest)
     modGUID = modGUID or ModuleUUID
 
     local schema = self:GetModSchema(modGUID)
 
-    local defaultValue = schema:RetrieveDefaultValueForSetting(settingName)
+    local defaultValue = schema:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
         MCMWarn(1,
-            "Setting '" .. settingName .. "' not found in the schema for mod '" .. modGUID .. "'. Please contact " ..
+            "Setting '" .. settingId .. "' not found in the schema for mod '" .. modGUID .. "'. Please contact " ..
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
-        self:SetConfigValue(settingName, defaultValue, modGUID)
+        self:SetConfigValue(settingId, defaultValue, modGUID, clientRequest)
+        Ext.Net.BroadcastMessage("MCM_Setting_Reset", Ext.Json.Stringify({
+            modGUID = modGUID,
+            settingId = settingId,
+            defaultValue = defaultValue
+        }))
     end
 end
 
@@ -175,19 +191,29 @@ function MCM:LoadAndSendSettings()
 end
 
 --- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
-Ext.RegisterNetListener("MCM_Settings_Request", function(_)
+Ext.RegisterNetListener("MCM_Client_Request_Settings", function(_)
     MCMDebug(1, "Received MCM settings request")
     MCM:LoadAndSendSettings()
 end)
 Ext.RegisterConsoleCommand('mcm_reset', function() MCM:LoadAndSendSettings() end)
 
 --- Message handler for when the (IMGUI) client requests a setting to be set
-Ext.RegisterNetListener("MCM_SetConfigValue", function(_, payload)
+Ext.RegisterNetListener("MCM_Client_Request_Set_Setting_Value", function(_, payload)
     local payload = Ext.Json.Parse(payload)
     local settingId = payload.settingId
     local value = payload.value
     local modGUID = payload.modGUID
 
     MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
-    MCM:SetConfigValue(settingId, value, modGUID)
+    MCM:SetConfigValue(settingId, value, modGUID, true)
+end)
+
+--- Message handler for when the (IMGUI) client requests a setting to be reset
+Ext.RegisterNetListener("MCM_Client_Request_Reset_Setting_Value", function(_, payload)
+    local payload = Ext.Json.Parse(payload)
+    local settingId = payload.settingId
+    local modGUID = payload.modGUID
+
+    MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modGUID)
+    MCM:ResetConfigValue(settingId, modGUID, true)
 end)

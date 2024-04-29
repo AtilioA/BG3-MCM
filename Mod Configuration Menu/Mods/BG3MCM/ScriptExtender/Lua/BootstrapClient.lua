@@ -55,7 +55,7 @@ ClientGlobals = {
 }
 
 Ext.Events.ResetCompleted:Subscribe(function()
-    Ext.Net.PostMessageToServer("MCM_Settings_Request", Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer("MCM_Client_Request_Settings", Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
     IMGUI_WINDOW.Visible = true
@@ -81,4 +81,24 @@ end)
 Ext.RegisterNetListener("MCM_Relay_To_Servers", function(_, metapayload)
     local data = Ext.Json.Parse(metapayload)
     Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
+end)
+
+Ext.RegisterNetListener("MCM_Setting_Reset", function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local modGUID = data.modGUID
+    local settingId = data.settingId
+    local defaultValue = data.defaultValue
+
+    -- Update the displayed value for the setting
+    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
+end)
+
+Ext.RegisterNetListener("MCM_Setting_Updated", function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local modGUID = data.modGUID
+    local settingId = data.settingId
+    local defaultValue = data.defaultValue
+
+    -- Update the displayed value for the setting
+    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
 end)
