@@ -5,7 +5,7 @@ DragFloatIMGUIWidget = _Class:Create("DragFloatIMGUIWidget", IMGUIWidget)
 function DragFloatIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
     local drag = group:AddDrag(widgetName, initialValue, setting.Options.Min, setting.Options.Max)
     drag.OnChange = function(value)
-        IMGUILayer:SetConfigValue(setting.Id, value.Value[1], modGUID)
+        IMGUIAPI:SetConfigValue(setting.Id, value.Value[1], modGUID)
     end
     return drag
 end

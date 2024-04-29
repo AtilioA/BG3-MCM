@@ -5,7 +5,7 @@ FloatIMGUIWidget = _Class:Create("FloatIMGUIWidget", IMGUIWidget)
 function FloatIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
     local inputScalar = group:AddInputScalar(widgetName, initialValue)
     inputScalar.OnChange = function(value)
-        IMGUILayer:SetConfigValue(setting.Id, value.Value[1], modGUID)
+        IMGUIAPI:SetConfigValue(setting.Id, value.Value[1], modGUID)
     end
     return inputScalar
 end

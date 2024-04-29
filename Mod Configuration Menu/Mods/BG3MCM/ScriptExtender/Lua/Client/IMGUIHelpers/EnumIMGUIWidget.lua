@@ -15,7 +15,7 @@ function EnumIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, 
     end
 
     comboInput.OnChange = function(value)
-        IMGUILayer:SetConfigValue(setting.Id, options[value.SelectedIndex + 1], modGUID)
+        IMGUIAPI:SetConfigValue(setting.Id, options[value.SelectedIndex + 1], modGUID)
     end
 
     return comboInput

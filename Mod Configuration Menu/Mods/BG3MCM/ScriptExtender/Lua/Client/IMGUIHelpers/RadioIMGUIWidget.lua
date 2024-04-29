@@ -39,7 +39,7 @@ function RadioIMGUIWidget:SetRadioButtonCallbacks(buttons, setting, modGUID)
     for _, button in ipairs(buttons) do
         button.OnChange = function(value)
             if value and value.Label then
-                IMGUILayer:SetConfigValue(setting.Id, value.Label, modGUID)
+                IMGUIAPI:SetConfigValue(setting.Id, value.Label, modGUID)
                 self:UncheckOtherRadioButtons(buttons, button)
             end
         end
