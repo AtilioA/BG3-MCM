@@ -30,7 +30,7 @@ Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payloa
     MCM_IMGUI_API:CreateModMenu(mods, profiles)
 
     -- Insert a new tab now that the MCM is ready (demonstration)
-    MCM_IMGUI_API:InsertModMenuTab(ModuleUUID, "Inserted tab", function(tabHeader)
+    IMGUIAPI:InsertModMenuTab(ModuleUUID, "Inserted tab", function(tabHeader)
         local myCustomWidget = tabHeader:AddButton("My Custom Widget")
         myCustomWidget.OnClick = function()
             _D("My custom widget was clicked!")
@@ -71,5 +71,5 @@ Ext.RegisterNetListener("MCM_Mod_Tab_Added", function(_, payload)
     local tabCallback = data.tabCallback
 
     -- Update the IMGUILayer to include the new tab
-    IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
+    IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
 end)

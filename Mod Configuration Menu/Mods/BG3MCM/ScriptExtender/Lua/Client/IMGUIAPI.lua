@@ -7,7 +7,7 @@ IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
 function IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
-    IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
+    MCM_IMGUI_LAYER:InsertModMenuTab(modGUID, tabName, tabCallback)
 end
 
 --- Send a message to the server to update a setting value

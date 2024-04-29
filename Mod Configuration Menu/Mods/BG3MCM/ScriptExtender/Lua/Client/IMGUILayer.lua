@@ -214,42 +214,46 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
     end
 end
 
--- TODO: this was just a quick test, needs to be heavily refactored along with IMGUILayer:CreateModMenuTab
 --- Insert a new tab for a mod in the MCM
 ---@param modGUID string The UUID of the mod
 ---@param tabName string The name of the tab to be inserted
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
 function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
-    -- Ensure the mods_tabs entry exists for this mod
-    local modInfo = Ext.Mod.GetMod(modGUID).Info
-
     if not self.mods_tabs[modGUID] then
         self.mods_tabs[modGUID] = {
             mod_tab_bar = nil
         }
     end
 
+    if self.mods_tabs[modGUID].mod_tab_bar then
+        self:AddTabToModTabBar(modGUID, tabName, tabCallback)
+        return
+    end
+
     -- Create the mod tab bar if it doesn't exist
-    if not self.mods_tabs[modGUID].mod_tab_bar then
-        local modTab = self.modsTabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
-        self.mods_tabs[modGUID] = modTab
+    self:CreateModTabBar(modGUID)
 
-        local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
+    self:AddTabToModTabBar(modGUID, tabName, tabCallback)
+end
 
-        if type(self.mods_tabs[modGUID]) == "table" then
-            self.mods_tabs[modGUID].mod_tab_bar = modTabs
-        else
-            self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
-        end
-    end
+function IMGUILayer:CreateModTabBar(modGUID)
+    local modInfo = Ext.Mod.GetMod(modGUID).Info
+    local modTab = self.modsTabBar:AddTabItem(modInfo.Name)
+    self.mods_tabs[modGUID] = modTab
 
-    -- Update the IMGUILayer to include the new tab
+    local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
+    self.mods_tabs[modGUID].mod_tab_bar = modTabs
+end
+
+--- Add a new tab to the mod tab bar
+---@param modGUID string The UUID of the mod
+---@param tabName string The name of the tab to be added
+---@param tabCallback function The callback function to create the tab
+function IMGUILayer:AddTabToModTabBar(modGUID, tabName, tabCallback)
     local modTabs = self.mods_tabs[modGUID].mod_tab_bar
-    if modTabs then
-        local newTab = modTabs:AddTabItem(tabName)
-        tabCallback(newTab)
-    end
+    local newTab = modTabs:AddTabItem(tabName)
+    tabCallback(newTab)
 
     Ext.Net.PostMessageToServer("MCM_Mod_Tab_Added", Ext.Json.Stringify({
         modGUID = modGUID,
