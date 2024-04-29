@@ -1,0 +1,3 @@
+RequireFiles("Client/Components/", {
+    "UIProfileManager"
+})

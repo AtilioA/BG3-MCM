@@ -1,6 +1,7 @@
 RequireFiles("Client/", {
-    "IMGUILayer",
+    "Components/_Init",
     "Helpers/_Init",
+    "IMGUILayer",
     "IMGUIAPI",
     "SubscribedEvents",
 })
