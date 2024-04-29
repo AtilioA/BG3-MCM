@@ -62,8 +62,8 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return table<string, any> | nil - widgets for the mod (keyed by setting ID), or nil if the mod has no widgets
 function IMGUIAPI:getModWidgets(modGUID)
-    if MCM_IMGUI_API.mods and MCM_IMGUI_API.mods[modGUID] and MCM_IMGUI_API.mods[modGUID].widgets then
-        return MCM_IMGUI_API.mods[modGUID].widgets
+    if MCM_IMGUI_LAYER.mods and MCM_IMGUI_LAYER.mods[modGUID] and MCM_IMGUI_LAYER.mods[modGUID].widgets then
+        return MCM_IMGUI_LAYER.mods[modGUID].widgets
     end
     return nil
 end

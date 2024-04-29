@@ -27,7 +27,7 @@ Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payloa
     local profiles = ClientGlobals.MOD_SETTINGS.profiles
 
     -- shit why did I name it like this
-    MCM_IMGUI_API:CreateModMenu(mods, profiles)
+    MCM_IMGUI_LAYER:CreateModMenu(mods, profiles)
 
     -- Insert a new tab now that the MCM is ready (demonstration)
     IMGUIAPI:InsertModMenuTab(ModuleUUID, "Inserted tab", function(tabHeader)

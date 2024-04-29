@@ -23,7 +23,7 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods_tabs = {}
 })
 
-MCM_IMGUI_API = IMGUILayer:New()
+MCM_IMGUI_LAYER = IMGUILayer:New()
 
 --- Factory for creating IMGUI widgets based on the type of setting
 local InputWidgetFactory = {
