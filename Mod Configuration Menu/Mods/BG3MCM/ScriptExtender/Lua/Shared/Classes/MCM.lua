@@ -185,7 +185,7 @@ end
 -- TODO: modularize these later
 function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM settings...")
-    MCM:LoadConfigs()
+    self:LoadConfigs()
     Ext.Net.BroadcastMessage("MCM_Server_Send_Settings_To_Client",
         Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
 end
@@ -193,7 +193,7 @@ end
 --- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
 Ext.RegisterNetListener("MCM_Client_Request_Settings", function(_)
     MCMDebug(1, "Received MCM settings request")
-    MCM:LoadAndSendSettings()
+    MCMAPI:LoadAndSendSettings()
 end)
 Ext.RegisterConsoleCommand('mcm_reset', function() MCM:LoadAndSendSettings() end)
 
@@ -205,7 +205,7 @@ Ext.RegisterNetListener("MCM_Client_Request_Set_Setting_Value", function(_, payl
     local modGUID = payload.modGUID
 
     MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
-    MCM:SetConfigValue(settingId, value, modGUID, true)
+    MCMAPI:SetConfigValue(settingId, value, modGUID, true)
 end)
 
 --- Message handler for when the (IMGUI) client requests a setting to be reset
@@ -215,5 +215,5 @@ Ext.RegisterNetListener("MCM_Client_Request_Reset_Setting_Value", function(_, pa
     local modGUID = payload.modGUID
 
     MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modGUID)
-    MCM:ResetConfigValue(settingId, modGUID, true)
+    MCMAPI:ResetConfigValue(settingId, modGUID, true)
 end)
