@@ -13,7 +13,9 @@ function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
     end
 
     local widget = widgetClass:CreateWidget(group, widgetName, setting, initialValue, modGUID)
-    self:InitializeWidget(widget, setting)
+    -- widget.SameLine = true
+    self:AddResetButton(group, setting, modGUID)
+    self:InitializeWidget(widget, group, setting)
     return widget
 end
 
@@ -21,10 +23,19 @@ function IMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modG
     error("IMGUIWidget:CreateWidget must be overridden in a derived class")
 end
 
-function IMGUIWidget:InitializeWidget(widget, setting)
+function IMGUIWidget:InitializeWidget(widget, group, setting)
     -- widget:AddText(setting:GetDescription())
     self:SetupTooltip(widget, setting)
     self:SetupDescription(widget, group, setting)
+end
+
+function IMGUIWidget:AddResetButton(group, setting, modGUID)
+    local resetButton = group:AddButton("«")
+    resetButton:Tooltip():AddText("Reset to default")
+    resetButton.OnClick = function()
+        IMGUIAPI:ResetConfigValue(setting.Id, modGUID)
+    end
+    resetButton.SameLine = true
 end
 
 function IMGUIWidget:SetupTooltip(widget, setting)
@@ -62,7 +73,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     if translatedDescription ~= nil and translatedDescription ~= "" then
         descriptionText = translatedDescription
     end
-    
+
     local addedDescription = group:AddText(descriptionText)
     addedDescription:SetColor("Text", Color.normalized_rgba(255, 255, 255, 0.67))
     group:AddDummy(0, 5)
