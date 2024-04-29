@@ -126,7 +126,7 @@
                 "Id": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API."
+                    "description": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API. This will be displayed in the settings file, so it still should be human-readable and descriptive."
                 },
                 "Name": {
                     "type": "string",
