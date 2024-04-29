@@ -15,17 +15,6 @@ IMGUI_WINDOW:SetColor("TitleBgActive", Color.normalized_rgba(36, 28, 68, 1))
 
 IMGUI_WINDOW:SetStyle("ScrollbarSize", 10)
 
--- Toggle the window with the INSERT key.
--- TODO: Modularize and make it configurable
-Ext.Events.KeyInput:Subscribe(function(e)
-    if e.Event == "KeyDown" and e.Repeat == false then
-        if (e.Key == "INSERT" or e.Key == "APPLICATION") then
-            IMGUI_WINDOW.Visible = not IMGUI_WINDOW.Visible
-            IMGUI_WINDOW.Open = not IMGUI_WINDOW.Open
-        end
-    end
-end)
-
 -- TODO: add stuff to the menu bar
 m = IMGUI_WINDOW:AddMainMenu()
 
@@ -52,53 +41,3 @@ IMGUI_WINDOW.MenuBar = true
 ClientGlobals = {
     MOD_SETTINGS = {}
 }
-
-Ext.Events.ResetCompleted:Subscribe(function()
-    Ext.Net.PostMessageToServer("MCM_Client_Request_Settings", Ext.Json.Stringify({
-        message = "Client reset has completed. Requesting MCM settings from server."
-    }))
-    IMGUI_WINDOW.Visible = true
-end)
-
-Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payload)
-    ClientGlobals.MOD_SETTINGS = Ext.Json.Parse(payload)
-    local mods = ClientGlobals.MOD_SETTINGS.mods
-    local profiles = ClientGlobals.MOD_SETTINGS.profiles
-
-    -- shit why did I name it like this
-    MCM_IMGUI_API:CreateModMenu(mods, profiles)
-
-    -- Insert a new tab now that the MCM is ready
-    MCM_IMGUI_API:InsertModMenuTab(ModuleUUID, "Inserted tab", function(tabHeader)
-        local myCustomWidget = tabHeader:AddButton("My Custom Widget")
-        myCustomWidget.OnClick = function()
-            _D("My custom widget was clicked!")
-        end
-    end)
-    IMGUI_WINDOW.Visible = true
-end)
-
-Ext.RegisterNetListener("MCM_Relay_To_Servers", function(_, metapayload)
-    local data = Ext.Json.Parse(metapayload)
-    Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
-end)
-
-Ext.RegisterNetListener("MCM_Setting_Reset", function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
-    local settingId = data.settingId
-    local defaultValue = data.defaultValue
-
-    -- Update the displayed value for the setting
-    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
-end)
-
-Ext.RegisterNetListener("MCM_Setting_Updated", function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
-    local settingId = data.settingId
-    local defaultValue = data.defaultValue
-
-    -- Update the displayed value for the setting
-    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
-end)
