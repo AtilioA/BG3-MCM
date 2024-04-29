@@ -24,6 +24,7 @@ end
 function IMGUIWidget:InitializeWidget(widget, setting)
     -- widget:AddText(setting:GetDescription())
     self:SetupTooltip(widget, setting)
+    self:SetupDescription(widget, group, setting)
 end
 
 function IMGUIWidget:SetupTooltip(widget, setting)
@@ -40,4 +41,29 @@ function IMGUIWidget:SetupTooltip(widget, setting)
         end
         tooltip:AddText(tooltipText)
     end
+end
+
+--- Add a slightly faded description text below the widget
+---@param widget any
+---@param group any
+---@param setting SchemaSetting
+---@return nil
+function IMGUIWidget:SetupDescription(widget, group, setting)
+    if not setting.Description then
+        return
+    end
+
+    if not widget then
+        return
+    end
+
+    local descriptionText = setting.Description
+    local translatedDescription = Ext.Loca.GetTranslatedString(setting.Handles.DescriptionHandle)
+    if translatedDescription ~= nil and translatedDescription ~= "" then
+        descriptionText = translatedDescription
+    end
+    
+    local addedDescription = group:AddText(descriptionText)
+    addedDescription:SetColor("Text", Color.normalized_rgba(255, 255, 255, 0.67))
+    group:AddDummy(0, 5)
 end
