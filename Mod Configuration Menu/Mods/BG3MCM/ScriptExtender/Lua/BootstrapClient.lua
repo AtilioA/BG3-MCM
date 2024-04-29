@@ -3,7 +3,6 @@ Ext.Require("Shared/_Init.lua")
 Ext.Require("Client/_Init.lua")
 
 IMGUI_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
-IMGUI_WINDOW.Closeable = true
 IMGUI_WINDOW.Visible = true
 
 IMGUI_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
@@ -20,7 +19,7 @@ IMGUI_WINDOW:SetStyle("ScrollbarSize", 10)
 -- TODO: Modularize and make it configurable
 Ext.Events.KeyInput:Subscribe(function(e)
     if e.Event == "KeyDown" and e.Repeat == false then
-        if (e.Key == "INSERT") then
+        if (e.Key == "INSERT" or e.Key == "APPLICATION") then
             IMGUI_WINDOW.Visible = not IMGUI_WINDOW.Visible
             IMGUI_WINDOW.Open = not IMGUI_WINDOW.Open
         end
