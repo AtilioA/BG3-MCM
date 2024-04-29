@@ -39,12 +39,31 @@ function IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
     local widget = self:FindWidgetForSetting(modGUID, settingId)
 
     -- TODO / NOTE: this is a simplification; each widget will have its own way of updating its value
-    if widget then
+    if widget and widget.Value then
         widget.Value = value
     end
 end
 
+--- Find the widget corresponding to a setting
+---@param modGUID string The UUID of the mod
+---@param settingId string The ID of the setting to find the widget for
+---@return any | nil - The widget corresponding to the setting, or nil if no widget was found
+-- TODO: Implement logic to find the widget corresponding to the setting. This might involve maintaining a mapping of settings to widgets (I already kind of do this), or searching through the UI hierarchy...
+--- This will be required to update the widget value when a setting is changed, e.g. when resetting to default or switching profiles
 function IMGUIAPI:FindWidgetForSetting(modGUID, settingId)
-    -- TODO: Implement logic to find the widget corresponding to the setting. This might involve maintaining a mapping of settings to widgets (I already kind of do this), or searching through the UI hierarchy...
-    --- This will be required to update the widget value when a setting is changed, e.g. when resetting to default or switching profiles
+    -- Check if the mod has any registered widgets
+    local widgets = self:getModWidgets(modGUID)
+    if widgets then
+        return widgets[settingId]
+    end
+end
+
+--- Get the widgets for a mod
+---@param modGUID string The UUID of the mod
+---@return table<string, any> | nil - widgets for the mod (keyed by setting ID), or nil if the mod has no widgets
+function IMGUIAPI:getModWidgets(modGUID)
+    if MCM_IMGUI_API.mods and MCM_IMGUI_API.mods[modGUID] and MCM_IMGUI_API.mods[modGUID].widgets then
+        return MCM_IMGUI_API.mods[modGUID].widgets
+    end
+    return nil
 end

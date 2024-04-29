@@ -1,17 +1,22 @@
 -- TODO: refactor to actually use OOP probably but it sucks in Lua
----@class IMGUILayer: MetaClass
----@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
----@field private profiles table<string, table> A table of settings profiles for the MCM
----@field private mod_tabs table<string, any> A table of tabs for each mod in the MCM
+
+---@class ModSettings
+---@field widgets table<string, any> A table of widgets for the mod
+
+--- A class representing an IMGUI layer responsible for managing mods and profiles.
+--- A table of mod GUIDs, each associated with a table containing widgets and potentially other schemas and settings.
 -- The IMGUILayer class is responsible for creating and managing the IMGUI user interface for MCM.
 -- It acts as the bridge between MCM's core business logic and MCM's IMGUI window, handling the rendering and interaction of the mod configuration UI.
 -- It relies on settings and profiles sent by the MCM (API) class, and then translates this data into a user-friendly IMGUI interface.
---
 -- IMGUILayer provides methods for:
 -- - Creating the main MCM menu, which contains a tab for each mod that has MCM settings
 -- - Creating new tabs and sections for each mod, based on the mod's schema
 -- - Creating IMGUI widgets for each setting in the mod's schema
 -- - Sending messages to the server to update setting values
+---@class IMGUILayer: MetaClass
+---@field mods table<string, ModSettings>
+---@field private profiles table<string, table>
+---@field private mod_tabs table<string, any> A table of tabs for each mod in the MCM
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
     profiles = {},
@@ -287,10 +292,11 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
             setting.Type ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
-        createWidget(modGroup, setting, settingValue, modGUID)
+        self.mods[modGUID].widgets = self.mods[modGUID].widgets or {}
+        local createdWidget = createWidget(modGroup, setting, settingValue, modGUID)
+        self.mods[modGUID].widgets[setting.Id] = createdWidget
     end
 end
-
 
 -- TODO: this was just a quick test, needs to be heavily refactored along with IMGUILayer:CreateModMenuTab
 --- Insert a new tab for a mod in the MCM
