@@ -65,7 +65,11 @@ function ModConfig:SaveSettingsForMod(modGUID)
                 for _, setting in ipairs(tab.Settings) do
                     local settingId = setting.Id
                     if settingId then
-                        updatedSettings[tabId][settingId] = settings[settingId] or setting:GetDefault()
+                        local updatedSetting = settings[settingId]
+                        if updatedSetting == nil then
+                            updatedSetting = setting:GetDefault()
+                        end
+                        updatedSettings[tabId][settingId] = updatedSetting
                     end
                 end
             end
@@ -77,8 +81,11 @@ function ModConfig:SaveSettingsForMod(modGUID)
                         for _, setting in ipairs(section.Settings) do
                             local settingId = setting.Id
                             if settingId then
-                                updatedSettings[tabId][sectionId][settingId] = settings[settingId] or
-                                    setting:GetDefault()
+                                local updatedSetting = settings[settingId]
+                                if updatedSetting == nil then
+                                    updatedSetting = setting:GetDefault()
+                                end
+                                updatedSettings[tabId][sectionId][settingId] = updatedSetting
                             end
                         end
                     end
