@@ -11,5 +11,5 @@ function TextIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
 end
 
 function TextIMGUIWidget:UpdateCurrentValue(value)
-    self.Widget.Value = value
+    self.Widget.Text = value
 end
