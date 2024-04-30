@@ -20,6 +20,7 @@
         "Settings": {
             "type": "array",
             "minItems": 1,
+            "uniqueItems": true,
             "items": {
                 "$ref": "#/definitions/Setting"
             },
@@ -73,6 +74,7 @@
                 "Settings": {
                     "type": "array",
                     "minItems": 1,
+                    "uniqueItems": true,
                     "items": {
                         "$ref": "#/definitions/Setting"
                     },
@@ -286,6 +288,7 @@
                 "Settings": {
                     "type": "array",
                     "minItems": 1,
+                    "uniqueItems": true,
                     "items": {
                         "$ref": "#/definitions/Setting"
                     },
@@ -370,6 +373,12 @@
                 "NameHandle"
             ],
             "description": "Handles that can be used to localize a setting."
+        }
+    },
+    "customValidators": {
+        "uniqueId": {
+            "type": "string",
+            "uniqueItems": true
         }
     }
 }

@@ -48,6 +48,7 @@ local function convertStringBooleans(tbl)
     end
 end
 
+--- TODO: validate if schema is correct, e.g. settings have unique IDs, etc.
 --- Sanitizes schema data by removing elements without SchemaVersions and converting string booleans
 ---@param schema table The schema data to sanitize
 ---@param modGUID string The mod's unique identifier
