@@ -117,7 +117,7 @@
                     "Id": "MyFloatSlider",
                     "Name": "My Float Slider",
                     "Type": "slider_float",
-                    "Default": 50,
+                    "Default": 0.25,
                     "Options": {
                         "Min": 0.0,
                         "Max": 1.0
