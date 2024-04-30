@@ -3,27 +3,28 @@ RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
 ---@param value number
 ---@return table buttons The buttons created
-function RadioIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
+function RadioIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
     if not group or not setting or not modGUID then
         return {}
     end
 
     group:AddText(widgetName)
-    local buttons = self:CreateRadioButtons(group, setting, initialValue)
-    self:SetRadioButtonCallbacks(buttons, setting, modGUID)
-    return buttons
+    local instance = setmetatable({}, { __index = RadioIMGUIWidget })
+    instance.Widget = self:CreateRadioButtons(group, setting, initialValue)
+    self:SetRadioButtonCallbacks(instance.Widget, setting, modGUID)
+    return instance
 end
 
 ---@param group any The IMGUI group to add the radio buttons to
 ---@param setting SchemaSetting The setting containing the radio button options
 ---@param initialValue any The current value of the setting
----@return table buttons The created radio buttons
 function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
     local buttons = {}
     local options = { table.unpack(setting.Options.Choices) }
     for i, option in ipairs(options) do
         local isActive = option == initialValue
         local radioButton = group:AddRadioButton(option, isActive)
+        radioButton.IDContext = string.format("radioButton_%s_%s", setting.Id, i)
         if i > 1 then
             radioButton.SameLine = true
         end
@@ -54,5 +55,11 @@ function RadioIMGUIWidget:UncheckOtherRadioButtons(buttons, activeButton)
         if button ~= activeButton then
             button.Active = false
         end
+    end
+end
+
+function RadioIMGUIWidget:UpdateCurrentValue(value)
+    for _, button in ipairs(self.Widget) do
+        button.Active = button.Label == value
     end
 end

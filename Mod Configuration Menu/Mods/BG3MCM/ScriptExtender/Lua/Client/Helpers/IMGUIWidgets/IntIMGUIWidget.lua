@@ -1,11 +1,15 @@
 ---@class IntIMGUIWidget: IMGUIWidget
 IntIMGUIWidget = _Class:Create("IntIMGUIWidget", IMGUIWidget)
 
----@return any
-function IntIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
-    local inputInt = group:AddInputInt(widgetName, initialValue)
-    inputInt.OnChange = function(value)
+function IntIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
+    local instance = setmetatable({}, { __index = IntIMGUIWidget })
+    instance.Widget = group:AddInputInt(widgetName, initialValue)
+    instance.Widget.OnChange = function(value)
         IMGUIAPI:SetConfigValue(setting.Id, value.Value[1], modGUID)
     end
-    return inputInt
+    return instance
+end
+
+function IntIMGUIWidget:UpdateCurrentValue(value)
+    self.Widget.Value = { value, value, value, value }
 end

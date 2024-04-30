@@ -1,11 +1,16 @@
 ---@class CheckboxIMGUIWidget: IMGUIWidget
 CheckboxIMGUIWidget = _Class:Create("CheckboxIMGUIWidget", IMGUIWidget)
 
----@return any widget
-function CheckboxIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
-    local checkbox = group:AddCheckbox(widgetName, initialValue)
-    checkbox.OnChange = function(value)
+function CheckboxIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
+    -- Ensure Widget is an instance-specific property. This is some Lua nonsense that I don't understand. Try designing a better language next time. /hj
+    local instance = setmetatable({}, { __index = CheckboxIMGUIWidget })
+    instance.Widget = group:AddCheckbox(widgetName, initialValue)
+    instance.Widget.OnChange = function(value)
         IMGUIAPI:SetConfigValue(setting.Id, value.Checked, modGUID)
     end
-    return checkbox
+    return instance
+end
+
+function CheckboxIMGUIWidget:UpdateCurrentValue(value)
+    self.Widget.Checked = value
 end

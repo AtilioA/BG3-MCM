@@ -115,10 +115,11 @@ function IMGUILayer:CreateModMenuTab(modGUID)
 
     if type(self.mods_tabs[modGUID]) == "table" then
         self.mods_tabs[modGUID].mod_tab_bar = modTabs
+        self.mods[modGUID].widgets = {}
     else
         self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
+        self.mods[modGUID] = { widgets = {} }
     end
-
     -- Iterate over each tab in the mod schema to create a subtab for each
     for _, tab in ipairs(modSchema.Tabs) do
         self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
@@ -203,14 +204,12 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
     local settingValue = modSettings[setting.Id]
     local createWidget = InputWidgetFactory[setting.Type]
     if createWidget == nil then
-        -- TODO: use MCMWarn after Shared-Server mess is sorted
         MCMWarn(0, "No widget factory found for setting type '" ..
             setting.Type ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
-        self.mods[modGUID].widgets = self.mods[modGUID].widgets or {}
-        local createdWidget = createWidget(modGroup, setting, settingValue, modGUID)
-        self.mods[modGUID].widgets[setting.Id] = createdWidget
+        local widget = createWidget(modGroup, setting, settingValue, modGUID)
+        self.mods[modGUID].widgets[setting.Id] = widget
     end
 end
 
@@ -240,7 +239,8 @@ end
 function IMGUILayer:CreateModTabBar(modGUID)
     local modInfo = Ext.Mod.GetMod(modGUID).Info
     local modTab = self.modsTabBar:AddTabItem(modInfo.Name)
-    self.mods_tabs[modGUID] = modTab
+    -- Refactor this nonsense
+    self.mods_tabs[modGUID].mod_tab = modTab
 
     local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
     self.mods_tabs[modGUID].mod_tab_bar = modTabs

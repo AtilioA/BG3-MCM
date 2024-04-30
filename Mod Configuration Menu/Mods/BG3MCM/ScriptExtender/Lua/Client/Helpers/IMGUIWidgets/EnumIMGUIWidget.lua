@@ -1,22 +1,32 @@
 ---@class EnumIMGUIWidget
 EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 
-function EnumIMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
+function EnumIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
+    local instance = setmetatable({}, { __index = EnumIMGUIWidget })
     local options = setting.Options.Choices
-    local comboInput = group:AddCombo(widgetName, initialValue)
-    comboInput.Options = options
+    instance.Widget = group:AddCombo(widgetName, initialValue)
+    instance.Widget.Options = options
 
     -- Set initial selection
     for i, value in ipairs(options) do
         if value == initialValue then
-            comboInput.SelectedIndex = i - 1
+            instance.Widget.SelectedIndex = i - 1
             break
         end
     end
 
-    comboInput.OnChange = function(value)
+    instance.Widget.OnChange = function(value)
         IMGUIAPI:SetConfigValue(setting.Id, options[value.SelectedIndex + 1], modGUID)
     end
 
-    return comboInput
+    return instance
+end
+
+function EnumIMGUIWidget:UpdateCurrentValue(value)
+    for i, option in ipairs(self.Widget.Options) do
+        if option == value then
+            self.Widget.SelectedIndex = i - 1
+            break
+        end
+    end
 end

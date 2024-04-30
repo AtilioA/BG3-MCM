@@ -1,5 +1,10 @@
+-- This became a factory of sorts cause OOP in Lua is a mess
+
 ---@class IMGUIWidget
-IMGUIWidget = _Class:Create("IMGUIWidget", nil, {})
+---@field Widget any The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
+IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
+    Widget = nil
+})
 
 function IMGUIWidget:new()
     error(
@@ -12,15 +17,23 @@ function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
         widgetName = setting.Name
     end
 
-    local widget = widgetClass:CreateWidget(group, widgetName, setting, initialValue, modGUID)
-    -- widget.SameLine = true
+    local widget = widgetClass:new(group, widgetName, setting, initialValue, modGUID)
+    widget.Widget.IDContext = setting.Id
     self:AddResetButton(group, setting, modGUID)
-    self:InitializeWidget(widget, group, setting)
+    self:InitializeWidget(widget.Widget, group, setting)
     return widget
 end
 
 function IMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
-    error("IMGUIWidget:CreateWidget must be overridden in a derived class")
+    error("IMGUIWidget:new must be overridden in a derived class")
+end
+
+function IMGUIWidget:UpdateCurrentValue(value)
+    error("IMGUIWidget:UpdateCurrentValue must be overridden in a derived class")
+end
+
+function IMGUIWidget:PrintMe()
+    MCMDebug(3, "SliderIntIMGUIWidget")
 end
 
 function IMGUIWidget:InitializeWidget(widget, group, setting)
@@ -30,6 +43,7 @@ function IMGUIWidget:InitializeWidget(widget, group, setting)
 end
 
 function IMGUIWidget:AddResetButton(group, setting, modGUID)
+    -- TODO: refactor this to use popup with MouseButtonRight? I don't know how to do that
     local resetButton = group:AddButton("«")
     resetButton.IDContext = "ResetButton_" .. setting.Id
     resetButton:Tooltip():AddText("Reset to default")
