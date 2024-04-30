@@ -120,3 +120,26 @@ function JsonLayer:LoadConfigForMod(modData)
 
     return data
 end
+
+--- Flatten the settings table into a single table with the setting ID as the key
+---@param settings table The settings table to flatten
+---@return table flattenedSettings flattened settings table
+function JsonLayer:FlattenSettingsJSON(settings)
+    local flatJson = {}
+
+    -- Function to recursively flatten the nested table
+    local function flattenTable(obj, result)
+        for key, value in pairs(obj) do
+            if type(value) == "table" then
+                flattenTable(value, result)
+            else
+                result[key] = value
+            end
+        end
+    end
+
+    -- Start flattening the table
+    flattenTable(settings, flatJson)
+
+    return flatJson
+end

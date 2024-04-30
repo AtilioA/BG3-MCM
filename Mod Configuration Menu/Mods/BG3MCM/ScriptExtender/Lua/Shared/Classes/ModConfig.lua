@@ -48,11 +48,46 @@ function ModConfig:GetSettingsFilePath(modGUID)
     return self:GetModProfileSettingsPath(modGUID) .. "/settings.json"
 end
 
---- Save the settings for a mod to the settings file.
+-- TODO: as always, refactor this nuclear waste
+--- Save the settings for a mod to the settings file with tab and section information.
 --- @param modGUID GUIDSTRING The mod's UUID to save the settings for.
 function ModConfig:SaveSettingsForMod(modGUID)
     local configFilePath = self:GetSettingsFilePath(modGUID)
-    JsonLayer:SaveJSONConfig(configFilePath, self.mods[modGUID].settingsValues)
+    local schema = self.mods[modGUID].schemas
+    local settings = self.mods[modGUID].settingsValues
+    local updatedSettings = {}
+
+    for _, tab in ipairs(schema:GetTabs()) do
+        local tabId = tab.TabId
+        if tabId then
+            updatedSettings[tabId] = updatedSettings[tabId] or {}
+            if tab.Settings then -- Check if tab has direct settings
+                for _, setting in ipairs(tab.Settings) do
+                    local settingId = setting.Id
+                    if settingId then
+                        updatedSettings[tabId][settingId] = settings[settingId] or setting:GetDefault()
+                    end
+                end
+            end
+            if tab.Sections then -- Check if tab has sections with settings
+                for _, section in ipairs(tab.Sections) do
+                    local sectionId = section.SectionId
+                    if sectionId then
+                        updatedSettings[tabId][sectionId] = updatedSettings[tabId][sectionId] or {}
+                        for _, setting in ipairs(section.Settings) do
+                            local settingId = setting.Id
+                            if settingId then
+                                updatedSettings[tabId][sectionId][settingId] = settings[settingId] or
+                                    setting:GetDefault()
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    JsonLayer:SaveJSONConfig(configFilePath, updatedSettings)
 end
 
 --- Save the settings for all mods to the settings files.
@@ -147,7 +182,8 @@ function ModConfig:LoadSettingsForMod(modGUID, schema)
     local settingsFilePath = self:GetSettingsFilePath(modGUID)
     local config = JsonLayer:LoadJSONConfig(settingsFilePath)
     if config then
-        self:HandleLoadedSettings(modGUID, schema, config, settingsFilePath)
+        local flattenedConfig = JsonLayer:FlattenSettingsJSON(config)
+        self:HandleLoadedSettings(modGUID, schema, flattenedConfig, settingsFilePath)
     else
         self:HandleMissingSettings(modGUID, schema, settingsFilePath)
     end
