@@ -86,8 +86,24 @@ function DataPreprocessing:ValidateSettings(schema, settings)
 
     if schemaTabs then
         for _, tab in ipairs(schemaTabs) do
-            for _, section in ipairs(tab:GetSections()) do
-                for _, setting in ipairs(section:GetSettings()) do
+            -- Check if the tab has sections
+            if #tab:GetSections() > 0 then
+                for _, section in ipairs(tab:GetSections()) do
+                    for _, setting in ipairs(section:GetSettings()) do
+                        local value = settings[setting:GetId()]
+                        local validator = SettingValidators[setting:GetType()]
+                        MCMDebug(2,
+                            "Validating setting: " ..
+                            setting:GetId() ..
+                            " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
+                        if validator and not validator(setting, value) then
+                            table.insert(invalidSettings, setting:GetId())
+                        end
+                    end
+                end
+            else
+                -- Validate settings directly in the tab
+                for _, setting in ipairs(tab:GetSettings()) do
                     local value = settings[setting:GetId()]
                     local validator = SettingValidators[setting:GetType()]
                     MCMDebug(2,
