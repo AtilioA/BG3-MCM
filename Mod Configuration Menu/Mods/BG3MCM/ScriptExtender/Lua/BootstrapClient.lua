@@ -4,6 +4,7 @@ Ext.Require("Client/_Init.lua")
 
 IMGUI_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
 IMGUI_WINDOW.Visible = true
+IMGUI_WINDOW.NoBringToFrontOnFocus = true
 
 IMGUI_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
 IMGUI_WINDOW:SetStyle("WindowBorderSize", 2)
