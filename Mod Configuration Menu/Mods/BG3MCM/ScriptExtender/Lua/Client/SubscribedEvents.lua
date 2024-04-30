@@ -11,7 +11,6 @@ Ext.Events.KeyInput:Subscribe(function(e)
     end
 end)
 
-
 Ext.Events.ResetCompleted:Subscribe(function()
     Ext.Net.PostMessageToServer("MCM_Client_Request_Settings", Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
@@ -72,4 +71,15 @@ Ext.RegisterNetListener("MCM_Mod_Tab_Added", function(_, payload)
 
     -- Update the IMGUILayer to include the new tab
     IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
+end)
+
+Ext.RegisterNetListener("MCM_Server_Set_Profile", function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local newSettings = data.newSettings
+
+    for modGUID, modSettings in pairs(newSettings) do
+        for settingId, settingValue in pairs(modSettings.settingsValues) do
+            IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, settingValue)
+        end
+    end
 end)

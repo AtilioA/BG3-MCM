@@ -53,7 +53,7 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
         if currentProfile ~= "Default" then
             MCM:DeleteProfile(currentProfile)
             profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
-            MCM:SetProfile("Default")
+            IMGUIAPI:SetProfile("Default")
             profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCM:GetCurrentProfile())
             deleteProfileButton.Label = getDeleteProfileButtonLabel(MCM:GetCurrentProfile())
         else
@@ -67,7 +67,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
     profileButton.OnClick = function()
         if newProfileName.Text ~= "" then
             MCM:CreateProfile(newProfileName.Text)
-            MCM:SetProfile(newProfileName.Text)
+            IMGUIAPI:SetProfile(newProfileName.Text)
             newProfileName.Text = ""
             profileCombo.Options = { "Select a setting profile", table.unpack(MCM:GetProfiles().Profiles) }
             profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCM:GetCurrentProfile())
@@ -80,7 +80,7 @@ function UIProfileManager:SetupProfileComboOnChange(profileCombo, getDeleteProfi
     profileCombo.OnChange = function(inputChange)
         local selectedIndex = inputChange.SelectedIndex + 1
         local selectedProfile = inputChange.Options[selectedIndex]
-        MCM:SetProfile(selectedProfile)
+        IMGUIAPI:SetProfile(selectedProfile)
 
         if deleteProfileButton then
             deleteProfileButton.Label = getDeleteProfileButtonLabel(selectedProfile)

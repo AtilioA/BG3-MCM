@@ -34,6 +34,15 @@ function IMGUIAPI:ResetConfigValue(settingId, modGUID)
     }))
 end
 
+--- Send a message to the server to set a profile
+---@param profileName string The name of the profile to set
+---@return nil
+function IMGUIAPI:SetProfile(profileName)
+    Ext.Net.PostMessageToServer("MCM_Client_Request_Set_Profile", Ext.Json.Stringify({
+        profileName = profileName
+    }))
+end
+
 function IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
     -- Find the widget corresponding to the setting and update its value
     local widget = self:FindWidgetForSetting(modGUID, settingId)

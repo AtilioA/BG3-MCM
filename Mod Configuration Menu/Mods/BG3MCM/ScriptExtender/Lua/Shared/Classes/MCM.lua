@@ -217,3 +217,13 @@ Ext.RegisterNetListener("MCM_Client_Request_Reset_Setting_Value", function(_, pa
     MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modGUID)
     MCMAPI:ResetConfigValue(settingId, modGUID, true)
 end)
+
+--- Message handler for when the (IMGUI) client requests a profile to be set
+Ext.RegisterNetListener("MCM_Client_Request_Set_Profile", function(_, payload)
+    local payload = Ext.Json.Parse(payload)
+    _D(payload)
+    local profileName = payload.profileName
+
+    MCMDebug(1, "Will set profile to " .. profileName)
+    MCMAPI:SetProfile(profileName)
+end)
