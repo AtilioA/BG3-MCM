@@ -34,6 +34,7 @@ end
 --- @param options table
 function SchemaSection:New(options)
     local self = setmetatable({}, SchemaSection)
+    self.SectionId = options.SectionId or ""
     self.SectionName = options.SectionName or ""
     self.SectionDescription = options.SectionDescription or ""
     self.Settings = {}

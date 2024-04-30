@@ -27,6 +27,7 @@ end
 --- Create a new MCM profile
 ---@param profileName string The name of the new profile
 function MCM:CreateProfile(profileName)
+    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     ModConfig.profiles:CreateProfile(profileName)
 end
 
@@ -39,6 +40,7 @@ end
 --- Get the current MCM profile's name
 ---@return string The name of the current profile
 function MCM:GetCurrentProfile()
+    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     return ModConfig.profiles:GetCurrentProfile()
 end
 
@@ -46,6 +48,7 @@ end
 ---@param profileName string The name of the profile to set as the current profile
 ---@return boolean success Whether the profile was successfully set
 function MCM:SetProfile(profileName)
+    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     return ModConfig.profiles:SetCurrentProfile(profileName)
 end
 
@@ -53,6 +56,7 @@ end
 ---@param profileName string The name of the profile to delete
 ---@return boolean success Whether the profile was successfully deleted
 function MCM:DeleteProfile(profileName)
+    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     return ModConfig.profiles:DeleteProfile(profileName)
 end
 
