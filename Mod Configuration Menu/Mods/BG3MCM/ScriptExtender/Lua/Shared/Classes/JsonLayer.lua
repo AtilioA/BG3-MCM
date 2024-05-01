@@ -121,21 +121,6 @@ function JsonLayer:LoadBlueprintForMod(modData)
     return data
 end
 
--- Utility function to check if a table is an array, since Lua couldn't be bothered to separate arrays and hash tables
----Checks if a given table is an array.
----@param tbl table The table to check.
----@return boolean True if the table is an array, false otherwise.
-function isTableAnArray(tbl)
-    local index = 0
-    for _ in pairs(tbl) do
-        index = index + 1
-        if tbl[index] == nil then
-            return false
-        end
-    end
-    return true
-end
-
 --- Flatten the settings table into a single table with the setting ID as the key
 ---@param settings table The settings table to flatten
 ---@return table flattenedSettings flattened settings table
@@ -145,7 +130,7 @@ function JsonLayer:FlattenSettingsJSON(settings)
     -- Function to recursively flatten the table
     local function flattenTable(tbl)
         for key, value in pairs(tbl) do
-            if type(value) == "table" and not isTableAnArray(value) then
+            if type(value) == "table" and not table.isArray(value) then
                 -- If the value is a table, recurse
                 flattenTable(value)
             else

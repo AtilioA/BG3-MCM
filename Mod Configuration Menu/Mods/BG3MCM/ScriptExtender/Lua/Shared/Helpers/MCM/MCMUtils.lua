@@ -26,3 +26,17 @@ function table.indexOf(tbl, element)
     end
     return nil
 end
+
+-- Utility function to check if a table is an array, since Lua couldn't be bothered to separate arrays and hash tables
+---@param tbl table The table to check.
+---@return boolean True if the table is an array, false otherwise.
+function table.isArray(tbl)
+    local index = 0
+    for _ in pairs(tbl) do
+        index = index + 1
+        if tbl[index] == nil then
+            return false
+        end
+    end
+    return true
+end
