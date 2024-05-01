@@ -28,7 +28,19 @@ end
 ---@param profileName string The name of the new profile
 function MCM:CreateProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    ModConfig.profiles:CreateProfile(profileName)
+    local success = ModConfig.profiles:CreateProfile(profileName)
+
+    if success then
+        -- Notify other servers about the new profile creation
+        Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
+            channel = "MCM_Profile_Created",
+            payload = {
+                profileName = profileName
+            }
+        }))
+    end
+
+    return success
 end
 
 --- Get the table of MCM profiles
@@ -49,7 +61,21 @@ end
 ---@return boolean success Whether the profile was successfully set
 function MCM:SetProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    return ModConfig.profiles:SetCurrentProfile(profileName)
+    local currentProfile = self:GetCurrentProfile()
+    local success = ModConfig.profiles:SetCurrentProfile(profileName)
+
+    if success then
+        -- Notify other servers about the profile change
+        Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
+            channel = "MCM_Profile_Changed",
+            payload = {
+                fromProfile = currentProfile,
+                toProfile = profileName
+            }
+        }))
+    end
+
+    return success
 end
 
 --- Delete a profile from the MCM
@@ -57,7 +83,19 @@ end
 ---@return boolean success Whether the profile was successfully deleted
 function MCM:DeleteProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    return ModConfig.profiles:DeleteProfile(profileName)
+    local success = ModConfig.profiles:DeleteProfile(profileName)
+
+    if success then
+        -- Notify other servers about the profile deletion
+        Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
+            channel = "MCM_Profile_Deleted",
+            payload = {
+                profileName = profileName
+            }
+        }))
+    end
+
+    return success
 end
 
 --- Get the settings table for a mod
@@ -161,32 +199,11 @@ function MCM:ResetAllSettings(modGUID)
     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
+    Ext.Net.BroadcastMessage("MCM_Relay_To_Servers",
+        Ext.Json.Stringify({ channel = "MCM_Server_Reset_All_Mod_Settings", payload = { modGUID = modGUID, settings = defaultSettings } }))
 end
 
--- TODO:
--- --- Reset all settings from a section to their default values?
--- ---@param sectionName string The name of the section
--- ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used) (actually, this is not how it works :| )
--- function MCM:ResetSectionValues(sectionName, modGUID)
---     local modBlueprint = self.blueprints[modGUID]
---     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
---     local modSettings = self.settings[modGUID]
--- end
-
---  Register a new tab to be displayed in the MCM
--- @param modGUID string The UUID of the mod
--- @param tabName string The name of the tab to display
--- @param tabCallback function A callback function that will be called to create the tab content
--- function MCM:RegisterModTab(modGUID, tabName, tabCallback)
---     -- Notify the IMGUILayer to add the new tab
---     Ext.Net.BroadcastMessage("MCM_Mod_Tab_Added", Ext.Json.Stringify({
---         modGUID = modGUID,
---         tabName = tabName,
---         tabCallback = tabCallback
---     }))
--- end
-
--- TODO: modularize these later
+-- TODO: Separate these later into a different file?
 function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     self:LoadConfigs()
