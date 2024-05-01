@@ -31,13 +31,20 @@ function MCM:CreateProfile(profileName)
     local success = ModConfig.profiles:CreateProfile(profileName)
 
     if success then
-        -- Notify other servers about the new profile creation
-        Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
-            channel = "MCM_Profile_Created",
-            payload = {
-                profileName = profileName
-            }
-        }))
+        if Ext.IsServer() then
+            Ext.Net.BroadcastMessage("MCM_Server_Create_Profile", Ext.Json.Stringify({
+                profileName = profileName,
+                newSettings = ModConfig.mods
+            }))
+
+            -- Notify other servers about the new profile creation
+            Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
+                channel = "MCM_Profile_Created",
+                payload = {
+                    profileName = profileName
+                }
+            }))
+        end
     end
 
     return success
@@ -65,14 +72,21 @@ function MCM:SetProfile(profileName)
     local success = ModConfig.profiles:SetCurrentProfile(profileName)
 
     if success then
-        -- Notify other servers about the profile change
-        Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
-            channel = "MCM_Profile_Changed",
-            payload = {
-                fromProfile = currentProfile,
-                toProfile = profileName
-            }
-        }))
+        if Ext.IsServer() then
+            Ext.Net.BroadcastMessage("MCM_Server_Set_Profile", Ext.Json.Stringify({
+                profileName = profileName,
+                newSettings = ModConfig.mods
+            }))
+
+            -- Notify other servers about the profile change
+            Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
+                channel = "MCM_Profile_Changed",
+                payload = {
+                    fromProfile = currentProfile,
+                    toProfile = profileName
+                }
+            }))
+        end
     end
 
     return success
@@ -86,13 +100,20 @@ function MCM:DeleteProfile(profileName)
     local success = ModConfig.profiles:DeleteProfile(profileName)
 
     if success then
-        -- Notify other servers about the profile deletion
-        Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
-            channel = "MCM_Profile_Deleted",
-            payload = {
-                profileName = profileName
-            }
-        }))
+        if Ext.IsServer() then
+            Ext.Net.BroadcastMessage("MCM_Server_Delete_Profile", Ext.Json.Stringify({
+                profileName = profileName,
+                newSettings = ModConfig.mods
+            }))
+
+            -- Notify other servers about the profile deletion
+            Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
+                channel = "MCM_Profile_Deleted",
+                payload = {
+                    profileName = profileName
+                }
+            }))
+        end
     end
 
     return success
@@ -230,6 +251,7 @@ Ext.RegisterNetListener("MCM_Client_Request_Set_Setting_Value", function(_, payl
     else
         MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
     end
+
     MCMAPI:SetSettingValue(settingId, value, modGUID, true)
 end)
 
@@ -251,3 +273,22 @@ Ext.RegisterNetListener("MCM_Client_Request_Set_Profile", function(_, payload)
     MCMDebug(1, "Will set profile to " .. profileName)
     MCMAPI:SetProfile(profileName)
 end)
+
+-- UNUSED since profile management currently calls shared code
+-- --- Message handler for when the (IMGUI) client requests a new profile to be created
+-- Ext.RegisterNetListener("MCM_Client_Request_Create_Profile", function(_, payload)
+--     local payload = Ext.Json.Parse(payload)
+--     local newProfileName = payload.profileName
+
+--     MCMDebug(1, "Will create a new profile named " .. newProfileName)
+--     MCMAPI:CreateProfile(newProfileName)
+-- end)
+
+-- --- Message handler for when the (IMGUI) client requests a profile to be deleted
+-- Ext.RegisterNetListener("MCM_Client_Request_Delete_Profile", function(_, payload)
+--     local payload = Ext.Json.Parse(payload)
+--     local profileToDelete = payload.profileName
+
+--     MCMDebug(1, "Will delete the profile named " .. profileToDelete)
+--     MCMAPI:DeleteProfile(profileToDelete)
+-- end)
