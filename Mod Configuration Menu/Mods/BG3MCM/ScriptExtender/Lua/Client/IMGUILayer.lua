@@ -3,11 +3,11 @@
 ---@class ModSettings
 ---@field widgets table<string, any> A table of widgets for the mod
 
---- A class representing an IMGUI layer responsible for managing mods and profiles.
+--- A class representing an IMGUI layer responsible for providing a UI to manage mods and profiles.
 --- A table of mod GUIDs, each associated with a table containing widgets and potentially other blueprints and settings.
 -- The IMGUILayer class is responsible for creating and managing the IMGUI user interface for MCM.
 -- It acts as the bridge between MCM's core business logic and MCM's IMGUI window, handling the rendering and interaction of the mod configuration UI.
--- It relies on settings and profiles sent by the MCM (API) class, and then translates this data into a user-friendly IMGUI interface.
+-- It relies on settings and profiles managed by the MCM (API) class, and then translates this data into a user-friendly IMGUI interface.
 -- IMGUILayer provides methods for:
 -- - Creating the main MCM menu, which contains a tab for each mod that has MCM settings
 -- - Creating new tabs and sections for each mod, based on the mod's blueprint

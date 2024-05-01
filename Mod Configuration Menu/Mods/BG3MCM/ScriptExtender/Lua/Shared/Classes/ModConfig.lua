@@ -109,36 +109,36 @@ function ModConfig:GetMCMParamsFilePath()
     return mcmFolder .. '/' .. self.MCMParamsFilename
 end
 
----Loads the MCM configuration file from the specified file path, used to load the profiles.
----@param configFilePath string The file path of the MCM configuration file to load.
----@return table|nil data parsed MCM configuration data, or nil if the file could not be loaded or parsed.
+---Loads the MCM params file from the specified file path, used to load the profiles.
+---@param paramsFilepath string The file path of the MCM params file to load.
+---@return table|nil data parsed MCM params data, or nil if the file could not be loaded or parsed.
 function ModConfig:LoadMCMParams()
-    local function loadMCMParamsFromFile(configFilePath)
-        local configFileContent = Ext.IO.LoadFile(configFilePath)
+    local function loadMCMParamsFromFile(paramsFilepath)
+        local configFileContent = Ext.IO.LoadFile(paramsFilepath)
         if not configFileContent or configFileContent == "" then
-            MCMWarn(1, "MCM config file not found: " .. configFilePath .. ". Creating default config.")
+            MCMWarn(1, "MCM config file not found: " .. paramsFilepath .. ". Creating default config.")
             local defaultConfig = ProfileManager.DefaultConfig
-            JsonLayer:SaveJSONFile(configFilePath, defaultConfig)
+            JsonLayer:SaveJSONFile(paramsFilepath, defaultConfig)
             return defaultConfig
         end
 
         local success, data = pcall(Ext.Json.Parse, configFileContent)
         if not success then
-            MCMWarn(0, "Failed to parse MCM config file: " .. configFilePath)
+            MCMWarn(0, "Failed to parse MCM config file: " .. paramsFilepath)
             return nil
         end
 
         return data
     end
 
-    local configFilePath = ModConfig:GetMCMParamsFilePath()
-    return loadMCMParamsFromFile(configFilePath)
+    local paramsFilepath = ModConfig:GetMCMParamsFilePath()
+    return loadMCMParamsFromFile(paramsFilepath)
 end
 
 ---Get the ProfileManager instance used by ModConfig
----@return ProfileManager self.profiles The ProfileManager instance
+---@return ProfileManager self.profileManager The ProfileManager instance
 function ModConfig:GetProfiles()
-    return self.profiles
+    return self.profileManager
 end
 
 -- TODO: Implement profile deletion
