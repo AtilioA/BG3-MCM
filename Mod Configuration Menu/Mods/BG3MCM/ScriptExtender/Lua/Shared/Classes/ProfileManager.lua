@@ -80,7 +80,7 @@ function ProfileManager:SaveProfileValuesToConfig()
         Profiles = self.Profiles,
         DefaultProfile = self.DefaultProfile
     }
-    JsonLayer:SaveJSONConfig(configFilePath, data)
+    JsonLayer:SaveJSONFile(configFilePath, data)
 end
 
 --- Set the currently selected profile

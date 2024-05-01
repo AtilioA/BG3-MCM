@@ -24,33 +24,32 @@
     SOFTWARE.
 --]]
 
----@class HelperJsonLayer: Helper
--- The JsonLayer class is a helper class that provides functionality for loading and saving JSON configuration files.
+--- The JsonLayer class is a helper class that provides functionality for loading and saving JSON files.
 -- It is used throughout MCM to manage the loading and saving of mod configuration settings in a standardized way and isolate the details of working with JSON files.
 --
 -- The main responsibilities of the JsonLayer class are:
 -- - Loading JSON configuration files from a specified file path
 -- - Parsing the JSON data and returning it as a Lua table
 -- - Saving Lua tables as JSON configuration files
--- - Trying to load a JSON configuration file for a specific mod, handling
---   errors and providing feedback to the user
-JsonLayer = _Class:Create("HelperJsonLayer", Helper, {
+-- - Trying to load a JSON configuration file for a specific mod, handling errors and providing feedback to the user
+---@class JsonLayer
+JsonLayer = _Class:Create("JsonLayer", nil, {
 })
 
--- Patterns for the potential JSON config file paths to be loaded
+-- Pattern for the potential JSON blueprint file paths to be loaded
 JsonLayer.ConfigFilePathPatternJSON = string.gsub("Mods/%s/MCM_blueprint.json", "'", "\'")
 
----Loads a JSON configuration file from the specified file path.
----@param filePath string The file path of the JSON configuration file to load.
+---Loads a JSON file from the specified file path.
+---@param filePath string The file path of the JSON file to load.
 ---@return table|nil data The parsed JSON data, or nil if the file could not be loaded or parsed.
-function JsonLayer:LoadJSONConfig(filePath)
-    local configFileContent = Ext.IO.LoadFile(filePath)
-    if not configFileContent or configFileContent == "" then
+function JsonLayer:LoadJSONFile(filePath)
+    local fileContent = Ext.IO.LoadFile(filePath)
+    if not fileContent or fileContent == "" then
         MCMDebug(2, "Config file not found: " .. filePath)
         return nil
     end
 
-    local success, data = pcall(Ext.Json.Parse, configFileContent)
+    local success, data = pcall(Ext.Json.Parse, fileContent)
     if not success then
         MCMWarn(0, "Failed to parse config file: " .. filePath)
         return nil
@@ -59,25 +58,25 @@ function JsonLayer:LoadJSONConfig(filePath)
     return data
 end
 
---- Saves the given settings to a JSON file.
---- @param filePath string The file path to save the settings to.
---- @param settings table The settings table to save.
-function JsonLayer:SaveJSONConfig(filePath, config)
-    local configFileContent = Ext.Json.Stringify(config, { Beautify = true })
-    Ext.IO.SaveFile(filePath, configFileContent)
+--- Saves the given content to a JSON file.
+--- @param filePath string The file path to save the content to.
+--- @param content table The table with content to save to the file.
+function JsonLayer:SaveJSONFile(filePath, content)
+    local fileContent = Ext.Json.Stringify(content, { Beautify = true })
+    Ext.IO.SaveFile(filePath, fileContent)
 end
 
---- Load the JSON file for the mod and build the settings index
----@param configStr string The string representation of the JSONc file
+--- Parse the JSON file for the mod
+---@param configStr string The string representation of the JSON file (to be parsed)
 ---@param modGUID GUIDSTRING The UUID of the mod that the config file belongs to
----@return table|nil The parsed JSON data, or nil if the JSON could not be parsed
-function JsonLayer:TryLoadConfig(configStr, modGUID)
+---@return table|nil data The parsed JSON data, or nil if the JSON could not be parsed
+function JsonLayer:TryParseModJSON(configStr, modGUID)
     if modGUID == nil then
         MCMWarn(1, "modGUID is nil. Cannot load config.")
         return nil
     end
 
-    MCMDebug(4, "Entering TryLoadConfig with parameters: " .. configStr .. ", " .. modGUID)
+    MCMDebug(4, "Entering TryParseModJSON with parameters: " .. configStr .. ", " .. modGUID)
 
     local success, data = pcall(Ext.Json.Parse, configStr)
     if success then
@@ -105,16 +104,17 @@ end
 --- If the file is not found, a warning is logged. If the file is found but cannot be parsed, an error is logged.
 ---@param modData table
 ---@return table|nil data The blueprint data, or an error message if the blueprint could not be loaded
-function JsonLayer:LoadConfigForMod(modData)
-    local filePath = self.ConfigFilePathPatternJSON:format(modData.Info.Directory)
-    local config = Ext.IO.LoadFile(filePath, "data")
+function JsonLayer:LoadBlueprintForMod(modData)
+    local blueprintFilepath = self.ConfigFilePathPatternJSON:format(modData.Info.Directory)
+    -- REFACTOR: use LoadJSONFile instead, but it's not working for some reason
+    local config = Ext.IO.LoadFile(blueprintFilepath, "data")
     if config == nil or config == "" then
         return self:FileNotFoundError("Config file not found for mod: " .. modData.Info.Name)
     end
 
-    local data = self:TryLoadConfig(config, modData.Info.ModuleUUID)
+    local data = self:TryParseModJSON(config, modData.Info.ModuleUUID)
     if data == nil or type(data) ~= "table" then
-        return JsonLayer:JSONParseError("Failed to load MCM config JSON file for mod: " ..
+        return self:JSONParseError("Failed to load MCM blueprint JSON file for mod: " ..
             modData.Info.Name .. ". Please contact " .. modData.Info.Author .. " about this issue.")
     end
 

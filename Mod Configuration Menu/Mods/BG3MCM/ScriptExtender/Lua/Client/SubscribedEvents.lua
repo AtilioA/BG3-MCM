@@ -1,7 +1,7 @@
 --- SECTION: Ext events
 
 -- Toggle the window with the insert and context menu key.
--- TODO: Make it more abstract/7configurable
+-- TODO: Make it more abstract/configurable
 Ext.Events.KeyInput:Subscribe(function(e)
     if e.Event == "KeyDown" and e.Repeat == false then
         if (e.Key == "INSERT" or e.Key == "APPLICATION") then
@@ -12,7 +12,7 @@ Ext.Events.KeyInput:Subscribe(function(e)
 end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
-    Ext.Net.PostMessageToServer("MCM_Client_Request_Settings", Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer("MCM_Client_Request_Configs", Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
     IMGUI_WINDOW.Visible = true
@@ -20,7 +20,7 @@ end)
 
 --- SECTION: Net listeners
 
-Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payload)
+Ext.RegisterNetListener("MCM_Server_Send_Configs_To_Client", function(_, payload)
     local configs = Ext.Json.Parse(payload)
     local mods = configs.mods
     local profiles = configs.profiles

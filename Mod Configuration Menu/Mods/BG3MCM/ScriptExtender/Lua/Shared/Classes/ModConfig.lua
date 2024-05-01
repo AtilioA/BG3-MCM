@@ -94,7 +94,7 @@ function ModConfig:SaveSettingsForMod(modGUID)
         end
     end
 
-    JsonLayer:SaveJSONConfig(configFilePath, updatedSettings)
+    JsonLayer:SaveJSONFile(configFilePath, updatedSettings)
 end
 
 --- Save the settings for all mods to the settings files.
@@ -120,7 +120,7 @@ function ModConfig:LoadMCMConfigFromFile(configFilePath)
     if not configFileContent or configFileContent == "" then
         MCMWarn(1, "MCM config file not found: " .. configFilePath .. ". Creating default config.")
         local defaultConfig = ProfileManager.DefaultConfig
-        JsonLayer:SaveJSONConfig(configFilePath, defaultConfig)
+        JsonLayer:SaveJSONFile(configFilePath, defaultConfig)
         return defaultConfig
     end
 
@@ -187,7 +187,7 @@ end
 ---@param blueprint table The blueprint for the mod
 function ModConfig:LoadSettingsForMod(modGUID, blueprint)
     local settingsFilePath = self:GetSettingsFilePath(modGUID)
-    local config = JsonLayer:LoadJSONConfig(settingsFilePath)
+    local config = JsonLayer:LoadJSONFile(settingsFilePath)
     if config then
         local flattenedConfig = JsonLayer:FlattenSettingsJSON(config)
         self:HandleLoadedSettings(modGUID, blueprint, flattenedConfig, settingsFilePath)
@@ -208,7 +208,7 @@ function ModConfig:HandleLoadedSettings(modGUID, blueprint, config, settingsFile
     self:RemoveDeprecatedKeys(blueprint, config)
 
     config = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
-    JsonLayer:SaveJSONConfig(settingsFilePath, config)
+    JsonLayer:SaveJSONFile(settingsFilePath, config)
 
     self.mods[modGUID].settingsValues = config
 
@@ -224,7 +224,7 @@ function ModConfig:HandleMissingSettings(modGUID, blueprint, settingsFilePath)
     self.mods[modGUID].settingsValues = defaultSettingsJSON
     MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
         Ext.Mod.GetMod(modGUID).Info.Name, settingsFilePath)
-    JsonLayer:SaveJSONConfig(settingsFilePath, defaultSettingsJSON)
+    JsonLayer:SaveJSONFile(settingsFilePath, defaultSettingsJSON)
 end
 
 --- TODO: modularize after 'final' blueprint structure is decided
@@ -351,7 +351,7 @@ function ModConfig:LoadBlueprintForMod(uuid)
     MCMDebug(3, "Checking mod: " .. modData.Info.Name)
 
     local status, err = pcall(function()
-        local data = JsonLayer:LoadConfigForMod(modData)
+        local data = JsonLayer:LoadBlueprintForMod(modData)
         if data then
             self:SubmitBlueprint(data, modData.Info.ModuleUUID)
         end
