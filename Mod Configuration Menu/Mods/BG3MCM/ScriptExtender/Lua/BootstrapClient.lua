@@ -19,13 +19,13 @@ IMGUI_WINDOW:SetStyle("ScrollbarSize", 10)
 -- TODO: add stuff to the menu bar
 m = IMGUI_WINDOW:AddMainMenu()
 
-options = m:AddMenu("Options")
-options:AddItem("Adjust Setting 1").OnClick = function()
-    MCMDebug(2, "Adjusting setting 1")
-end
-options:AddItem("Reset to Defaults").OnClick = function()
-    MCMDebug(2, "Resetting options to defaults")
-end
+-- options = m:AddMenu("Options")
+-- options:AddItem("Adjust Setting 1").OnClick = function()
+--     MCMDebug(2, "Adjusting setting 1")
+-- end
+-- options:AddItem("Reset to Defaults").OnClick = function()
+--     MCMDebug(2, "Resetting options to defaults")
+-- end
 
 help = m:AddMenu("Help")
 help:AddItem("About").OnClick = function()
@@ -36,9 +36,3 @@ help:AddItem("Troubleshooting").OnClick = function()
     -- Code to show troubleshooting information
     MCMDebug(2, "Showing troubleshooting information")
 end
-
-IMGUI_WINDOW.MenuBar = true
-
-ClientGlobals = {
-    MOD_SETTINGS = {}
-}

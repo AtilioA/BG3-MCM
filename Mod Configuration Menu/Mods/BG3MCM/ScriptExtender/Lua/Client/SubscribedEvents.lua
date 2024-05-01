@@ -21,9 +21,9 @@ end)
 --- SECTION: Net listeners
 
 Ext.RegisterNetListener("MCM_Server_Send_Settings_To_Client", function(_, payload)
-    ClientGlobals.MOD_SETTINGS = Ext.Json.Parse(payload)
-    local mods = ClientGlobals.MOD_SETTINGS.mods
-    local profiles = ClientGlobals.MOD_SETTINGS.profiles
+    local configs = Ext.Json.Parse(payload)
+    local mods = configs.mods
+    local profiles = configs.profiles
 
     -- shit why did I name it like this
     MCM_IMGUI_LAYER:CreateModMenu(mods, profiles)
