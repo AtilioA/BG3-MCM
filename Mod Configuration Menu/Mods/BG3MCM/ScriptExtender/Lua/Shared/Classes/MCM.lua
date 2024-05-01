@@ -208,7 +208,11 @@ Ext.RegisterNetListener("MCM_Client_Request_Set_Setting_Value", function(_, payl
     local value = payload.value
     local modGUID = payload.modGUID
 
-    MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
+    if type(value) == "table" then
+        MCMDebug(2, "Will set " .. settingId .. " to " .. Ext.Json.Stringify(value) .. " for mod " .. modGUID)
+    else
+        MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
+    end
     MCMAPI:SetConfigValue(settingId, value, modGUID, true)
 end)
 
@@ -225,7 +229,6 @@ end)
 --- Message handler for when the (IMGUI) client requests a profile to be set
 Ext.RegisterNetListener("MCM_Client_Request_Set_Profile", function(_, payload)
     local payload = Ext.Json.Parse(payload)
-    _D(payload)
     local profileName = payload.profileName
 
     MCMDebug(1, "Will set profile to " .. profileName)
