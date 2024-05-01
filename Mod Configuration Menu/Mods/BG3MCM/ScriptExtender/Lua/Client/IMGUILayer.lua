@@ -82,6 +82,7 @@ function IMGUILayer:CreateModMenu(mods, profiles)
     -- TODO: refactor what is part of the class and whatever
     -- Add the main tab bar for the mods
     self.modsTabBar = IMGUI_WINDOW:AddSeparatorText("Mods")
+    self.modsTabBar:SetColor("Separator", Color.normalized_rgba(100, 50, 255, 0.67))
     self.modsTabBar = IMGUI_WINDOW:AddTabBar("Mods")
 
     -- Make the tabs under the mods tab bar have a list popup button and be reorderable
@@ -191,7 +192,9 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         end
     end
 
-    local tabBar = modGroup:AddSeparatorText(sectionName)
+    local sectionHeader = modGroup:AddSeparatorText(sectionName)
+    sectionHeader:SetColor("Text", Color.normalized_rgba(255, 255, 255, 1))
+    sectionHeader:SetColor("Separator", Color.normalized_rgba(255, 255, 255, 0.33))
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section.Settings) do
