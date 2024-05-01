@@ -21,19 +21,12 @@ function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
     widget.Widget.IDContext = setting.Id
     self:AddResetButton(group, setting, modGUID)
     self:InitializeWidget(widget.Widget, group, setting)
+    group:AddDummy(0, 2)
     return widget
-end
-
-function IMGUIWidget:CreateWidget(group, widgetName, setting, initialValue, modGUID)
-    error("IMGUIWidget:new must be overridden in a derived class")
 end
 
 function IMGUIWidget:UpdateCurrentValue(value)
     error("IMGUIWidget:UpdateCurrentValue must be overridden in a derived class")
-end
-
-function IMGUIWidget:PrintMe()
-    MCMDebug(3, "SliderIntIMGUIWidget")
 end
 
 function IMGUIWidget:InitializeWidget(widget, group, setting)
