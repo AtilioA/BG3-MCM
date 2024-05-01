@@ -113,7 +113,7 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     -- local modBlueprint = MCM:GetModBlueprint(modGUID)
     local modBlueprint = self.mods[modGUID].blueprints
     local modSettings = self.mods[modGUID].settingsValues
-    -- local modSettings = MCM:GetModSettings(modGUID)
+    -- local modSettings = MCM:GetAllModSettings(modGUID)
     local modTab = self.mods_tabs[modGUID]
 
     -- Create a new IMGUI group for the mod to hold all settings

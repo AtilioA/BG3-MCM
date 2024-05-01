@@ -101,7 +101,7 @@ end
 --- Get the settings table for a mod
 ---@param modGUID? string The UUID of the mod. When not provided, the settings for the current mod are returned (ModuleUUID is used)
 ---@return table<string, table> - The settings table for the mod
-function MCM:GetModSettings(modGUID)
+function MCM:GetAllModSettings(modGUID)
     if not modGUID then
         MCMWarn(0, "modGUID is nil. Cannot get mod settings. Please contact " ..
             Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
@@ -133,7 +133,7 @@ end
 ---@param modGUID? GUIDSTRING The UUID of the mod (optional)
 ---@return any The value of the setting
 function MCM:GetSettingValue(settingName, modGUID)
-    local modSettingsTable = self:GetModSettings(modGUID)
+    local modSettingsTable = self:GetAllModSettings(modGUID)
     if modSettingsTable then
         return modSettingsTable[settingName]
     else
@@ -148,7 +148,7 @@ end
 function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
     modGUID = modGUID or ModuleUUID
 
-    local modSettingsTable = self:GetModSettings(modGUID)
+    local modSettingsTable = self:GetAllModSettings(modGUID)
 
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
