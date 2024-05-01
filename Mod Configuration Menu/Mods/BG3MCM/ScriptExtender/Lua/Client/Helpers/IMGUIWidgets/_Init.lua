@@ -1,5 +1,7 @@
 RequireFiles("Client/Helpers/IMGUIWidgets/", {
     "IMGUIWidget",
+    "ColorPickerIMGUIWidget",
+    "ColorEditIMGUIWidget",
     "CheckboxIMGUIWidget",
     "EnumIMGUIWidget",
     "FloatIMGUIWidget",

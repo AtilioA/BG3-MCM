@@ -9,4 +9,5 @@ RequireFiles("Shared/Helpers/Validators/", {
     "DragIntValidator",
     "DragFloatValidator",
     "TextValidator",
+    "ColorValidator",
 })

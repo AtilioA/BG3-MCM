@@ -121,25 +121,42 @@ function JsonLayer:LoadConfigForMod(modData)
     return data
 end
 
+-- Utility function to check if a table is an array, since Lua couldn't be bothered to separate arrays and hash tables
+---Checks if a given table is an array.
+---@param tbl table The table to check.
+---@return boolean True if the table is an array, false otherwise.
+function isTableAnArray(tbl)
+    local index = 0
+    for _ in pairs(tbl) do
+        index = index + 1
+        if tbl[index] == nil then
+            return false
+        end
+    end
+    return true
+end
+
 --- Flatten the settings table into a single table with the setting ID as the key
 ---@param settings table The settings table to flatten
 ---@return table flattenedSettings flattened settings table
 function JsonLayer:FlattenSettingsJSON(settings)
     local flatJson = {}
 
-    -- Function to recursively flatten the nested table
-    local function flattenTable(obj, result)
-        for key, value in pairs(obj) do
-            if type(value) == "table" then
-                flattenTable(value, result)
+    -- Function to recursively flatten the table
+    local function flattenTable(tbl)
+        for key, value in pairs(tbl) do
+            if type(value) == "table" and not isTableAnArray(value) then
+                -- If the value is a table, recurse
+                flattenTable(value)
             else
-                result[key] = value
+                -- If the value is not a table, add it to the flat table
+                flatJson[key] = value
             end
         end
     end
 
-    -- Start flattening the table
-    flattenTable(settings, flatJson)
+    -- Start the flattening process from the root
+    flattenTable(settings)
 
     return flatJson
 end

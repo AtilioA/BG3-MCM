@@ -56,6 +56,12 @@ local InputWidgetFactory = {
     end,
     radio = function(group, setting, settingValue, modGUID)
         return IMGUIWidget:Create(group, setting, settingValue, modGUID, RadioIMGUIWidget)
+    end,
+    color_picker = function(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, ColorPickerIMGUIWidget)
+    end,
+    color_edit = function(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, ColorEditIMGUIWidget)
     end
 }
 

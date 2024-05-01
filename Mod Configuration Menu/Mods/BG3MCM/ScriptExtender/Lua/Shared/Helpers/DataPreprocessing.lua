@@ -32,7 +32,13 @@ local SettingValidators = {
     end,
     ["radio"] = function(setting, value)
         return RadioValidator.Validate(setting, value)
-    end
+    end,
+    ["color_picker"] = function(setting, value)
+        return ColorValidator.Validate(setting, value)
+    end,
+    ["color_edit"] = function(setting, value)
+        return ColorValidator.Validate(setting, value)
+    end,
 }
 
 -- Convert string representations of booleans to actual boolean values in a table
@@ -111,7 +117,7 @@ function DataPreprocessing:ValidateSettings(schema, settings)
                         "Validating setting: " ..
                         setting:GetId() ..
                         " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
-                    if validator and not validator(setting, value) then
+                    if not validator or not validator(setting, value) then
                         table.insert(invalidSettings, setting:GetId())
                     end
                 end

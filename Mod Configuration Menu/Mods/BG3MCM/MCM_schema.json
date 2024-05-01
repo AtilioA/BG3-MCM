@@ -9,6 +9,30 @@
             },
             "Settings": [
                 {
+                    "Id": "MyColorPicker",
+                    "Name": "My Color Picker",
+                    "Type": "color_picker",
+                    "Default": [
+                        0.4980392156862745,
+                        0.47058823529411764,
+                        1.0,
+                        1.0
+                    ],
+                    "Tooltip": "This is a setting that does something."
+                },
+                {
+                    "Id": "MyColorEdit",
+                    "Name": "My Color Edit",
+                    "Type": "color_edit",
+                    "Default": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "Tooltip": "This is a setting that does something."
+                },
+                {
                     "Id": "MyInt",
                     "Name": "My Int",
                     "Type": "int",
@@ -109,6 +133,18 @@
                     "Options": {
                         "Min": 0,
                         "Max": 100
+                    },
+                    "Tooltip": "This is a setting that uses a integer slider input.",
+                    "Description": "This is a setting that uses a slider input, but this text is longer."
+                },
+                {
+                    "Id": "MyIntSlider 2",
+                    "Name": "My  Int Slider 2",
+                    "Type": "slider_int",
+                    "Default": 0,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 1000000000000
                     },
                     "Tooltip": "This is a setting that uses a integer slider input.",
                     "Description": "This is a setting that uses a slider input, but this text is longer."

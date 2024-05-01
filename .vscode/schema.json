@@ -148,7 +148,9 @@
                         "slider_float",
                         "drag_int",
                         "drag_float",
-                        "radio"
+                        "radio",
+                        "color_picker",
+                        "color_edit"
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
                 },
@@ -171,6 +173,9 @@
                         },
                         {
                             "type": "null"
+                        },
+                        {
+                            "type": "array"
                         }
                     ],
                     "description": "The default value of the setting. It will be used for initialization and as a fallback if the setting is not found or is invalid in the settings file."
