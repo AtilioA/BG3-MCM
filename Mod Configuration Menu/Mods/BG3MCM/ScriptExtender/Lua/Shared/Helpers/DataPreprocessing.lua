@@ -203,6 +203,8 @@ end
 ---@return table<string, BlueprintSetting>|nil The preprocessed data, or nil if the preprocessing failed
 function DataPreprocessing:PreprocessData(data, modGUID)
     local preprocessedData = {}
+    preprocessedData["SchemaVersion"] = data.SchemaVersion
+    preprocessedData["ModName"] = data.ModName
     preprocessedData["Tabs"] = {}
 
     -- Iterate through each tab in the data

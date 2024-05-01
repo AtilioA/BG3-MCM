@@ -1,16 +1,21 @@
 ---@class Blueprint
 ---@field private SchemaVersion number
+---@field private ModName? string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Settings? BlueprintSetting[]
----@field private Handles table
 Blueprint = _Class:Create("Blueprint", nil, {
-    SchemaVersion = 1,
+    ModName = nil,
+    SchemaVersion = nil,
     Tabs = {},
     Handles = {}
 })
 
 function Blueprint:GetSchemaVersion()
     return self.SchemaVersion
+end
+
+function Blueprint:GetModName()
+    return self.ModName
 end
 
 --- Returns the tabs of the blueprint, if any.
@@ -40,7 +45,8 @@ end
 --- @param options table
 function Blueprint:New(options)
     local self = setmetatable({}, Blueprint)
-    self.SchemaVersion = options.SchemaVersion or 1 -- Default to version 1 if not provided
+    self.SchemaVersion = options.SchemaVersion or nil
+    self.ModName = options.ModName or nil
 
     -- Call BlueprintSection constructor for each section
     self.Tabs = {}

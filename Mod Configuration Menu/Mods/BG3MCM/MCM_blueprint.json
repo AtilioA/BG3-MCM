@@ -1,5 +1,6 @@
 {
     "SchemaVersion": 1,
+    "ModName": "MCM",
     "Tabs": [
         {
             "TabId": "general_settings",
