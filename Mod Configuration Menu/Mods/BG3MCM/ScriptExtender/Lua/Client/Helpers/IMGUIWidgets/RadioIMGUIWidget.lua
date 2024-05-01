@@ -3,12 +3,11 @@ RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
 ---@param value number
 ---@return table buttons The buttons created
-function RadioIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
+function RadioIMGUIWidget:new(group, setting, initialValue, modGUID)
     if not group or not setting or not modGUID then
         return {}
     end
 
-    group:AddText(widgetName)
     local instance = setmetatable({}, { __index = RadioIMGUIWidget })
     instance.Widget = self:CreateRadioButtons(group, setting, initialValue)
     self:SetRadioButtonCallbacks(instance.Widget, setting, modGUID)

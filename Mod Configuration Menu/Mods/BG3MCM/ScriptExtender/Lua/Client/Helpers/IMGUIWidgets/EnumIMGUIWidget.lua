@@ -1,10 +1,10 @@
 ---@class EnumIMGUIWidget
 EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 
-function EnumIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
+function EnumIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = EnumIMGUIWidget })
     local options = setting.Options.Choices
-    instance.Widget = group:AddCombo(widgetName, initialValue)
+    instance.Widget = group:AddCombo("", initialValue)
     instance.Widget.Options = options
 
     -- Set initial selection

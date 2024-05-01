@@ -1,9 +1,9 @@
 ---@class FloatIMGUIWidget: IMGUIWidget
 FloatIMGUIWidget = _Class:Create("FloatIMGUIWidget", IMGUIWidget)
 
-function FloatIMGUIWidget:new(group, widgetName, setting, initialValue, modGUID)
+function FloatIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = FloatIMGUIWidget })
-    instance.Widget = group:AddInputScalar(widgetName, initialValue)
+    instance.Widget = group:AddInputScalar("", initialValue)
     instance.Widget.OnChange = function(value)
         IMGUIAPI:SetConfigValue(setting.Id, value.Value[1], modGUID)
     end

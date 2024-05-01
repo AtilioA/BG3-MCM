@@ -17,7 +17,8 @@ function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
         widgetName = setting.Name
     end
 
-    local widget = widgetClass:new(group, widgetName, setting, initialValue, modGUID)
+    group:AddText(widgetName)
+    local widget = widgetClass:new(group, setting, initialValue, modGUID)
     widget.Widget.IDContext = setting.Id
     self:AddResetButton(group, setting, modGUID)
     self:InitializeWidget(widget.Widget, group, setting)
