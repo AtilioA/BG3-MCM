@@ -42,7 +42,7 @@ function IMGUIWidget:AddResetButton(group, setting, modGUID)
     resetButton.IDContext = "ResetButton_" .. setting.Id
     resetButton:Tooltip():AddText("Reset to default")
     resetButton.OnClick = function()
-        IMGUIAPI:ResetConfigValue(setting.Id, modGUID)
+        IMGUIAPI:ResetSettingValue(setting.Id, modGUID)
     end
     resetButton.SameLine = true
 end
@@ -66,7 +66,7 @@ end
 --- Add a slightly faded description text below the widget
 ---@param widget any
 ---@param group any
----@param setting SchemaSetting
+---@param setting BlueprintSetting
 ---@return nil
 function IMGUIWidget:SetupDescription(widget, group, setting)
     if not setting.Description then

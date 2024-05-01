@@ -1,52 +1,52 @@
----@class Schema
+---@class Blueprint
 ---@field private SchemaVersion number
----@field private Tabs? SchemaTab[]
----@field private Settings? SchemaSetting[]
+---@field private Tabs? BlueprintTab[]
+---@field private Settings? BlueprintSetting[]
 ---@field private Handles table
-Schema = _Class:Create("Schema", nil, {
+Blueprint = _Class:Create("Blueprint", nil, {
     SchemaVersion = 1,
     Tabs = {},
     Handles = {}
 })
 
-function Schema:GetSchemaVersion()
+function Blueprint:GetSchemaVersion()
     return self.SchemaVersion
 end
 
---- Returns the tabs of the schema, if any.
----@return SchemaTab[] tabs The tabs of the schema
+--- Returns the tabs of the blueprint, if any.
+---@return BlueprintTab[] tabs The tabs of the blueprint
 ---@return nil - If there are no tabs
-function Schema:GetTabs()
+function Blueprint:GetTabs()
     return self.Tabs
 end
 
-function Schema:SetTabs(value)
+function Blueprint:SetTabs(value)
     self.Tabs = value
 end
 
---- Returns the settings of the schema, if any.
----@return SchemaSetting[] settings The settings of the schema
+--- Returns the settings of the blueprint, if any.
+---@return BlueprintSetting[] settings The settings of the blueprint
 ---@return nil - If there are no settings
-function Schema:GetSettings()
+function Blueprint:GetSettings()
     return self.Settings
 end
 
-function Schema:SetSettings(value)
+function Blueprint:SetSettings(value)
     self.Tabs = value
 end
 
---- Constructor for the Schema class.
---- @class Schema
+--- Constructor for the Blueprint class.
+--- @class Blueprint
 --- @param options table
-function Schema:New(options)
-    local self = setmetatable({}, Schema)
+function Blueprint:New(options)
+    local self = setmetatable({}, Blueprint)
     self.SchemaVersion = options.SchemaVersion or 1 -- Default to version 1 if not provided
 
-    -- Call SchemaSection constructor for each section
+    -- Call BlueprintSection constructor for each section
     self.Tabs = {}
     if options.Tabs then
         for _, tabOptions in ipairs(options.Tabs) do
-            local tab = SchemaTab:New(tabOptions)
+            local tab = BlueprintTab:New(tabOptions)
             table.insert(self.Tabs, tab)
         end
     end
@@ -54,12 +54,12 @@ function Schema:New(options)
     return self
 end
 
---- Create a new section in the schema
+--- Create a new section in the blueprint
 ---@param name string The name of the section
 ---@param description string The description of the section
----@return SchemaSection section The newly created section
-function Schema:AddSection(name, description)
-    local section = SchemaSection:New({
+---@return BlueprintSection section The newly created section
+function Blueprint:AddSection(name, description)
+    local section = BlueprintSection:New({
         sectionName = name,
         sectionDescription = description
     })
@@ -68,9 +68,9 @@ function Schema:AddSection(name, description)
 end
 
 --- Retrieve the default value for a setting by name
----@param settingName string The name/key of the setting to retrieve the default value for
+---@param settingId string The name/key of the setting to retrieve the default value for
 ---@return any setting.Default The default value for the setting
-function Schema:RetrieveDefaultValueForSetting(settingName)
+function Blueprint:RetrieveDefaultValueForSetting(settingId)
     -- TODO: CLEAN THIS GODAWFUL MESS UP
     local tabs = self:GetTabs()
     if tabs then
@@ -81,7 +81,7 @@ function Schema:RetrieveDefaultValueForSetting(settingName)
             if sections then
                 for _, section in ipairs(sections) do
                     for _, setting in ipairs(section:GetSettings()) do
-                        if setting:GetId() == settingName then
+                        if setting:GetId() == settingId then
                             return setting:GetDefault()
                         end
                     end
@@ -90,7 +90,7 @@ function Schema:RetrieveDefaultValueForSetting(settingName)
 
             if settings then
                 for _, setting in ipairs(settings) do
-                    if setting:GetId() == settingName then
+                    if setting:GetId() == settingId then
                         return setting:GetDefault()
                     end
                 end
@@ -101,7 +101,7 @@ function Schema:RetrieveDefaultValueForSetting(settingName)
     local settings = self:GetSettings()
     if settings then
         for _, setting in ipairs(settings) do
-            if setting:GetId() == settingName then
+            if setting:GetId() == settingId then
                 return setting:GetDefault()
             end
         end
@@ -110,14 +110,14 @@ function Schema:RetrieveDefaultValueForSetting(settingName)
     return nil
 end
 
---- Retrieve all the default values for all the settings in the schema
---- @param schema Schema The schema to use for the settings
+--- Retrieve all the default values for all the settings in the blueprint
+--- @param blueprint Blueprint The blueprint to use for the settings
 --- @return table<string, any> settings The plain settings table with default values
-function Schema:GetDefaultSettingsFromSchema(schema)
+function Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
     local settings = {}
 
-    if schema.Tabs then
-        for _, tab in ipairs(schema.Tabs) do
+    if blueprint.Tabs then
+        for _, tab in ipairs(blueprint.Tabs) do
             local tabSections = tab:GetSections()
             local tabSettings = tab:GetSettings()
 
@@ -135,8 +135,8 @@ function Schema:GetDefaultSettingsFromSchema(schema)
                 end
             end
         end
-    elseif schema.Settings then
-        for _, setting in ipairs(schema.Settings) do
+    elseif blueprint.Settings then
+        for _, setting in ipairs(blueprint.Settings) do
             settings[setting:GetId()] = setting:GetDefault()
         end
     end

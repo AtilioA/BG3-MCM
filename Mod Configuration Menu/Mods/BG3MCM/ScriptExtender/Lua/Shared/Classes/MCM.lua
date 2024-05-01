@@ -1,5 +1,5 @@
 ---@class MCM: MetaClass
----@field private mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
+---@field private mods table<string, table> A table of modGUIDs that has a table of blueprints and settings for each mod
 -- The MCM (Mod Configuration Menu) class is the main entry point for interacting with the Mod Configuration Menu system.
 -- It acts as a high-level interface to the underlying ModConfig and ProfileManager classes, which handle the low-level details of loading, saving, and managing the mod configurations and user profiles, as well as JSON file handling from the JsonLayer class.
 --
@@ -7,7 +7,7 @@
 -- It provides methods for managing the configuration of mods, including:
 -- - Loading the configurations for all mods
 -- - Creating and managing user profiles
--- - Retrieving the settings and schemas for individual mods
+-- - Retrieving the settings and blueprints for individual mods
 -- - Setting and getting the values of configuration settings
 -- - Resetting settings to their default values
 MCM = _Class:Create("MCM", nil, {
@@ -79,14 +79,14 @@ function MCM:GetModSettings(modGUID)
     return mod.settingsValues
 end
 
---- Get the Schema table for a mod
----@param modGUID? string The UUID of the mod. When not provided, the schema for the current mod is returned (ModuleUUID is used)
----@return Schema - The Schema for the mod
-function MCM:GetModSchema(modGUID)
+--- Get the Blueprint table for a mod
+---@param modGUID? string The UUID of the mod. When not provided, the blueprint for the current mod is returned (ModuleUUID is used)
+---@return Blueprint - The Blueprint for the mod
+function MCM:GetModBlueprint(modGUID)
     if modGUID then
-        return self.mods[modGUID].schemas
+        return self.mods[modGUID].blueprints
     else
-        return self.mods[ModuleUUID].schemas
+        return self.mods[ModuleUUID].blueprints
     end
 end
 
@@ -137,12 +137,12 @@ end
 function MCM:ResetConfigValue(settingId, modGUID, clientRequest)
     modGUID = modGUID or ModuleUUID
 
-    local schema = self:GetModSchema(modGUID)
+    local blueprint = self:GetModBlueprint(modGUID)
 
-    local defaultValue = schema:RetrieveDefaultValueForSetting(settingId)
+    local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
         MCMWarn(1,
-            "Setting '" .. settingId .. "' not found in the schema for mod '" .. modGUID .. "'. Please contact " ..
+            "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modGUID .. "'. Please contact " ..
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetConfigValue(settingId, defaultValue, modGUID, clientRequest)
@@ -157,8 +157,8 @@ end
 --- Reset all settings for a mod to their default values
 ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
 function MCM:ResetAllSettings(modGUID)
-    local modSchema = self.schemas[modGUID]
-    local defaultSettings = Schema:GetDefaultSettingsFromSchema(modSchema)
+    local modBlueprint = self.blueprints[modGUID]
+    local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
 end
@@ -168,8 +168,8 @@ end
 -- ---@param sectionName string The name of the section
 -- ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used) (actually, this is not how it works :| )
 -- function MCM:ResetSectionValues(sectionName, modGUID)
---     local modSchema = self.schemas[modGUID]
---     local defaultSettings = Schema:GetDefaultSettingsFromSchema(modSchema)
+--     local modBlueprint = self.blueprints[modGUID]
+--     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 --     local modSettings = self.settings[modGUID]
 -- end
 

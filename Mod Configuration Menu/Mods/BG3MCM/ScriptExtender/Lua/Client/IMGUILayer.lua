@@ -4,14 +4,14 @@
 ---@field widgets table<string, any> A table of widgets for the mod
 
 --- A class representing an IMGUI layer responsible for managing mods and profiles.
---- A table of mod GUIDs, each associated with a table containing widgets and potentially other schemas and settings.
+--- A table of mod GUIDs, each associated with a table containing widgets and potentially other blueprints and settings.
 -- The IMGUILayer class is responsible for creating and managing the IMGUI user interface for MCM.
 -- It acts as the bridge between MCM's core business logic and MCM's IMGUI window, handling the rendering and interaction of the mod configuration UI.
 -- It relies on settings and profiles sent by the MCM (API) class, and then translates this data into a user-friendly IMGUI interface.
 -- IMGUILayer provides methods for:
 -- - Creating the main MCM menu, which contains a tab for each mod that has MCM settings
--- - Creating new tabs and sections for each mod, based on the mod's schema
--- - Creating IMGUI widgets for each setting in the mod's schema
+-- - Creating new tabs and sections for each mod, based on the mod's blueprint
+-- - Creating IMGUI widgets for each setting in the mod's blueprint
 -- - Sending messages to the server to update setting values
 ---@class IMGUILayer: MetaClass
 ---@field mods table<string, ModSettings>
@@ -66,7 +66,7 @@ local InputWidgetFactory = {
 }
 
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
----@param mods table<string, table> A table of modGUIDs that has a table of schemas and settings for each mod
+---@param mods table<string, table> A table of modGUIDs that has a table of blueprints and settings for each mod
 ---@param profiles table<string, table> A table of settings profiles for the MCM
 ---@return nil
 function IMGUILayer:CreateModMenu(mods, profiles)
@@ -110,8 +110,8 @@ end
 function IMGUILayer:CreateModMenuTab(modGUID)
     modGUID = modGUID or ModuleUUID
     local modInfo = Ext.Mod.GetMod(modGUID).Info
-    -- local modSchema = MCM:GetModSchema(modGUID)
-    local modSchema = self.mods[modGUID].schemas
+    -- local modBlueprint = MCM:GetModBlueprint(modGUID)
+    local modBlueprint = self.mods[modGUID].blueprints
     local modSettings = self.mods[modGUID].settingsValues
     -- local modSettings = MCM:GetModSettings(modGUID)
     local modTab = self.mods_tabs[modGUID]
@@ -127,15 +127,15 @@ function IMGUILayer:CreateModMenuTab(modGUID)
         self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
         self.mods[modGUID] = { widgets = {} }
     end
-    -- Iterate over each tab in the mod schema to create a subtab for each
-    for _, tab in ipairs(modSchema.Tabs) do
+    -- Iterate over each tab in the mod blueprint to create a subtab for each
+    for _, tab in ipairs(modBlueprint.Tabs) do
         self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     end
 end
 
 --- Create a new tab for a mod in the MCM
 ---@param modsTab any The main tab for the mod
----@param tab SchemaTab The tab to create a tab for
+---@param tab BlueprintTab The tab to create a tab for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modGUID string The UUID of the mod
 ---@return nil
@@ -171,7 +171,7 @@ end
 --- Create a new section for a mod in the MCM
 ---@param sectionIndex number The index of the section
 ---@param modGroup any The IMGUI group for the mod
----@param section SchemaSection The section to create a tab for
+---@param section BlueprintSection The section to create a tab for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modGUID string The UUID of the mod
 ---@return nil
@@ -204,7 +204,7 @@ end
 
 --- Create a new setting for a mod in the MCM
 ---@param modGroup any The IMGUI group for the mod
----@param setting SchemaSetting The setting to create a widget for
+---@param setting BlueprintSetting The setting to create a widget for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modGUID string The UUID of the mod
 ---@return nil

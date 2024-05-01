@@ -1,4 +1,4 @@
----@class SchemaSetting
+---@class BlueprintSetting
 ---@field private Id string
 ---@field private Name string
 ---@field private Type string
@@ -8,7 +8,7 @@
 ---@field private Section string
 ---@field private Options table
 ---@field private Handles table
-SchemaSetting = _Class:Create("SchemaSetting", nil, {
+BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
     Id = "",
     Name = "",
     Type = "",
@@ -22,81 +22,81 @@ SchemaSetting = _Class:Create("SchemaSetting", nil, {
     -- ShowWhen = { SettingId = "", Value = "" }
 })
 
-function SchemaSetting:GetName()
+function BlueprintSetting:GetName()
     return self.Name
 end
 
-function SchemaSetting:GetId()
+function BlueprintSetting:GetId()
     return self.Id
 end
 
-function SchemaSetting:GetType()
+function BlueprintSetting:GetType()
     return self.Type
 end
 
-function SchemaSetting:GetDefault()
+function BlueprintSetting:GetDefault()
     return self.Default
 end
 
-function SchemaSetting:GetDescription()
+function BlueprintSetting:GetDescription()
     return self.Description
 end
 
-function SchemaSetting:GetTooltip()
+function BlueprintSetting:GetTooltip()
     return self.Tooltip
 end
 
-function SchemaSetting:GetSection()
+function BlueprintSetting:GetSection()
     return self.Section
 end
 
-function SchemaSetting:GetOptions()
+function BlueprintSetting:GetOptions()
     return self.Options
 end
 
-function SchemaSetting:GetHandles()
+function BlueprintSetting:GetHandles()
     return self.Handles
 end
 
-function SchemaSetting:SetName(value)
+function BlueprintSetting:SetName(value)
     self.Name = value
 end
 
-function SchemaSetting:SetId(value)
+function BlueprintSetting:SetId(value)
     self.Id = value
 end
 
-function SchemaSetting:SetType(value)
+function BlueprintSetting:SetType(value)
     self.Type = value
 end
 
-function SchemaSetting:SetDefault(value)
+function BlueprintSetting:SetDefault(value)
     self.Default = value
 end
 
-function SchemaSetting:SetDescription(value)
+function BlueprintSetting:SetDescription(value)
     self.Description = value
 end
 
-function SchemaSetting:SetTooltip(value)
+function BlueprintSetting:SetTooltip(value)
     self.Tooltip = value
 end
 
-function SchemaSetting:SetSection(value)
+function BlueprintSetting:SetSection(value)
     self.Section = value
 end
 
-function SchemaSetting:SetOptions(value)
+function BlueprintSetting:SetOptions(value)
     self.Options = value
 end
 
-function SchemaSetting:SetHandles(value)
+function BlueprintSetting:SetHandles(value)
     self.Handles = value
 end
 
--- --- Create a new SchemaSetting instance
--- ---@param settingData table The setting data from the MCM schema
--- function SchemaSetting:New(settingData)
+-- --- Create a new BlueprintSetting instance
+-- ---@param settingData table The setting data from the MCM blueprint
+-- function BlueprintSetting:New(settingData)
 --     local obj = _Class:New(self)
 --     obj:Init(settingData)
 --     return obj
@@ -104,7 +104,7 @@ end
 
 --- Get the current value of the setting
 ---@return any
-function SchemaSetting:GetValue()
+function BlueprintSetting:GetValue()
     -- Implement logic to retrieve the current value of the setting
     -- This will likely involve interacting with the Config and MCMAPI classes
     return self.Default
@@ -112,13 +112,13 @@ end
 
 --- Set the value of the setting
 ---@param value any
-function SchemaSetting:SetValue(value)
+function BlueprintSetting:SetValue(value)
     -- Implement logic to set the value of the setting
     -- This will likely involve interacting with the Config and MCMAPI classes
 end
 
 --- Reset the setting to its default value
-function SchemaSetting:ResetToDefault()
+function BlueprintSetting:ResetToDefault()
     -- Implement logic to reset the setting to its default value
     -- This will likely involve interacting with the Config and MCMAPI classes
 end

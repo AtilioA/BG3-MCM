@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "additionalProperties": false,
-    "$comment": "This is the schema for the configuration file that is used to determine the shape of settings for a mod that uses MCM.",
+    "$comment": "This is the JSON Schema for the blueprint file that is used to determine the shape of the configuration for a mod that uses MCM.",
     "properties": {
         "SchemaVersion": {
             "type": "integer",

@@ -15,7 +15,7 @@ function RadioIMGUIWidget:new(group, setting, initialValue, modGUID)
 end
 
 ---@param group any The IMGUI group to add the radio buttons to
----@param setting SchemaSetting The setting containing the radio button options
+---@param setting BlueprintSetting The setting containing the radio button options
 ---@param initialValue any The current value of the setting
 function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
     local buttons = {}
@@ -33,13 +33,13 @@ function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
 end
 
 ---@param buttons table The radio buttons to set callbacks for
----@param setting SchemaSetting The setting containing the radio button options
+---@param setting BlueprintSetting The setting containing the radio button options
 ---@param modGUID string The UUID of the mod
 function RadioIMGUIWidget:SetRadioButtonCallbacks(buttons, setting, modGUID)
     for _, button in ipairs(buttons) do
         button.OnChange = function(value)
             if value and value.Label then
-                IMGUIAPI:SetConfigValue(setting.Id, value.Label, modGUID)
+                IMGUIAPI:SetSettingValue(setting.Id, value.Label, modGUID)
                 self:UncheckOtherRadioButtons(buttons, button)
             end
         end

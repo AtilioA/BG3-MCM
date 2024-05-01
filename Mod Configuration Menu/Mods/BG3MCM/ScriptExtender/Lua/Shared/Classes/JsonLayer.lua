@@ -38,7 +38,7 @@ JsonLayer = _Class:Create("HelperJsonLayer", Helper, {
 })
 
 -- Patterns for the potential JSON config file paths to be loaded
-JsonLayer.ConfigFilePathPatternJSON = string.gsub("Mods/%s/MCM_schema.json", "'", "\'")
+JsonLayer.ConfigFilePathPatternJSON = string.gsub("Mods/%s/MCM_blueprint.json", "'", "\'")
 
 ---Loads a JSON configuration file from the specified file path.
 ---@param filePath string The file path of the JSON configuration file to load.
@@ -100,11 +100,11 @@ function JsonLayer:JSONParseError(message)
     error({ code = "JSONParseError", message = message })
 end
 
---- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_schema.json" and be located in the mod's directory, alongside the mod's meta.lsx file.
+--- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_blueprint.json" and be located in the mod's directory, alongside the mod's meta.lsx file.
 --- If the file is found, the data is submitted to the ModConfig instance.
 --- If the file is not found, a warning is logged. If the file is found but cannot be parsed, an error is logged.
 ---@param modData table
----@return table|nil data The schema data, or an error message if the schema could not be loaded
+---@return table|nil data The blueprint data, or an error message if the blueprint could not be loaded
 function JsonLayer:LoadConfigForMod(modData)
     local filePath = self.ConfigFilePathPatternJSON:format(modData.Info.Directory)
     local config = Ext.IO.LoadFile(filePath, "data")

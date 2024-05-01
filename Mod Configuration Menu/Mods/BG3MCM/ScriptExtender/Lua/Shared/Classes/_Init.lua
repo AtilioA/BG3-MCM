@@ -1,5 +1,5 @@
 RequireFiles("Shared/Classes/", {
-    "SettingSchema/_Init",
+    "ConfigDefinition/_Init",
     "ProfileManager",
     "ModConfig",
     "JsonLayer",

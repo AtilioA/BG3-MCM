@@ -16,7 +16,7 @@ function EnumIMGUIWidget:new(group, setting, initialValue, modGUID)
     end
 
     instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetConfigValue(setting.Id, options[value.SelectedIndex + 1], modGUID)
+        IMGUIAPI:SetSettingValue(setting.Id, options[value.SelectedIndex + 1], modGUID)
     end
 
     return instance

@@ -15,7 +15,7 @@ end
 ---@param value any The new value of the setting
 ---@param modGUID string The UUID of the mod
 ---@return nil
-function IMGUIAPI:SetConfigValue(settingId, value, modGUID)
+function IMGUIAPI:SetSettingValue(settingId, value, modGUID)
     Ext.Net.PostMessageToServer("MCM_Client_Request_Set_Setting_Value", Ext.Json.Stringify({
         modGUID = modGUID,
         settingId = settingId,
@@ -27,7 +27,7 @@ end
 ---@param settingId string The ID of the setting to reset
 ---@param modGUID string The UUID of the mod
 ---@return nil
-function IMGUIAPI:ResetConfigValue(settingId, modGUID)
+function IMGUIAPI:ResetSettingValue(settingId, modGUID)
     Ext.Net.PostMessageToServer("MCM_Client_Request_Reset_Setting_Value", Ext.Json.Stringify({
         modGUID = modGUID,
         settingId = settingId
@@ -43,17 +43,20 @@ function IMGUIAPI:SetProfile(profileName)
     }))
 end
 
+--- TODO: move somewhere else probably
+---@private
 function IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
     -- Find the widget corresponding to the setting and update its value
-    local widget = self:FindWidgetForSetting(modGUID, settingId)
+    local widget = self:findWidgetForSetting(modGUID, settingId)
     widget:UpdateCurrentValue(value)
 end
 
 --- Find the widget corresponding to a setting
+---@private
 ---@param modGUID string The UUID of the mod
 ---@param settingId string The ID of the setting to find the widget for
 ---@return any | nil - The widget corresponding to the setting, or nil if no widget was found
-function IMGUIAPI:FindWidgetForSetting(modGUID, settingId)
+function IMGUIAPI:findWidgetForSetting(modGUID, settingId)
     -- Check if the mod has any registered widgets
     local widgets = self:getModWidgets(modGUID)
     if widgets then
@@ -62,6 +65,7 @@ function IMGUIAPI:FindWidgetForSetting(modGUID, settingId)
 end
 
 --- Get the widgets for a mod
+---@private
 ---@param modGUID string The UUID of the mod
 ---@return table<string, any> | nil - widgets for the mod (keyed by setting ID), or nil if the mod has no widgets
 function IMGUIAPI:getModWidgets(modGUID)

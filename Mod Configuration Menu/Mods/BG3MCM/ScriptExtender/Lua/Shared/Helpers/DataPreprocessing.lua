@@ -54,45 +54,45 @@ local function convertStringBooleans(tbl)
     end
 end
 
---- TODO: validate if schema is correct, e.g. settings have unique IDs, etc.
---- Sanitizes schema data by removing elements without SchemaVersions and converting string booleans
----@param schema table The schema data to sanitize
+--- TODO: validate if blueprint is correct, e.g. settings have unique IDs, etc.
+--- Sanitizes blueprint data by removing elements without SchemaVersions and converting string booleans
+---@param blueprint table The blueprint data to sanitize
 ---@param modGUID string The mod's unique identifier
-function DataPreprocessing:SanitizeSchema(schema, modGUID)
-    if not self:HasSchemaVersionsEntry(schema, modGUID) then
+function DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    if not self:HasSchemaVersionsEntry(blueprint, modGUID) then
         return
     end
-    convertStringBooleans(schema)
-    return schema
+    convertStringBooleans(blueprint)
+    return blueprint
 end
 
---- Sanitize all schemas for a given set of mods
+--- Sanitize all blueprints for a given set of mods
 ---@param mods table<string, table> The mods data to sanitize
-function DataPreprocessing:SanitizeSchemas(mods)
+function DataPreprocessing:SanitizeBlueprints(mods)
     for modGUID, mcmTable in pairs(mods) do
-        if not self:SanitizeSchema(mcmTable.schemas, modGUID) then
+        if not self:SanitizeBlueprint(mcmTable.blueprints, modGUID) then
             mods[modGUID] = nil
             MCMWarn(0,
-                "Schema validation failed for mod: " ..
+                "Blueprint validation failed for mod: " ..
                 Ext.Mod.GetMod(modGUID).Info.Name ..
                 ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         end
     end
 end
 
--- TODO: modularize this when the schema has been defined
---- Validate the settings based on the schema and collect any invalid settings
----@param schema Schema The schema data
----@param settings SchemaSetting The settings data
+-- TODO: modularize this when the blueprint has been defined
+--- Validate the settings based on the blueprint and collect any invalid settings
+---@param blueprint Blueprint The blueprint data
+---@param settings BlueprintSetting The settings data
 ---@return boolean, string[] True if all settings are valid, and a list of invalid settings' IDs
-function DataPreprocessing:ValidateSettings(schema, settings)
+function DataPreprocessing:ValidateSettings(blueprint, settings)
     local invalidSettings = {}
 
-    local schemaTabs = schema:GetTabs()
-    local schemaSettings = schema:GetSettings()
+    local BlueprintTabs = blueprint:GetTabs()
+    local BlueprintSettings = blueprint:GetSettings()
 
-    if schemaTabs then
-        for _, tab in ipairs(schemaTabs) do
+    if BlueprintTabs then
+        for _, tab in ipairs(BlueprintTabs) do
             -- Check if the tab has sections
             if #tab:GetSections() > 0 then
                 for _, section in ipairs(tab:GetSections()) do
@@ -125,8 +125,8 @@ function DataPreprocessing:ValidateSettings(schema, settings)
         end
     end
 
-    if schemaSettings then
-        for _, setting in ipairs(schemaSettings) do
+    if BlueprintSettings then
+        for _, setting in ipairs(BlueprintSettings) do
             local value = settings[setting:GetId()]
             local validator = SettingValidators[setting:GetType()]
             MCMDebug(2,
@@ -142,20 +142,20 @@ function DataPreprocessing:ValidateSettings(schema, settings)
     return #invalidSettings == 0, invalidSettings
 end
 
--- TODO: modularize this when the schema has been defined
+-- TODO: modularize this when the blueprint has been defined
 --- Attempt to fix invalid settings by resetting them to default values
----@param schema Schema The schema data
+---@param blueprint Blueprint The blueprint data
 ---@param config table The configuration settings
 ---@return table The updated configuration settings
-function DataPreprocessing:ValidateAndFixSettings(schema, config)
-    local isValid, invalidSettings = DataPreprocessing:ValidateSettings(schema, config)
+function DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+    local isValid, invalidSettings = DataPreprocessing:ValidateSettings(blueprint, config)
     if not isValid then
         for _, settingID in ipairs(invalidSettings) do
-            local defaultValue = schema:RetrieveDefaultValueForSetting(settingID)
+            local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingID)
             MCMWarn(0,
                 "Invalid value for setting: " ..
                 settingID ..
-                ". Resetting it to default value from the schema (" ..
+                ". Resetting it to default value from the blueprint (" ..
                 tostring(defaultValue) .. ").")
             config[settingID] = defaultValue
         end
@@ -197,17 +197,17 @@ function DataPreprocessing:HasSectionsEntry(data, modGUID)
 end
 
 -- TODO: modularize this when the schema has been defined
---- Preprocess the data and create SchemaSetting instances for each setting found in the Tabs and Sections
+--- Preprocess the data and create BlueprintSetting instances for each setting found in the Tabs and Sections
 ---@param data table The item data to preprocess
 ---@param modGUID string The UUID of the mod that the item data belongs to
----@return table<string, SchemaSetting>|nil The preprocessed data, or nil if the preprocessing failed
+---@return table<string, BlueprintSetting>|nil The preprocessed data, or nil if the preprocessing failed
 function DataPreprocessing:PreprocessData(data, modGUID)
     local preprocessedData = {}
     preprocessedData["Tabs"] = {}
 
     -- Iterate through each tab in the data
     for i, tab in ipairs(data.Tabs) do
-        local tabData = SchemaTab:New({
+        local tabData = BlueprintTab:New({
             TabId = tab.TabId,
             TabName = tab.TabName,
             Settings = {},
@@ -217,7 +217,7 @@ function DataPreprocessing:PreprocessData(data, modGUID)
         -- Handle settings directly in tabs
         if tab.Settings then
             for j, setting in ipairs(tab.Settings) do
-                local newSetting = SchemaSetting:New({
+                local newSetting = BlueprintSetting:New({
                     Id = setting.Id,
                     Name = setting.Name,
                     Type = setting.Type,
@@ -238,14 +238,14 @@ function DataPreprocessing:PreprocessData(data, modGUID)
         -- Handle sections containing settings
         if tab.Sections then
             for k, section in ipairs(tab.Sections) do
-                local sectionData = SchemaSection:New({
+                local sectionData = BlueprintSection:New({
                     SectionId = section.SectionId,
                     SectionName = section.SectionName,
                     Settings = {},
                     Handles = section.Handles or {}
                 })
                 for l, setting in ipairs(section.Settings) do
-                    local newSetting = SchemaSetting:New({
+                    local newSetting = BlueprintSetting:New({
                         Id = setting.Id,
                         Name = setting.Name,
                         Type = setting.Type,

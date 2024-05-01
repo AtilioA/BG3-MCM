@@ -6,7 +6,7 @@ function CheckboxIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = CheckboxIMGUIWidget })
     instance.Widget = group:AddCheckbox("", initialValue)
     instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetConfigValue(setting.Id, value.Checked, modGUID)
+        IMGUIAPI:SetSettingValue(setting.Id, value.Checked, modGUID)
     end
     return instance
 end

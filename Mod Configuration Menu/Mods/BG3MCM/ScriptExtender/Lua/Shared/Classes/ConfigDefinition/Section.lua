@@ -1,39 +1,39 @@
----@class SchemaSection
+---@class BlueprintSection
 ---@field private SectionName string
 ---@field private SectionDescription string
----@field private Settings SchemaSetting[]
+---@field private Settings BlueprintSetting[]
 ---@field private Handles table
-SchemaSection = _Class:Create("SchemaSection", nil, {
+BlueprintSection = _Class:Create("BlueprintSection", nil, {
     SectionName = "",
     SectionDescription = "",
     Settings = {},
     Handles = {}
 })
 
-function SchemaSection:GetSectionName()
+function BlueprintSection:GetSectionName()
     return self.SectionName
 end
 
-function SchemaSection:GetSectionDescription()
+function BlueprintSection:GetSectionDescription()
     return self.SectionDescription
 end
 
-function SchemaSection:GetSettings()
+function BlueprintSection:GetSettings()
     return self.Settings
 end
 
-function SchemaSection:SetSectionName(value)
+function BlueprintSection:SetSectionName(value)
     self.SectionName = value
 end
 
-function SchemaSection:SetSectionDescription(value)
+function BlueprintSection:SetSectionDescription(value)
     self.SectionDescription = value
 end
 
---- Constructor for the SchemaSection class.
+--- Constructor for the BlueprintSection class.
 --- @param options table
-function SchemaSection:New(options)
-    local self = setmetatable({}, SchemaSection)
+function BlueprintSection:New(options)
+    local self = setmetatable({}, BlueprintSection)
     self.SectionId = options.SectionId or ""
     self.SectionName = options.SectionName or ""
     self.SectionDescription = options.SectionDescription or ""
@@ -42,7 +42,7 @@ function SchemaSection:New(options)
 
     if options.Settings then
         for _, settingOptions in ipairs(options.Settings) do
-            local setting = SchemaSetting:New(settingOptions)
+            local setting = BlueprintSetting:New(settingOptions)
             table.insert(self.Settings, setting)
         end
     end
@@ -50,13 +50,13 @@ function SchemaSection:New(options)
     return self
 end
 
-function SchemaSection:AddSetting(name, type, default, description, options, sectionName)
-    local setting = SchemaSetting:New({
+function BlueprintSection:AddSetting(name, type, default, description, options, sectionName)
+    local setting = BlueprintSetting:New({
         Name = name,
         Type = type,
         Default = default,
         Description = description,
-        SchemaSection = sectionName or self.SectionName,
+        BlueprintSection = sectionName or self.SectionName,
         Options = options or {}
     })
     table.insert(self.Settings, setting)
