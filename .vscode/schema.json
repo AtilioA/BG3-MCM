@@ -7,7 +7,12 @@
         "SchemaVersion": {
             "type": "integer",
             "minimum": 1,
-            "description": "The version of the schema that this file uses. This is used to ensure that the file is compatible with the version of MCM that is being used. Do not change this value unless you know what you are doing."
+            "description": "The version of the MCM schema that this file uses. This is used to ensure that the file is compatible with the version of MCM that is being used. DO NOT CHANGE THIS VALUE unless you know what you are doing; use whatever version that comes with the schema file for the MCM version that you are using/building for."
+        },
+        "ModName": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that have multiple names due to multiple versions."
         },
         "Tabs": {
             "description": "The tabs that will be displayed in the MCM menu. Each tab can contain either sections or settings, but not both. Tabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
