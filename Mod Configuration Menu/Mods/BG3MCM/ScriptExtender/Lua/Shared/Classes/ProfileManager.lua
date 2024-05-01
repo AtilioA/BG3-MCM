@@ -29,22 +29,22 @@ ProfileManager = _Class:Create("ProfileManager", nil, {
     }
 })
 
-function ProfileManager:Create(mcmConfig)
+function ProfileManager:Create(mcmParams)
     local profile = ProfileManager:New()
 
-    if not mcmConfig then
+    if not mcmParams then
         MCMWarn(1, "MCM config file is nil.")
         return
     end
 
-    if not mcmConfig.Features or not mcmConfig.Features.Profiles then
+    if not mcmParams.Features or not mcmParams.Features.Profiles then
         MCMWarn(1, "Profile feature is not properly configured in the MCM config JSON.")
         return
     end
 
-    profile.SelectedProfile = mcmConfig.Features.Profiles.SelectedProfile
-    profile.Profiles = mcmConfig.Features.Profiles.Profiles
-    profile.DefaultProfile = mcmConfig.Features.Profiles.DefaultProfile
+    profile.SelectedProfile = mcmParams.Features.Profiles.SelectedProfile
+    profile.Profiles = mcmParams.Features.Profiles.Profiles
+    profile.DefaultProfile = mcmParams.Features.Profiles.DefaultProfile
 
     return profile
 end
@@ -66,10 +66,9 @@ end
 
 --- Save the profile values to the MCM configuration file.
 function ProfileManager:SaveProfileValuesToConfig()
-    local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
-    local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
+    local configFilePath = ModConfig:GetMCMParamsFilePath()
 
-    local data = ModConfig:LoadMCMConfig()
+    local data = ModConfig:LoadMCMParams()
     if not data then
         MCMWarn(1, "MCM config file not found: " .. configFilePath)
         return
@@ -110,15 +109,10 @@ function ProfileManager:SetCurrentProfile(profileName)
     self:SaveProfileValuesToConfig()
     ModConfig:LoadSettings()
 
-    Ext.Net.BroadcastMessage("MCM_Server_Set_Profile", Ext.Json.Stringify({
-        profileName = profileName,
-        newSettings = ModConfig.mods
-    }))
-
     return true
 end
 
---- Create a new profile and save it to the MCM configuration JSON file (mcm_config.json)
+--- Create a new profile and save it to the MCM params JSON file (mcm_params.json)
 ---@param profileName string The name of the new profile
 ---@return boolean success Whether the profile was successfully created
 function ProfileManager:CreateProfile(profileName)
@@ -139,7 +133,7 @@ function ProfileManager:CreateProfile(profileName)
     return true
 end
 
---- Delete a profile and save the changes to the MCM configuration JSON file (mcm_config.json)
+--- Delete a profile and save the changes to the MCM params JSON file (mcm_params.json)
 ---@param profileName string The name of the profile to delete
 ---@return boolean Whether the profile was successfully deleted
 function ProfileManager:DeleteProfile(profileName)
@@ -166,4 +160,16 @@ function ProfileManager:DeleteProfile(profileName)
     self:SaveProfileValuesToConfig()
 
     return true
+end
+
+--- Generates the full path to a settings file, starting from the Script Extender folder.
+--- @param modGUID GUIDSTRING The mod's UUID to get the path for.
+--- @return string The full path to the settings file.
+function ProfileManager:GetModProfileSettingsPath(modGUID)
+    local MCMPath = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+    local profileName = self:GetCurrentProfile()
+    local profilePath = MCMPath .. '/' .. "Profiles" .. '/' .. profileName
+
+    local modFolderName = Ext.Mod.GetMod(modGUID).Info.Directory
+    return profilePath .. '/' .. modFolderName
 end

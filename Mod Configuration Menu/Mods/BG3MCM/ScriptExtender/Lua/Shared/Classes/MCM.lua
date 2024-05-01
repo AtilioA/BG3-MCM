@@ -200,7 +200,7 @@ function MCM:ResetAllSettings(modGUID)
 
     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
     Ext.Net.BroadcastMessage("MCM_Relay_To_Servers",
-        Ext.Json.Stringify({ channel = "MCM_Server_Reset_All_Mod_Settings", payload = { modGUID = modGUID, settings = defaultSettings } }))
+        Ext.Json.Stringify({ channel = "MCM_Reset_All_Mod_Settings", payload = { modGUID = modGUID, settings = defaultSettings } }))
 end
 
 -- TODO: Separate these later into a different file?

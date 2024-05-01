@@ -23,6 +23,8 @@ ModConfig = _Class:Create("ModConfig", nil, {
     profiles = ProfileManager
 })
 
+ModConfig.MCMParamsFilename = "mcm_params.json"
+
 -- -- NOTE: When introducing new (breaking) versions of the config file, add a new function to parse the new version and update the version number in the config file?
 -- -- local versionHandlers = {
 -- --   [1] = parseVersion1Config,
@@ -32,20 +34,8 @@ ModConfig = _Class:Create("ModConfig", nil, {
 --- SECTION: FILE HANDLING
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modGUID GUIDSTRING The mod's UUID to get the path for.
---- @return string The full path to the settings file.
-function ModConfig:GetModProfileSettingsPath(modGUID)
-    local MCMPath = Ext.Mod.GetMod(ModuleUUID).Info.Directory
-    local profileName = self.profiles:GetCurrentProfile()
-    local profilePath = MCMPath .. '/' .. "Profiles" .. '/' .. profileName
-
-    local modFolderName = Ext.Mod.GetMod(modGUID).Info.Directory
-    return profilePath .. '/' .. modFolderName
-end
-
---- Generates the full path to a settings file, starting from the Script Extender folder.
---- @param modGUID GUIDSTRING The mod's UUID to get the path for.
 function ModConfig:GetSettingsFilePath(modGUID)
-    return self:GetModProfileSettingsPath(modGUID) .. "/settings.json"
+    return self.profiles:GetModProfileSettingsPath(modGUID) .. "/settings.json"
 end
 
 -- TODO: as always, refactor this nuclear waste
@@ -112,33 +102,37 @@ function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
 end
 
 --- SECTION: MCM CONFIG/PROFILE HANDLING
+
+--- Load the MCM params file from the mod's SE directory.
+function ModConfig:GetMCMParamsFilePath()
+    local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+    return mcmFolder .. '/' .. self.MCMParamsFilename
+end
+
 ---Loads the MCM configuration file from the specified file path, used to load the profiles.
 ---@param configFilePath string The file path of the MCM configuration file to load.
 ---@return table|nil data parsed MCM configuration data, or nil if the file could not be loaded or parsed.
-function ModConfig:LoadMCMConfigFromFile(configFilePath)
-    local configFileContent = Ext.IO.LoadFile(configFilePath)
-    if not configFileContent or configFileContent == "" then
-        MCMWarn(1, "MCM config file not found: " .. configFilePath .. ". Creating default config.")
-        local defaultConfig = ProfileManager.DefaultConfig
-        JsonLayer:SaveJSONFile(configFilePath, defaultConfig)
-        return defaultConfig
+function ModConfig:LoadMCMParams()
+    local function loadMCMParamsFromFile(configFilePath)
+        local configFileContent = Ext.IO.LoadFile(configFilePath)
+        if not configFileContent or configFileContent == "" then
+            MCMWarn(1, "MCM config file not found: " .. configFilePath .. ". Creating default config.")
+            local defaultConfig = ProfileManager.DefaultConfig
+            JsonLayer:SaveJSONFile(configFilePath, defaultConfig)
+            return defaultConfig
+        end
+
+        local success, data = pcall(Ext.Json.Parse, configFileContent)
+        if not success then
+            MCMWarn(0, "Failed to parse MCM config file: " .. configFilePath)
+            return nil
+        end
+
+        return data
     end
 
-    local success, data = pcall(Ext.Json.Parse, configFileContent)
-    if not success then
-        MCMWarn(0, "Failed to parse MCM config file: " .. configFilePath)
-        return nil
-    end
-
-    return data
-end
-
--- TODO: rename this 💀 we already have too much 'name clashing'
---- Load the MCM configuration file from the mod's directory.
-function ModConfig:LoadMCMConfig()
-    local mcmFolder = Ext.Mod.GetMod(ModuleUUID).Info.Directory
-    local configFilePath = mcmFolder .. '/' .. 'mcm_config.json'
-    return self:LoadMCMConfigFromFile(configFilePath)
+    local configFilePath = ModConfig:GetMCMParamsFilePath()
+    return loadMCMParamsFromFile(configFilePath)
 end
 
 ---Get the ProfileManager instance used by ModConfig
@@ -162,7 +156,7 @@ end
 ---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
     -- Load the base MCM configuration file, which contains the profiles
-    local profiles = ProfileManager:Create(self:LoadMCMConfig())
+    local profiles = ProfileManager:Create(self:LoadMCMParams())
     if not profiles then
         MCMWarn(0,
             "Failed to load profiles from MCM configuration file. Please contact " ..
@@ -199,7 +193,7 @@ end
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
 ---@param modGUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
----@param config table The loaded settings config
+---@param config table The table with all settings for the mod
 ---@param settingsFilePath string The file path of the settings.json file
 function ModConfig:HandleLoadedSettings(modGUID, blueprint, config, settingsFilePath)
     MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
