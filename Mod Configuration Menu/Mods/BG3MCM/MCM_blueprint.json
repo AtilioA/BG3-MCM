@@ -31,7 +31,7 @@
                             "Name": "(UNUSED) Debug level",
                             "Type": "slider_int",
                             "Default": 0,
-                            "Description": "(UNUSED) Debug level for the mod, used mainly for determining which messages to print",
+                            "Description": "(UNUSED) Used mainly to determine which messages to print.",
                             "Options": {
                                 "Min": 0,
                                 "Max": 3
