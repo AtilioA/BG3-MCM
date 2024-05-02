@@ -23,7 +23,7 @@ function UIProfileManager:CreateProfileCollapsingHeader()
     local currentProfile = MCMAPI:GetCurrentProfile()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile)
 
-    local profileCollapsingHeader = IMGUI_WINDOW:AddCollapsingHeader("Profile management")
+    local profileCollapsingHeader = MCM_WINDOW:AddCollapsingHeader("Profile management")
     local profileCombo = profileCollapsingHeader:AddCombo("Select profile (WIP)")
 
     profileCombo.Options = { "Select a setting profile", table.unpack(profiles.Profiles) }

@@ -26,23 +26,25 @@ MCM_IMGUI_LAYER = IMGUILayer:New()
 
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
-    IMGUI_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
-    IMGUI_WINDOW.Visible = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
-    IMGUI_WINDOW.Open = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
-    IMGUI_WINDOW.NoBringToFrontOnFocus = true
+    MCM_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
+    MCM_WINDOW.Visible = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+    MCM_WINDOW.Open = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+    MCM_WINDOW.NoBringToFrontOnFocus = true
+    MCM_WINDOW.IDContext = "MCM_WINDOW"
+    MCM_WINDOW.Closeable = true
 
-    IMGUI_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
-    IMGUI_WINDOW:SetStyle("WindowBorderSize", 2)
-    IMGUI_WINDOW:SetStyle("WindowRounding", 2)
+    MCM_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
+    MCM_WINDOW:SetStyle("WindowBorderSize", 2)
+    MCM_WINDOW:SetStyle("WindowRounding", 2)
 
     -- Set the window background color
-    IMGUI_WINDOW:SetColor("TitleBg", Color.normalized_rgba(36, 28, 68, 0.5))
-    IMGUI_WINDOW:SetColor("TitleBgActive", Color.normalized_rgba(36, 28, 68, 1))
+    MCM_WINDOW:SetColor("TitleBg", Color.normalized_rgba(36, 28, 68, 0.5))
+    MCM_WINDOW:SetColor("TitleBgActive", Color.normalized_rgba(36, 28, 68, 1))
 
-    IMGUI_WINDOW:SetStyle("ScrollbarSize", 10)
+    MCM_WINDOW:SetStyle("ScrollbarSize", 10)
 
     -- TODO: add stuff to the menu bar
-    m = IMGUI_WINDOW:AddMainMenu()
+    m = MCM_WINDOW:AddMainMenu()
 
     -- options = m:AddMenu("Options")
     -- options:AddItem("Adjust Setting 1").OnClick = function()
@@ -73,13 +75,13 @@ function IMGUILayer:CreateModMenu(mods)
     -- Add functionality to manage between profiles
     UIProfileManager:CreateProfileCollapsingHeader()
 
-    IMGUI_WINDOW:AddDummy(0, 10)
+    MCM_WINDOW:AddDummy(0, 10)
 
     -- TODO: refactor what is part of the class and whatever
     -- Add the main tab bar for the mods
-    self.modsTabBar = IMGUI_WINDOW:AddSeparatorText("Mods")
+    self.modsTabBar = MCM_WINDOW:AddSeparatorText("Mods")
     self.modsTabBar:SetColor("Separator", Color.normalized_rgba(100, 50, 255, 0.67))
-    self.modsTabBar = IMGUI_WINDOW:AddTabBar("Mods")
+    self.modsTabBar = MCM_WINDOW:AddTabBar("Mods")
 
     -- Make the tabs under the mods tab bar have a list popup button and be reorderable
     -- self.modsTabBar.TabListPopupButton = true

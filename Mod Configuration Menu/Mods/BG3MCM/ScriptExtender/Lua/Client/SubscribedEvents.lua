@@ -6,12 +6,12 @@ Ext.Events.KeyInput:Subscribe(function(e)
     if e.Event == "KeyDown" and e.Repeat == false then
         if (e.Key == "INSERT" or e.Key == "APPLICATION") then
             -- Toggle both Open and Visible together
-            if IMGUI_WINDOW.Open == true then
-                IMGUI_WINDOW.Visible = false
-                IMGUI_WINDOW.Open = false
+            if MCM_WINDOW.Open == true then
+                MCM_WINDOW.Visible = false
+                MCM_WINDOW.Open = false
             else
-                IMGUI_WINDOW.Visible = true
-                IMGUI_WINDOW.Open = true
+                MCM_WINDOW.Visible = true
+                MCM_WINDOW.Open = true
             end
         end
     end
@@ -21,7 +21,7 @@ Ext.Events.ResetCompleted:Subscribe(function()
     Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
-    IMGUI_WINDOW.Visible = true
+    MCM_WINDOW.Visible = true
 end)
 
 --- SECTION: Net listeners
