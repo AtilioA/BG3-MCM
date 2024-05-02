@@ -28,7 +28,7 @@ end
 ---@param profileName string The name of the new profile
 function MCM:CreateProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    local success = ModConfig.profiles:CreateProfile(profileName)
+    local success = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
@@ -60,7 +60,7 @@ end
 ---@return string The name of the current profile
 function MCM:GetCurrentProfile()
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    return ModConfig.profiles:GetCurrentProfile()
+    return ModConfig.profileManager:GetCurrentProfile()
 end
 
 --- Set the current MCM profile to the specified profile. This will also update the settings to reflect the new profile settings. If the profile does not exist, it will be created.
@@ -69,7 +69,7 @@ end
 function MCM:SetProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     local currentProfile = self:GetCurrentProfile()
-    local success = ModConfig.profiles:SetCurrentProfile(profileName)
+    local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
         if Ext.IsServer() then
@@ -97,7 +97,7 @@ end
 ---@return boolean success Whether the profile was successfully deleted
 function MCM:DeleteProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    local success = ModConfig.profiles:DeleteProfile(profileName)
+    local success = ModConfig.profileManager:DeleteProfile(profileName)
 
     if success then
         if Ext.IsServer() then

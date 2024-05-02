@@ -20,7 +20,7 @@
 -- - Ensuring the consistency and integrity of the mod settings
 ModConfig = _Class:Create("ModConfig", nil, {
     mods = {},
-    profiles = ProfileManager
+    profileManager = ProfileManager
 })
 
 ModConfig.MCMParamsFilename = "mcm_params.json"
@@ -35,7 +35,7 @@ ModConfig.MCMParamsFilename = "mcm_params.json"
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modGUID GUIDSTRING The mod's UUID to get the path for.
 function ModConfig:GetSettingsFilePath(modGUID)
-    return self.profiles:GetModProfileSettingsPath(modGUID) .. "/settings.json"
+    return self.profileManager:GetModProfileSettingsPath(modGUID) .. "/settings.json"
 end
 
 -- TODO: as always, refactor this nuclear waste
@@ -156,14 +156,14 @@ end
 ---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
     -- Load the base MCM configuration file, which contains the profiles
-    local profiles = ProfileManager:Create(self:LoadMCMParams())
-    if not profiles then
+    local profileManager = ProfileManager:Create(self:LoadMCMParams())
+    if not profileManager then
         MCMWarn(0,
             "Failed to load profiles from MCM configuration file. Please contact " ..
             Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
         return {}
     end
-    self.profiles = profiles
+    self.profileManager = profileManager
 
     -- Get settings for each mod given the profile
     self:LoadBlueprints()
