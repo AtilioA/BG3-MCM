@@ -27,8 +27,8 @@ MCM_IMGUI_LAYER = IMGUILayer:New()
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
     IMGUI_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
-    IMGUI_WINDOW.Visible = Config:getCfg().FEATURES.open_on_start
-    IMGUI_WINDOW.Open = Config:getCfg().FEATURES.open_on_start
+    IMGUI_WINDOW.Visible = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+    IMGUI_WINDOW.Open = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
     IMGUI_WINDOW.NoBringToFrontOnFocus = true
 
     IMGUI_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
