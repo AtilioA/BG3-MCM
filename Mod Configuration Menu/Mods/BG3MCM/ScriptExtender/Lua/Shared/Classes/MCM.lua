@@ -175,8 +175,6 @@ function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 
     -- This is kind of a hacky way to emit events to other servers
-    -- TODO: check if there's a better way to do this; emit more events (e.g. profile changed)
-    -- TODO: Remove settingName before release, I just don't want to break things right now lmao
     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
         Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, settingName = settingId, value = value } }))
 
@@ -224,55 +222,12 @@ function MCM:ResetAllSettings(modGUID)
         Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
 end
 
--- TODO: Separate these later into a different file?
 function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     self:LoadConfigs()
     Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
         Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
 end
-
---- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
-Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_CONFIGS, function(_)
-    MCMDebug(1, "Received MCM settings request")
-    MCMAPI:LoadAndSendSettings()
-end)
-Ext.RegisterConsoleCommand('mcm_reset', function() MCM:LoadAndSendSettings() end)
-
---- Message handler for when the (IMGUI) client requests a setting to be set
-Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, function(_, payload)
-    local payload = Ext.Json.Parse(payload)
-    local settingId = payload.settingId
-    local value = payload.value
-    local modGUID = payload.modGUID
-
-    if type(value) == "table" then
-        MCMDebug(2, "Will set " .. settingId .. " to " .. Ext.Json.Stringify(value) .. " for mod " .. modGUID)
-    else
-        MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
-    end
-
-    MCMAPI:SetSettingValue(settingId, value, modGUID, true)
-end)
-
---- Message handler for when the (IMGUI) client requests a setting to be reset
-Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, function(_, payload)
-    local payload = Ext.Json.Parse(payload)
-    local settingId = payload.settingId
-    local modGUID = payload.modGUID
-
-    MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modGUID)
-    MCMAPI:ResetSettingValue(settingId, modGUID, true)
-end)
-
---- Message handler for when the (IMGUI) client requests a profile to be set
-Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, function(_, payload)
-    local payload = Ext.Json.Parse(payload)
-    local profileName = payload.profileName
-
-    MCMDebug(1, "Will set profile to " .. profileName)
-    MCMAPI:SetProfile(profileName)
-end)
 
 -- UNUSED since profile management currently calls shared code
 -- --- Message handler for when the (IMGUI) client requests a new profile to be created
