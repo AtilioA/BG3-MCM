@@ -29,8 +29,8 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
     MCM_WINDOW.Visible = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
     MCM_WINDOW.Open = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
-    MCM_WINDOW.NoBringToFrontOnFocus = true
     MCM_WINDOW.IDContext = "MCM_WINDOW"
+    MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
 
     MCM_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
