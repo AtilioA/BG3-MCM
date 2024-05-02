@@ -28,10 +28,10 @@
                     "Settings": [
                         {
                             "Id": "debug_level",
-                            "Name": "Debug level",
+                            "Name": "(UNUSED) Debug level",
                             "Type": "slider_int",
                             "Default": 0,
-                            "Description": "Debug level for the mod, used mainly for determining which messages to print",
+                            "Description": "(UNUSED) Debug level for the mod, used mainly for determining which messages to print",
                             "Options": {
                                 "Min": 0,
                                 "Max": 3
