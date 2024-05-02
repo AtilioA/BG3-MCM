@@ -4,10 +4,11 @@ function SubscribedEvents.SubscribeToEvents()
     -- When resetting Lua states
     -- Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
 
+    -- When the game is started, load the MCM settings
     Ext.Osiris.RegisterListener("LevelGameplayStarted", 2, "before", EHandlers.OnLevelGameplayStarted)
+
     --- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
     Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_CONFIGS, EHandlers.OnClientRequestConfigs)
-    Ext.RegisterConsoleCommand('mcm_reset', function() MCM:LoadAndSendSettings() end)
 
     --- Message handler for when the (IMGUI) client requests a setting to be set
     Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, EHandlers.OnClientRequestSetSettingValue)
