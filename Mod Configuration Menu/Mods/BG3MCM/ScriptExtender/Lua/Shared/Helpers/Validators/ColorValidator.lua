@@ -19,7 +19,7 @@ local function validateColorTable(value)
     return true
 end
 
-function ColorValidator.Validate(settings, value)
+function ColorValidator.Validate(config, value)
     local isValidColorTable = validateColorTable(value)
 
     return isValidColorTable

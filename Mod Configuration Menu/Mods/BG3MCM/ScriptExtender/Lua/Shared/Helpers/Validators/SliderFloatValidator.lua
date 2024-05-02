@@ -1,8 +1,8 @@
 ---@class SliderFloatValidator: Validator
 SliderFloatValidator = _Class:Create("SliderFloatValidator", Validator)
 
-function SliderFloatValidator.Validate(settings, value)
+function SliderFloatValidator.Validate(config, value)
     local isValueNumber = type(value) == "number"
-    local isValueWithinRange = value >= settings.Options.Min and value <= settings.Options.Max
+    local isValueWithinRange = value >= config.Options.Min and value <= config.Options.Max
     return isValueNumber and isValueWithinRange
 end

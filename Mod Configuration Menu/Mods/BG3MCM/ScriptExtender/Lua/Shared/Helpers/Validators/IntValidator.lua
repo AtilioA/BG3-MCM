@@ -3,7 +3,7 @@ IntValidator = _Class:Create("IntValidator", Validator)
 
 ---@param value number
 ---@return boolean
-function IntValidator.Validate(settings, value)
+function IntValidator.Validate(config, value)
     local isValueNumber = type(value) == "number"
     if not isValueNumber then
         return false
