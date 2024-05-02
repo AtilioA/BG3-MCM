@@ -32,14 +32,14 @@ function MCM:CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            Ext.Net.BroadcastMessage("MCM_Server_Create_Profile", Ext.Json.Stringify({
+            Ext.Net.BroadcastMessage(Channels.MCM_SERVER_CREATED_PROFILE, Ext.Json.Stringify({
                 profileName = profileName,
                 newSettings = ModConfig.mods
             }))
 
             -- Notify other servers about the new profile creation
-            Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
-                channel = "MCM_Profile_Created",
+            Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
+                channel = Channels.MCM_SERVER_CREATED_PROFILE,
                 payload = {
                     profileName = profileName
                 }
@@ -73,14 +73,14 @@ function MCM:SetProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            Ext.Net.BroadcastMessage("MCM_Server_Set_Profile", Ext.Json.Stringify({
+            Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SET_PROFILE, Ext.Json.Stringify({
                 profileName = profileName,
                 newSettings = ModConfig.mods
             }))
 
             -- Notify other servers about the profile change
-            Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
-                channel = "MCM_Profile_Changed",
+            Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
+                channel = Channels.MCM_SERVER_SET_PROFILE,
                 payload = {
                     fromProfile = currentProfile,
                     toProfile = profileName
@@ -101,14 +101,14 @@ function MCM:DeleteProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            Ext.Net.BroadcastMessage("MCM_Server_Delete_Profile", Ext.Json.Stringify({
+            Ext.Net.BroadcastMessage(Channels.MCM_SERVER_DELETED_PROFILE, Ext.Json.Stringify({
                 profileName = profileName,
                 newSettings = ModConfig.mods
             }))
 
             -- Notify other servers about the profile deletion
-            Ext.Net.BroadcastMessage("MCM_Relay_To_Servers", Ext.Json.Stringify({
-                channel = "MCM_Profile_Deleted",
+            Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
+                channel = Channels.MCM_SERVER_DELETED_PROFILE,
                 payload = {
                     profileName = profileName
                 }
@@ -177,12 +177,12 @@ function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
     -- This is kind of a hacky way to emit events to other servers
     -- TODO: check if there's a better way to do this; emit more events (e.g. profile changed)
     -- TODO: Remove settingName before release, I just don't want to break things right now lmao
-    Ext.Net.BroadcastMessage("MCM_Relay_To_Servers",
-        Ext.Json.Stringify({ channel = "MCM_Saved_Setting", payload = { modGUID = modGUID, settingId = settingId, settingName = settingId, value = value } }))
+    Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
+        Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, settingName = settingId, value = value } }))
 
     if not clientRequest then
         -- Notify the client that the setting has been updated
-        Ext.Net.BroadcastMessage("MCM_Setting_Updated", Ext.Json.Stringify({
+        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
             modGUID = modGUID,
             settingId = settingId,
             value = value
@@ -205,7 +205,7 @@ function MCM:ResetSettingValue(settingId, modGUID, clientRequest)
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
-        Ext.Net.BroadcastMessage("MCM_Setting_Reset", Ext.Json.Stringify({
+        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_RESET, Ext.Json.Stringify({
             modGUID = modGUID,
             settingId = settingId,
             defaultValue = defaultValue
@@ -220,27 +220,27 @@ function MCM:ResetAllSettings(modGUID)
     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
-    Ext.Net.BroadcastMessage("MCM_Relay_To_Servers",
-        Ext.Json.Stringify({ channel = "MCM_Reset_All_Mod_Settings", payload = { modGUID = modGUID, settings = defaultSettings } }))
+    Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
+        Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
 end
 
 -- TODO: Separate these later into a different file?
 function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     self:LoadConfigs()
-    Ext.Net.BroadcastMessage("MCM_Server_Send_Configs_To_Client",
+    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
         Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
 end
 
 --- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
-Ext.RegisterNetListener("MCM_Client_Request_Configs", function(_)
+Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_CONFIGS, function(_)
     MCMDebug(1, "Received MCM settings request")
     MCMAPI:LoadAndSendSettings()
 end)
 Ext.RegisterConsoleCommand('mcm_reset', function() MCM:LoadAndSendSettings() end)
 
 --- Message handler for when the (IMGUI) client requests a setting to be set
-Ext.RegisterNetListener("MCM_Client_Request_Set_Setting_Value", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, function(_, payload)
     local payload = Ext.Json.Parse(payload)
     local settingId = payload.settingId
     local value = payload.value
@@ -256,7 +256,7 @@ Ext.RegisterNetListener("MCM_Client_Request_Set_Setting_Value", function(_, payl
 end)
 
 --- Message handler for when the (IMGUI) client requests a setting to be reset
-Ext.RegisterNetListener("MCM_Client_Request_Reset_Setting_Value", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, function(_, payload)
     local payload = Ext.Json.Parse(payload)
     local settingId = payload.settingId
     local modGUID = payload.modGUID
@@ -266,7 +266,7 @@ Ext.RegisterNetListener("MCM_Client_Request_Reset_Setting_Value", function(_, pa
 end)
 
 --- Message handler for when the (IMGUI) client requests a profile to be set
-Ext.RegisterNetListener("MCM_Client_Request_Set_Profile", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, function(_, payload)
     local payload = Ext.Json.Parse(payload)
     local profileName = payload.profileName
 

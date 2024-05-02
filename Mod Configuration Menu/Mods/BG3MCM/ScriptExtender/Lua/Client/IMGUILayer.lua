@@ -261,7 +261,7 @@ function IMGUILayer:AddTabToModTabBar(modGUID, tabName, tabCallback)
     local newTab = modTabs:AddTabItem(tabName)
     tabCallback(newTab)
 
-    Ext.Net.PostMessageToServer("MCM_Mod_Tab_Added", Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
         modGUID = modGUID,
         tabName = tabName
     }))

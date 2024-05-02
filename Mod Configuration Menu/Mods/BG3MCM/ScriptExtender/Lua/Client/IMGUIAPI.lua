@@ -16,7 +16,7 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUIAPI:SetSettingValue(settingId, value, modGUID)
-    Ext.Net.PostMessageToServer("MCM_Client_Request_Set_Setting_Value", Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
         modGUID = modGUID,
         settingId = settingId,
         value = value
@@ -28,7 +28,7 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUIAPI:ResetSettingValue(settingId, modGUID)
-    Ext.Net.PostMessageToServer("MCM_Client_Request_Reset_Setting_Value", Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, Ext.Json.Stringify({
         modGUID = modGUID,
         settingId = settingId
     }))
@@ -38,7 +38,7 @@ end
 ---@param profileName string The name of the profile to set
 ---@return nil
 function IMGUIAPI:SetProfile(profileName)
-    Ext.Net.PostMessageToServer("MCM_Client_Request_Set_Profile", Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
         profileName = profileName
     }))
 end

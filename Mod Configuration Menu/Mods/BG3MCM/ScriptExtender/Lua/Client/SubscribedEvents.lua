@@ -12,7 +12,7 @@ Ext.Events.KeyInput:Subscribe(function(e)
 end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
-    Ext.Net.PostMessageToServer("MCM_Client_Request_Configs", Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
     IMGUI_WINDOW.Visible = true
@@ -20,7 +20,7 @@ end)
 
 --- SECTION: Net listeners
 
-Ext.RegisterNetListener("MCM_Server_Send_Configs_To_Client", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
     local configs = Ext.Json.Parse(payload)
     local mods = configs.mods
     local profiles = configs.profiles
@@ -38,12 +38,12 @@ Ext.RegisterNetListener("MCM_Server_Send_Configs_To_Client", function(_, payload
     IMGUI_WINDOW.Visible = true
 end)
 
-Ext.RegisterNetListener("MCM_Relay_To_Servers", function(_, metapayload)
+Ext.RegisterNetListener(Channels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
     local data = Ext.Json.Parse(metapayload)
     Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
 end)
 
-Ext.RegisterNetListener("MCM_Setting_Reset", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_SETTING_RESET, function(_, payload)
     local data = Ext.Json.Parse(payload)
     local modGUID = data.modGUID
     local settingId = data.settingId
@@ -53,7 +53,7 @@ Ext.RegisterNetListener("MCM_Setting_Reset", function(_, payload)
     IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
 end)
 
-Ext.RegisterNetListener("MCM_Setting_Updated", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
     local data = Ext.Json.Parse(payload)
     local modGUID = data.modGUID
     local settingId = data.settingId
@@ -63,7 +63,7 @@ Ext.RegisterNetListener("MCM_Setting_Updated", function(_, payload)
     IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
 end)
 
-Ext.RegisterNetListener("MCM_Mod_Tab_Added", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_MOD_TAB_ADDED, function(_, payload)
     local data = Ext.Json.Parse(payload)
     local modGUID = data.modGUID
     local tabName = data.tabName
@@ -73,7 +73,7 @@ Ext.RegisterNetListener("MCM_Mod_Tab_Added", function(_, payload)
     IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
 end)
 
-Ext.RegisterNetListener("MCM_Server_Set_Profile", function(_, payload)
+Ext.RegisterNetListener(Channels.MCM_SERVER_SET_PROFILE, function(_, payload)
     local data = Ext.Json.Parse(payload)
     local newSettings = data.newSettings
 
