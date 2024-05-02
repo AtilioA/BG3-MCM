@@ -5,8 +5,14 @@
 Ext.Events.KeyInput:Subscribe(function(e)
     if e.Event == "KeyDown" and e.Repeat == false then
         if (e.Key == "INSERT" or e.Key == "APPLICATION") then
-            IMGUI_WINDOW.Visible = not IMGUI_WINDOW.Visible
-            IMGUI_WINDOW.Open = not IMGUI_WINDOW.Open
+            -- Toggle both Open and Visible together
+            if IMGUI_WINDOW.Open == true then
+                IMGUI_WINDOW.Visible = false
+                IMGUI_WINDOW.Open = false
+            else
+                IMGUI_WINDOW.Visible = true
+                IMGUI_WINDOW.Open = true
+            end
         end
     end
 end)

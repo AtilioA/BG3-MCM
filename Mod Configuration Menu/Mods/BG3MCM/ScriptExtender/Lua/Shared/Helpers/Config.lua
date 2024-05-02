@@ -7,7 +7,8 @@ Config = VCConfig:New({
         GENERAL = {
             enabled = true, -- Toggle the mod on/off
         },
-        FEATURES = {        -- Maybe add options that can override values set by mod authors?
+        FEATURES = {
+            open_on_start = true, -- Show the MCM window when the game starts
         },
         DEBUG = {
             level = 0,           -- 0 = no debug, 1 = minimal, 2 = verbose debug logs

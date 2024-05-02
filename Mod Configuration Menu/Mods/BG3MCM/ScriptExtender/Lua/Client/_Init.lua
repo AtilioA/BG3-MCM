@@ -5,3 +5,5 @@ RequireFiles("Client/", {
     "IMGUIAPI",
     "SubscribedEvents",
 })
+
+IMGUILayer.CreateMainIMGUIWindow()
