@@ -109,6 +109,7 @@ function ProfileManager:SetCurrentProfile(profileName)
     self:SaveProfileValuesToConfig()
     ModConfig:LoadSettings()
 
+    -- TODO: untangle this from shared client/server code
     if Ext.IsServer() then
         Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SET_PROFILE, Ext.Json.Stringify({
             profileName = profileName,

@@ -1,5 +1,3 @@
--- TODO: review if this will even make sense and apply to others if it's sound
-
 UIProfileManager = {}
 
 function UIProfileManager:FindProfileIndex(profile)
@@ -12,7 +10,6 @@ function UIProfileManager:FindProfileIndex(profile)
 end
 
 --- Create widgets for managing profiles (selecting, creating, deleting)
--- TODO: Emit events for these actions etc
 function UIProfileManager:CreateProfileCollapsingHeader()
     local getDeleteProfileButtonLabel = function(profile)
         if profile == "Default" then

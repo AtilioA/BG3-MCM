@@ -80,7 +80,7 @@ function DataPreprocessing:SanitizeBlueprints(mods)
     end
 end
 
--- TODO: modularize this when the blueprint has been defined
+-- TODO: modularize this when the MCM schema has been defined
 --- Validate the settings based on the blueprint and collect any invalid settings
 ---@param blueprint Blueprint The blueprint data
 ---@param settings BlueprintSetting The settings data
@@ -142,7 +142,7 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
     return #invalidSettings == 0, invalidSettings
 end
 
--- TODO: modularize this when the blueprint has been defined
+-- TODO: modularize this when the MCM schema has been defined
 --- Attempt to fix invalid settings by resetting them to default values
 ---@param blueprint Blueprint The blueprint data
 ---@param config table The configuration settings

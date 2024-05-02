@@ -44,7 +44,7 @@ function IMGUIAPI:SetProfile(profileName)
 end
 
 --- TODO: move somewhere else probably
----@private
+---@private lmao
 function IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
     -- Find the widget corresponding to the setting and update its value
     local widget = self:findWidgetForSetting(modGUID, settingId)

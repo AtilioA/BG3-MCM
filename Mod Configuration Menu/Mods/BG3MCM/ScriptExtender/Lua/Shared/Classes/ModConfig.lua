@@ -141,8 +141,6 @@ function ModConfig:GetProfiles()
     return self.profileManager
 end
 
--- TODO: Implement profile deletion
-
 --- SECTION: SETTINGS HANDLING
 --- Load the settings for each mod from the settings file.
 function ModConfig:LoadSettings()
@@ -207,6 +205,7 @@ function ModConfig:HandleLoadedSettings(modGUID, blueprint, config, settingsFile
     self.mods[modGUID].settingsValues = config
 
     MCMTest(1, Ext.Json.Stringify(self.mods[modGUID].settingsValues))
+    -- TODO: untangle this from shared client/server code
     -- Abhorrent hack to update the client's UI with the new settings. Since this is just a secondary feature, it is what it is for now. Sorry!
     if Ext.IsClient() and IMGUIAPI then
         for settingId, settingValue in pairs(self.mods[modGUID].settingsValues) do

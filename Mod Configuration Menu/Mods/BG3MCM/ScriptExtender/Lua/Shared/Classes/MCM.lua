@@ -21,7 +21,6 @@ function MCM:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
     MCMTest(0, "Done loading MCM configs")
-    -- FIXME: profiles must be loaded after settings for some janky reason
 end
 
 --- Create a new MCM profile

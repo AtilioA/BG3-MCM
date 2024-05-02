@@ -29,10 +29,10 @@ m = IMGUI_WINDOW:AddMainMenu()
 
 help = m:AddMenu("Help")
 help:AddItem("About").OnClick = function()
-    -- Code to show about information
+    -- Popup to show about information?
     MCMDebug(2, "Showing about information")
 end
 help:AddItem("Troubleshooting").OnClick = function()
-    -- Code to show troubleshooting information
+    -- Popup to show troubleshooting information?
     MCMDebug(2, "Showing troubleshooting information")
 end
