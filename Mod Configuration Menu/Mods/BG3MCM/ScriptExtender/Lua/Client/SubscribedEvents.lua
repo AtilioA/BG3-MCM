@@ -41,7 +41,6 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, 
             _D("My custom widget was clicked!")
         end
     end)
-    IMGUI_WINDOW.Visible = true
 end)
 
 Ext.RegisterNetListener(Channels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
