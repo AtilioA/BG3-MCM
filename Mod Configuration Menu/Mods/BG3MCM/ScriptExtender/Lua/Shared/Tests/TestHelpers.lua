@@ -66,16 +66,38 @@ end
 
 ---Runs all the registered tests.
 function TestSuite.RunTests()
-    Ext.Utils.Print(" --- STARTING TESTS --- ")
+    local totalTests = 0
+    local passedTests = 0
+    local failedTests = 0
+    local failedTestNames = {}
+
+    Ext.Utils.Print("--- STARTING TESTS ---")
 
     for category, tests in pairs(TestSuite.RegisteredTests) do
         Ext.Utils.Print(" --- Category: " .. category)
         for i, test in ipairs(tests) do
-            TestSuite.RunTest(test, _G[test])
+            totalTests = totalTests + 1
+            local testHasPassed = TestSuite.RunTest(test, _G[test])
+            if testHasPassed then
+                passedTests = passedTests + 1
+            else
+                failedTests = failedTests + 1
+                table.insert(failedTestNames, test)
+            end
         end
     end
 
-    Ext.Utils.Print(" --- FINISHING TESTS --- ")
+    Ext.Utils.Print("--- FINISHING TESTS ---")
+
+    local testSuiteSummary = string.format(
+        "\x1b[38;2;255;255;255m\x1b[1mTest Suite Summary:\x1b[0m\n" ..
+        "  Total Tests:  \x1b[38;2;255;255;255m\x1b[1m%d\x1b[0m\n" ..
+        "  Passed Tests: \x1b[38;2;0;255;0m\x1b[1m%d\x1b[0m\n" ..
+        "  Failed Tests: \x1b[38;2;255;0;0m\x1b[1m%d (%s)\x1b[0m",
+        totalTests, passedTests, failedTests, failedTests > 0 and table.concat(failedTestNames, ", ") or "None"
+    )
+
+    Ext.Utils.Print(testSuiteSummary)
 end
 
 ---Registers a console command to run the tests.
@@ -234,14 +256,21 @@ end
 ---@param fun function The test function to run.
 function TestSuite.RunTest(name, fun)
     local result, err = xpcall(fun, debug.traceback)
-    -- TODO: rainbow it :catnod:
     if result then
-        local testOkMessage = string.format("\x1b[38;2;21;255;81mTest OK: %s\x1b[0m\n", name)
-        Ext.Utils.Print(testOkMessage)
+        Ext.Utils.Print(TestSuite.FormatTestOkMessage(name))
+        return true
     else
-        Ext.Utils.PrintError("Test FAILED: " .. name .. "\n")
+        Ext.Utils.PrintError("■ Test FAILED: " .. name .. "\n")
         Ext.Utils.PrintError(err)
+        return false
     end
+end
+
+---Formats the test OK message with color.
+---@param name string The name of the test.
+---@return string - The formatted test OK message.
+function TestSuite.FormatTestOkMessage(name)
+    return string.format("\x1b[38;2;21;255;81m■ Test OK: %s\x1b[0m\n", name)
 end
 
 ---Asserts that the given value is nil.
