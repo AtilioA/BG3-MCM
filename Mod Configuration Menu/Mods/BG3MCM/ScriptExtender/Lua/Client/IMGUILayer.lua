@@ -19,7 +19,6 @@
 ---@field private mod_tabs table<string, any> A table of tabs for each mod in the MCM
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
-    profiles = {},
     mods_tabs = {}
 })
 
@@ -67,11 +66,9 @@ local InputWidgetFactory = {
 
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
 ---@param mods table<string, table> A table of modGUIDs that has a table of blueprints and settings for each mod
----@param profiles table<string, table> A table of settings profiles for the MCM
 ---@return nil
-function IMGUILayer:CreateModMenu(mods, profiles)
+function IMGUILayer:CreateModMenu(mods)
     self.mods = mods
-    self.profiles = profiles
     -- TODO: modularize etc
 
     -- Add functionality to manage between profiles
