@@ -109,6 +109,13 @@ function ProfileManager:SetCurrentProfile(profileName)
     self:SaveProfileValuesToConfig()
     ModConfig:LoadSettings()
 
+    if Ext.IsServer() then
+        Ext.Net.BroadcastMessage("MCM_Server_Set_Profile", Ext.Json.Stringify({
+            profileName = profileName,
+            newSettings = ModConfig.mods
+        }))
+    end
+
     return true
 end
 
