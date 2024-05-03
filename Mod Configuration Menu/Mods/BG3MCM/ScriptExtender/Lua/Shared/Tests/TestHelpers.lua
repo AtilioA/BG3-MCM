@@ -67,24 +67,40 @@ end
 ---Runs all the registered tests.
 function TestSuite.RunTests()
     local totalTests = 0
-    local passedTests = 0
-    local failedTests = 0
+    local totalPassed = 0
+    local totalFailed = 0
     local failedTestNames = {}
 
     Ext.Utils.Print("--- STARTING TESTS ---")
 
     for category, tests in pairs(TestSuite.RegisteredTests) do
-        Ext.Utils.Print(" --- Category: " .. category)
+        local categoryPassed = 0
+        local categoryFailed = 0
+        Ext.Utils.Print("  -- Category: " .. category)
         for i, test in ipairs(tests) do
             totalTests = totalTests + 1
             local testHasPassed = TestSuite.RunTest(test, _G[test])
             if testHasPassed then
-                passedTests = passedTests + 1
+                categoryPassed = categoryPassed + 1
+                totalPassed = totalPassed + 1
             else
-                failedTests = failedTests + 1
+                categoryFailed = categoryFailed + 1
+                totalFailed = totalFailed + 1
                 table.insert(failedTestNames, test)
             end
         end
+
+        -- Print the passed and failed test indicators for the category
+        local passedTestIndicator = string.rep("\x1b[38;2;21;255;81m■\x1b[0m", categoryPassed)
+        if passedTestIndicator == 0 then
+            passedTestIndicator = "0"
+        end
+        local failedTestIndicator = string.rep("\x1b[38;2;255;0;0m■\x1b[0m", categoryFailed)
+        if categoryFailed == 0 then
+            failedTestIndicator = "0"
+        end
+        Ext.Utils.Print("  Passed: " .. passedTestIndicator)
+        Ext.Utils.Print("  Failed: " .. failedTestIndicator .. "\n")
     end
 
     Ext.Utils.Print("--- FINISHING TESTS ---")
@@ -92,9 +108,9 @@ function TestSuite.RunTests()
     local testSuiteSummary = string.format(
         "\x1b[38;2;255;255;255m\x1b[1mTest Suite Summary:\x1b[0m\n" ..
         "  Total Tests:  \x1b[38;2;255;255;255m\x1b[1m%d\x1b[0m\n" ..
-        "  Passed Tests: \x1b[38;2;0;255;0m\x1b[1m%d\x1b[0m\n" ..
+        "  Passed Tests: \x1b[38;2;21;255;81m\x1b[1m%d\x1b[0m\n" ..
         "  Failed Tests: \x1b[38;2;255;0;0m\x1b[1m%d (%s)\x1b[0m",
-        totalTests, passedTests, failedTests, failedTests > 0 and table.concat(failedTestNames, ", ") or "None"
+        totalTests, totalPassed, totalFailed, totalFailed > 0 and table.concat(failedTestNames, ", ") or "None"
     )
 
     Ext.Utils.Print(testSuiteSummary)
