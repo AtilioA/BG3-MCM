@@ -55,6 +55,13 @@ function Blueprint:New(options)
             local tab = BlueprintTab:New(tabOptions)
             table.insert(self.Tabs, tab)
         end
+        -- Only one of Tabs or Settings should be present
+    elseif options.Settings then
+        self.Settings = {}
+        for _, settingOptions in ipairs(options.Settings) do
+            local setting = BlueprintSetting:New(settingOptions)
+            table.insert(self.Settings, setting)
+        end
     end
 
     return self
