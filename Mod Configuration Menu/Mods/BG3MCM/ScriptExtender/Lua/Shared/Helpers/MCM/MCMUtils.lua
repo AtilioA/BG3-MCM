@@ -48,3 +48,16 @@ function table.isArray(tbl)
     end
     return true
 end
+
+-- Convert string representations of booleans to actual boolean values in a table
+function table.convertStringBooleans(tbl)
+    for key, value in pairs(tbl) do
+        if type(value) == "table" then
+            table.convertStringBooleans(value)
+        elseif value == "true" then
+            tbl[key] = true
+        elseif value == "false" then
+            tbl[key] = false
+        end
+    end
+end

@@ -1,19 +1,6 @@
 ---@class HelperDataPreprocessing: Helper
 DataPreprocessing = _Class:Create("HelperDataPreprocessing", Helper)
 
--- Convert string representations of booleans to actual boolean values in a table
-local function convertStringBooleans(tbl)
-    for key, value in pairs(tbl) do
-        if type(value) == "table" then
-            convertStringBooleans(value)
-        elseif value == "true" then
-            tbl[key] = true
-        elseif value == "false" then
-            tbl[key] = false
-        end
-    end
-end
-
 --- Validate the structure of the blueprint data
 ---@param blueprint table The blueprint data to validate
 ---@param modGUID string The mod's unique identifier
@@ -178,7 +165,7 @@ function DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
         return
     end
 
-    convertStringBooleans(blueprint)
+    table.convertStringBooleans(blueprint)
     return blueprint
 end
 
