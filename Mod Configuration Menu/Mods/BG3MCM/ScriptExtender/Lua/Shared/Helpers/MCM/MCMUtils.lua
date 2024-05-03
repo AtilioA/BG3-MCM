@@ -6,6 +6,14 @@
 ---@param element any The element to find
 ---@return boolean - Whether the table contains the element
 function table.contains(tbl, element)
+    if type(tbl) ~= "table" then
+        return false
+    end
+
+    if tbl == nil or element == nil then
+        return false
+    end
+
     for _, value in pairs(tbl) do
         if value == element then
             return true
