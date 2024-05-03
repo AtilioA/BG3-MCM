@@ -1,9 +1,31 @@
 --[[
+    This code snippet is from Volition Cabinet, and was written entirely by Volitio.
+
     Handles loading, saving, and updating configuration settings for mods.
-
     Dependencies: Requires Ext.IO for file operations and Ext.Json for JSON parsing and stringification. Cannot use Printer since that one relies on this module.
-
     Usage: This module defines a Config helper class that is used to manage mod configurations. It supports loading from a JSON file, saving updates back to the file, and dynamically updating configuration settings based on in-game commands.
+
+    MIT License
+
+    Copyright (c) 2024 Volitio
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 ]]
 
 ---@class HelperConfig: Helper
