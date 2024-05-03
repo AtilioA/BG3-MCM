@@ -22,6 +22,24 @@ BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
     -- ShowWhen = { SettingId = "", Value = "" }
 })
 
+--- Constructor for the BlueprintSetting class.
+--- @param options table
+function BlueprintSetting:New(options)
+    local self = setmetatable({}, BlueprintSetting)
+
+    self.Id = options.Id or ""
+    self.Name = options.Name or ""
+    self.Type = options.Type or ""
+    self.Default = options.Default or nil
+    self.Description = options.Description or ""
+    self.Tooltip = options.Tooltip or ""
+    self.Section = options.Section or "General"
+    self.Options = options.Options or {}
+    self.Handles = options.Handles or {}
+
+    return self
+end
+
 function BlueprintSetting:GetName()
     return self.Name
 end
