@@ -237,13 +237,21 @@ function DataPreprocessing:ValidateSetting(setting, value)
         "Validating setting: " ..
         setting:GetId() ..
         " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
-    if validator and not validator(setting, value) then
+
+    if not validator then
+        MCMWarn(0,
+            "No validator found for setting type: " ..
+            setting:GetType() .. ". Please contact the mod author about this issue.")
         return false
     end
+
+    if not validator(setting, value) then
+        return false
+    end
+
     return true
 end
 
--- TODO: modularize this when the MCM schema has been defined
 --- Attempt to fix invalid settings by resetting them to default values
 ---@param blueprint Blueprint The blueprint data
 ---@param config table The configuration settings
