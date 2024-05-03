@@ -95,7 +95,7 @@ function TestSuite.RunTests()
         if passedTestIndicator == 0 then
             passedTestIndicator = "0"
         end
-        local failedTestIndicator = string.rep("\x1b[38;2;255;0;0m■\x1b[0m", categoryFailed)
+        local failedTestIndicator = string.rep("\x1b[38;2;255;10;40m■\x1b[0m", categoryFailed)
         if categoryFailed == 0 then
             failedTestIndicator = "0"
         end
@@ -109,7 +109,7 @@ function TestSuite.RunTests()
         "\x1b[38;2;255;255;255m\x1b[1mTest Suite Summary:\x1b[0m\n" ..
         "  Total Tests:  \x1b[38;2;255;255;255m\x1b[1m%d\x1b[0m\n" ..
         "  Passed Tests: \x1b[38;2;21;255;81m\x1b[1m%d\x1b[0m\n" ..
-        "  Failed Tests: \x1b[38;2;255;0;0m\x1b[1m%d%s\x1b[0m",
+        "  Failed Tests: \x1b[38;2;255;10;40m\x1b[1m%d%s\x1b[0m",
         totalTests, totalPassed, totalFailed, totalFailed > 0 and " - " .. table.concat(failedTestNames, ", ") or ""
     )
     Ext.Utils.Print(testSuiteSummary)
