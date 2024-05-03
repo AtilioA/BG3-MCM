@@ -3,6 +3,10 @@ SliderFloatValidator = _Class:Create("SliderFloatValidator", Validator)
 
 function SliderFloatValidator.Validate(config, value)
     local isValueNumber = type(value) == "number"
+    if not isValueNumber then
+        return false
+    end
+
     local isValueWithinRange = value >= config.Options.Min and value <= config.Options.Max
-    return isValueNumber and isValueWithinRange
+    return isValueWithinRange
 end

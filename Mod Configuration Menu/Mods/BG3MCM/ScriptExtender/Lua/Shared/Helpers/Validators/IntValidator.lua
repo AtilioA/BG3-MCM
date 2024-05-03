@@ -10,5 +10,5 @@ function IntValidator.Validate(config, value)
     end
 
     local isValueInteger = math.floor(value) == value
-    return isValueNumber and isValueInteger
+    return isValueInteger
 end
