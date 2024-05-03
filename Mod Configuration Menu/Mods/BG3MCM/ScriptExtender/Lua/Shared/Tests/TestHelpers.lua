@@ -276,8 +276,8 @@ function TestSuite.RunTest(name, fun)
         Ext.Utils.Print(TestSuite.FormatTestOkMessage(name))
         return true
     else
-        Ext.Utils.PrintError("■ Test FAILED: " .. name .. "\n")
-        Ext.Utils.PrintError(err)
+        Ext.Utils.PrintError("■ Test FAILED: " .. name)
+        Ext.Utils.PrintError(err .. "\n")
         return false
     end
 end
@@ -293,7 +293,16 @@ end
 ---@param val any The value to check.
 function TestSuite.AssertNil(val)
     if val ~= nil then
-        error("Value not nil: " .. val)
+        local valStr = tostring(val)
+        error("Value not nil: " .. (valStr or ""))
+    end
+end
+
+---Asserts that the given value is not nil.
+---@param val any The value to check.
+function TestSuite.AssertNotNil(val)
+    if val == nil then
+        error("Value is nil")
     end
 end
 
@@ -301,7 +310,8 @@ end
 ---@param val boolean The value to check.
 function TestSuite.AssertTrue(val)
     if val ~= true then
-        error("Value not true: " .. val)
+        local valStr = tostring(val)
+        error("Value not true: " .. (valStr or ""))
     end
 end
 
@@ -309,6 +319,7 @@ end
 ---@param val boolean The value to check.
 function TestSuite.AssertFalse(val)
     if val ~= false then
-        error("Value not false: " .. val)
+        local valStr = tostring(val)
+        error("Value not false: " .. (valStr or ""))
     end
 end
