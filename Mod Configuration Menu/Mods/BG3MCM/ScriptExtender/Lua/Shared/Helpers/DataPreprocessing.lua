@@ -254,22 +254,34 @@ end
 
 --- Attempt to fix invalid settings by resetting them to default values
 ---@param blueprint Blueprint The blueprint data
----@param config table The configuration settings
----@return table The updated configuration settings
+---@param config table<string, any> All the settings for the mod as a flat table of settingId -> value pairs
+---@return nil - The config table is updated in place
 function DataPreprocessing:ValidateAndFixSettings(blueprint, config)
     local isValid, invalidSettings = DataPreprocessing:ValidateSettings(blueprint, config)
+    DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
+
+    return config
+end
+
+--- Reset list of settings to their default values
+---@param blueprint Blueprint The blueprint data
+---@param config table<string, any> All the settings for the mod as a flat table of settingId -> value pairs
+---@param isValid boolean True if all settings are valid, false otherwise
+---@param invalidSettings string[] The IDs of the settings
+---@return nil - The config table is updated in place
+function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
     if not isValid then
         for _, settingID in ipairs(invalidSettings) do
             local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingID)
             MCMWarn(0,
-                "Invalid value for setting: " ..
+                "Invalid value for setting '" ..
                 settingID ..
-                ". Resetting it to default value from the blueprint (" ..
+                "' (value: " ..
+                tostring(config[settingID]) .. ")," .. " resetting it to default value from the blueprint (" ..
                 tostring(defaultValue) .. ").")
             config[settingID] = defaultValue
         end
     end
-    return config
 end
 
 --- Check if the data table has a SchemaVersions table and validate its contents
