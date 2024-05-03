@@ -1,3 +1,15 @@
+-- (FROM OLD MARKDOWN NOTES) The blueprint will be validated in the following ways:
+
+-- - Check if each setting has a `Name`, `Type`, `Default`, and `Description` key;
+-- - Check if the `Type` key is one of the supported types (`int`, `float`, `checkbox`, `text`, `enum`, `slider`, `radio`);
+-- - Check if the `Default` key is of the correct type according to the `Type` key;
+-- - Check if the `Options` key is present for `enum`, `radio`types;
+-- - Check if the `Options` key is an array of strings for `enum` and `radio` types;
+-- - Check if the `Min` and `Max` keys are present for `slider` type;
+-- - Check if the `Min` and `Max` keys are numbers for `slider` type;
+-- - Check if the `Min` key is less than the `Max` key for `slider`, `drag` types;
+-- - Check if ID is unique for each setting across the blueprint.
+
 TestSuite.RegisterTests("DataPreprocessing", {
     -- Blueprint structure validation
     "TestSanitizeBlueprintWithSchemaVersion",
@@ -5,25 +17,40 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintShouldntHaveSections",
     "TestBlueprintShouldntHaveTabsAndSettings",
     "TestBlueprintShouldHaveTabsOrSettings",
+    "TestBlueprintShouldHaveSettingsAtSomeLevel",
 
-    -- Blueprint integrity validation
+    --- Blueprint integrity validation
+    -- IDs
     "TestUniqueTabIds",
     "TestUniqueSectionIds",
     "TestUniqueSettingIds",
+    -- ...
 
-    -- Blueprint (setting definition) validation
-    "TestBlueprintDefaultForEnumShouldBeOneOfTheOptions",
-    "TestBlueprintDefaultForRadioShouldBeOneOfTheOptions",
-    "TestBlueprintDefaultForCheckboxShouldBeBoolean",
+    --- Setting definition validation
+    -- Type
+    "TestValidateSettingType",
+    -- Default values
+    -- "TestBlueprintDefaultForIntShouldBeNumber",
+    -- "TestBlueprintDefaultForFloatShouldBeNumber",
+    -- "TestBlueprintDefaultForEnumShouldBeOneOfTheOptions",
+    -- "TestBlueprintDefaultForRadioShouldBeOneOfTheOptions",
+    -- "TestBlueprintDefaultForCheckboxShouldBeBoolean",
     -- "TestBlueprintDefaultForNumberShouldBeNumber",
     -- "TestBlueprintDefaultForStringShouldBeString",
     -- "TestBlueprintDefaultForColorShouldBeString",
-    -- "TestBlueprintDefaultForSliderShouldBeNumber",
+    -- "TestBlueprintDefaultForSliderIntShouldBeInteger",
+    -- "TestBlueprintDefaultForSliderFloatShouldBeNumber",
+    -- "TestBlueprintDefaultForDragIntShouldBeInteger",
+    -- "TestBlueprintDefaultForDragFloatShouldBeNumber",
+    -- -- Options
+    -- "TestValidateSettingOptions",
+    -- -- Min/Max
+    -- "TestValidateSettingMinMax",
 
-    -- Overall blueprint/function validation
+
+    --- Broader blueprint integration tests?
     -- "TestSanitizeBlueprints",
     -- "TestValidateSettings",
-    -- "TestValidateAndFixSettings",
     -- "TestHasSchemaVersionsEntry",
     -- "TestHasSectionsEntry",
     -- "TestPreprocessData"
