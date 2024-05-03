@@ -57,13 +57,7 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
             if #tab:GetSections() > 0 then
                 for _, section in ipairs(tab:GetSections()) do
                     for _, setting in ipairs(section:GetSettings()) do
-                        local value = settings[setting:GetId()]
-                        local validator = SettingValidators[setting:GetType()]
-                        MCMDebug(2,
-                            "Validating setting: " ..
-                            setting:GetId() ..
-                            " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
-                        if validator and not validator(setting, value) then
+                        if not self:ValidateSetting(setting, settings[setting:GetId()]) then
                             table.insert(invalidSettings, setting:GetId())
                         end
                     end
@@ -71,13 +65,7 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
             else
                 -- Validate settings directly in the tab
                 for _, setting in ipairs(tab:GetSettings()) do
-                    local value = settings[setting:GetId()]
-                    local validator = SettingValidators[setting:GetType()]
-                    MCMDebug(2,
-                        "Validating setting: " ..
-                        setting:GetId() ..
-                        " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
-                    if not validator or not validator(setting, value) then
+                    if not self:ValidateSetting(setting, settings[setting:GetId()]) then
                         table.insert(invalidSettings, setting:GetId())
                     end
                 end
@@ -87,19 +75,29 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
 
     if BlueprintSettings then
         for _, setting in ipairs(BlueprintSettings) do
-            local value = settings[setting:GetId()]
-            local validator = SettingValidators[setting:GetType()]
-            MCMDebug(2,
-                "Validating setting: " ..
-                setting:GetId() ..
-                " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
-            if validator and not validator(setting, value) then
+            if not self:ValidateSetting(setting, settings[setting:GetId()]) then
                 table.insert(invalidSettings, setting:GetId())
             end
         end
     end
 
     return #invalidSettings == 0, invalidSettings
+end
+
+--- Validate a single setting based on its type
+---@param setting BlueprintSetting The setting to validate
+---@param value any The value of the setting
+---@return boolean True if the setting is valid, false otherwise
+function DataPreprocessing:ValidateSetting(setting, value)
+    local validator = SettingValidators[setting:GetType()]
+    MCMDebug(2,
+        "Validating setting: " ..
+        setting:GetId() ..
+        " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
+    if validator and not validator(setting, value) then
+        return false
+    end
+    return true
 end
 
 -- TODO: modularize this when the MCM schema has been defined
@@ -129,9 +127,10 @@ end
 ---@return boolean True if the data table has a SchemaVersions table and it is valid, false otherwise
 function DataPreprocessing:HasSchemaVersionsEntry(data, modGUID)
     if not data.SchemaVersion then
-        MCMDebug(2,
+        MCMWarn(0,
             "No 'SchemaVersion' section found in data for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name)
+            Ext.Mod.GetMod(modGUID).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return false
     elseif type(data.SchemaVersion) ~= "number" then
         MCMWarn(0,
