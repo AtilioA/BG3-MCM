@@ -109,17 +109,11 @@ function TestSuite.RunTests()
         "\x1b[38;2;255;255;255m\x1b[1mTest Suite Summary:\x1b[0m\n" ..
         "  Total Tests:  \x1b[38;2;255;255;255m\x1b[1m%d\x1b[0m\n" ..
         "  Passed Tests: \x1b[38;2;21;255;81m\x1b[1m%d\x1b[0m\n" ..
-        "  Failed Tests: \x1b[38;2;255;0;0m\x1b[1m%d (%s)\x1b[0m",
-        totalTests, totalPassed, totalFailed, totalFailed > 0 and table.concat(failedTestNames, ", ") or "None"
+        "  Failed Tests: \x1b[38;2;255;0;0m\x1b[1m%d%s\x1b[0m",
+        totalTests, totalPassed, totalFailed, totalFailed > 0 and " - " .. table.concat(failedTestNames, ", ") or ""
     )
-
     Ext.Utils.Print(testSuiteSummary)
 end
-
----Registers a console command to run the tests.
-Ext.RegisterConsoleCommand("mcm_test", function()
-    TestSuite.RunTests()
-end)
 
 ---Asserts that the given expression is true.
 ---@param expr boolean The expression to assert.

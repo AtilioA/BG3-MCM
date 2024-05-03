@@ -3,6 +3,9 @@ SubscribedEvents = {}
 function SubscribedEvents.SubscribeToEvents()
     -- When resetting Lua states
     -- Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
+    if Config:getCfg().DEBUG.level > 2 then
+        TestSuite.RunTests()
+    end
 
     -- When the game is started, load the MCM settings
     Ext.Osiris.RegisterListener("LevelGameplayStarted", 2, "before", EHandlers.OnLevelGameplayStarted)
