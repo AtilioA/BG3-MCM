@@ -8,4 +8,137 @@ TestConstants.ModuleUUIDs = {
     "260894ca-88a2-4d41-898a-a8cbe549c35e", -- FocusDyes
 }
 
+TestConstants.Blueprints = {
+    SettingsRootLevel =
+        Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                BlueprintSetting:New({
+                    Id = "setting-checkbox",
+                    Type = "checkbox",
+                    Default = true
+                }),
+                BlueprintSetting:New({
+                    Id = "setting-int",
+                    Type = "int",
+                    Default = 42
+                }),
+                BlueprintSetting:New({
+                    Id = "setting-slider",
+                    Type = "slider",
+                    Default = 50,
+                    Options = {
+                        Min = 0,
+                        Max = 100,
+                    }
+                }),
+                BlueprintSetting:New({
+                    Id = "setting-enum",
+                    Type = "enum",
+                    Default = "option-1",
+                    Options = {
+                        Choices = {
+                            "option-1",
+                            "option-2",
+                            "option-3",
+                        }
+                    }
+                }),
+            }
+        }),
+    SettingsTabLevel =
+        Blueprint:New({
+            SchemaVersion = 1,
+            Tabs = {
+                BlueprintTab:New({
+                    TabId = "tab-1",
+                    TabName = "Tab 1",
+                    Settings = {
+                        BlueprintSetting:New({
+                            Id = "setting-checkbox",
+                            Type = "checkbox",
+                            Default = true
+                        }),
+                        BlueprintSetting:New({
+                            Id = "setting-int",
+                            Type = "int",
+                            Default = 42
+                        }),
+                        BlueprintSetting:New({
+                            Id = "setting-slider",
+                            Type = "slider",
+                            Default = 50,
+                            Options = {
+                                Min = 0,
+                                Max = 100,
+                            }
+                        }),
+                        BlueprintSetting:New({
+                            Id = "setting-enum",
+                            Type = "enum",
+                            Default = "option-1",
+                            Options = {
+                                Choices = {
+                                    "option-1",
+                                    "option-2",
+                                    "option-3",
+                                }
+                            }
+                        }),
+                    }
+                })
+            }
+        }),
+
+    SettingsSectionLevel =
+        Blueprint:New({
+            SchemaVersion = 1,
+            Tabs = {
+                BlueprintTab:New({
+                    TabId = "tab-1",
+                    TabName = "Tab 1",
+                    Sections = {
+                        BlueprintSection:New({
+                            SectionId = "section-1",
+                            SectionName = "Section 1",
+                            Settings = {
+                                BlueprintSetting:New({
+                                    Id = "setting-checkbox",
+                                    Type = "checkbox",
+                                    Default = true
+                                }),
+                                BlueprintSetting:New({
+                                    Id = "setting-int",
+                                    Type = "int",
+                                    Default = 42
+                                }),
+                                BlueprintSetting:New({
+                                    Id = "setting-slider",
+                                    Type = "slider",
+                                    Default = 50,
+                                    Options = {
+                                        Min = 0,
+                                        Max = 100,
+                                    }
+                                }),
+                                BlueprintSetting:New({
+                                    Id = "setting-enum",
+                                    Type = "enum",
+                                    Default = "option-1",
+                                    Options = {
+                                        Choices = {
+                                            "option-1",
+                                            "option-2",
+                                            "option-3",
+                                        }
+                                    }
+                                }),
+                            }
+                        })
+                    }
+                })
+            },
+        }),
+}
+
 return TestConstants
