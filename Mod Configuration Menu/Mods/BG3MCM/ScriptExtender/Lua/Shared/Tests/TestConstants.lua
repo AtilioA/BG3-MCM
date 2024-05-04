@@ -141,4 +141,18 @@ TestConstants.Blueprints = {
         }),
 }
 
+TestConstants.validTypes = {
+    "checkbox",
+    "int",
+    "float",
+    "slider_int",
+    "slider_float",
+    "drag_int",
+    "drag_float",
+    "enum",
+    "string",
+    "color_picker",
+    "color_edit"
+}
+
 return TestConstants
