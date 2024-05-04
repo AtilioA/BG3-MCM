@@ -103,3 +103,21 @@ end
 function BlueprintTab:SetHandles(handles)
     self.Handles = handles
 end
+
+--- Get all settings under this tab, including those in sections.
+--- @return BlueprintSetting[]
+function BlueprintTab:GetAllSettings()
+    local settings = {}
+
+    for _, setting in ipairs(self.Settings or {}) do
+        table.insert(settings, setting)
+    end
+
+    for _, section in ipairs(self.Sections or {}) do
+        for _, setting in ipairs(section:GetSettings() or {}) do
+            table.insert(settings, setting)
+        end
+    end
+
+    return settings
+end

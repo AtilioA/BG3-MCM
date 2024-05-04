@@ -80,6 +80,25 @@ function Blueprint:AddSection(name, description)
     return section
 end
 
+-- TODO: use throughout the codebase, etc
+function Blueprint:GetAllSettings()
+    local allSettings = {}
+
+    -- Collect root-level Settings if they exist
+    for _, setting in ipairs(self.Settings or {}) do
+        allSettings[setting:GetId()] = setting
+    end
+
+    -- Traverse Tabs and their Sections to collect Settings
+    for _, tab in ipairs(self.Tabs or {}) do
+        for _, setting in pairs(tab:GetAllSettings() or {}) do
+            allSettings[setting:GetId()] = setting
+        end
+    end
+
+    return allSettings
+end
+
 --- Retrieve the default value for a setting by name
 ---@param settingId string The name/key of the setting to retrieve the default value for
 ---@return any setting.Default The default value for the setting
