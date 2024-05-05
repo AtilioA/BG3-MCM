@@ -28,7 +28,7 @@ TestSuite.RegisterTests("DataPreprocessing", {
 
     --- Setting definition validation
     -- Type
-    "TestValidateSettingType",
+    -- "TestValidateSettingType",
     -- Default values
     -- "TestBlueprintDefaultForIntShouldBeNumber",
     -- "TestBlueprintDefaultForFloatShouldBeNumber",
@@ -42,11 +42,16 @@ TestSuite.RegisterTests("DataPreprocessing", {
     -- "TestBlueprintDefaultForSliderFloatShouldBeNumber",
     -- "TestBlueprintDefaultForDragIntShouldBeInteger",
     -- "TestBlueprintDefaultForDragFloatShouldBeNumber",
+    -- "TestBlueprintDefaultForSliderShouldBeBetweenMinAndMax",
+    -- "TestBlueprintDefaultForDragShouldBeBetweenMinAndMax",
     -- -- Options
-    -- "TestValidateSettingOptions",
-    -- -- Min/Max
-    -- "TestValidateSettingMinMax",
-
+    "BlueprintShouldHaveOptionsForEnum",
+    "BlueprintShouldHaveOptionsForRadio",
+    "BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings",
+    "BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings",
+    "BlueprintShouldHaveMinAndMaxForSlider",
+    "BlueprintMinAndMaxForSliderShouldBeNumbers",
+    "BlueprintMinShouldBeLessThanMaxForSlider",
 
     --- Broader blueprint integration tests?
     -- "TestSanitizeBlueprints",
@@ -57,7 +62,7 @@ TestSuite.RegisterTests("DataPreprocessing", {
 })
 
 function TestSanitizeBlueprintWithSchemaVersion()
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Tabs = {
             {
@@ -70,7 +75,7 @@ function TestSanitizeBlueprintWithSchemaVersion()
                 TabId = "tab-3",
             },
         }
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -79,8 +84,8 @@ function TestSanitizeBlueprintWithSchemaVersion()
 end
 
 function TestSanitizeBlueprintWithoutSchemaVersion()
-    local blueprint = {
-    }
+    local blueprint = Blueprint:New({
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -89,10 +94,10 @@ function TestSanitizeBlueprintWithoutSchemaVersion()
 end
 
 function TestBlueprintShouldntHaveSections()
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {}
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -101,7 +106,7 @@ function TestBlueprintShouldntHaveSections()
 end
 
 function TestBlueprintShouldHaveTabsOrSettings()
-    local blueprintWithTabs = {
+    local blueprintWithTabs = Blueprint:New({
         SchemaVersion = 1,
         Tabs = {
             {
@@ -114,12 +119,12 @@ function TestBlueprintShouldHaveTabsOrSettings()
                 TabId = "tab-3",
             },
         },
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint1 = DataPreprocessing:SanitizeBlueprint(blueprintWithTabs, modGUID)
 
-    local blueprintWithSettings = {
+    local blueprintWithSettings = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
             {
@@ -133,7 +138,7 @@ function TestBlueprintShouldHaveTabsOrSettings()
             },
 
         }
-    }
+    })
 
     local modGUID2 = TestConstants.ModuleUUIDs[1]
 
@@ -144,7 +149,7 @@ function TestBlueprintShouldHaveTabsOrSettings()
 end
 
 function TestBlueprintShouldntHaveTabsAndSettings()
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Tabs = {
             TabId = "tab-1",
@@ -152,7 +157,7 @@ function TestBlueprintShouldntHaveTabsAndSettings()
         Settings = {
             SettingId = "setting-1",
         }
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -160,8 +165,17 @@ function TestBlueprintShouldntHaveTabsAndSettings()
     TestSuite.AssertNil(sanitizedBlueprint)
 end
 
+function TestBlueprintShouldHaveSettingsAtSomeLevel()
+    local allSettingsRootLevel = TestConstants.Blueprints.SettingsRootLevel:GetAllSettings()
+    local allSettingsTabLevel = TestConstants.Blueprints.SettingsTabLevel:GetAllSettings()
+    local allSettingsSectionLevel = TestConstants.Blueprints.SettingsSectionLevel:GetAllSettings()
+
+    TestSuite.AssertTrue(next(allSettingsRootLevel) ~= nil)
+    TestSuite.AssertTrue(next(allSettingsTabLevel) ~= nil)
+    TestSuite.AssertTrue(next(allSettingsSectionLevel) ~= nil)
+end
 function TestUniqueTabIds()
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Tabs = {
             {
@@ -174,7 +188,7 @@ function TestUniqueTabIds()
                 TabId = "tab-1",
             },
         }
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -183,7 +197,7 @@ function TestUniqueTabIds()
 end
 
 function TestUniqueSectionIds()
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Tabs = {
             {
@@ -201,7 +215,7 @@ function TestUniqueSectionIds()
                 }
             }
         }
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -210,7 +224,7 @@ function TestUniqueSectionIds()
 end
 
 function TestUniqueSettingIds()
-    -- local blueprint = {
+    -- local blueprint = Blueprint:New({
     --     SchemaVersion = 1,
     --     Tabs = {
     --         {
@@ -234,7 +248,7 @@ function TestUniqueSettingIds()
     --         }
     --     }
     -- }
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
             {
@@ -247,7 +261,211 @@ function TestUniqueSettingIds()
                 Id = "setting-1",
             },
         }
-    }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestValidateSettingType()
+    local blueprint = TestConstants.Blueprints.SettingsRootLevel
+    blueprint.Settings[1].Type = "invalid"
+    TestSuite.Not(TestSuite.AssertContains)(TestConstants.validTypes, blueprint.Settings[1].Type)
+
+    local modGUID = TestConstants.ModuleUUIDs[1]
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    TestSuite.AssertNil(sanitizedBlueprint)
+
+    ---
+
+    blueprint = TestConstants.Blueprints.SettingsTabLevel
+    blueprint.Tabs[1].Settings[1].Type = "invalid"
+    TestSuite.Not(TestSuite.AssertContains)(TestConstants.validTypes, blueprint.Tabs[1].Settings[1].Type)
+
+    sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    TestSuite.AssertNil(sanitizedBlueprint)
+
+    ---
+
+    blueprint = TestConstants.Blueprints.SettingsSectionLevel
+    blueprint.Tabs[1].Sections[1].Settings[1].Type = "invalid"
+    TestSuite.Not(TestSuite.AssertContains)(TestConstants.validTypes, blueprint.Tabs[1].Sections[1].Settings[1].Type)
+
+    sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function BlueprintShouldHaveOptionsForEnum()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-enum",
+                Type = "enum",
+                Default = "option-1"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function BlueprintShouldHaveOptionsForRadio()
+    local blueprint = Blueprint:New({
+        BlueprintSchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-radio",
+                Type = "radio",
+                Default = "option-1"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-enum",
+                Type = "enum",
+                Options = {
+                    1, 2, 3
+                },
+                Default = "option-1"
+            }
+        }
+    })
+    local blueprintWithChoices = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-enum",
+                Type = "enum",
+                Options = {
+                    Choices = {
+                        1, 2, 3
+                    }
+                },
+                Default = "option-1"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprintWithChoices = DataPreprocessing:SanitizeBlueprint(blueprintWithChoices, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+    TestSuite.AssertNil(sanitizedBlueprintWithChoices)
+end
+
+function OptionsForRadioShouldHaveAChoicesArrayOfStrings()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-radio",
+                Type = "radio",
+                Options = {
+                    1, 2, 3
+                },
+                Default = "option-1"
+            }
+        }
+    })
+    local blueprintWithChoices = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-radio",
+                Type = "radio",
+                Options = {
+                    Choices = {
+                        1, 2, 3
+                    }
+                },
+                Default = "option-1"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprintWithChoices = DataPreprocessing:SanitizeBlueprint(blueprintWithChoices, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+    TestSuite.AssertNil(sanitizedBlueprintWithChoices)
+end
+
+function BlueprintShouldHaveMinAndMaxForSlider()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-slider",
+                Type = "slider",
+                Default = 50,
+                Options = {
+                }
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function BlueprintMinAndMaxForSliderShouldBeNumbers()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-slider",
+                Type = "slider",
+                Default = 50,
+                Options = {
+                    Min = "0",
+                    Max = "100"
+                }
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function BlueprintMinShouldBeLessThanMaxForSlider()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-slider",
+                Type = "slider",
+                Default = 50,
+                Options = {
+                    Min = 100,
+                    Max = 0
+                }
+            }
+        }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -256,7 +474,7 @@ function TestUniqueSettingIds()
 end
 
 function TestBlueprintDefaultForEnumShouldBeOneOfTheOptions()
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
             {
@@ -270,7 +488,7 @@ function TestBlueprintDefaultForEnumShouldBeOneOfTheOptions()
                 Default = "option-4"
             }
         }
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
@@ -279,7 +497,7 @@ function TestBlueprintDefaultForEnumShouldBeOneOfTheOptions()
 end
 
 function TestBlueprintDefaultForRadioShouldBeOneOfTheOptions()
-    local blueprint = {
+    local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
             {
@@ -293,7 +511,7 @@ function TestBlueprintDefaultForRadioShouldBeOneOfTheOptions()
                 Default = "option-4"
             }
         }
-    }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = DataPreprocessing:SanitizeBlueprint(blueprint, modGUID)
