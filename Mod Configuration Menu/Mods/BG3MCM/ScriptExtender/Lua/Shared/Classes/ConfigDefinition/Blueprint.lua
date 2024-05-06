@@ -103,43 +103,19 @@ end
 ---@param settingId string The name/key of the setting to retrieve the default value for
 ---@return any setting.Default The default value for the setting
 function Blueprint:RetrieveDefaultValueForSetting(settingId)
-    -- TODO: CLEAN THIS GODAWFUL MESS UP
-    local tabs = self:GetTabs()
-    if tabs then
-        for _, tab in ipairs(tabs) do
-            local sections = tab:GetSections()
-            local settings = tab:GetSettings()
+    local settings = self:GetAllSettings()
 
-            if sections then
-                for _, section in ipairs(sections) do
-                    for _, setting in ipairs(section:GetSettings()) do
-                        if setting:GetId() == settingId then
-                            return setting:GetDefault()
-                        end
-                    end
-                end
-            end
-
-            if settings then
-                for _, setting in ipairs(settings) do
-                    if setting:GetId() == settingId then
-                        return setting:GetDefault()
-                    end
-                end
-            end
-        end
+    if not settings then
+        MCMWarn(1, "No settings found in blueprint. Returning nil as default value.")
+        return nil
     end
 
-    local settings = self:GetSettings()
-    if settings then
-        for _, setting in ipairs(settings) do
-            if setting:GetId() == settingId then
-                return setting:GetDefault()
-            end
-        end
+    if not settings[settingId] then
+        MCMWarn(1, "Setting with ID " .. settingId .. " not found in blueprint. Returning nil as default value.")
+        return nil
     end
 
-    return nil
+    return settings[settingId]:GetDefault()
 end
 
 --- Retrieve all the default values for all the settings in the blueprint
