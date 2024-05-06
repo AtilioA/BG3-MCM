@@ -124,29 +124,9 @@ end
 function Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
     local settings = {}
 
-    if blueprint.Tabs then
-        for _, tab in ipairs(blueprint.Tabs) do
-            local tabSections = tab:GetSections()
-            local tabSettings = tab:GetSettings()
-
-            if tabSections then
-                for _, section in ipairs(tab:GetSections()) do
-                    for _, setting in ipairs(section:GetSettings()) do
-                        settings[setting:GetId()] = setting:GetDefault()
-                    end
-                end
-            end
-
-            if tabSettings then
-                for _, setting in ipairs(tab:GetSettings()) do
-                    settings[setting:GetId()] = setting:GetDefault()
-                end
-            end
-        end
-    elseif blueprint.Settings then
-        for _, setting in ipairs(blueprint.Settings) do
-            settings[setting:GetId()] = setting:GetDefault()
-        end
+    local allSettings = blueprint:GetAllSettings()
+    for _, setting in pairs(allSettings) do
+        settings[setting:GetId()] = setting:GetDefault()
     end
 
     return settings
