@@ -27,13 +27,44 @@ BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
 function BlueprintSetting:New(options)
     local self = setmetatable({}, BlueprintSetting)
 
-    self.Id = options.Id or ""
-    self.Name = options.Name or ""
-    self.Type = options.Type or ""
-    self.Default = options.Default or nil
-    self.Description = options.Description or ""
-    self.Tooltip = options.Tooltip or ""
-    self.Section = options.Section or "General"
+    if options.Id ~= nil then
+        self.Id = options.Id
+    else
+        self.Id = ""
+    end
+
+    if options.Name ~= nil then
+        self.Name = options.Name
+    else
+        self.Name = ""
+    end
+
+    if options.Type ~= nil then
+        self.Type = options.Type
+    else
+        self.Type = ""
+    end
+
+    self.Default = options.Default
+
+    if options.Description ~= nil then
+        self.Description = options.Description
+    else
+        self.Description = ""
+    end
+
+    if options.Tooltip ~= nil then
+        self.Tooltip = options.Tooltip
+    else
+        self.Tooltip = ""
+    end
+
+    if options.Section ~= nil then
+        self.Section = options.Section
+    else
+        self.Section = "General"
+    end
+
     self.Options = options.Options or {}
     self.Handles = options.Handles or {}
 
