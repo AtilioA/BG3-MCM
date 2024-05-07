@@ -228,7 +228,6 @@ function TestUniqueSettingIds()
 
     local blueprintWithRepeatedIDAtTabLevel = TestConstants.Blueprints.SettingsTabLevel
     blueprintWithRepeatedIDAtTabLevel.Tabs[1].Settings[1].Id = blueprintWithRepeatedIDAtTabLevel.Tabs[1].Settings[2].Id
-    _D(blueprintWithRepeatedIDAtTabLevel)
 
     local blueprintWithRepeatedIDAtSectionLevel = TestConstants.Blueprints.SettingsSectionLevel
     blueprintWithRepeatedIDAtSectionLevel.Tabs[1].Sections[1].Settings[1].Id = blueprintWithRepeatedIDAtSectionLevel
@@ -499,19 +498,19 @@ end
 function TestSanitizeBlueprints()
     local mods = {
         [TestConstants.ModuleUUIDs[1]] = {
-            blueprints = {
+            blueprint = {
                 SchemaVersion = 1,
                 someValue = "true"
             }
         },
         [TestConstants.ModuleUUIDs[2]] = {
-            blueprints = {
+            blueprint = {
                 SchemaVersion = 1,
                 anotherValue = "false"
             }
         },
         [TestConstants.ModuleUUIDs[3]] = {
-            blueprints = {
+            blueprint = {
                 someValue = "true"
             }
         }
@@ -519,8 +518,8 @@ function TestSanitizeBlueprints()
 
     BlueprintPreprocessing:SanitizeBlueprints(mods)
 
-    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[1]].blueprints.someValue, true)
-    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[2]].blueprints.anotherValue, false)
+    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[1]].blueprint.someValue, true)
+    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[2]].blueprint.anotherValue, false)
     TestSuite.AssertNil(mods[TestConstants.ModuleUUIDs[3]])
 end
 
@@ -535,9 +534,9 @@ function TestHasSchemaVersionsEntry()
         SchemaVersion = "1"
     })
 
-    TestSuite.AssertTrue(DataPreprocessing:HasSchemaVersionsEntry(validData, TestConstants.ModuleUUIDs[1]))
-    TestSuite.AssertFalse(DataPreprocessing:HasSchemaVersionsEntry(invalidData1, TestConstants.ModuleUUIDs[1]))
-    TestSuite.AssertFalse(DataPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertTrue(BlueprintPreprocessing:HasSchemaVersionsEntry(validData, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertFalse(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData1, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertFalse(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1]))
 end
 
 function TestHasSectionsEntry()
@@ -547,8 +546,8 @@ function TestHasSectionsEntry()
 
     local invalidData = {}
 
-    TestSuite.AssertTrue(DataPreprocessing:HasSectionsEntry(validData, TestConstants.ModuleUUIDs[1]))
-    TestSuite.AssertFalse(DataPreprocessing:HasSectionsEntry(invalidData, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertTrue(BlueprintPreprocessing:HasSectionsEntry(validData, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertFalse(BlueprintPreprocessing:HasSectionsEntry(invalidData, TestConstants.ModuleUUIDs[1]))
 end
 
 function TestPreprocessData()
