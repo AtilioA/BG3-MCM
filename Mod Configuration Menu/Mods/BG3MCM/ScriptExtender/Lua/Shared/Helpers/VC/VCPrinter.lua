@@ -184,7 +184,7 @@ end
 
 function Printer:Dump(info, useOptions, includeTime)
     if self.DebugLevel > 0 then
-        s = string.format("[%s][%s][%s]: ", self.Prefix, "DUMP", self.Machine)
+        local s = string.format("[%s][%s][%s]: ", self.Prefix, "DUMP", self.Machine)
 
         if self.ApplyColor then
             s = self:Colorize(s)
