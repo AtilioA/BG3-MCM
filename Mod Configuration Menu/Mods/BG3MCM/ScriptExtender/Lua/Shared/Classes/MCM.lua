@@ -148,6 +148,31 @@ function MCM:GetModBlueprint(modGUID)
     end
 end
 
+--- Check if a setting value is valid given the mod blueprint
+---@param settingId string The id of the setting
+---@param value any The value to check
+---@return boolean Whether the value is valid
+function MCM:IsSettingValueValid(settingId, value, modGUID)
+    local blueprint = self:GetModBlueprint(modGUID)
+    local setting = blueprint:GetAllSettings()[settingId]
+
+    if setting then
+        local isValid = DataPreprocessing:ValidateSetting(setting, value)
+        if not isValid then
+            MCMWarn(0,
+                "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
+        end
+        return isValid
+    else
+        MCMWarn(0,
+            "Setting '" ..
+            settingId ..
+            "' not found in the blueprint for mod '" ..
+            modGUID .. "'. Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        return false
+    end
+end
+
 --- Get the value of a configuration setting
 ---@param settingName string The name of the setting
 ---@param modGUID? GUIDSTRING The UUID of the mod (optional)
@@ -167,8 +192,20 @@ end
 ---@param modGUID? GUIDSTRING The UUID of the mod (optional)
 function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
     modGUID = modGUID or ModuleUUID
-
     local modSettingsTable = self:GetAllModSettings(modGUID)
+
+    local isValid = self:IsSettingValueValid(settingId, value, modGUID)
+    MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
+    if not isValid then
+        MCMWarn(1, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
+        -- Notify the client with the current value of the setting, so it can update its UI
+        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+            modGUID = modGUID,
+            settingId = settingId,
+            value = modSettingsTable[settingId]
+        }))
+        return
+    end
 
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
@@ -197,7 +234,7 @@ function MCM:ResetSettingValue(settingId, modGUID, clientRequest)
 
     local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
-        MCMWarn(1,
+        MCMWarn(0,
             "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modGUID .. "'. Please contact " ..
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
