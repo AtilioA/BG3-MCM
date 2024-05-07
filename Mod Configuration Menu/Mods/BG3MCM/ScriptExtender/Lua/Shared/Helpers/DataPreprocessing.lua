@@ -96,27 +96,71 @@ function DataPreprocessing:VerifySectionIDUniqueness(blueprint, modGUID)
     return true
 end
 
---- TODO: come up with a good way to verify across tabs and sections, and not only at the top level
 --- Verify that all setting IDs in the blueprint are unique
 ---@param blueprint table The blueprint data to verify
 ---@param modGUID string The mod's unique identifier
 function DataPreprocessing:VerifySettingIDUniqueness(blueprint, modGUID)
-    local settings = blueprint.Settings
-    if settings == nil then
-        return true
-    end
+    local rootSettings = blueprint:GetSettings()
     local settingIDs = {}
 
-    for _, setting in ipairs(settings) do
-        if setting ~= nil then
-            if settingIDs[setting.Id] then
-                MCMWarn(0,
-                    "Duplicate setting ID found in blueprint for mod: " ..
-                    Ext.Mod.GetMod(modGUID).Info.Name ..
-                    ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-                return false
+    if rootSettings ~= nil then
+        for _, setting in ipairs(rootSettings) do
+            if setting ~= nil then
+                if settingIDs[setting.Id] then
+                    MCMWarn(0,
+                        "Duplicate setting ID found in blueprint for mod: " ..
+                        Ext.Mod.GetMod(modGUID).Info.Name ..
+                        ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                    return false
+                end
+                settingIDs[setting.Id] = true
             end
-            settingIDs[setting.Id] = true
+        end
+    end
+
+    local tabs = blueprint:GetTabs()
+    if tabs ~= nil then
+        for _, tab in ipairs(tabs) do
+            local tabSettingIDs = tab:GetSettings()
+            if tabSettingIDs == nil then
+                return true
+            end
+
+            for _, setting in ipairs(tabSettingIDs) do
+                if setting ~= nil then
+                    if settingIDs[setting.Id] then
+                        MCMWarn(0,
+                            "Duplicate setting ID found in blueprint for mod: " ..
+                            Ext.Mod.GetMod(modGUID).Info.Name ..
+                            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                        return false
+                    end
+                    settingIDs[setting.Id] = true
+                end
+            end
+
+            local tabSections = tab:GetSections()
+            if tabSections ~= nil then
+                for _, section in ipairs(tabSections) do
+                    local sectionSettings = section:GetSettings()
+                    if sectionSettings == nil then
+                        return true
+                    end
+
+                    for _, setting in ipairs(sectionSettings) do
+                        if setting ~= nil then
+                            if settingIDs[setting.Id] then
+                                MCMWarn(0,
+                                    "Duplicate setting ID found in blueprint for mod: " ..
+                                    Ext.Mod.GetMod(modGUID).Info.Name ..
+                                    ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                                return false
+                            end
+                            settingIDs[setting.Id] = true
+                        end
+                    end
+                end
+            end
         end
     end
 
