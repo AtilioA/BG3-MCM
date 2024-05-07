@@ -1,7 +1,7 @@
 EHandlers = {}
 
 function EHandlers.OnLevelGameplayStarted()
-    MCM:LoadAndSendSettings()
+    MCMAPI:LoadAndSendSettings()
 end
 
 function EHandlers.OnClientRequestConfigs(_)
