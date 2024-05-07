@@ -74,7 +74,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
 end
 
 --- Create the main MCM menu, which contains a tab for each mod that has MCM settings
----@param mods table<string, table> A table of modGUIDs that has a table of blueprints and settings for each mod
+---@param mods table<string, table> A table of modGUIDs that has a table of blueprint and settings for each mod
 ---@return nil
 function IMGUILayer:CreateModMenu(mods)
     MCM_WINDOW.AlwaysAutoResize = true
@@ -118,7 +118,7 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     modGUID = modGUID or ModuleUUID
     local modInfo = Ext.Mod.GetMod(modGUID).Info
     -- local modBlueprint = MCM:GetModBlueprint(modGUID)
-    local modBlueprint = self.mods[modGUID].blueprints
+    local modBlueprint = self.mods[modGUID].blueprint
     local modSettings = self.mods[modGUID].settingsValues
     -- local modSettings = MCM:GetAllModSettings(modGUID)
     local modTab = self.mods_tabs[modGUID]

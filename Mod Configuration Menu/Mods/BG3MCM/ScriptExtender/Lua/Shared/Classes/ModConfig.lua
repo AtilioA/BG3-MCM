@@ -43,7 +43,7 @@ end
 --- @param modGUID GUIDSTRING The mod's UUID to save the settings for.
 function ModConfig:SaveSettingsForMod(modGUID)
     local configFilePath = self:GetSettingsFilePath(modGUID)
-    local blueprint = self.mods[modGUID].blueprints
+    local blueprint = self.mods[modGUID].blueprint
     local settings = self.mods[modGUID].settingsValues
     local updatedSettings = {}
 
@@ -145,7 +145,7 @@ end
 --- Load the settings for each mod from the settings file.
 function ModConfig:LoadSettings()
     for modGUID, settingsTable in pairs(self.mods) do
-        self:LoadSettingsForMod(modGUID, self.mods[modGUID].blueprints)
+        self:LoadSettingsForMod(modGUID, self.mods[modGUID].blueprint)
     end
 end
 
@@ -326,7 +326,7 @@ function ModConfig:SubmitBlueprint(data, modGUID)
     end
 
     self.mods[modGUID] = {
-        blueprints = Blueprint:New(preprocessedData),
+        blueprint = Blueprint:New(preprocessedData),
     }
 
     MCMTest(1, "Blueprint for mod " .. Ext.Mod.GetMod(modGUID).Info.Name .. " is ready to be used.")

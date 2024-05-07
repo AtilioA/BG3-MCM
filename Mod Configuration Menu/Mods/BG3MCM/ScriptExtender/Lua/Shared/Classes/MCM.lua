@@ -142,9 +142,9 @@ end
 ---@return Blueprint - The Blueprint for the mod
 function MCM:GetModBlueprint(modGUID)
     if modGUID then
-        return self.mods[modGUID].blueprints
+        return self.mods[modGUID].blueprint
     else
-        return self.mods[ModuleUUID].blueprints
+        return self.mods[ModuleUUID].blueprint
     end
 end
 

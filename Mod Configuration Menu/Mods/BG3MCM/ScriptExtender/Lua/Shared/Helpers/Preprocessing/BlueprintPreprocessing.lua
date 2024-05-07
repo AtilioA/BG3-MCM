@@ -329,7 +329,7 @@ end
 ---@param mods table<string, table> The mods data to sanitize
 function BlueprintPreprocessing:SanitizeBlueprints(mods)
     for modGUID, mcmTable in pairs(mods) do
-        if not self:SanitizeBlueprint(mcmTable.blueprints, modGUID) then
+        if not self:SanitizeBlueprint(mcmTable.blueprint, modGUID) then
             mods[modGUID] = nil
             MCMWarn(0,
                 "Blueprint validation failed for mod: " ..
