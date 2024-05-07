@@ -27,8 +27,14 @@ MCM_IMGUI_LAYER = IMGUILayer:New()
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
-    MCM_WINDOW.Visible = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
-    MCM_WINDOW.Open = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+
+    local shouldOpenOnStart = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+    if shouldOpenOnStart == nil then
+        shouldOpenOnStart = true
+    end
+    MCM_WINDOW.Visible = shouldOpenOnStart
+    MCM_WINDOW.Open = shouldOpenOnStart
+
     MCM_WINDOW.IDContext = "MCM_WINDOW"
     MCM_WINDOW.AlwaysAutoResize = false
     MCM_WINDOW.Closeable = true
