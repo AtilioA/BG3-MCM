@@ -14,13 +14,22 @@ end
 ---@param settingId string The ID of the setting to update
 ---@param value any The new value of the setting
 ---@param modGUID string The UUID of the mod
+---@param setUIValue? function A callback function to be called after the setting value is updated
 ---@return nil
-function IMGUIAPI:SetSettingValue(settingId, value, modGUID)
+function IMGUIAPI:SetSettingValue(settingId, value, modGUID, setUIValue)
     Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
         modGUID = modGUID,
         settingId = settingId,
         value = value
     }))
+    Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
+        payload = Ext.Json.Parse(payload)
+        if payload.modGUID == modGUID and payload.settingId == settingId then
+            if setUIValue then
+                setUIValue(payload.value)
+            end
+        end
+    end)
 end
 
 --- Send a message to the server to reset a setting value
