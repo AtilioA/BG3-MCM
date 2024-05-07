@@ -317,3 +317,15 @@ function TestSuite.AssertFalse(val)
         error("Value not false: " .. (valStr or ""))
     end
 end
+
+--- Provides a way to negate any assertion.
+---@param assertionFn function The assertion function to negate.
+---@return function The negated assertion function.
+function TestSuite.Not(assertionFn)
+    return function(...)
+        local success, err = pcall(assertionFn, ...)
+        if success then
+            error("Assertion should have failed: " .. err)
+        end
+    end
+end
