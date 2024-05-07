@@ -69,7 +69,7 @@ end
 ---@param setting BlueprintSetting
 ---@return nil
 function IMGUIWidget:SetupDescription(widget, group, setting)
-    if not setting.Description then
+    if not setting:GetDescription() then
         return
     end
 
@@ -77,8 +77,8 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
         return
     end
 
-    local descriptionText = setting.Description
-    local translatedDescription = Ext.Loca.GetTranslatedString(setting.Handles.DescriptionHandle)
+    local descriptionText = setting:GetDescription()
+    local translatedDescription = Ext.Loca.GetTranslatedString(setting:GetHandles().DescriptionHandle)
     if translatedDescription ~= nil and translatedDescription ~= "" then
         descriptionText = translatedDescription
     end

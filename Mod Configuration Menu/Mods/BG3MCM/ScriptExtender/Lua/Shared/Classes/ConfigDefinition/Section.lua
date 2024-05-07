@@ -2,33 +2,13 @@
 ---@field private SectionName string
 ---@field private SectionDescription string
 ---@field private Settings BlueprintSetting[]
----@field private Handles table
+---@field private Handles? table
 BlueprintSection = _Class:Create("BlueprintSection", nil, {
     SectionName = "",
     SectionDescription = "",
     Settings = {},
     Handles = {}
 })
-
-function BlueprintSection:GetSectionName()
-    return self.SectionName
-end
-
-function BlueprintSection:GetSectionDescription()
-    return self.SectionDescription
-end
-
-function BlueprintSection:GetSettings()
-    return self.Settings
-end
-
-function BlueprintSection:SetSectionName(value)
-    self.SectionName = value
-end
-
-function BlueprintSection:SetSectionDescription(value)
-    self.SectionDescription = value
-end
 
 --- Constructor for the BlueprintSection class.
 --- @param options table
@@ -48,6 +28,30 @@ function BlueprintSection:New(options)
     end
 
     return self
+end
+
+function BlueprintSection:GetSectionName()
+    return self.SectionName
+end
+
+function BlueprintSection:GetSectionDescription()
+    return self.SectionDescription
+end
+
+function BlueprintSection:GetSettings()
+    return self.Settings
+end
+
+function BlueprintSection:SetSectionName(value)
+    self.SectionName = value
+end
+
+function BlueprintSection:GetHandles()
+    return self.Handles
+end
+
+function BlueprintSection:SetSectionDescription(value)
+    self.SectionDescription = value
 end
 
 function BlueprintSection:AddSetting(name, type, default, description, options, sectionName)

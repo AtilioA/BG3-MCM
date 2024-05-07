@@ -19,11 +19,11 @@ end
 ---@param initialValue any The current value of the setting
 function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
     local buttons = {}
-    local options = { table.unpack(setting.Options.Choices) }
+    local options = { table.unpack(setting:GetOptions().Choices) }
     for i, option in ipairs(options) do
         local isActive = option == initialValue
         local radioButton = group:AddRadioButton(option, isActive)
-        radioButton.IDContext = string.format("radioButton_%s_%s", setting.Id, i)
+        radioButton.IDContext = string.format("radioButton_%s_%s", setting:GetId(), i)
         if i > 1 then
             radioButton.SameLine = true
         end
@@ -39,7 +39,7 @@ function RadioIMGUIWidget:SetRadioButtonCallbacks(buttons, setting, modGUID)
     for _, button in ipairs(buttons) do
         button.OnChange = function(value)
             if value and value.Label then
-                IMGUIAPI:SetSettingValue(setting.Id, value.Label, modGUID)
+                IMGUIAPI:SetSettingValue(setting:GetId(), value.Label, modGUID)
                 self:UncheckOtherRadioButtons(buttons, button)
             end
         end

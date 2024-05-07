@@ -1,5 +1,3 @@
--- TODO: refactor to actually use OOP probably but it sucks in Lua
-
 ---@class ModSettings
 ---@field widgets table<string, any> A table of widgets for the mod
 
@@ -151,10 +149,10 @@ end
 ---@return nil
 function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     -- TODO: modularize
-    local tabName = tab.TabName
-    if tab.Handles then
-        if tab.Handles.NameHandle then
-            local translatedName = Ext.Loca.GetTranslatedString(tab.Handles.NameHandle)
+    local tabName = tab:GetTabName()
+    if tab:GetHandles() then
+        if tab:GetHandles().NameHandle then
+            local translatedName = Ext.Loca.GetTranslatedString(tab:GetHandles().NameHandle)
             if translatedName ~= nil and translatedName ~= "" then
                 tabName = translatedName
             end
@@ -164,11 +162,11 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     local tabHeader = modTabs:AddTabItem(tabName)
 
     -- REFACTOR: as always, this is a mess and should be abstracted away somehow throughout the application if you're reading this im sorry lol given up with the commas too smh also I created classes for all these lil elements but I'm not using them here because something was not instantiated and I was focused on something else so it just slipped by
-    local tabSections = tab.Sections
-    local tabSettings = tab.Settings
+    local tabSections = tab:GetSections()
+    local tabSettings = tab:GetSettings()
 
     if #tabSections > 0 then
-        for sectionIndex, section in ipairs(tab.Sections) do
+        for sectionIndex, section in ipairs(tab:GetSections()) do
             self:CreateModMenuSection(sectionIndex, tabHeader, section, modSettings, modGUID)
         end
     elseif #tabSettings > 0 then
@@ -192,10 +190,10 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     end
 
     -- TODO: modularize
-    local sectionName = section.SectionName
-    if section.Handles then
-        if section.Handles.NameHandle then
-            local translatedName = Ext.Loca.GetTranslatedString(section.Handles.NameHandle)
+    local sectionName = section:GetSectionName()
+    if section:GetHandles() then
+        if section:GetHandles().NameHandle then
+            local translatedName = Ext.Loca.GetTranslatedString(section:GetHandles().NameHandle)
             if translatedName ~= nil and translatedName ~= "" then
                 sectionName = translatedName
             end
@@ -207,7 +205,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     sectionHeader:SetColor("Separator", Color.normalized_rgba(255, 255, 255, 0.33))
 
     -- Iterate over each setting in the section to create a widget for each
-    for _, setting in pairs(section.Settings) do
+    for _, setting in pairs(section:GetSettings()) do
         self:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
     end
 end
@@ -220,15 +218,15 @@ end
 ---@return nil
 ---@see InputWidgetFactory
 function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
-    local settingValue = modSettings[setting.Id]
-    local createWidget = InputWidgetFactory[setting.Type]
+    local settingValue = modSettings[setting:GetId()]
+    local createWidget = InputWidgetFactory[setting:GetType()]
     if createWidget == nil then
         MCMWarn(0, "No widget factory found for setting type '" ..
-            setting.Type ..
+            setting:GetType() ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
         local widget = createWidget(modGroup, setting, settingValue, modGUID)
-        self.mods[modGUID].widgets[setting.Id] = widget
+        self.mods[modGUID].widgets[setting:GetId()] = widget
     end
 end
 

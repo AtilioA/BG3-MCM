@@ -3,6 +3,7 @@
 ---@field private ModName? string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Settings? BlueprintSetting[]
+---@field private Handles? table
 Blueprint = _Class:Create("Blueprint", nil, {
     ModName = nil,
     SchemaVersion = nil,
@@ -16,6 +17,14 @@ end
 
 function Blueprint:GetModName()
     return self.ModName
+end
+
+function Blueprint:SetModName(value)
+    self.ModName = value
+end
+
+function Blueprint:GetHandles()
+    return self.Handles
 end
 
 --- Returns the tabs of the blueprint, if any.

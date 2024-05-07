@@ -52,7 +52,7 @@ function ModConfig:SaveSettingsForMod(modGUID)
         if tabId then
             updatedSettings[tabId] = updatedSettings[tabId] or {}
             if tab.Settings then -- Check if tab has direct settings
-                for _, setting in ipairs(tab.Settings) do
+                for _, setting in ipairs(tab:GetSettings()) do
                     local settingId = setting.Id
                     if settingId then
                         local updatedSetting = settings[settingId]
@@ -68,7 +68,7 @@ function ModConfig:SaveSettingsForMod(modGUID)
                     local sectionId = section.SectionId
                     if sectionId then
                         updatedSettings[tabId][sectionId] = updatedSettings[tabId][sectionId] or {}
-                        for _, setting in ipairs(section.Settings) do
+                        for _, setting in ipairs(section:GetSettings()) do
                             local settingId = setting.Id
                             if settingId then
                                 local updatedSetting = settings[settingId]
@@ -244,7 +244,7 @@ function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
 
     if BlueprintTabs then
         for _, tab in ipairs(BlueprintTabs) do
-            local tabSections = tab.Sections
+            local tabSections = tab:GetSections()
             local tabSettings = tab:GetSettings()
 
             if tabSettings then
@@ -255,7 +255,7 @@ function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
                 end
             elseif tabSections then
                 for _, section in ipairs(tabSections) do
-                    for _, setting in ipairs(section.Settings) do
+                    for _, setting in ipairs(section:GetSettings()) do
                         if settings[setting:GetId()] == nil then
                             settings[setting:GetId()] = setting:GetDefault()
                         end
@@ -285,7 +285,7 @@ function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
 
     if BlueprintTabs then
         for _, tab in ipairs(BlueprintTabs) do
-            local tabSections = tab.Sections
+            local tabSections = tab:GetSections()
             local tabSettings = tab:GetSettings()
 
             if #tabSettings > 0 then
@@ -293,8 +293,8 @@ function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
                     validSettings[setting:GetId()] = true
                 end
             elseif #tabSections > 0 then
-                for _, section in ipairs(tab.Sections) do
-                    for _, setting in ipairs(section.Settings) do
+                for _, section in ipairs(tab:GetSections()) do
+                    for _, setting in ipairs(section:GetSettings()) do
                         validSettings[setting:GetId()] = true
                     end
                 end
