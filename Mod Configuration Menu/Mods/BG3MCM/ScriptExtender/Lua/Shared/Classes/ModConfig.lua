@@ -165,7 +165,7 @@ function ModConfig:GetSettings()
 
     -- Get settings for each mod given the profile
     self:LoadBlueprints()
-    DataPreprocessing:SanitizeBlueprints(self.mods)
+    BlueprintPreprocessing:SanitizeBlueprints(self.mods)
     self:LoadSettings()
 
     -- Save the sanitized and validated settings back to the JSON files
