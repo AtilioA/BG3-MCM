@@ -15,11 +15,19 @@
             "description": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that have multiple names due to multiple versions."
         },
         "Tabs": {
-            "description": "The tabs that will be displayed in the MCM menu. Each tab can contain either sections or settings, but not both. Tabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
+            "description": "The tabs that will be displayed in the MCM menu. Each tab can contain either sections or settings. Tabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
             "type": "array",
             "minItems": 1,
             "items": {
                 "$ref": "#/definitions/Tab"
+            }
+        },
+        "Sections": {
+            "description": "The sections that will be displayed in the MCM menu. Each section can contain either tabs or settings. Sections are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/definitions/Section"
             }
         },
         "Settings": {
@@ -29,7 +37,7 @@
             "items": {
                 "$ref": "#/definitions/Setting"
             },
-            "description": "The list of sections to be displayed outside of any tabs in the MCM menu. It is advised to use tabs and sections instead of this list, as this can lead to an unorganized MCM menu."
+            "description": "The list of sections to be displayed outside of any tabs in the MCM menu. It is advised to use tabs and sections instead of settings at root level, as this can lead to an unorganized MCM menu."
         }
     },
     "required": [
@@ -43,11 +51,31 @@
         },
         {
             "required": [
+                "Sections"
+            ]
+        },
+        {
+            "required": [
                 "Settings"
             ]
         }
     ],
     "definitions": {
+        "Block": {
+            "type": "object",
+            "description": "A single block in the MCM menu. This can be a tab, a section, or a setting.",
+            "properties": {
+                "Tab": {
+                    "$ref": "#/definitions/Tab"
+                },
+                "Section": {
+                    "$ref": "#/definitions/Section"
+                },
+                "Setting": {
+                    "$ref": "#/definitions/Setting"
+                }
+            }
+        },
         "Tab": {
             "type": "object",
             "description": "A single tab in the MCM menu.",
@@ -60,13 +88,21 @@
                 "TabId": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The unique identifier for the tab. This value should be unique across all tabs in the settings file."
+                    "description": "The unique identifier for the tab. This value should be unique across all tabs in the blueprint."
                 },
                 "TabDescription": {
                     "type": "string",
                     "minLength": 1,
                     "description": "The description of the tab that will be displayed in the MCM menu. Will be localized if a handle is provided.",
                     "$comment": "This might not be used at all, but it's here just in case."
+                },
+                "Tabs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/Tab"
+                    },
+                    "description": "The tabs that will be displayed within the tab. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
                 },
                 "Sections": {
                     "type": "array",
@@ -91,7 +127,12 @@
                 }
             },
             "additionalProperties": false,
-            "oneOf": [
+            "anyOf": [
+                {
+                    "required": [
+                        "Tabs"
+                    ]
+                },
                 {
                     "required": [
                         "Sections"
@@ -133,7 +174,7 @@
                 "Id": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API. This will be displayed in the settings file, so it still should be human-readable and descriptive."
+                    "description": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API. This will be displayed in the blueprint, so it still should be human-readable and descriptive."
                 },
                 "Name": {
                     "type": "string",
@@ -183,7 +224,7 @@
                             "type": "array"
                         }
                     ],
-                    "description": "The default value of the setting. It will be used for initialization and as a fallback if the setting is not found or is invalid in the settings file."
+                    "description": "The default value of the setting. It will be used for initialization and as a fallback if the setting is not found or is invalid in the blueprint."
                 },
                 "Tooltip": {
                     "type": "string",
@@ -288,12 +329,20 @@
                 "SectionId": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The unique identifier for the section. This value should be unique across all sections in the settings file."
+                    "description": "The unique identifier for the section. This value should be unique across all sections in the blueprint."
                 },
                 "SectionName": {
                     "type": "string",
                     "minLength": 1,
                     "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
+                },
+                "Tabs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/Tab"
+                    },
+                    "description": "The tabs that will be displayed within the section. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
                 },
                 "Settings": {
                     "type": "array",
@@ -311,8 +360,19 @@
             },
             "required": [
                 "SectionName",
-                "SectionId",
-                "Settings"
+                "SectionId"
+            ],
+            "anyOf": [
+                {
+                    "required": [
+                        "Tabs"
+                    ]
+                },
+                {
+                    "required": [
+                        "Settings"
+                    ]
+                }
             ],
             "description": "A section within a tab in the MCM menu."
         },
@@ -383,12 +443,6 @@
                 "NameHandle"
             ],
             "description": "Handles that can be used to localize a setting."
-        }
-    },
-    "customValidators": {
-        "uniqueId": {
-            "type": "string",
-            "uniqueItems": true
         }
     }
 }
