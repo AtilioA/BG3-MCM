@@ -24,11 +24,9 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestUniqueTabIds",
     "TestUniqueSectionIds",
     "TestUniqueSettingIds",
-    -- ...
-
     --- Setting definition validation
     -- Type
-    -- "TestValidateSettingType",
+    "TestValidateSettingType",
     -- Default values
     -- "TestBlueprintDefaultForIntShouldBeNumber",
     -- "TestBlueprintDefaultForFloatShouldBeNumber",
@@ -498,3 +496,132 @@ function TestBlueprintDefaultForRadioShouldBeOneOfTheOptions()
     TestSuite.AssertNil(sanitizedBlueprint)
 end
 
+function TestSanitizeBlueprints()
+    local mods = {
+        [TestConstants.ModuleUUIDs[1]] = {
+            blueprints = {
+                SchemaVersion = 1,
+                someValue = "true"
+            }
+        },
+        [TestConstants.ModuleUUIDs[2]] = {
+            blueprints = {
+                SchemaVersion = 1,
+                anotherValue = "false"
+            }
+        },
+        [TestConstants.ModuleUUIDs[3]] = {
+            blueprints = {
+                someValue = "true"
+            }
+        }
+    }
+
+    BlueprintPreprocessing:SanitizeBlueprints(mods)
+
+    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[1]].blueprints.someValue, true)
+    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[2]].blueprints.anotherValue, false)
+    TestSuite.AssertNil(mods[TestConstants.ModuleUUIDs[3]])
+end
+
+function TestHasSchemaVersionsEntry()
+    local validData = Blueprint:New({
+        SchemaVersion = 1
+    })
+
+    local invalidData1 = {}
+
+    local invalidData2 = Blueprint:New({
+        SchemaVersion = "1"
+    })
+
+    TestSuite.AssertTrue(DataPreprocessing:HasSchemaVersionsEntry(validData, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertFalse(DataPreprocessing:HasSchemaVersionsEntry(invalidData1, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertFalse(DataPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1]))
+end
+
+function TestHasSectionsEntry()
+    local validData = {
+        Sections = {}
+    }
+
+    local invalidData = {}
+
+    TestSuite.AssertTrue(DataPreprocessing:HasSectionsEntry(validData, TestConstants.ModuleUUIDs[1]))
+    TestSuite.AssertFalse(DataPreprocessing:HasSectionsEntry(invalidData, TestConstants.ModuleUUIDs[1]))
+end
+
+function TestPreprocessData()
+    local data = Blueprint:New({
+        SchemaVersion = 1,
+        ModName = "Test Mod",
+        Tabs = {
+            {
+                TabId = "tab-1",
+                TabName = "Tab 1",
+                Settings = {
+                    {
+                        Id = "setting-1",
+                        Name = "Setting 1",
+                        Type = "boolean",
+                        Default = true,
+                        Description = "Description 1",
+                        Tooltip = "Tooltip 1"
+                    }
+                },
+                Sections = {
+                    {
+                        SectionId = "section-1",
+                        SectionName = "Section 1",
+                        Settings = {
+                            {
+                                Id = "setting-2",
+                                Name = "Setting 2",
+                                Type = "number",
+                                Default = 42,
+                                Description = "Description 2",
+                                Tooltip = "Tooltip 2"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local preprocessedData = DataPreprocessing:PreprocessData(data, ModuleUUID)
+
+    if preprocessedData == nil then
+        error("Preprocessed data is nil")
+    end
+    TestSuite.AssertEquals(preprocessedData.SchemaVersion, 1)
+    TestSuite.AssertEquals(preprocessedData.ModName, "Test Mod")
+    TestSuite.AssertEquals(#preprocessedData.Tabs, 1)
+
+    local tab = preprocessedData.Tabs[1]
+    TestSuite.AssertEquals(tab.TabId, "tab-1")
+    TestSuite.AssertEquals(tab.TabName, "Tab 1")
+    TestSuite.AssertEquals(#tab.Settings, 1)
+    TestSuite.AssertEquals(#tab.Sections, 1)
+
+    local setting1 = tab.Settings[1]
+    TestSuite.AssertEquals(setting1.Id, "setting-1")
+    TestSuite.AssertEquals(setting1.Name, "Setting 1")
+    TestSuite.AssertEquals(setting1.Type, "boolean")
+    TestSuite.AssertEquals(setting1.Default, true)
+    TestSuite.AssertEquals(setting1.Description, "Description 1")
+    TestSuite.AssertEquals(setting1.Tooltip, "Tooltip 1")
+
+    local section1 = tab.Sections[1]
+    TestSuite.AssertEquals(section1.SectionId, "section-1")
+    TestSuite.AssertEquals(section1.SectionName, "Section 1")
+    TestSuite.AssertEquals(#section1.Settings, 1)
+
+    local setting2 = section1.Settings[1]
+    TestSuite.AssertEquals(setting2.Id, "setting-2")
+    TestSuite.AssertEquals(setting2.Name, "Setting 2")
+    TestSuite.AssertEquals(setting2.Type, "number")
+    TestSuite.AssertEquals(setting2.Default, 42)
+    TestSuite.AssertEquals(setting2.Description, "Description 2")
+    TestSuite.AssertEquals(setting2.Tooltip, "Tooltip 2")
+end
