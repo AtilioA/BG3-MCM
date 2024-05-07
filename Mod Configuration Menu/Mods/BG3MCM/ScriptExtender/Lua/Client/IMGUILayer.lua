@@ -79,6 +79,9 @@ end
 function IMGUILayer:CreateModMenu(mods)
     MCM_WINDOW.AlwaysAutoResize = true
     self.mods = mods
+    for _modGUID, config in pairs(self.mods) do
+        config.blueprint = Blueprint:New(config.blueprint)
+    end
     -- TODO: modularize etc
 
     -- Add functionality to manage between profiles
