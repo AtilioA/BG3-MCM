@@ -60,11 +60,13 @@ function IMGUILayer:CreateMainIMGUIWindow()
     --     MCMDebug(2, "Resetting options to defaults")
     -- end
 
-    help = m:AddMenu("Help")
-    help:AddItem("About").OnClick = function()
-        -- Popup to show about information?
-        MCMDebug(2, "Showing about information")
-    end
+    local help = m:AddMenu("Help")
+    local helpAbout = help:AddItem("About")
+    -- local aboutPopup = helpAbout:AddPopup("Yea")
+    -- helpAbout.OnClick = function()
+    --     aboutPopup:Open()
+    --     MCMDebug(2, "Showing about information")
+    -- end
     help:AddItem("Troubleshooting").OnClick = function()
         -- Popup to show troubleshooting information?
         MCMDebug(2, "Showing troubleshooting information")
