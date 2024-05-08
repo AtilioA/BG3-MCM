@@ -162,7 +162,7 @@ function BlueprintPreprocessing:VerifyIDUniqueness(blueprint)
         self:VerifySettingIDUniqueness(blueprint)
 end
 
--- TODO: modularize this + default checks
+-- TODO: modularize this + default checks + add more logging
 --- Validate the setting data in the blueprint (e.g.: ensure that all IDs are unique, default values are valid, etc.)
 ---@param blueprint table The blueprint data to validate
 function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
@@ -170,24 +170,36 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
 
     local blueprintSettingsDefinitions = blueprint:GetAllSettings()
     if blueprintSettingsDefinitions then
-        for _, setting in ipairs(blueprintSettingsDefinitions) do
+        for _, setting in pairs(blueprintSettingsDefinitions) do
+            if not self:BlueprintCheckDefaultType(setting) then
+                return false
+            end
             if setting.Type == "enum" then
                 if not self:BlueprintShouldHaveOptionsForEnum(setting) then
-                    isValid = false
+                    return false
+                end
+                if not self:BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings(setting) then
+                    return false
                 end
             elseif setting.Type == "radio" then
                 if not self:BlueprintShouldHaveOptionsForRadio(setting) then
-                    isValid = false
+                    return false
                 end
-            elseif setting.Type == "slider" or setting.Type == "slider_int" or setting.Type == "slider_float" then
+                if not self:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting) then
+                    return false
+                end
+            elseif setting.Type == "slider_int" or setting.Type == "slider_float" or setting.Type == "drag_float" or setting.Type == "drag_int" then
                 if not self:BlueprintShouldHaveMinAndMaxForSlider(setting) then
-                    isValid = false
+                    return false
                 end
                 if not self:BlueprintMinAndMaxForSliderShouldBeNumbers(setting) then
-                    isValid = false
+                    return false
                 end
                 if not self:BlueprintMinIsLessThanMaxForSlider(setting) then
-                    isValid = false
+                    return false
+                end
+                if not self:BlueprintDefaultShouldBeWithinRange(setting) then
+                    return false
                 end
             end
         end
@@ -196,10 +208,132 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
     return isValid
 end
 
+function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
+    if setting.Default == nil then
+        MCMWarn(0,
+            "Setting '" ..
+            setting.Id ..
+            "' is missing a 'Default' value. Please contact " ..
+            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if setting.Type == "bool" then
+        if type(setting.Default) ~= "boolean" then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a boolean. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "int" then
+        if type(setting.Default) ~= "number" or math.floor(setting.Default) ~= setting.Default then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be an integer. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "float" then
+        if type(setting.Default) ~= "number" then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a number. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "text" then
+        if type(setting.Default) ~= "string" then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a string. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "checkbox" then
+        if type(setting.Default) ~= "boolean" then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a boolean. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "enum" or setting.Type == "radio" then
+        if type(setting.Default) ~= "string" then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a string. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "slider_int" or setting.Type == "drag_int" then
+        if type(setting.Default) ~= "number" or math.floor(setting.Default) ~= setting.Default then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be an integer. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "slider_float" or setting.Type == "drag_float" then
+        if type(setting.Default) ~= "number" then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a number. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    elseif setting.Type == "color_picker" or setting.Type == "color_edit" then
+        if type(setting.Default) ~= "table" or #setting.Default ~= 4 or not (type(setting.Default[1]) == "number" and type(setting.Default[2]) == "number" and type(setting.Default[3]) == "number" and type(setting.Default[4]) == "number") then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a table of 4 numbers. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    end
+
+    return true
+end
+
+function BlueprintPreprocessing:BlueprintDefaultShouldBeWithinRange(setting)
+    if setting.Options and setting.Options.Min and setting.Options.Max then
+        if setting.Default < setting.Options.Min or setting.Default > setting.Options.Max then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be within the range of 'Options.Min' and 'Options.Max'. Please contact " ..
+                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            return false
+        end
+    end
+    return true
+end
+
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
     if not setting.Options or not setting.Options.Choices or #setting.Options.Choices == 0 then
         MCMWarn(0,
-            "Enum setting '" .. setting.Id .. "' must have 'Options.Choices' defined.")
+            "Enum setting '" ..
+            setting.Id ..
+            "' must have 'Options.Choices' defined. Please contact " ..
+            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if not table.contains(setting.Options.Choices, setting.Default) then
+        MCMWarn(0,
+            "Enum setting '" ..
+            setting.Id ..
+            "' must have a 'Default' value that is one of the 'Options.Choices'. Please contact " ..
+            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return false
     end
     return true
@@ -228,15 +362,23 @@ function BlueprintPreprocessing:BlueprintOptionsForEnumShouldHaveAChoicesArrayOf
 end
 
 function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting)
-    if setting.Options and setting.Options.Choices then
-        for _, choice in ipairs(setting.Options.Choices) do
-            if type(choice) ~= "string" then
-                MCMWarn(0,
-                    "Options.Choices for radio setting '" .. setting.Id .. "' must be an array of strings.")
-                return false
-            end
+    if not setting.Options or not setting.Options.Choices then
+        MCMWarn(0,
+            "Radio setting '" ..
+            setting.Id ..
+            "' must have 'Options.Choices' defined. Please contact " ..
+            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+        return false
+    end
+
+    for _, choice in pairs(setting.Options.Choices) do
+        if type(choice) ~= "string" then
+            MCMWarn(0,
+                "Options.Choices for radio setting '" .. setting.Id .. "' must be an array of strings.")
+            return false
         end
     end
+
     return true
 end
 
