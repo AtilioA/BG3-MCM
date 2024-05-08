@@ -16,7 +16,6 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestSanitizeBlueprintWithoutSchemaVersion",
     "TestBlueprintShouldntHaveSections",
     "TestBlueprintShouldntHaveTabsAndSettings",
-    "TestBlueprintShouldHaveTabsOrSettings",
     "TestBlueprintShouldHaveSettingsAtSomeLevel",
 
     --- Blueprint integrity validation
@@ -28,19 +27,18 @@ TestSuite.RegisterTests("DataPreprocessing", {
     -- Type
     "TestValidateSettingType",
     -- Default values
-    -- "TestBlueprintDefaultForIntShouldBeNumber",
-    -- "TestBlueprintDefaultForFloatShouldBeNumber",
-    -- "TestBlueprintDefaultForEnumShouldBeOneOfTheOptions",
-    -- "TestBlueprintDefaultForRadioShouldBeOneOfTheOptions",
-    -- "TestBlueprintDefaultForCheckboxShouldBeBoolean",
-    -- "TestBlueprintDefaultForNumberShouldBeNumber",
-    -- "TestBlueprintDefaultForStringShouldBeString",
-    -- "TestBlueprintDefaultForColorShouldBeString",
-    -- "TestBlueprintDefaultForSliderIntShouldBeInteger",
-    -- "TestBlueprintDefaultForSliderFloatShouldBeNumber",
-    -- "TestBlueprintDefaultForDragIntShouldBeInteger",
-    -- "TestBlueprintDefaultForDragFloatShouldBeNumber",
-    -- "TestBlueprintDefaultForSliderShouldBeBetweenMinAndMax",
+    "TestBlueprintDefaultForIntShouldBeNumber",
+    "TestBlueprintDefaultForFloatShouldBeNumber",
+    "TestBlueprintDefaultForEnumShouldBeOneOfTheOptions",
+    "TestBlueprintDefaultForRadioShouldBeOneOfTheOptions",
+    "TestBlueprintDefaultForCheckboxShouldBeBoolean",
+    "TestBlueprintDefaultForStringShouldBeString",
+    "TestBlueprintDefaultForColorShouldBeVec4",
+    "TestBlueprintDefaultForSliderIntShouldBeInteger",
+    "TestBlueprintDefaultForSliderFloatShouldBeNumber",
+    "TestBlueprintDefaultForDragIntShouldBeInteger",
+    "TestBlueprintDefaultForDragFloatShouldBeNumber",
+    "TestBlueprintDefaultForSliderShouldBeBetweenMinAndMax",
     -- "TestBlueprintDefaultForDragShouldBeBetweenMinAndMax",
     -- -- Options
     "BlueprintShouldHaveOptionsForEnum",
@@ -55,7 +53,6 @@ TestSuite.RegisterTests("DataPreprocessing", {
     -- "TestSanitizeBlueprints",
     -- "TestValidateSettings",
     -- "TestHasSchemaVersionsEntry",
-    -- "TestHasSectionsEntry",
     -- "TestPreprocessData"
 })
 
@@ -347,7 +344,7 @@ function BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings()
     TestSuite.AssertNil(sanitizedBlueprintWithChoices)
 end
 
-function OptionsForRadioShouldHaveAChoicesArrayOfStrings()
+function BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings()
     local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
@@ -376,13 +373,31 @@ function OptionsForRadioShouldHaveAChoicesArrayOfStrings()
             }
         }
     })
+    local blueprintWithStringChoices = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-radio",
+                Type = "radio",
+                Options = {
+                    Choices = {
+                        "1", "2", "3"
+                    }
+                },
+                Default = "option-1"
+            }
+        }
+    })
     local modGUID = TestConstants.ModuleUUIDs[1]
 
     local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
     local sanitizedBlueprintWithChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modGUID)
+    local sanitizedBlueprintWithStringChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithStringChoices,
+        modGUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
     TestSuite.AssertNil(sanitizedBlueprintWithChoices)
+    TestSuite.AssertNotNil(sanitizedBlueprintWithStringChoices)
 end
 
 function BlueprintShouldHaveMinAndMaxForSlider()
@@ -391,7 +406,7 @@ function BlueprintShouldHaveMinAndMaxForSlider()
         Settings = {
             {
                 Id = "setting-slider",
-                Type = "slider",
+                Type = "slider_int",
                 Default = 50,
                 Options = {
                 }
@@ -411,7 +426,7 @@ function BlueprintMinAndMaxForSliderShouldBeNumbers()
         Settings = {
             {
                 Id = "setting-slider",
-                Type = "slider",
+                Type = "slider_int",
                 Default = 50,
                 Options = {
                     Min = "0",
@@ -433,7 +448,7 @@ function BlueprintMinShouldBeLessThanMaxForSlider()
         Settings = {
             {
                 Id = "setting-slider",
-                Type = "slider",
+                Type = "slider_int",
                 Default = 50,
                 Options = {
                     Min = 100,
@@ -539,17 +554,6 @@ function TestHasSchemaVersionsEntry()
     TestSuite.AssertFalse(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1]))
 end
 
-function TestHasSectionsEntry()
-    local validData = {
-        Sections = {}
-    }
-
-    local invalidData = {}
-
-    TestSuite.AssertTrue(BlueprintPreprocessing:HasSectionsEntry(validData, TestConstants.ModuleUUIDs[1]))
-    TestSuite.AssertFalse(BlueprintPreprocessing:HasSectionsEntry(invalidData, TestConstants.ModuleUUIDs[1]))
-end
-
 function TestPreprocessData()
     local data = Blueprint:New({
         SchemaVersion = 1,
@@ -623,4 +627,285 @@ function TestPreprocessData()
     TestSuite.AssertEquals(setting2.Default, 42)
     TestSuite.AssertEquals(setting2.Description, "Description 2")
     TestSuite.AssertEquals(setting2.Tooltip, "Tooltip 2")
+end
+
+function TestBlueprintDefaultForIntShouldBeNumber()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-int",
+                Type = "int",
+                Default = "not-a-number"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForFloatShouldBeNumber()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-float",
+                Type = "float",
+                Default = "not-a-number"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForEnumShouldBeOneOfTheOptions()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-enum",
+                Type = "enum",
+                Options = {
+                    "option-1",
+                    "option-2",
+                    "option-3"
+                },
+                Default = "option-4"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForRadioShouldBeOneOfTheOptions()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-radio",
+                Type = "radio",
+                Options = {
+                    "option-1",
+                    "option-2",
+                    "option-3"
+                },
+                Default = "option-4"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForCheckboxShouldBeBoolean()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-checkbox",
+                Type = "checkbox",
+                Default = "not-a-boolean"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForStringShouldBeString()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-string",
+                Type = "text",
+                Default = 42
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForColorShouldBeVec4()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-color",
+                Type = "color_picker",
+                Default = 42
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local correctBlueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-color",
+                Type = "color_picker",
+                Default = { 0, 0, 0, 0 }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedCorrectBlueprint = BlueprintPreprocessing:SanitizeBlueprint(correctBlueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+    TestSuite.AssertNotNil(sanitizedCorrectBlueprint)
+end
+
+function TestBlueprintDefaultForSliderIntShouldBeInteger()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-slider-int",
+                Type = "slider_int",
+                Options = {
+                    Min = 0,
+                    Max = 100
+                },
+                Default = 42.5
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForSliderFloatShouldBeNumber()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-slider-float",
+                Type = "slider_float",
+                Options = {
+                    Min = 0.0,
+                    Max = 100.0
+                },
+                Default = "not-a-number"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForDragIntShouldBeInteger()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-drag-int",
+                Type = "drag_int",
+                Options = {
+                    Min = 0,
+                    Max = 100
+                },
+                Default = 42.5
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForDragFloatShouldBeNumber()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-drag-float",
+                Type = "drag_float",
+                Options = {
+                    Min = 0.0,
+                    Max = 100.0
+                },
+                Default = "not-a-number"
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForSliderShouldBeBetweenMinAndMax()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-slider",
+                Type = "slider_int",
+                Options = {
+                    Min = 0,
+                    Max = 100
+                },
+                Default = 200
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintDefaultForDragShouldBeBetweenMinAndMax()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-drag",
+                Type = "drag_int",
+                Options = {
+                    Min = 0,
+                    Max = 100
+                },
+                Default = 200
+            }
+        }
+    })
+    local modGUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
 end
