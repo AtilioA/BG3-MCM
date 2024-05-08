@@ -56,9 +56,9 @@ function Blueprint:New(options)
     local self = setmetatable({}, Blueprint)
     self.SchemaVersion = options.SchemaVersion or nil
     self.ModName = options.ModName or nil
+    self.Tabs = {}
 
     -- Call BlueprintSection constructor for each section
-    self.Tabs = {}
     if options.Tabs then
         for _, tabOptions in ipairs(options.Tabs) do
             local tab = BlueprintTab:New(tabOptions)

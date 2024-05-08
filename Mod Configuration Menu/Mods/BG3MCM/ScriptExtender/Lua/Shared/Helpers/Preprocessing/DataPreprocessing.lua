@@ -103,78 +103,86 @@ function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invali
     end
 end
 
+--- Recursively preprocess tabs and sections to create Blueprint instances for each element found.
+---@param elementData table The current tab or section data to preprocess.
+---@param modGUID string The UUID of the mod that the item data belongs to.
+---@return table - The preprocessed tab or section data.
+function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
+    local processedData = {}
 
--- TODO: modularize this when the schema has been defined
---- Preprocess the data and create BlueprintSetting instances for each setting found in the Tabs and Sections
----@param data table The item data to preprocess
----@param modGUID string The UUID of the mod that the item data belongs to
----@return table<string, BlueprintSetting>|nil The preprocessed data, or nil if the preprocessing failed
-function DataPreprocessing:PreprocessData(data, modGUID)
-    local preprocessedData = {}
-    preprocessedData["SchemaVersion"] = data.SchemaVersion
-    preprocessedData["ModName"] = data.ModName
-    preprocessedData["Tabs"] = {}
-
-    -- Iterate through each tab in the data
-    for i, tab in ipairs(data.Tabs) do
-        local tabData = BlueprintTab:New({
-            TabId = tab.TabId,
-            TabName = tab.TabName,
-            Settings = {},
-            Sections = {},
-            Handles = tab.Handles or {}
+    if elementData.TabName then
+        processedData = BlueprintTab:New({
+            TabId = elementData.TabId,
+            TabName = elementData.TabName,
+            Tabs = elementData.Tabs or {}, -- Tabs might also have nested Tabs
+            Sections = elementData.Sections or {},
+            Settings = elementData.Settings or {},
+            Handles = elementData.Handles or {}
         })
-        -- Handle settings directly in tabs
-        if tab.Settings then
-            for j, setting in ipairs(tab.Settings) do
-                local newSetting = BlueprintSetting:New({
-                    Id = setting.Id,
-                    Name = setting.Name,
-                    Type = setting.Type,
-                    Default = setting.Default,
-                    Description = setting.Description,
-                    Tooltip = setting.Tooltip,
-                    Options = setting.Options or {},
-                    Handles = setting.Handles or {}
-                })
-                table.insert(tabData.Settings, newSetting)
-            end
-        else
-            MCMDebug(2,
-                "No 'Settings' section found in tab: " ..
-                tab.TabId .. " for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
-        end
 
-        -- Handle sections containing settings
-        if tab.Sections then
-            for k, section in ipairs(tab.Sections) do
-                local sectionData = BlueprintSection:New({
-                    SectionId = section.SectionId,
-                    SectionName = section.SectionName,
-                    Settings = {},
-                    Handles = section.Handles or {}
-                })
-                for l, setting in ipairs(section.Settings) do
-                    local newSetting = BlueprintSetting:New({
-                        Id = setting.Id,
-                        Name = setting.Name,
-                        Type = setting.Type,
-                        Default = setting.Default,
-                        Description = setting.Description,
-                        Tooltip = setting.Tooltip,
-                        Options = setting.Options or {},
-                        Handles = setting.Handles or {}
-                    })
-                    table.insert(sectionData.Settings, newSetting)
-                end
-                table.insert(tabData.Sections, sectionData)
+        -- Process nested Tabs if they exist
+        if elementData.Tabs then
+            for _, nestedTab in ipairs(elementData.Tabs) do
+                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modGUID))
             end
-        else
-            MCMDebug(2,
-                "No 'Sections' section found in tab: " .. tab.TabId .. " for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
         end
+    end
 
-        table.insert(preprocessedData.Tabs, tabData)
+    if elementData.SectionName then
+        processedData = BlueprintSection:New({
+            SectionId = elementData.SectionId,
+            SectionName = elementData.SectionName,
+            Tabs = elementData.Tabs or {}, -- Sections might also have nested Tabs
+            Settings = elementData.Settings or {},
+            Handles = elementData.Handles or {}
+        })
+
+        -- Process nested Tabs in Sections if they exist
+        if elementData.Tabs then
+            for _, nestedTab in ipairs(elementData.Tabs) do
+                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modGUID))
+            end
+        end
+    end
+
+    -- Common processing for Settings in both Tabs and Sections
+    for _, setting in ipairs(elementData.Settings or {}) do
+        local newSetting = BlueprintSetting:New({
+            Id = setting.Id,
+            Name = setting.Name,
+            Type = setting.Type,
+            Default = setting.Default,
+            Description = setting.Description,
+            Tooltip = setting.Tooltip,
+            Options = setting.Options or {},
+            Handles = setting.Handles or {}
+        })
+        table.insert(processedData.Settings, newSetting)
+    end
+
+    return processedData
+end
+
+--- Entry point function to preprocess data including SchemaVersion and ModName.
+---@param data table The full item data to preprocess
+---@param modGUID string The UUID of the mod that the item data belongs to
+---@return table<string, BlueprintSetting>|nil The preprocessed data, or nil if preprocessing failed
+function DataPreprocessing:PreprocessData(data, modGUID)
+    local preprocessedData = {
+        SchemaVersion = data.SchemaVersion,
+        ModName = data.ModName,
+        Tabs = {},
+        Settings = {}
+    }
+
+    -- Recursively process each top-level Tab
+    for _, tab in ipairs(data.Tabs or {}) do
+        table.insert(preprocessedData.Tabs, self:RecursivePreprocess(tab, modGUID))
+    end
+
+    -- Process each top-level Setting
+    for _, setting in ipairs(data.Settings or {}) do
+        table.insert(preprocessedData.Settings, BlueprintSetting:New(setting))
     end
 
     return preprocessedData

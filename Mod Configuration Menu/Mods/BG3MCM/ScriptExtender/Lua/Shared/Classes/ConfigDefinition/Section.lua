@@ -6,6 +6,7 @@
 BlueprintSection = _Class:Create("BlueprintSection", nil, {
     SectionName = "",
     SectionDescription = "",
+    Tabs = {},
     Settings = {},
     Handles = {}
 })
@@ -17,8 +18,16 @@ function BlueprintSection:New(options)
     self.SectionId = options.SectionId or ""
     self.SectionName = options.SectionName or ""
     self.SectionDescription = options.SectionDescription or ""
+    self.Tabs = {}
     self.Settings = {}
     self.Handles = options.Handles
+
+    if options.Tabs and #options.Tabs > 0 then
+        for _, tabOptions in ipairs(options.Tabs) do
+            local tab = BlueprintTab:New(tabOptions)
+            table.insert(self.Tabs, tab)
+        end
+    end
 
     if options.Settings then
         for _, settingOptions in ipairs(options.Settings) do

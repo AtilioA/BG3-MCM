@@ -2,6 +2,7 @@
 ---@field private TabId string
 ---@field private TabName string
 ---@field private TabDescription string
+---@field private Tabs? BlueprintTab[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Settings? BlueprintSetting[]
 ---@field private Handles? table
@@ -9,6 +10,7 @@ BlueprintTab = _Class:Create("BlueprintTab", nil, {
     TabId = "",
     TabName = "",
     TabDescription = "",
+    Tabs = {},
     Sections = {},
     Settings = {},
     Handles = {}
@@ -21,9 +23,16 @@ function BlueprintTab:New(options)
     self.TabId = options.TabId or ""
     self.TabName = options.TabName or ""
     self.TabDescription = options.TabDescription or ""
+    self.Tabs = {}
     self.Sections = {}
     self.Settings = {}
     self.Handles = options.Handles
+
+    if options.Tabs and #options.Tabs > 0 then
+        for _, tabOptions in ipairs(options.Tabs) do
+            table.insert(self.Tabs, BlueprintTab:New(tabOptions))
+        end
+    end
 
     if options.Sections then
         for _, sectionOptions in ipairs(options.Sections) do
