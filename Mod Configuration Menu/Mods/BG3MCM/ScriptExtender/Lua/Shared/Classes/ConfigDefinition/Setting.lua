@@ -29,8 +29,6 @@ function BlueprintSetting:New(options)
 
     if options.Id ~= nil then
         self.Id = options.Id
-    else
-        self.Id = ""
     end
 
     if options.Name ~= nil then
@@ -57,12 +55,6 @@ function BlueprintSetting:New(options)
         self.Tooltip = options.Tooltip
     else
         self.Tooltip = ""
-    end
-
-    if options.Section ~= nil then
-        self.Section = options.Section
-    else
-        self.Section = "General"
     end
 
     self.Options = options.Options or {}

@@ -116,7 +116,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
             TabName = elementData.TabName,
             Tabs = elementData.Tabs or {}, -- Tabs might also have nested Tabs
             Sections = elementData.Sections or {},
-            Settings = elementData.Settings or {},
+            -- Settings = elementData.Settings or {},
             Handles = elementData.Handles or {}
         })
 
@@ -133,7 +133,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
             SectionId = elementData.SectionId,
             SectionName = elementData.SectionName,
             Tabs = elementData.Tabs or {}, -- Sections might also have nested Tabs
-            Settings = elementData.Settings or {},
+            -- Settings = elementData.Settings or {},
             Handles = elementData.Handles or {}
         })
 

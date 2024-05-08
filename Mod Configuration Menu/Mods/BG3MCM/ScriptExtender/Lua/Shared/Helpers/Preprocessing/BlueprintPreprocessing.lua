@@ -109,7 +109,7 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint, modGUID)
             if setting ~= nil then
                 if settingIDs[setting.Id] then
                     MCMWarn(0,
-                        "Duplicate setting ID found in blueprint for mod: " ..
+                        "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod: " ..
                         Ext.Mod.GetMod(modGUID).Info.Name ..
                         ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
                     isValid = false
@@ -132,9 +132,9 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint, modGUID)
     end
 
     for _, tab in ipairs(tabs) do
-        local tabSettingIDs = tab:GetSettings()
-        if tabSettingIDs ~= nil then
-            checkSettingIDUniqueness(tabSettingIDs)
+        local tabSettings = tab:GetSettings()
+        if tabSettings ~= nil then
+            checkSettingIDUniqueness(tabSettings)
         end
 
         local tabSections = tab:GetSections()
@@ -355,19 +355,6 @@ function BlueprintPreprocessing:HasSchemaVersionsEntry(data, modGUID)
             "Invalid 'SchemaVersion' section (not a number) found in data for mod: " ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
             ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-        return false
-    end
-    return true
-end
-
---- Check if the data table has a Sections table
----@param data table The item data to check
----@param modGUID string The UUID of the mod being processed
----@return boolean True if the data table has a Sections table, false otherwise
-function BlueprintPreprocessing:HasSectionsEntry(data, modGUID)
-    if not data.Sections then
-        MCMDebug(2,
-            "No 'Sections' section found in data for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
         return false
     end
     return true

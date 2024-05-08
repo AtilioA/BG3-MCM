@@ -22,7 +22,7 @@ function BlueprintSection:New(options)
     self.Settings = {}
     self.Handles = options.Handles
 
-    if options.Tabs and #options.Tabs > 0 then
+    if options.Tabs then
         for _, tabOptions in ipairs(options.Tabs) do
             local tab = BlueprintTab:New(tabOptions)
             table.insert(self.Tabs, tab)
