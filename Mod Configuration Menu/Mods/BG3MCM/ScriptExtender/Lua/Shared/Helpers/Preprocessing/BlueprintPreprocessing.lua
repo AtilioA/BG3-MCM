@@ -1,12 +1,13 @@
 ---@class HelperBlueprintPreprocessing
 BlueprintPreprocessing = _Class:Create("HelperBlueprintPreprocessing", nil)
+-- The current mod GUID being processed
+BlueprintPreprocessing.currentModGuid = nil
 
 
 --- Validate the structure of the blueprint data
 ---@param blueprint table The blueprint data to validate
----@param modGUID string The mod's unique identifier
 ---@return boolean True if the blueprint data is correct, false otherwise
-function BlueprintPreprocessing:HasIncorrectStructure(blueprint, modGUID)
+function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
     --- Check if blueprint has at least one tab
     local hasTabs = blueprint.Tabs and #blueprint.Tabs > 0
 
@@ -17,16 +18,16 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint, modGUID)
     if not hasTabs and not hasSettings then
         MCMWarn(0,
             "Blueprint for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
+            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
             " does not have any tabs or settings. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return true
     elseif hasTabs and hasSettings then
         MCMWarn(0,
             "Blueprint for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
+            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
             " has both tabs and settings. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return true
     end
 
@@ -35,8 +36,8 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint, modGUID)
     if hasSections then
         MCMWarn(0,
             "Sections found directly in blueprint for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return true
     end
 
@@ -45,8 +46,7 @@ end
 
 --- Verify that all tabs in the blueprint have unique IDs
 ---@param blueprint table The blueprint data to verify
----@param modGUID string The mod's unique identifier
-function BlueprintPreprocessing:VerifyTabIDUniqueness(blueprint, modGUID)
+function BlueprintPreprocessing:VerifyTabIDUniqueness(blueprint)
     local tabs = blueprint.Tabs
     if tabs == nil then
         return true
@@ -58,8 +58,8 @@ function BlueprintPreprocessing:VerifyTabIDUniqueness(blueprint, modGUID)
         if tabIDs[tab.TabId] then
             MCMWarn(0,
                 "Duplicate tab ID found in blueprint for mod: " ..
-                Ext.Mod.GetMod(modGUID).Info.Name ..
-                ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+                ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
             return false
         end
         tabIDs[tab.TabId] = true
@@ -70,8 +70,7 @@ end
 
 --- Verify that all sections in the blueprint have unique IDs
 ---@param blueprint table The blueprint data to verify
----@param modGUID string The mod's unique identifier
-function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint, modGUID)
+function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint)
     local tabs = blueprint.Tabs
     if tabs == nil then
         return true
@@ -85,8 +84,8 @@ function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint, modGUID)
                 if sectionIDs[section.SectionId] then
                     MCMWarn(0,
                         "Duplicate section ID found in blueprint for mod: " ..
-                        Ext.Mod.GetMod(modGUID).Info.Name ..
-                        ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                        Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+                        ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
                     return false
                 end
                 sectionIDs[section.SectionId] = true
@@ -99,8 +98,7 @@ end
 
 --- Verify that all setting IDs in the blueprint are unique
 ---@param blueprint table The blueprint data to verify
----@param modGUID string The mod's unique identifier
-function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint, modGUID)
+function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint)
     local settingIDs = {}
     local isValid = true
 
@@ -110,8 +108,8 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint, modGUID)
                 if settingIDs[setting.Id] then
                     MCMWarn(0,
                         "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod: " ..
-                        Ext.Mod.GetMod(modGUID).Info.Name ..
-                        ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                        Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+                        ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
                     isValid = false
                     goto continue
                 end
@@ -158,17 +156,16 @@ end
 
 --- Verify all IDs in the blueprint are unique
 ---@param blueprint table The blueprint data to verify
----@param modGUID string The mod's unique identifier
-function BlueprintPreprocessing:VerifyIDUniqueness(blueprint, modGUID)
-    return self:VerifyTabIDUniqueness(blueprint, modGUID) and
-        self:VerifySectionIDUniqueness(blueprint, modGUID) and
-        self:VerifySettingIDUniqueness(blueprint, modGUID)
+function BlueprintPreprocessing:VerifyIDUniqueness(blueprint)
+    return self:VerifyTabIDUniqueness(blueprint) and
+        self:VerifySectionIDUniqueness(blueprint) and
+        self:VerifySettingIDUniqueness(blueprint)
 end
 
+-- TODO: modularize this + default checks
 --- Validate the setting data in the blueprint (e.g.: ensure that all IDs are unique, default values are valid, etc.)
 ---@param blueprint table The blueprint data to validate
----@param modGUID string The mod's unique identifier
-function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint, modGUID)
+function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
     local isValid = true
 
     local blueprintSettingsDefinitions = blueprint:GetAllSettings()
@@ -290,11 +287,12 @@ end
 ---@param blueprint table The blueprint data to sanitize
 ---@param modGUID string The mod's unique identifier
 function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
-    if not self:HasSchemaVersionsEntry(blueprint, modGUID) then
+    self.currentModGuid = modGUID
+    if not self:HasSchemaVersionsEntry(blueprint) then
         return
     end
 
-    if self:HasIncorrectStructure(blueprint, modGUID) then
+    if self:HasIncorrectStructure(blueprint) then
         MCMWarn(0,
             "Blueprint for mod: " ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
@@ -303,7 +301,7 @@ function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
         return
     end
 
-    if not self:VerifyIDUniqueness(blueprint, modGUID) then
+    if not self:VerifyIDUniqueness(blueprint) then
         MCMWarn(0,
             "Blueprint for mod: " ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
@@ -312,7 +310,7 @@ function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
         return
     end
 
-    if not self:ValidateBlueprintSettings(blueprint, modGUID) then
+    if not self:ValidateBlueprintSettings(blueprint) then
         MCMWarn(0,
             "Blueprint for mod: " ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
@@ -341,20 +339,19 @@ end
 
 --- Check if the data table has a SchemaVersions table and validate its contents
 ---@param data table The item data to check
----@param modGUID string The UUID of the mod being processed
 ---@return boolean True if the data table has a SchemaVersions table and it is valid, false otherwise
-function BlueprintPreprocessing:HasSchemaVersionsEntry(data, modGUID)
+function BlueprintPreprocessing:HasSchemaVersionsEntry(data)
     if not data.SchemaVersion then
         MCMWarn(0,
             "No 'SchemaVersion' section found in data for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return false
     elseif type(data.SchemaVersion) ~= "number" then
         MCMWarn(0,
             "Invalid 'SchemaVersion' section (not a number) found in data for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return false
     end
     return true
