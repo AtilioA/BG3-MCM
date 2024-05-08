@@ -33,14 +33,6 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, 
 
     -- shit why did I name it like this
     MCM_IMGUI_LAYER:CreateModMenu(mods)
-
-    -- Insert a new tab now that the MCM is ready (demonstration)
-    IMGUIAPI:InsertModMenuTab(ModuleUUID, "Inserted tab", function(tabHeader)
-        local myCustomWidget = tabHeader:AddButton("My Custom Widget")
-        myCustomWidget.OnClick = function()
-            _D("My custom widget was clicked!")
-        end
-    end)
 end)
 
 Ext.RegisterNetListener(Channels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
