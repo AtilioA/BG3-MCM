@@ -130,6 +130,11 @@
             "anyOf": [
                 {
                     "required": [
+                        "Settings"
+                    ]
+                },
+                {
+                    "required": [
                         "Tabs"
                     ]
                 },
@@ -138,11 +143,6 @@
                         "Sections"
                     ]
                 },
-                {
-                    "required": [
-                        "Settings"
-                    ]
-                }
             ],
             "required": [
                 "TabId",
@@ -160,12 +160,12 @@
             "anyOf": [
                 {
                     "required": [
-                        "Tooltip"
+                        "Description"
                     ]
                 },
                 {
                     "required": [
-                        "Description"
+                        "Tooltip"
                     ]
                 }
             ],
@@ -365,12 +365,12 @@
             "anyOf": [
                 {
                     "required": [
-                        "Tabs"
+                        "Settings"
                     ]
                 },
                 {
                     "required": [
-                        "Settings"
+                        "Tabs"
                     ]
                 }
             ],
