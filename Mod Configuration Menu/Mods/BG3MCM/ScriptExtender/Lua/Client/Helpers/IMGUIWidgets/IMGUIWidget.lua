@@ -48,7 +48,7 @@ function IMGUIWidget:AddResetButton(group, setting, modGUID)
 end
 
 function IMGUIWidget:SetupTooltip(widget, setting)
-    if not setting.Tooltip then
+    if setting.Tooltip == nil or setting.Tooltip == "" then
         return
     end
 
