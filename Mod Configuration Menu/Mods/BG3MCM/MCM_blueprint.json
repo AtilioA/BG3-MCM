@@ -44,8 +44,45 @@
         {
             "TabId": "widget_showcasing",
             "TabName": "Widget showcasing",
+            "Tabs": [
+                {
+                    "TabId": "tabTab",
+                    "TabName": "Tab Inside Tab",
+                    "Settings": [
+                        {
+                            "Id": "tabby",
+                            "Name": "This is a widget inside a tab inside a tab",
+                            "Type": "enum",
+                            "Options": {
+                                "Choices": [
+                                    "You can and also (not XOR):",
+                                    "Add sections!",
+                                    "Add settings!",
+                                    "Add tabs inside sections!"
+                                ]
+                            },
+                            "Tooltip": "Open enum to learn more"
+                        }
+                    ]
+                }
+            ],
             "Sections": [
                 {
+                    "Tabs": [
+                        {
+                            "TabId": "sectionTab",
+                            "TabName": "Tab Inside Section",
+                            "Settings": [
+                                {
+                                    "Id": "aint no way",
+                                    "Name": "recursive objects??",
+                                    "Type": "checkbox",
+                                    "Default": true,
+                                    "Tooltip": "we going nested"
+                                }
+                            ]
+                        }
+                    ],
                     "SectionId": "section1",
                     "SectionName": "Section 1",
                     "Settings": [
