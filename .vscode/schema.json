@@ -61,21 +61,6 @@
         }
     ],
     "definitions": {
-        "Block": {
-            "type": "object",
-            "description": "A single block in the MCM menu. This can be a tab, a section, or a setting.",
-            "properties": {
-                "Tab": {
-                    "$ref": "#/definitions/Tab"
-                },
-                "Section": {
-                    "$ref": "#/definitions/Section"
-                },
-                "Setting": {
-                    "$ref": "#/definitions/Setting"
-                }
-            }
-        },
         "Tab": {
             "type": "object",
             "description": "A single tab in the MCM menu.",
