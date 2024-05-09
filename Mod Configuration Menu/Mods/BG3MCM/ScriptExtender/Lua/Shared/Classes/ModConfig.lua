@@ -168,9 +168,11 @@ function ModConfig:GetSettings()
     BlueprintPreprocessing:SanitizeBlueprints(self.mods)
     self:LoadSettings()
 
+
     -- Save the sanitized and validated settings back to the JSON files
     self:SaveAllSettings()
 
+    -- TODO: sort self.mods by name
     return self.mods
 end
 

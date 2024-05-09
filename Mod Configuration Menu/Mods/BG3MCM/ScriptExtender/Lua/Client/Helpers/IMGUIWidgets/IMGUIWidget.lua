@@ -69,7 +69,7 @@ end
 ---@param setting BlueprintSetting
 ---@return nil
 function IMGUIWidget:SetupDescription(widget, group, setting)
-    if not setting:GetDescription() then
+    if not setting:GetDescription() or setting:GetDescription() == "" then
         return
     end
 
@@ -85,5 +85,5 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
 
     local addedDescription = group:AddText(descriptionText)
     addedDescription:SetColor("Text", Color.normalized_rgba(255, 255, 255, 0.67))
-    group:AddDummy(0, 5)
+    group:AddDummy(0, 4)
 end
