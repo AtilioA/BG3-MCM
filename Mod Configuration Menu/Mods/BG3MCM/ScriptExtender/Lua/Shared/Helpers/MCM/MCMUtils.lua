@@ -1,6 +1,8 @@
 -- ---@class HelperMCMUtils: Helper
 -- MCMUtils = _Class:Create("HelperMCMUtils", Helper)
 
+MCMUtils = {}
+
 --- Utility function to check if a table contains a value
 ---@param tbl table The table to search
 ---@param element any The element to find
@@ -61,3 +63,43 @@ function table.convertStringBooleans(tbl)
         end
     end
 end
+
+--- Check if a table is empty ([], {})
+function table.isEmpty(tbl)
+    return next(tbl) == nil
+end
+
+--- Sorts the mods by name and returns a sorted array of mod GUIDs, with MCM placed first
+---@param mods table The table of mods to sort
+---@return table The sorted array of mod GUIDs
+function MCMUtils.SortModsByName(mods)
+    -- Create an array for the UUIDs, to be sorted
+    local sortedUuids = {}
+    for uuid in pairs(mods) do
+        table.insert(sortedUuids, uuid)
+    end
+
+    -- Sort the sortedUuids, placing the mod with UUID 755a8a72-407f-4f0d-9a33-274ac0f0b53d first
+    table.sort(sortedUuids, function(a, b)
+        if a == "755a8a72-407f-4f0d-9a33-274ac0f0b53d" then
+            return true
+        elseif b == "755a8a72-407f-4f0d-9a33-274ac0f0b53d" then
+            return false
+        else
+            local modA = Ext.Mod.GetMod(a)
+            local modB = Ext.Mod.GetMod(b)
+            return modA.Info.Name < modB.Info.Name
+        end
+    end)
+
+    return sortedUuids
+end
+
+--- Utility function to process a mod description for display in the MCM, adding newlines after each period so that the text wraps somehwat nicely.
+function MCMUtils.ProcessModDescription(description)
+    local processedDescription = description
+    processedDescription = string.gsub(processedDescription, "%. ", ".\n")
+    return processedDescription
+end
+
+return MCMUtils
