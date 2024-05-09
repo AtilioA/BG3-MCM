@@ -47,27 +47,18 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW:SetStyle("ScrollbarSize", 10)
 
-    -- TODO: add stuff to the menu bar
-    m = MCM_WINDOW:AddMainMenu()
+    -- TODO: add stuff to the menu bar (it's not working)
+    -- local m = MCM_WINDOW:AddMainMenu()
 
-    -- options = m:AddMenu("Options")
-    -- options:AddItem("Adjust Setting 1").OnClick = function()
-    --     MCMDebug(2, "Adjusting setting 1")
+    -- local help = m:AddMenu("Help")
+    -- local helpAbout = help:AddItem("About")
+    -- help:AddItem("Troubleshooting").OnClick = function()
+    --     local aboutPopup = MCM_WINDOW:AddPopup("Yea")
+    --     helpAbout.OnClick = function()
+    --         aboutPopup:Open()
+    --     end
     -- end
-    -- options:AddItem("Reset to Defaults").OnClick = function()
-    --     MCMDebug(2, "Resetting options to defaults")
-    -- end
-
-    local help = m:AddMenu("Help")
-    local helpAbout = help:AddItem("About")
-    -- local aboutPopup = helpAbout:AddPopup("Yea")
-    -- helpAbout.OnClick = function()
-    --     aboutPopup:Open()
-    --     MCMDebug(2, "Showing about information")
-    -- end
-    help:AddItem("Troubleshooting").OnClick = function()
-        -- Popup to show troubleshooting information?
-        MCMDebug(2, "Showing troubleshooting information")
+end
     end
 end
 
