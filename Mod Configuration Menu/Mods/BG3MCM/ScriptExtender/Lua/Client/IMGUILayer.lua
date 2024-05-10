@@ -72,37 +72,49 @@ function IMGUILayer:CreateModMenu(mods)
 
     MCM_WINDOW.AlwaysAutoResize = true
     self.mods = mods
+
+    -- Sort mods by name
+    local sortedModKeys = MCMUtils.SortModsByName(mods)
+
+    -- Convert the mod configs to use the Blueprint class
     for _modGUID, config in pairs(self.mods) do
         config.blueprint = Blueprint:New(config.blueprint)
     end
-    -- TODO: modularize etc
 
     -- Add functionality to manage between profiles
     UIProfileManager:CreateProfileCollapsingHeader()
 
     MCM_WINDOW:AddDummy(0, 10)
 
-    -- TODO: refactor what is part of the class and whatever
-    -- Add the main tab bar for the mods
-    self.modsTabBar = MCM_WINDOW:AddSeparatorText("Mods")
-    self.modsTabBar:SetColor("Separator", Color.normalized_rgba(100, 50, 255, 0.67))
-    self.modsTabBar = MCM_WINDOW:AddTabBar("Mods")
+    -- Create the main table
+    -- local modsSection = MCM_WINDOW:AddSeparator("Mods")
+    local mainTable = MCM_WINDOW:AddTable("", 1)
+    mainTable.IDContext = "MCM_MAIN_TABLE"
+    local treeTableRow = mainTable:AddRow()
 
-    -- Make the tabs under the mods tab bar have a list popup button and be reorderable
-    -- self.modsTabBar.TabListPopupButton = true
-    self.modsTabBar.Reorderable = true
-    self.mods_tabs = {}
+    -- Create the treeview
+    local modsTree = treeTableRow:AddCell():AddTree("Mods")
+    modsTree.FramePadding = true
+    modsTree.CollapsingHeader = true
+    modsTree.SpanFullWidth = true
+    modsTree.Leaf = true
 
-    -- Iterate over all mods and create a tab for each
-    for modGUID, _ in pairs(self.mods) do
-        local modTab = self.modsTabBar:AddTabItem(Ext.Mod.GetMod(modGUID).Info.Name)
+    -- Iterate over all mods and create the trees
+    for _, modGUID in ipairs(sortedModKeys) do
+        local modName = Ext.Mod.GetMod(modGUID).Info.Name
+        local modItem = modsTree:AddTree(modName)
+        modItem:SetColor("Text", Color.normalized_rgba(255, 255, 255, 1))
+        -- modItem.CollapsingHeader = true
 
         -- Add tooltip with mod version
-        local modVersion = table.concat(Ext.Mod.GetMod(modGUID).Info.ModVersion, ".")
-        local modTabTooltip = modTab:Tooltip()
-        modTabTooltip:AddText("Version: " .. modVersion)
+        local modDescription = MCMUtils.ProcessModDescription(Ext.Mod.GetMod(modGUID).Info.Description)
+        local modTabTooltip = modItem:Tooltip()
+        modTabTooltip:AddText(modDescription)
+        modItem.IDContext = modGUID
 
-        self.mods_tabs[modGUID] = modTab
+        modsTree:AddSeparator()
+
+        self.mods_tabs[modGUID] = modItem
         self:CreateModMenuTab(modGUID)
     end
 end
@@ -111,43 +123,47 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuTab(modGUID)
-    modGUID = modGUID or ModuleUUID
     local modInfo = Ext.Mod.GetMod(modGUID).Info
-    -- local modBlueprint = MCM:GetModBlueprint(modGUID)
     local modBlueprint = self.mods[modGUID].blueprint
     local modSettings = self.mods[modGUID].settingsValues
-    -- local modSettings = MCM:GetAllModSettings(modGUID)
     local modTab = self.mods_tabs[modGUID]
 
-    -- Create a new IMGUI group for the mod to hold all settings
-    -- local modGroup = modCell:AddGroup(modInfo.Name .. "_GROUP")
-    local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
+    local function createModTabBar()
+        local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
 
-    if type(self.mods_tabs[modGUID]) == "table" then
-        self.mods_tabs[modGUID].mod_tab_bar = modTabs
-        self.mods[modGUID].widgets = {}
-    else
-        self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
-        self.mods[modGUID] = { widgets = {} }
+        if type(self.mods_tabs[modGUID]) == "table" then
+            self.mods_tabs[modGUID].mod_tab_bar = modTabs
+            self.mods[modGUID].widgets = {}
+        else
+            self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
+            self.mods[modGUID] = { widgets = {} }
+        end
+
+        return modTabs
     end
+
+    -- Footer-like text with mod information
+    local function createModTabFooter()
+        modTab:AddSeparator()
+        local modAuthor = modInfo.Author
+        local modVersion = table.concat(modInfo.ModVersion, ".")
+        local modDescription = modInfo.Description
+        local modName = modInfo.Name
+
+        local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
+        local modInfoText = modTab:AddText(infoText)
+        modInfoText:SetColor("Text", Color.normalized_rgba(255, 255, 255, 0.5))
+        modInfoText.IDContext = modGUID .. "_FOOTER"
+    end
+
+    local modTabs = createModTabBar()
 
     -- Iterate over each tab in the mod blueprint to create a subtab for each
     for _, tab in ipairs(modBlueprint.Tabs) do
         self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     end
 
-    -- Footer-like text with mod information
-    modTab:AddSeparator()
-    local modAuthor = modInfo.Author
-    local modVersion = table.concat(modInfo.ModVersion, ".")
-    local modDescription = modInfo.Description
-    local modName = modInfo.Name
-
-    -- Add text with mod information
-    local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
-    local modInfoText = modTab:AddText(infoText)
-    modInfoText:SetColor("Text", Color.normalized_rgba(255, 255, 255, 0.5))
-    modInfoText.IDContext = modGUID .. "_FOOTER"
+    createModTabFooter()
 end
 
 --- Create a new tab for a mod in the MCM
