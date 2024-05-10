@@ -233,37 +233,11 @@ end
 --- @param blueprint Blueprint The blueprint to use for the settings
 --- @param settings BlueprintSetting The settings to update
 function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
-    local BlueprintSettings = blueprint:GetSettings()
-    local BlueprintTabs = blueprint:GetTabs()
+    local allSettings = blueprint:GetAllSettings()
 
-    if BlueprintSettings then
-        for _, setting in ipairs(BlueprintSettings) do
-            if settings[setting:GetId()] == nil then
-                settings[setting:GetId()] = setting:GetDefault()
-            end
-        end
-    end
-
-    if BlueprintTabs then
-        for _, tab in ipairs(BlueprintTabs) do
-            local tabSections = tab:GetSections()
-            local tabSettings = tab:GetSettings()
-
-            if tabSettings then
-                for _, setting in ipairs(tabSettings) do
-                    if settings[setting:GetId()] == nil then
-                        settings[setting:GetId()] = setting:GetDefault()
-                    end
-                end
-            elseif tabSections then
-                for _, section in ipairs(tabSections) do
-                    for _, setting in ipairs(section:GetSettings()) do
-                        if settings[setting:GetId()] == nil then
-                            settings[setting:GetId()] = setting:GetDefault()
-                        end
-                    end
-                end
-            end
+    for _, setting in pairs(allSettings) do
+        if settings[setting:GetId()] == nil then
+            settings[setting:GetId()] = setting:GetDefault()
         end
     end
 end
