@@ -79,20 +79,19 @@ function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint)
     local sectionIDs = {}
 
     for _, tab in ipairs(tabs) do
-        if tab.Sections ~= nil then
-            for _, section in ipairs(tab.Sections) do
-                if sectionIDs[section.SectionId] then
-                    MCMWarn(0,
-                        "Duplicate section ID found in blueprint for mod: " ..
-                        Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-                        ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
-                    return false
-                end
-                sectionIDs[section.SectionId] = true
+        if tab.Sections == nil or #tab.Sections == 0 then goto continue end
+        for _, section in ipairs(tab.Sections) do
+            if sectionIDs[section.SectionId] then
+                MCMWarn(0,
+                    "Duplicate section ID found in blueprint for mod: " ..
+                    Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+                    ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                return false
             end
+            sectionIDs[section.SectionId] = true
         end
+        ::continue::
     end
-
     return true
 end
 
@@ -162,43 +161,30 @@ function BlueprintPreprocessing:VerifyIDUniqueness(blueprint)
         self:VerifySettingIDUniqueness(blueprint)
 end
 
--- TODO: modularize this + default checks + add more logging
+-- REFACTOR: this is way uglier and repetitive than it needs to be. Especially since we have validation functions for each type already. However, I'm too tired to refactor this. It is just validation, it is kinda fine.
 --- Validate the setting data in the blueprint (e.g.: ensure that all IDs are unique, default values are valid, etc.)
 ---@param blueprint table The blueprint data to validate
 function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
     local isValid = true
-
     local blueprintSettingsDefinitions = blueprint:GetAllSettings()
+
     if blueprintSettingsDefinitions then
         for _, setting in pairs(blueprintSettingsDefinitions) do
             if not self:BlueprintCheckDefaultType(setting) then
                 return false
             end
-            if setting.Type == "enum" then
-                if not self:BlueprintShouldHaveOptionsForEnum(setting) then
+
+            local settingType = setting.Type
+            if settingType == "enum" then
+                if not self:ValidateEnumSetting(setting) then
                     return false
                 end
-                if not self:BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings(setting) then
+            elseif settingType == "radio" then
+                if not self:ValidateRadioSetting(setting) then
                     return false
                 end
-            elseif setting.Type == "radio" then
-                if not self:BlueprintShouldHaveOptionsForRadio(setting) then
-                    return false
-                end
-                if not self:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting) then
-                    return false
-                end
-            elseif setting.Type == "slider_int" or setting.Type == "slider_float" or setting.Type == "drag_float" or setting.Type == "drag_int" then
-                if not self:BlueprintShouldHaveMinAndMaxForSlider(setting) then
-                    return false
-                end
-                if not self:BlueprintMinAndMaxForSliderShouldBeNumbers(setting) then
-                    return false
-                end
-                if not self:BlueprintMinIsLessThanMaxForSlider(setting) then
-                    return false
-                end
-                if not self:BlueprintDefaultShouldBeWithinRange(setting) then
+            elseif self:IsSliderSetting(settingType) then
+                if not self:ValidateSliderSetting(setting) then
                     return false
                 end
             end
@@ -206,6 +192,54 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
     end
 
     return isValid
+end
+
+function BlueprintPreprocessing:ValidateEnumSetting(setting)
+    if not self:BlueprintShouldHaveOptionsForEnum(setting) then
+        return false
+    end
+
+    if not self:BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings(setting) then
+        return false
+    end
+
+    return true
+end
+
+function BlueprintPreprocessing:ValidateRadioSetting(setting)
+    if not self:BlueprintShouldHaveOptionsForRadio(setting) then
+        return false
+    end
+
+    if not self:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting) then
+        return false
+    end
+
+    return true
+end
+
+function BlueprintPreprocessing:IsSliderSetting(settingType)
+    return settingType == "slider_int" or settingType == "slider_float" or settingType == "drag_float" or settingType == "drag_int"
+end
+
+function BlueprintPreprocessing:ValidateSliderSetting(setting)
+    if not self:BlueprintShouldHaveMinAndMaxForSlider(setting) then
+        return false
+    end
+
+    if not self:BlueprintMinAndMaxForSliderShouldBeNumbers(setting) then
+        return false
+    end
+
+    if not self:BlueprintMinIsLessThanMaxForSlider(setting) then
+        return false
+    end
+
+    if not self:BlueprintDefaultShouldBeWithinRange(setting) then
+        return false
+    end
+
+    return true
 end
 
 function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
@@ -424,7 +458,6 @@ function BlueprintPreprocessing:BlueprintMinIsLessThanMaxForSlider(setting)
     return true
 end
 
---- TODO: validate if blueprint is correct, e.g. settings have unique IDs, etc.
 --- Sanitizes blueprint data by removing elements without SchemaVersions and converting string booleans
 ---@param blueprint table The blueprint data to sanitize
 ---@param modGUID string The mod's unique identifier

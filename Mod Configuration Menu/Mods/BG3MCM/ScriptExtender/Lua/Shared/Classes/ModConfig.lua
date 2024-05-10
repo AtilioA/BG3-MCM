@@ -172,7 +172,6 @@ function ModConfig:GetSettings()
     -- Save the sanitized and validated settings back to the JSON files
     self:SaveAllSettings()
 
-    -- TODO: sort self.mods by name
     return self.mods
 end
 
@@ -228,7 +227,6 @@ function ModConfig:HandleMissingSettings(modGUID, blueprint, settingsFilePath)
     JsonLayer:SaveJSONFile(settingsFilePath, defaultSettingsJSON)
 end
 
---- TODO: modularize after 'final' blueprint structure is decided
 --- Add missing keys from the settings file based on the blueprint
 --- @param blueprint Blueprint The blueprint to use for the settings
 --- @param settings BlueprintSetting The settings to update
@@ -242,7 +240,6 @@ function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
     end
 end
 
---- TODO: modularize after 'final' blueprint structure is decided
 --- Clean up settings entries that are not present in the blueprint
 ---@param blueprint Blueprint The blueprint for the mod
 ---@param settings BlueprintSetting The settings to clean up
