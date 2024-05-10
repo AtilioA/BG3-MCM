@@ -24,14 +24,16 @@ function UIProfileManager:CreateProfileCollapsingHeader()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile)
 
     local profileCollapsingHeader = MCM_WINDOW:AddCollapsingHeader("Profile management")
-    local profileCombo = profileCollapsingHeader:AddCombo("Select profile (WIP)")
+    local profileCombo = profileCollapsingHeader:AddCombo("Select profile")
 
     profileCombo.Options = { "Select a setting profile", table.unpack(profiles.Profiles) }
     profileCombo.SelectedIndex = profileIndex or 1
 
-    local profileButton = profileCollapsingHeader:AddButton("Create profile")
-    local newProfileName = profileCollapsingHeader:AddInputText("New profile name")
-    newProfileName.SameLine = true
+    profileCollapsingHeader:AddSeparator()
+    profileCollapsingHeader:AddText("Create a new profile")
+    local newProfileName = profileCollapsingHeader:AddInputText("")
+    local profileButton = profileCollapsingHeader:AddButton("Create")
+    profileButton.SameLine = true
 
     local deleteProfileButton = profileCollapsingHeader:AddButton(getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile()))
     self:SetupDeleteProfileButton(deleteProfileButton, profileCombo, getDeleteProfileButtonLabel)
