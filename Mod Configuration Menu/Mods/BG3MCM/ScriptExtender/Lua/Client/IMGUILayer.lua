@@ -173,7 +173,6 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
-    -- TODO: modularize
     local tabName = tab:GetTabLocaName()
 
     local tabHeader = modTabs:AddTabItem(tabName)

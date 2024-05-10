@@ -42,7 +42,7 @@ function UIProfileManager:CreateProfileCollapsingHeader()
         deleteProfileButton)
 
     self:SetupProfileComboOnChange(profileCombo, getDeleteProfileButtonLabel, deleteProfileButton)
-    -- TODO: refresh the settings UI; currently it doesn't update when changing profiles and you need to reopen the MCM window
+    -- TODO: refresh the settings UI when creating profiles
 end
 
 function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileCombo, getDeleteProfileButtonLabel)

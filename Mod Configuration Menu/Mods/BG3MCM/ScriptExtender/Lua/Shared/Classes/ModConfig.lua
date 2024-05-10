@@ -38,7 +38,7 @@ function ModConfig:GetSettingsFilePath(modGUID)
     return self.profileManager:GetModProfileSettingsPath(modGUID) .. "/settings.json"
 end
 
--- TODO: as always, refactor this nuclear waste
+-- TODO: as always, refactor this nuclear waste (might only do when introducing recursive handling of tabs and sections)
 --- Save the settings for a mod to the settings file with tab and section information.
 --- @param modGUID GUIDSTRING The mod's UUID to save the settings for.
 function ModConfig:SaveSettingsForMod(modGUID)
@@ -276,32 +276,9 @@ function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
     -- Create a set of valid setting names from the blueprint
     local validSettings = {}
 
-    local BlueprintSettings = blueprint:GetSettings()
-    local BlueprintTabs = blueprint:GetTabs()
-
-    if BlueprintSettings then
-        for _, setting in ipairs(BlueprintSettings) do
-            validSettings[setting:GetId()] = true
-        end
-    end
-
-    if BlueprintTabs then
-        for _, tab in ipairs(BlueprintTabs) do
-            local tabSections = tab:GetSections()
-            local tabSettings = tab:GetSettings()
-
-            if #tabSettings > 0 then
-                for _, setting in ipairs(tabSettings) do
-                    validSettings[setting:GetId()] = true
-                end
-            elseif #tabSections > 0 then
-                for _, section in ipairs(tab:GetSections()) do
-                    for _, setting in ipairs(section:GetSettings()) do
-                        validSettings[setting:GetId()] = true
-                    end
-                end
-            end
-        end
+    local allSettings = blueprint:GetAllSettings()
+    for id, _setting in pairs(allSettings) do
+        validSettings[id] = true
     end
 
     -- Remove any settings that are not in the valid set
