@@ -59,13 +59,16 @@ function IMGUILayer:CreateMainIMGUIWindow()
     --     end
     -- end
 end
-    end
-end
 
---- Create the main MCM menu, which contains a tab for each mod that has MCM settings
+--- Create the main MCM menu, which contains a tree view for each mod that has MCM settings
 ---@param mods table<string, table> A table of modGUIDs that has a table of blueprint and settings for each mod
 ---@return nil
 function IMGUILayer:CreateModMenu(mods)
+    -- If self.mods_tabs already has content, we don't want to populate the menu again
+    if not table.isEmpty(self.mods_tabs) then
+        return
+    end
+
     MCM_WINDOW.AlwaysAutoResize = true
     self.mods = mods
     for _modGUID, config in pairs(self.mods) do
