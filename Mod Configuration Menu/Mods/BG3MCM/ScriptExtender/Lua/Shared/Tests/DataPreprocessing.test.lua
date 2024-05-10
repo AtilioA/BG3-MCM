@@ -1,15 +1,3 @@
--- (FROM OLD MARKDOWN NOTES) The blueprint will be validated in the following ways:
-
--- - Check if each setting has a `Name`, `Type`, `Default`, and `Description` key;
--- - Check if the `Type` key is one of the supported types (`int`, `float`, `checkbox`, `text`, `enum`, `slider`, `radio`);
--- - Check if the `Default` key is of the correct type according to the `Type` key;
--- - Check if the `Options` key is present for `enum`, `radio`types;
--- - Check if the `Options` key is an array of strings for `enum` and `radio` types;
--- - Check if the `Min` and `Max` keys are present for `slider` type;
--- - Check if the `Min` and `Max` keys are numbers for `slider` type;
--- - Check if the `Min` key is less than the `Max` key for `slider`, `drag` types;
--- - Check if ID is unique for each setting across the blueprint.
-
 TestSuite.RegisterTests("DataPreprocessing", {
     -- Blueprint structure validation
     "TestSanitizeBlueprintWithSchemaVersion",
@@ -39,7 +27,7 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintDefaultForDragIntShouldBeInteger",
     "TestBlueprintDefaultForDragFloatShouldBeNumber",
     "TestBlueprintDefaultForSliderShouldBeBetweenMinAndMax",
-    -- "TestBlueprintDefaultForDragShouldBeBetweenMinAndMax",
+    "TestBlueprintDefaultForDragShouldBeBetweenMinAndMax",
     -- -- Options
     "BlueprintShouldHaveOptionsForEnum",
     "BlueprintShouldHaveOptionsForRadio",
@@ -50,10 +38,6 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "BlueprintMinShouldBeLessThanMaxForSlider",
 
     --- Broader blueprint integration tests?
-    -- "TestSanitizeBlueprints",
-    -- "TestValidateSettings",
-    -- "TestHasSchemaVersionsEntry",
-    -- "TestPreprocessData"
 })
 
 function TestSanitizeBlueprintWithSchemaVersion()
@@ -508,34 +492,6 @@ function TestBlueprintDefaultForRadioShouldBeOneOfTheOptions()
     local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
-end
-
-function TestSanitizeBlueprints()
-    local mods = {
-        [TestConstants.ModuleUUIDs[1]] = {
-            blueprint = {
-                SchemaVersion = 1,
-                someValue = "true"
-            }
-        },
-        [TestConstants.ModuleUUIDs[2]] = {
-            blueprint = {
-                SchemaVersion = 1,
-                anotherValue = "false"
-            }
-        },
-        [TestConstants.ModuleUUIDs[3]] = {
-            blueprint = {
-                someValue = "true"
-            }
-        }
-    }
-
-    BlueprintPreprocessing:SanitizeBlueprints(mods)
-
-    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[1]].blueprint.someValue, true)
-    TestSuite.AssertEquals(mods[TestConstants.ModuleUUIDs[2]].blueprint.anotherValue, false)
-    TestSuite.AssertNil(mods[TestConstants.ModuleUUIDs[3]])
 end
 
 function TestHasSchemaVersionsEntry()
