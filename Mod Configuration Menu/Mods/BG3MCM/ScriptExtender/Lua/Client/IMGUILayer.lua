@@ -116,7 +116,7 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     local modTab = self.mods_tabs[modGUID]
 
     -- Create a new IMGUI group for the mod to hold all settings
-    -- local modGroup = modTab:AddGroup(modInfo.Name .. "_GROUP")
+    -- local modGroup = modCell:AddGroup(modInfo.Name .. "_GROUP")
     local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
 
     if type(self.mods_tabs[modGUID]) == "table" then
@@ -126,10 +126,24 @@ function IMGUILayer:CreateModMenuTab(modGUID)
         self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
         self.mods[modGUID] = { widgets = {} }
     end
+
     -- Iterate over each tab in the mod blueprint to create a subtab for each
     for _, tab in ipairs(modBlueprint.Tabs) do
         self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     end
+
+    -- Footer-like text with mod information
+    modTab:AddSeparator()
+    local modAuthor = modInfo.Author
+    local modVersion = table.concat(modInfo.ModVersion, ".")
+    local modDescription = modInfo.Description
+    local modName = modInfo.Name
+
+    -- Add text with mod information
+    local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
+    local modInfoText = modTab:AddText(infoText)
+    modInfoText:SetColor("Text", Color.normalized_rgba(255, 255, 255, 0.5))
+    modInfoText.IDContext = modGUID .. "_FOOTER"
 end
 
 --- Create a new tab for a mod in the MCM
