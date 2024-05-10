@@ -39,8 +39,18 @@ function BlueprintSection:New(options)
     return self
 end
 
-function BlueprintSection:GetSectionName()
-    return self.SectionName
+function BlueprintSection:GetSectionLocaName()
+    local sectionName = self.SectionName
+    if self:GetHandles() then
+        if self:GetHandles().NameHandle then
+            local translatedName = Ext.Loca.GetTranslatedString(self:GetHandles().NameHandle)
+            if translatedName ~= nil and translatedName ~= "" then
+                sectionName = translatedName
+            end
+        end
+    end
+
+    return sectionName
 end
 
 function BlueprintSection:GetSectionDescription()

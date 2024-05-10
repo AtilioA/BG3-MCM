@@ -30,6 +30,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
     if shouldOpenOnStart == nil then
         shouldOpenOnStart = true
     end
+
     MCM_WINDOW.Visible = shouldOpenOnStart
     MCM_WINDOW.Open = shouldOpenOnStart
 
@@ -157,19 +158,11 @@ end
 ---@return nil
 function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     -- TODO: modularize
-    local tabName = tab:GetTabName()
-    if tab:GetHandles() then
-        if tab:GetHandles().NameHandle then
-            local translatedName = Ext.Loca.GetTranslatedString(tab:GetHandles().NameHandle)
-            if translatedName ~= nil and translatedName ~= "" then
-                tabName = translatedName
-            end
-        end
-    end
+    local tabName = tab:GetTabLocaName()
 
     local tabHeader = modTabs:AddTabItem(tabName)
 
-    -- REFACTOR: as always, this is a mess and should be abstracted away somehow throughout the application if you're reading this im sorry lol given up with the commas too smh also I created classes for all these lil elements but I'm not using them here because something was not instantiated and I was focused on something else so it just slipped by
+    -- TODO: as always, this should be abstracted away somehow but ehh (this will be needed for nested tabs etc)
     local tabSections = tab:GetSections()
     local tabSettings = tab:GetSettings()
 
@@ -197,16 +190,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         modGroup:AddDummy(0, 5)
     end
 
-    -- TODO: modularize
-    local sectionName = section:GetSectionName()
-    if section:GetHandles() then
-        if section:GetHandles().NameHandle then
-            local translatedName = Ext.Loca.GetTranslatedString(section:GetHandles().NameHandle)
-            if translatedName ~= nil and translatedName ~= "" then
-                sectionName = translatedName
-            end
-        end
-    end
+    local sectionName = section:GetSectionLocaName()
 
     local sectionHeader = modGroup:AddSeparatorText(sectionName)
     sectionHeader:SetColor("Text", Color.normalized_rgba(255, 255, 255, 1))

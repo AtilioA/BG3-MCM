@@ -67,6 +67,18 @@ function BlueprintSetting:GetName()
     return self.Name
 end
 
+function BlueprintSetting:GetLocaName()
+    local name = self.Name
+    if self.Handles.NameHandle then
+        local translatedName = Ext.Loca.GetTranslatedString(self.Handles.NameHandle)
+        if translatedName ~= nil and translatedName ~= "" then
+            name = translatedName
+        end
+    end
+
+    return name
+end
+
 function BlueprintSetting:GetId()
     return self.Id
 end
