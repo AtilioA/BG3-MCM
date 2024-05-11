@@ -105,6 +105,10 @@ function IMGUILayer:CreateModMenu(mods)
         local modItem = modsTree:AddTree(modName)
         modItem:SetColor("Text", Color.normalized_rgba(255, 255, 255, 1))
         -- modItem.CollapsingHeader = true
+        -- Tentative way to open MCM options by default
+        if modGUID == ModuleUUID then
+            modItem.DefaultOpen = true
+        end
 
         -- Add tooltip with mod version
         local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
