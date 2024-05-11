@@ -212,7 +212,7 @@ function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
 
     -- This is kind of a hacky way to emit events to other servers
     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
-        Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, settingName = settingId, value = value } }))
+        Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
 
     if not clientRequest then
         -- Notify the client that the setting has been updated

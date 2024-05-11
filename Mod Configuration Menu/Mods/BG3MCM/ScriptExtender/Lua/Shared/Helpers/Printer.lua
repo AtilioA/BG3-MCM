@@ -4,11 +4,11 @@ MCMPrinter = Printer:New { Prefix = "Mod Configuration Menu", ApplyColor = true,
 -- NOTE: this does not work as expected because there are two sources of truth for the debug level: MCM settings.json and VCConfig json file
 Ext.RegisterNetListener(Channels.MCM_SAVED_SETTING, function(call, payload)
     local data = Ext.Json.Parse(payload)
-    if not data or data.modGUID ~= ModuleUUID or not data.settingName then
+    if not data or data.modGUID ~= ModuleUUID or not data.settingId then
         return
     end
 
-    if data.settingName == "debug_level" then
+    if data.settingId == "debug_level" then
         _D("Setting debug level to " .. data.value)
         MCMPrinter.DebugLevel = data.value
     end
