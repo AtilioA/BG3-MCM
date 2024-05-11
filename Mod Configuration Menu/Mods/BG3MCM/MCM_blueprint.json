@@ -18,7 +18,14 @@
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",
                             "Default": true,
-                            "Tooltip": "Open the MCM menu when the game starts."
+                            "Description": "Open the MCM menu when the game starts."
+                        },
+                        {
+                            "Id": "auto_resize_window",
+                            "Name": "Auto-resize window",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Automatically resize the MCM window to fit the content.\n(Requires save/load or SE reset to take effect)"
                         }
                     ]
                 },

@@ -70,7 +70,7 @@ function IMGUILayer:CreateModMenu(mods)
         return
     end
 
-    MCM_WINDOW.AlwaysAutoResize = true
+    MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
     self.mods = mods
 
     -- Sort mods by name

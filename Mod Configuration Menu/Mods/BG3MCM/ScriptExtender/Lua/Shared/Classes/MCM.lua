@@ -249,14 +249,14 @@ end
 
 --- Reset all settings for a mod to their default values
 ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
-function MCM:ResetAllSettings(modGUID)
-    local modBlueprint = self.blueprints[modGUID]
-    local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
+-- function MCM:ResetAllSettings(modGUID)
+--     local modBlueprint = self.blueprints[modGUID]
+--     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
-    ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
-    Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
-        Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
-end
+--     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
+--     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
+--         Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
+-- end
 
 function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
