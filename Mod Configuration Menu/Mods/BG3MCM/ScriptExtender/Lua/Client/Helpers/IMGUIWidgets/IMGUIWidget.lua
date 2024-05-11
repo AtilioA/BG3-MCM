@@ -40,7 +40,7 @@ function IMGUIWidget:AddResetButton(group, setting, modGUID)
     -- TODO: refactor this to use popup with MouseButtonRight? SE's IMGUI doesn't support that yet
     local resetButton = group:AddButton("[Reset]")
     resetButton.IDContext = "ResetButton_" .. setting.Id
-    resetButton:Tooltip():AddText("Reset to default")
+    resetButton:Tooltip():AddText("Reset this value to the default")
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting.Id, modGUID)
     end
