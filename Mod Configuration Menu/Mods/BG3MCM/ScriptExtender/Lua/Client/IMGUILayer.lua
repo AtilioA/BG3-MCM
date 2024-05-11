@@ -107,7 +107,7 @@ function IMGUILayer:CreateModMenu(mods)
         -- modItem.CollapsingHeader = true
 
         -- Add tooltip with mod version
-        local modDescription = MCMUtils.ProcessModDescription(Ext.Mod.GetMod(modGUID).Info.Description)
+        local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
         local modTabTooltip = modItem:Tooltip()
         modTabTooltip:AddText(modDescription)
         modItem.IDContext = modGUID

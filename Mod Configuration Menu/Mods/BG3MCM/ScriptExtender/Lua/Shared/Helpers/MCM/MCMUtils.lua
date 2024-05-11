@@ -95,11 +95,14 @@ function MCMUtils.SortModsByName(mods)
     return sortedUuids
 end
 
---- Utility function to process a mod description for display in the MCM, adding newlines after each period so that the text wraps somehwat nicely.
-function MCMUtils.ProcessModDescription(description)
-    local processedDescription = description
-    processedDescription = string.gsub(processedDescription, "%. ", ".\n")
-    return processedDescription
+--- Add newlines after each period in a string
+function MCMUtils.AddNewlinesAfterPeriods(description)
+    return string.gsub(description, "%. ", ".\n")
+end
+
+--- Replace <br> tags with newlines in a string
+function MCMUtils.ReplaceBrWithNewlines(description)
+    return string.gsub(description, "<br>", "\n")
 end
 
 return MCMUtils

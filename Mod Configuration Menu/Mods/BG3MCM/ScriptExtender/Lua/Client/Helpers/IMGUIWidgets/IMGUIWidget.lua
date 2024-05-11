@@ -80,7 +80,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     local descriptionText = setting:GetDescription()
     local translatedDescription = Ext.Loca.GetTranslatedString(setting:GetHandles().DescriptionHandle)
     if translatedDescription ~= nil and translatedDescription ~= "" then
-        descriptionText = translatedDescription
+        descriptionText = MCMUtils.ReplaceBrWithNewlines(translatedDescription)
     end
 
     local addedDescription = group:AddText(descriptionText)
