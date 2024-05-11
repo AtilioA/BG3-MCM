@@ -79,7 +79,7 @@ function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint)
     local sectionIDs = {}
 
     for _, tab in ipairs(tabs) do
-        if tab.Sections == nil or #tab.Sections == 0 then goto continue end
+        if tab.Sections == nil or table.isEmpty(tab.Sections) then goto continue end
         for _, section in ipairs(tab.Sections) do
             if sectionIDs[section.SectionId] then
                 MCMWarn(0,
@@ -92,6 +92,7 @@ function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint)
         end
         ::continue::
     end
+
     return true
 end
 
@@ -219,7 +220,8 @@ function BlueprintPreprocessing:ValidateRadioSetting(setting)
 end
 
 function BlueprintPreprocessing:IsSliderSetting(settingType)
-    return settingType == "slider_int" or settingType == "slider_float" or settingType == "drag_float" or settingType == "drag_int"
+    return settingType == "slider_int" or settingType == "slider_float" or settingType == "drag_float" or
+        settingType == "drag_int"
 end
 
 function BlueprintPreprocessing:ValidateSliderSetting(setting)
