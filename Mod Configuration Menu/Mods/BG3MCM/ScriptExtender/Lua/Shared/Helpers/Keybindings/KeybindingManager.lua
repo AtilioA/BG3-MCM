@@ -31,11 +31,8 @@ function KeybindingManager:IsKeybindingPressed(e, keybinding)
         return false
     end
 
-    if self:IsModifierNull(modifier) then
-        return table.isEmpty(e.Modifiers)
-    else
-        return table.contains(e.Modifiers, modifier)
-    end
+
+    return self:IsModifierPressed(e, modifier)
 end
 
 function KeybindingManager:HandleKeyInput(e)
@@ -43,6 +40,19 @@ function KeybindingManager:HandleKeyInput(e)
     if KeybindingManager:IsKeybindingPressed(e, toggleKeybinding) then
         IMGUILayer:ToggleMCMWindow()
     end
+end
+
+function KeybindingManager:IsModifierPressed(e, modifier)
+    if #e.Modifiers == 0 then
+        return self:IsModifierNull(modifier)
+    else
+        for _, modifierKey in ipairs(e.Modifiers) do
+            if modifierKey == modifier then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 return KeybindingManager
