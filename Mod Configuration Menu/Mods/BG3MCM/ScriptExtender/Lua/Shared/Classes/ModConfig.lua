@@ -168,7 +168,6 @@ function ModConfig:GetSettings()
     BlueprintPreprocessing:SanitizeBlueprints(self.mods)
     self:LoadSettings()
 
-
     -- Save the sanitized and validated settings back to the JSON files
     self:SaveAllSettings()
 
@@ -180,10 +179,10 @@ end
 ---@param blueprint table The blueprint for the mod
 function ModConfig:LoadSettingsForMod(modGUID, blueprint)
     local settingsFilePath = self:GetSettingsFilePath(modGUID)
-    local config = JsonLayer:LoadJSONFile(settingsFilePath)
-    if config then
-        local flattenedConfig = JsonLayer:FlattenSettingsJSON(config)
-        self:HandleLoadedSettings(modGUID, blueprint, flattenedConfig, settingsFilePath)
+    local settings = JsonLayer:LoadJSONFile(settingsFilePath)
+    if settings then
+        local flattenedSettings = JsonLayer:FlattenSettingsJSON(settings)
+        self:HandleLoadedSettings(modGUID, blueprint, flattenedSettings, settingsFilePath)
     else
         self:HandleMissingSettings(modGUID, blueprint, settingsFilePath)
     end
@@ -192,18 +191,18 @@ end
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
 ---@param modGUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
----@param config table The table with all settings for the mod
+---@param settings table The table with all settings for the mod
 ---@param settingsFilePath string The file path of the settings.json file
-function ModConfig:HandleLoadedSettings(modGUID, blueprint, config, settingsFilePath)
+function ModConfig:HandleLoadedSettings(modGUID, blueprint, settings, settingsFilePath)
     MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
     -- Add new settings, remove deprecated settings, update JSON file
-    self:AddKeysMissingFromBlueprint(blueprint, config)
-    self:RemoveDeprecatedKeys(blueprint, config)
+    self:AddKeysMissingFromBlueprint(blueprint, settings)
+    self:RemoveDeprecatedKeys(blueprint, settings)
 
-    config = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
-    JsonLayer:SaveJSONFile(settingsFilePath, config)
+    settings = DataPreprocessing:ValidateAndFixSettings(blueprint, settings)
+    JsonLayer:SaveJSONFile(settingsFilePath, settings)
 
-    self.mods[modGUID].settingsValues = config
+    self.mods[modGUID].settingsValues = settings
 
     MCMTest(1, Ext.Json.Stringify(self.mods[modGUID].settingsValues))
     -- TODO: untangle this from shared client/server code

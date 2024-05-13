@@ -160,7 +160,7 @@ function MCM:IsSettingValueValid(settingId, value, modGUID)
         local isValid = DataPreprocessing:ValidateSetting(setting, value)
         if not isValid then
             MCMWarn(0,
-                "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
+                "Invalid value for setting '" .. settingId .. "' (" .. tostring(value) .. "). Value will not be saved.")
         end
         return isValid
     else
@@ -214,14 +214,14 @@ function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
         Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
 
-    if not clientRequest then
-        -- Notify the client that the setting has been updated
-        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-            modGUID = modGUID,
-            settingId = settingId,
-            value = value
-        }))
-    end
+    -- if not clientRequest then
+    -- Notify the client that the setting has been updated
+    Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+        modGUID = modGUID,
+        settingId = settingId,
+        value = value
+    }))
+    -- end
 end
 
 ---@param settingId string The id of the setting to reset

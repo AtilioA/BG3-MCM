@@ -35,7 +35,10 @@ InputWidgetFactory = {
     end,
     color_edit = function(group, setting, settingValue, modGUID)
         return IMGUIWidget:Create(group, setting, settingValue, modGUID, ColorEditIMGUIWidget)
-    end
+    end,
+    keybinding = function(group, setting, settingValue, modGUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modGUID, KeybindingIMGUIWidget)
+    end,
 }
 
 return InputWidgetFactory

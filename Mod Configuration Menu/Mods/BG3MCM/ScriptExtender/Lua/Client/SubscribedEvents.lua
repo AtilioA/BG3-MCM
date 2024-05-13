@@ -4,16 +4,7 @@
 -- TODO: Make it more abstract/configurable
 Ext.Events.KeyInput:Subscribe(function(e)
     if e.Event == "KeyDown" and e.Repeat == false then
-        if (e.Key == "INSERT" or e.Key == "APPLICATION") then
-            -- Toggle both Open and Visible together
-            if MCM_WINDOW.Open == true then
-                MCM_WINDOW.Visible = false
-                MCM_WINDOW.Open = false
-            else
-                MCM_WINDOW.Visible = true
-                MCM_WINDOW.Open = true
-            end
-        end
+        KeybindingManager:HandleKeyInput(e)
     end
 end)
 
@@ -54,10 +45,10 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
     local data = Ext.Json.Parse(payload)
     local modGUID = data.modGUID
     local settingId = data.settingId
-    local defaultValue = data.defaultValue
+    local value = data.value
 
     -- Update the displayed value for the setting
-    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
+    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
 end)
 
 Ext.RegisterNetListener(Channels.MCM_MOD_TAB_ADDED, function(_, payload)

@@ -10,6 +10,7 @@ RequireFiles("Shared/Helpers/Validators/", {
     "DragFloatValidator",
     "TextValidator",
     "ColorValidator",
+    "KeybindingValidator",
 })
 
 -- Validator functions for different setting types
@@ -49,6 +50,9 @@ SettingValidators = {
     end,
     ["color_edit"] = function(setting, value)
         return ColorValidator.Validate(setting, value)
+    end,
+    ["keybinding"] = function(setting, value)
+        return KeybindingValidator.Validate(setting, value)
     end,
 }
 

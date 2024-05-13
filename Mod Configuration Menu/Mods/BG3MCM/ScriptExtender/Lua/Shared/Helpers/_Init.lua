@@ -1,5 +1,6 @@
 RequireFiles("Shared/Helpers/", {
     "VC/_Init",
+    "Keybindings/_Init",
     "Validators/_Init",
     "Channels",
     "Config",

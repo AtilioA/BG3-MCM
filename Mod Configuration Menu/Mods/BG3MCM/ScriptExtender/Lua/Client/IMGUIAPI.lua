@@ -30,10 +30,10 @@ function IMGUIAPI:SetSettingValue(settingId, value, modGUID, setUIValue)
         value = value
     }))
     Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
-        payload = Ext.Json.Parse(payload)
-        if payload.modGUID == modGUID and payload.settingId == settingId then
+        local data = Ext.Json.Parse(payload)
+        if data.modGUID == modGUID and data.settingId == settingId then
             if setUIValue then
-                setUIValue(payload.value)
+                setUIValue(data.value)
             end
         end
     end)

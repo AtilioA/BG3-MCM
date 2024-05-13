@@ -61,6 +61,17 @@ function IMGUILayer:CreateMainIMGUIWindow()
     -- end
 end
 
+
+function IMGUILayer:ToggleMCMWindow()
+    if MCM_WINDOW.Open == true then
+        MCM_WINDOW.Visible = false
+        MCM_WINDOW.Open = false
+    else
+        MCM_WINDOW.Visible = true
+        MCM_WINDOW.Open = true
+    end
+end
+
 --- Create the main MCM menu, which contains a tree view for each mod that has MCM settings
 ---@param mods table<string, table> A table of modGUIDs that has a table of blueprint and settings for each mod
 ---@return nil

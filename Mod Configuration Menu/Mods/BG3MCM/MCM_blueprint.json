@@ -14,6 +14,16 @@
                     "SectionName": "General Settings",
                     "Settings": [
                         {
+                            "Id": "toggle_mcm_keybinding",
+                            "Name": "Toggle MCM window",
+                            "Type": "keybinding",
+                            "Default": {
+                                "ScanCode": "INSERT",
+                                "Modifier": ""
+                            },
+                            "Description": "Set the keybinding for toggling MCM's window.\n(Requires save/load or SE reset to take effect)",
+                        },
+                        {
                             "Id": "open_on_start",
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",

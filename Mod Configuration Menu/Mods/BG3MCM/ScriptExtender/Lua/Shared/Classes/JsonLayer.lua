@@ -130,7 +130,7 @@ function JsonLayer:FlattenSettingsJSON(settings)
     -- Function to recursively flatten the table
     local function flattenTable(tbl)
         for key, value in pairs(tbl) do
-            if type(value) == "table" and not table.isArray(value) then
+            if type(value) == "table" and not table.isArray(value) and not KeybindingManager:IsKeybindingTable(value) then
                 -- If the value is a table, recurse
                 flattenTable(value)
             else
