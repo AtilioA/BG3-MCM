@@ -9,7 +9,7 @@ function KeybindingManager:IsKeybindingTable(value)
 end
 
 function KeybindingManager:GetToggleKeybinding()
-    local toggleKeybinding = MCMAPI:GetSettingValue("toggle_mcm_keybinding", ModuleUUID)
+    local toggleKeybinding = MCMClientState:GetClientStateValue(ModuleUUID, "toggle_mcm_keybinding")
     if not toggleKeybinding then
         toggleKeybinding = {
             ScanCode = "INSERT",

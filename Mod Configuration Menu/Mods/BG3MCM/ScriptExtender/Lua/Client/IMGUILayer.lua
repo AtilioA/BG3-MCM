@@ -20,16 +20,49 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods_tabs = {}
 })
 
-MCM_IMGUI_LAYER = IMGUILayer:New()
+MCMClientState = IMGUILayer:New()
+
+function IMGUILayer:SetClientStateValue(modGUID, settingId, value)
+    if not modGUID or not settingId then
+        return
+    end
+
+    local mod = MCMClientState.mods[modGUID]
+    if not mod or not mod.settingsValues then
+        return
+    end
+
+    mod.settingsValues[settingId] = value
+end
+
+function IMGUILayer:GetClientStateValue(modGUID, settingId)
+    if not modGUID or not settingId then
+        return nil
+    end
+
+    local mod = MCMClientState.mods[modGUID]
+    if not mod or not mod.settingsValues then
+        return nil
+    end
+
+    return mod.settingsValues[settingId]
+end
 
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
-    MCM_WINDOW = Ext.IMGUI.NewWindow("Mod Configuration Menu")
+    local modMenuTitle = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
+    if modMenuTitle == nil or modMenuTitle == "" then
+        modMenuTitle = "Mod Configuration Menu"
+    end
 
-    local shouldOpenOnStart = MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+    MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
+
+    local shouldOpenOnStart = MCMClientState:GetClientStateValue(ModuleUUID, "open_mcm_on_start")
     if shouldOpenOnStart == nil then
         shouldOpenOnStart = true
     end
+
+    MCM_WINDOW.NoFocusOnAppearing = true
 
     MCM_WINDOW.Visible = shouldOpenOnStart
     MCM_WINDOW.Open = shouldOpenOnStart
@@ -47,7 +80,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW:SetColor("TitleBgActive", Color.normalized_rgba(36, 28, 68, 1))
 
     MCM_WINDOW:SetStyle("ScrollbarSize", 10)
-
 
     self.welcomeText = MCM_WINDOW:AddText(
         "Welcome to Baldur's Gate 3 Mod Configuration Menu!\nIf you don't see any mods here, you might need to load a save file first.\nIf you still don't see any mods, make sure you have mods that support MCM.\n\nBy default, you can press Insert to toggle this menu while it is unfocused.")
@@ -158,7 +190,7 @@ function IMGUILayer:CreateModMenuTab(modGUID)
             self.mods[modGUID].widgets = {}
         else
             self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
-            self.mods[modGUID] = { widgets = {} }
+            self.mods[modGUID].widgets = {}
         end
 
         return modTabs

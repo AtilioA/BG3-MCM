@@ -7,13 +7,13 @@ IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
 function IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
-    if not MCM_IMGUI_LAYER.modsTabBar then
+    if not MCMClientState.modsTabBar then
         Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-            MCM_IMGUI_LAYER:InsertModMenuTab(modGUID, tabName, tabCallback)
+            MCMClientState:InsertModMenuTab(modGUID, tabName, tabCallback)
         end)
         return
     else
-        MCM_IMGUI_LAYER:InsertModMenuTab(modGUID, tabName, tabCallback)
+        MCMClientState:InsertModMenuTab(modGUID, tabName, tabCallback)
     end
 end
 
@@ -85,8 +85,8 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return table<string, any> | nil - widgets for the mod (keyed by setting ID), or nil if the mod has no widgets
 function IMGUIAPI:getModWidgets(modGUID)
-    if MCM_IMGUI_LAYER.mods and MCM_IMGUI_LAYER.mods[modGUID] and MCM_IMGUI_LAYER.mods[modGUID].widgets then
-        return MCM_IMGUI_LAYER.mods[modGUID].widgets
+    if MCMClientState.mods and MCMClientState.mods[modGUID] and MCMClientState.mods[modGUID].widgets then
+        return MCMClientState.mods[modGUID].widgets
     end
     return nil
 end

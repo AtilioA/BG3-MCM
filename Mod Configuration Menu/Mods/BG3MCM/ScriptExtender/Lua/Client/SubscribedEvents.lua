@@ -23,7 +23,7 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, 
     local profiles = configs.profiles
 
     -- shit why did I name it like this
-    MCM_IMGUI_LAYER:CreateModMenu(mods)
+    MCMClientState:CreateModMenu(mods)
 end)
 
 Ext.RegisterNetListener(Channels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
@@ -47,9 +47,24 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
     local settingId = data.settingId
     local value = data.value
 
+    MCMClientState:SetClientStateValue(modGUID, settingId, value)
+
     -- Update the displayed value for the setting
     IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
+
+    UpdateMCMValues(modGUID, settingId, value)
 end)
+
+function UpdateMCMValues(modGUID, settingId, value)
+    if modGUID == ModuleUUID then
+        local settingId = settingId
+        local value = value
+
+        if settingId == "auto_resize_window" then
+            MCM_WINDOW.AlwaysAutoResize = value
+        end
+    end
+end
 
 Ext.RegisterNetListener(Channels.MCM_MOD_TAB_ADDED, function(_, payload)
     local data = Ext.Json.Parse(payload)
