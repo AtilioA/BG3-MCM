@@ -81,8 +81,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW:SetStyle("ScrollbarSize", 10)
 
-    self.welcomeText = MCM_WINDOW:AddText(
-        "Welcome to Baldur's Gate 3 Mod Configuration Menu!\nIf you don't see any mods here, you might need to load a save file first.\nIf you still don't see any mods, make sure you have mods that support MCM.\n\nBy default, you can press Insert to toggle this menu while it is unfocused.")
+    self.welcomeText = MCM_WINDOW:AddText(Ext.Loca.GetTranslatedString("h81a4a9991875424984b876d017675879c959"))
 
     -- TODO: add stuff to the menu bar (it's not working)
     -- local m = MCM_WINDOW:AddMainMenu()

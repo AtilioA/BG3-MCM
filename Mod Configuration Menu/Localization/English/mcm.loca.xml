@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentList>
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
-    <content contentuid="h81e3c184d38c473f98ba76c77685cda7gcaa" version="1">Settings</content>
+    <content contentuid="h91b72aadb42a441881a1a7c5de2f82e27agga" version="1">Settings</content>
     <content contentuid="hc4abe0365af046e6abac1b4432abc3f7g4g3" version="1">Auto-resize window</content>
     <content contentuid="hb2789893dcaf46fca8c40add9358e1f2ca93" version="1">Toggle MCM window</content>
     <content contentuid="h76a89ee330464e30b1b9a01de85cbd0042a6" version="1">Open MCM window on start</content>
-    <content contentuid="h2c525b9161344f509bb4dcad8e49010bb9ce" version="1">Automatically resize the MCM window to fit the content.&lt;br&gt;(Requires save/load or SE reset to take effect)</content>
+    <content contentuid="h2c525b9161344f509bb4dcad8e49010bb9ce" version="1">Dynamically resize the MCM window to fit settings.</content>
     <content contentuid="h0d8762f0ceb645608a64b684e581f7a72d67" version="1">Open the MCM menu when the game starts.</content>
-    <content contentuid="h7728653cb8de46388719316b95f3a4110e7c" version="1">Set the keybinding for toggling MCM's window.&lt;br&gt;(Requires save/load or SE reset to take effect)</content>
+    <content contentuid="h7728653cb8de46388719316b95f3a4110e7c" version="1">Set the keybinding for toggling MCM's window.</content>
+    <content contentuid="h6db631a023d0425ca0a62566ab1bec41797f" version="1">General settings</content>
+    <content contentuid="h67357ed078184370901b1d572062b7ba26a5" version="1">Debug settings</content>
+    <content contentuid="hffc964abc9a74a928cb047607a7aeb124594" version="1">Debug level</content>
+    <content contentuid="h1143226dbdd44d4aab3ce3010ffc589a073a" version="1">Used mainly to determine which messages to print.&lt;br&gt;Useful for developers.</content>
+    <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Welcome to Baldur's Gate 3 Mod Configuration Menu!&lt;br&gt;If you don't see any mods here, you might need to load a save file first.&lt;br&gt;If you still don't see any mods, make sure you have mods that support MCM.&lt;br&gt;&lt;br&gt;By default, you can press Insert to toggle this menu while it is unfocused.</content>
 </contentList>

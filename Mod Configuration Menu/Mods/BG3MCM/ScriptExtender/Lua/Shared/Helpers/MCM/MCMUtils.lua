@@ -105,4 +105,28 @@ function MCMUtils.ReplaceBrWithNewlines(description)
     return string.gsub(description, "<br>", "\n")
 end
 
+-- function MCMUtils.UpdateLoca()
+--     for _, file in ipairs({ "mcm.loca" }) do
+--         local fileName = string.format("Localization/English/%s.xml", file)
+--         local contents = Ext.IO.LoadFile(fileName, "data")
+
+--         for line in string.gmatch(contents, "([^\r\n]+)\r*\n") do
+--             local handle, value = string.match(line, '<content contentuid="(%w+)".->(.+)</content>')
+--             if handle ~= nil and value ~= nil then
+--                 value = value:gsub("&[lg]t;", {
+--                     ['&lt;'] = "<",
+--                     ['&gt;'] = ">"
+--                 })
+--                 Ext.Loca.UpdateTranslatedString(handle, value)
+--             end
+--         end
+--     end
+
+--     if debug then
+--         VCDebug(0, "Finished loading loca files.")
+--     end
+-- end
+
+-- MCMUtils.UpdateLoca()
+
 return MCMUtils
