@@ -6,7 +6,7 @@ RequireFiles("Client/", {
     "SubscribedEvents",
 })
 
-IMGUILayer.CreateMainIMGUIWindow()
+MCM_IMGUI_LAYER:CreateMainIMGUIWindow()
 
 -- Insert a new tab now that the MCM is ready (JUST A DEMONSTRATION)
 if Config:getCfg().DEBUG.level > 1 then

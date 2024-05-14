@@ -35,7 +35,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW.Open = shouldOpenOnStart
 
     MCM_WINDOW.IDContext = "MCM_WINDOW"
-    MCM_WINDOW.AlwaysAutoResize = false
+    MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
 
     MCM_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
@@ -47,6 +47,10 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW:SetColor("TitleBgActive", Color.normalized_rgba(36, 28, 68, 1))
 
     MCM_WINDOW:SetStyle("ScrollbarSize", 10)
+
+
+    self.welcomeText = MCM_WINDOW:AddText(
+        "Welcome to Baldur's Gate 3 Mod Configuration Menu!\nIf you don't see any mods here, you might need to load a save file first.\nIf you still don't see any mods, make sure you have mods that support MCM.\n\nBy default, you can press Insert to toggle this menu while it is unfocused.")
 
     -- TODO: add stuff to the menu bar (it's not working)
     -- local m = MCM_WINDOW:AddMainMenu()
@@ -60,7 +64,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
     --     end
     -- end
 end
-
 
 function IMGUILayer:ToggleMCMWindow()
     if MCM_WINDOW.Open == true then
@@ -79,6 +82,10 @@ function IMGUILayer:CreateModMenu(mods)
     -- If self.mods_tabs already has content, we don't want to populate the menu again
     if not table.isEmpty(self.mods_tabs) then
         return
+    end
+
+    if self.welcomeText then
+        self.welcomeText:Destroy()
     end
 
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)

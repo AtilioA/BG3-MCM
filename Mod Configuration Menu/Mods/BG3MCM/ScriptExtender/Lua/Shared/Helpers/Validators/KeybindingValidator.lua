@@ -13,6 +13,5 @@ function KeybindingValidator.Validate(config, value)
     local validModifier = value.Modifier == nil or value.Modifier == "" or
     table.contains(SDLKeys.Modifiers, value.Modifier)
 
-    _D(value)
     return validScanCode and validModifier
 end
