@@ -45,3 +45,4 @@ output/
 *.code-workspace
 .vscode/settings.json
 *cursor*
+Mod Configuration Menu/.vscode/launch.json
