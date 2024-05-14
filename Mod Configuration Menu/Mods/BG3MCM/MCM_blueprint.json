@@ -1,6 +1,6 @@
 {
     "SchemaVersion": 1,
-    "ModName": "MCM",
+    "ModName": "Mod Configuration Menu",
     "Tabs": [
         {
             "TabId": "settings",

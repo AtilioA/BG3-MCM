@@ -81,7 +81,12 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW:SetStyle("ScrollbarSize", 10)
 
-    self.welcomeText = MCM_WINDOW:AddText(Ext.Loca.GetTranslatedString("h81a4a9991875424984b876d017675879c959"))
+    self.welcomeText = MCM_WINDOW:AddText(
+        MCMUtils.ReplaceBrWithNewlines(
+            Ext.Loca.GetTranslatedString(
+            "h81a4a9991875424984b876d017675879c959")
+        )
+    )
 
     -- TODO: add stuff to the menu bar (it's not working)
     -- local m = MCM_WINDOW:AddMainMenu()
