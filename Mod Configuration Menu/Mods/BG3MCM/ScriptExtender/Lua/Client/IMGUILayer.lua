@@ -151,6 +151,11 @@ function IMGUILayer:CreateModMenu(mods)
     -- Iterate over all mods and create the trees
     for _, modGUID in ipairs(sortedModKeys) do
         local modName = Ext.Mod.GetMod(modGUID).Info.Name
+        local blueprintCustomName = self.mods[modGUID].blueprint.ModName
+        if blueprintCustomName then
+            modName = blueprintCustomName
+        end
+
         local modItem = modsTree:AddTree(modName)
         modItem:SetColor("Text", Color.normalized_rgba(255, 255, 255, 1))
         -- modItem.CollapsingHeader = true
@@ -200,8 +205,8 @@ function IMGUILayer:CreateModMenuTab(modGUID)
         modTab:AddSeparator()
         local modAuthor = modInfo.Author
         local modVersion = table.concat(modInfo.ModVersion, ".")
-        local modDescription = modInfo.Description
-        local modName = modInfo.Name
+        -- local modDescription = modInfo.Description
+        -- local modName = modInfo.Name
 
         local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
         local modInfoText = modTab:AddText(infoText)
