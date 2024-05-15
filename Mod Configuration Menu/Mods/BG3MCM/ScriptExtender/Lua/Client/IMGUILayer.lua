@@ -22,7 +22,8 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
 
 MCMClientState = IMGUILayer:New()
 
-function IMGUILayer:SetClientStateValue(modGUID, settingId, value)
+function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
+    modGUID = modGUID or ModuleUUID
     if not modGUID or not settingId then
         return
     end
@@ -35,7 +36,8 @@ function IMGUILayer:SetClientStateValue(modGUID, settingId, value)
     mod.settingsValues[settingId] = value
 end
 
-function IMGUILayer:GetClientStateValue(modGUID, settingId)
+function IMGUILayer:GetClientStateValue(settingId, modGUID)
+    modGUID = modGUID or ModuleUUID
     if not modGUID or not settingId then
         return nil
     end
@@ -57,7 +59,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
 
-    local shouldOpenOnStart = MCMClientState:GetClientStateValue(ModuleUUID, "open_mcm_on_start")
+    local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
     if shouldOpenOnStart == nil then
         shouldOpenOnStart = true
     end

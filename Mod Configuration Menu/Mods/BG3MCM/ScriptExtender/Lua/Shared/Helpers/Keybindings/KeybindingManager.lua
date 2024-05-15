@@ -20,7 +20,7 @@ function KeybindingManager:IsActiveModifier(modifier)
 end
 
 function KeybindingManager:GetToggleKeybinding()
-    local toggleKeybinding = MCMClientState:GetClientStateValue(ModuleUUID, "toggle_mcm_keybinding")
+    local toggleKeybinding = MCMClientState:GetClientStateValue("toggle_mcm_keybinding", ModuleUUID)
     if not toggleKeybinding then
         toggleKeybinding = {
             ScanCode = "INSERT",

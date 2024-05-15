@@ -91,7 +91,7 @@ end)
 -- REFACTOR: these should be in a separate file or something
 local function dynamicOpacityWrapper(func)
     return MCMUtils:ConditionalWrapper(function()
-        return MCMClientState:GetClientStateValue(ModuleUUID, "dynamic_opacity")
+        return MCMClientState:GetClientStateValue("dynamic_opacity", ModuleUUID)
     end, func)
 end
 
