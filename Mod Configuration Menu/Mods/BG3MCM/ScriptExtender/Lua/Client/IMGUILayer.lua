@@ -84,7 +84,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
     self.welcomeText = MCM_WINDOW:AddText(
         MCMUtils.ReplaceBrWithNewlines(
             Ext.Loca.GetTranslatedString(
-            "h81a4a9991875424984b876d017675879c959")
+                "h81a4a9991875424984b876d017675879c959")
         )
     )
 
@@ -109,6 +109,17 @@ function IMGUILayer:ToggleMCMWindow()
         MCM_WINDOW.Visible = true
         MCM_WINDOW.Open = true
     end
+end
+
+function IMGUILayer:SetActiveWindowAlpha(bool)
+    VCTimer:OnTime(100, function()
+        if bool then
+            MCM_WINDOW:SetStyle("Alpha", 1)
+            MCM_WINDOW.Visible = bool
+        else
+            MCM_WINDOW:SetStyle("Alpha", 0.67)
+        end
+    end)
 end
 
 --- Create the main MCM menu, which contains a tree view for each mod that has MCM settings

@@ -1,3 +1,4 @@
+-- REFACTOR: This file should be split into multiple files, and the functions should be moved to the appropriate files.
 -- ---@class HelperMCMUtils: Helper
 -- MCMUtils = _Class:Create("HelperMCMUtils", Helper)
 
@@ -128,5 +129,13 @@ end
 -- end
 
 -- MCMUtils.UpdateLoca()
+
+function MCMUtils:ConditionalWrapper(conditionFunc, func)
+    return function(...)
+        if conditionFunc() then
+            func(...)
+        end
+    end
+end
 
 return MCMUtils

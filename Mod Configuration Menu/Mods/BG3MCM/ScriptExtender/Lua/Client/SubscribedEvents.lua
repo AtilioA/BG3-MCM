@@ -86,3 +86,30 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SET_PROFILE, function(_, payload)
         end
     end
 end)
+
+
+-- REFACTOR: these should be in a separate file or something
+local function dynamicOpacityWrapper(func)
+    return MCMUtils:ConditionalWrapper(function()
+        return MCMClientState:GetClientStateValue(ModuleUUID, "dynamic_opacity")
+    end, func)
+end
+
+-- Thanks to Hippo0o for this idea
+local function onMouseEnter()
+    if not MCM_WINDOW then
+        return
+    end
+    -- windowVisible(false)
+    MCMClientState:SetActiveWindowAlpha(false)
+end
+
+local function onMouseLeave()
+    if not MCM_WINDOW then
+        return
+    end
+    -- windowVisible(true)
+    MCMClientState:SetActiveWindowAlpha(true)
+end
+Ext.UI.GetRoot():Subscribe("MouseEnter", dynamicOpacityWrapper(onMouseEnter))
+Ext.UI.GetRoot():Subscribe("MouseLeave", dynamicOpacityWrapper(onMouseLeave))
