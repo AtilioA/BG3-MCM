@@ -124,10 +124,15 @@ function IMGUILayer:SetActiveWindowAlpha(bool)
     end)
 end
 
+function IMGUILayer:LoadMods(mods)
+    self.mods = mods
+    self:CreateMainIMGUIWindow()
+    self:CreateModMenu()
+end
+
 --- Create the main MCM menu, which contains a tree view for each mod that has MCM settings
----@param mods table<string, table> A table of modGUIDs that has a table of blueprint and settings for each mod
 ---@return nil
-function IMGUILayer:CreateModMenu(mods)
+function IMGUILayer:CreateModMenu()
     -- If self.mods_tabs already has content, we don't want to populate the menu again
     if not table.isEmpty(self.mods_tabs) then
         return
@@ -138,10 +143,9 @@ function IMGUILayer:CreateModMenu(mods)
     end
 
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
-    self.mods = mods
 
     -- Sort mods by name
-    local sortedModKeys = MCMUtils.SortModsByName(mods)
+    local sortedModKeys = MCMUtils.SortModsByName(self.mods)
 
     -- Convert the mod configs to use the Blueprint class
     for _modGUID, config in pairs(self.mods) do

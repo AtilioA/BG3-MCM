@@ -12,6 +12,9 @@ Ext.Events.ResetCompleted:Subscribe(function()
     Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
+    if not MCM_WINDOW then
+        return
+    end
     MCM_WINDOW.Visible = true
 end)
 
@@ -23,7 +26,7 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, 
     local profiles = configs.profiles
 
     -- shit why did I name it like this
-    MCMClientState:CreateModMenu(mods)
+    MCMClientState:LoadMods(mods)
 end)
 
 Ext.RegisterNetListener(Channels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
@@ -60,6 +63,9 @@ function UpdateMCMValues(modGUID, settingId, value)
         local settingId = settingId
         local value = value
 
+        if not MCM_WINDOW then
+            return
+        end
         if settingId == "auto_resize_window" then
             MCM_WINDOW.AlwaysAutoResize = value
         end
@@ -100,11 +106,17 @@ local function onMouseEnter()
     if not MCM_WINDOW then
         return
     end
+    if not MCM_WINDOW then
+        return
+    end
     -- windowVisible(false)
     MCMClientState:SetActiveWindowAlpha(false)
 end
 
 local function onMouseLeave()
+    if not MCM_WINDOW then
+        return
+    end
     if not MCM_WINDOW then
         return
     end
