@@ -119,18 +119,20 @@ function MCM:DeleteProfile(profileName)
 end
 
 --- Get the settings table for a mod
----@param modGUID? string The UUID of the mod. When not provided, the settings for the current mod are returned (ModuleUUID is used)
+---@param modGUID GUIDSTRING The UUID of the mod to retrieve settings from
 ---@return table<string, table> - The settings table for the mod
 function MCM:GetAllModSettings(modGUID)
     if not modGUID then
-        MCMWarn(0, "modGUID is nil. Cannot get mod settings. Please contact " ..
-            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, "modGUID is nil. Cannot get mod settings.")
         return {}
     end
 
     local mod = self.mods[modGUID]
     if not mod then
-        MCMWarn(1, "Mod " .. modGUID .. " not found in MCM settings")
+        MCMWarn(0,
+            "Mod " ..
+            modGUID ..
+            " was not found by MCM. Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return {}
     end
 
@@ -138,13 +140,11 @@ function MCM:GetAllModSettings(modGUID)
 end
 
 --- Get the Blueprint table for a mod
----@param modGUID? string The UUID of the mod. When not provided, the blueprint for the current mod is returned (ModuleUUID is used)
+---@param modGUID GUIDSTRING The UUID of the mod.
 ---@return Blueprint - The Blueprint for the mod
 function MCM:GetModBlueprint(modGUID)
     if modGUID then
         return self.mods[modGUID].blueprint
-    else
-        return self.mods[ModuleUUID].blueprint
     end
 end
 
@@ -174,24 +174,57 @@ function MCM:IsSettingValueValid(settingId, value, modGUID)
 end
 
 --- Get the value of a configuration setting
----@param settingName string The name of the setting
----@param modGUID? GUIDSTRING The UUID of the mod (optional)
+---@param settingId string The id of the setting
+---@param modGUID string The UUID of the mod that has the setting
 ---@return any The value of the setting
-function MCM:GetSettingValue(settingName, modGUID)
-    local modSettingsTable = self:GetAllModSettings(modGUID)
-    if modSettingsTable then
-        return modSettingsTable[settingName]
-    else
+function MCM:GetSettingValue(settingId, modGUID)
+local modSettingsTable = self:GetAllModSettings(modGUID)
+    if not modSettingsTable then
+        MCMWarn(1, "Mod settings table not found for mod '" .. modGUID .. "'.")
         return nil
+    end
+
+    if modSettingsTable[settingId] ~= nil then
+        return modSettingsTable[settingId]
+    end
+    -- No settingId
+    self:HandleMissingSetting(settingId, modSettingsTable, modGUID)
+    return nil
+end
+
+--- Get the names of all settings in the mod settings table
+---@param modSettingsTable table The mod settings table
+---@return string[] The names of all settings
+function MCM:GetSettingsIDs(modSettingsTable)
+    local settingIDs = {}
+    for settingName, _ in pairs(modSettingsTable) do
+        table.insert(settingIDs, settingName)
+    end
+    return settingIDs
+end
+
+--- Handle the case when a setting is missing
+---@param settingId string The id of the setting
+---@param modSettingsTable table The mod settings table
+---@param modGUID string The UUID of the mod
+function MCM:HandleMissingSetting(settingId, modSettingsTable, modGUID)
+    local modInfo = Ext.Mod.GetMod(modGUID).Info
+    local closestMatch, _ = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable), true)
+    if closestMatch then
+        MCMWarn(1,
+            "Setting '" ..
+            settingId ..
+            "' not found for mod '" .. modInfo.Name .. "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
+    else
+        MCMWarn(1, "Setting '" .. settingId .. "' not found for mod '" .. modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
     end
 end
 
 --- Set the value of a configuration setting
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
----@param modGUID? GUIDSTRING The UUID of the mod (optional)
+---@param modGUID GUIDSTRING The UUID of the mod
 function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
-    modGUID = modGUID or ModuleUUID
     local modSettingsTable = self:GetAllModSettings(modGUID)
 
     local isValid = self:IsSettingValueValid(settingId, value, modGUID)
