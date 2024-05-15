@@ -8,6 +8,17 @@ function KeybindingManager:IsKeybindingTable(value)
     return type(value) == "table" and value.ScanCode ~= nil and value.Modifier ~= nil
 end
 
+function KeybindingManager:IsActiveModifier(modifier)
+    return table.contains({
+        "LShift",
+        "RShift",
+        "LCtrl",
+        "RCtrl",
+        "LAlt",
+        "RAlt"
+    }, modifier)
+end
+
 function KeybindingManager:GetToggleKeybinding()
     local toggleKeybinding = MCMClientState:GetClientStateValue(ModuleUUID, "toggle_mcm_keybinding")
     if not toggleKeybinding then
@@ -42,17 +53,42 @@ function KeybindingManager:HandleKeyInput(e)
     end
 end
 
-function KeybindingManager:IsModifierPressed(e, modifier)
-    if #e.Modifiers == 0 then
-        return self:IsModifierNull(modifier)
-    else
-        for _, modifierKey in ipairs(e.Modifiers) do
-            if modifierKey == modifier then
-                return true
-            end
+function KeybindingManager:ExtractActiveModifiers(modifiers)
+    local activeModifiers = {}
+    for _, mod in ipairs(modifiers) do
+        if self:IsActiveModifier(mod) then
+            activeModifiers[mod] = true
         end
     end
-    return false
+    return activeModifiers
+end
+
+function KeybindingManager:AreAllModifiersPresent(eModifiers, activeModifiers)
+    for _, mod in ipairs(eModifiers) do
+        if self:IsActiveModifier(mod) and not activeModifiers[mod] then
+            return false
+        end
+    end
+    return true
+end
+
+function KeybindingManager:AreAllActiveModifiersPressed(eActiveModifiers, activeModifiers)
+    for mod, _ in pairs(activeModifiers) do
+        if not eActiveModifiers[mod] then
+            return false
+        end
+    end
+    return true
+end
+
+function KeybindingManager:IsModifierPressed(e, modifiers)
+    local modifiersTable = type(modifiers) == "table" and modifiers or { modifiers }
+    -- Necessary to ignore modifiers such as scroll lock, num lock, etc.
+    local activeModifiers = self:ExtractActiveModifiers(modifiersTable)
+    local eActiveModifiers = self:ExtractActiveModifiers(e.Modifiers)
+
+    return self:AreAllModifiersPresent(e.Modifiers, activeModifiers) and
+    self:AreAllActiveModifiersPressed(eActiveModifiers, activeModifiers)
 end
 
 return KeybindingManager
