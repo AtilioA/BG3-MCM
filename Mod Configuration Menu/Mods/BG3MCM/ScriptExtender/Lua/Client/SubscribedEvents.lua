@@ -50,15 +50,15 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
     local settingId = data.settingId
     local value = data.value
 
-    MCMClientState:SetClientStateValue(modGUID, settingId, value)
+    MCMClientState:SetClientStateValue(settingId, value, modGUID)
 
     -- Update the displayed value for the setting
     IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
 
-    UpdateMCMValues(modGUID, settingId, value)
+    UpdateMCMValues(settingId, value, modGUID)
 end)
 
-function UpdateMCMValues(modGUID, settingId, value)
+function UpdateMCMValues(settingId, value, modGUID)
     if modGUID == ModuleUUID then
         local settingId = settingId
         local value = value
