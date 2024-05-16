@@ -34,6 +34,9 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     end
 
     mod.settingsValues[settingId] = value
+
+    -- Update the displayed value for the setting
+    IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
 end
 
 function IMGUILayer:GetClientStateValue(settingId, modGUID)
