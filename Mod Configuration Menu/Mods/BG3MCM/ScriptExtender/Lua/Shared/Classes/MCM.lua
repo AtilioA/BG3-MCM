@@ -209,14 +209,15 @@ function MCM:GetSettingsIDs(modSettingsTable)
     return settingIDs
 end
 
+-- TODO: add debouncing to this function
 --- Handle the case when a setting is missing
 ---@param settingId string The id of the setting
 ---@param modSettingsTable table The mod settings table
 ---@param modGUID string The UUID of the mod
 function MCM:HandleMissingSetting(settingId, modSettingsTable, modGUID)
     local modInfo = Ext.Mod.GetMod(modGUID).Info
-    local closestMatch, _ = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable), true)
-    if closestMatch then
+    local closestMatch, distance = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable), false)
+    if closestMatch and distance < 8 then
         MCMWarn(0,
             "Setting '" ..
             settingId ..
