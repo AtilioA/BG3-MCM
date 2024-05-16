@@ -40,7 +40,7 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_RESET, function(_, payload)
     local defaultValue = data.defaultValue
 
     -- Update the displayed value for the setting
-    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, defaultValue)
+    IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modGUID)
 end)
 
 Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
@@ -51,23 +51,20 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
 
     MCMClientState:SetClientStateValue(settingId, value, modGUID)
 
-    -- Update the displayed value for the setting
-    IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
-
     UpdateMCMValues(settingId, value, modGUID)
 end)
 
 function UpdateMCMValues(settingId, value, modGUID)
-    if modGUID == ModuleUUID then
-        local settingId = settingId
-        local value = value
+    if modGUID ~= ModuleUUID then
+        return
+    end
 
-        if not MCM_WINDOW then
-            return
-        end
-        if settingId == "auto_resize_window" then
-            MCM_WINDOW.AlwaysAutoResize = value
-        end
+    if not MCM_WINDOW then
+        return
+    end
+
+    if settingId == "auto_resize_window" then
+        MCM_WINDOW.AlwaysAutoResize = value
     end
 end
 
@@ -87,7 +84,7 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SET_PROFILE, function(_, payload)
 
     for modGUID, modSettings in pairs(newSettings) do
         for settingId, settingValue in pairs(modSettings.settingsValues) do
-            IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, settingValue)
+            IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modGUID)
         end
     end
 end)

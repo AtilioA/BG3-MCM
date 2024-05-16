@@ -61,9 +61,13 @@ end
 
 --- TODO: move somewhere else probably
 ---@private lmao
-function IMGUIAPI:UpdateSettingUIValue(modGUID, settingId, value)
+function IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
     -- Find the widget corresponding to the setting and update its value
-    local widget = self:findWidgetForSetting(modGUID, settingId)
+    local widget = self:findWidgetForSetting(settingId, modGUID)
+    if not widget then
+        MCMWarn(0, "No widget found for setting " .. settingId)
+        return
+    end
     widget:UpdateCurrentValue(value)
 end
 
@@ -72,7 +76,7 @@ end
 ---@param modGUID string The UUID of the mod
 ---@param settingId string The ID of the setting to find the widget for
 ---@return any | nil - The widget corresponding to the setting, or nil if no widget was found
-function IMGUIAPI:findWidgetForSetting(modGUID, settingId)
+function IMGUIAPI:findWidgetForSetting(settingId, modGUID)
     -- Check if the mod has any registered widgets
     local widgets = self:getModWidgets(modGUID)
     if widgets then
