@@ -1,6 +1,7 @@
 EHandlers = {}
 
 function EHandlers.OnLevelGameplayStarted(levelName, isEditorMode)
+    MCMDebug(2, "Level " .. levelName .. " started")
     MCMAPI:LoadAndSendSettings()
 end
 

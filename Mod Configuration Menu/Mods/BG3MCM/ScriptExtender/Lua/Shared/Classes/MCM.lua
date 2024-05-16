@@ -178,7 +178,7 @@ end
 ---@param modGUID string The UUID of the mod that has the setting
 ---@return any The value of the setting
 function MCM:GetSettingValue(settingId, modGUID)
-local modSettingsTable = self:GetAllModSettings(modGUID)
+    local modSettingsTable = self:GetAllModSettings(modGUID)
     if not modSettingsTable then
         MCMWarn(1, "Mod settings table not found for mod '" .. modGUID .. "'.")
         return nil
@@ -187,6 +187,7 @@ local modSettingsTable = self:GetAllModSettings(modGUID)
     if modSettingsTable[settingId] ~= nil then
         return modSettingsTable[settingId]
     end
+
     -- No settingId
     self:HandleMissingSetting(settingId, modSettingsTable, modGUID)
     return nil
@@ -214,9 +215,14 @@ function MCM:HandleMissingSetting(settingId, modSettingsTable, modGUID)
         MCMWarn(1,
             "Setting '" ..
             settingId ..
-            "' not found for mod '" .. modInfo.Name .. "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
+            "' not found for mod '" ..
+            modInfo.Name ..
+            "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
     else
-        MCMWarn(1, "Setting '" .. settingId .. "' not found for mod '" .. modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
+        MCMWarn(1,
+            "Setting '" ..
+            settingId ..
+            "' not found for mod '" .. modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
     end
 end
 

@@ -25,7 +25,6 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, 
     local mods = configs.mods
     local profiles = configs.profiles
 
-    -- shit why did I name it like this
     MCMClientState:LoadMods(mods)
 end)
 
@@ -106,17 +105,11 @@ local function onMouseEnter()
     if not MCM_WINDOW then
         return
     end
-    if not MCM_WINDOW then
-        return
-    end
     -- windowVisible(false)
     MCMClientState:SetActiveWindowAlpha(false)
 end
 
 local function onMouseLeave()
-    if not MCM_WINDOW then
-        return
-    end
     if not MCM_WINDOW then
         return
     end

@@ -104,6 +104,10 @@ function IMGUILayer:CreateMainIMGUIWindow()
 end
 
 function IMGUILayer:ToggleMCMWindow()
+    if not MCM_WINDOW then
+        return
+    end
+
     if MCM_WINDOW.Open == true then
         MCM_WINDOW.Visible = false
         MCM_WINDOW.Open = false
