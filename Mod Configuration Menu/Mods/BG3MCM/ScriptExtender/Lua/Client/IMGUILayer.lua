@@ -55,12 +55,15 @@ end
 
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
+    Ext.IMGUI.LoadFont("f16_1", "Public/Game/GUI/Assets/Fonts/Alegreya/Alegreya-Medium.ttf", 16.0)
+
     local modMenuTitle = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
     if modMenuTitle == nil or modMenuTitle == "" then
         modMenuTitle = "Mod Configuration Menu"
     end
 
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
+    MCM_WINDOW.Font = "f16_1"
 
     local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
     if shouldOpenOnStart == nil then
