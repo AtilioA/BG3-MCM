@@ -14,6 +14,30 @@
                     "SectionName": "General settings",
                     "Settings": [
                         {
+                            "Id": "imgui_ui_scale",
+                            "Name": "UI scale",
+                            "Type": "enum",
+                            "Default": "1.5x",
+                            "Description": "Set the scale of the MCM window.\n(Requires a save/load or SE reset to take effect)",
+                            "Options": {
+                                "Choices": [
+                                    "0.5x",
+                                    "1.0x",
+                                    "1.25x",
+                                    "1.5x",
+                                    "1.75x",
+                                    "2.0x",
+                                    "2.5x",
+                                    "3.0x",
+                                    "4.0x"
+                                ]
+                            },
+                            "Handles": {
+                                "NameHandle": "hba7c7bcb569745fa908a8aa65e9740d5fb8f",
+                                "DescriptionHandle": "h22629109e1da42dd94e21f374add80cebge3"
+                            }
+                        },
+                        {
                             "Id": "toggle_mcm_keybinding",
                             "Name": "Toggle MCM window",
                             "Type": "keybinding",
@@ -74,7 +98,7 @@
                             "Name": "Debug level",
                             "Type": "slider_int",
                             "Default": 0,
-                            "Description": "Used mainly to determine which messages to print.\nUseful for developers.",
+                            "Description": "Used mainly to determine which messages to print.\nUseful for developers or general troubleshooting.",
                             "Options": {
                                 "Min": 0,
                                 "Max": 3

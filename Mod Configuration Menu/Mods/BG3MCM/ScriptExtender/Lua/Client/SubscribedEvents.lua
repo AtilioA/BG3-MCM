@@ -66,6 +66,12 @@ function UpdateMCMValues(settingId, value, modGUID)
     if settingId == "auto_resize_window" then
         MCM_WINDOW.AlwaysAutoResize = value
     end
+
+    if settingId == "imgui_ui_scale" then
+        local scaleValue = MCMUtils:UIScaleValueToNumber(value)
+        MCMDebug(1, "Will set scale to: " .. scaleValue .. " (can't be refreshed yet)")
+        -- Ext.IMGUI.SetScale(scaleValue)
+    end
 end
 
 Ext.RegisterNetListener(Channels.MCM_MOD_TAB_ADDED, function(_, payload)

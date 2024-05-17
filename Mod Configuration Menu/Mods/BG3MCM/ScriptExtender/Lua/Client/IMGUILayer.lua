@@ -56,6 +56,7 @@ end
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
     Ext.IMGUI.LoadFont("f16_1", "Public/Game/GUI/Assets/Fonts/Alegreya/Alegreya-Medium.ttf", 16.0)
+    -- Ext.IMGUI.LoadFont("f16_2", "Public/Game/GUI/Assets/Fonts/NotoSerifKR-Regular", 16.0)
 
     local modMenuTitle = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
     if modMenuTitle == nil or modMenuTitle == "" then
@@ -64,6 +65,8 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
     MCM_WINDOW.Font = "f16_1"
+    local UIScale = MCMUtils:UIScaleValueToNumber(MCMClientState:GetClientStateValue("imgui_ui_scale", ModuleUUID) or 1.0)
+    Ext.IMGUI.SetScale(UIScale)
 
     local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
     if shouldOpenOnStart == nil then
@@ -99,13 +102,12 @@ function IMGUILayer:CreateMainIMGUIWindow()
     -- TODO: add stuff to the menu bar (it's not working)
     -- local m = MCM_WINDOW:AddMainMenu()
 
+    -- local aboutPopup = MCM_WINDOW:AddPopup("Hello")
+    -- _D(aboutPopup)
     -- local help = m:AddMenu("Help")
     -- local helpAbout = help:AddItem("About")
-    -- help:AddItem("Troubleshooting").OnClick = function()
-    --     local aboutPopup = MCM_WINDOW:AddPopup("Yea")
-    --     helpAbout.OnClick = function()
-    --         aboutPopup:Open()
-    --     end
+    -- helpAbout.OnClick = function()
+    -- aboutPopup:Open()
     -- end
 end
 

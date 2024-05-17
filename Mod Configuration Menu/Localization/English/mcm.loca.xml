@@ -11,8 +11,10 @@
     <content contentuid="h6db631a023d0425ca0a62566ab1bec41797f" version="1">General settings</content>
     <content contentuid="h67357ed078184370901b1d572062b7ba26a5" version="1">Debug settings</content>
     <content contentuid="hffc964abc9a74a928cb047607a7aeb124594" version="1">Debug level</content>
-    <content contentuid="h1143226dbdd44d4aab3ce3010ffc589a073a" version="1">Used mainly to determine which messages to print.&lt;br&gt;Useful for developers.</content>
+    <content contentuid="h1143226dbdd44d4aab3ce3010ffc589a073a" version="1">Used mainly to determine which messages to print.&lt;br&gt;Useful for developers or general troubleshooting.</content>
     <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Welcome to Baldur's Gate 3 Mod Configuration Menu!&lt;br&gt;If you don't see any mods here, you might need to load a save file first.&lt;br&gt;If you still don't see any mods, make sure you have mods that support MCM.&lt;br&gt;&lt;br&gt;By default, you can press Insert to toggle this menu while it is unfocused.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Dynamic opacity</content>
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window slightly transparent when not in use.</content>
+    <content contentuid="hba7c7bcb569745fa908a8aa65e9740d5fb8f" version="1">UI scale</content>
+    <content contentuid="h22629109e1da42dd94e21f374add80cebge3" version="1">Set the scale of the MCM window.&lt;br&gt;(Requires a save/load or SE reset to take effect)</content>
 </contentList>

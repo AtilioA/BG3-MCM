@@ -138,4 +138,8 @@ function MCMUtils:ConditionalWrapper(conditionFunc, func)
     end
 end
 
+function MCMUtils:UIScaleValueToNumber(value)
+    return tonumber(value:sub(1, -2))
+end
+
 return MCMUtils
