@@ -137,7 +137,7 @@ function IMGUILayer:SetActiveWindowAlpha(bool)
 end
 
 function IMGUILayer:NotifyMCMWindowReady()
-    Ext.Net.PostMessageToServer(Channels.MCM_WINDOW_READY, Ext.Json.Stringify(self.mods))
+    Ext.Net.PostMessageToServer(Channels.MCM_WINDOW_READY, "")
 end
 
 function IMGUILayer:LoadMods(mods)
