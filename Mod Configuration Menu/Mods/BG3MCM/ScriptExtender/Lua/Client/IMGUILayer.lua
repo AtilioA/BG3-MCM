@@ -136,10 +136,15 @@ function IMGUILayer:SetActiveWindowAlpha(bool)
     end)
 end
 
+function IMGUILayer:NotifyMCMWindowReady()
+    Ext.Net.PostMessageToServer(Channels.MCM_WINDOW_READY, Ext.Json.Stringify(self.mods))
+end
+
 function IMGUILayer:LoadMods(mods)
     self.mods = mods
     self:CreateMainIMGUIWindow()
     self:CreateModMenu()
+    self:NotifyMCMWindowReady()
 end
 
 --- Create the main MCM menu, which contains a tree view for each mod that has MCM settings

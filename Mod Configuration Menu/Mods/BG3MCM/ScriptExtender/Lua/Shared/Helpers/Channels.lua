@@ -20,4 +20,6 @@ Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE = "MCM_Client_Request_Set_Setting_
 Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE = "MCM_Client_Request_Reset_Setting_Value"
 Channels.MCM_CLIENT_REQUEST_SET_PROFILE = "MCM_Client_Request_Set_Profile"
 
+Channels.MCM_WINDOW_READY = "MCM_Window_Ready"
+
 return Channels
