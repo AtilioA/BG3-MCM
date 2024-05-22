@@ -22,6 +22,10 @@ function SubscribedEvents.SubscribeToEvents()
 
     --- Message handler for when the (IMGUI) client requests a profile to be set
     Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, EHandlers.OnClientRequestSetProfile)
+
+    --- Message handler for when the (IMGUI) client opens or closes the MCM window
+    Ext.RegisterNetListener(Channels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)
+    Ext.RegisterNetListener(Channels.MCM_USER_CLOSED_WINDOW, EHandlers.OnUserClosedWindow)
 end
 
 return SubscribedEvents

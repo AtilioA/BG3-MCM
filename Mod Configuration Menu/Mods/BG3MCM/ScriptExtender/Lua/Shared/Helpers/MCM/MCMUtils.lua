@@ -142,4 +142,13 @@ function MCMUtils:UIScaleValueToNumber(value)
     return tonumber(value:sub(1, -2))
 end
 
+--- Play a sound effect on the host character (don't know if this works for multiplayer, would probably require getting the player character)
+--- @param id GUIDSTRING
+function MCMUtils:PlaySound(id)
+    Osi.PlayEffect(Osi.GetHostCharacter(), id)
+    Osi.PlaySound(Osi.GetHostCharacter(), id)
+    Osi.PlaySoundResource(Osi.GetHostCharacter(), id)
+end
+
+
 return MCMUtils

@@ -119,9 +119,11 @@ function IMGUILayer:ToggleMCMWindow()
     if MCM_WINDOW.Open == true then
         MCM_WINDOW.Visible = false
         MCM_WINDOW.Open = false
+        Ext.Net.PostMessageToServer(Channels.MCM_USER_CLOSED_WINDOW, "")
     else
         MCM_WINDOW.Visible = true
         MCM_WINDOW.Open = true
+        Ext.Net.PostMessageToServer(Channels.MCM_USER_OPENED_WINDOW, "")
     end
 end
 

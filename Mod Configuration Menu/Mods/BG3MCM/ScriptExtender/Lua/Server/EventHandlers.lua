@@ -1,5 +1,8 @@
 EHandlers = {}
 
+EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
+EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
+
 function EHandlers.OnLevelGameplayStarted(levelName, isEditorMode)
     MCMDebug(2, "Level " .. levelName .. " started")
     MCMAPI:LoadAndSendSettings()
@@ -40,6 +43,14 @@ function EHandlers.OnClientRequestSetProfile(_, payload)
 
     MCMDebug(1, "Will set profile to " .. profileName)
     MCMAPI:SetProfile(profileName)
+end
+
+function EHandlers.OnUserOpenedWindow(_)
+    MCMUtils:PlaySound(EHandlers.SFX_OPEN_MCM_WINDOW)
+end
+
+function EHandlers.OnUserClosedWindow(_)
+    MCMUtils:PlaySound(EHandlers.SFX_CLOSE_MCM_WINDOW)
 end
 
 return EHandlers

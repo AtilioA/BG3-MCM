@@ -22,4 +22,7 @@ Channels.MCM_CLIENT_REQUEST_SET_PROFILE = "MCM_Client_Request_Set_Profile"
 
 Channels.MCM_WINDOW_READY = "MCM_Window_Ready"
 
+Channels.MCM_USER_OPENED_WINDOW = "MCM_User_Opened_Window"
+Channels.MCM_USER_CLOSED_WINDOW = "MCM_User_Closed_Window"
+
 return Channels
