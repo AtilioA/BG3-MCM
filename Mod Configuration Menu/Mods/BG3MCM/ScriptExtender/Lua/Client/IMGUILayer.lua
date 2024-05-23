@@ -55,6 +55,9 @@ end
 
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
+    if not Ext.IMGUI then
+        return false
+    end
     Ext.IMGUI.LoadFont("f16_1", "Public/Game/GUI/Assets/Fonts/Alegreya/Alegreya-Medium.ttf", 16.0)
     -- Ext.IMGUI.LoadFont("f16_2", "Public/Game/GUI/Assets/Fonts/NotoSerifKR-Regular", 16.0)
 
@@ -109,6 +112,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
     -- helpAbout.OnClick = function()
     -- aboutPopup:Open()
     -- end
+    return true
 end
 
 function IMGUILayer:ToggleMCMWindow()
@@ -144,7 +148,10 @@ end
 
 function IMGUILayer:LoadMods(mods)
     self.mods = mods
-    self:CreateMainIMGUIWindow()
+    local createdWindow = self:CreateMainIMGUIWindow()
+    if not createdWindow then
+        return
+    end
     self:CreateModMenu()
     self:NotifyMCMWindowReady()
 end
@@ -360,6 +367,10 @@ function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
 end
 
 function IMGUILayer:CreateModTabBar(modGUID)
+    if not MCM_WINDOW then
+        return
+    end
+
     local modInfo = Ext.Mod.GetMod(modGUID).Info
     local modTab = self.modsTabBar:AddTabItem(modInfo.Name)
     -- Refactor this nonsense
@@ -374,6 +385,10 @@ end
 ---@param tabName string The name of the tab to be added
 ---@param tabCallback function The callback function to create the tab
 function IMGUILayer:AddTabToModTabBar(modGUID, tabName, tabCallback)
+    if not MCM_WINDOW then
+        return
+    end
+
     local modTabs = self.mods_tabs[modGUID].mod_tab_bar
     local newTab = modTabs:AddTabItem(tabName)
     tabCallback(newTab)
