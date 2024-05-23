@@ -85,15 +85,9 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
 
-    MCM_WINDOW:SetColor("Border", Color.normalized_rgba(0, 0, 0, 1))
-    MCM_WINDOW:SetStyle("WindowBorderSize", 2)
-    MCM_WINDOW:SetStyle("WindowRounding", 2)
-
-    -- Set the window background color
-    MCM_WINDOW:SetColor("TitleBg", Color.normalized_rgba(36, 28, 68, 0.5))
-    MCM_WINDOW:SetColor("TitleBgActive", Color.normalized_rgba(36, 28, 68, 1))
-
-    MCM_WINDOW:SetStyle("ScrollbarSize", 10)
+    if MCMClientState:GetClientStateValue("use_game_color_scheme", ModuleUUID) then
+        UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
+    end
 
     self.welcomeText = MCM_WINDOW:AddText(
         MCMUtils.ReplaceBrWithNewlines(
@@ -262,7 +256,7 @@ end
 function IMGUILayer:CreateModItem(modsTree, modName, modGUID)
     local modItem = modsTree:AddTree(modName)
     modItem.IDContext = modGUID
-    modItem:SetColor("Text", Color.normalized_rgba(255, 255, 255, 1))
+    modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     if modGUID == ModuleUUID then
         modItem.DefaultOpen = true
     end
@@ -315,7 +309,7 @@ function IMGUILayer:CreateModMenuTab(modGUID)
 
         local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
         local modInfoText = modTab:AddText(infoText)
-        modInfoText:SetColor("Text", Color.normalized_rgba(255, 255, 255, 0.5))
+        modInfoText:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.5))
         modInfoText.IDContext = modGUID .. "_FOOTER"
     end
 
@@ -373,8 +367,8 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
 
     local sectionHeader = modGroup:AddSeparatorText(sectionName)
     sectionHeader.IDContext = modGUID .. "_" .. sectionName
-    sectionHeader:SetColor("Text", Color.normalized_rgba(255, 255, 255, 1))
-    sectionHeader:SetColor("Separator", Color.normalized_rgba(255, 255, 255, 0.33))
+    sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+    sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section:GetSettings()) do

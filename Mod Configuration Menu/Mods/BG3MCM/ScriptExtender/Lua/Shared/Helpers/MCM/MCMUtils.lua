@@ -139,6 +139,9 @@ function MCMUtils:ConditionalWrapper(conditionFunc, func)
 end
 
 function MCMUtils:UIScaleValueToNumber(value)
+    if type(value) == "number" then
+        return value
+    end
     return tonumber(value:sub(1, -2))
 end
 
@@ -149,6 +152,5 @@ function MCMUtils:PlaySound(id)
     Osi.PlaySound(Osi.GetHostCharacter(), id)
     Osi.PlaySoundResource(Osi.GetHostCharacter(), id)
 end
-
 
 return MCMUtils

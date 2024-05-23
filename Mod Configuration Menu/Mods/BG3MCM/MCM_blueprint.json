@@ -9,13 +9,13 @@
                 "NameHandle": "h91b72aadb42a441881a1a7c5de2f82e27agga"
             },
             "Sections": [
-                {
-                    "SectionId": "general_settings",
-                    "SectionName": "General settings",
+            {
+                    "SectionId": "UI_settings",
+                    "SectionName": "UI settings",
                     "Settings": [
                         {
                             "Id": "imgui_ui_scale",
-                            "Name": "UI scale",
+                            "Name": "UI scale (this is going away rip)",
                             "Type": "enum",
                             "Default": "1.5x",
                             "Description": "Set the scale of the MCM window.\n(Requires a save/load or SE reset to take effect)",
@@ -37,6 +37,19 @@
                                 "DescriptionHandle": "h22629109e1da42dd94e21f374add80cebge3"
                             }
                         },
+                        {
+                            "Id": "use_game_color_scheme",
+                            "Name": "Use game color scheme",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Apply IMGUI styling to try to replicate the game's color scheme."
+                        }
+                    ]
+                },
+                {
+                    "SectionId": "general_settings",
+                    "SectionName": "General settings",
+                    "Settings": [
                         {
                             "Id": "toggle_mcm_keybinding",
                             "Name": "Toggle MCM window",
