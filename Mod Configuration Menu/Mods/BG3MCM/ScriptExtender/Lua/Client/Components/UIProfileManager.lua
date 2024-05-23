@@ -12,15 +12,16 @@ function UIProfileManager:FindProfileIndex(profile)
     return nil
 end
 
+local function getDeleteProfileButtonLabel(profile)
+    if profile == "Default" then
+        return "Cannot delete the default profile."
+    else
+        return "Delete profile '" .. profile .. "'"
+    end
+end
+
 --- Create widgets for managing profiles (selecting, creating, deleting)
 function UIProfileManager:CreateProfileCollapsingHeader()
-    local getDeleteProfileButtonLabel = function(profile)
-        if profile == "Default" then
-            return "Cannot delete the default profile."
-        else
-            return "Delete profile '" .. profile .. "'"
-        end
-    end
 
     local profiles = MCMAPI:GetProfiles()
     local currentProfile = MCMAPI:GetCurrentProfile()
@@ -39,16 +40,31 @@ function UIProfileManager:CreateProfileCollapsingHeader()
     profileButton.SameLine = true
 
     local deleteProfileButton = profileCollapsingHeader:AddButton(getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile()))
-    self:SetupDeleteProfileButton(deleteProfileButton, profileCombo, getDeleteProfileButtonLabel)
+    self:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
 
-    self:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, getDeleteProfileButtonLabel,
+    self:SetupCreateProfileButton(profileButton, newProfileName, profileCombo,
         deleteProfileButton)
 
-    self:SetupProfileComboOnChange(profileCombo, getDeleteProfileButtonLabel, deleteProfileButton)
+    self:SetupProfileComboOnChange(profileCombo, deleteProfileButton)
     -- TODO: refresh the settings UI when creating profiles
 end
 
-function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileCombo, getDeleteProfileButtonLabel)
+function UIProfileManager:UpdateDeleteProfileButton(deleteProfileButton, profile)
+    if deleteProfileButton == nil then
+        return
+    end
+
+    local newLabel = getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile())
+    deleteProfileButton.Label = newLabel
+
+    if profile == "Default" then
+        deleteProfileButton.Visible = false
+    else
+        deleteProfileButton.Visible = true
+    end
+end
+
+function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
     deleteProfileButton.OnClick = function()
         local currentProfile = MCMAPI:GetCurrentProfile()
         if currentProfile ~= "Default" then
@@ -56,7 +72,7 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
             profileCombo.Options = MCMAPI:GetProfiles().Profiles
             MCMAPI:SetProfile("Default")
             profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
-            deleteProfileButton.Label = getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile())
+            self:UpdateDeleteProfileButton(deleteProfileButton, MCMAPI:GetCurrentProfile())
 
             -- TODO: handle the response from the server
             Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE, Ext.Json.Stringify({
@@ -69,7 +85,6 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
 end
 
 function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName, profileCombo,
-                                                   getDeleteProfileButtonLabel,
                                                    deleteProfileButton)
     profileButton.OnClick = function()
         if newProfileName.Text ~= "" then
@@ -84,12 +99,12 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
             newProfileName.Text = ""
             profileCombo.Options = MCMAPI:GetProfiles().Profiles
             profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
-            deleteProfileButton.Label = getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile())
+            self:UpdateDeleteProfileButton(deleteProfileButton, MCMAPI:GetCurrentProfile())
         end
     end
 end
 
-function UIProfileManager:SetupProfileComboOnChange(profileCombo, getDeleteProfileButtonLabel, deleteProfileButton)
+function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileButton)
     profileCombo.OnChange = function(inputChange)
         local selectedIndex = inputChange.SelectedIndex + 1
         local selectedProfile = inputChange.Options[selectedIndex]
@@ -110,8 +125,6 @@ function UIProfileManager:SetupProfileComboOnChange(profileCombo, getDeleteProfi
             profileName = selectedProfile
         }))
 
-        if deleteProfileButton then
-            deleteProfileButton.Label = getDeleteProfileButtonLabel(selectedProfile)
-        end
+        self:UpdateDeleteProfileButton(deleteProfileButton, selectedProfile)
     end
 end
