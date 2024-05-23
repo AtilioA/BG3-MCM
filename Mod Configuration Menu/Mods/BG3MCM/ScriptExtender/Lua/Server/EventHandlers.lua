@@ -37,12 +37,33 @@ function EHandlers.OnClientRequestResetSettingValue(_, payload)
     MCMAPI:ResetSettingValue(settingId, modGUID, true)
 end
 
+-- function EHandlers.OnClientRequestProfiles(_)
+--     MCMDebug(1, "Received profiles request")
+--     MCMAPI:SendProfiles()
+-- end
+
 function EHandlers.OnClientRequestSetProfile(_, payload)
     local payload = Ext.Json.Parse(payload)
     local profileName = payload.profileName
 
     MCMDebug(1, "Will set profile to " .. profileName)
     MCMAPI:SetProfile(profileName)
+end
+
+function EHandlers.OnClientRequestCreateProfile(_, payload)
+    local payload = Ext.Json.Parse(payload)
+    local profileName = payload.profileName
+
+    MCMDebug(1, "Will create profile " .. profileName)
+    MCMAPI:CreateProfile(profileName)
+end
+
+function EHandlers.OnClientRequestDeleteProfile(_, payload)
+    local payload = Ext.Json.Parse(payload)
+    local profileName = payload.profileName
+
+    MCMDebug(1, "Will delete profile " .. profileName)
+    MCMAPI:DeleteProfile(profileName)
 end
 
 function EHandlers.OnUserOpenedWindow(_)

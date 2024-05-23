@@ -20,8 +20,18 @@ function SubscribedEvents.SubscribeToEvents()
     Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE,
         EHandlers.OnClientRequestResetSettingValue)
 
+    --- Message handler for when the (IMGUI) client requests profiles data
+    -- Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_PROFILES, EHandlers.OnClientRequestProfiles)
+
     --- Message handler for when the (IMGUI) client requests a profile to be set
     Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, EHandlers.OnClientRequestSetProfile)
+
+    --- Message handler for when the (IMGUI) client requests a profile to be created
+    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_CREATE_PROFILE, EHandlers.OnClientRequestCreateProfile)
+
+    --- Message handler for when the (IMGUI) client requests a profile to be deleted
+    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE, EHandlers.OnClientRequestDeleteProfile)
+
 
     --- Message handler for when the (IMGUI) client opens or closes the MCM window
     Ext.RegisterNetListener(Channels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)

@@ -209,7 +209,7 @@ function ModConfig:HandleLoadedSettings(modGUID, blueprint, settings, settingsFi
     -- Abhorrent hack to update the client's UI with the new settings. Since this is just a secondary feature, it is what it is for now. Sorry!
     if Ext.IsClient() and IMGUIAPI then
         for settingId, settingValue in pairs(self.mods[modGUID].settingsValues) do
-            IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modGUID)
+            MCMClientState:SetClientStateValue(settingId, settingValue, modGUID)
         end
     end
 end

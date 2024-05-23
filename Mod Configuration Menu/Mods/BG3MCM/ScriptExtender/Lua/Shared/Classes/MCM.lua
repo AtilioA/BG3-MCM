@@ -46,6 +46,8 @@ function MCM:CreateProfile(profileName)
         end
     end
 
+    self:SetProfile(profileName)
+
     return success
 end
 
@@ -66,9 +68,10 @@ end
 ---@param profileName string The name of the profile to set as the current profile
 ---@return boolean success Whether the profile was successfully set
 function MCM:SetProfile(profileName)
-    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     local currentProfile = self:GetCurrentProfile()
+    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
+    MCMDebug(1, "Set profile to " .. profileName)
 
     if success then
         if Ext.IsServer() then

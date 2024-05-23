@@ -1,3 +1,6 @@
+-- "Give someone state and they'll have a bug one day, but teach them how to represent state in two separate locations that have to be kept in sync and they'll have bugs for a lifetime."
+-- -ryg
+
 UIProfileManager = {}
 
 function UIProfileManager:FindProfileIndex(profile)
@@ -54,6 +57,11 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
             MCMAPI:SetProfile("Default")
             profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
             deleteProfileButton.Label = getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile())
+
+            -- TODO: handle the response from the server
+            Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE, Ext.Json.Stringify({
+                profileName = currentProfile
+            }))
         else
             MCMWarn(0, "Cannot delete the default profile.")
         end
@@ -67,6 +75,12 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
         if newProfileName.Text ~= "" then
             MCMAPI:CreateProfile(newProfileName.Text)
             MCMAPI:SetProfile(newProfileName.Text)
+
+            -- TODO: handle the response from the server
+            Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CREATE_PROFILE, Ext.Json.Stringify({
+                profileName = newProfileName.Text
+            }))
+
             newProfileName.Text = ""
             profileCombo.Options = MCMAPI:GetProfiles().Profiles
             profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
@@ -90,6 +104,11 @@ function UIProfileManager:SetupProfileComboOnChange(profileCombo, getDeleteProfi
         end
 
         MCMAPI:SetProfile(selectedProfile)
+
+        -- TODO: handle the response from the server
+        Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
+            profileName = selectedProfile
+        }))
 
         if deleteProfileButton then
             deleteProfileButton.Label = getDeleteProfileButtonLabel(selectedProfile)
