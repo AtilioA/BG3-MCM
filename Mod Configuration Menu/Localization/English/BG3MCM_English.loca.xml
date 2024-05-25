@@ -17,4 +17,6 @@
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window slightly transparent when not in use.</content>
     <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Apply IMGUI styling to try to replicate the game's color scheme.</content>
     <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicate game color scheme</content>
+    <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Host-only mode</content>
+    <content contentuid="h48d5ce6ebd8144649e72da14b64214a9b57f" version="1">Only the host can change MCM settings in multiplayer games.</content>
 </contentList>
