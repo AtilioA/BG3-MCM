@@ -1,41 +1,45 @@
 SubscribedEvents = {}
 
+local netEventsRegistry = CommandRegistry:new()
+
+netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:new(EHandlers.OnClientRequestConfigs))
+netEventsRegistry:register(Channels.MCM_USER_OPENED_WINDOW, NetCommand:new(EHandlers.OnUserOpenedWindow))
+netEventsRegistry:register(Channels.MCM_USER_CLOSED_WINDOW, NetCommand:new(EHandlers.OnUserClosedWindow))
+
+--- Authorized NetCommand interface (inherits from NetCommand, check if user can edit settings etc)
+netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE,
+    AuthorizedNetCommand:new(EHandlers.OnClientRequestSetSettingValue))
+netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE,
+    AuthorizedNetCommand:new(EHandlers.OnClientRequestResetSettingValue))
+-- registry:register(Channels.MCM_CLIENT_REQUEST_PROFILES, AuthorizedCommand:new(EHandlers.OnClientRequestProfiles))
+netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_SET_PROFILE,
+    AuthorizedNetCommand:new(EHandlers.OnClientRequestSetProfile))
+netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_CREATE_PROFILE,
+    AuthorizedNetCommand:new(EHandlers.OnClientRequestCreateProfile))
+netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE,
+    AuthorizedNetCommand:new(EHandlers.OnClientRequestDeleteProfile))
+
+local function registerNetListeners(registry)
+    local function handleNetMessage(channel, payload, peerId)
+        registry:execute(channel, payload, peerId)
+    end
+
+    for channel, _ in pairs(registry.commands) do
+        Ext.RegisterNetListener(channel, handleNetMessage)
+    end
+end
+
+
+-- Subscribe to events
 function SubscribedEvents.SubscribeToEvents()
-    -- When resetting Lua states
-    -- Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
     if Config:getCfg().DEBUG.level > 2 then
         TestSuite.RunTests()
     end
 
-    -- When the game is started, load the MCM settings
     Ext.Osiris.RegisterListener("LevelGameplayStarted", 2, "before", EHandlers.OnLevelGameplayStarted)
 
-    --- Message handler for when the (IMGUI) client requests the MCM settings to be loaded
-    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_CONFIGS, EHandlers.OnClientRequestConfigs)
 
-    --- Message handler for when the (IMGUI) client requests a setting to be set
-    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, EHandlers.OnClientRequestSetSettingValue)
-
-    --- Message handler for when the (IMGUI) client requests a setting to be reset
-    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE,
-        EHandlers.OnClientRequestResetSettingValue)
-
-    --- Message handler for when the (IMGUI) client requests profiles data
-    -- Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_PROFILES, EHandlers.OnClientRequestProfiles)
-
-    --- Message handler for when the (IMGUI) client requests a profile to be set
-    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, EHandlers.OnClientRequestSetProfile)
-
-    --- Message handler for when the (IMGUI) client requests a profile to be created
-    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_CREATE_PROFILE, EHandlers.OnClientRequestCreateProfile)
-
-    --- Message handler for when the (IMGUI) client requests a profile to be deleted
-    Ext.RegisterNetListener(Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE, EHandlers.OnClientRequestDeleteProfile)
-
-
-    --- Message handler for when the (IMGUI) client opens or closes the MCM window
-    Ext.RegisterNetListener(Channels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)
-    Ext.RegisterNetListener(Channels.MCM_USER_CLOSED_WINDOW, EHandlers.OnUserClosedWindow)
+    registerNetListeners(netEventsRegistry)
 end
 
 return SubscribedEvents
