@@ -67,20 +67,10 @@ function EHandlers.OnClientRequestDeleteProfile(_, payload, peerId)
 end
 
 function EHandlers.OnUserOpenedWindow(_, payload, peerId)
-    local userId = MCMUtils:PeerToUserID(peerId)
-    if not EHandlers.IsUserAuthorized(userId) then
-        return
-    end
-
     MCMUtils:PlaySound(userId, EHandlers.SFX_OPEN_MCM_WINDOW)
 end
 
 function EHandlers.OnUserClosedWindow(_, payload, peerId)
-    local userId = MCMUtils:PeerToUserID(peerId)
-    if not EHandlers.IsUserAuthorized(userId) then
-        return
-    end
-
     MCMUtils:PlaySound(userId, EHandlers.SFX_CLOSE_MCM_WINDOW)
 end
 
