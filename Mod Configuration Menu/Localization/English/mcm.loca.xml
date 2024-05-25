@@ -15,6 +15,6 @@
     <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Welcome to Baldur's Gate 3 Mod Configuration Menu!&lt;br&gt;If you don't see any mods here, you might need to load a save file first.&lt;br&gt;If you still don't see any mods, make sure you have mods that support MCM.&lt;br&gt;&lt;br&gt;By default, you can press Insert to toggle this menu while it is unfocused.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Dynamic opacity</content>
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window slightly transparent when not in use.</content>
-    <content contentuid="hba7c7bcb569745fa908a8aa65e9740d5fb8f" version="1">UI scale</content>
-    <content contentuid="h22629109e1da42dd94e21f374add80cebge3" version="1">Set the scale of the MCM window.&lt;br&gt;(Requires a save/load or SE reset to take effect)</content>
+    <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Apply IMGUI styling to try to replicate the game's color scheme.</content>
+    <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicate game color scheme</content>
 </contentList>

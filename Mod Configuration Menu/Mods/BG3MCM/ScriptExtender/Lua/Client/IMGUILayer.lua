@@ -69,8 +69,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
     MCM_WINDOW.Font = "f16_1"
-    local UIScale = MCMUtils:UIScaleValueToNumber(MCMClientState:GetClientStateValue("imgui_ui_scale", ModuleUUID) or 1.0)
-    Ext.IMGUI.SetScale(UIScale)
 
     local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
     if shouldOpenOnStart == nil then
@@ -333,7 +331,7 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     local tabName = tab:GetTabLocaName()
 
     local tabHeader = modTabs:AddTabItem(tabName)
-    tabHeader.IDContext = modGUID .. "_" .. tab:GetId()
+    tabHeader.IDContext = modGUID .. "_" .. tab:GetTabName()
 
     -- TODO: as always, this should be abstracted away somehow but ehh (this will be needed for nested tabs etc)
     local tabSections = tab:GetSections()

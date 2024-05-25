@@ -9,43 +9,6 @@
                 "NameHandle": "h91b72aadb42a441881a1a7c5de2f82e27agga"
             },
             "Sections": [
-            {
-                    "SectionId": "UI_settings",
-                    "SectionName": "UI settings",
-                    "Settings": [
-                        {
-                            "Id": "imgui_ui_scale",
-                            "Name": "UI scale (this is going away rip)",
-                            "Type": "enum",
-                            "Default": "1.5x",
-                            "Description": "Set the scale of the MCM window.\n(Requires a save/load or SE reset to take effect)",
-                            "Options": {
-                                "Choices": [
-                                    "0.5x",
-                                    "1.0x",
-                                    "1.25x",
-                                    "1.5x",
-                                    "1.75x",
-                                    "2.0x",
-                                    "2.5x",
-                                    "3.0x",
-                                    "4.0x"
-                                ]
-                            },
-                            "Handles": {
-                                "NameHandle": "hba7c7bcb569745fa908a8aa65e9740d5fb8f",
-                                "DescriptionHandle": "h22629109e1da42dd94e21f374add80cebge3"
-                            }
-                        },
-                        {
-                            "Id": "use_game_color_scheme",
-                            "Name": "Use game color scheme",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Description": "Apply IMGUI styling to try to replicate the game's color scheme."
-                        }
-                    ]
-                },
                 {
                     "SectionId": "general_settings",
                     "SectionName": "General settings",
@@ -62,6 +25,17 @@
                             "Handles": {
                                 "NameHandle": "hb2789893dcaf46fca8c40add9358e1f2ca93",
                                 "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
+                            }
+                        },
+                        {
+                            "Id": "host-only_mode",
+                            "Name": "Host-only mode",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Only the host can change MCM settings in multiplayer games.",
+                            "Handles": {
+                                "DescriptionHandle": "Only the host can change MCM settings in multiplayer games.",
+                                "NameHandle": "Host-only mode"
                             }
                         },
                         {
@@ -95,6 +69,17 @@
                             "Handles": {
                                 "NameHandle": "h9abda7ddcd564ba69433278a82884c535566",
                                 "DescriptionHandle": "h204a4196566b44eb8070bc8b5d36edde1c1d"
+                            }
+                        },
+                        {
+                            "Id": "use_game_color_scheme",
+                            "Name": "Replicate game color scheme",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Apply IMGUI styling to try to replicate the game's color scheme.",
+                            "Handles": {
+                                "NameHandle": "h18f05e5a07a34db4904b86be8a016ce2e30g",
+                                "DescriptionHandle": "h88c35900fc8743d1a2d029526f8810df684b"
                             }
                         }
                     ],
