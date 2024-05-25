@@ -84,4 +84,11 @@ function EHandlers.OnUserClosedWindow(_, payload, peerId)
     MCMUtils:PlaySound(userId, EHandlers.SFX_CLOSE_MCM_WINDOW)
 end
 
+-- Run tests if debug level is high enough
+function EHandlers.OnSessionLoaded()
+    if Config:getCfg().DEBUG.level > 2 then
+        TestSuite.RunTests()
+    end
+end
+
 return EHandlers

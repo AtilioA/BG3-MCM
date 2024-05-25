@@ -278,7 +278,7 @@ function ModConfig:SubmitBlueprint(data, modGUID)
         blueprint = Blueprint:New(preprocessedData),
     }
 
-    MCMTest(1, "Blueprint for mod " .. Ext.Mod.GetMod(modGUID).Info.Name .. " is ready to be used.")
+    MCMTest(1, "Blueprint for mod '" .. Ext.Mod.GetMod(modGUID).Info.Name .. "' is ready to be used.")
 end
 
 --- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_blueprint.json" and be located in the mod's directory, alongside the mod's meta.lsx file.
