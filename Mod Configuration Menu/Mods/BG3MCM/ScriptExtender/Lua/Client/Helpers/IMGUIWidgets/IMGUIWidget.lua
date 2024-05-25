@@ -1,4 +1,5 @@
 -- This became a factory of sorts cause OOP in Lua is a mess
+-- TODO: ADD MODGUID TO ALL IDCONTEXTS SINCE THEY MIGHT NOT BE UNIQUE ACROSS DIFFERENT MODS
 
 ---@class IMGUIWidget
 ---@field Widget any The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
@@ -19,7 +20,7 @@ function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
 
     group:AddText(widgetName)
     local widget = widgetClass:new(group, setting, initialValue, modGUID)
-    widget.Widget.IDContext = setting.Id
+    widget.Widget.IDContext = modGUID .. "_" .. setting.Id
     self:AddResetButton(group, setting, modGUID)
     self:InitializeWidget(widget.Widget, group, setting)
     group:AddDummy(0, 2)
@@ -39,7 +40,7 @@ end
 function IMGUIWidget:AddResetButton(group, setting, modGUID)
     -- TODO: refactor this to use popup with MouseButtonRight? SE's IMGUI doesn't support that yet
     local resetButton = group:AddButton("[Reset]")
-    resetButton.IDContext = "ResetButton_" .. setting.Id
+    resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting.Id
     resetButton:Tooltip():AddText("Reset this value to the default")
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting.Id, modGUID)
