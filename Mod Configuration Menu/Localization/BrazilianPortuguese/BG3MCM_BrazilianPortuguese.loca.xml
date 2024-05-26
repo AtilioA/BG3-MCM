@@ -19,10 +19,4 @@
     <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicar esquema de cores do jogo</content>
     <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Modo somente host</content>
     <content contentuid="h48d5ce6ebd8144649e72da14b64214a9b57f" version="1">Apenas o host pode alterar as configurações do MCM quando em multiplayer.</content>
-    <content contentuid="hb7ee77283bd94bd5b9d3fe696b45e85ae804" version="1">Gerenciamento de perfis</content>
-    <content contentuid="h2082b6b6954741ef970486be3bb77ad53782" version="1">Selecionar perfil</content>
-    <content contentuid="h5788159872f84825b184d42c1fbd6a216541" version="1">Criar novo perfil</content>
-    <content contentuid="h3e4b68e2569e4df2b548b4a5a893a57a7972" version="1">Criar</content>
-    <content contentuid="h75b86690333d4937a1737fe8daddde41ga10" version="1">Excluir perfil '[1]'</content>
-    <content contentuid="hfdf59b69495c4aeca03f38977a00a69d431c" version="1">Não é possível excluir o perfil padrão.</content>
 </contentList>
