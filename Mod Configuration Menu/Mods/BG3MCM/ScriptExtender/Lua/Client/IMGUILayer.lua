@@ -58,8 +58,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
         return false
     end
-    Ext.IMGUI.LoadFont("f16_1", "Public/Game/GUI/Assets/Fonts/Alegreya/Alegreya-Medium.ttf", 16.0)
-    -- Ext.IMGUI.LoadFont("f16_2", "Public/Game/GUI/Assets/Fonts/NotoSerifKR-Regular", 16.0)
 
     local modMenuTitle = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
     if modMenuTitle == nil or modMenuTitle == "" then
@@ -68,7 +66,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
-    MCM_WINDOW.Font = "f16_1"
 
     local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
     if shouldOpenOnStart == nil then

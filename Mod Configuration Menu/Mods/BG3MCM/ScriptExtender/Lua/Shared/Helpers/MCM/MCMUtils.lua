@@ -138,13 +138,6 @@ function MCMUtils:ConditionalWrapper(conditionFunc, func)
     end
 end
 
-function MCMUtils:UIScaleValueToNumber(value)
-    if type(value) == "number" then
-        return value
-    end
-    return tonumber(value:sub(1, -2))
-end
-
 -- Return the party members currently following the player
 function MCMUtils:GetPartyMembers()
     local teamMembers = {}
