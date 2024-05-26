@@ -244,7 +244,7 @@ end
 ---@param modGUID string
 ---@return any
 function IMGUILayer:CreateModItem(modsTree, modName, modGUID)
-    local modItem = modsTree:AddTree(modName)
+    local modItem = modsTree:AddCollapsingHeader(modName)
     modItem.IDContext = modGUID
     modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     if modGUID == ModuleUUID then
