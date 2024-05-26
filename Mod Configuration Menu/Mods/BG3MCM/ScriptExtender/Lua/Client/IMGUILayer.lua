@@ -192,11 +192,6 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function IMGUILayer:CreateMainTable()
-    local mainTable = MCM_WINDOW:AddTable("", 1)
-    mainTable.IDContext = "MCM_MAIN_TABLE"
-    local treeTableRow = mainTable:AddRow()
-    treeTableRow.IDContext = "MCM_TREE_TABLE_ROW"
-
     local modsTree = self:CreateModsTree(treeTableRow)
     self:PopulateModsTree(modsTree)
 end
@@ -205,12 +200,12 @@ end
 ---@param treeTableRow any
 ---@return any
 function IMGUILayer:CreateModsTree(treeTableRow)
-    local modsTree = treeTableRow:AddCell():AddTree("Mods")
+    local modsTree = MCM_WINDOW:AddTree("Mods")
     modsTree.IDContext = "MCM_MODS_TREE"
     modsTree.FramePadding = true
     modsTree.CollapsingHeader = true
     modsTree.SpanFullWidth = true
-    modsTree.Leaf = true
+    modsTree.DefaultOpen = true
     return modsTree
 end
 
