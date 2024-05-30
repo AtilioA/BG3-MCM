@@ -59,6 +59,12 @@ function IMGUILayer:CreateMainIMGUIWindow()
         return false
     end
 
+    if self.welcomeText then
+        -- self.welcomeText:Destroy()
+        MCMDebug(2, "Welcome text already exists, skipping...")
+        return true
+    end
+
     local modMenuTitle = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
     if modMenuTitle == nil or modMenuTitle == "" then
         modMenuTitle = "Mod Configuration Menu"
