@@ -80,10 +80,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
 
-    if MCMClientState:GetClientStateValue("use_game_color_scheme", ModuleUUID) then
-        UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
-    end
-
     self.welcomeText = MCM_WINDOW:AddText(
         MCMUtils.ReplaceBrWithNewlines(
             Ext.Loca.GetTranslatedString(
@@ -171,6 +167,7 @@ function IMGUILayer:PrepareMenu()
     if self.welcomeText then
         self.welcomeText:Destroy()
     end
+
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
 end
 

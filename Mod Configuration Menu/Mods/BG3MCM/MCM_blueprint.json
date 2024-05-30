@@ -70,17 +70,6 @@
                                 "NameHandle": "h9abda7ddcd564ba69433278a82884c535566",
                                 "DescriptionHandle": "h204a4196566b44eb8070bc8b5d36edde1c1d"
                             }
-                        },
-                        {
-                            "Id": "use_game_color_scheme",
-                            "Name": "Replicate game color scheme",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Description": "Apply IMGUI styling to try to replicate the game's color scheme.",
-                            "Handles": {
-                                "NameHandle": "h18f05e5a07a34db4904b86be8a016ce2e30g",
-                                "DescriptionHandle": "h88c35900fc8743d1a2d029526f8810df684b"
-                            }
                         }
                     ],
                     "Handles": {
