@@ -101,4 +101,5 @@ function VCString:UpdateLocalizedMessage(handle, dynamicContent)
 
     -- Update the translated string with the new content, altering it during runtime. Any GetTranslatedString calls will now return this updated message.
     Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
+    return updatedMessage
 end
