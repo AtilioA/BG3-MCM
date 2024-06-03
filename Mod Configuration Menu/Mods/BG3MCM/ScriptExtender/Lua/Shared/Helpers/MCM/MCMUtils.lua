@@ -185,7 +185,7 @@ end
 --- Play a sound effect on the host character (don't know if this works for multiplayer, would probably require getting the player character)
 --- @param id GUIDSTRING
 function MCMUtils:PlaySound(userid, id)
-    local character = self:GetUserCharacter(userid)
+    local character = self:GetUserCharacter(userid) or Osi.GetHostCharacter()
     if character == nil then
         return
     end
