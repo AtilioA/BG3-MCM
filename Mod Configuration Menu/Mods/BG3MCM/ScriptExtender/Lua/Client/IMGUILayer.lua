@@ -86,6 +86,8 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
 
+    UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
+
     self.welcomeText = MCM_WINDOW:AddText(
         MCMUtils.ReplaceBrWithNewlines(
             Ext.Loca.GetTranslatedString(
