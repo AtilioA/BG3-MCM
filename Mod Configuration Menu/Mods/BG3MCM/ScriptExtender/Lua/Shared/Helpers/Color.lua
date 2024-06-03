@@ -36,7 +36,11 @@ end
 ---@param a number
 ---@return table<number>
 function Color.NormalizedRGBA(r, g, b, a)
-    return { r / 255, g / 255, b / 255, a }
+    if r > 1 or g > 1 or b > 1 then
+        return { r / 255, g / 255, b / 255, a }
+    else
+        return Color.RGBA(r, g, b, a)
+    end
 end
 
 --- Create a table for the RGBA values, normalized to 0-1, given a hex color and an alpha value
