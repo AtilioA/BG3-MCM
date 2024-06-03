@@ -1,6 +1,6 @@
 RequireFiles("Server/", {
-    "SubscribedEvents",
     "EventHandlers",
+    "SubscribedEvents",
 })
 
 SubscribedEvents.SubscribeToEvents()

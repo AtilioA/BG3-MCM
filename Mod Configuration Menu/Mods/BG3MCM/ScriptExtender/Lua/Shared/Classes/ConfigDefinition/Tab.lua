@@ -53,7 +53,7 @@ end
 
 --- Get the TabId of the BlueprintTab.
 --- @return string
-function BlueprintTab:GetTabId()
+function BlueprintTab:GetId()
     return self.TabId
 end
 

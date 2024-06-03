@@ -209,7 +209,7 @@ function ModConfig:HandleLoadedSettings(modGUID, blueprint, settings, settingsFi
     -- Abhorrent hack to update the client's UI with the new settings. Since this is just a secondary feature, it is what it is for now. Sorry!
     if Ext.IsClient() and IMGUIAPI then
         for settingId, settingValue in pairs(self.mods[modGUID].settingsValues) do
-            IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modGUID)
+            MCMClientState:SetClientStateValue(settingId, settingValue, modGUID)
         end
     end
 end
@@ -278,7 +278,7 @@ function ModConfig:SubmitBlueprint(data, modGUID)
         blueprint = Blueprint:New(preprocessedData),
     }
 
-    MCMTest(1, "Blueprint for mod " .. Ext.Mod.GetMod(modGUID).Info.Name .. " is ready to be used.")
+    MCMTest(1, "Blueprint for mod '" .. Ext.Mod.GetMod(modGUID).Info.Name .. "' is ready to be used.")
 end
 
 --- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_blueprint.json" and be located in the mod's directory, alongside the mod's meta.lsx file.

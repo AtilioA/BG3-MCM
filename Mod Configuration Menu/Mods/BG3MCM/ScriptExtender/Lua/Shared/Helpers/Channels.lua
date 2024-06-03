@@ -18,6 +18,15 @@ Channels.MCM_MOD_TAB_ADDED = "MCM_Mod_Tab_Added"
 Channels.MCM_CLIENT_REQUEST_CONFIGS = "MCM_Client_Request_Configs"
 Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE = "MCM_Client_Request_Set_Setting_Value"
 Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE = "MCM_Client_Request_Reset_Setting_Value"
+
+Channels.MCM_CLIENT_REQUEST_PROFILES = "MCM_Client_Request_Profiles"
 Channels.MCM_CLIENT_REQUEST_SET_PROFILE = "MCM_Client_Request_Set_Profile"
+Channels.MCM_CLIENT_REQUEST_CREATE_PROFILE = "MCM_Client_Request_Create_Profile"
+Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE = "MCM_Client_Request_Delete_Profile"
+
+Channels.MCM_WINDOW_READY = "MCM_Window_Ready"
+
+Channels.MCM_USER_OPENED_WINDOW = "MCM_User_Opened_Window"
+Channels.MCM_USER_CLOSED_WINDOW = "MCM_User_Closed_Window"
 
 return Channels

@@ -138,4 +138,61 @@ function MCMUtils:ConditionalWrapper(conditionFunc, func)
     end
 end
 
+-- Return the party members currently following the player
+function MCMUtils:GetPartyMembers()
+    local teamMembers = {}
+
+    local allPlayers = Osi.DB_Players:Get(nil)
+    for _, player in ipairs(allPlayers) do
+        if not string.match(player[1]:lower(), "%f[%A]dummy%f[%A]") then
+            teamMembers[#teamMembers + 1] = string.sub(player[1], -36)
+        end
+    end
+
+    return teamMembers
+end
+
+-- Returns the character that the user is controlling
+function MCMUtils:GetUserCharacter(userId)
+    local partyMembers = self:GetPartyMembers()
+    for _, member in ipairs(partyMembers) do
+        if Osi.GetReservedUserID(member) == userId then
+            return member
+        end
+    end
+    return nil
+end
+
+function MCMUtils:IsUserHost(userId)
+    if userId == 65537 then
+        return true
+    end
+
+    local character = self:GetUserCharacter(userId)
+    if Osi.GetHostCharacter() == character then
+        return true
+    end
+
+    return false
+end
+
+-- Thanks to Aahz for this function
+function MCMUtils:PeerToUserID(u)
+    -- all this for userid+1 usually smh
+    return (u & 0xffff0000) | 0x0001
+end
+
+--- Play a sound effect on the host character (don't know if this works for multiplayer, would probably require getting the player character)
+--- @param id GUIDSTRING
+function MCMUtils:PlaySound(userid, id)
+    local character = self:GetUserCharacter(userid)
+    if character == nil then
+        return
+    end
+
+    Osi.PlayEffect(character, id)
+    Osi.PlaySound(character, id)
+    Osi.PlaySoundResource(character, id)
+end
+
 return MCMUtils

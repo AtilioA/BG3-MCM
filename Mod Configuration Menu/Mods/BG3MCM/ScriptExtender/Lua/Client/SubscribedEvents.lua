@@ -43,18 +43,7 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_RESET, function(_, payload)
     IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modGUID)
 end)
 
-Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
-    local settingId = data.settingId
-    local value = data.value
-
-    MCMClientState:SetClientStateValue(settingId, value, modGUID)
-
-    UpdateMCMValues(settingId, value, modGUID)
-end)
-
-function UpdateMCMValues(settingId, value, modGUID)
+local function UpdateMCMValues(settingId, value, modGUID)
     if modGUID ~= ModuleUUID then
         return
     end
@@ -67,6 +56,17 @@ function UpdateMCMValues(settingId, value, modGUID)
         MCM_WINDOW.AlwaysAutoResize = value
     end
 end
+
+Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local modGUID = data.modGUID
+    local settingId = data.settingId
+    local value = data.value
+
+    MCMClientState:SetClientStateValue(settingId, value, modGUID)
+
+    UpdateMCMValues(settingId, value, modGUID)
+end)
 
 Ext.RegisterNetListener(Channels.MCM_MOD_TAB_ADDED, function(_, payload)
     local data = Ext.Json.Parse(payload)

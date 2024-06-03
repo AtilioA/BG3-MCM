@@ -17,16 +17,16 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
     --- Check if blueprint does NOT have both tabs and settings
     if not hasTabs and not hasSettings then
         MCMWarn(0,
-            "Blueprint for mod: " ..
+            "Blueprint for mod '" ..
             Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-            " does not have any tabs or settings. Please contact " ..
+            "' does not have any tabs or settings. Please contact " ..
             Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return true
     elseif hasTabs and hasSettings then
         MCMWarn(0,
-            "Blueprint for mod: " ..
+            "Blueprint for mod '" ..
             Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-            " has both tabs and settings. Please contact " ..
+            "' has both tabs and settings. Please contact " ..
             Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return true
     end
@@ -35,9 +35,9 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
     local hasSections = blueprint.Sections and #blueprint.Sections > 0
     if hasSections then
         MCMWarn(0,
-            "Sections found directly in blueprint for mod: " ..
+            "Sections found directly in blueprint for mod '" ..
             Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return true
     end
 
@@ -57,9 +57,9 @@ function BlueprintPreprocessing:VerifyTabIDUniqueness(blueprint)
     for _, tab in ipairs(tabs) do
         if tabIDs[tab.TabId] then
             MCMWarn(0,
-                "Duplicate tab ID found in blueprint for mod: " ..
+                "Duplicate tab ID found in blueprint for mod '" ..
                 Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-                ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
             return false
         end
         tabIDs[tab.TabId] = true
@@ -83,9 +83,9 @@ function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint)
         for _, section in ipairs(tab.Sections) do
             if sectionIDs[section.SectionId] then
                 MCMWarn(0,
-                    "Duplicate section ID found in blueprint for mod: " ..
+                    "Duplicate section ID found in blueprint for mod '" ..
                     Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-                    ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                    "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
                 return false
             end
             sectionIDs[section.SectionId] = true
@@ -107,9 +107,9 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint)
             if setting ~= nil then
                 if settingIDs[setting.Id] then
                     MCMWarn(0,
-                        "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod: " ..
+                        "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod '" ..
                         Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-                        ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                        "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
                     isValid = false
                     goto continue
                 end
@@ -471,27 +471,27 @@ function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
 
     if self:HasIncorrectStructure(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod: " ..
+            "Blueprint for mod '" ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
-            " has incorrect structure anda can't be used. Please contact " ..
+            "' has incorrect structure anda can't be used. Please contact " ..
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return
     end
 
     if not self:VerifyIDUniqueness(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod: " ..
+            "Blueprint for mod '" ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
-            " has duplicate IDs and can't be used. Please contact " ..
+            "' has duplicate IDs and can't be used. Please contact " ..
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return
     end
 
     if not self:ValidateBlueprintSettings(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod: " ..
+            "Blueprint for mod '" ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
-            " has invalid settings and can't be used. Please contact " ..
+            "' has invalid settings and can't be used. Please contact " ..
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return
     end
