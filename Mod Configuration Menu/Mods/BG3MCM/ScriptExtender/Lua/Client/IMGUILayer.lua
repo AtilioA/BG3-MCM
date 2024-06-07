@@ -239,8 +239,8 @@ function IMGUILayer:PopulateModsTree(modsTree)
 
             --init visibility
         local modSettings = self.mods[modGUID].settingsValues
-        for settingId, group in pairs(self.visibility_trigger) do
-            for group, v in pairs(self.visibility_trigger[settingId]) do
+        for settingId, group in pairs(self.visibility_trigger[modGUID]) do
+            for group, v in pairs(self.visibility_trigger[modGUID][settingId]) do
                 group.Visible = (tostring(modSettings[settingId]) == tostring(v))
             end
         end
