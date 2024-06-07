@@ -186,6 +186,12 @@
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
                 },
+                "VisibleIf": {
+                    "type": "string",
+                    "minLength": 3,
+                    "pattern": "^(.+=.+)$",
+                    "description": "Make this setting visible if TargetSetting have an expectedValue. Format:  TargetSettingId=ExpetedValue"
+                },
                 "Default": {
                     "anyOf": [
                         {
@@ -321,6 +327,12 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
+                },
+                "VisibleIf": {
+                    "type": "string",
+                    "minLength": 3,
+                    "pattern": "^(.+=.+)$",
+                    "description": "Make this setting visible if TargetSetting have an expectedValue. Format:  TargetSettingId=ExpetedValue"
                 },
                 "Tabs": {
                     "type": "array",

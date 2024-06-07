@@ -17,7 +17,8 @@
 ---@field private mod_tabs table<string, any> A table of tabs for each mod in the MCM
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
-    mods_tabs = {}
+    mods_tabs = {},
+    visibility_trigger = {}
 })
 
 MCMClientState = IMGUILayer:New()
@@ -31,6 +32,12 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     local mod = MCMClientState.mods[modGUID]
     if not mod or not mod.settingsValues then
         return
+    end
+    
+    if self.visibility_trigger[modGUID][settingId] then    
+        for group, v in pairs(self.visibility_trigger[modGUID][settingId]) do
+            group.Visible = (tostring(value) == tostring(v))
+        end
     end
 
     mod.settingsValues[settingId] = value
@@ -221,6 +228,7 @@ function IMGUILayer:PopulateModsTree(modsTree)
     -- Sort mods by name
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
+        self.visibility_trigger[modGUID] = {}
         local modName = self:GetModName(modGUID)
         local modItem = self:CreateModItem(modsTree, modName, modGUID)
         self:AddModTooltip(modItem, modGUID)
@@ -228,6 +236,14 @@ function IMGUILayer:PopulateModsTree(modsTree)
         modsTree:AddSeparator()
         self.mods_tabs[modGUID] = modItem
         self:CreateModMenuTab(modGUID)
+
+            --init visibility
+        local modSettings = self.mods[modGUID].settingsValues
+        for settingId, group in pairs(self.visibility_trigger) do
+            for group, v in pairs(self.visibility_trigger[settingId]) do
+                group.Visible = (tostring(modSettings[settingId]) == tostring(v))
+            end
+        end
     end
 end
 
@@ -359,15 +375,25 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     end
 
     local sectionName = section:GetSectionLocaName()
+    local sectionId = section:GetSectionId()
+    local sectionGroup = modGroup:AddGroup(sectionId)
 
-    local sectionHeader = modGroup:AddSeparatorText(sectionName)
+    
+    if section.VisibleIf ~= "" then
+        local settingIdTriggering = string.match(section.VisibleIf, "(.*)=")
+        local value = string.match(section.VisibleIf, "=(.*)")
+        self.visibility_trigger[modGUID][settingIdTriggering] = self.visibility_trigger[modGUID][settingIdTriggering] or {}
+        self.visibility_trigger[modGUID][settingIdTriggering][sectionGroup] = value
+    end
+    
+    local sectionHeader = sectionGroup:AddSeparatorText(sectionName)
     sectionHeader.IDContext = modGUID .. "_" .. sectionName
     sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section:GetSettings()) do
-        self:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
+        self:CreateModMenuSetting(sectionGroup, setting, modSettings, modGUID)
     end
 end
 
@@ -386,7 +412,16 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
             setting:GetType() ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
-        local widget = createWidget(modGroup, setting, settingValue, modGUID)
+        local widgetGroup = modGroup:AddGroup(setting:GetId())
+        local widget = createWidget(widgetGroup, setting, settingValue, modGUID)
+
+        if setting.VisibleIf ~= "" then
+            local settingIdTriggering = string.match(setting.VisibleIf, "(.*)=")
+            local value = string.match(setting.VisibleIf, "=(.*)")
+            self.visibility_trigger[modGUID][settingIdTriggering] = self.visibility_trigger[modGUID][settingIdTriggering] or {}
+            self.visibility_trigger[modGUID][settingIdTriggering][widgetGroup] = value
+        end
+
         self.mods[modGUID].widgets[setting:GetId()] = widget
     end
 end
