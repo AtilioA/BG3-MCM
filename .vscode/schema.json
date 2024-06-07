@@ -189,8 +189,8 @@
                 "VisibleIf": {
                     "type": "string",
                     "minLength": 3,
-                    "pattern": "^(.+=.+)$",
-                    "description": "Make this setting visible if TargetSetting have an expectedValue. Format:  TargetSettingId=ExpetedValue"
+                    "pattern": "^(.+(==|!=|>|<|>=|<=).+)$",
+                    "description": "Make this setting visible if TargetSetting have an expectedValue. Format:  [TargetSettingId][Operation][ExpetedValue]   Operation could be == != > < >= <=  . Exemple: setting1<12"
                 },
                 "Default": {
                     "anyOf": [
@@ -332,7 +332,7 @@
                     "type": "string",
                     "minLength": 3,
                     "pattern": "^(.+=.+)$",
-                    "description": "Make this setting visible if TargetSetting have an expectedValue. Format:  TargetSettingId=ExpetedValue"
+                    "description": "Make this setting visible if TargetSetting have an expectedValue. Format:  [TargetSettingId][Operation][ExpetedValue]   Operation could be == != > < >= <=  . Exemple: setting1<12"
                 },
                 "Tabs": {
                     "type": "array",
