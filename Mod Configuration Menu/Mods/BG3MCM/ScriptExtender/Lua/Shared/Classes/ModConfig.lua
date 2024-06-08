@@ -234,7 +234,11 @@ function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
 
     for _, setting in pairs(allSettings) do
         if settings[setting:GetId()] == nil then
-            settings[setting:GetId()] = setting:GetDefault()
+            if settings[setting:GetOldId()] ~= nil and settings[setting:GetOldId()] ~= nil then
+                settings[setting:GetId()] = settings[setting:GetOldId()]
+            else
+                settings[setting:GetId()] = setting:GetDefault()
+            end
         end
     end
 end

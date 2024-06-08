@@ -1,5 +1,6 @@
 ---@class BlueprintSetting
 ---@field private Id string
+---@field private OldId string
 ---@field private Name string
 ---@field private Type string
 ---@field private Default any
@@ -10,6 +11,7 @@
 ---@field private Handles table
 BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
     Id = "",
+    OldId = "",
     Name = "",
     Type = "",
     Default = nil,
@@ -29,6 +31,12 @@ function BlueprintSetting:New(options)
 
     if options.Id ~= nil then
         self.Id = options.Id
+    end
+
+    if options.OldId ~= nil then
+        self.OldId = options.OldId
+    else
+        self.OldId = ""
     end
 
     if options.Name ~= nil then
@@ -81,6 +89,10 @@ end
 
 function BlueprintSetting:GetId()
     return self.Id
+end
+
+function BlueprintSetting:GetOldId()
+    return self.OldId
 end
 
 function BlueprintSetting:GetType()

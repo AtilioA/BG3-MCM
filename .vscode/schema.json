@@ -161,6 +161,11 @@
                     "minLength": 1,
                     "description": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API. This will be displayed in the blueprint, so it still should be human-readable and descriptive."
                 },
+                "OldId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The former unique identifier for the setting, used in order to keep user value when changing Id for any reason."
+                },
                 "Name": {
                     "type": "string",
                     "minLength": 1,
