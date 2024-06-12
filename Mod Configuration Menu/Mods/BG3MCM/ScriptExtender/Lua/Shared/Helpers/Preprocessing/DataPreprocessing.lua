@@ -169,6 +169,7 @@ end
 ---@return table<string, BlueprintSetting>|nil The preprocessed data, or nil if preprocessing failed
 function DataPreprocessing:PreprocessData(data, modGUID)
     local preprocessedData = {
+        ModUUID = modGUID,
         SchemaVersion = data.SchemaVersion,
         ModName = data.ModName,
         Tabs = {},

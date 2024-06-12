@@ -1,10 +1,12 @@
 ---@class Blueprint
+---@field private ModUUID string
 ---@field private SchemaVersion number
 ---@field private ModName? string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Settings? BlueprintSetting[]
 ---@field private Handles? table
 Blueprint = _Class:Create("Blueprint", nil, {
+    ModUUID = nil,
     ModName = nil,
     SchemaVersion = nil,
     Tabs = {},
@@ -54,6 +56,7 @@ end
 --- @param options table
 function Blueprint:New(options)
     local self = setmetatable({}, Blueprint)
+    self.ModUUID = options.ModUUID or nil
     self.SchemaVersion = options.SchemaVersion or nil
     self.ModName = options.ModName or nil
     self.Tabs = {}
