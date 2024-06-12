@@ -12,6 +12,7 @@ RequireFiles("Client/Helpers/IMGUIWidgets/", {
     "DragIntIMGUIWidget",
     "DragFloatIMGUIWidget",
     "TextIMGUIWidget",
+    "ListIMGUIWidget",
     "KeybindingIMGUIWidget",
     "WidgetFactory",
 })
