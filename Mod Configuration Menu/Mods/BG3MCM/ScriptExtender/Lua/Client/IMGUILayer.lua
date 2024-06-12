@@ -14,10 +14,10 @@
 ---@class IMGUILayer: MetaClass
 ---@field mods table<string, ModSettings>
 ---@field private profiles table<string, table>
----@field private mod_tabs table<string, any> A table of tabs for each mod in the MCM
+---@field private modsTabs table<string, any> A table of tabs for each mod in the MCM
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
-    mods_tabs = {}
+    modsTabs = {},
 })
 
 MCMClientState = IMGUILayer:New()
@@ -165,8 +165,8 @@ end
 --- Check if the menu should be populated
 ---@return boolean
 function IMGUILayer:ShouldPopulateMenu()
-    -- If self.mods_tabs already has content, we don't want to populate the menu again
-    return table.isEmpty(self.mods_tabs)
+    -- If self.modsTabs already has content, we don't want to populate the menu again
+    return table.isEmpty(self.modsTabs)
 end
 
 --- Initialize menu settings and destroy welcome text if it exists
@@ -197,14 +197,13 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function IMGUILayer:CreateMainTable()
-    local modsTree = self:CreateModsTree(treeTableRow)
+    local modsTree = self:CreateModsTree()
     self:PopulateModsTree(modsTree)
 end
 
---- Create the mods tree view
----@param treeTableRow any
+--- TODO: Create the mods tree view
 ---@return any
-function IMGUILayer:CreateModsTree(treeTableRow)
+function IMGUILayer:CreateModsTree()
     local modsTree = MCM_WINDOW:AddTree("Mods")
     modsTree.IDContext = "MCM_MODS_TREE"
     modsTree.FramePadding = true
@@ -226,7 +225,7 @@ function IMGUILayer:PopulateModsTree(modsTree)
         self:AddModTooltip(modItem, modGUID)
 
         modsTree:AddSeparator()
-        self.mods_tabs[modGUID] = modItem
+        self.modsTabs[modGUID] = modItem
         self:CreateModMenuTab(modGUID)
     end
 end
@@ -276,17 +275,17 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     local modInfo = Ext.Mod.GetMod(modGUID).Info
     local modBlueprint = self.mods[modGUID].blueprint
     local modSettings = self.mods[modGUID].settingsValues
-    local modTab = self.mods_tabs[modGUID]
+    local modTab = self.modsTabs[modGUID]
 
     local function createModTabBar()
         local modTabs = modTab:AddTabBar(modGUID .. "_TABS")
         modTabs.IDContext = modGUID .. "_TABS"
 
-        if type(self.mods_tabs[modGUID]) == "table" then
-            self.mods_tabs[modGUID].mod_tab_bar = modTabs
+        if type(self.modsTabs[modGUID]) == "table" then
+            self.modsTabs[modGUID].modTabBar = modTabs
             self.mods[modGUID].widgets = {}
         else
-            self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
+            self.modsTabs[modGUID] = { modTabBar = modTabs }
             self.mods[modGUID].widgets = {}
         end
 
@@ -397,13 +396,13 @@ end
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
 function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
-    if not self.mods_tabs[modGUID] then
-        self.mods_tabs[modGUID] = {
-            mod_tab_bar = nil
+    if not self.modsTabs[modGUID] then
+        self.modsTabs[modGUID] = {
+            modTabBar = nil
         }
     end
 
-    if self.mods_tabs[modGUID].mod_tab_bar then
+    if self.modsTabs[modGUID].modTabBar then
         self:AddTabToModTabBar(modGUID, tabName, tabCallback)
         return
     end
@@ -423,11 +422,11 @@ function IMGUILayer:CreateModTabBar(modGUID)
     local modTab = self.modsTabBar:AddTabItem(modInfo.Name)
     modTab.IDContext = modGUID .. "_TAB"
     -- Refactor this nonsense
-    self.mods_tabs[modGUID].mod_tab = modTab
+    self.modsTabs[modGUID].modTab = modTab
 
     local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
     modTabs.IDContext = modGUID .. "_TABS"
-    self.mods_tabs[modGUID].mod_tab_bar = modTabs
+    self.modsTabs[modGUID].modTabBar = modTabs
 end
 
 --- Add a new tab to the mod tab bar
@@ -439,7 +438,7 @@ function IMGUILayer:AddTabToModTabBar(modGUID, tabName, tabCallback)
         return
     end
 
-    local modTabs = self.mods_tabs[modGUID].mod_tab_bar
+    local modTabs = self.modsTabs[modGUID].modTabBar
     local newTab = modTabs:AddTabItem(tabName)
     newTab.IDContext = modGUID .. "_" .. tabName
     tabCallback(newTab)
