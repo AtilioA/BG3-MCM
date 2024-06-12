@@ -1,5 +1,5 @@
 {
-    "RequiredVersion": 16,
+    "RequiredVersion": 17,
     "ModTable": "BG3MCM",
     "FeatureFlags": [
         "Lua"
