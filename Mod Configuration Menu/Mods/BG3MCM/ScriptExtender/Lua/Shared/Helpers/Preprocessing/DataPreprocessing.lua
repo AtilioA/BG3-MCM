@@ -149,6 +149,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
     for _, setting in ipairs(elementData.Settings or {}) do
         local newSetting = BlueprintSetting:New({
             Id = setting.Id,
+            OldId = setting.OldId,
             Name = setting.Name,
             Type = setting.Type,
             Default = setting.Default,

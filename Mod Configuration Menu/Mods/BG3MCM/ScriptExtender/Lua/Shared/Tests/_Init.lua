@@ -4,4 +4,5 @@ RequireFiles("Shared/Tests/", {
     "ValidateAndFixSettings.test",
     "DataPreprocessing.test",
     "Validators.test",
+    "ModConfig.test",
 })
