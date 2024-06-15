@@ -81,4 +81,36 @@ function EHandlers.OnSessionLoaded()
     end
 end
 
+local function showTroubleshootingNotification(userCharacter)
+    -- TODO: use loca
+    Osi.OpenMessageBox(userCharacter,
+        "If you don't see the MCM window, please see the mod page for troubleshooting steps.\nThis is usually caused by third-party overlays or by alt-tabbing before reaching the main menu.")
+end
+
+local function updateNotificationStatus(userId, MCMModVars)
+    -- TODO: Also check mcm_params file (implement this later on)
+    MCMModVars.Notifications = MCMModVars.Notifications or {}
+    MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] = MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
+    if not MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] then
+        MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] = true
+        MCMUtils:SyncModVars(ModuleUUID)
+        return true
+    end
+    return false
+end
+
+function EHandlers.OnUserSpamMCMButton(_, payload, peerId)
+    MCMDebug(1, "User is spamming the MCM button... showing troubleshooting notification")
+    local userId = MCMUtils:PeerToUserID(peerId)
+    local userCharacter = MCMUtils:GetUserCharacter(userId)
+    if userCharacter then
+        local MCMModVars = Ext.Vars.GetModVariables(ModuleUUID)
+        if updateNotificationStatus(userId, MCMModVars) then
+            showTroubleshootingNotification(userCharacter)
+        end
+    else
+        MCMDebug(1, "Failed to show notification - userCharacter is nil")
+    end
+end
+
 return EHandlers

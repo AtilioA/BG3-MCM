@@ -9,7 +9,6 @@ function KeybindingIMGUIWidget:new(group, setting, initialValue, modGUID)
         ScanCode = nil
     }
 
-
     -- Create the combo box for the modifier
     group:AddText("Modifier (optional)")
     instance.Widget.ModifierWidget = group:AddCombo("", initialValue.Modifier or "")

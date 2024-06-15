@@ -29,4 +29,6 @@ Channels.MCM_WINDOW_READY = "MCM_Window_Ready"
 Channels.MCM_USER_OPENED_WINDOW = "MCM_User_Opened_Window"
 Channels.MCM_USER_CLOSED_WINDOW = "MCM_User_Closed_Window"
 
+Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION = "MCM_Client_Show_Troubleshooting_Notification"
+
 return Channels

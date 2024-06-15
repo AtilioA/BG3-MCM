@@ -195,4 +195,18 @@ function MCMUtils:PlaySound(userid, id)
     Osi.PlaySoundResource(character, id)
 end
 
+---@param module? Guid
+function MCMUtils:SyncModVars(module)
+    local ModVars = Ext.Vars.GetModVariables(module or ModuleUUID)
+    -- Redundant but worky :catyep:
+    if ModVars then
+        for varName, data in pairs(ModVars) do
+            ModVars[varName] = ModVars[varName]
+        end
+        Ext.Vars.DirtyModVariables(module or ModuleUUID)
+        Ext.Vars.SyncModVariables(module or ModuleUUID)
+    end
+end
+
+
 return MCMUtils

@@ -46,7 +46,7 @@ function KeybindingManager:IsKeybindingPressed(e, keybinding)
     return self:IsModifierPressed(e, modifier)
 end
 
-function KeybindingManager:HandleKeyInput(e)
+function KeybindingManager:HandleKeyUpInput(e)
     local toggleKeybinding = KeybindingManager:GetToggleKeybinding()
     if KeybindingManager:IsKeybindingPressed(e, toggleKeybinding) then
         IMGUILayer:ToggleMCMWindow()
@@ -88,7 +88,7 @@ function KeybindingManager:IsModifierPressed(e, modifiers)
     local eActiveModifiers = self:ExtractActiveModifiers(e.Modifiers)
 
     return self:AreAllModifiersPresent(e.Modifiers, activeModifiers) and
-    self:AreAllActiveModifiersPressed(eActiveModifiers, activeModifiers)
+        self:AreAllActiveModifiersPressed(eActiveModifiers, activeModifiers)
 end
 
 return KeybindingManager
