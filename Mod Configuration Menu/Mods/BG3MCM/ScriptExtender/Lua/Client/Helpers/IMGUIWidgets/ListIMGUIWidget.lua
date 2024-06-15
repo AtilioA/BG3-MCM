@@ -49,9 +49,16 @@ function ListIMGUIWidget:AddInputAndAddButton()
         newText = newValue.Text
     end
 
-    local addButton = self.Widget.InputGroup:AddButton("Add")
+    local addButton = self.Widget.InputGroup:AddButton("Add to list")
     addButton.OnClick = function()
         if newText ~= "" then
+            -- TODO: remove this kludge
+            if not self.Widget.List then
+                self.Widget.List = {}
+            elseif type(self.Widget.List) ~= "table" then
+                self.Widget.List = { self.Widget.List }
+            end
+
             table.insert(self.Widget.List, newText)
             IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.ModGUID)
             self:Refresh()
@@ -76,4 +83,20 @@ end
 function ListIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.List = value
     self:Refresh()
+end
+
+--- Add a reset button to the widget
+---@param group any The IMGUI group to add the button to
+---@param setting BlueprintSetting The Setting object that this widget will be responsible for
+---@param modGUID string The GUID of the mod that owns this widget
+---@return nil
+---@see IMGUIAPI:ResetSettingValue
+function ListIMGUIWidget:AddResetButton(group, setting, modGUID)
+    local resetButton = group:AddButton("[Reset list]")
+    resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting:GetId()
+    resetButton:Tooltip():AddText("Reset this setting to its default")
+    resetButton.OnClick = function()
+        IMGUIAPI:ResetSettingValue(setting:GetId(), modGUID)
+    end
+    resetButton.SameLine = true
 end

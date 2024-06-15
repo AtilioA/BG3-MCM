@@ -29,7 +29,12 @@ function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
     local widget = widgetClass:new(group, setting, initialValue, modGUID)
     widget.Widget.IDContext = modGUID .. "_" .. setting:GetId()
 
-    self:AddResetButton(group, setting, modGUID)
+    if widget.AddResetButton then
+        widget:AddResetButton(group, setting, modGUID)
+    else
+        self:AddResetButton(group, setting, modGUID)
+    end
+
     self:InitializeWidget(widget.Widget, group, setting)
 
     group:AddDummy(0, 2)
@@ -53,7 +58,6 @@ end
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modGUID)
-    -- TODO: refactor this to use popup with MouseButtonRight? SE's IMGUI doesn't support that yet
     local resetButton = group:AddButton("[Reset]")
     resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting:GetId()
     resetButton:Tooltip():AddText("Reset this setting to its default")
