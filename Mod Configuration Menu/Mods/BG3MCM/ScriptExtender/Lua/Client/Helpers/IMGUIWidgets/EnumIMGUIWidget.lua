@@ -1,25 +1,62 @@
 ---@class EnumIMGUIWidget
 EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 
+---@param group any
+---@param setting BlueprintSetting
+---@param initialValue any
+---@param modGUID string
 function EnumIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = EnumIMGUIWidget })
-    local options = setting.Options.Choices
     instance.Widget = group:AddCombo("", initialValue)
-    instance.Widget.Options = options
+    instance.Widget.UserData = {
+        OptionsLookup = {}
+    }
+    instance.optionsLabels = instance:createOptionLabels(setting)
+    instance.Widget.Options = instance.optionsLabels
 
-    -- Set initial selection
+    instance:setInitialSelection(initialValue)
+    instance:setOnChangeCallback(setting, modGUID)
+
+    return instance
+end
+
+function EnumIMGUIWidget:createOptionLabels(setting)
+    local options = setting:GetOptions().Choices
+    local optionsLabels = {}
     for i, value in ipairs(options) do
-        if value == initialValue then
-            instance.Widget.SelectedIndex = i - 1
+        local localizedValue = self:getLocalizedValue(setting, i)
+        table.insert(optionsLabels, localizedValue)
+        self.Widget.UserData.OptionsLookup[localizedValue] = value
+    end
+    return optionsLabels
+end
+
+function EnumIMGUIWidget:getLocalizedValue(setting, index)
+    local settingHandles = setting:GetHandles()
+    if settingHandles and settingHandles.ChoicesHandles then
+        -- This might sound weird, but that's because the handles must be ordered in the same way as the choices.
+        local localizedValue = Ext.Loca.GetTranslatedString(settingHandles.ChoicesHandles[index])
+        if localizedValue and localizedValue ~= "" then
+            return localizedValue
+        end
+    end
+    return setting:GetOptions().Choices[index]
+end
+
+function EnumIMGUIWidget:setInitialSelection(initialValue)
+    for i, value in ipairs(self.optionsLabels) do
+        if self.Widget.UserData.OptionsLookup[value] == initialValue then
+            self.Widget.SelectedIndex = i - 1
             break
         end
     end
+end
 
-    instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, options[value.SelectedIndex + 1], modGUID)
+function EnumIMGUIWidget:setOnChangeCallback(setting, modGUID)
+    self.Widget.OnChange = function(value)
+        IMGUIAPI:SetSettingValue(setting:GetId(),
+            self.Widget.UserData.OptionsLookup[value.Options[value.SelectedIndex + 1]], modGUID)
     end
-
-    return instance
 end
 
 function EnumIMGUIWidget:UpdateCurrentValue(value)

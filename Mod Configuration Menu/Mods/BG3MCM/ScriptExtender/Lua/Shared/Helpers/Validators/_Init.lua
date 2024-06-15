@@ -9,6 +9,7 @@ RequireFiles("Shared/Helpers/Validators/", {
     "DragIntValidator",
     "DragFloatValidator",
     "TextValidator",
+    "ListValidator",
     "ColorValidator",
     "KeybindingValidator",
 })
@@ -26,6 +27,9 @@ SettingValidators = {
     end,
     ["text"] = function(setting, value)
         return TextValidator.Validate(setting, value)
+    end,
+    ["list"] = function(setting, value)
+        return ListValidator.Validate(setting, value)
     end,
     ["enum"] = function(setting, value)
         return EnumValidator.Validate(setting, value)

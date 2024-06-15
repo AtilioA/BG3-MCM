@@ -185,7 +185,7 @@ end
 --- Play a sound effect on the host character (don't know if this works for multiplayer, would probably require getting the player character)
 --- @param id GUIDSTRING
 function MCMUtils:PlaySound(userid, id)
-    local character = self:GetUserCharacter(userid)
+    local character = self:GetUserCharacter(userid) or Osi.GetHostCharacter()
     if character == nil then
         return
     end
@@ -194,5 +194,19 @@ function MCMUtils:PlaySound(userid, id)
     Osi.PlaySound(character, id)
     Osi.PlaySoundResource(character, id)
 end
+
+---@param module? Guid
+function MCMUtils:SyncModVars(module)
+    local ModVars = Ext.Vars.GetModVariables(module or ModuleUUID)
+    -- Redundant but worky :catyep:
+    if ModVars then
+        for varName, data in pairs(ModVars) do
+            ModVars[varName] = ModVars[varName]
+        end
+        Ext.Vars.DirtyModVariables(module or ModuleUUID)
+        Ext.Vars.SyncModVariables(module or ModuleUUID)
+    end
+end
+
 
 return MCMUtils

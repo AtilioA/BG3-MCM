@@ -290,6 +290,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
             return false
         end
+    -- TODO: add list type
     elseif setting.Type == "checkbox" then
         if type(setting.Default) ~= "boolean" then
             MCMWarn(0,

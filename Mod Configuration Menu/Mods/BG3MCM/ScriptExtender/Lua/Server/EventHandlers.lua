@@ -67,17 +67,66 @@ function EHandlers.OnClientRequestDeleteProfile(_, payload, peerId)
 end
 
 function EHandlers.OnUserOpenedWindow(_, payload, peerId)
-    MCMUtils:PlaySound(userId, EHandlers.SFX_OPEN_MCM_WINDOW)
+    local payloadData = Ext.Json.Parse(payload)
+    if not payloadData then
+        MCMWarn(0, "Failed to parse payload data")
+        return
+    end
+
+    if payloadData.playSound then
+        MCMUtils:PlaySound(userId, EHandlers.SFX_OPEN_MCM_WINDOW)
+    end
 end
 
 function EHandlers.OnUserClosedWindow(_, payload, peerId)
-    MCMUtils:PlaySound(userId, EHandlers.SFX_CLOSE_MCM_WINDOW)
+    local payloadData = Ext.Json.Parse(payload)
+    if not payloadData then
+        MCMWarn(0, "Failed to parse payload data")
+        return
+    end
+
+    if payloadData.playSound then
+        MCMUtils:PlaySound(userId, EHandlers.SFX_CLOSE_MCM_WINDOW)
+    end
 end
 
 -- Run tests if debug level is high enough
 function EHandlers.OnSessionLoaded()
     if Config:getCfg().DEBUG.level > 2 then
         TestSuite.RunTests()
+    end
+end
+
+local function showTroubleshootingNotification(userCharacter)
+    -- TODO: use loca
+    Osi.OpenMessageBox(userCharacter,
+        "If you don't see the MCM window, please see the mod page for troubleshooting steps.\nThis is usually caused by third-party overlays or by alt-tabbing before reaching the main menu.")
+end
+
+local function updateNotificationStatus(userId, MCMModVars)
+    -- TODO: Also check mcm_params file (implement this later on)
+    MCMModVars.Notifications = MCMModVars.Notifications or {}
+    MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] = MCMModVars.Notifications
+    ["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
+    if not MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] then
+        MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] = true
+        MCMUtils:SyncModVars(ModuleUUID)
+        return true
+    end
+    return false
+end
+
+function EHandlers.OnUserSpamMCMButton(_, payload, peerId)
+    MCMDebug(1, "User is spamming MCM button; showing troubleshooting notification")
+    local userId = MCMUtils:PeerToUserID(peerId)
+    local userCharacter = MCMUtils:GetUserCharacter(userId)
+    if userCharacter then
+        local MCMModVars = Ext.Vars.GetModVariables(ModuleUUID)
+        if updateNotificationStatus(userId, MCMModVars) then
+            showTroubleshootingNotification(userCharacter)
+        end
+    else
+        MCMDebug(1, "Failed to show notification - userCharacter is nil")
     end
 end
 

@@ -1,12 +1,68 @@
 --- SECTION: Ext events
 
--- Toggle the window with the insert and context menu key.
--- TODO: Make it more abstract/configurable
-Ext.Events.KeyInput:Subscribe(function(e)
-    if e.Event == "KeyDown" and e.Repeat == false then
-        KeybindingManager:HandleKeyInput(e)
+-- TODO: move this to a separate file
+local function updateButtonMessage(newMessage, revertTime, isMessageUpdated)
+    if isMessageUpdated then
+        return
     end
-end)
+    isMessageUpdated = true
+
+    local originalMessage = Ext.Loca.GetTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7")
+    Ext.Loca.UpdateTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7", newMessage)
+    -- Revert to original message after revertTime
+    Ext.Timer.WaitFor(revertTime, function()
+        Ext.Loca.UpdateTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7", originalMessage)
+        isMessageUpdated = false
+    end)
+end
+
+local function handleButtonPress(button)
+    local pressCount = 0
+    local pressLimit = 4
+    local timeWindow = 4000
+    local revertTime = 15000
+    local isMessageUpdated = false
+
+    button:Subscribe("PreviewMouseDown", function(a, b)
+        pressCount = pressCount + 1
+        if pressCount > pressLimit then
+            MCMWarn(0,
+                "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
+            updateButtonMessage("No MCM window? See troubleshooting steps in the mod page.",
+                revertTime, isMessageUpdated)
+            Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, Ext.Json.Stringify({}))
+        else
+            Ext.Timer.WaitFor(timeWindow, function()
+                pressCount = 0
+            end)
+        end
+        MCMPrint(1,
+            "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
+        MCMClientState:ToggleMCMWindow(false)
+    end)
+end
+
+local function handleEscapeKey()
+    local MCMButton = Noesis:FindMCMGameMenuButton()
+    if not MCMButton then
+        return
+    end
+    handleButtonPress(MCMButton)
+end
+
+
+local function handleKeyInput(e)
+    if e.Event == "KeyDown" and e.Repeat == false then
+        KeybindingManager:HandleKeyUpInput(e)
+        return
+    end
+
+    if e.Event == "KeyUp" and e.Repeat == false and e.Key == "ESCAPE" then
+        handleEscapeKey()
+    end
+end
+
+Ext.Events.KeyInput:Subscribe(handleKeyInput)
 
 Ext.Events.ResetCompleted:Subscribe(function()
     Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
