@@ -1,4 +1,6 @@
 ---@class ModSettings
+---@field blueprint Blueprint The blueprint for the mod
+---@field settingsValues table<string, any> A table of settings for the mod
 ---@field widgets table<string, any> A table of widgets for the mod
 
 --- A class representing an IMGUI layer responsible for providing a UI to manage mods and profiles.
@@ -14,10 +16,11 @@
 ---@class IMGUILayer: MetaClass
 ---@field mods table<string, ModSettings>
 ---@field private profiles table<string, table>
+---@field private modsTabs table<string, any> A table of tabs for each mod in the MCM
 ---@field private visibilityTriggers table<string, table>
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
-    mods_tabs = {},
+    modsTabs = {},
     visibilityTriggers = {}
 })
 
@@ -33,7 +36,7 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     if not mod or not mod.settingsValues then
         return
     end
-    
+
     self:UpdateVisibility(modGUID, settingId, value)
 
     mod.settingsValues[settingId] = value
@@ -43,20 +46,23 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
 end
 
 function IMGUILayer:UpdateVisibility(modGUID, settingId, value)
-    for group, o in pairs(self.visibilityTriggers[modGUID][settingId]) do
-        for operator, v in pairs(self.visibilityTriggers[modGUID][settingId][group]) do
+    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
+    local settingTriggers = visibilityTriggers[settingId] or {}
+
+    for group, operators in pairs(settingTriggers) do
+        for operator, triggerValue in pairs(operators) do
             if operator == "==" then
-                group.Visible = (tostring(value) == tostring(v))
+                group.Visible = (tostring(value) == tostring(triggerValue))
             elseif operator == "!=" then
-                group.Visible = (tostring(value) ~= tostring(v))
+                group.Visible = (tostring(value) ~= tostring(triggerValue))
             elseif operator == "<=" then
-                group.Visible = (tonumber(value) <= tonumber(v))
+                group.Visible = (tonumber(value) <= tonumber(triggerValue))
             elseif operator == ">=" then
-                group.Visible = (tonumber(value) >= tonumber(v))
+                group.Visible = (tonumber(value) >= tonumber(triggerValue))
             elseif operator == "<" then
-                group.Visible = (tonumber(value) < tonumber(v))
+                group.Visible = (tonumber(value) < tonumber(triggerValue))
             elseif operator == ">" then
-                group.Visible = (tonumber(value) > tonumber(v))
+                group.Visible = (tonumber(value) > tonumber(triggerValue))
             end
         end
     end
@@ -188,8 +194,8 @@ end
 --- Check if the menu should be populated
 ---@return boolean
 function IMGUILayer:ShouldPopulateMenu()
-    -- If self.mods_tabs already has content, we don't want to populate the menu again
-    return table.isEmpty(self.mods_tabs)
+    -- If self.modsTabs already has content, we don't want to populate the menu again
+    return table.isEmpty(self.modsTabs)
 end
 
 --- Initialize menu settings and destroy welcome text if it exists
@@ -213,7 +219,7 @@ end
 --- Create profile management header
 ---@return nil
 function IMGUILayer:CreateProfileManagementHeader()
-    UIProfileManager:CreateProfileCollapsingHeader()
+    -- UIProfileManager:CreateProfileCollapsingHeader()
     MCM_WINDOW:AddDummy(0, 10)
 end
 
@@ -244,13 +250,13 @@ function IMGUILayer:PopulateModsTree(modsTree)
     -- Sort mods by name
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
-        self.visibility_trigger[modGUID] = {}
+        self.visibilityTriggers[modGUID] = {}
         local modName = self:GetModName(modGUID)
         local modItem = self:CreateModItem(modsTree, modName, modGUID)
         self:AddModTooltip(modItem, modGUID)
 
         modsTree:AddSeparator()
-        self.mods_tabs[modGUID] = modItem
+        self.modsTabs[modGUID] = modItem
         self:CreateModMenuTab(modGUID)
 
         --init visibility
@@ -306,17 +312,17 @@ function IMGUILayer:CreateModMenuTab(modGUID)
     local modInfo = Ext.Mod.GetMod(modGUID).Info
     local modBlueprint = self.mods[modGUID].blueprint
     local modSettings = self.mods[modGUID].settingsValues
-    local modTab = self.mods_tabs[modGUID]
+    local modTab = self.modsTabs[modGUID]
 
     local function createModTabBar()
         local modTabs = modTab:AddTabBar(modGUID .. "_TABS")
         modTabs.IDContext = modGUID .. "_TABS"
 
-        if type(self.mods_tabs[modGUID]) == "table" then
-            self.mods_tabs[modGUID].mod_tab_bar = modTabs
+        if type(self.modsTabs[modGUID]) == "table" then
+            self.modsTabs[modGUID].mod_tab_bar = modTabs
             self.mods[modGUID].widgets = {}
         else
-            self.mods_tabs[modGUID] = { mod_tab_bar = modTabs }
+            self.modsTabs[modGUID] = { mod_tab_bar = modTabs }
             self.mods[modGUID].widgets = {}
         end
 
@@ -406,7 +412,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
             self.visibilityTriggers[modGUID][settingIdTriggering][sectionGroup][operator] = value
         end
     end
-    
+
     local sectionHeader = sectionGroup:AddSeparatorText(sectionName)
     sectionHeader.IDContext = modGUID .. "_" .. sectionName
     sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
@@ -460,13 +466,13 @@ end
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
 function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
-    if not self.mods_tabs[modGUID] then
-        self.mods_tabs[modGUID] = {
+    if not self.modsTabs[modGUID] then
+        self.modsTabs[modGUID] = {
             mod_tab_bar = nil
         }
     end
 
-    if self.mods_tabs[modGUID].mod_tab_bar then
+    if self.modsTabs[modGUID].mod_tab_bar then
         self:AddTabToModTabBar(modGUID, tabName, tabCallback)
         return
     end
@@ -486,11 +492,11 @@ function IMGUILayer:CreateModTabBar(modGUID)
     local modTab = self.modsTabBar:AddTabItem(modInfo.Name)
     modTab.IDContext = modGUID .. "_TAB"
     -- Refactor this nonsense
-    self.mods_tabs[modGUID].mod_tab = modTab
+    self.modsTabs[modGUID].mod_tab = modTab
 
     local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
     modTabs.IDContext = modGUID .. "_TABS"
-    self.mods_tabs[modGUID].mod_tab_bar = modTabs
+    self.modsTabs[modGUID].mod_tab_bar = modTabs
 end
 
 --- Add a new tab to the mod tab bar
@@ -502,7 +508,7 @@ function IMGUILayer:AddTabToModTabBar(modGUID, tabName, tabCallback)
         return
     end
 
-    local modTabs = self.mods_tabs[modGUID].mod_tab_bar
+    local modTabs = self.modsTabs[modGUID].mod_tab_bar
     local newTab = modTabs:AddTabItem(tabName)
     newTab.IDContext = modGUID .. "_" .. tabName
     tabCallback(newTab)
