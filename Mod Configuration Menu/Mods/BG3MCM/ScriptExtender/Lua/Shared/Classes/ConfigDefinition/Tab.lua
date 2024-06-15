@@ -2,6 +2,7 @@
 ---@field private TabId string
 ---@field private TabName string
 ---@field private TabDescription string
+---@field private VisibleIf string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Settings? BlueprintSetting[]
@@ -10,6 +11,7 @@ BlueprintTab = _Class:Create("BlueprintTab", nil, {
     TabId = "",
     TabName = "",
     TabDescription = "",
+    VisibleIf = "",
     Tabs = {},
     Sections = {},
     Settings = {},
@@ -23,6 +25,7 @@ function BlueprintTab:New(options)
     self.TabId = options.TabId or ""
     self.TabName = options.TabName or ""
     self.TabDescription = options.TabDescription or ""
+    self.VisibleIf = options.VisibleIf or ""
     self.Tabs = {}
     self.Sections = {}
     self.Settings = {}
@@ -83,6 +86,10 @@ end
 --- @return string
 function BlueprintTab:GetTabDescription()
     return self.TabDescription
+end
+
+function BlueprintTab:GetVisibleIf()
+    return self.VisibleIf
 end
 
 --- Get the Sections of the BlueprintTab.
