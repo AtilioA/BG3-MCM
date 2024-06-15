@@ -376,6 +376,8 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     local tabSections = tab:GetSections()
     local tabSettings = tab:GetSettings()
 
+    self:manageVisibleIf(modGUID, tab, tabHeader)
+
     if #tabSections > 0 then
         for sectionIndex, section in ipairs(tab:GetSections()) do
             self:CreateModMenuSection(sectionIndex, tabHeader, section, modSettings, modGUID)
