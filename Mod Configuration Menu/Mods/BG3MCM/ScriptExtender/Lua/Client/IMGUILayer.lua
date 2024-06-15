@@ -387,6 +387,22 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
     end
 end
 
+function IMGUILayer:manageVisibleIf(modGUID, element, group)
+    if element.VisibleIf and element.VisibleIf.Conditions then
+        for _, condition in ipairs(element.VisibleIf.Conditions) do
+            local settingIdTriggering = condition.SettingId
+            local operator = condition.Operator
+            local value = condition.ExpectedValue
+            self.visibilityTriggers[modGUID] = self.visibilityTriggers[modGUID] or {}
+            self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
+                [settingIdTriggering] or {}
+            self.visibilityTriggers[modGUID][settingIdTriggering][group] = self.visibilityTriggers[modGUID]
+                [settingIdTriggering][group] or {}
+            self.visibilityTriggers[modGUID][settingIdTriggering][group][operator] = value
+        end
+    end
+end
+
 --- Create a new section for a mod in the MCM
 ---@param sectionIndex number The index of the section
 ---@param modGroup any The IMGUI group for the mod
@@ -404,20 +420,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     local sectionId = section:GetSectionId()
     local sectionGroup = modGroup:AddGroup(sectionId)
 
-    -- TODO: refactor this to modularize or use OOP
-    if section.VisibleIf and section.VisibleIf.Conditions then
-        for _, condition in ipairs(section.VisibleIf.Conditions) do
-            local settingIdTriggering = condition.SettingId
-            local operator = condition.Operator
-            local value = condition.ExpectedValue
-            self.visibilityTriggers[modGUID] = self.visibilityTriggers[modGUID] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
-                [settingIdTriggering] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering][sectionGroup] = self.visibilityTriggers[modGUID]
-                [settingIdTriggering][sectionGroup] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering][sectionGroup][operator] = value
-        end
-    end
+    self:manageVisibleIf(modGUID, section, sectionGroup)
 
     local sectionHeader = sectionGroup:AddSeparatorText(sectionName)
     sectionHeader.IDContext = modGUID .. "_" .. sectionName
@@ -448,19 +451,7 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
         local widgetGroup = modGroup:AddGroup(setting:GetId())
         local widget = createWidget(widgetGroup, setting, settingValue, modGUID)
 
-        -- TODO: refactor this to modularize or use OOP
-        if setting.VisibleIf and setting.VisibleIf.Conditions then
-            for _, condition in ipairs(setting.VisibleIf.Conditions) do
-                local settingIdTriggering = condition.SettingId
-                local operator = condition.Operator
-                local value = condition.ExpectedValue
-                self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
-                    [settingIdTriggering] or {}
-                self.visibilityTriggers[modGUID][settingIdTriggering][widgetGroup] = self.visibilityTriggers[modGUID]
-                    [settingIdTriggering][widgetGroup] or {}
-                self.visibilityTriggers[modGUID][settingIdTriggering][widgetGroup][operator] = value
-            end
-        end
+        self:manageVisibleIf(modGUID, setting, widgetGroup)
 
         self.mods[modGUID].widgets[setting:GetId()] = widget
     end
