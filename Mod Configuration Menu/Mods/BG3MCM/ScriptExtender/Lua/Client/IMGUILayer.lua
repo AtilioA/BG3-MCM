@@ -45,6 +45,7 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
 end
 
+-- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
 function IMGUILayer:UpdateVisibility(modGUID, settingId, value)
     local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
     local settingTriggers = visibilityTriggers[settingId] or {}
