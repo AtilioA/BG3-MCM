@@ -55,9 +55,11 @@
                             "Type": "checkbox",
                             "Default": true,
                             "Description": "Dynamically resize the MCM window to fit settings.",
+                            "Tooltip": "If disabled, the window might require scrolling.\nYou'll be able to resize the window manually by dragging the bottom-right corner.",
                             "Handles": {
                                 "NameHandle": "hc4abe0365af046e6abac1b4432abc3f7g4g3",
-                                "DescriptionHandle": "h2c525b9161344f509bb4dcad8e49010bb9ce"
+                                "DescriptionHandle": "h2c525b9161344f509bb4dcad8e49010bb9ce",
+                                "TooltipHandle": "ha94c42869802455dba878884efdbcbee3fea"
                             }
                         },
                         {
