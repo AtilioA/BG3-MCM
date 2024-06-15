@@ -21,7 +21,7 @@
                                 "ScanCode": "INSERT",
                                 "Modifier": ""
                             },
-                            "Description": "Set the keybinding for toggling MCM's window.",
+                            "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",
                             "Handles": {
                                 "NameHandle": "hb2789893dcaf46fca8c40add9358e1f2ca93",
                                 "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
