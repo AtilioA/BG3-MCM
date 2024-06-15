@@ -136,7 +136,7 @@
                     />
 
                     <ls:LSButton x:Name="MCMButton"  Style="{StaticResource GameMenuButtonStyle}"
-                    Content="{Binding Source='h1f5a4453gcd7ag4dc6gb127g5744ea1922ac', Converter={StaticResource TranslatedStringConverter}}"
+                    Content="{Binding Source='h8e2c39a3f3c040aebfb9ad10339dd4ff89f7', Converter={StaticResource TranslatedStringConverter}}"
                     Command="{Binding CustomEvent}" CommandParameter="OpenMCM"
                     />
 

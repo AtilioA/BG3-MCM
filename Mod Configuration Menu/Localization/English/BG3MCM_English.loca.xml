@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentList>
+    <!-- Used for MCM window, etc -->
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
+    <!-- Used for some buttons (can be overridden during runtime to display advice) -->
+    <content contentuid="h8e2c39a3f3c040aebfb9ad10339dd4ff89f7" version="1">Mod Configuration Menu</content>
     <content contentuid="h91b72aadb42a441881a1a7c5de2f82e27agga" version="1">Settings</content>
     <content contentuid="hc4abe0365af046e6abac1b4432abc3f7g4g3" version="1">Auto-resize window</content>
     <content contentuid="hb2789893dcaf46fca8c40add9358e1f2ca93" version="1">Toggle MCM window</content>

@@ -7,11 +7,11 @@ local function updateButtonMessage(newMessage, revertTime, isMessageUpdated)
     end
     isMessageUpdated = true
 
-    local originalMessage = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
-    Ext.Loca.UpdateTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769", newMessage)
+    local originalMessage = Ext.Loca.GetTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7")
+    Ext.Loca.UpdateTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7", newMessage)
     -- Revert to original message after revertTime
     Ext.Timer.WaitFor(revertTime, function()
-        Ext.Loca.UpdateTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769", originalMessage)
+        Ext.Loca.UpdateTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7", originalMessage)
         isMessageUpdated = false
     end)
 end

@@ -100,7 +100,7 @@ local function updateNotificationStatus(userId, MCMModVars)
 end
 
 function EHandlers.OnUserSpamMCMButton(_, payload, peerId)
-    MCMDebug(1, "User is spamming the MCM button... showing troubleshooting notification")
+    MCMDebug(1, "User is spamming MCM button; showing troubleshooting notification")
     local userId = MCMUtils:PeerToUserID(peerId)
     local userCharacter = MCMUtils:GetUserCharacter(userId)
     if userCharacter then
