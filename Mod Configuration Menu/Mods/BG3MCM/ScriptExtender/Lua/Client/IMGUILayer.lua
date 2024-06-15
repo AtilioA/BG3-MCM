@@ -138,7 +138,9 @@ function IMGUILayer:CreateMainIMGUIWindow()
     return true
 end
 
-function IMGUILayer:ToggleMCMWindow()
+--- Toggles the visibility of the MCM window.
+--- @param playSound boolean Whether to play a sound effect when toggling the window.
+function IMGUILayer:ToggleMCMWindow(playSound)
     if not MCM_WINDOW then
         return
     end
@@ -146,11 +148,15 @@ function IMGUILayer:ToggleMCMWindow()
     if MCM_WINDOW.Open == true then
         MCM_WINDOW.Visible = false
         MCM_WINDOW.Open = false
-        Ext.Net.PostMessageToServer(Channels.MCM_USER_CLOSED_WINDOW, "")
+        Ext.Net.PostMessageToServer(Channels.MCM_USER_CLOSED_WINDOW, Ext.Json.Stringify({
+            playSound = playSound
+        }))
     else
         MCM_WINDOW.Visible = true
         MCM_WINDOW.Open = true
-        Ext.Net.PostMessageToServer(Channels.MCM_USER_OPENED_WINDOW, "")
+        Ext.Net.PostMessageToServer(Channels.MCM_USER_OPENED_WINDOW, Ext.Json.Stringify({
+            playSound = playSound
+        }))
     end
 end
 
@@ -220,7 +226,7 @@ end
 --- Create profile management header
 ---@return nil
 function IMGUILayer:CreateProfileManagementHeader()
-    -- UIProfileManager:CreateProfileCollapsingHeader()
+    UIProfileManager:CreateProfileCollapsingHeader()
     MCM_WINDOW:AddDummy(0, 10)
 end
 
@@ -406,9 +412,9 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
             local value = condition.ExpectedValue
             self.visibilityTriggers[modGUID] = self.visibilityTriggers[modGUID] or {}
             self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
-            [settingIdTriggering] or {}
+                [settingIdTriggering] or {}
             self.visibilityTriggers[modGUID][settingIdTriggering][sectionGroup] = self.visibilityTriggers[modGUID]
-            [settingIdTriggering][sectionGroup] or {}
+                [settingIdTriggering][sectionGroup] or {}
             self.visibilityTriggers[modGUID][settingIdTriggering][sectionGroup][operator] = value
         end
     end
@@ -449,9 +455,9 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
                 local operator = condition.Operator
                 local value = condition.ExpectedValue
                 self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
-                [settingIdTriggering] or {}
+                    [settingIdTriggering] or {}
                 self.visibilityTriggers[modGUID][settingIdTriggering][widgetGroup] = self.visibilityTriggers[modGUID]
-                [settingIdTriggering][widgetGroup] or {}
+                    [settingIdTriggering][widgetGroup] or {}
                 self.visibilityTriggers[modGUID][settingIdTriggering][widgetGroup][operator] = value
             end
         end

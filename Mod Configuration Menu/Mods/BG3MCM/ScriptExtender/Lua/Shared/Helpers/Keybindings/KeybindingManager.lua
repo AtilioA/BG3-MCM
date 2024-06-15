@@ -49,7 +49,7 @@ end
 function KeybindingManager:HandleKeyUpInput(e)
     local toggleKeybinding = KeybindingManager:GetToggleKeybinding()
     if KeybindingManager:IsKeybindingPressed(e, toggleKeybinding) then
-        IMGUILayer:ToggleMCMWindow()
+        IMGUILayer:ToggleMCMWindow(true)
     end
 end
 

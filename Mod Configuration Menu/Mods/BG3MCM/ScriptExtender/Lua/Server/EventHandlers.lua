@@ -67,11 +67,27 @@ function EHandlers.OnClientRequestDeleteProfile(_, payload, peerId)
 end
 
 function EHandlers.OnUserOpenedWindow(_, payload, peerId)
-    MCMUtils:PlaySound(userId, EHandlers.SFX_OPEN_MCM_WINDOW)
+    local payloadData = Ext.Json.Parse(payload)
+    if not payloadData then
+        MCMWarn(0, "Failed to parse payload data")
+        return
+    end
+
+    if payloadData.playSound then
+        MCMUtils:PlaySound(userId, EHandlers.SFX_OPEN_MCM_WINDOW)
+    end
 end
 
 function EHandlers.OnUserClosedWindow(_, payload, peerId)
-    MCMUtils:PlaySound(userId, EHandlers.SFX_CLOSE_MCM_WINDOW)
+    local payloadData = Ext.Json.Parse(payload)
+    if not payloadData then
+        MCMWarn(0, "Failed to parse payload data")
+        return
+    end
+
+    if payloadData.playSound then
+        MCMUtils:PlaySound(userId, EHandlers.SFX_CLOSE_MCM_WINDOW)
+    end
 end
 
 -- Run tests if debug level is high enough
@@ -90,7 +106,8 @@ end
 local function updateNotificationStatus(userId, MCMModVars)
     -- TODO: Also check mcm_params file (implement this later on)
     MCMModVars.Notifications = MCMModVars.Notifications or {}
-    MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] = MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
+    MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] = MCMModVars.Notifications
+    ["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
     if not MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] then
         MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] = true
         MCMUtils:SyncModVars(ModuleUUID)
