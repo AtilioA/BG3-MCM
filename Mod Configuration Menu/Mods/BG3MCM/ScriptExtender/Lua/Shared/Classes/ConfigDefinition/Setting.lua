@@ -3,6 +3,7 @@
 ---@field private OldId string
 ---@field private Name string
 ---@field private Type string
+---@field private VisibleIf string
 ---@field private Default any
 ---@field private Description string
 ---@field private Tooltip string
@@ -14,6 +15,7 @@ BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
     OldId = "",
     Name = "",
     Type = "",
+    VisibleIf = "",
     Default = nil,
     Description = "",
     Tooltip = "",
@@ -51,6 +53,8 @@ function BlueprintSetting:New(options)
         self.Type = ""
     end
 
+    self.VisibleIf = options.VisibleIf or ""
+    
     self.Default = options.Default
 
     if options.Description ~= nil then
@@ -97,6 +101,10 @@ end
 
 function BlueprintSetting:GetType()
     return self.Type
+end
+
+function BlueprintSetting:GetVisibleIf()
+    return self.VisibleIf
 end
 
 function BlueprintSetting:GetDefault()

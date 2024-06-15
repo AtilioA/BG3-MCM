@@ -132,6 +132,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
         processedData = BlueprintSection:New({
             SectionId = elementData.SectionId,
             SectionName = elementData.SectionName,
+            VisibleIf = elementData.VisibleIf,
             Tabs = elementData.Tabs or {}, -- Sections might also have nested Tabs
             -- Settings = elementData.Settings or {},
             Handles = elementData.Handles or {}
@@ -151,6 +152,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
             Id = setting.Id,
             OldId = setting.OldId,
             Name = setting.Name,
+            VisibleIf = setting.VisibleIf,
             Type = setting.Type,
             Default = setting.Default,
             Description = setting.Description,

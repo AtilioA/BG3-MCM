@@ -1,4 +1,6 @@
 ---@class ModSettings
+---@field blueprint Blueprint The blueprint for the mod
+---@field settingsValues table<string, any> A table of settings for the mod
 ---@field widgets table<string, any> A table of widgets for the mod
 
 --- A class representing an IMGUI layer responsible for providing a UI to manage mods and profiles.
@@ -15,9 +17,11 @@
 ---@field mods table<string, ModSettings>
 ---@field private profiles table<string, table>
 ---@field private modsTabs table<string, any> A table of tabs for each mod in the MCM
+---@field private visibilityTriggers table<string, table>
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
     modsTabs = {},
+    visibilityTriggers = {}
 })
 
 MCMClientState = IMGUILayer:New()
@@ -33,10 +37,35 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
         return
     end
 
+    self:UpdateVisibility(modGUID, settingId, value)
+
     mod.settingsValues[settingId] = value
 
     -- Update the displayed value for the setting
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
+end
+
+function IMGUILayer:UpdateVisibility(modGUID, settingId, value)
+    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
+    local settingTriggers = visibilityTriggers[settingId] or {}
+
+    for group, operators in pairs(settingTriggers) do
+        for operator, triggerValue in pairs(operators) do
+            if operator == "==" then
+                group.Visible = (tostring(value) == tostring(triggerValue))
+            elseif operator == "!=" then
+                group.Visible = (tostring(value) ~= tostring(triggerValue))
+            elseif operator == "<=" then
+                group.Visible = (tonumber(value) <= tonumber(triggerValue))
+            elseif operator == ">=" then
+                group.Visible = (tonumber(value) >= tonumber(triggerValue))
+            elseif operator == "<" then
+                group.Visible = (tonumber(value) < tonumber(triggerValue))
+            elseif operator == ">" then
+                group.Visible = (tonumber(value) > tonumber(triggerValue))
+            end
+        end
+    end
 end
 
 function IMGUILayer:GetClientStateValue(settingId, modGUID)
@@ -190,7 +219,7 @@ end
 --- Create profile management header
 ---@return nil
 function IMGUILayer:CreateProfileManagementHeader()
-    UIProfileManager:CreateProfileCollapsingHeader()
+    -- UIProfileManager:CreateProfileCollapsingHeader()
     MCM_WINDOW:AddDummy(0, 10)
 end
 
@@ -220,6 +249,7 @@ function IMGUILayer:PopulateModsTree(modsTree)
     -- Sort mods by name
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
+        self.visibilityTriggers[modGUID] = {}
         local modName = self:GetModName(modGUID)
         local modItem = self:CreateModItem(modsTree, modName, modGUID)
         self:AddModTooltip(modItem, modGUID)
@@ -227,6 +257,12 @@ function IMGUILayer:PopulateModsTree(modsTree)
         modsTree:AddSeparator()
         self.modsTabs[modGUID] = modItem
         self:CreateModMenuTab(modGUID)
+
+        --init visibility
+        local modSettings = self.mods[modGUID].settingsValues
+        for settingId, group in pairs(self.visibilityTriggers[modGUID]) do
+            self:UpdateVisibility(modGUID, settingId, modSettings[settingId])
+        end
     end
 end
 
@@ -358,15 +394,32 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     end
 
     local sectionName = section:GetSectionLocaName()
+    local sectionId = section:GetSectionId()
+    local sectionGroup = modGroup:AddGroup(sectionId)
 
-    local sectionHeader = modGroup:AddSeparatorText(sectionName)
+    -- TODO: refactor this to modularize or use OOP
+    if section.VisibleIf and section.VisibleIf.Conditions then
+        for _, condition in ipairs(section.VisibleIf.Conditions) do
+            local settingIdTriggering = condition.SettingId
+            local operator = condition.Operator
+            local value = condition.ExpectedValue
+            self.visibilityTriggers[modGUID] = self.visibilityTriggers[modGUID] or {}
+            self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
+            [settingIdTriggering] or {}
+            self.visibilityTriggers[modGUID][settingIdTriggering][sectionGroup] = self.visibilityTriggers[modGUID]
+            [settingIdTriggering][sectionGroup] or {}
+            self.visibilityTriggers[modGUID][settingIdTriggering][sectionGroup][operator] = value
+        end
+    end
+
+    local sectionHeader = sectionGroup:AddSeparatorText(sectionName)
     sectionHeader.IDContext = modGUID .. "_" .. sectionName
     sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section:GetSettings()) do
-        self:CreateModMenuSetting(modGroup, setting, modSettings, modGUID)
+        self:CreateModMenuSetting(sectionGroup, setting, modSettings, modGUID)
     end
 end
 
@@ -385,7 +438,23 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
             setting:GetType() ..
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
-        local widget = createWidget(modGroup, setting, settingValue, modGUID)
+        local widgetGroup = modGroup:AddGroup(setting:GetId())
+        local widget = createWidget(widgetGroup, setting, settingValue, modGUID)
+
+        -- TODO: refactor this to modularize or use OOP
+        if setting.VisibleIf and setting.VisibleIf.Conditions then
+            for _, condition in ipairs(setting.VisibleIf.Conditions) do
+                local settingIdTriggering = condition.SettingId
+                local operator = condition.Operator
+                local value = condition.ExpectedValue
+                self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
+                [settingIdTriggering] or {}
+                self.visibilityTriggers[modGUID][settingIdTriggering][widgetGroup] = self.visibilityTriggers[modGUID]
+                [settingIdTriggering][widgetGroup] or {}
+                self.visibilityTriggers[modGUID][settingIdTriggering][widgetGroup][operator] = value
+            end
+        end
+
         self.mods[modGUID].widgets[setting:GetId()] = widget
     end
 end

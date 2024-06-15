@@ -99,6 +99,204 @@
                     "Handles": {
                         "NameHandle": "h67357ed078184370901b1d572062b7ba26a5"
                     }
+                },
+                {
+                    "VisibleIf": {
+                        "Conditions": [
+                            {
+                                "SettingId": "debug_level",
+                                "ExpectedValue": "2",
+                                "Operator": ">="
+                            }
+                        ]
+                    },
+                    "SectionId": "section1",
+                    "SectionName": "Section 1",
+                    "Settings": [
+                        {
+                            "Id": "MyColorPicker",
+                            "Name": "My Color Picker",
+                            "Type": "color_picker",
+                            "Default": [
+                                0.4980392156862745,
+                                0.47058823529411764,
+                                1.0,
+                                1.0
+                            ],
+                            "Tooltip": "This is a setting that does something."
+                        },
+                        {
+                            "Id": "MyColorEdit",
+                            "Name": "My Color Edit",
+                            "Type": "color_edit",
+                            "Default": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                1.0
+                            ],
+                            "Tooltip": "This is a setting that does something."
+                        },
+                        {
+                            "Id": "MyInt",
+                            "Name": "My Int",
+                            "Type": "int",
+                            "Default": 0,
+                            "Tooltip": "This is a setting that does something.",
+                            "Description": "This is a setting that does something, but this text is longer.",
+                            "Handles": {
+                                "NameHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73",
+                                "TooltipHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73"
+                            }
+                        },
+                        {
+                            "Id": "MyInt2",
+                            "Name": "My Int2",
+                            "Type": "int",
+                            "Default": 0,
+                            "Tooltip": "This is a setting that does something.",
+                            "Description": "This is a setting that does something, but this text is longer."
+                        },
+                        {
+                            "Id": "MyFloat",
+                            "Name": "My Float",
+                            "Type": "float",
+                            "Default": 0.0,
+                            "Tooltip": "This is a setting that does something else.",
+                            "Description": "This is a setting that does something else, but this text is longer."
+                        },
+                        {
+                            "Id": "MyFloat2",
+                            "Name": "My Float2",
+                            "Type": "float",
+                            "Default": 0.0,
+                            "Tooltip": "This is a setting that does something else.",
+                            "Description": "This is a setting that does something else, but this text is longer."
+                        },
+                        {
+                            "Id": "MyCheckbox",
+                            "Name": "My Checkbox",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Tooltip": "This is a setting that does something else.",
+                            "Description": "This is a setting that does something else, but this text is longer."
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h42495886g8c52g4021g8cc7g8f7d9daefb73"
+                    }
+                },
+                {
+                    "VisibleIf": {
+                        "Conditions": [
+                            {
+                                "SettingId": "debug_level",
+                                "ExpectedValue": "3",
+                                "Operator": ">="
+                            }
+                        ]
+                    },
+                    "SectionId": "section2",
+                    "SectionName": "Section 2",
+                    "Settings": [
+                        {
+                            "Id": "MyText",
+                            "Name": "My Text",
+                            "Type": "text",
+                            "Default": "default",
+                            "Tooltip": "This is a setting that does something else.",
+                            "Description": "This is a setting that does something else, but this text is longer."
+                        },
+                        {
+                            "Id": "MyEnum",
+                            "Name": "My Enum",
+                            "Type": "enum",
+                            "Default": "Option1",
+                            "Options": {
+                                "Choices": [
+                                    "Option1",
+                                    "Option2",
+                                    "Option3"
+                                ]
+                            },
+                            "Tooltip": "This is a setting that does something else."
+                        },
+                        {
+                            "Id": "MyIntSlider",
+                            "Name": "My  Int Slider",
+                            "Type": "slider_int",
+                            "Default": 50,
+                            "Options": {
+                                "Min": 0,
+                                "Max": 100
+                            },
+                            "Tooltip": "This is a setting that uses a integer slider input.",
+                            "Description": "This is a setting that uses a slider input, but this text is longer."
+                        },
+                        {
+                            "Id": "MyIntSlider 2",
+                            "Name": "My  Int Slider 2",
+                            "Type": "slider_int",
+                            "Default": 0,
+                            "Options": {
+                                "Min": 0,
+                                "Max": 1000000000000
+                            },
+                            "Tooltip": "This is a setting that uses a integer slider input.",
+                            "Description": "This is a setting that uses a slider input, but this text is longer."
+                        },
+                        {
+                            "Id": "MyFloatSlider",
+                            "Name": "My Float Slider",
+                            "Type": "slider_float",
+                            "Default": 0.25,
+                            "Options": {
+                                "Min": 0.0,
+                                "Max": 1.0
+                            },
+                            "Tooltip": "This is a setting that uses a float slider input.",
+                            "Description": "This is a setting that uses a slider input, but this text is longer."
+                        },
+                        {
+                            "Id": "MyIntDrag",
+                            "Name": "My Int Drag",
+                            "Type": "drag_int",
+                            "Default": 50,
+                            "Options": {
+                                "Min": 0,
+                                "Max": 100
+                            },
+                            "Tooltip": "This is a setting that uses a integer drag input.",
+                            "Description": "This is a setting that uses a drag input, but this text is longer."
+                        },
+                        {
+                            "Id": "MyFloatDrag",
+                            "Name": "My Float Drag",
+                            "Type": "drag_float",
+                            "Default": 50,
+                            "Options": {
+                                "Min": 0,
+                                "Max": 100
+                            },
+                            "Tooltip": "This is a setting that uses a float drag input.",
+                            "Description": "This is a setting that uses a drag input, but this text is longer."
+                        },
+                        {
+                            "Id": "MyRadio",
+                            "Name": "My Radio",
+                            "Type": "radio",
+                            "Default": "a",
+                            "Options": {
+                                "Choices": [
+                                    "a",
+                                    "b",
+                                    "c"
+                                ]
+                            },
+                            "Tooltip": "This is a setting that uses a radio button group.",
+                            "Description": "This is a setting that uses a radio button group, but this text is longer."
+                        }
+                    ]
                 }
             ]
         }

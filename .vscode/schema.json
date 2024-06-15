@@ -257,6 +257,10 @@
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
                     "description": "Handles to localize the setting's strings."
+                },
+                "VisibleIf": {
+                    "$ref": "#/definitions/VisibilityCondition",
+                    "description": "Array of Conditions that determine the visibility of this setting. A Condition is an object with SettingId, Operator, and ExpectedValue."
                 }
             },
             "if": {
@@ -345,6 +349,10 @@
                 "Handles": {
                     "$ref": "#/definitions/SectionHandles",
                     "description": "Handles to localize the section's strings."
+                },
+                "VisibleIf": {
+                    "$ref": "#/definitions/VisibilityCondition",
+                    "description": "Array of Conditions that determine the visibility of this section. Condition is an object with SettingId, Operator, and ExpectedValue."
                 }
             },
             "required": [
@@ -432,6 +440,62 @@
                 "NameHandle"
             ],
             "description": "Handles that can be used to localize a setting."
+        },
+        "VisibilityCondition": {
+            "type": "object",
+            "minItems": 1,
+            "uniqueItems": true,
+            "properties": {
+                "LogicalOperator": {
+                    "type": "string",
+                    "enum": [
+                        "and",
+                        "or"
+                    ],
+                    "description": "The logical operator to use between the conditions. Defaults to 'and'."
+                },
+                "Conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/Condition"
+                    }
+                }
+            },
+            "required": [
+                "Conditions"
+            ],
+            "description": "A boolean expression that determines the visibility of this element."
+        },
+        "Condition": {
+            "type": "object",
+            "properties": {
+                "SettingId": {
+                    "type": "string",
+                    "description": "The ID of the setting used for the comparison."
+                },
+                "Operator": {
+                    "type": "string",
+                    "enum": [
+                        "==",
+                        "!=",
+                        ">",
+                        "<",
+                        ">=",
+                        "<="
+                    ],
+                    "description": "The operator to use for the comparison."
+                },
+                "ExpectedValue": {
+                    "type": "string",
+                    "description": "The expected value of the setting specified by SettingId for this element to be visible."
+                }
+            },
+            "required": [
+                "SettingId",
+                "Operator",
+                "ExpectedValue"
+            ]
         }
     }
 }
