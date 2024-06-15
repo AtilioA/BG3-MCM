@@ -28,9 +28,9 @@ local function handleButtonPress(button)
         if pressCount > pressLimit then
             MCMWarn(0,
                 "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-            Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, Ext.Json.Stringify({}))
-            updateButtonMessage("No MCM window? See troubleshooting steps in the mod page.", originalMessage,
+            updateButtonMessage("No MCM window? See troubleshooting steps in the mod page.",
                 revertTime, isMessageUpdated)
+            Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, Ext.Json.Stringify({}))
         else
             Ext.Timer.WaitFor(timeWindow, function()
                 pressCount = 0
