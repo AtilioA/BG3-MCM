@@ -2,6 +2,10 @@ Noesis = {}
 
 --- Thanks Norbyte for this!
 function Noesis:findNoesisElementByName(element, name)
+    if not element then
+        return nil
+    end
+
     if element:GetProperty("Name") == name then
         return element
     end

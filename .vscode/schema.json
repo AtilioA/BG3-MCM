@@ -81,6 +81,10 @@
                     "description": "The description of the tab that will be displayed in the MCM menu. Will be localized if a handle is provided.",
                     "$comment": "This might not be used at all, but it's here just in case."
                 },
+                "VisibleIf": {
+                    "$ref": "#/definitions/VisibilityCondition",
+                    "description": "Array of Conditions that determine the visibility of this setting. A Condition is an object with SettingId, Operator, and ExpectedValue."
+                },
                 "Tabs": {
                     "type": "array",
                     "minItems": 1,
