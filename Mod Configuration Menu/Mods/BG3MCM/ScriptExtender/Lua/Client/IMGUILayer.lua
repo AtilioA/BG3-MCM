@@ -292,6 +292,15 @@ end
 ---@return any
 function IMGUILayer:CreateModItem(modsTree, modName, modGUID)
     local modItem = modsTree:AddCollapsingHeader(modName)
+    modItem.OnActivate = function()
+        MCMDebug(2, "Opening collapsing header for mod " .. modName)
+        Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
+            channel = Channels.MCM_MOD_TAB_ACTIVATED,
+            payload = {
+                modGUID = modGUID
+            }
+        }))
+    end
     modItem.IDContext = modGUID
     modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     if modGUID == ModuleUUID then
@@ -371,6 +380,13 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
 
     local tabHeader = modTabs:AddTabItem(tabName)
     tabHeader.IDContext = modGUID .. "_" .. tab:GetTabName()
+    tabHeader.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tab:GetTabName())
+        Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+            modGUID = modGUID,
+            tabName = tab:GetTabName()
+        }))
+    end
 
     -- TODO: as always, this should be abstracted away somehow but ehh (this will be needed for nested tabs etc)
     local tabSections = tab:GetSections()

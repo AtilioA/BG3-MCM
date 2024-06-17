@@ -9,6 +9,7 @@ netEventsRegistry:register(Channels.MCM_USER_OPENED_WINDOW, NetCommand:new(EHand
 netEventsRegistry:register(Channels.MCM_USER_CLOSED_WINDOW, NetCommand:new(EHandlers.OnUserClosedWindow))
 --- Net message handler for when the user spams the MCM button (the window is probably not open)
 netEventsRegistry:register(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, NetCommand:new(EHandlers.OnUserSpamMCMButton))
+netEventsRegistry:register(Channels.MCM_RELAY_TO_CLIENTS, NetCommand:new(EHandlers.OnRelayToClients))
 
 --- Authorized NetCommand interface (inherits from NetCommand, check if user can edit settings etc)
 --- Net message handler for when the (IMGUI) client requests a setting to be set
@@ -41,7 +42,6 @@ local function registerNetListeners(registry)
         Ext.RegisterNetListener(channel, handleNetMessage)
     end
 end
-
 
 -- Subscribe to events
 function SubscribedEvents.SubscribeToEvents()
