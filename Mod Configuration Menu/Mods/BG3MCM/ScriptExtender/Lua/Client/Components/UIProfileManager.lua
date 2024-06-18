@@ -21,19 +21,15 @@ local function getDeleteProfileButtonLabel(profile)
 end
 
 --- Create widgets for managing profiles (selecting, creating, deleting)
-function UIProfileManager:CreateProfileCollapsingHeader(imguiLayer)
+function UIProfileManager:CreateProfileCollapsingHeader()
     local profiles = MCMAPI:GetProfiles()
     local currentProfile = MCMAPI:GetCurrentProfile()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile) - 1
 
-    local menuCell = imguiLayer:GetMenuCell()
-    menuCell:AddSeparatorText(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
-    imguiLayer:CreateModButton(menuCell, Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), "MCM_profiles")
+    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
+    local contentGroup = FrameManager:addButtonAndGetGroup(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil ,"MCM_profiles")
 
-    local contentCell = imguiLayer:GetContentCell()
-    local contentGroup = contentCell:AddGroup("MCM_profiles")
-
-    local profileCombo = contentCell:AddCombo("")
+    local profileCombo = contentGroup:AddCombo("")
     profileCombo.Options = profiles.Profiles
     profileCombo.SelectedIndex = profileIndex or 1
 

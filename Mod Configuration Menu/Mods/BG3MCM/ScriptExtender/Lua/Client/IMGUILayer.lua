@@ -20,21 +20,11 @@
 ---@field private visibilityTriggers table<string, table>
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
-    modsTabs = {},
-    visibilityTriggers = {},
-    menuCell = nil,
-    contentCell = nil
+    modsTabs = {}, -- TODO remove it as frameManager do the job
+    visibilityTriggers = {}
 })
 
 MCMClientState = IMGUILayer:New()
-
-function IMGUILayer:GetMenuCell()
-    return self.menuCell
-end
-
-function IMGUILayer:GetContentCell()
-    return self.contentCell
-end
 
 function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     modGUID = modGUID or ModuleUUID
@@ -224,12 +214,7 @@ function IMGUILayer:PrepareMenu()
 
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
     -- Table Layout
-    local modsTable = MCM_WINDOW:AddTable("Modsgg", 2)
-    modsTable:AddColumn("Menu", "WidthFixed")
-    modsTable:AddColumn("Frame", "WidthStretch")
-    local row = modsTable:AddRow()
-    self.menuCell = row:AddCell()
-    self.contentCell = row:AddCell()
+    FrameManager:initFrameLayout(MCM_WINDOW)
 end
 
 --- Convert the mod configs to use the Blueprint class
@@ -250,16 +235,16 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function IMGUILayer:CreateMainTable()
-    self.menuCell:AddSeparatorText("MODS")
+    FrameManager:AddMenuSection("MODS")
 
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
         self.visibilityTriggers[modGUID] = {}
-        local modName = self:GetModName(modGUID)
-        local modButton = self:CreateModButton(self.menuCell, modName, modGUID)
-        self:AddModTooltip(modButton, modGUID)
 
-        local modGroup = self.contentCell:AddGroup(modGUID)
+        local modName = self:GetModName(modGUID)
+        local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
+        local modGroup =FrameManager:addButtonAndGetGroup(modName, modDescription, modGUID)
+        
         self.modsTabs[modGUID] = modGroup
         self:CreateModMenuFrame(modGUID)
 
@@ -268,7 +253,7 @@ function IMGUILayer:CreateMainTable()
             self:UpdateVisibility(modGUID, settingId, modSettings[settingId])
         end
     end
-    self:setVisibleFrame(ModuleUUID)
+    FrameManager:setVisibleFrame(ModuleUUID)
 end
 
 
@@ -284,42 +269,6 @@ function IMGUILayer:GetModName(modGUID)
     return modName
 end
 
-function IMGUILayer:setVisibleFrame(modGuidToShow)
-    local sortedModKeys = MCMUtils.SortModsByName(self.mods)
-    print("mod to show"..modGuidToShow)
-    for modGUID, modGroup  in pairs(self.modsTabs) do
-        print("Update visibility of mod "..modGUID.."  to  "..(tostring(modGuidToShow == modGUID)).."   Currently:"..(tostring(modGroup.Visible)))
-        -- wierd that modGroup.Visible nil and do nothing
-        modGroup.Visible = (modGuidToShow == modGUID)
-    end
-end
-
---- Create a mod item in the mods tree
----@param modsTree any
----@param modName string
----@param modGUID string
----@return any
-function IMGUILayer:CreateModButton(menuCell, modName, modGUID)
-    local modItem = menuCell:AddButton(modName)
-    modItem.IDContext = modGUID
-    modItem.OnClick = function()
-        self:setVisibleFrame(modGUID)
-    end
-    modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
-    return modItem
-end
-
-
---- Add a tooltip to a mod item with the mod description
----@param modItem any
----@param modGUID string
----@return nil
-function IMGUILayer:AddModTooltip(modItem, modGUID)
-    local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
-    local modTabTooltip = modItem:Tooltip()
-    modTabTooltip.IDContext = modGUID .. "_TOOLTIP"
-    modTabTooltip:AddText(modDescription)
-end
 
 --- Create a new tab for a mod in the MCM
 ---@param modGUID string The UUID of the mod
