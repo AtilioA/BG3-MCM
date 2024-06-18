@@ -2,23 +2,24 @@
 FrameManager = _Class:Create("FrameManager", nil, {
     menuCell = nil,
     contentCell = nil,
-    modGroups = {}
+    contentGroups = {}
 })
 
 
 function FrameManager:initFrameLayout(parent)
-    local modsTable = parent:AddTable("MenuAndContent", 2)
-    modsTable:AddColumn("Menu", "WidthFixed")
-    modsTable:AddColumn("Frame", "WidthStretch")
-    local row = modsTable:AddRow()
+    local layoutTable = parent:AddTable("MenuAndContent", 2)
+    layoutTable:AddColumn("Menu", "WidthFixed")
+    layoutTable:AddColumn("Frame", "WidthStretch")
+    local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
+    self.menuCell.ItemWidth = 100
     self.contentCell = row:AddCell()
 end
 
 ---@param guidToShow string
 function FrameManager:setVisibleFrame(guidToShow)
-    for modGUID, modGroup  in pairs(self.modGroups) do
-        modGroup.Visible = (guidToShow == modGUID)
+    for uuid, group  in pairs(self.contentGroups) do
+        group.Visible = (guidToShow == uuid)
     end
 end
 
@@ -32,12 +33,12 @@ end
 ---@param uuid string
 ---@return any the group to add Content associated to the button
 function FrameManager:addButtonAndGetGroup(textButton, tooltipText, uuid)
-    local modButton = self:CreateModButton(self.menuCell, textButton, uuid)
+    local menuButton = self:CreateMenuButton(self.menuCell, textButton, uuid)
     if tooltipText then
-        self:AddTooltip(modButton, tooltipText, uuid)
+        self:AddTooltip(menuButton, tooltipText, uuid)
     end
     local group = self.contentCell:AddGroup(uuid)
-    self.modGroups[uuid] = group
+    self.contentGroups[uuid] = group
     return group
 end
 
@@ -46,23 +47,23 @@ end
 ---@param text string
 ---@param uuid string
 ---@return any
-function FrameManager:CreateModButton(menuCell, text, uuid)
-    local modItem = menuCell:AddButton(text)
-    modItem.IDContext = uuid
-    modItem.OnClick = function()
+function FrameManager:CreateMenuButton(menuCell, text, uuid)
+    local button = menuCell:AddButton(text)
+    button.IDContext = "Button"..uuid
+    button.OnClick = function()
         self:setVisibleFrame(uuid)
     end
-    modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
-    return modItem
+    button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+    return button
 end
 
---- Add a tooltip to a mod item with the mod description
----@param modItem any
+--- Add a tooltip to a button
+---@param button any
 ---@param tooltipText string
 ---@param uuid string
 ---@return nil
 function FrameManager:AddTooltip(button, tooltipText, uuid)
-    local modTabTooltip = modItem:Tooltip()
-    modTabTooltip.IDContext = uuid .. "_TOOLTIP"
-    modTabTooltip:AddText(tooltipText)
+    local buttonTooltip = button:Tooltip()
+    buttonTooltip.IDContext = uuid .. "_TOOLTIP"
+    buttonTooltip:AddText(tooltipText)
 end
