@@ -21,10 +21,20 @@
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
     modsTabs = {},
-    visibilityTriggers = {}
+    visibilityTriggers = {},
+    menuCell = nil,
+    contentCell = nil
 })
 
 MCMClientState = IMGUILayer:New()
+
+function IMGUILayer:GetMenuCell()
+    return self.menuCell
+end
+
+function IMGUILayer:GetContentCell()
+    return self.contentCell
+end
 
 function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     modGUID = modGUID or ModuleUUID
@@ -213,6 +223,13 @@ function IMGUILayer:PrepareMenu()
     end
 
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
+    -- Table Layout
+    local modsTable = MCM_WINDOW:AddTable("Modsgg", 2)
+    modsTable:AddColumn("Menu", "WidthFixed")
+    modsTable:AddColumn("Frame", "WidthStretch")
+    local row = modsTable:AddRow()
+    self.menuCell = row:AddCell()
+    self.contentCell = row:AddCell()
 end
 
 --- Convert the mod configs to use the Blueprint class
@@ -226,52 +243,34 @@ end
 --- Create profile management header
 ---@return nil
 function IMGUILayer:CreateProfileManagementHeader()
-    UIProfileManager:CreateProfileCollapsingHeader()
+    UIProfileManager:CreateProfileCollapsingHeader(self)
     MCM_WINDOW:AddDummy(0, 10)
 end
 
 --- Create the main table and populate it with mod trees
 ---@return nil
 function IMGUILayer:CreateMainTable()
-    local modsTree = self:CreateModsTree()
-    self:PopulateModsTree(modsTree)
-end
+    self.menuCell:AddSeparatorText("MODS")
 
---- TODO: Create the mods tree view
----@return any
-function IMGUILayer:CreateModsTree()
-    local modsTree = MCM_WINDOW:AddTree("Mods")
-    modsTree.IDContext = "MCM_MODS_TREE"
-    modsTree.FramePadding = true
-    modsTree.CollapsingHeader = true
-    modsTree.SpanFullWidth = true
-    modsTree.DefaultOpen = true
-    return modsTree
-end
-
---- Populate the mods tree with mod items
----@param modsTree any
----@return nil
-function IMGUILayer:PopulateModsTree(modsTree)
-    -- Sort mods by name
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
         self.visibilityTriggers[modGUID] = {}
         local modName = self:GetModName(modGUID)
-        local modItem = self:CreateModItem(modsTree, modName, modGUID)
-        self:AddModTooltip(modItem, modGUID)
+        local modButton = self:CreateModButton(self.menuCell, modName, modGUID)
+        self:AddModTooltip(modButton, modGUID)
 
-        modsTree:AddSeparator()
-        self.modsTabs[modGUID] = modItem
-        self:CreateModMenuTab(modGUID)
+        local modGroup = self.contentCell:AddGroup(modGUID)
+        self.modsTabs[modGUID] = modGroup
+        self:CreateModMenuFrame(modGUID)
 
-        --init visibility
         local modSettings = self.mods[modGUID].settingsValues
         for settingId, group in pairs(self.visibilityTriggers[modGUID]) do
             self:UpdateVisibility(modGUID, settingId, modSettings[settingId])
         end
     end
+    self:setVisibleFrame(ModuleUUID)
 end
+
 
 --- Get the mod name, considering custom blueprint names
 ---@param modGUID string
@@ -285,20 +284,31 @@ function IMGUILayer:GetModName(modGUID)
     return modName
 end
 
+function IMGUILayer:setVisibleFrame(modGuidToShow)
+    local sortedModKeys = MCMUtils.SortModsByName(self.mods)
+    print("mod to show"..modGuidToShow)
+    for modGUID, modGroup  in pairs(self.modsTabs) do
+        print("Update visibility of mod "..modGUID.."  to  "..(tostring(modGuidToShow == modGUID)).."   Currently:"..(tostring(modGroup.Visible)))
+        -- wierd that modGroup.Visible nil and do nothing
+        modGroup.Visible = (modGuidToShow == modGUID)
+    end
+end
+
 --- Create a mod item in the mods tree
 ---@param modsTree any
 ---@param modName string
 ---@param modGUID string
 ---@return any
-function IMGUILayer:CreateModItem(modsTree, modName, modGUID)
-    local modItem = modsTree:AddCollapsingHeader(modName)
+function IMGUILayer:CreateModButton(menuCell, modName, modGUID)
+    local modItem = menuCell:AddButton(modName)
     modItem.IDContext = modGUID
-    modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
-    if modGUID == ModuleUUID then
-        modItem.DefaultOpen = true
+    modItem.OnClick = function()
+        self:setVisibleFrame(modGUID)
     end
+    modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     return modItem
 end
+
 
 --- Add a tooltip to a mod item with the mod description
 ---@param modItem any
@@ -314,26 +324,11 @@ end
 --- Create a new tab for a mod in the MCM
 ---@param modGUID string The UUID of the mod
 ---@return nil
-function IMGUILayer:CreateModMenuTab(modGUID)
+function IMGUILayer:CreateModMenuFrame(modGUID)
     local modInfo = Ext.Mod.GetMod(modGUID).Info
     local modBlueprint = self.mods[modGUID].blueprint
     local modSettings = self.mods[modGUID].settingsValues
     local modTab = self.modsTabs[modGUID]
-
-    local function createModTabBar()
-        local modTabs = modTab:AddTabBar(modGUID .. "_TABS")
-        modTabs.IDContext = modGUID .. "_TABS"
-
-        if type(self.modsTabs[modGUID]) == "table" then
-            self.modsTabs[modGUID].modTabBar = modTabs
-            self.mods[modGUID].widgets = {}
-        else
-            self.modsTabs[modGUID] = { modTabBar = modTabs }
-            self.mods[modGUID].widgets = {}
-        end
-
-        return modTabs
-    end
 
     -- Footer-like text with mod information
     local function createModTabFooter()
@@ -350,7 +345,9 @@ function IMGUILayer:CreateModMenuTab(modGUID)
         modInfoText.IDContext = modGUID .. "_FOOTER"
     end
 
-    local modTabs = createModTabBar()
+    local modTabs = modTab:AddTabBar(modGUID .. "_TABS")
+    modTabs.IDContext = modGUID .. "_TABS"
+    self.mods[modGUID].widgets = {}
 
     -- Iterate over each tab in the mod blueprint to create a subtab for each
     for _, tab in ipairs(modBlueprint.Tabs) do
@@ -457,63 +454,4 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
 
         self.mods[modGUID].widgets[setting:GetId()] = widget
     end
-end
-
---- Insert a new tab for a mod in the MCM
----@param modGUID string The UUID of the mod
----@param tabName string The name of the tab to be inserted
----@param tabCallback function The callback function to create the tab
----@return nil
-function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
-    if not self.modsTabs[modGUID] then
-        self.modsTabs[modGUID] = {
-            modTabBar = nil
-        }
-    end
-
-    if self.modsTabs[modGUID].modTabBar then
-        self:AddTabToModTabBar(modGUID, tabName, tabCallback)
-        return
-    end
-
-    -- Create the mod tab bar if it doesn't exist
-    self:CreateModTabBar(modGUID)
-
-    self:AddTabToModTabBar(modGUID, tabName, tabCallback)
-end
-
-function IMGUILayer:CreateModTabBar(modGUID)
-    if not MCM_WINDOW then
-        return
-    end
-
-    local modInfo = Ext.Mod.GetMod(modGUID).Info
-    local modTab = self.modsTabBar:AddTabItem(modInfo.Name)
-    modTab.IDContext = modGUID .. "_TAB"
-    -- Refactor this nonsense
-    self.modsTabs[modGUID].modTab = modTab
-
-    local modTabs = modTab:AddTabBar(modInfo.Name .. "_TABS")
-    modTabs.IDContext = modGUID .. "_TABS"
-    self.modsTabs[modGUID].modTabBar = modTabs
-end
-
---- Add a new tab to the mod tab bar
----@param modGUID string The UUID of the mod
----@param tabName string The name of the tab to be added
----@param tabCallback function The callback function to create the tab
-function IMGUILayer:AddTabToModTabBar(modGUID, tabName, tabCallback)
-    if not MCM_WINDOW then
-        return
-    end
-
-    local modTabs = self.modsTabs[modGUID].modTabBar
-    local newTab = modTabs:AddTabItem(tabName)
-    newTab.IDContext = modGUID .. "_" .. tabName
-    tabCallback(newTab)
-
-    Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
-        modGUID = modGUID,
-        tabName = tabName
-    }))
 end
