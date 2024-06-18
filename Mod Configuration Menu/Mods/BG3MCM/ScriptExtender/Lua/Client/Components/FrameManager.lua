@@ -15,24 +15,26 @@ function FrameManager:initFrameLayout(parent)
     self.contentCell = row:AddCell()
 end
 
-
-
+---@param guidToShow string
 function FrameManager:setVisibleFrame(guidToShow)
     for modGUID, modGroup  in pairs(self.modGroups) do
         modGroup.Visible = (guidToShow == modGUID)
     end
 end
 
-
+---@param text string
 function FrameManager:AddMenuSection(text)
     self.menuCell:AddSeparatorText(text)
 end
 
-
+---@param textButton string
+---@param tooltipText string
+---@param uuid string
+---@return any the group to add Content associated to the button
 function FrameManager:addButtonAndGetGroup(textButton, tooltipText, uuid)
     local modButton = self:CreateModButton(self.menuCell, textButton, uuid)
     if tooltipText then
-        self:AddModTooltip(modButton, tooltipText, uuid)
+        self:AddTooltip(modButton, tooltipText, uuid)
     end
     local group = self.contentCell:AddGroup(uuid)
     self.modGroups[uuid] = group
@@ -40,7 +42,7 @@ function FrameManager:addButtonAndGetGroup(textButton, tooltipText, uuid)
 end
 
 
----@param modsTree any
+---@param menuCell any
 ---@param text string
 ---@param uuid string
 ---@return any
@@ -56,9 +58,10 @@ end
 
 --- Add a tooltip to a mod item with the mod description
 ---@param modItem any
+---@param tooltipText string
 ---@param uuid string
 ---@return nil
-function FrameManager:AddModTooltip(modItem, tooltipText, uuid)
+function FrameManager:AddTooltip(button, tooltipText, uuid)
     local modTabTooltip = modItem:Tooltip()
     modTabTooltip.IDContext = uuid .. "_TOOLTIP"
     modTabTooltip:AddText(tooltipText)
