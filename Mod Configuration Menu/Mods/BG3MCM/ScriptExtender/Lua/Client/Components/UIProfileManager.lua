@@ -21,7 +21,7 @@ local function getDeleteProfileButtonLabel(profile)
 end
 
 --- Create widgets for managing profiles (selecting, creating, deleting)
-function UIProfileManager:CreateProfileCollapsingHeader()
+function UIProfileManager:CreateProfileContent()
     local profiles = MCMAPI:GetProfiles()
     local currentProfile = MCMAPI:GetCurrentProfile()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile) - 1

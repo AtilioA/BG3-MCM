@@ -228,7 +228,7 @@ end
 --- Create profile management header
 ---@return nil
 function IMGUILayer:CreateProfileManagementHeader()
-    UIProfileManager:CreateProfileCollapsingHeader(self)
+    UIProfileManager:CreateProfileContent()
     MCM_WINDOW:AddDummy(0, 10)
 end
 
