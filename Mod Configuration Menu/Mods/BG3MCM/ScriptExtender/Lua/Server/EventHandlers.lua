@@ -130,4 +130,9 @@ function EHandlers.OnUserSpamMCMButton(_, payload, peerId)
     end
 end
 
+function EHandlers.OnRelayToClients(_, metapayload)
+    local data = Ext.Json.Parse(metapayload)
+    Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
+end
+
 return EHandlers

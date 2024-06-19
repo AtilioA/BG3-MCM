@@ -2,6 +2,7 @@ Channels = {}
 
 -- Define channel constants for communication between the client and server
 Channels.MCM_RELAY_TO_SERVERS = "MCM_Relay_To_Servers"
+Channels.MCM_RELAY_TO_CLIENTS = "MCM_Relay_To_Clients"
 
 Channels.MCM_SAVED_SETTING = "MCM_Saved_Setting"
 Channels.MCM_SETTING_UPDATED = "MCM_Setting_Updated"
@@ -30,5 +31,9 @@ Channels.MCM_USER_OPENED_WINDOW = "MCM_User_Opened_Window"
 Channels.MCM_USER_CLOSED_WINDOW = "MCM_User_Closed_Window"
 
 Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION = "MCM_Client_Show_Troubleshooting_Notification"
+
+Channels.MCM_MOD_TAB_ACTIVATED = "MCM_Mod_Tab_Activated"
+Channels.MCM_MOD_SUBTAB_ACTIVATED= "MCM_Mod_Subtab_Activated"
+
 
 return Channels

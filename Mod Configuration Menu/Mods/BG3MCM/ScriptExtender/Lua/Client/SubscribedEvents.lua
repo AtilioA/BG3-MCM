@@ -18,7 +18,7 @@ end
 
 local function handleButtonPress(button)
     local pressCount = 0
-    local pressLimit = 4
+    local pressLimit = 3
     local timeWindow = 4000
     local revertTime = 15000
     local isMessageUpdated = false
