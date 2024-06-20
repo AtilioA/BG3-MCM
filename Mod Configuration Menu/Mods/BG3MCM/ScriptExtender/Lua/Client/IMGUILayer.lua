@@ -19,7 +19,15 @@
 ---@field private visibilityTriggers table<string, table>
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
-    visibilityTriggers = {}
+    visibilityTriggers = {},
+    operators = {
+        ["=="] = function(a, b) return a == b end,
+        ["!="] = function(a, b) return a ~= b end,
+        ["<="] = function(a, b) return a <= b end,
+        [">="] = function(a, b) return a >= b end,
+        ["<"] = function(a, b) return a < b end,
+        [">"] = function(a, b) return a > b end
+    }
 })
 
 MCMClientState = IMGUILayer:New()
@@ -35,9 +43,9 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
         return
     end
 
-    self:UpdateVisibility(modGUID, settingId, value)
-
     mod.settingsValues[settingId] = value
+
+    self:UpdateVisibility(modGUID, settingId)
 
     -- Check if the setting is of type 'text'; no need to update the UI value for text settings
     -- Also, doing so creates issues with the text input field
@@ -51,93 +59,126 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
 end
 
--- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
-function IMGUILayer:UpdateVisibility(modGUID, settingId, value)
-    if not modGUID or not settingId or value == nil then
-        return
-    end
-
-    local visibilityTriggers = self.visibilityTriggers[modGUID]
-    if not visibilityTriggers then
-        return
-    end
-
-    local settingTriggers = visibilityTriggers[settingId]
-    if not settingTriggers then
-        return
-    end
-
-    self:ProcessTriggers(settingTriggers, value, modGUID)
-end
-
-function IMGUILayer:ProcessTriggers(settingTriggers, value, modGUID)
-    for group, operators in pairs(settingTriggers) do
-        if not group or not operators then
-            MCMWarn(0, "Invalid visibility trigger group for mod '" ..
-                Ext.Mod.GetMod(modGUID).Info.Name ..
-                "'. Please contact " ..
-                Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-            goto continue
+function IMGUILayer:manageVisibleIf(modGUID, elementInfo, uiElement)
+    if elementInfo.VisibleIf and elementInfo.VisibleIf.Conditions then
+        if self:EvaluateVisibleIf(modGUID, elementInfo.VisibleIf, elementInfo.Name or elementInfo.SectionName or elementInfo.TabName ) then -- change for generic Name ...
+            self.visibilityTriggers[modGUID][uiElement] = elementInfo.VisibleIf
         end
-
-        self:ProcessOperators(group, operators, value, modGUID)
-
-        ::continue::
     end
 end
 
-function IMGUILayer:ProcessOperators(group, operators, value, modGUID)
-    for operator, triggerValue in pairs(operators) do
-        if not operator or triggerValue == nil then
-            MCMWarn(0, "Invalid visibility trigger operator or value for mod '" ..
-                Ext.Mod.GetMod(modGUID).Info.Name ..
-                "'. Please contact " ..
-                Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-            goto continue
-        end
-
-        group.Visible = self:EvaluateCondition(operator, value, triggerValue, modGUID)
-
-        ::continue::
-    end
-end
-
-function IMGUILayer:EvaluateCondition(operator, value, triggerValue, modGUID)
-    if operator == nil or value == nil or triggerValue == nil then
+function IMGUILayer:EvaluateVisibleIf(modGUID, visibleIf, elementName)
+    local valid = true
+    -- control LogicalOperator is valid if present
+    if visibleIf.LogicalOperator ~= nil and visibleIf.LogicalOperator ~= "or" and  visibleIf.LogicalOperator ~= "and" then
         MCMWarn(0,
-            "Invalid comparison operator or values passed by mod '" ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            "' for visibility condition. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-        return false
+                "Invalid LogicalOperator passed by mod '" ..
+                        Ext.Mod.GetMod(modGUID).Info.Name ..
+                        "' for visibility condition of '"..elementName.."'. Please contact " ..
+                        Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        valid = false
     end
 
-    local strValue, strTrigger = tostring(value), tostring(triggerValue)
-    local numValue, numTrigger = tonumber(value), tonumber(triggerValue)
-
-    local operators = {
-        ["=="] = function(a, b) return a == b end,
-        ["!="] = function(a, b) return a ~= b end,
-        ["<="] = function(a, b) return a <= b end,
-        [">="] = function(a, b) return a >= b end,
-        ["<"] = function(a, b) return a < b end,
-        [">"] = function(a, b) return a > b end
-    }
-
-    if operators[operator] then
-        if operator == "==" or operator == "!=" then
-            return operators[operator](strValue, strTrigger)
-        elseif numValue ~= nil and numTrigger ~= nil then
-            return operators[operator](numValue, numTrigger)
+    -- Control Conditions
+    for _, condition in ipairs(visibleIf.Conditions) do
+        if condition.SettingId == nil then
+            MCMWarn(0,
+                    "Invalid condition (no settingId) passed by mod '" ..
+                            Ext.Mod.GetMod(modGUID).Info.Name ..
+                            "' for visibility condition of '"..elementName.."'. Please contact " ..
+                            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            valid = false
         end
-        return false
+        if condition.Operator == nil then
+            MCMWarn(0,
+                    "Invalid condition (no operator) passed by mod '" ..
+                            Ext.Mod.GetMod(modGUID).Info.Name ..
+                            "' for visibility condition of '"..elementName.."'. Please contact " ..
+                            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            valid = false
+        else
+            if condition.Operator ~= "==" and condition.Operator ~= "!="
+                    and condition.Operator ~= "<=" and condition.Operator ~= "<"
+                    and condition.Operator ~= ">=" and condition.Operator ~= ">" then
+                MCMWarn(0,
+                        "Invalid condition (invalid operator: "..condition.Operator..") passed by mod '" ..
+                                Ext.Mod.GetMod(modGUID).Info.Name ..
+                                "' for visibility condition of '"..elementName.."'. Please contact " ..
+                                Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                valid = false
+            end
+        end
+        if condition.ExpectedValue == nil then
+            MCMWarn(0,
+                    "Invalid condition (no triggerValue) passed by mod '" ..
+                            Ext.Mod.GetMod(modGUID).Info.Name ..
+                            "' for visibility condition of '"..elementName.."'. Please contact " ..
+                            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            valid = false
+        end
     end
 
-    MCMWarn(0, "Unknown comparison operator: " .. operator .. " for mod '" ..
-        Ext.Mod.GetMod(modGUID).Info.Name ..
-        "'. Please contact " ..
-        Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-    return false
+    return valid
+end
+
+
+-- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
+function IMGUILayer:UpdateVisibility(modGUID, settingId)
+    if not modGUID or not settingId then
+        return
+    end
+
+    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
+    for uiElement, visibleIf in pairs(visibilityTriggers) do
+        for _, condition in ipairs(visibleIf.Conditions) do
+            if condition.SettingId == settingId then
+                self:UpdateVisibilityOfUiElement(modGUID, uiElement)
+                break
+            end
+        end
+    end
+end
+
+
+function IMGUILayer:UpdateVisibilityOfUiElement(modGUID, uiElement)
+    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
+    local modSettings = self.mods[modGUID].settingsValues
+    local visibleIf = visibilityTriggers[uiElement]
+    local logicalOperator = visibleIf.LogicalOperator or "and"
+    local visible = true
+    if logicalOperator == "or" then
+        visible = false
+    end
+
+    for _, condition in ipairs(visibleIf.Conditions) do
+        local settingIdTriggering = condition.SettingId
+        local operator = condition.Operator
+        local triggerValue = condition.ExpectedValue
+        local value = modSettings[settingIdTriggering]
+
+        local strValue, strTrigger = tostring(value), tostring(triggerValue)
+        local numValue, numTrigger = tonumber(value), tonumber(triggerValue)
+
+        local v = nil
+        if operator == "==" or operator == "!=" then
+            v = self.operators[operator](strValue, strTrigger)
+        elseif numValue ~= nil and numTrigger ~= nil then
+            v = self.operators[operator](numValue, numTrigger)
+        else
+            MCMWarn(0,
+                    "Something go wrong, contact MCM support.") -- should never happen (trigegr is not empty at that point, value from widget too)
+            v = false
+        end
+
+        if v and (logicalOperator == "or") then
+            visible = true
+            break
+        elseif (not v) and (logicalOperator == "and") then
+            visible = false
+            break
+        end
+    end
+    uiElement.Visible = visible
 end
 
 function IMGUILayer:GetClientStateValue(settingId, modGUID)
@@ -319,9 +360,10 @@ function IMGUILayer:CreateMainTable()
 
         self:CreateModMenuFrame(modGUID)
 
-        local modSettings = self.mods[modGUID].settingsValues
-        for settingId, group in pairs(self.visibilityTriggers[modGUID]) do
-            self:UpdateVisibility(modGUID, settingId, modSettings[settingId])
+        --init visibility
+        local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
+        for uiElement, v in pairs(visibilityTriggers) do
+            self:UpdateVisibilityOfUiElement(modGUID, uiElement)
         end
     end
     FrameManager:setVisibleFrame(ModuleUUID)
@@ -404,22 +446,6 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modGUID)
     elseif #tabSettings > 0 then
         for _, setting in ipairs(tabSettings) do
             self:CreateModMenuSetting(tab, setting, modSettings, modGUID)
-        end
-    end
-end
-
-function IMGUILayer:manageVisibleIf(modGUID, elementInfo, uiElement)
-    if elementInfo.VisibleIf and elementInfo.VisibleIf.Conditions then
-        for _, condition in ipairs(elementInfo.VisibleIf.Conditions) do
-            local settingIdTriggering = condition.SettingId
-            local operator = condition.Operator
-            local value = condition.ExpectedValue
-            self.visibilityTriggers[modGUID] = self.visibilityTriggers[modGUID] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
-                [settingIdTriggering] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering][uiElement] = self.visibilityTriggers[modGUID]
-                [settingIdTriggering][uiElement] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering][uiElement][operator] = value
         end
     end
 end
