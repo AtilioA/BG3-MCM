@@ -43,6 +43,13 @@ function FrameManager:addButtonAndGetGroup(textButton, tooltipText, uuid)
 end
 
 
+ ---@param uuid string
+ ---@return any the group Content associated to uuid
+ function FrameManager:GetGroup(uuid)
+     return self.contentGroups[uuid]
+ end
+
+
 ---@param menuCell any
 ---@param text string
 ---@param uuid string
@@ -52,6 +59,13 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
     button.IDContext = "Button"..uuid
     button.OnClick = function()
         self:setVisibleFrame(uuid)
+        MCMDebug(2, "Set mod Visible : " .. button.IDContext)
+        Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
+            channel = Channels.MCM_MOD_TAB_ACTIVATED,
+            payload = {
+                modGUID = uuid
+            }
+        }))
     end
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     return button

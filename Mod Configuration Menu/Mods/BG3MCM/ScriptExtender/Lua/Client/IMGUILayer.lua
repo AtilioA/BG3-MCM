@@ -16,11 +16,9 @@
 ---@class IMGUILayer: MetaClass
 ---@field mods table<string, ModSettings>
 ---@field private profiles table<string, table>
----@field private modsTabs table<string, any> A table of tabs for each mod in the MCM
 ---@field private visibilityTriggers table<string, table>
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
     mods = {},
-    modsTabs = {}, -- TODO remove it as frameManager do the job
     visibilityTriggers = {}
 })
 
@@ -201,8 +199,8 @@ end
 --- Check if the menu should be populated
 ---@return boolean
 function IMGUILayer:ShouldPopulateMenu()
-    -- If self.modsTabs already has content, we don't want to populate the menu again
-    return table.isEmpty(self.modsTabs)
+    -- If uiGroup exist for MCM, init done, we don't want to populate the menu again
+    return FrameManager:GetGroup(ModuleUUID) == nil
 end
 
 --- Initialize menu settings and destroy welcome text if it exists
@@ -243,9 +241,8 @@ function IMGUILayer:CreateMainTable()
 
         local modName = self:GetModName(modGUID)
         local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
-        local modGroup =FrameManager:addButtonAndGetGroup(modName, modDescription, modGUID)
-        
-        self.modsTabs[modGUID] = modGroup
+        FrameManager:addButtonAndGetGroup(modName, modDescription, modGUID)
+
         self:CreateModMenuFrame(modGUID)
 
         local modSettings = self.mods[modGUID].settingsValues
@@ -269,40 +266,6 @@ function IMGUILayer:GetModName(modGUID)
     return modName
 end
 
---- Create a mod item in the mods tree
----@param modsTree any
----@param modName string
----@param modGUID string
----@return any
-function IMGUILayer:CreateModItem(modsTree, modName, modGUID)
-    local modItem = modsTree:AddCollapsingHeader(modName)
-    modItem.OnActivate = function()
-        MCMDebug(2, "Opening collapsing header for mod " .. modName)
-        Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
-            channel = Channels.MCM_MOD_TAB_ACTIVATED,
-            payload = {
-                modGUID = modGUID
-            }
-        }))
-    end
-    modItem.IDContext = modGUID
-    modItem:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
-    if modGUID == ModuleUUID then
-        modItem.DefaultOpen = true
-    end
-    return modItem
-end
-
---- Add a tooltip to a mod item with the mod description
----@param modItem any
----@param modGUID string
----@return nil
-function IMGUILayer:AddModTooltip(modItem, modGUID)
-    local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
-    local modTabTooltip = modItem:Tooltip()
-    modTabTooltip.IDContext = modGUID .. "_TOOLTIP"
-    modTabTooltip:AddText(modDescription)
-end
 
 --- Create a new tab for a mod in the MCM
 ---@param modGUID string The UUID of the mod
@@ -311,24 +274,24 @@ function IMGUILayer:CreateModMenuFrame(modGUID)
     local modInfo = Ext.Mod.GetMod(modGUID).Info
     local modBlueprint = self.mods[modGUID].blueprint
     local modSettings = self.mods[modGUID].settingsValues
-    local modTab = self.modsTabs[modGUID]
+    local uiGroupMod = FrameManager:GetGroup(modGUID)
 
     -- Footer-like text with mod information
     local function createModTabFooter()
-        modTab:AddSeparator()
-        modTab.IDContext = modGUID .. "_FOOTER"
+        uiGroupMod:AddSeparator()
+        uiGroupMod.IDContext = modGUID .. "_FOOTER"
         local modAuthor = modInfo.Author
         local modVersion = table.concat(modInfo.ModVersion, ".")
         -- local modDescription = modInfo.Description
         -- local modName = modInfo.Name
 
         local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
-        local modInfoText = modTab:AddText(infoText)
+        local modInfoText = uiGroupMod:AddText(infoText)
         modInfoText:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.5))
         modInfoText.IDContext = modGUID .. "_FOOTER"
     end
 
-    local modTabs = modTab:AddTabBar(modGUID .. "_TABS")
+    local modTabs = uiGroupMod:AddTabBar(modGUID .. "_TABS")
     modTabs.IDContext = modGUID .. "_TABS"
     self.mods[modGUID].widgets = {}
 
@@ -445,3 +408,38 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
         self.mods[modGUID].widgets[setting:GetId()] = widget
     end
 end
+
+
+
+--- Insert a new tab for a mod in the MCM
+---@param modGUID string The UUID of the mod
+---@param tabName string The name of the tab to be inserted
+---@param tabCallback function The callback function to create the tab
+---@return nil
+function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
+    if not MCM_WINDOW then
+        return
+    end
+    
+    print("receive creation tab for "..modGUID.."   tabName:"..tabName)
+    local uiGroupMod = FrameManager:GetGroup(modGUID)
+
+    if not uiGroupMod then
+        uiGroupMod = FrameManager:addButtonAndGetGroup(tabName, nil, modGUID)
+        local modTabs = uiGroupMod:AddTabBar(modGUID .. "_TAB")
+        modTabs.IDContext = modGUID .. "_TAB"
+        self.mods[modGUID].widgets = {}
+        tabCallback(uiGroupMod)
+        return
+    end
+
+
+    local newTab = uiGroupMod.Children[1]:AddTabItem(tabName)
+    newTab.IDContext = modGUID .. "_" .. tabName
+    tabCallback(newTab)
+    Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
+        modGUID = modGUID,
+        tabName = tabName
+    }))
+end
+

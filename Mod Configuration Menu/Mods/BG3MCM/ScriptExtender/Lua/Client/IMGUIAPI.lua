@@ -7,7 +7,7 @@ IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
 function IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
-    if not MCMClientState.modsTabBar then
+    if not FrameManager:GetGroup(modGUID) then
         Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
             MCMClientState:InsertModMenuTab(modGUID, tabName, tabCallback)
         end)
