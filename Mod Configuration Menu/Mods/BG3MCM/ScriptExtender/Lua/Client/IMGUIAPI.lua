@@ -9,11 +9,11 @@ IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 function IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
     if not FrameManager:GetGroup(modGUID) then
         Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-            MCMClientState:InsertModMenuTab(modGUID, tabName, tabCallback)
+            FrameManager:InsertModTab(modGUID, tabName, tabCallback)
         end)
         return
     else
-        MCMClientState:InsertModMenuTab(modGUID, tabName, tabCallback)
+        FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     end
 end
 

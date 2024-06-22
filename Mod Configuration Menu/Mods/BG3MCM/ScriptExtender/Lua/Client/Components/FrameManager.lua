@@ -32,14 +32,18 @@ end
 ---@param tooltipText string
 ---@param uuid string
 ---@return any the group to add Content associated to the button
-function FrameManager:addButtonAndGetGroup(textButton, tooltipText, uuid)
-    local menuButton = self:CreateMenuButton(self.menuCell, textButton, uuid)
+function FrameManager:addButtonAndGetModTabBar(textButton, tooltipText, modGUID)
+    local menuButton = self:CreateMenuButton(self.menuCell, textButton, modGUID)
     if tooltipText then
-        self:AddTooltip(menuButton, tooltipText, uuid)
+        self:AddTooltip(menuButton, tooltipText, modGUID)
     end
-    local group = self.contentCell:AddGroup(uuid)
-    self.contentGroups[uuid] = group
-    return group
+    local uiGroupMod = self.contentCell:AddGroup(modGUID)
+    self.contentGroups[modGUID] = uiGroupMod
+
+    local modTabs = uiGroupMod:AddTabBar(modGUID .. "_TABS")
+    modTabs.IDContext = modGUID .. "_TABS"
+
+    return modTabs
 end
 
 
@@ -49,6 +53,47 @@ end
      return self.contentGroups[uuid]
  end
 
+ ---@param uuid string
+ ---@return any the group Content associated to uuid
+ function FrameManager:GetModTabBar(uuid)
+     return self.contentGroups[uuid].Children[1]
+ end
+
+ --- Insert a new tab for a mod in the MCM
+ ---@param modGUID string The UUID of the mod
+ ---@param tabName string The name of the tab to be inserted
+ ---@param tabCallback function The callback function to create the tab
+ ---@return nil
+ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+     if not MCM_WINDOW then
+         return
+     end
+     local modTabBar = FrameManager:GetModTabBar(modGUID)
+
+     if not modTabBar then
+         local modData = Ext.Mod.GetMod(modGUID)
+         MCMWarn(0, "'InsertModTab' called before any modTabBarCreated: " .. modData.Info.Name .. ". Please contact " ..
+                 Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+         return
+     end
+
+     local newTab = modTabBar:AddTabItem(tabName)
+     newTab.IDContext = modGUID .. "_" .. tabName
+     newTab.OnActivate = function()
+         MCMDebug(3, "Activating tab " .. tabName)
+         Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+             modGUID = modGUID,
+             tabName = tabName
+         }))
+     end
+     tabCallback(newTab)
+     Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
+         modGUID = modGUID,
+         tabName = tabName
+     }))
+
+     return newTab
+ end
 
 ---@param menuCell any
 ---@param text string

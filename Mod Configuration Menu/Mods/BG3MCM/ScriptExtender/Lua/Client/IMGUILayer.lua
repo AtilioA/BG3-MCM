@@ -241,7 +241,8 @@ function IMGUILayer:CreateMainTable()
 
         local modName = self:GetModName(modGUID)
         local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
-        FrameManager:addButtonAndGetGroup(modName, modDescription, modGUID)
+        FrameManager:addButtonAndGetModTabBar(modName, modDescription, modGUID)
+        self.mods[modGUID].widgets = {}
 
         self:CreateModMenuFrame(modGUID)
 
@@ -275,6 +276,7 @@ function IMGUILayer:CreateModMenuFrame(modGUID)
     local modBlueprint = self.mods[modGUID].blueprint
     local modSettings = self.mods[modGUID].settingsValues
     local uiGroupMod = FrameManager:GetGroup(modGUID)
+    local modTabBar = FrameManager:GetModTabBar(modGUID)
 
     -- Footer-like text with mod information
     local function createModTabFooter()
@@ -291,13 +293,9 @@ function IMGUILayer:CreateModMenuFrame(modGUID)
         modInfoText.IDContext = modGUID .. "_FOOTER"
     end
 
-    local modTabs = uiGroupMod:AddTabBar(modGUID .. "_TABS")
-    modTabs.IDContext = modGUID .. "_TABS"
-    self.mods[modGUID].widgets = {}
-
     -- Iterate over each tab in the mod blueprint to create a subtab for each
-    for _, tab in ipairs(modBlueprint.Tabs) do
-        self:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
+    for _, tabInfo in ipairs(modBlueprint.Tabs) do
+        self:CreateModMenuSubTab(modTabBar, tabInfo, modSettings, modGUID)
     end
 
     createModTabFooter()
@@ -309,48 +307,48 @@ end
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modGUID string The UUID of the mod
 ---@return nil
-function IMGUILayer:CreateModMenuSubTab(modTabs, tab, modSettings, modGUID)
-    local tabName = tab:GetTabLocaName()
+function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modGUID)
+    local tabName = tabInfo:GetTabLocaName()
 
-    local tabHeader = modTabs:AddTabItem(tabName)
-    tabHeader.IDContext = modGUID .. "_" .. tab:GetTabName()
-    tabHeader.OnActivate = function()
-        MCMDebug(3, "Activating tab " .. tab:GetTabName())
+    local tab = modTabs:AddTabItem(tabName)
+    tab.IDContext = modGUID .. "_" .. tabInfo:GetTabName()
+    tab.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tabInfo:GetTabName())
         Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
             modGUID = modGUID,
-            tabName = tab:GetTabName()
+            tabName = tabInfo:GetTabName()
         }))
     end
 
     -- TODO: as always, this should be abstracted away somehow but ehh (this will be needed for nested tabs etc)
-    local tabSections = tab:GetSections()
-    local tabSettings = tab:GetSettings()
+    local tabSections = tabInfo:GetSections()
+    local tabSettings = tabInfo:GetSettings()
 
-    self:manageVisibleIf(modGUID, tab, tabHeader)
+    self:manageVisibleIf(modGUID, tabInfo, tab)
 
     if #tabSections > 0 then
-        for sectionIndex, section in ipairs(tab:GetSections()) do
-            self:CreateModMenuSection(sectionIndex, tabHeader, section, modSettings, modGUID)
+        for sectionIndex, section in ipairs(tabInfo:GetSections()) do
+            self:CreateModMenuSection(sectionIndex, tab, section, modSettings, modGUID)
         end
     elseif #tabSettings > 0 then
         for _, setting in ipairs(tabSettings) do
-            self:CreateModMenuSetting(tabHeader, setting, modSettings, modGUID)
+            self:CreateModMenuSetting(tab, setting, modSettings, modGUID)
         end
     end
 end
 
-function IMGUILayer:manageVisibleIf(modGUID, element, group)
-    if element.VisibleIf and element.VisibleIf.Conditions then
-        for _, condition in ipairs(element.VisibleIf.Conditions) do
+function IMGUILayer:manageVisibleIf(modGUID, elementInfo, uiElement)
+    if elementInfo.VisibleIf and elementInfo.VisibleIf.Conditions then
+        for _, condition in ipairs(elementInfo.VisibleIf.Conditions) do
             local settingIdTriggering = condition.SettingId
             local operator = condition.Operator
             local value = condition.ExpectedValue
             self.visibilityTriggers[modGUID] = self.visibilityTriggers[modGUID] or {}
             self.visibilityTriggers[modGUID][settingIdTriggering] = self.visibilityTriggers[modGUID]
                 [settingIdTriggering] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering][group] = self.visibilityTriggers[modGUID]
-                [settingIdTriggering][group] or {}
-            self.visibilityTriggers[modGUID][settingIdTriggering][group][operator] = value
+            self.visibilityTriggers[modGUID][settingIdTriggering][uiElement] = self.visibilityTriggers[modGUID]
+                [settingIdTriggering][uiElement] or {}
+            self.visibilityTriggers[modGUID][settingIdTriggering][uiElement][operator] = value
         end
     end
 end
@@ -410,36 +408,4 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
 end
 
 
-
---- Insert a new tab for a mod in the MCM
----@param modGUID string The UUID of the mod
----@param tabName string The name of the tab to be inserted
----@param tabCallback function The callback function to create the tab
----@return nil
-function IMGUILayer:InsertModMenuTab(modGUID, tabName, tabCallback)
-    if not MCM_WINDOW then
-        return
-    end
-    
-    print("receive creation tab for "..modGUID.."   tabName:"..tabName)
-    local uiGroupMod = FrameManager:GetGroup(modGUID)
-
-    if not uiGroupMod then
-        uiGroupMod = FrameManager:addButtonAndGetGroup(tabName, nil, modGUID)
-        local modTabs = uiGroupMod:AddTabBar(modGUID .. "_TAB")
-        modTabs.IDContext = modGUID .. "_TAB"
-        self.mods[modGUID].widgets = {}
-        tabCallback(uiGroupMod)
-        return
-    end
-
-
-    local newTab = uiGroupMod.Children[1]:AddTabItem(tabName)
-    newTab.IDContext = modGUID .. "_" .. tabName
-    tabCallback(newTab)
-    Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
-        modGUID = modGUID,
-        tabName = tabName
-    }))
-end
 
