@@ -33,6 +33,13 @@ end
 ---@param uuid string
 ---@return any the group to add Content associated to the button
 function FrameManager:addButtonAndGetModTabBar(textButton, tooltipText, modGUID)
+    if not textButton or not modGUID then
+        MCMWarn(0, "addButtonAndGetModTabBar called with invalid parameters")
+        return
+    end
+
+    textButton = UIStyle:Wrap(textButton, 33)
+
     local menuButton = self:CreateMenuButton(self.menuCell, textButton, modGUID)
     if tooltipText then
         self:AddTooltip(menuButton, tooltipText, modGUID)
