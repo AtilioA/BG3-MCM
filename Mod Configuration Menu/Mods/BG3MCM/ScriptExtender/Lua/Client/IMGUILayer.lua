@@ -368,18 +368,25 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
 
     local sectionName = section:GetSectionLocaName()
     local sectionId = section:GetSectionId()
+    local sectionOptions = section:GetOptions()
     local sectionGroup = modGroup:AddGroup(sectionId)
 
     self:manageVisibleIf(modGUID, section, sectionGroup)
 
-    local sectionHeader = sectionGroup:AddSeparatorText(sectionName)
+    local sectionContentElement = sectionGroup
+    if sectionOptions.IsCollapsible then
+        local sectionCollapsingHeader = sectionGroup:AddCollapsingHeader(sectionName)
+        sectionContentElement = sectionCollapsingHeader
+    else
+        local sectionHeader = sectionContentElement:AddSeparatorText(sectionName)
     sectionHeader.IDContext = modGUID .. "_" .. sectionName
     sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
+    end
 
     -- Iterate over each setting in the section to create a widget for each
     for _, setting in pairs(section:GetSettings()) do
-        self:CreateModMenuSetting(sectionGroup, setting, modSettings, modGUID)
+        self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modGUID)
     end
 end
 
@@ -406,6 +413,3 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
         self.mods[modGUID].widgets[setting:GetId()] = widget
     end
 end
-
-
-
