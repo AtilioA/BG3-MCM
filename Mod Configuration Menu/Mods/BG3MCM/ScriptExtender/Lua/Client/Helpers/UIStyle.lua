@@ -139,11 +139,27 @@ function UIStyle:Wrap(text, width)
         return lines
     end
 
+     -- Function to add padding each line both side to center and make button same size
+     local function paddLines(lines)
+        local paddedLines = {}
+        for _, line in ipairs(lines) do
+            local magicNumber = 100 - #line  --no way to get current size of the button nor set ne size of the button !!! so doing magic number and magic tricks.... not perfect but do the job
+            local blankToPrepend = math.ceil((magicNumber - #line)/2)
+            line = ("%"..(blankToPrepend + #line).."s"):format(line)
+            line = ("%-"..magicNumber.."s"):format(line)
+            table.insert(paddedLines, line)
+        end
+        return paddedLines
+    end
+
     -- Split the text into words
     local words = splitIntoWords(text)
 
     -- Join the words into lines of the specified width
     local lines = joinWordsIntoLines(words, width)
+
+    -- Trick: Padd each line both side to center and make button same size
+    local lines = paddLines(lines)
 
     -- Concatenate the lines into a single string with newline characters
     return table.concat(lines, "\n")

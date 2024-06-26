@@ -8,11 +8,10 @@ FrameManager = _Class:Create("FrameManager", nil, {
 
 function FrameManager:initFrameLayout(parent)
     local layoutTable = parent:AddTable("MenuAndContent", 2)
-    layoutTable:AddColumn("Menu", "WidthFixed")
+    layoutTable:AddColumn("Menu", "WidthFixed", 450)
     layoutTable:AddColumn("Frame", "WidthStretch")
-    local row = layoutTable:AddRow()
+    local row = self.layoutTable:AddRow()
     self.menuCell = row:AddCell()
-    self.menuCell.ItemWidth = 100
     self.contentCell = row:AddCell()
 end
 
