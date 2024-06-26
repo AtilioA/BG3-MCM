@@ -10,14 +10,14 @@ function FrameManager:initFrameLayout(parent)
     local layoutTable = parent:AddTable("MenuAndContent", 2)
     layoutTable:AddColumn("Menu", "WidthFixed", 450)
     layoutTable:AddColumn("Frame", "WidthStretch")
-    local row = self.layoutTable:AddRow()
+    local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
 end
 
 ---@param guidToShow string
 function FrameManager:setVisibleFrame(guidToShow)
-    for uuid, group  in pairs(self.contentGroups) do
+    for uuid, group in pairs(self.contentGroups) do
         group.Visible = (guidToShow == uuid)
     end
 end
@@ -107,7 +107,7 @@ end
 ---@return any
 function FrameManager:CreateMenuButton(menuCell, text, uuid)
     local button = menuCell:AddButton(text)
-    button.IDContext = "Button"..uuid
+    button.IDContext = "Button" .. uuid
     button.OnClick = function()
         self:setVisibleFrame(uuid)
         MCMDebug(2, "Set mod Visible : " .. button.IDContext)
