@@ -112,6 +112,13 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
     button.OnClick = function()
         self:setVisibleFrame(uuid)
         MCMDebug(2, "Set mod Visible : " .. button.IDContext)
+        for _, c in ipairs(menuCell.Children) do
+            if c == button then
+                c:SetColor("Button", UIStyle.Colors["ButtonActive"])
+            else
+                c:SetColor("Button", UIStyle.Colors["Button"])
+            end
+        end
         Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
             channel = Channels.MCM_MOD_TAB_ACTIVATED,
             payload = {
