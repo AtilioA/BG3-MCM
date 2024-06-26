@@ -1,4 +1,4 @@
- ---@class FrameManager: MetaClass
+---@class FrameManager: MetaClass
 FrameManager = _Class:Create("FrameManager", nil, {
     menuCell = nil,
     contentCell = nil,
@@ -27,23 +27,31 @@ function FrameManager:AddMenuSection(text)
     self.menuCell:AddSeparatorText(text)
 end
 
----@param textButton string
----@param tooltipText string
+---@param modName string
+---@param modDescription string
 ---@param uuid string
 ---@return any the group to add Content associated to the button
-function FrameManager:addButtonAndGetModTabBar(textButton, tooltipText, modGUID)
-    if not textButton or not modGUID then
+function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modGUID)
+    if not modName or not modGUID then
         MCMWarn(0, "addButtonAndGetModTabBar called with invalid parameters")
         return
     end
 
-    textButton = UIStyle:Wrap(textButton, 33)
+    modName = VCString:Wrap(modName, 33)
 
-    local menuButton = self:CreateMenuButton(self.menuCell, textButton, modGUID)
-    if tooltipText then
-        self:AddTooltip(menuButton, tooltipText, modGUID)
+    local menuButton = self:CreateMenuButton(self.menuCell, modName, modGUID)
+    if modDescription then
+        self:AddTooltip(menuButton, modDescription, modGUID)
     end
     local uiGroupMod = self.contentCell:AddGroup(modGUID)
+
+    uiGroupMod:AddSeparatorText(modName)
+    if modDescription then
+        local modDescription = VCString:AddFullStop(VCString:Wrap(modDescription, 60))
+        uiGroupMod:AddText(modDescription)
+        uiGroupMod:AddDummy(0, 5)
+    end
+
     self.contentGroups[modGUID] = uiGroupMod
 
     local modTabs = uiGroupMod:AddTabBar(modGUID .. "_TABS")
@@ -52,54 +60,58 @@ function FrameManager:addButtonAndGetModTabBar(textButton, tooltipText, modGUID)
     return modTabs
 end
 
+---@param uuid string
+---@return any the group Content associated to uuid
+function FrameManager:GetGroup(uuid)
+    return self.contentGroups[uuid]
+end
 
- ---@param uuid string
- ---@return any the group Content associated to uuid
- function FrameManager:GetGroup(uuid)
-     return self.contentGroups[uuid]
- end
+---@param uuid string
+---@return any the group Content associated to uuid
+function FrameManager:GetModTabBar(uuid)
+    for _, child in ipairs(self.contentGroups[uuid].Children) do
+        if child.IDContext and child.IDContext:sub(-5) == "_TABS" then
+            return child
+        end
+    end
+    return nil
+end
 
- ---@param uuid string
- ---@return any the group Content associated to uuid
- function FrameManager:GetModTabBar(uuid)
-     return self.contentGroups[uuid].Children[1]
- end
+--- Insert a new tab for a mod in the MCM
+---@param modGUID string The UUID of the mod
+---@param tabName string The name of the tab to be inserted
+---@param tabCallback function The callback function to create the tab
+---@return nil
+function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+    if not MCM_WINDOW then
+        return
+    end
+    local modTabBar = FrameManager:GetModTabBar(modGUID)
 
- --- Insert a new tab for a mod in the MCM
- ---@param modGUID string The UUID of the mod
- ---@param tabName string The name of the tab to be inserted
- ---@param tabCallback function The callback function to create the tab
- ---@return nil
- function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
-     if not MCM_WINDOW then
-         return
-     end
-     local modTabBar = FrameManager:GetModTabBar(modGUID)
+    if not modTabBar then
+        local modData = Ext.Mod.GetMod(modGUID)
+        MCMWarn(0, "'InsertModTab' called before any modTabBarCreated: " .. modData.Info.Name .. ". Please contact " ..
+            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        return
+    end
 
-     if not modTabBar then
-         local modData = Ext.Mod.GetMod(modGUID)
-         MCMWarn(0, "'InsertModTab' called before any modTabBarCreated: " .. modData.Info.Name .. ". Please contact " ..
-                 Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-         return
-     end
+    local newTab = modTabBar:AddTabItem(tabName)
+    newTab.IDContext = modGUID .. "_" .. tabName
+    newTab.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tabName)
+        Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+            modGUID = modGUID,
+            tabName = tabName
+        }))
+    end
+    tabCallback(newTab)
+    Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
+        modGUID = modGUID,
+        tabName = tabName
+    }))
 
-     local newTab = modTabBar:AddTabItem(tabName)
-     newTab.IDContext = modGUID .. "_" .. tabName
-     newTab.OnActivate = function()
-         MCMDebug(3, "Activating tab " .. tabName)
-         Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
-             modGUID = modGUID,
-             tabName = tabName
-         }))
-     end
-     tabCallback(newTab)
-     Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
-         modGUID = modGUID,
-         tabName = tabName
-     }))
-
-     return newTab
- end
+    return newTab
+end
 
 ---@param menuCell any
 ---@param text string

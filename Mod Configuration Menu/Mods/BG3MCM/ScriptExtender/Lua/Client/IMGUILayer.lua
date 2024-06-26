@@ -379,9 +379,9 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         sectionContentElement = sectionCollapsingHeader
     else
         local sectionHeader = sectionContentElement:AddSeparatorText(sectionName)
-    sectionHeader.IDContext = modGUID .. "_" .. sectionName
-    sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
-    sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
+        sectionHeader.IDContext = modGUID .. "_" .. sectionName
+        sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+        sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
     end
 
     -- Iterate over each setting in the section to create a widget for each
