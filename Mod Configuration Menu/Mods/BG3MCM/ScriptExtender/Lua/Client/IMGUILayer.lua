@@ -45,26 +45,91 @@ end
 
 -- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
 function IMGUILayer:UpdateVisibility(modGUID, settingId, value)
-    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
-    local settingTriggers = visibilityTriggers[settingId] or {}
-
-    for group, operators in pairs(settingTriggers) do
-        for operator, triggerValue in pairs(operators) do
-            if operator == "==" then
-                group.Visible = (tostring(value) == tostring(triggerValue))
-            elseif operator == "!=" then
-                group.Visible = (tostring(value) ~= tostring(triggerValue))
-            elseif operator == "<=" then
-                group.Visible = (tonumber(value) <= tonumber(triggerValue))
-            elseif operator == ">=" then
-                group.Visible = (tonumber(value) >= tonumber(triggerValue))
-            elseif operator == "<" then
-                group.Visible = (tonumber(value) < tonumber(triggerValue))
-            elseif operator == ">" then
-                group.Visible = (tonumber(value) > tonumber(triggerValue))
-            end
-        end
+    if not modGUID or not settingId or value == nil then
+        return
     end
+
+    local visibilityTriggers = self.visibilityTriggers[modGUID]
+    if not visibilityTriggers then
+        return
+    end
+
+    local settingTriggers = visibilityTriggers[settingId]
+    if not settingTriggers then
+        return
+    end
+
+    self:ProcessTriggers(settingTriggers, value, modGUID)
+end
+
+function IMGUILayer:ProcessTriggers(settingTriggers, value, modGUID)
+    for group, operators in pairs(settingTriggers) do
+        if not group or not operators then
+            MCMWarn(0, "Invalid visibility trigger group for mod '" ..
+                Ext.Mod.GetMod(modGUID).Info.Name ..
+                "'. Please contact " ..
+                Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            goto continue
+        end
+
+        self:ProcessOperators(group, operators, value, modGUID)
+
+        ::continue::
+    end
+end
+
+function IMGUILayer:ProcessOperators(group, operators, value, modGUID)
+    for operator, triggerValue in pairs(operators) do
+        if not operator or triggerValue == nil then
+            MCMWarn(0, "Invalid visibility trigger operator or value for mod '" ..
+                Ext.Mod.GetMod(modGUID).Info.Name ..
+                "'. Please contact " ..
+                Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            goto continue
+        end
+
+        group.Visible = self:EvaluateCondition(operator, value, triggerValue, modGUID)
+
+        ::continue::
+    end
+end
+
+function IMGUILayer:EvaluateCondition(operator, value, triggerValue, modGUID)
+    if operator == nil or value == nil or triggerValue == nil then
+        MCMWarn(0,
+            "Invalid comparison operator or values passed by mod '" ..
+            Ext.Mod.GetMod(modGUID).Info.Name ..
+            "' for visibility condition. Please contact " ..
+            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    local strValue, strTrigger = tostring(value), tostring(triggerValue)
+    local numValue, numTrigger = tonumber(value), tonumber(triggerValue)
+
+    local operators = {
+        ["=="] = function(a, b) return a == b end,
+        ["!="] = function(a, b) return a ~= b end,
+        ["<="] = function(a, b) return a <= b end,
+        [">="] = function(a, b) return a >= b end,
+        ["<"] = function(a, b) return a < b end,
+        [">"] = function(a, b) return a > b end
+    }
+
+    if operators[operator] then
+        if operator == "==" or operator == "!=" then
+            return operators[operator](strValue, strTrigger)
+        elseif numValue ~= nil and numTrigger ~= nil then
+            return operators[operator](numValue, numTrigger)
+        end
+        return false
+    end
+
+    MCMWarn(0, "Unknown comparison operator: " .. operator .. " for mod '" ..
+        Ext.Mod.GetMod(modGUID).Info.Name ..
+        "'. Please contact " ..
+        Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+    return false
 end
 
 function IMGUILayer:GetClientStateValue(settingId, modGUID)
@@ -254,7 +319,6 @@ function IMGUILayer:CreateMainTable()
     FrameManager:setVisibleFrame(ModuleUUID)
 end
 
-
 --- Get the mod name, considering custom blueprint names
 ---@param modGUID string
 ---@return string
@@ -266,7 +330,6 @@ function IMGUILayer:GetModName(modGUID)
     end
     return modName
 end
-
 
 --- Create a new tab for a mod in the MCM
 ---@param modGUID string The UUID of the mod
