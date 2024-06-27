@@ -9,7 +9,7 @@ UIStyle.Colors = {
     ["Border"] = Color.NormalizedRGBA(61, 38, 20, 0.0),
     ["BorderShadow"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
     ["Button"] = Color.NormalizedRGBA(117, 102, 74, 0.5),
-    ["ButtonActive"] = Color.NormalizedRGBA(153, 122, 74, 0.5),
+    ["ButtonActive"] = Color.NormalizedRGBA(183, 122, 81, 0.7),
     ["ButtonHovered"] = Color.NormalizedRGBA(163, 102, 71, 0.5),
     ["CheckMark"] = Color.NormalizedRGBA(219, 201, 173, 0.78),
     ["ChildBg"] = Color.NormalizedRGBA(31, 28, 28, 0.4),
@@ -102,5 +102,21 @@ function UIStyle:ApplyStyleToIMGUIElement(element)
         element:SetStyle(k, v)
     end
 end
+
+-- --  Function to add padding each line both side to center and make button same size
+-- function UIStyle:PadLines(lines)
+--     local paddedLines = {}
+--     for _, line in ipairs(lines) do
+--         local magicNumber = 65 -
+--             #
+--             line
+--         local blankToPrepend = math.ceil((magicNumber - #line) / 2)
+--         line = ("%" .. (blankToPrepend + #line) .. "s"):format(line)
+--         line = ("%-" .. magicNumber .. "s"):format(line)
+--         table.insert(paddedLines, line)
+--     end
+--     local text = table.concat(paddedLines, "\n")
+--     return text
+-- end
 
 return UIStyle
