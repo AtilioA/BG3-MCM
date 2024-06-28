@@ -26,8 +26,10 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
         ["<="] = function(a, b) return a <= b end,
         [">="] = function(a, b) return a >= b end,
         ["<"] = function(a, b) return a < b end,
-        [">"] = function(a, b) return a > b end
-    }
+        [">"] = function(a, b) return a > b end,
+        ["isVisible"] = function(a, b) return a == b end
+    },
+    uiElementByName = {}
 })
 
 MCMClientState = IMGUILayer:New()
@@ -45,7 +47,7 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
 
     mod.settingsValues[settingId] = value
 
-    self:UpdateVisibility(modGUID, settingId)
+    self:UpdateVisibility_SettingChanged(modGUID, settingId)
 
     -- Check if the setting is of type 'text'; no need to update the UI value for text settings
     -- Also, doing so creates issues with the text input field
@@ -65,6 +67,8 @@ function IMGUILayer:manageVisibleIf(modGUID, elementInfo, uiElement)
             self.visibilityTriggers[modGUID][uiElement] = elementInfo.VisibleIf
         end
     end
+    
+    self.uiElementByName[modGUID][elementInfo.TabId or elementInfo.SectionId or elementInfo.Id] = uiElement  -- change for generic Id ...
 end
 
 function IMGUILayer:EvaluateVisibleIf(modGUID, visibleIf, elementName)
@@ -121,7 +125,7 @@ end
 
 
 -- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
-function IMGUILayer:UpdateVisibility(modGUID, settingId)
+function IMGUILayer:UpdateVisibility_SettingChanged(modGUID, settingId)
     if not modGUID or not settingId then
         return
     end
@@ -130,6 +134,19 @@ function IMGUILayer:UpdateVisibility(modGUID, settingId)
     for uiElement, visibleIf in pairs(visibilityTriggers) do
         for _, condition in ipairs(visibleIf.Conditions) do
             if condition.SettingId == settingId then
+                self:UpdateVisibilityOfUiElement(modGUID, uiElement)
+                break
+            end
+        end
+    end
+end
+
+function IMGUILayer:UpdateVisibility_GroupVisibilityChanged(modGUID, uiElementChanged)
+    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
+    print("UpdateVisibility_GroupVisibilityChanged")
+    for uiElement, visibleIf in pairs(visibilityTriggers) do
+        for _, condition in ipairs(visibleIf.Conditions) do
+            if condition.Operator == "isVisible" and self.uiElementByName[modGUID][condition.SettingId] == uiElementChanged then
                 self:UpdateVisibilityOfUiElement(modGUID, uiElement)
                 break
             end
@@ -152,13 +169,19 @@ function IMGUILayer:UpdateVisibilityOfUiElement(modGUID, uiElement)
         local settingIdTriggering = condition.SettingId
         local operator = condition.Operator
         local triggerValue = condition.ExpectedValue
-        local value = modSettings[settingIdTriggering]
+
+        local value = nil
+        if operator == "isVisible" then
+            value = self.uiElementByName[modGUID][settingIdTriggering].Visible
+        else
+            value = modSettings[settingIdTriggering]
+        end
 
         local strValue, strTrigger = tostring(value), tostring(triggerValue)
         local numValue, numTrigger = tonumber(value), tonumber(triggerValue)
 
         local v = nil
-        if operator == "==" or operator == "!=" then
+        if operator == "==" or operator == "!="  or operator == "isVisible" then
             v = self.operators[operator](strValue, strTrigger)
         elseif numValue ~= nil and numTrigger ~= nil then
             v = self.operators[operator](numValue, numTrigger)
@@ -176,7 +199,11 @@ function IMGUILayer:UpdateVisibilityOfUiElement(modGUID, uiElement)
             break
         end
     end
-    uiElement.Visible = visible
+    local visibilityChanged = (uiElement.Visible ~= visible)
+    if visibilityChanged then
+        uiElement.Visible = visible
+        self:UpdateVisibility_GroupVisibilityChanged(modGUID, uiElement)
+    end
 end
 
 function IMGUILayer:GetClientStateValue(settingId, modGUID)
@@ -350,6 +377,7 @@ function IMGUILayer:CreateMainTable()
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
         self.visibilityTriggers[modGUID] = {}
+        self.uiElementByName[modGUID] = {}
 
         local modName = self:GetModName(modGUID)
         local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
