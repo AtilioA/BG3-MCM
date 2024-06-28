@@ -97,9 +97,7 @@ function IMGUILayer:EvaluateVisibleIf(modGUID, visibleIf, elementName)
                             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
             valid = false
         else
-            if condition.Operator ~= "==" and condition.Operator ~= "!="
-                    and condition.Operator ~= "<=" and condition.Operator ~= "<"
-                    and condition.Operator ~= ">=" and condition.Operator ~= ">" then
+            if self.operators[condition.Operator] == nil then
                 MCMWarn(0,
                         "Invalid condition (invalid operator: "..condition.Operator..") passed by mod '" ..
                                 Ext.Mod.GetMod(modGUID).Info.Name ..
