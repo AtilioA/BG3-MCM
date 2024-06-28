@@ -143,7 +143,6 @@ end
 
 function IMGUILayer:UpdateVisibility_GroupVisibilityChanged(modGUID, uiElementChanged)
     local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
-    print("UpdateVisibility_GroupVisibilityChanged")
     for uiElement, visibleIf in pairs(visibilityTriggers) do
         for _, condition in ipairs(visibleIf.Conditions) do
             if condition.Operator == "isVisible" and self.uiElementByName[modGUID][condition.SettingId] == uiElementChanged then
