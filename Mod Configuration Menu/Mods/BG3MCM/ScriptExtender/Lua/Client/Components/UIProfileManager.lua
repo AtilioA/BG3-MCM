@@ -21,29 +21,26 @@ local function getDeleteProfileButtonLabel(profile)
 end
 
 --- Create widgets for managing profiles (selecting, creating, deleting)
-function UIProfileManager:CreateProfileCollapsingHeader()
+function UIProfileManager:CreateProfileContent()
     local profiles = MCMAPI:GetProfiles()
     local currentProfile = MCMAPI:GetCurrentProfile()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile) - 1
 
-    local profileCollapsingHeader = MCM_WINDOW:AddCollapsingHeader(Ext.Loca.GetTranslatedString(
-    "hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
-    profileCollapsingHeader:AddSeparatorText(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"))
-    local profileCombo = profileCollapsingHeader:AddCombo("")
+    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
+    local contentGroup = FrameManager:addButtonAndGetModTabBar(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil ,"MCM_profiles")
 
+    local profileCombo = contentGroup:AddCombo("")
     profileCombo.Options = profiles.Profiles
     profileCombo.SelectedIndex = profileIndex or 1
 
     -- Create/delete profile buttons
-    profileCollapsingHeader:AddSeparator()
 
-    profileCollapsingHeader:AddSeparatorText(Ext.Loca.GetTranslatedString("h5788159872f84825b184d42c1fbd6a216541"))
-    local newProfileName = profileCollapsingHeader:AddInputText("")
-    local profileButton = profileCollapsingHeader:AddButton(Ext.Loca.GetTranslatedString(
-    "h3e4b68e2569e4df2b548b4a5a893a57a7972"))
+    contentGroup:AddSeparatorText(Ext.Loca.GetTranslatedString("h5788159872f84825b184d42c1fbd6a216541"))
+    local newProfileName = contentGroup:AddInputText("")
+    local profileButton = contentGroup:AddButton(Ext.Loca.GetTranslatedString("h3e4b68e2569e4df2b548b4a5a893a57a7972"))
     profileButton.SameLine = true
 
-    local deleteProfileButton = profileCollapsingHeader:AddButton(getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile()))
+    local deleteProfileButton = contentGroup:AddButton(getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile()))
     self:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
 
     self:SetupCreateProfileButton(profileButton, newProfileName, profileCombo,

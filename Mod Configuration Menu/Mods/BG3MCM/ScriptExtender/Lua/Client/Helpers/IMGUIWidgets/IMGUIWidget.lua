@@ -75,7 +75,10 @@ function IMGUIWidget:SetupTooltip(widget, setting)
     if widget.Tooltip then
         local tooltip = widget:Tooltip()
         local tooltipText = setting:GetTooltip()
-        local translatedTooltip = Ext.Loca.GetTranslatedString(setting.Handles.TooltipHandle)
+        local translatedTooltip = nil
+        if setting.Handles.TooltipHandle ~= nil then
+            local translatedTooltip = Ext.Loca.GetTranslatedString(setting.Handles.TooltipHandle)
+        end
         if translatedTooltip ~= nil and translatedTooltip ~= "" then
             tooltipText = translatedTooltip
         end

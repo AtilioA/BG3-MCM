@@ -6,7 +6,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = SliderIntIMGUIWidget })
 
     -- 'Previous' button
-    instance.PreviousButton = group:AddButton("<")
+    instance.PreviousButton = group:AddButton(" < ")
     instance.PreviousButton.IDContext = "PreviousButton_" .. setting.Id
     instance.PreviousButton.OnClick = function()
         local newValue = math.max(setting.Options.Min, instance.Widget.Value[1] - 1)
@@ -22,7 +22,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     instance.Widget.SameLine = true
 
     -- 'Next' button
-    instance.NextButton = group:AddButton(">")
+    instance.NextButton = group:AddButton(" > ")
     instance.NextButton.IDContext = "NextButton_" .. setting.Id
     instance.NextButton.OnClick = function()
         local newValue = math.min(setting.Options.Max, instance.Widget.Value[1] + 1)

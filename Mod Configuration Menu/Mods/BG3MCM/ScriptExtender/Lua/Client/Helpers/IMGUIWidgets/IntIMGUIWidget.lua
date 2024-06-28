@@ -5,7 +5,7 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = IntIMGUIWidget })
 
     -- 'Previous' button
-    instance.PreviousButton = group:AddButton("-")
+    instance.PreviousButton = group:AddButton(" - ")
     instance.PreviousButton.IDContext = "PreviousButton_" .. setting.Id
     instance.PreviousButton.OnClick = function()
         local newValue = instance.Widget.Value[1] - 1
@@ -21,7 +21,7 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
     instance.Widget.SameLine = true
 
     -- 'Next' button
-    instance.NextButton = group:AddButton("+")
+    instance.NextButton = group:AddButton(" + ")
     instance.NextButton.IDContext = "NextButton_" .. setting.Id
     instance.NextButton.OnClick = function()
         local newValue = instance.Widget.Value[1] + 1

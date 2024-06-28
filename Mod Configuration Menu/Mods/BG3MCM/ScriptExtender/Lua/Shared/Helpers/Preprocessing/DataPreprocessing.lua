@@ -134,6 +134,8 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
             SectionId = elementData.SectionId,
             SectionName = elementData.SectionName,
             VisibleIf = elementData.VisibleIf,
+            -- TODO: validate Options input
+            Options = elementData.Options or {},
             Tabs = elementData.Tabs or {}, -- Sections might also have nested Tabs
             -- Settings = elementData.Settings or {},
             Handles = elementData.Handles or {}

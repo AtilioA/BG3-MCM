@@ -2,12 +2,14 @@
 ---@field private SectionName string
 ---@field private SectionDescription string
 ---@field private VisibleIf string
+---@field private Options table
 ---@field private Settings BlueprintSetting[]
 ---@field private Handles? table
 BlueprintSection = _Class:Create("BlueprintSection", nil, {
     SectionName = "",
     SectionDescription = "",
     VisibleIf = "",
+    Options = {},
     Tabs = {},
     Settings = {},
     Handles = {}
@@ -21,6 +23,7 @@ function BlueprintSection:New(options)
     self.SectionName = options.SectionName or ""
     self.SectionDescription = options.SectionDescription or ""
     self.VisibleIf = options.VisibleIf or ""
+    self.Options = options.Options or {}
     self.Tabs = {}
     self.Settings = {}
     self.Handles = options.Handles
@@ -74,6 +77,10 @@ end
 
 function BlueprintSection:SetSectionName(value)
     self.SectionName = value
+end
+
+function BlueprintSection:GetOptions()
+    return self.Options
 end
 
 function BlueprintSection:GetHandles()

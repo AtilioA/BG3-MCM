@@ -357,6 +357,15 @@
                 "VisibleIf": {
                     "$ref": "#/definitions/VisibilityCondition",
                     "description": "Array of Conditions that determine the visibility of this section. Condition is an object with SettingId, Operator, and ExpectedValue."
+                },
+                "Options": {
+                    "type": "object",
+                    "properties": {
+                        "IsCollapsible": {
+                            "type": "boolean",
+                            "description": "Whether the section is collapsible or not."
+                        }
+                    }
                 }
             },
             "required": [

@@ -18,8 +18,8 @@ end
 
 local function handleButtonPress(button)
     local pressCount = 0
-    local pressLimit = 4
-    local timeWindow = 4000
+    local pressLimit = 3
+    local timeWindow = 5000
     local revertTime = 15000
     local isMessageUpdated = false
 
@@ -43,13 +43,15 @@ local function handleButtonPress(button)
 end
 
 local function handleEscapeKey()
-    local MCMButton = Noesis:FindMCMGameMenuButton()
-    if not MCMButton then
-        return
-    end
-    handleButtonPress(MCMButton)
+    Ext.Timer.WaitFor(200, function()
+        local MCMButton = Noesis:FindMCMGameMenuButton()
+        if not MCMButton then
+            MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
+            return
+        end
+        handleButtonPress(MCMButton)
+    end)
 end
-
 
 local function handleKeyInput(e)
     if e.Event == "KeyDown" and e.Repeat == false then
