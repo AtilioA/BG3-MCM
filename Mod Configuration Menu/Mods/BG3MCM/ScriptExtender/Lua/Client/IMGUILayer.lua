@@ -298,7 +298,7 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function IMGUILayer:CreateMainTable()
-    FrameManager:AddMenuSection("MODS")
+    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
 
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
