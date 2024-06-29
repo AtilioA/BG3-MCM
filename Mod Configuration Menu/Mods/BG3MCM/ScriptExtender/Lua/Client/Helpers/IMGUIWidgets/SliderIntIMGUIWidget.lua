@@ -5,14 +5,25 @@ SliderIntIMGUIWidget = _Class:Create("SliderIntIMGUIWidget", IMGUIWidget)
 function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = SliderIntIMGUIWidget })
 
-    -- 'Previous' button
-    instance.PreviousButton = group:AddButton(" < ")
-    instance.PreviousButton.IDContext = "PreviousButton_" .. setting.Id
-    instance.PreviousButton.OnClick = function()
-        local newValue = math.max(setting.Options.Min, instance.Widget.Value[1] - 1)
-        instance:UpdateCurrentValue(newValue)
-        IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
+    -- Helper function to create increment/decrement buttons
+    local function createIncrementButton(label, icon, increment, tooltip)
+        local button = group:AddImageButton(label, icon, { 42, 42 })
+        button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
+        button.OnClick = function()
+            local newValue = math.max(setting.Options.Min, math.min(setting.Options.Max, instance.Widget.Value[1] + increment))
+            instance:UpdateCurrentValue(newValue)
+            IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
+        end
+        if tooltip then
+            local buttonTooltip = button:Tooltip()
+            buttonTooltip.IDContext = "ButtonTooltip_" .. setting.Id
+            buttonTooltip:AddText(tooltip)
+        end
+        return button
     end
+
+    -- Decrement button
+    instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -1, "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
 
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
@@ -21,14 +32,8 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     end
     instance.Widget.SameLine = true
 
-    -- 'Next' button
-    instance.NextButton = group:AddButton(" > ")
-    instance.NextButton.IDContext = "NextButton_" .. setting.Id
-    instance.NextButton.OnClick = function()
-        local newValue = math.min(setting.Options.Max, instance.Widget.Value[1] + 1)
-        instance:UpdateCurrentValue(newValue)
-        IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
-    end
+    -- Increment button
+    instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", 1, "Increase the '" .. setting:GetLocaName() .. "' value by 1")
     instance.NextButton.SameLine = true
 
     return instance

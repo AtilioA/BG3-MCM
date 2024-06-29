@@ -24,6 +24,8 @@ end
 
 ---@param text string
 function FrameManager:AddMenuSection(text)
+    -- local modsListIcon = self.menuCell:AddImage("ico_identity_d", { 42, 42 })
+    -- modsListIcon.SameLine = true
     self.menuCell:AddSeparatorText(text)
 end
 

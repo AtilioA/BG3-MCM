@@ -25,9 +25,10 @@ function ListIMGUIWidget:RenderList()
         local tableRow = imguiTable:AddRow()
         local textCell = tableRow:AddCell()
         local buttonCell = tableRow:AddCell()
-
         textCell:AddText(value)
-        local removeButton = buttonCell:AddButton("[X]")
+        local removeButton = buttonCell:AddImageButton("[X]", "popin_closeIco_d", { 42, 42 })
+        local tooltip = removeButton:Tooltip()
+        tooltip:AddText("Remove '" .. value .. "' from the list")
         removeButton.OnClick = function()
             table.remove(self.Widget.List, i)
             IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.ModGUID)
@@ -45,11 +46,17 @@ function ListIMGUIWidget:AddInputAndAddButton()
 
     local newText = ""
     local textInput = self.Widget.InputGroup:AddInputText("", newText)
+    local addButton
     textInput.OnChange = function(newValue)
         newText = newValue.Text
+        if newText and newText ~= "" and addButton then
+            addButton.Label = "Add to the list"
+        else
+            addButton.Label = "Type a new value to add to the list"
+        end
     end
 
-    local addButton = self.Widget.InputGroup:AddButton("Add to list")
+    addButton = self.Widget.InputGroup:AddButton("Type a new value to add to the list")
     addButton.OnClick = function()
         if newText ~= "" then
             -- TODO: remove this kludge
@@ -94,7 +101,7 @@ end
 function ListIMGUIWidget:AddResetButton(group, setting, modGUID)
     local resetButton = group:AddButton("[Reset list]")
     resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting:GetId()
-    resetButton:Tooltip():AddText("Reset this setting to its default")
+    resetButton:Tooltip():AddText("Reset this list to its default values")
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modGUID)
     end

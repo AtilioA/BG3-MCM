@@ -4,14 +4,25 @@ IntIMGUIWidget = _Class:Create("IntIMGUIWidget", IMGUIWidget)
 function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
     local instance = setmetatable({}, { __index = IntIMGUIWidget })
 
-    -- 'Previous' button
-    instance.PreviousButton = group:AddButton(" - ")
-    instance.PreviousButton.IDContext = "PreviousButton_" .. setting.Id
-    instance.PreviousButton.OnClick = function()
-        local newValue = instance.Widget.Value[1] - 1
-        instance:UpdateCurrentValue(newValue)
-        IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
+    -- Helper function to create increment/decrement buttons (int field)
+    local function createIncrementButton(label, icon, increment, tooltip)
+        local button = group:AddImageButton(label, icon, { 42, 42 })
+        button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
+        button.OnClick = function()
+            local newValue = instance.Widget.Value[1] + increment
+            instance:UpdateCurrentValue(newValue)
+            IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
+        end
+        if tooltip then
+            local buttonTooltip = button:Tooltip()
+            buttonTooltip.IDContext = "ButtonTooltip_" .. setting.Id
+            buttonTooltip:AddText(tooltip)
+        end
+        return button
     end
+
+    -- Decrement button
+    instance.PreviousButton = createIncrementButton(" - ", "ico_min_d", -1, "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
 
     -- Actual int input widget
     instance.Widget = group:AddInputInt("", initialValue)
@@ -20,14 +31,8 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
     end
     instance.Widget.SameLine = true
 
-    -- 'Next' button
-    instance.NextButton = group:AddButton(" + ")
-    instance.NextButton.IDContext = "NextButton_" .. setting.Id
-    instance.NextButton.OnClick = function()
-        local newValue = instance.Widget.Value[1] + 1
-        instance:UpdateCurrentValue(newValue)
-        IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
-    end
+    -- Increment button
+    instance.NextButton = createIncrementButton(" + ", "ico_plus_d", 1, "Increase the '" .. setting:GetLocaName() .. "' value by 1")
     instance.NextButton.SameLine = true
 
     return instance
