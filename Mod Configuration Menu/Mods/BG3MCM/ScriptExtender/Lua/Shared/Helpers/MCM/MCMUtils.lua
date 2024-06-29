@@ -87,9 +87,9 @@ function MCMUtils.SortModsByName(mods)
         elseif b == "755a8a72-407f-4f0d-9a33-274ac0f0b53d" then
             return false
         else
-            local modA = Ext.Mod.GetMod(a)
-            local modB = Ext.Mod.GetMod(b)
-            return modA.Info.Name < modB.Info.Name
+            local modAName = MCMClientState:GetModName(a)
+            local modBName = MCMClientState:GetModName(b)
+            return modAName < modBName
         end
     end)
 
@@ -207,6 +207,5 @@ function MCMUtils:SyncModVars(module)
         Ext.Vars.SyncModVariables(module or ModuleUUID)
     end
 end
-
 
 return MCMUtils

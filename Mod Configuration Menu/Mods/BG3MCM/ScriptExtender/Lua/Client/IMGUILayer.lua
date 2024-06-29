@@ -324,7 +324,7 @@ end
 ---@return string
 function IMGUILayer:GetModName(modGUID)
     local modName = Ext.Mod.GetMod(modGUID).Info.Name
-    local blueprintCustomName = self.mods[modGUID].blueprint.ModName
+    local blueprintCustomName = self.mods[modGUID].blueprint:GetModName()
     if blueprintCustomName then
         modName = blueprintCustomName
     end
