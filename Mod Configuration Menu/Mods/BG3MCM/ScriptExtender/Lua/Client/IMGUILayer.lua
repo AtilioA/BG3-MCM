@@ -39,7 +39,15 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
 
     mod.settingsValues[settingId] = value
 
-    -- Update the displayed value for the setting
+    -- Check if the setting is of type 'text'; no need to update the UI value for text settings
+    -- Also, doing so creates issues with the text input field
+    local blueprint = MCMAPI:GetModBlueprint(modGUID)
+    if not blueprint then return end
+
+    local setting = blueprint:GetAllSettings()[settingId]
+    if not setting or setting:GetType() == "text" then return end
+
+    -- Update the displayed value for non-text settings
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
 end
 
