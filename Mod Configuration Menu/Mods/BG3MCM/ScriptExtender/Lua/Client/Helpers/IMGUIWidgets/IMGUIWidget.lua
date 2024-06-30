@@ -35,7 +35,7 @@ function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
         self:AddResetButton(group, setting, modGUID)
     end
 
-    self:InitializeWidget(widget.Widget, group, setting)
+    self:InitializeWidget(widget, group, setting)
 
     group:AddDummy(0, 2)
     return widget
@@ -46,9 +46,13 @@ function IMGUIWidget:UpdateCurrentValue(value)
 end
 
 function IMGUIWidget:InitializeWidget(widget, group, setting)
-    -- widget:AddText(setting:GetDescription())
-    self:SetupTooltip(widget, setting)
-    self:SetupDescription(widget, group, setting)
+    if widget and widget.SetupTooltip then
+        widget:SetupTooltip(widget.Widget, setting)
+    else
+        self:SetupTooltip(widget.Widget, setting)
+    end
+
+    self:SetupDescription(widget.Widget, group, setting)
 end
 
 --- Add a reset button to the widget

@@ -10,7 +10,8 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
         local button = group:AddImageButton(label, icon, { 42, 42 })
         button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
         button.OnClick = function()
-            local newValue = math.max(setting.Options.Min, math.min(setting.Options.Max, instance.Widget.Value[1] + increment))
+            local newValue = math.max(setting.Options.Min,
+                math.min(setting.Options.Max, instance.Widget.Value[1] + increment))
             instance:UpdateCurrentValue(newValue)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
         end
@@ -23,7 +24,8 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     end
 
     -- Decrement button
-    instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -1, "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
+    instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -1,
+        "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
 
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
@@ -33,7 +35,8 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     instance.Widget.SameLine = true
 
     -- Increment button
-    instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", 1, "Increase the '" .. setting:GetLocaName() .. "' value by 1")
+    instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", 1,
+        "Increase the '" .. setting:GetLocaName() .. "' value by 1")
     instance.NextButton.SameLine = true
 
     return instance
@@ -41,4 +44,18 @@ end
 
 function SliderIntIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
+end
+
+function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
+    -- Call the base class method first
+    IMGUIWidget.SetupTooltip(self, widget, setting)
+
+    local tooltip = widget:Tooltip()
+    tooltip:AddText(string.format("Min: %s", setting.Options.Min))
+    tooltip:AddText(string.format("Max: %s", setting.Options.Max))
+    if not table.isEmpty(tooltip.Children) then
+        local tooltipSeparator = tooltip:AddSeparator()
+        tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
+    end
+    tooltip:AddText("CTRL + click it to input value manually.")
 end
