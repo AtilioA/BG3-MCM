@@ -196,16 +196,8 @@ function IMGUILayer:CreateMainIMGUIWindow()
         )
     )
 
-    -- TODO: add stuff to the menu bar (it's not working)
-    -- local m = MCM_WINDOW:AddMainMenu()
+    MainMenu.CreateMainMenu()
 
-    -- local aboutPopup = MCM_WINDOW:AddPopup("Hello")
-    -- _D(aboutPopup)
-    -- local help = m:AddMenu("Help")
-    -- local helpAbout = help:AddItem("About")
-    -- helpAbout.OnClick = function()
-    -- aboutPopup:Open()
-    -- end
     return true
 end
 
