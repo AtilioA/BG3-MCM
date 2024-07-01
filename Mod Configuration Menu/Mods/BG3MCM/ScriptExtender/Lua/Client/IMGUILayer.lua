@@ -157,6 +157,7 @@ end
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
+        MCMWarn(0, "IMGUI is not available, skipping MCM window creation.")
         return false
     end
 

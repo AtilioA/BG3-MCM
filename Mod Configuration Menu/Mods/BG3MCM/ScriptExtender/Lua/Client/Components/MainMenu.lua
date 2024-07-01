@@ -1,34 +1,50 @@
 MainMenu = {}
 
 function MainMenu.CreateMainMenu()
-    local function CreateHelpPopup()
-        local helpPopup = MCM_WINDOW:AddPopup("Help & Troubleshooting")
+    local function CreateHelpTroubleshootingPopup()
+        local helpTroubleshootingPopup = MCM_WINDOW:AddPopup("Help & Troubleshooting")
 
         -- Adding content sections
-        helpPopup:AddSeparatorText("Troubleshooting and Reporting")
-        helpPopup:AddText(
+        helpTroubleshootingPopup:AddSeparatorText("Troubleshooting and Reporting")
+        helpTroubleshootingPopup:AddText(
             "Script Extender's (SE) IMGUI implementation is still in development. If you're having issues:")
-        helpPopup:AddBulletText("Disable overlays (Nvidia/AMD/Discord, etc);")
-        helpPopup:AddBulletText("If crashing under Vulkan, test without IMGUI mods like MCM")
-        helpPopup:AddBulletText("Verify the problem persists with no other DLL mods")
-        helpPopup:AddBulletText("Ensure you're using the latest BG3 version and SE Release version")
+        helpTroubleshootingPopup:AddBulletText("Disable overlays (Nvidia/AMD/Discord, etc);")
+        helpTroubleshootingPopup:AddBulletText("If crashing under Vulkan, test without IMGUI mods like MCM")
+        helpTroubleshootingPopup:AddBulletText("Verify the problem persists with no other DLL mods")
+        helpTroubleshootingPopup:AddBulletText("Ensure you're using the latest BG3 version and SE Release version")
 
-        helpPopup:AddSeparatorText("Reporting Issues")
-        helpPopup:AddBulletText("Provide SE console logs - you can easily enable the SE console via BG3MM preferences")
-        helpPopup:AddBulletText("Include system specs (GPU, CPU, OS)")
-        helpPopup:AddBulletText("Describe behavior under DirectX 11 and Vulkan")
-        helpPopup:AddBulletText("Upload crash reports if prompted by the SE")
+        helpTroubleshootingPopup:AddSeparatorText("Reporting Issues")
+        helpTroubleshootingPopup:AddBulletText(
+            "Provide SE console logs - you can easily enable the SE console via BG3MM preferences")
+        helpTroubleshootingPopup:AddBulletText("Include system specs (GPU, CPU, OS)")
+        helpTroubleshootingPopup:AddBulletText("Describe behavior under DirectX 11 and Vulkan")
+        helpTroubleshootingPopup:AddBulletText("Upload crash reports if prompted by the SE")
 
-        helpPopup:AddSeparatorText("Known Issues")
-        local uiNotShowingBT = helpPopup:AddBulletText(
+        helpTroubleshootingPopup:AddSeparatorText("Known Issues")
+        local uiNotShowingBT = helpTroubleshootingPopup:AddBulletText(
             "UI not showing: Don't alt-tab before main menu, test both Vulkan and DirectX 11")
         uiNotShowingBT:SetColor("Text", Color.HEXToRGBA("#FF2323"))
-        helpPopup:AddBulletText("Keybindings: Unfocus MCM window before using keybinds")
+        helpTroubleshootingPopup:AddBulletText("Keybindings: Unfocus MCM window before using keybinds")
 
-        helpPopup:AddSeparatorText("More Information")
-        helpPopup:AddText("For more details, visit the MCM page on Nexus.")
+        helpTroubleshootingPopup:AddSeparatorText("More Information")
+        helpTroubleshootingPopup:AddText("For more details, visit the MCM page on Nexus.")
 
-        return helpPopup
+        return helpTroubleshootingPopup
+    end
+
+    local function CreateHelpUIPopup()
+        local helpPopupUI = MCM_WINDOW:AddPopup("UI Help")
+        helpPopupUI:AddSeparatorText("UI Help")
+        helpPopupUI:AddText("MCM uses IMGUI, which is a library also used by ReShade and other mods.")
+        helpPopupUI:AddText("Here you can configure the settings of mods that support MCM.")
+        helpPopupUI:AddText("To get started, click a mod from the list on the left.")
+        helpPopupUI:AddSeparatorText("Navigating the settings")
+        helpPopupUI:AddText("All settings are saved automatically as you make changes.")
+        helpPopupUI:AddText("To reset a setting, click the reset button next to it.")
+        helpPopupUI:AddText("You can control + click a slider to type in a specific value.")
+        helpPopupUI:AddSeparator()
+        helpPopupUI:AddText("For more information, visit the MCM page on Nexus.")
+        return helpPopupUI
     end
 
     local function CreateAboutGeneralPopup()
@@ -48,9 +64,10 @@ function MainMenu.CreateMainMenu()
             "It is designed to be user-friendly and accessible, providing a consistent interface for mod configuration."
         )
         aboutPopupGeneral:AddText(
-            "It was the culmination of months of work by a single developer.\nIf you find it useful, consider endorsing it on Nexus Mods and dropping a donation.")
+            "It was the culmination of months of work done by mostly a single developer.\nIf you find it useful, please consider endorsing it on Nexus Mods and dropping a donation.")
         return aboutPopupGeneral
     end
+
     local function CreateAboutLicensePopup()
         local aboutPopupLicense = MCM_WINDOW:AddPopup("About MCM - License")
         aboutPopupLicense:AddSeparatorText("License")
@@ -75,14 +92,21 @@ function MainMenu.CreateMainMenu()
 
     local m = MCM_WINDOW:AddMainMenu()
 
-    local helpPopup = CreateHelpPopup()
+    local helpUIPopup = CreateHelpUIPopup()
+    local helpTroubleshootingPopup = CreateHelpTroubleshootingPopup()
     local aboutPopupGeneral = CreateAboutGeneralPopup()
     local aboutLicense = CreateAboutLicensePopup()
 
     local help = m:AddMenu(Ext.Loca.GetTranslatedString("hbdf03cb8dff04632b32aeafd69cbdc406ea3"))
-    local helpItem = help:AddItem(Ext.Loca.GetTranslatedString("h81625d4fad964786b5ab2eb1901e4496d771"))
-    helpItem.OnClick = function()
-        helpPopup:Open()
+
+    local helpUIItem = help:AddItem(Ext.Loca.GetTranslatedString("h45722336fcb04208a1b46356190835bb2d86"))
+    helpUIItem.OnClick = function()
+        helpUIPopup:Open()
+    end
+
+    local helpTroubleshootItem = help:AddItem(Ext.Loca.GetTranslatedString("h81625d4fad964786b5ab2eb1901e4496d771"))
+    helpTroubleshootItem.OnClick = function()
+        helpTroubleshootingPopup:Open()
     end
 
     local about = m:AddMenu(Ext.Loca.GetTranslatedString("ha303b737440345dd831870ef6b4ff7256601"))
