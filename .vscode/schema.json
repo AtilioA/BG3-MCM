@@ -178,21 +178,63 @@
                 "Type": {
                     "type": "string",
                     "minLength": 1,
-                    "enum": [
-                        "int",
-                        "float",
-                        "checkbox",
-                        "text",
-                        "list",
-                        "enum",
-                        "slider_int",
-                        "slider_float",
-                        "drag_int",
-                        "drag_float",
-                        "radio",
-                        "color_picker",
-                        "color_edit",
-                        "keybinding"
+                    "oneOf": [
+                        {
+                            "const": "int",
+                            "description": "An input field for an integer value."
+                        },
+                        {
+                            "const": "float",
+                            "description": "An input field for a floating-point number."
+                        },
+                        {
+                            "const": "checkbox",
+                            "description": "A boolean checkbox."
+                        },
+                        {
+                            "const": "text",
+                            "description": "A single-line string text input."
+                        },
+                        {
+                            "const": "list",
+                            "description": "A list of items with a text input below to add new items. List is initialized with default values if provided."
+                        },
+                        {
+                            "const": "enum",
+                            "description": "An enumeration of predefined values, displayed as a dropdown list where only one value can be selected."
+                        },
+                        {
+                            "const": "slider_int",
+                            "description": "A slider for integer values; can be used for a range of values defined between a Min and Max value."
+                        },
+                        {
+                            "const": "slider_float",
+                            "description": "A slider for floating-point values; can be used for a range of values defined between a Min and Max value."
+                        },
+                        {
+                            "const": "drag_int",
+                            "description": "A draggable input for integer values."
+                        },
+                        {
+                            "const": "drag_float",
+                            "description": "A draggable input for floating-point values."
+                        },
+                        {
+                            "const": "radio",
+                            "description": "A set of radio buttons. Options passed in are mutually exclusive."
+                        },
+                        {
+                            "const": "color_picker",
+                            "description": "A square color picker widget that allows the user to select a color with the mouse, while also having color fields for manual input."
+                        },
+                        {
+                            "const": "color_edit",
+                            "description": "A color editor widget. Similar to a color picker, but with only the color fields displayed."
+                        },
+                        {
+                            "const": "keybinding",
+                            "description": "A keybinding input, consisting of an optional modifier and a key."
+                        }
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
                 },
@@ -489,26 +531,45 @@
                 },
                 "Operator": {
                     "type": "string",
-                    "enum": [
-                        "==",
-                        "!=",
-                        ">",
-                        "<",
-                        ">=",
-                        "<="
+                    "oneOf": [
+                        {
+                            "const": "==",
+                            "description": "Check if value of SettingId is equal to ExpectedValue"
+                        },
+                        {
+                            "const": "!=",
+                            "description": "Check if value of SettingId is not equal to ExpectedValue"
+                        },
+                        {
+                            "const": ">",
+                            "description": "Check if value of SettingId is greater than ExpectedValue"
+                        },
+                        {
+                            "const": "<",
+                            "description": "Check if value of SettingId is less than ExpectedValue"
+                        },
+                        {
+                            "const": ">=",
+                            "description": "Check if value of SettingId is greater than or equal to ExpectedValue"
+                        },
+                        {
+                            "const": "<=",
+                            "description": "Check if value of SettingId is less than or equal to ExpectedValue"
+                        }
                     ],
-                    "description": "The operator to use for the comparison."
-                },
-                "ExpectedValue": {
-                    "type": "string",
-                    "description": "The expected value of the setting specified by SettingId for this element to be visible."
-                }
+                ],
+                "description": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
             },
-            "required": [
-                "SettingId",
-                "Operator",
-                "ExpectedValue"
-            ]
-        }
+            "ExpectedValue": {
+                "type": "string",
+                "description": "The expected value of the setting specified by SettingId for this element to be visible."
+            }
+        },
+        "required": [
+            "SettingId",
+            "Operator",
+            "ExpectedValue"
+        ]
     }
+}
 }
