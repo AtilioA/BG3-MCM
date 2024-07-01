@@ -495,7 +495,8 @@
                         ">",
                         "<",
                         ">=",
-                        "<="
+                        "<=",
+                        "isVisible"
                     ],
                     "description": "The operator to use for the comparison."
                 },
