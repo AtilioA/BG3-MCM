@@ -15,21 +15,8 @@
 -- - Sending messages to the server to update setting values
 ---@class IMGUILayer: MetaClass
 ---@field mods table<string, ModSettings>
----@field private profiles table<string, table>
----@field private visibilityTriggers table<string, table>
 IMGUILayer = _Class:Create("IMGUILayer", nil, {
-    mods = {},
-    visibilityTriggers = {},
-    operators = {
-        ["=="] = function(a, b) return a == b end,
-        ["!="] = function(a, b) return a ~= b end,
-        ["<="] = function(a, b) return a <= b end,
-        [">="] = function(a, b) return a >= b end,
-        ["<"] = function(a, b) return a < b end,
-        [">"] = function(a, b) return a > b end,
-        ["isVisible"] = function(a, b) return a == b end
-    },
-    uiElementByName = {}
+    mods = {}
 })
 
 MCMClientState = IMGUILayer:New()
@@ -47,7 +34,7 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
 
     mod.settingsValues[settingId] = value
 
-    self:UpdateVisibility_SettingChanged(modGUID, settingId)
+    IMGUIVisibilityManager:UpdateVisibility_SettingChanged(modGUID, settingId)
 
     -- Check if the setting is of type 'text'; no need to update the UI value for text settings
     -- Also, doing so creates issues with the text input field
@@ -61,149 +48,7 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
 end
 
-function IMGUILayer:manageVisibleIf(modGUID, elementInfo, uiElement)
-    if elementInfo.VisibleIf and elementInfo.VisibleIf.Conditions then
-        if self:EvaluateVisibleIf(modGUID, elementInfo.VisibleIf, elementInfo.Name or elementInfo.SectionName or elementInfo.TabName ) then -- change for generic Name ...
-            self.visibilityTriggers[modGUID][uiElement] = elementInfo.VisibleIf
-        end
-    end
-    
-    self.uiElementByName[modGUID][elementInfo.TabId or elementInfo.SectionId or elementInfo.Id] = uiElement  -- change for generic Id ...
-end
 
-function IMGUILayer:EvaluateVisibleIf(modGUID, visibleIf, elementName)
-    local valid = true
-    -- control LogicalOperator is valid if present
-    if visibleIf.LogicalOperator ~= nil and visibleIf.LogicalOperator ~= "or" and  visibleIf.LogicalOperator ~= "and" then
-        MCMWarn(0,
-                "Invalid LogicalOperator passed by mod '" ..
-                        Ext.Mod.GetMod(modGUID).Info.Name ..
-                        "' for visibility condition of '"..elementName.."'. Please contact " ..
-                        Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-        valid = false
-    end
-
-    -- Control Conditions
-    for _, condition in ipairs(visibleIf.Conditions) do
-        if condition.SettingId == nil then
-            MCMWarn(0,
-                    "Invalid condition (no settingId) passed by mod '" ..
-                            Ext.Mod.GetMod(modGUID).Info.Name ..
-                            "' for visibility condition of '"..elementName.."'. Please contact " ..
-                            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-            valid = false
-        end
-        if condition.Operator == nil then
-            MCMWarn(0,
-                    "Invalid condition (no operator) passed by mod '" ..
-                            Ext.Mod.GetMod(modGUID).Info.Name ..
-                            "' for visibility condition of '"..elementName.."'. Please contact " ..
-                            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-            valid = false
-        else
-            if self.operators[condition.Operator] == nil then
-                MCMWarn(0,
-                        "Invalid condition (invalid operator: "..condition.Operator..") passed by mod '" ..
-                                Ext.Mod.GetMod(modGUID).Info.Name ..
-                                "' for visibility condition of '"..elementName.."'. Please contact " ..
-                                Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-                valid = false
-            end
-        end
-        if condition.ExpectedValue == nil then
-            MCMWarn(0,
-                    "Invalid condition (no triggerValue) passed by mod '" ..
-                            Ext.Mod.GetMod(modGUID).Info.Name ..
-                            "' for visibility condition of '"..elementName.."'. Please contact " ..
-                            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
-            valid = false
-        end
-    end
-
-    return valid
-end
-
-
--- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
-function IMGUILayer:UpdateVisibility_SettingChanged(modGUID, settingId)
-    if not modGUID or not settingId then
-        return
-    end
-
-    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
-    for uiElement, visibleIf in pairs(visibilityTriggers) do
-        for _, condition in ipairs(visibleIf.Conditions) do
-            if condition.SettingId == settingId then
-                self:UpdateVisibilityOfUiElement(modGUID, uiElement)
-                break
-            end
-        end
-    end
-end
-
-function IMGUILayer:UpdateVisibility_GroupVisibilityChanged(modGUID, uiElementChanged)
-    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
-    for uiElement, visibleIf in pairs(visibilityTriggers) do
-        for _, condition in ipairs(visibleIf.Conditions) do
-            if condition.Operator == "isVisible" and self.uiElementByName[modGUID][condition.SettingId] == uiElementChanged then
-                self:UpdateVisibilityOfUiElement(modGUID, uiElement)
-                break
-            end
-        end
-    end
-end
-
-
-function IMGUILayer:UpdateVisibilityOfUiElement(modGUID, uiElement)
-    local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
-    local modSettings = self.mods[modGUID].settingsValues
-    local visibleIf = visibilityTriggers[uiElement]
-    local logicalOperator = visibleIf.LogicalOperator or "and"
-    local visible = true
-    if logicalOperator == "or" then
-        visible = false
-    end
-
-    for _, condition in ipairs(visibleIf.Conditions) do
-        local settingIdTriggering = condition.SettingId
-        local operator = condition.Operator
-        local triggerValue = condition.ExpectedValue
-
-        local value = nil
-        if operator == "isVisible" then
-            value = self.uiElementByName[modGUID][settingIdTriggering].Visible
-        else
-            value = modSettings[settingIdTriggering]
-        end
-
-        local strValue, strTrigger = tostring(value), tostring(triggerValue)
-        local numValue, numTrigger = tonumber(value), tonumber(triggerValue)
-
-        local v = nil
-        if operator == "==" or operator == "!="  or operator == "isVisible" then
-            v = self.operators[operator](strValue, strTrigger)
-        elseif numValue ~= nil and numTrigger ~= nil then
-            v = self.operators[operator](numValue, numTrigger)
-        else
-            MCMWarn(0,
-                    "Something go wrong, contact MCM support.") -- should never happen (trigegr is not empty at that point, value from widget too)
-            v = false
-        end
-
-        if v and (logicalOperator == "or") then
-            visible = true
-            break
-        elseif (not v) and (logicalOperator == "and") then
-            visible = false
-            break
-        end
-    end
-    local visibilityChanged = (uiElement.Visible ~= visible)
-    if visibilityChanged then
-        uiElement.Visible = visible
-        self:UpdateVisibility_GroupVisibilityChanged(modGUID, uiElement)
-    end
-end
 
 function IMGUILayer:GetClientStateValue(settingId, modGUID)
     modGUID = modGUID or ModuleUUID
@@ -372,26 +217,17 @@ end
 ---@return nil
 function IMGUILayer:CreateMainTable()
     FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
-
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
-        self.visibilityTriggers[modGUID] = {}
-        self.uiElementByName[modGUID] = {}
-
         local modName = self:GetModName(modGUID)
         local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modGUID).Info.Description)
         FrameManager:addButtonAndGetModTabBar(modName, modDescription, modGUID)
         self.mods[modGUID].widgets = {}
 
         self:CreateModMenuFrame(modGUID)
-
-        --init visibility
-        local visibilityTriggers = self.visibilityTriggers[modGUID] or {}
-        for uiElement, v in pairs(visibilityTriggers) do
-            self:UpdateVisibilityOfUiElement(modGUID, uiElement)
-        end
     end
     FrameManager:setVisibleFrame(ModuleUUID)
+    IMGUIVisibilityManager:UpdateAllVisibility()
 end
 
 --- Get the mod name, considering custom blueprint names
@@ -462,7 +298,7 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modGUID)
     local tabSections = tabInfo:GetSections()
     local tabSettings = tabInfo:GetSettings()
 
-    self:manageVisibleIf(modGUID, tabInfo, tab)
+    IMGUIVisibilityManager:manageVisibleIf(modGUID, tabInfo, tab)
 
     if #tabSections > 0 then
         for sectionIndex, section in ipairs(tabInfo:GetSections()) do
@@ -493,7 +329,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     local sectionOptions = section:GetOptions()
     local sectionGroup = modGroup:AddGroup(sectionId)
 
-    self:manageVisibleIf(modGUID, section, sectionGroup)
+    IMGUIVisibilityManager:manageVisibleIf(modGUID, section, sectionGroup)
 
     local sectionContentElement = sectionGroup
     if sectionOptions.IsCollapsible then
@@ -530,7 +366,7 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modGUID
         local widgetGroup = modGroup:AddGroup(setting:GetId())
         local widget = createWidget(widgetGroup, setting, settingValue, modGUID)
 
-        self:manageVisibleIf(modGUID, setting, widgetGroup)
+        IMGUIVisibilityManager:manageVisibleIf(modGUID, setting, widgetGroup)
 
         self.mods[modGUID].widgets[setting:GetId()] = widget
     end
