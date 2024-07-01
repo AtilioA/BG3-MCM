@@ -106,30 +106,6 @@ function MCMUtils.ReplaceBrWithNewlines(description)
     return string.gsub(description, "<br>", "\n")
 end
 
--- function MCMUtils.UpdateLoca()
---     for _, file in ipairs({ "mcm.loca" }) do
---         local fileName = string.format("Localization/English/%s.xml", file)
---         local contents = Ext.IO.LoadFile(fileName, "data")
-
---         for line in string.gmatch(contents, "([^\r\n]+)\r*\n") do
---             local handle, value = string.match(line, '<content contentuid="(%w+)".->(.+)</content>')
---             if handle ~= nil and value ~= nil then
---                 value = value:gsub("&[lg]t;", {
---                     ['&lt;'] = "<",
---                     ['&gt;'] = ">"
---                 })
---                 Ext.Loca.UpdateTranslatedString(handle, value)
---             end
---         end
---     end
-
---     if debug then
---         VCDebug(0, "Finished loading loca files.")
---     end
--- end
-
--- MCMUtils.UpdateLoca()
-
 function MCMUtils:ConditionalWrapper(conditionFunc, func)
     return function(...)
         if conditionFunc() then
@@ -205,6 +181,28 @@ function MCMUtils:SyncModVars(module)
         end
         Ext.Vars.DirtyModVariables(module or ModuleUUID)
         Ext.Vars.SyncModVariables(module or ModuleUUID)
+    end
+end
+
+function MCMUtils.UpdateLoca()
+    for _, file in ipairs({ "BG3MCM_English.loca" }) do
+        local fileName = string.format("Localization/English/%s.xml", file)
+        local contents = Ext.IO.LoadFile(fileName, "data")
+
+        if not contents then
+            return
+        end
+
+        for line in string.gmatch(contents, "([^\r\n]+)\r*\n") do
+            local handle, value = string.match(line, '<content contentuid="(%w+)".->(.+)</content>')
+            if handle ~= nil and value ~= nil then
+                value = value:gsub("&[lg]t;", {
+                    ['&lt;'] = "<",
+                    ['&gt;'] = ">"
+                })
+                Ext.Loca.UpdateTranslatedString(handle, value)
+            end
+        end
     end
 end
 

@@ -33,3 +33,7 @@ end
 
 -- Unfortunately needed since postponing this will cause problems with mods that need to use the API during script initialization
 MCMAPI:LoadConfigs()
+
+if Ext.Debug.IsDeveloperMode() then
+    MCMUtils.UpdateLoca()
+end
