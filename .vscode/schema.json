@@ -367,7 +367,167 @@
                     ]
                 }
             },
-            "description": "A single setting in the MCM menu."
+            "description": "A single setting in the MCM menu, which can be of various types for different input methods.",
+            "examples": [
+                {
+                    "Id": "IntSetting",
+                    "Name": "Integer Setting",
+                    "Type": "int",
+                    "Default": 10,
+                    "Tooltip": "This is an integer setting.",
+                    "Description": "This setting accepts integer values."
+                },
+                {
+                    "Id": "FloatSetting",
+                    "Name": "Float Setting",
+                    "Type": "float",
+                    "Default": 0.5,
+                    "Tooltip": "This is a float setting.",
+                    "Description": "This setting accepts floating-point values."
+                },
+                {
+                    "Id": "CheckboxSetting",
+                    "Name": "Checkbox Setting",
+                    "Type": "checkbox",
+                    "Default": true,
+                    "Tooltip": "This is a checkbox setting.",
+                    "Description": "This setting can be toggled on or off."
+                },
+                {
+                    "Id": "TextSetting",
+                    "Name": "Text Setting",
+                    "Type": "text",
+                    "Default": "default text",
+                    "Tooltip": "This is a text setting.",
+                    "Description": "This setting accepts string values."
+                },
+                {
+                    "Id": "ListSetting",
+                    "Name": "List Setting",
+                    "Type": "list",
+                    "Default": [
+                        "Item 1",
+                        "Item 2"
+                    ],
+                    "Tooltip": "This is a list setting.",
+                    "Description": "This setting allows adding or removing items from a list."
+                },
+                {
+                    "Id": "EnumSetting",
+                    "Name": "Enum Setting",
+                    "Type": "enum",
+                    "Default": "Option1",
+                    "Options": {
+                        "Choices": [
+                            "Option1",
+                            "Option2",
+                            "Option3"
+                        ]
+                    },
+                    "Tooltip": "This is an enum setting.",
+                    "Description": "This setting allows selecting one option from a predefined list."
+                },
+                {
+                    "Id": "SliderIntSetting",
+                    "Name": "Slider Int Setting",
+                    "Type": "slider_int",
+                    "Default": 5,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 10
+                    },
+                    "Tooltip": "This is an integer slider setting.",
+                    "Description": "This setting allows selecting an integer value within a range."
+                },
+                {
+                    "Id": "SliderFloatSetting",
+                    "Name": "Slider Float Setting",
+                    "Type": "slider_float",
+                    "Default": 0.75,
+                    "Options": {
+                        "Min": 0.0,
+                        "Max": 1.0
+                    },
+                    "Tooltip": "This is a float slider setting.",
+                    "Description": "This setting allows selecting a floating-point value within a range."
+                },
+                {
+                    "Id": "DragIntSetting",
+                    "Name": "Drag Int Setting",
+                    "Type": "drag_int",
+                    "Default": 3,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 3
+                    },
+                    "Tooltip": "This is an integer drag setting.",
+                    "Description": "This setting allows dragging to select an integer value."
+                },
+                {
+                    "Id": "DragFloatSetting",
+                    "Name": "Drag Float Setting",
+                    "Type": "drag_float",
+                    "Default": 0.25,
+                    "Options": {
+                        "Min": 0.0,
+                        "Max": 1.0
+                    },
+                    "Tooltip": "This is a float drag setting.",
+                    "Description": "This setting allows dragging to select a floating-point value."
+                },
+                {
+                    "Id": "RadioSetting",
+                    "Name": "Radio Setting",
+                    "Type": "radio",
+                    "Default": "Choice1",
+                    "Options": {
+                        "Choices": [
+                            "Choice1",
+                            "Choice2",
+                            "Choice3"
+                        ]
+                    },
+                    "Tooltip": "This is a radio setting.",
+                    "Description": "This setting allows selecting one option from a set of radio buttons."
+                },
+                {
+                    "Id": "ColorPickerSetting",
+                    "Name": "Color Picker Setting",
+                    "Type": "color_picker",
+                    "Default": [
+                        0.0,
+                        1.0,
+                        0.5,
+                        1.0
+                    ],
+                    "Tooltip": "This is a color picker setting.",
+                    "Description": "This setting allows selecting a color using a color picker."
+                },
+                {
+                    "Id": "ColorEditSetting",
+                    "Name": "Color Edit Setting",
+                    "Type": "color_edit",
+                    "Default": [
+                        0.0,
+                        1.0,
+                        0.5,
+                        1.0
+                    ],
+                    "Tooltip": "This is a color edit setting.",
+                    "Description": "This setting allows editing a color value directly."
+                },
+                {
+                    "Id": "KeybindingSetting",
+                    "Name": "Keybinding Setting",
+                    "Type": "keybinding",
+                    "Default": {
+                        "Modifier": "Ctrl",
+                        "ScanCode": "K"
+                    },
+                    "Tooltip": "This is a keybinding setting.",
+                    "Description": "This setting allows setting a keybinding with an optional modifier."
+                }
+            ]
         },
         "Section": {
             "type": "object",
@@ -565,19 +725,18 @@
                             "description": "Check if value of SettingId is less than or equal to ExpectedValue"
                         }
                     ],
-                ],
-                "description": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
+                    "description": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
+                },
+                "ExpectedValue": {
+                    "type": "string",
+                    "description": "The expected value of the setting specified by SettingId for this element to be visible."
+                }
             },
-            "ExpectedValue": {
-                "type": "string",
-                "description": "The expected value of the setting specified by SettingId for this element to be visible."
-            }
-        },
-        "required": [
-            "SettingId",
-            "Operator",
-            "ExpectedValue"
-        ]
+            "required": [
+                "SettingId",
+                "Operator",
+                "ExpectedValue"
+            ]
+        }
     }
-}
 }
