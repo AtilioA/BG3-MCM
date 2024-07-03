@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<save>
+  <version major="4" minor="0" revision="9" build="322"/>
+  <region id="TextureAtlasInfo">
+    <node id="root">
+      <children>
+        <node id="TextureAtlasIconSize">
+          <attribute id="Height" value="152" type="int32"/>
+          <attribute id="Width" value="152" type="int32"/>
+        </node>
+        <node id="TextureAtlasPath">
+          <attribute id="Path" value="Assets\Textures\Icons\UIOrigin_Portraits.dds" type="string"/>
+          <attribute id="UUID" value="8c5ca6dd-427a-4c76-917f-f65e7c5b8931" type="FixedString"/>
+        </node>
+        <node id="TextureAtlasTextureSize">
+          <attribute id="Height" value="1024" type="int32"/>
+          <attribute id="Width" value="1024" type="int32"/>
+        </node>
+      </children>
+    </node>
+  </region>
+  <region id="IconUVList">
+    <node id="root">
+      <children>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Generic" type="FixedString"/>
+          <attribute id="U1" value="0" type="float"/>
+          <attribute id="V1" value="0" type="float"/>
+          <attribute id="U2" value="0.15" type="float"/>
+          <attribute id="V2" value="0.15" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_ShadowHeart" type="FixedString"/>
+          <attribute id="U1" value="0.15" type="float"/>
+          <attribute id="V1" value="0" type="float"/>
+          <attribute id="U2" value="0.30" type="float"/>
+          <attribute id="V2" value="0.15" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Laezel" type="FixedString"/>
+          <attribute id="U1" value="0.30" type="float"/>
+          <attribute id="V1" value="0" type="float"/>
+          <attribute id="U2" value="0.45" type="float"/>
+          <attribute id="V2" value="0.15" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Astarion" type="FixedString"/>
+          <attribute id="U1" value="0.45" type="float"/>
+          <attribute id="V1" value="0" type="float"/>
+          <attribute id="U2" value="0.59" type="float"/>
+          <attribute id="V2" value="0.15" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Gale" type="FixedString"/>
+          <attribute id="U1" value="0.59" type="float"/>
+          <attribute id="V1" value="0" type="float"/>
+          <attribute id="U2" value="0.74" type="float"/>
+          <attribute id="V2" value="0.15" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Wyll" type="FixedString"/>
+          <attribute id="U1" value="0.74" type="float"/>
+          <attribute id="V1" value="0" type="float"/>
+          <attribute id="U2" value="0.89" type="float"/>
+          <attribute id="V2" value="0.15" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Karlach" type="FixedString"/>
+          <attribute id="U1" value="0" type="float"/>
+          <attribute id="V1" value="0.15" type="float"/>
+          <attribute id="U2" value="0.15" type="float"/>
+          <attribute id="V2" value="0.30" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Halsin" type="FixedString"/>
+          <attribute id="U1" value="0.15" type="float"/>
+          <attribute id="V1" value="0.15" type="float"/>
+          <attribute id="U2" value="0.30" type="float"/>
+          <attribute id="V2" value="0.30" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Minthara" type="FixedString"/>
+          <attribute id="U1" value="0.30" type="float"/>
+          <attribute id="V1" value="0.15" type="float"/>
+          <attribute id="U2" value="0.45" type="float"/>
+          <attribute id="V2" value="0.30" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Jaheira" type="FixedString"/>
+          <attribute id="U1" value="0.45" type="float"/>
+          <attribute id="V1" value="0.15" type="float"/>
+          <attribute id="U2" value="0.59" type="float"/>
+          <attribute id="V2" value="0.30" type="float"/>
+        </node>
+        <node id="IconUV">
+          <attribute id="MapKey" value="EC_Portrait_Minsc" type="FixedString"/>
+          <attribute id="U1" value="0.59" type="float"/>
+          <attribute id="V1" value="0.15" type="float"/>
+          <attribute id="U2" value="0.74" type="float"/>
+          <attribute id="V2" value="0.30" type="float"/>
+        </node>
+      </children>
+    </node>
+  </region>
+</save>

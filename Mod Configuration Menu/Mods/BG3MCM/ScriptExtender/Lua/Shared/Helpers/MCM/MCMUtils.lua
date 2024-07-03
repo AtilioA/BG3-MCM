@@ -87,9 +87,9 @@ function MCMUtils.SortModsByName(mods)
         elseif b == "755a8a72-407f-4f0d-9a33-274ac0f0b53d" then
             return false
         else
-            local modA = Ext.Mod.GetMod(a)
-            local modB = Ext.Mod.GetMod(b)
-            return modA.Info.Name < modB.Info.Name
+            local modAName = MCMClientState:GetModName(a)
+            local modBName = MCMClientState:GetModName(b)
+            return modAName < modBName
         end
     end)
 
@@ -105,30 +105,6 @@ end
 function MCMUtils.ReplaceBrWithNewlines(description)
     return string.gsub(description, "<br>", "\n")
 end
-
--- function MCMUtils.UpdateLoca()
---     for _, file in ipairs({ "mcm.loca" }) do
---         local fileName = string.format("Localization/English/%s.xml", file)
---         local contents = Ext.IO.LoadFile(fileName, "data")
-
---         for line in string.gmatch(contents, "([^\r\n]+)\r*\n") do
---             local handle, value = string.match(line, '<content contentuid="(%w+)".->(.+)</content>')
---             if handle ~= nil and value ~= nil then
---                 value = value:gsub("&[lg]t;", {
---                     ['&lt;'] = "<",
---                     ['&gt;'] = ">"
---                 })
---                 Ext.Loca.UpdateTranslatedString(handle, value)
---             end
---         end
---     end
-
---     if debug then
---         VCDebug(0, "Finished loading loca files.")
---     end
--- end
-
--- MCMUtils.UpdateLoca()
 
 function MCMUtils:ConditionalWrapper(conditionFunc, func)
     return function(...)
@@ -208,5 +184,26 @@ function MCMUtils:SyncModVars(module)
     end
 end
 
+function MCMUtils.UpdateLoca()
+    for _, file in ipairs({ "BG3MCM_English.loca" }) do
+        local fileName = string.format("Localization/English/%s.xml", file)
+        local contents = Ext.IO.LoadFile(fileName, "data")
+
+        if not contents then
+            return
+        end
+
+        for line in string.gmatch(contents, "([^\r\n]+)\r*\n") do
+            local handle, value = string.match(line, '<content contentuid="(%w+)".->(.+)</content>')
+            if handle ~= nil and value ~= nil then
+                value = value:gsub("&[lg]t;", {
+                    ['&lt;'] = "<",
+                    ['&gt;'] = ">"
+                })
+                Ext.Loca.UpdateTranslatedString(handle, value)
+            end
+        end
+    end
+end
 
 return MCMUtils

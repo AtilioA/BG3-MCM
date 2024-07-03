@@ -15,7 +15,7 @@
     <content contentuid="h67357ed078184370901b1d572062b7ba26a5" version="1">Debug settings</content>
     <content contentuid="hffc964abc9a74a928cb047607a7aeb124594" version="1">Debug level</content>
     <content contentuid="h1143226dbdd44d4aab3ce3010ffc589a073a" version="1">Used mainly to determine which messages to print.&lt;br&gt;Useful for developers or general troubleshooting.</content>
-    <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Welcome to Baldur's Gate 3 Mod Configuration Menu!&lt;br&gt;If you don't see any mods here, you might need to load a save file first.&lt;br&gt;If you still don't see any mods, make sure you have mods that support MCM.&lt;br&gt;&lt;br&gt;By default, you can press Insert to toggle this menu while it is unfocused.</content>
+    <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Welcome to Baldur's Gate 3 Mod Configuration Menu!&lt;br&gt;If you don't see any mods here, you might need to load a save file first.&lt;br&gt;If you still don't see any mods, make sure you have mods that use MCM.&lt;br&gt;&lt;br&gt;By default, you can press Insert to toggle this menu while it is unfocused.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Dynamic opacity</content>
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window slightly transparent when not in use.</content>
     <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Apply IMGUI styling to try to replicate the game's color scheme.</content>
@@ -29,4 +29,11 @@
     <content contentuid="h75b86690333d4937a1737fe8daddde41ga10" version="1">Delete profile '[1]'</content>
     <content contentuid="hfdf59b69495c4aeca03f38977a00a69d431c" version="1">Cannot delete the default profile.</content>
     <content contentuid="ha94c42869802455dba878884efdbcbee3fea" version="1">If disabled, the window might require scrolling. You'll be able to resize the window manually by dragging the bottom-right corner.</content>
+    <content contentuid="h47d091e82e1a475b86bbe31555121a22eca7" version="1">Mods</content>
+    <content contentuid="hbdf03cb8dff04632b32aeafd69cbdc406ea3" version="1">Help</content>
+    <content contentuid="h81625d4fad964786b5ab2eb1901e4496d771" version="1">Help and Troubleshooting</content>
+    <content contentuid="ha303b737440345dd831870ef6b4ff7256601" version="1">About</content>
+    <content contentuid="h38c503feb8094c3aae3839b16ea3a74ff1ad" version="1">About MCM</content>
+    <content contentuid="h75ea4d095c1f46dda375abaf9d79cbb51cc7" version="1">Licenses</content>
+    <content contentuid="h45722336fcb04208a1b46356190835bb2d86" version="1">UI tips</content>
 </contentList>

@@ -13,7 +13,7 @@
     <content contentuid="h67357ed078184370901b1d572062b7ba26a5" version="1">Configurações de depuração</content>
     <content contentuid="hffc964abc9a74a928cb047607a7aeb124594" version="1">Nível de depuração</content>
     <content contentuid="h1143226dbdd44d4aab3ce3010ffc589a073a" version="1">Usado para determinar quais mensagens devem ser impressas.&lt;br&gt;Útil para desenvolvedores ou debuggar problemas em geral.</content>
-    <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Bem-vindo ao Menu de Configuração de Mods do Baldur's Gate 3!&lt;br&gt;Se você não vir nenhum mod aqui, talvez seja necessário carregar um save primeiro.&lt;br&gt;Se você ainda não vir nenhum mod, certifique-se de ter mods integrados/que suportem o MCM.&lt;br&gt;&lt;br&gt;Por padrão, você pode pressionar Insert para alternar esta janela quando ele não estiver em foco.</content>
+    <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Bem-vindo ao Menu de Configuração de Mods do Baldur's Gate 3!&lt;br&gt;Se você não vir nenhum mod aqui, talvez seja necessário carregar um save primeiro.&lt;br&gt;Se você ainda não vir nenhum mod, certifique-se de ter mods integrados/que usem o MCM.&lt;br&gt;&lt;br&gt;Por padrão, você pode pressionar Insert para alternar esta janela quando ele não estiver em foco.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Opacidade dinâmica</content>
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Torna a janela do MCM ligeiramente transparente enquanto você interagir com elementso do jogo.</content>
     <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Aplicar estilo ao IMGUI para tentar replicar o esquema de cores do jogo.</content>
@@ -27,4 +27,11 @@
     <content contentuid="h75b86690333d4937a1737fe8daddde41ga10" version="1">Excluir perfil '[1]'</content>
     <content contentuid="hfdf59b69495c4aeca03f38977a00a69d431c" version="1">Não é possível excluir o perfil padrão.</content>
     <content contentuid="ha94c42869802455dba878884efdbcbee3fea" version="1">Se desativado, a janela poderá exigir rolagem.&lt;br&gt;Você poderá redimensionar a janela manualmente arrastando o canto inferior direito.</content>
+    <content contentuid="h47d091e82e1a475b86bbe31555121a22eca7" version="1">Mods</content>
+    <content contentuid="hbdf03cb8dff04632b32aeafd69cbdc406ea3" version="1">Help</content>
+    <content contentuid="h81625d4fad964786b5ab2eb1901e4496d771" version="1">Help and Troubleshooting</content>
+    <content contentuid="h75ea4d095c1f46dda375abaf9d79cbb51cc7" version="1">Licenses</content>
+    <content contentuid="h38c503feb8094c3aae3839b16ea3a74ff1ad" version="1">About MCM</content>
+    <content contentuid="ha303b737440345dd831870ef6b4ff7256601" version="1">About</content>
+    <content contentuid="h45722336fcb04208a1b46356190835bb2d86" version="1">UI tips</content>
 </contentList>

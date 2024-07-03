@@ -39,7 +39,15 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
 
     mod.settingsValues[settingId] = value
 
-    -- Update the displayed value for the setting
+    -- Check if the setting is of type 'text'; no need to update the UI value for text settings
+    -- Also, doing so creates issues with the text input field
+    local blueprint = MCMAPI:GetModBlueprint(modGUID)
+    if not blueprint then return end
+
+    local setting = blueprint:GetAllSettings()[settingId]
+    if not setting or setting:GetType() == "text" then return end
+
+    -- Update the displayed value for non-text settings
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
 end
 
@@ -149,6 +157,7 @@ end
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
+        MCMWarn(0, "IMGUI is not available, skipping MCM window creation.")
         return false
     end
 
@@ -188,16 +197,8 @@ function IMGUILayer:CreateMainIMGUIWindow()
         )
     )
 
-    -- TODO: add stuff to the menu bar (it's not working)
-    -- local m = MCM_WINDOW:AddMainMenu()
+    MainMenu.CreateMainMenu()
 
-    -- local aboutPopup = MCM_WINDOW:AddPopup("Hello")
-    -- _D(aboutPopup)
-    -- local help = m:AddMenu("Help")
-    -- local helpAbout = help:AddItem("About")
-    -- helpAbout.OnClick = function()
-    -- aboutPopup:Open()
-    -- end
     return true
 end
 
@@ -298,7 +299,7 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function IMGUILayer:CreateMainTable()
-    FrameManager:AddMenuSection("MODS")
+    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
 
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modGUID in ipairs(sortedModKeys) do
@@ -324,7 +325,7 @@ end
 ---@return string
 function IMGUILayer:GetModName(modGUID)
     local modName = Ext.Mod.GetMod(modGUID).Info.Name
-    local blueprintCustomName = self.mods[modGUID].blueprint.ModName
+    local blueprintCustomName = self.mods[modGUID].blueprint:GetModName()
     if blueprintCustomName then
         modName = blueprintCustomName
     end

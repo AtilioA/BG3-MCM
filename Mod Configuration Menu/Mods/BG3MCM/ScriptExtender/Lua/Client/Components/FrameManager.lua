@@ -8,7 +8,7 @@ FrameManager = _Class:Create("FrameManager", nil, {
 
 function FrameManager:initFrameLayout(parent)
     local layoutTable = parent:AddTable("MenuAndContent", 2)
-    layoutTable:AddColumn("Menu", "WidthFixed", 450)
+    layoutTable:AddColumn("Menu", "WidthFixed")
     layoutTable:AddColumn("Frame", "WidthStretch")
     local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
@@ -24,6 +24,8 @@ end
 
 ---@param text string
 function FrameManager:AddMenuSection(text)
+    -- local modsListIcon = self.menuCell:AddImage("ico_identity_d", {40, 40})
+    -- modsListIcon.SameLine = true
     self.menuCell:AddSeparatorText(text)
 end
 
