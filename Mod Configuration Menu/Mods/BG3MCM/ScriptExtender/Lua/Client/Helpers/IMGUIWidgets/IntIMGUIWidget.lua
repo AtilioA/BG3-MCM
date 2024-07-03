@@ -6,7 +6,7 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
 
     -- Helper function to create increment/decrement buttons (int field)
     local function createIncrementButton(label, icon, increment, tooltip)
-        local button = group:AddImageButton(label, icon, { 42, 42 })
+        local button = group:AddImageButton(label, icon, { 40, 40 })
         button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
         button.OnClick = function()
             local newValue = instance.Widget.Value[1] + increment
@@ -22,7 +22,8 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
     end
 
     -- Decrement button
-    instance.PreviousButton = createIncrementButton(" - ", "ico_min_d", -1, "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
+    instance.PreviousButton = createIncrementButton(" - ", "ico_min_d", -1,
+        "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
 
     -- Actual int input widget
     instance.Widget = group:AddInputInt("", initialValue)
@@ -32,7 +33,8 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
     instance.Widget.SameLine = true
 
     -- Increment button
-    instance.NextButton = createIncrementButton(" + ", "ico_plus_d", 1, "Increase the '" .. setting:GetLocaName() .. "' value by 1")
+    instance.NextButton = createIncrementButton(" + ", "ico_plus_d", 1,
+        "Increase the '" .. setting:GetLocaName() .. "' value by 1")
     instance.NextButton.SameLine = true
 
     return instance

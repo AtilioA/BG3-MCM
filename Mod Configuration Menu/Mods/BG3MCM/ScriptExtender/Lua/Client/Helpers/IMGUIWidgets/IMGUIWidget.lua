@@ -62,7 +62,7 @@ end
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modGUID)
-    local resetButton = group:AddImageButton("[Reset]", "ico_reset_d", { 42, 42 })
+    local resetButton = group:AddImageButton("[Reset]", "ico_reset_d", { 40, 40 })
     resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting:GetId()
     resetButton:Tooltip():AddText("Reset this setting to its default")
     resetButton.OnClick = function()
