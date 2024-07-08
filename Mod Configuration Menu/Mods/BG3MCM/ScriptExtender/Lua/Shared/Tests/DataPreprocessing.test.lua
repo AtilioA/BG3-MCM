@@ -5,6 +5,10 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintShouldntHaveSections",
     "TestBlueprintShouldntHaveTabsAndSettings",
     "TestBlueprintShouldHaveSettingsAtSomeLevel",
+    "TabsCanHaveEitherTabIdOrId",
+    "TabsCanHaveEitherTabNameOrName",
+    "SectionsCanHaveEitherSectionIdOrId",
+    "SettingsCanHaveEitherSectionNameOrName",
 
     --- Blueprint integrity validation
     -- IDs
@@ -864,4 +868,92 @@ function TestBlueprintDefaultForDragShouldBeBetweenMinAndMax()
     local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TabsCanHaveEitherTabIdOrId()
+    local validTabData1 = {
+        TabId = "tab-1",
+        TabName = "Tab 1"
+    }
+    local validTabData2 = {
+        Id = "tab-2",
+        TabName = "Tab 2"
+    }
+    local invalidTabData = {
+        TabName = "Tab 3"
+    }
+
+    local validTab1 = DataPreprocessing:RecursivePreprocess(validTabData1, TestConstants.ModuleUUIDs[1])
+    local validTab2 = DataPreprocessing:RecursivePreprocess(validTabData2, TestConstants.ModuleUUIDs[1])
+    local invalidTab = DataPreprocessing:RecursivePreprocess(invalidTabData, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNotNil(validTab1)
+    TestSuite.AssertNotNil(validTab2)
+    TestSuite.AssertNil(invalidTab)
+end
+
+function TabsCanHaveEitherTabNameOrName()
+    local validTabData1 = {
+        TabId = "tab-1",
+        TabName = "Tab 1"
+    }
+    local validTabData2 = {
+        TabId = "tab-2",
+        Name = "Tab 2"
+    }
+    local invalidTabData = {
+        TabId = "tab-3"
+    }
+
+    local validTab1 = DataPreprocessing:RecursivePreprocess(validTabData1, TestConstants.ModuleUUIDs[1])
+    local validTab2 = DataPreprocessing:RecursivePreprocess(validTabData2, TestConstants.ModuleUUIDs[1])
+    local invalidTab = DataPreprocessing:RecursivePreprocess(invalidTabData, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNotNil(validTab1)
+    TestSuite.AssertNotNil(validTab2)
+    TestSuite.AssertNil(invalidTab)
+end
+
+function SectionsCanHaveEitherSectionIdOrId()
+    local validSectionData1 = {
+        SectionId = "section-1",
+        SectionName = "Section 1"
+    }
+    local validSectionData2 = {
+        Id = "section-2",
+        SectionName = "Section 2"
+    }
+    local invalidSectionData = {
+        SectionName = "Section 3"
+    }
+
+    local validSection1 = DataPreprocessing:RecursivePreprocess(validSectionData1, TestConstants.ModuleUUIDs[1])
+    local validSection2 = DataPreprocessing:RecursivePreprocess(validSectionData2, TestConstants.ModuleUUIDs[1])
+    local invalidSection = DataPreprocessing:RecursivePreprocess(invalidSectionData, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNotNil(validSection1)
+    TestSuite.AssertNotNil(validSection2)
+    TestSuite.AssertNil(invalidSection)
+end
+
+function SectionsCanHaveEitherSectionNameOrName()
+    local validSectionData1 = {
+        SectionId = "section-1",
+        SectionName = "Section 1"
+    }
+    local validSectionData2 = {
+        Id = "section-2",
+        Name = "Section 2"
+    }
+    local invalidSectionData = {
+        SectionId = "section-3"
+    }
+
+    local validSection1 = DataPreprocessing:RecursivePreprocess(validSectionData1, TestConstants.ModuleUUIDs[1])
+    local validSection2 = DataPreprocessing:RecursivePreprocess(validSectionData2, TestConstants.ModuleUUIDs[1])
+    local invalidSection = DataPreprocessing:RecursivePreprocess(invalidSectionData, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNotNil(validSection1)
+    TestSuite.AssertNotNil(validSection2)
+    TestSuite.AssertNil(invalidSection)
 end
