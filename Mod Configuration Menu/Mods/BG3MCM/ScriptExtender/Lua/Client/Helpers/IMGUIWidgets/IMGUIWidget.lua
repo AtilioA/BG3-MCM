@@ -111,6 +111,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     end
 
     local addedDescription = group:AddText(descriptionText)
+    addedDescription.IDContext = group.IDContext .. "_Description_" .. setting:GetId()
     addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
     group:AddDummy(0, 4)
 end
