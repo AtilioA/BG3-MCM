@@ -96,8 +96,8 @@ function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invali
                 "Invalid value for setting '" ..
                 settingID ..
                 "' (value: " ..
-                tostring(config[settingID]) .. ")," .. " resetting it to default value from the blueprint (" ..
-                tostring(defaultValue) .. ").")
+                Ext.DumpExport(config[settingID]) .. ")," .. " resetting it to default value from the blueprint (" ..
+                Ext.DumpExport(defaultValue) .. ").")
             config[settingID] = defaultValue
         end
     end
