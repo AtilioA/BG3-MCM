@@ -1,5 +1,6 @@
 ---@class BlueprintSection
 ---@field private SectionName string
+---@field private SectionId string
 ---@field private SectionDescription string
 ---@field private VisibleIf string
 ---@field private Options table
@@ -7,6 +8,7 @@
 ---@field private Handles? table
 BlueprintSection = _Class:Create("BlueprintSection", nil, {
     SectionName = "",
+    SectionId = "",
     SectionDescription = "",
     VisibleIf = "",
     Options = {},
@@ -45,7 +47,7 @@ function BlueprintSection:New(options)
     return self
 end
 
-function BlueprintSection:GetSectionLocaName()
+function BlueprintSection:GetLocaName()
     local sectionName = self.SectionName
     if self:GetHandles() then
         if self:GetHandles().NameHandle then
@@ -59,7 +61,7 @@ function BlueprintSection:GetSectionLocaName()
     return sectionName
 end
 
-function BlueprintSection:GetSectionId()
+function BlueprintSection:GetId()
     return self.SectionId
 end
 

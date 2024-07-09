@@ -372,7 +372,7 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modGUID)
-    local tabName = tabInfo:GetTabLocaName()
+    local tabName = tabInfo:GetLocaName()
 
     local tab = modTabs:AddTabItem(tabName)
     tab.IDContext = modGUID .. "_" .. tabInfo:GetTabName()
@@ -430,8 +430,8 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         modGroup:AddDummy(0, 5)
     end
 
-    local sectionName = section:GetSectionLocaName()
-    local sectionId = section:GetSectionId()
+    local sectionName = section:GetLocaName()
+    local sectionId = section:GetId()
     local sectionOptions = section:GetOptions()
     local sectionGroup = modGroup:AddGroup(sectionId)
 

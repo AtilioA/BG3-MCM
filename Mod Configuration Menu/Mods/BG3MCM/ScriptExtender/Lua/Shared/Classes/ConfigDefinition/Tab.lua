@@ -68,7 +68,7 @@ end
 
 --- Get the localized TabName of the BlueprintTab.
 --- @return string
-function BlueprintTab:GetTabLocaName()
+function BlueprintTab:GetLocaName()
     local tabName = self.TabName
     if self.Handles then
         if self.Handles.NameHandle then
