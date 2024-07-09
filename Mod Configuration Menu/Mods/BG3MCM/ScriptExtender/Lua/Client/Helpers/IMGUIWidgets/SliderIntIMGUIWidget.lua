@@ -8,6 +8,13 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     -- Helper function to create increment/decrement buttons
     local function createIncrementButton(label, icon, increment, tooltip)
         local button = group:AddImageButton(label, icon, { 40, 40 })
+
+        MCMDebug(1, Ext.DumpExport(button))
+        if not button.Image or button.Image.Icon == "" then
+            button:Destroy()
+            button = group:AddButton(label)
+        end
+
         button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
         button.OnClick = function()
             local newValue = math.max(setting.Options.Min,
