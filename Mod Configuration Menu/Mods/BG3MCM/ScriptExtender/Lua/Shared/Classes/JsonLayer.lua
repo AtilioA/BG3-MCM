@@ -43,7 +43,7 @@ JsonLayer.MCMBlueprintPathPattern = string.gsub("Mods/%s/MCM_blueprint.json", "'
 ---@param filePath string The file path of the JSON file to load.
 ---@return table|nil data The parsed JSON data, or nil if the file could not be loaded or parsed.
 function JsonLayer:LoadJSONFile(filePath)
-    local fileContent = Ext.IO.LoadFile(filePath, "data")
+    local fileContent = Ext.IO.LoadFile(filePath)
     if not fileContent or fileContent == "" then
         MCMDebug(2, "Config file not found: " .. filePath)
         return nil
@@ -123,9 +123,9 @@ function JsonLayer:LoadBlueprintForMod(modData)
 
     checkIncorrectBlueprintPath(modData)
 
-    local blueprintFilepath = self.MCMBlueprintPathPattern:format(modData.Info.Directory)
     -- REVIEW: use LoadJSONFile instead, but it's not working for some reason
-    local config = self:LoadJSONFile(blueprintFilepath)
+    local blueprintFilepath = self.MCMBlueprintPathPattern:format(modData.Info.Directory)
+    local config = Ext.IO.LoadFile(blueprintFilepath, "data")
     if config == nil or config == "" then
         return self:FileNotFoundError("Config file not found for mod: " .. modData.Info.Name)
     end
