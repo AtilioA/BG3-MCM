@@ -319,7 +319,7 @@ end
 ---@param err table The error that occurred when loading the blueprint (thrown by JsonLayer)
 function ModConfig:HandleLoadBlueprintError(modData, err)
     if not err then
-        MCMWarn(0, "An unexpected error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
+        MCMWarn(0, "An unexpected blueprint error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
             Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
         return
     end
@@ -330,7 +330,7 @@ function ModConfig:HandleLoadBlueprintError(modData, err)
         MCMWarn(3, err.message)
     else
         -- Handle other unexpected errors (which ones lol)
-        MCMWarn(0, "An unexpected error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
+        MCMWarn(0, "An unexpected blueprint error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
             Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     end
 end

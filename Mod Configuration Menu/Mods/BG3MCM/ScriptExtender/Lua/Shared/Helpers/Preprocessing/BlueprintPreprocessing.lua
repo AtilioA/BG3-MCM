@@ -4,6 +4,72 @@ BlueprintPreprocessing = _Class:Create("HelperBlueprintPreprocessing", nil)
 BlueprintPreprocessing.currentModGuid = nil
 
 
+--- TODO: clean this up, but currently better than nothing
+--- Checks if all elements in the blueprint have valid IDs
+---@param blueprint Blueprint The blueprint data
+---@return boolean True if all elements have valid IDs, false otherwise
+function BlueprintPreprocessing:CheckValidIDs(blueprint)
+    local function checkValidID(element)
+        if not element.GetId then
+            return true
+        end
+
+        if not element:GetId() or element:GetId() == "" then
+            return false
+        end
+        return true
+    end
+
+    local function traverseBlueprint(element)
+        local isValid = true
+
+        if not checkValidID(element) then
+            isValid = false
+        end
+
+        -- Check tabs
+        if element.GetTabs then
+            local tabs = element:GetTabs()
+            if tabs then
+                for _, tab in ipairs(tabs) do
+                    if not traverseBlueprint(tab) then
+                        isValid = false
+                    end
+                end
+            end
+        end
+
+        if element.GetSections then
+            local sections = element:GetSections()
+            if sections then
+                for _, section in ipairs(sections) do
+                    if not traverseBlueprint(section) then
+                        isValid = false
+                    end
+                end
+            end
+        end
+
+        if element.GetSettings then
+            local settings = element:GetSettings()
+            if settings then
+                for _, setting in ipairs(settings) do
+                    if not checkValidID(setting) then
+                        isValid = false
+                    end
+                end
+            end
+        end
+
+        if not isValid then
+            MCMWarn(0, "Missing ID in element: " .. (element and element.GetLocaName and element:GetLocaName() or "Unknown"))
+        end
+        return isValid
+    end
+
+    return traverseBlueprint(blueprint)
+end
+
 --- Validate the structure of the blueprint data
 ---@param blueprint table The blueprint data to validate
 ---@return boolean True if the blueprint data is correct, false otherwise
@@ -32,10 +98,19 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
     end
 
     --- Check if blueprint does NOT have sections directly at the top level
+    --- TODO: remove this stupid design decision, sections should be allowed at the top level. This was not possible before the 1.7 layout though.
     local hasSections = blueprint.Sections and #blueprint.Sections > 0
     if hasSections then
         MCMWarn(0,
             "Sections found directly in blueprint for mod '" ..
+            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+            "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+        return true
+    end
+
+    if not self:CheckValidIDs(blueprint) then
+        MCMWarn(0,
+            "Missing IDs in blueprint for mod '" ..
             Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
             "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
         return true
@@ -290,7 +365,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
             return false
         end
-    -- TODO: add list type
+        -- TODO: add list type
     elseif setting.Type == "checkbox" then
         if type(setting.Default) ~= "boolean" then
             MCMWarn(0,
@@ -474,7 +549,7 @@ function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
         MCMWarn(0,
             "Blueprint for mod '" ..
             Ext.Mod.GetMod(modGUID).Info.Name ..
-            "' has incorrect structure anda can't be used. Please contact " ..
+            "' has incorrect structure and can't be used. Please contact " ..
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return
     end
