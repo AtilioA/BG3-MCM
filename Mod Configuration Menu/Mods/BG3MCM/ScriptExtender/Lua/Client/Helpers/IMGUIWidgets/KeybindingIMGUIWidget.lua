@@ -38,21 +38,27 @@ function KeybindingIMGUIWidget:new(group, setting, initialValue, modGUID)
 
     -- Update the keybinding value when the user changes modifier or scan code
     instance.Widget.ModifierWidget.OnChange = function(value)
-        self:UpdateKeybindingValue(setting,
+        self:UpdateKeybindingValue(
+            setting,
             {
                 ScanCode = instance.Widget.ScanCodeWidget.Options[instance.Widget.ScanCodeWidget.SelectedIndex + 1],
                 Modifier = value
                     .Options[value.SelectedIndex + 1] or "NONE"
-            })
+            },
+            modGUID
+        )
     end
 
     instance.Widget.ScanCodeWidget.OnChange = function(value)
-        self:UpdateKeybindingValue(setting,
+        self:UpdateKeybindingValue(
+            setting,
             {
                 ScanCode = value.Options[value.SelectedIndex + 1],
                 Modifier = instance.Widget.ModifierWidget.Options
                     [instance.Widget.ModifierWidget.SelectedIndex + 1] or "NONE"
-            })
+            },
+            modGUID
+        )
     end
 
     return instance
@@ -74,6 +80,6 @@ function KeybindingIMGUIWidget:UpdateCurrentValue(value)
     end
 end
 
-function KeybindingIMGUIWidget:UpdateKeybindingValue(setting, newValue)
-    IMGUIAPI:SetSettingValue(setting.Id, newValue, ModuleUUID)
+function KeybindingIMGUIWidget:UpdateKeybindingValue(setting, newValue, modGUID)
+    IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
 end
