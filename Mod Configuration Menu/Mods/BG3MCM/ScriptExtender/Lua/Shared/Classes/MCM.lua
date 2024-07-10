@@ -135,7 +135,8 @@ function MCM:GetAllModSettings(modGUID)
         MCMWarn(0,
             "Mod " ..
             modGUID ..
-            " was not found by MCM. Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            " was not found by MCM.\nDouble check your blueprint filename, directory, and whether it's well-defined. Please contact " ..
+            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
         return {}
     end
 
