@@ -54,7 +54,7 @@ function BlueprintSetting:New(options)
     end
 
     self.VisibleIf = options.VisibleIf or ""
-    
+
     self.Default = options.Default
 
     if options.Description ~= nil then
@@ -80,15 +80,18 @@ function BlueprintSetting:GetName()
 end
 
 function BlueprintSetting:GetLocaName()
-    local name = self.Name
-    if self.Handles.NameHandle then
+    if not self.Name then
+        return self:GetId()
+    end
+
+    if self.Handles and self.Handles.NameHandle then
         local translatedName = Ext.Loca.GetTranslatedString(self.Handles.NameHandle)
-        if translatedName ~= nil and translatedName ~= "" then
-            name = translatedName
+        if translatedName and translatedName ~= "" then
+            return translatedName
         end
     end
 
-    return name
+    return self.Name
 end
 
 function BlueprintSetting:GetId()
