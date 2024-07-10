@@ -543,6 +543,11 @@
                     "minLength": 1,
                     "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
                 },
+                "SectionDescription": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The description of the section that will be displayed as a description in the MCM menu. Will be localized if a handle is provided."
+                },
                 "Tabs": {
                     "type": "array",
                     "minItems": 1,
@@ -624,6 +629,11 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "The handle to be used to localize the name of the section."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the section."
                 }
             },
             "required": [
