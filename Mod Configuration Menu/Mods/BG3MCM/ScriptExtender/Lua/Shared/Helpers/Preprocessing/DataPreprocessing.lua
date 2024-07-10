@@ -133,6 +133,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
         processedData = BlueprintSection:New({
             SectionId = elementData.SectionId or elementData.Id,
             SectionName = elementData.SectionName or elementData.Name,
+            SectionDescription = elementData.SectionDescription or elementData.Description,
             VisibleIf = elementData.VisibleIf,
             -- TODO: validate Options input
             Options = elementData.Options or {},

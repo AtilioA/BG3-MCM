@@ -65,7 +65,7 @@ function BlueprintSection:GetId()
     return self.SectionId
 end
 
-function BlueprintSection:GetSectionDescription()
+function BlueprintSection:GetDescription()
     return self.SectionDescription
 end
 

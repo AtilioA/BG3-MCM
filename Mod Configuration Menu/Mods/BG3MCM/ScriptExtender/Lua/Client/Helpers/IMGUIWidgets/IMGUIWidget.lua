@@ -68,7 +68,7 @@ function IMGUIWidget:AddResetButton(group, setting, modGUID)
         resetButton:Destroy()
         resetButton = group:AddButton("[Reset]")
     end
-    
+
     resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting:GetId()
     resetButton:Tooltip():AddText("Reset this setting to its default")
     resetButton.OnClick = function()
@@ -119,5 +119,5 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     local addedDescription = group:AddText(descriptionText)
     addedDescription.IDContext = group.IDContext .. "_Description_" .. setting:GetId()
     addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
-    group:AddDummy(0, 4)
+    group:AddDummy(0, 3)
 end
