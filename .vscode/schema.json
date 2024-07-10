@@ -71,6 +71,7 @@
     "definitions": {
         "Tab": {
             "type": "object",
+            "additionalProperties": false,
             "description": "A single tab in the MCM menu.",
             "properties": {
                 "TabName": {
@@ -123,7 +124,6 @@
                     "description": "Handles to localize the tab's strings."
                 }
             },
-            "additionalProperties": false,
             "anyOf": [
                 {
                     "required": [
@@ -306,7 +306,8 @@
                             "description": "Whether the text input should be multiline, used for text type."
                         }
                     },
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). Will be localized if handles are provided."
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). Will be localized if handles are provided.",
+                    "additionalProperties": false
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -575,6 +576,7 @@
                 },
                 "Options": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "IsCollapsible": {
                             "type": "boolean",
@@ -676,6 +678,7 @@
         },
         "VisibilityCondition": {
             "type": "object",
+            "additionalProperties": false,
             "minItems": 1,
             "uniqueItems": true,
             "properties": {
@@ -702,6 +705,7 @@
         },
         "Condition": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "SettingId": {
                     "type": "string",
