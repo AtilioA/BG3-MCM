@@ -27,6 +27,12 @@ function ListIMGUIWidget:RenderList()
         local buttonCell = tableRow:AddCell()
         textCell:AddText(value)
         local removeButton = buttonCell:AddImageButton("[X]", "popin_closeIco_d", { 40, 40 })
+
+        if not removeButton.Image or removeButton.Image.Icon == "" then
+            removeButton:Destroy()
+            removeButton = buttonCell:AddButton("[X]")
+        end
+
         local tooltip = removeButton:Tooltip()
         tooltip:AddText("Remove '" .. value .. "' from the list")
         removeButton.OnClick = function()

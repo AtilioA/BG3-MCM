@@ -96,8 +96,8 @@ function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invali
                 "Invalid value for setting '" ..
                 settingID ..
                 "' (value: " ..
-                tostring(config[settingID]) .. ")," .. " resetting it to default value from the blueprint (" ..
-                tostring(defaultValue) .. ").")
+                Ext.DumpExport(config[settingID]) .. ")," .. " resetting it to default value from the blueprint (" ..
+                Ext.DumpExport(defaultValue) .. ").")
             config[settingID] = defaultValue
         end
     end
@@ -112,8 +112,8 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
 
     if elementData.TabName then
         processedData = BlueprintTab:New({
-            TabId = elementData.TabId,
-            TabName = elementData.TabName,
+            TabId = elementData.TabId or elementData.Id,
+            TabName = elementData.TabName or elementData.Name,
             VisibleIf = elementData.VisibleIf,
             Tabs = elementData.Tabs or {}, -- Tabs might also have nested Tabs
             Sections = elementData.Sections or {},
@@ -131,8 +131,9 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
 
     if elementData.SectionName then
         processedData = BlueprintSection:New({
-            SectionId = elementData.SectionId,
-            SectionName = elementData.SectionName,
+            SectionId = elementData.SectionId or elementData.Id,
+            SectionName = elementData.SectionName or elementData.Name,
+            SectionDescription = elementData.SectionDescription or elementData.Description,
             VisibleIf = elementData.VisibleIf,
             -- TODO: validate Options input
             Options = elementData.Options or {},

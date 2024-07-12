@@ -7,6 +7,12 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
     -- Helper function to create increment/decrement buttons (int field)
     local function createIncrementButton(label, icon, increment, tooltip)
         local button = group:AddImageButton(label, icon, { 40, 40 })
+
+        if not button.Image or button.Image.Icon == "" then
+            button:Destroy()
+            button = group:AddButton(label)
+        end
+        
         button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
         button.OnClick = function()
             local newValue = instance.Widget.Value[1] + increment

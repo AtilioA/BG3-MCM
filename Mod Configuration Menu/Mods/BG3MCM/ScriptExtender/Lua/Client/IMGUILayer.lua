@@ -372,7 +372,7 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modGUID)
-    local tabName = tabInfo:GetTabLocaName()
+    local tabName = tabInfo:GetLocaName()
 
     local tab = modTabs:AddTabItem(tabName)
     tab.IDContext = modGUID .. "_" .. tabInfo:GetTabName()
@@ -430,13 +430,15 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         modGroup:AddDummy(0, 5)
     end
 
-    local sectionName = section:GetSectionLocaName()
-    local sectionId = section:GetSectionId()
+    local sectionName = section:GetLocaName()
+    local sectionId = section:GetId()
+    local sectionDescription = section:GetDescription()
     local sectionOptions = section:GetOptions()
     local sectionGroup = modGroup:AddGroup(sectionId)
 
     self:manageVisibleIf(modGUID, section, sectionGroup)
 
+    -- Add main section separator, or collapsible header if the section is collapsible
     local sectionContentElement = sectionGroup
     if sectionOptions.IsCollapsible then
         local sectionCollapsingHeader = sectionGroup:AddCollapsingHeader(sectionName)
@@ -446,6 +448,21 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         sectionHeader.IDContext = modGUID .. "_" .. sectionName
         sectionHeader:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
         sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
+    end
+
+    -- Add section description
+    if sectionDescription and sectionDescription ~= "" then
+        -- TODO: add abstraction to get any localizable text
+        local sectionDescriptionText = sectionDescription
+        local translatedDescription = Ext.Loca.GetTranslatedString(section:GetHandles().DescriptionHandle)
+        if translatedDescription ~= nil and translatedDescription ~= "" then
+            sectionDescriptionText = MCMUtils.ReplaceBrWithNewlines(translatedDescription)
+        end
+
+        local addedDescription = sectionContentElement:AddText(sectionDescriptionText)
+        addedDescription.IDContext = sectionGroup.IDContext .. "_Description_" .. sectionId
+        addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
+        sectionContentElement:AddDummy(0, 2)
     end
 
     -- Iterate over each setting in the section to create a widget for each

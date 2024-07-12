@@ -68,18 +68,15 @@ end
 
 --- Get the localized TabName of the BlueprintTab.
 --- @return string
-function BlueprintTab:GetTabLocaName()
-    local tabName = self.TabName
-    if self.Handles then
-        if self.Handles.NameHandle then
-            local translatedName = Ext.Loca.GetTranslatedString(self.Handles.NameHandle)
-            if translatedName ~= nil and translatedName ~= "" then
-                tabName = translatedName
-            end
+function BlueprintTab:GetLocaName()
+    if self.Handles and self.Handles.NameHandle then
+        local translatedName = Ext.Loca.GetTranslatedString(self.Handles.NameHandle)
+        if translatedName ~= nil and translatedName ~= "" then
+            return translatedName
         end
     end
-
-    return tabName
+    
+    return self.TabName
 end
 
 --- Get the TabDescription of the BlueprintTab.

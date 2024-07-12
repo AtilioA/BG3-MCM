@@ -71,6 +71,7 @@
     "definitions": {
         "Tab": {
             "type": "object",
+            "additionalProperties": false,
             "description": "A single tab in the MCM menu.",
             "properties": {
                 "TabName": {
@@ -123,7 +124,6 @@
                     "description": "Handles to localize the tab's strings."
                 }
             },
-            "additionalProperties": false,
             "anyOf": [
                 {
                     "required": [
@@ -306,7 +306,8 @@
                             "description": "Whether the text input should be multiline, used for text type."
                         }
                     },
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). Will be localized if handles are provided."
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). Will be localized if handles are provided.",
+                    "additionalProperties": false
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -543,6 +544,11 @@
                     "minLength": 1,
                     "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
                 },
+                "SectionDescription": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The description of the section that will be displayed as a description in the MCM menu. Will be localized if a handle is provided."
+                },
                 "Tabs": {
                     "type": "array",
                     "minItems": 1,
@@ -570,6 +576,7 @@
                 },
                 "Options": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "IsCollapsible": {
                             "type": "boolean",
@@ -624,6 +631,11 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "The handle to be used to localize the name of the section."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the section."
                 }
             },
             "required": [
@@ -666,6 +678,7 @@
         },
         "VisibilityCondition": {
             "type": "object",
+            "additionalProperties": false,
             "minItems": 1,
             "uniqueItems": true,
             "properties": {
@@ -692,6 +705,7 @@
         },
         "Condition": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "SettingId": {
                     "type": "string",

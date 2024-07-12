@@ -37,7 +37,7 @@ JsonLayer = _Class:Create("JsonLayer", nil, {
 })
 
 -- Pattern for the potential JSON blueprint file paths to be loaded
-JsonLayer.ConfigFilePathPatternJSON = string.gsub("Mods/%s/MCM_blueprint.json", "'", "\'")
+JsonLayer.MCMBlueprintPathPattern = string.gsub("Mods/%s/MCM_blueprint.json", "'", "\'")
 
 ---Loads a JSON file from the specified file path.
 ---@param filePath string The file path of the JSON file to load.
@@ -105,8 +105,26 @@ end
 ---@param modData table
 ---@return table|nil data The blueprint data, or an error message if the blueprint could not be loaded
 function JsonLayer:LoadBlueprintForMod(modData)
-    local blueprintFilepath = self.ConfigFilePathPatternJSON:format(modData.Info.Directory)
-    -- REFACTOR: use LoadJSONFile instead, but it's not working for some reason
+    if modData == nil or modData.Info == nil or modData.Info.Directory == nil then
+        return self:FileNotFoundError("Invalid mod meta.lsx file data. Cannot load into MCM.")
+    end
+
+    local function checkIncorrectBlueprintPath(modData)
+        local SEMCMBlueprintPathPattern = string.gsub("Mods/%s/ScriptExtender/MCM_blueprint.json", "'", "\'")
+        local incorrectBlueprintFilepath = SEMCMBlueprintPathPattern:format(modData.Info.Directory)
+        local incorrectConfig = self:LoadJSONFile(incorrectBlueprintFilepath)
+        if incorrectConfig ~= nil then
+            MCMWarn(0,
+                string.format(
+                "MCM_blueprint.json found in incorrect location for mod %s. Please move it alongside the mod's meta.lsx file.",
+                    modData.Info.Name))
+        end
+    end
+
+    checkIncorrectBlueprintPath(modData)
+
+    -- REVIEW: use LoadJSONFile instead, but it's not working for some reason
+    local blueprintFilepath = self.MCMBlueprintPathPattern:format(modData.Info.Directory)
     local config = Ext.IO.LoadFile(blueprintFilepath, "data")
     if config == nil or config == "" then
         return self:FileNotFoundError("Config file not found for mod: " .. modData.Info.Name)
