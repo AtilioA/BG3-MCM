@@ -668,7 +668,7 @@
                         "type": "string",
                         "minLength": 1
                     },
-                    "description": "Handles that can be used to localize choices for the setting. CURRENTLY UNUSED."
+                    "description": "Handles that can be used to localize choices for the setting."
                 }
             },
             "required": [
