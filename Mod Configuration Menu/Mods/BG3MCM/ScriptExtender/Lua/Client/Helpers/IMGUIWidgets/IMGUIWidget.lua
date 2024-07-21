@@ -103,21 +103,30 @@ end
 ---@return nil
 function IMGUIWidget:SetupDescription(widget, group, setting)
     if not setting:GetDescription() or setting:GetDescription() == "" then
+        MCMWarn(0, "No description found for setting: " .. setting:GetId())
         return
     end
 
     if not widget then
+        MCMWarn(0, "Widget is nil for setting: " .. setting:GetId())
         return
     end
 
-    local descriptionText = setting:GetDescription()
-    local translatedDescription = Ext.Loca.GetTranslatedString(setting:GetHandles().DescriptionHandle)
-    if translatedDescription ~= nil and translatedDescription ~= "" then
-        descriptionText = MCMUtils.ReplaceBrWithNewlines(translatedDescription)
+    local descriptionText = setting:GetDescription() or ""
+
+    local descriptionHandle = setting:GetHandles() and setting:GetHandles().DescriptionHandle
+    if descriptionHandle and descriptionHandle ~= "" then
+        local translatedDescription = Ext.Loca.GetTranslatedString(descriptionHandle)
+        if translatedDescription and translatedDescription ~= "" then
+            descriptionText = MCMUtils.ReplaceBrWithNewlines(translatedDescription)
+        end
     end
 
     local addedDescription = group:AddText(descriptionText)
+
     addedDescription.IDContext = group.IDContext .. "_Description_" .. setting:GetId()
+
     addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
+
     group:AddDummy(0, 3)
 end
