@@ -18,7 +18,7 @@ end
 
 local function handleButtonPress(button)
     local pressCount = 0
-    local pressLimit = 3
+    local pressLimit = 4
     local timeWindow = 5000
     local revertTime = 15000
     local isMessageUpdated = false
@@ -66,15 +66,16 @@ end
 
 Ext.Events.KeyInput:Subscribe(handleKeyInput)
 
-Ext.Events.ResetCompleted:Subscribe(function()
-    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
-        message = "Client reset has completed. Requesting MCM settings from server."
-    }))
-    if not MCM_WINDOW then
-        return
-    end
-    MCM_WINDOW.Visible = true
-end)
+-- Ext.Events.ResetCompleted:Subscribe(function()
+-- TODO: use MCMProxy here
+--     Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
+--         message = "Client reset has completed. Requesting MCM settings from server."
+--     }))
+--     if not MCM_WINDOW then
+--         return
+--     end
+--     MCM_WINDOW.Visible = true
+-- end)
 
 --- SECTION: Net listeners
 
