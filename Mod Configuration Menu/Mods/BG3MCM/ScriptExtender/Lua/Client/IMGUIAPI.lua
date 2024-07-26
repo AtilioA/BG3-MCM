@@ -1,17 +1,33 @@
 ---@class IMGUIAPI: MetaClass
 IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 
+IMGUIAPI.insertedTabs = {}
+
 --- Insert a new tab for a mod in the MCM
 ---@param modGUID string The UUID of the mod
 ---@param tabName string The name of the tab to be inserted
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
+---REVIEW: review this when refactoring server/client code, and potentially make this smarter by postponing the insertion until the client has finished initializing
 function IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
+    if not self.insertedTabs[modGUID] then
+        self.insertedTabs[modGUID] = {}
+    end
+
+    -- Check if the callback is already registered for this mod
+    for _, existingCallback in ipairs(self.insertedTabs[modGUID]) do
+        if existingCallback == tabCallback then
+            return
+        end
+    end
+
+    -- Register the new callback
+    table.insert(self.insertedTabs[modGUID], tabCallback)
+
     if not FrameManager:GetGroup(modGUID) then
         Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
             FrameManager:InsertModTab(modGUID, tabName, tabCallback)
         end)
-        return
     else
         FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     end
