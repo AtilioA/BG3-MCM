@@ -101,23 +101,6 @@ function MCM:DeleteProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     local success = ModConfig.profileManager:DeleteProfile(profileName)
 
-    if success then
-        if Ext.IsServer() then
-            Ext.Net.BroadcastMessage(Channels.MCM_SERVER_DELETED_PROFILE, Ext.Json.Stringify({
-                profileName = profileName,
-                newSettings = ModConfig.mods
-            }))
-
-            -- Notify other servers about the profile deletion
-            Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-                channel = Channels.MCM_SERVER_DELETED_PROFILE,
-                payload = {
-                    profileName = profileName
-                }
-            }))
-        end
-    end
-
     return success
 end
 
@@ -260,16 +243,16 @@ function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 
     -- This is kind of a hacky way to emit events to other servers
-    Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
-        Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
+    -- Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
+    --     Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
 
     -- if not clientRequest then
     -- Notify the client that the setting has been updated
-    Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-        modGUID = modGUID,
-        settingId = settingId,
-        value = value
-    }))
+    -- Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+    --     modGUID = modGUID,
+    --     settingId = settingId,
+    --     value = value
+    -- }))
     -- end
 end
 
@@ -288,11 +271,11 @@ function MCM:ResetSettingValue(settingId, modGUID, clientRequest)
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
-        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_RESET, Ext.Json.Stringify({
-            modGUID = modGUID,
-            settingId = settingId,
-            defaultValue = defaultValue
-        }))
+        -- Ext.Net.BroadcastMessage(Channels.MCM_SETTING_RESET, Ext.Json.Stringify({
+        --     modGUID = modGUID,
+        --     settingId = settingId,
+        --     defaultValue = defaultValue
+        -- }))
     end
 end
 
