@@ -45,14 +45,14 @@ function IMGUIAPI:ResetSettingValue(settingId, modGUID)
     MCMProxy:ResetSettingValue(settingId, modGUID)
 end
 
---- Send a message to the server to set a profile
----@param profileName string The name of the profile to set
----@return nil
-function IMGUIAPI:SetProfile(profileName)
-    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
-        profileName = profileName
-    }))
-end
+-- --- Send a message to the server to set a profile
+-- ---@param profileName string The name of the profile to set
+-- ---@return nil
+-- function IMGUIAPI:SetProfile(profileName)
+--     Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
+--         profileName = profileName
+--     }))
+-- end
 
 --- TODO: move somewhere else probably
 ---@private lmao
