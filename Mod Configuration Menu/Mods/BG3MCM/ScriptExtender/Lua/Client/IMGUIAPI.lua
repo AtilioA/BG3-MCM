@@ -24,11 +24,9 @@ end
 ---@param setUIValue? function A callback function to be called after the setting value is updated
 ---@return nil
 function IMGUIAPI:SetSettingValue(settingId, value, modGUID, setUIValue)
-    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
-        modGUID = modGUID,
-        settingId = settingId,
-        value = value
-    }))
+    MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
+
+    -- FIXME: this is leaking listeners
     Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
         local data = Ext.Json.Parse(payload)
         if data.modGUID == modGUID and data.settingId == settingId then
@@ -44,10 +42,7 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return nil
 function IMGUIAPI:ResetSettingValue(settingId, modGUID)
-    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, Ext.Json.Stringify({
-        modGUID = modGUID,
-        settingId = settingId
-    }))
+    MCMProxy:ResetSettingValue(settingId, modGUID)
 end
 
 --- Send a message to the server to set a profile
