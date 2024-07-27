@@ -1,9 +1,19 @@
 MCMProxy = {}
 
+MCMProxy.GameState = 'Menu'
+
 local function isMainMenu()
-    -- TODO: Implement logic to determine if we're in the main menu
-    -- This might involve checking game state or other indicators
-    -- For now, we'll use a placeholder
+    local gameState = MCMProxy.GameState
+
+    if gameState == 'Menu' then
+        return true
+    end
+
+    -- if gameState ~= "LoadSession" and gameState ~= "LoadLevel" and gameState ~= "SwapLevel" and
+    --     gameState ~= "StopLoading" and gameState ~= "PrepareRunning" and gameState ~= "Running" then
+    --     return false
+    -- end
+
     return false
 end
 
