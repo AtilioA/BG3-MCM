@@ -144,6 +144,14 @@ function MCMServer:DeleteProfile(profileName)
     return success
 end
 
+function MCMServer:LoadAndSendSettings()
+    MCMDebug(1, "Reloading MCM configs...")
+    MCMAPI:LoadConfigs()
+
+    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
+        Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+end
+
 --- Reset all settings for a mod to their default values
 ---@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
 -- function MCMServer:ResetAllSettings(modGUID)
@@ -153,14 +161,6 @@ end
 --     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
 --     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
 --         Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
--- end
-
--- function MCMServer:LoadAndSendSettings()
---     MCMDebug(1, "Reloading MCM configs...")
---     MCMAPI:LoadConfigs()
-
---     Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
---         Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
 -- end
 
 -- UNUSED since profile management currently calls shared code
