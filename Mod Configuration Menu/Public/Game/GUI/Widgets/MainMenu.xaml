@@ -203,8 +203,8 @@
                         </b:Interaction.Triggers>
                     </ls:LSButton>
 
-                    <ls:LSButton x:Name="MCMButton" Style="{StaticResource BigBrownButtonStyle}"
-                    Content="{Binding Source='h8e2c39a3f3c040aebfb9ad10339dd4ff89f7', Converter={StaticResource TranslatedStringConverter}}"
+                    <ls:LSButton x:Name="MCMMainMenuButton" Style="{StaticResource BigBrownButtonStyle}"
+                    Content="{Binding Source='hae2bbc06g288dg43dagb3a5g967fa625c769', Converter={StaticResource TranslatedStringConverter}}"
                     Command="{Binding CustomEvent}" CommandParameter="OpenMCMOptions"
                     SoundID="UI_HUD_MainMenu_Options" Opacity="0" Margin="{StaticResource MainButtonSpacing}">
                         <Button.RenderTransform>
