@@ -102,17 +102,17 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     newTab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
         -- REFACTOR: use modevents
-        -- Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
-        --     modGUID = modGUID,
-        --     tabName = tabName
-        -- }))
+        Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+            modGUID = modGUID,
+            tabName = tabName
+        }))
     end
     tabCallback(newTab)
     -- REFACTOR: use modevents
-    -- Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
-    --     modGUID = modGUID,
-    --     tabName = tabName
-    -- }))
+    Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
+        modGUID = modGUID,
+        tabName = tabName
+    }))
 
     return newTab
 end
@@ -135,12 +135,12 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
             end
         end
         -- REFACTOR: use modevents
-        -- Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
-        --     channel = Channels.MCM_MOD_TAB_ACTIVATED,
-        --     payload = {
-        --         modGUID = uuid
-        --     }
-        -- }))
+        Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
+            channel = Channels.MCM_MOD_TAB_ACTIVATED,
+            payload = {
+                modGUID = uuid
+            }
+        }))
     end
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     return button

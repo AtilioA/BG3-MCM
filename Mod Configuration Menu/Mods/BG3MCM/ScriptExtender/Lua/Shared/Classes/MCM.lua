@@ -293,11 +293,7 @@ end
 function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     self:LoadConfigs()
-    -- TODO: untangle shared code from server/client
-    if Ext.IsServer() then
-        Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
-            Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
-    end
+
 end
 
 -- UNUSED since profile management currently calls shared code
