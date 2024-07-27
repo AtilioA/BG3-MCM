@@ -94,9 +94,6 @@ end
 
 function Noesis:ListenToMainMenuButtonPress()
     Ext.Timer.WaitFor(3000, function()
-        MCMAPI:LoadConfigs()
-        MCMClientState:LoadMods(MCMAPI.mods)
-
         local MCMMainMenuButton = Noesis:FindMCMGameMenuButton()
         if not MCMMainMenuButton then
             MCMDebug(1, "MCMMainMenuButton not found. Not listening for clicks on it.")
