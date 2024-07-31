@@ -23,7 +23,6 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
 })
 
 MCMClientState = IMGUILayer:New()
-
 function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     modGUID = modGUID or ModuleUUID
     if not modGUID or not settingId then
@@ -36,8 +35,14 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     end
 
     self:UpdateVisibility(modGUID, settingId, value)
+    self:UpdateSettingValue(mod, settingId, value, modGUID)
+end
 
+function IMGUILayer:UpdateSettingValue(mod, settingId, value, modGUID)
+    -- Update client values for the setting
+    -- REFACTOR: this is not related to the IMGUI layer, should be moved to a more appropriate place
     mod.settingsValues[settingId] = value
+    MCMAPI.mods[modGUID].settingsValues[settingId] = value
 
     -- Check if the setting is of type 'text'; no need to update the UI value for text settings
     -- Also, doing so creates issues with the text input field
