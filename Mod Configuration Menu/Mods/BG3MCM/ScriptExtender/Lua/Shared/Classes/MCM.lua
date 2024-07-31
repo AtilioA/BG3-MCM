@@ -147,7 +147,7 @@ function MCM:IsSettingValueValid(settingId, value, modGUID)
         local isValid = DataPreprocessing:ValidateSetting(setting, value)
         if not isValid then
             MCMWarn(0,
-                "Invalid value for setting '" .. settingId .. "' (" .. tostring(value) .. "). Value will not be saved.")
+                "Value " .. tostring(value) .. " is invalid for setting '" .. settingId .. "' in mod '" .. modGUID .. "'.")
         end
         return isValid
     else

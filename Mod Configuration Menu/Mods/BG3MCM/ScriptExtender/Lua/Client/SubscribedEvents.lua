@@ -60,7 +60,7 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_RESET, function(_, payload)
     IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modGUID)
 end)
 
-local function UpdateMCMValues(settingId, value, modGUID)
+local function UpdateMCMWindowValues(settingId, value, modGUID)
     if modGUID ~= ModuleUUID then
         return
     end
@@ -82,7 +82,7 @@ Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
 
     MCMClientState:SetClientStateValue(settingId, value, modGUID)
 
-    UpdateMCMValues(settingId, value, modGUID)
+    UpdateMCMWindowValues(settingId, value, modGUID)
 end)
 
 Ext.RegisterNetListener(Channels.MCM_MOD_TAB_ADDED, function(_, payload)
