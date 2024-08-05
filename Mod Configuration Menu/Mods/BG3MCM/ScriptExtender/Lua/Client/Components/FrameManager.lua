@@ -5,8 +5,12 @@ FrameManager = _Class:Create("FrameManager", nil, {
     contentGroups = {}
 })
 
-
 function FrameManager:initFrameLayout(parent)
+    if not parent then
+        MCMWarn(0, "FrameManager:initFrameLayout called with invalid parameters")
+        return
+    end
+
     local layoutTable = parent:AddTable("MenuAndContent", 2)
     layoutTable:AddColumn("Menu", "WidthFixed")
     layoutTable:AddColumn("Frame", "WidthStretch")
@@ -18,7 +22,9 @@ end
 ---@param guidToShow string
 function FrameManager:setVisibleFrame(guidToShow)
     for uuid, group in pairs(self.contentGroups) do
+        if group then
         group.Visible = (guidToShow == uuid)
+        end
     end
 end
 
@@ -31,21 +37,21 @@ end
 
 ---@param modName string
 ---@param modDescription string
----@param uuid string
+---@param modUUID string
 ---@return any the group to add Content associated to the button
-function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modGUID)
-    if not modName or not modGUID then
+function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
+    if not modName or not modUUID then
         MCMWarn(0, "addButtonAndGetModTabBar called with invalid parameters")
         return
     end
 
     modName = VCString:Wrap(modName, 33)
 
-    local menuButton = self:CreateMenuButton(self.menuCell, modName, modGUID)
+    local menuButton = self:CreateMenuButton(self.menuCell, modName, modUUID)
     if modDescription then
-        self:AddTooltip(menuButton, modDescription, modGUID)
+        self:AddTooltip(menuButton, modDescription, modUUID)
     end
-    local uiGroupMod = self.contentCell:AddGroup(modGUID)
+    local uiGroupMod = self.contentCell:AddGroup(modUUID)
 
     uiGroupMod:AddSeparatorText(modName)
     if modDescription then
@@ -54,24 +60,24 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modGUID)
         uiGroupMod:AddDummy(0, 5)
     end
 
-    self.contentGroups[modGUID] = uiGroupMod
+    self.contentGroups[modUUID] = uiGroupMod
 
-    local modTabs = uiGroupMod:AddTabBar(modGUID .. "_TABS")
-    modTabs.IDContext = modGUID .. "_TABS"
+    local modTabs = uiGroupMod:AddTabBar(modUUID .. "_TABS")
+    modTabs.IDContext = modUUID .. "_TABS"
 
     return modTabs
 end
 
----@param uuid string
----@return any the group Content associated to uuid
-function FrameManager:GetGroup(uuid)
-    return self.contentGroups[uuid]
+---@param modUUID string
+---@return any the group Content associated to modUUID
+function FrameManager:GetGroup(modUUID)
+    return self.contentGroups[modUUID]
 end
 
----@param uuid string
----@return any the group Content associated to uuid
-function FrameManager:GetModTabBar(uuid)
-    for _, child in ipairs(self.contentGroups[uuid].Children) do
+---@param modUUID string
+---@return any the group Content associated to modUUID
+function FrameManager:GetModTabBar(modUUID)
+    for _, child in ipairs(self.contentGroups[modUUID].Children) do
         if child.IDContext and child.IDContext:sub(-5) == "_TABS" then
             return child
         end
@@ -102,17 +108,22 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     newTab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
         -- REFACTOR: use modevents
+        if not MCMProxy.isMainMenu() then
         Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
             modGUID = modGUID,
             tabName = tabName
         }))
     end
+    end
+
+    if not MCMProxy.isMainMenu() then
     tabCallback(newTab)
     -- REFACTOR: use modevents
     Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
         modGUID = modGUID,
         tabName = tabName
     }))
+    end
 
     return newTab
 end
@@ -134,13 +145,14 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
                 c:SetColor("Button", UIStyle.Colors["Button"])
             end
         end
-        -- REFACTOR: use modevents
+        if not MCMProxy.isMainMenu() then
         Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
             channel = Channels.MCM_MOD_TAB_ACTIVATED,
             payload = {
                 modGUID = uuid
             }
         }))
+        end
     end
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     return button
