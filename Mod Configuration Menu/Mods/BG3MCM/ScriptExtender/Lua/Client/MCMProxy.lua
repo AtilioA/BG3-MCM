@@ -2,13 +2,14 @@ MCMProxy = {}
 
 MCMProxy.GameState = 'Menu'
 
-local function isMainMenu()
+function MCMProxy.isMainMenu()
     local gameState = MCMProxy.GameState
 
     if gameState == 'Menu' then
         return true
     end
 
+    -- Useful states for determining server readiness (please norb save me)
     -- if gameState ~= "LoadSession" and gameState ~= "LoadLevel" and gameState ~= "SwapLevel" and
     --     gameState ~= "StopLoading" and gameState ~= "PrepareRunning" and gameState ~= "Running" then
     --     return false
@@ -17,8 +18,26 @@ local function isMainMenu()
     return false
 end
 
+function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
+    if MCMProxy.isMainMenu() or not
+    FrameManager:GetGroup(modGUID) then
+        -- TODO: add temporary message to inform users that custom MCM tabs are not available in the main menu
+        -- local function addTempTextMainMenu(tabHeader)
+        --     local tempTextDisclaimer = Ext.Loca.GetTranslatedString("h99e6c7f6eb9c43238ca27a89bb45b9690607")
+        --     addTempText = tabHeader:AddText(tempTextDisclaimer)
+        --     addTempText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+        -- end
+
+        Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
+            FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+        end)
+    else
+        FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+    end
+end
+
 function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
-    if isMainMenu() then
+    if MCMProxy.isMainMenu() then
         -- Handle locally
         MCMAPI:SetSettingValue(settingId, value, modGUID)
         if setUIValue then
@@ -43,7 +62,7 @@ function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
 end
 
 function MCMProxy:ResetSettingValue(settingId, modGUID)
-    if isMainMenu() then
+    if MCMProxy.isMainMenu() then
         -- Handle locally
         MCMAPI:ResetSettingValue(settingId, modGUID)
         MCMClientState:SetClientStateValue(settingId, MCMAPI:GetSettingValue(settingId, modGUID), modGUID)

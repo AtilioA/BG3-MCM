@@ -24,13 +24,7 @@ function IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
     -- Register the new callback
     table.insert(self.insertedTabs[modGUID], tabCallback)
 
-    if not FrameManager:GetGroup(modGUID) then
-        Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-            FrameManager:InsertModTab(modGUID, tabName, tabCallback)
-        end)
-    else
-        FrameManager:InsertModTab(modGUID, tabName, tabCallback)
-    end
+    MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
 end
 
 --- Send a message to the server to update a setting value
@@ -100,6 +94,7 @@ end
 ---@param modGUID string The UUID of the mod
 ---@return table<string, any> | nil - widgets for the mod (keyed by setting ID), or nil if the mod has no widgets
 function IMGUIAPI:getModWidgets(modGUID)
+    -- _DS(MCMClientState.mods[modGUID].widgetsQ)
     if MCMClientState.mods and MCMClientState.mods[modGUID] and MCMClientState.mods[modGUID].widgets then
         return MCMClientState.mods[modGUID].widgets
     end
