@@ -36,7 +36,7 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
         Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
 
-    -- Notify clientS that the setting has been updated
+    -- Notify clients that the setting has been updated
     Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
         modGUID = modGUID,
         settingId = settingId,

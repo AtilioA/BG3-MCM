@@ -223,28 +223,18 @@ end
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
 ---@param modGUID GUIDSTRING The UUID of the mod
-function MCM:SetSettingValue(settingId, value, modGUID, clientRequest)
+function MCM:SetSettingValue(settingId, value, modGUID)
     local modSettingsTable = self:GetAllModSettings(modGUID)
 
     local isValid = self:IsSettingValueValid(settingId, value, modGUID)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
     if not isValid then
         MCMWarn(1, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
-        -- Notify the client with the current value of the setting, so it can update its UI
-        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-            modGUID = modGUID,
-            settingId = settingId,
-            value = modSettingsTable[settingId]
-        }))
         return
     end
 
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
-
-    -- This is kind of a hacky way to emit events to other servers
-    -- Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
-    --     Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
 
     -- if not clientRequest then
     -- Notify the client that the setting has been updated
