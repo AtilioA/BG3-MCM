@@ -18,10 +18,12 @@ function MCMProxy.isMainMenu()
     return false
 end
 
+-- TODO: add temporary message to inform users that custom MCM tabs are not available in the main menu
 function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
+    -- FrameManager:updateModDescriptionTooltip(modGUID, "Some functionality from this mod requires a save to be loaded first.")
+
     if MCMProxy.isMainMenu() or not
-    FrameManager:GetGroup(modGUID) then
-        -- TODO: add temporary message to inform users that custom MCM tabs are not available in the main menu
+        FrameManager:GetGroup(modGUID) then
         -- local function addTempTextMainMenu(tabHeader)
         --     local tempTextDisclaimer = Ext.Loca.GetTranslatedString("h99e6c7f6eb9c43238ca27a89bb45b9690607")
         --     addTempText = tabHeader:AddText(tempTextDisclaimer)

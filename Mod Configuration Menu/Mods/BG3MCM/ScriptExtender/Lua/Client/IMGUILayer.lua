@@ -23,6 +23,7 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
 })
 
 MCMClientState = IMGUILayer:New()
+
 function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     modGUID = modGUID or ModuleUUID
     if not modGUID or not settingId then
