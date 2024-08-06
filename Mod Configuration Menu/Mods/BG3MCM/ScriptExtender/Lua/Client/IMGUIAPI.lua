@@ -70,7 +70,7 @@ function IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
     -- Find the widget corresponding to the setting and update its value
     local widget = self:findWidgetForSetting(settingId, modGUID)
     if not widget then
-        MCMWarn(0, "No widget found for setting " .. settingId)
+        MCMWarn(1, "No widget found for setting " .. settingId)
         return
     end
     widget:UpdateCurrentValue(value)
