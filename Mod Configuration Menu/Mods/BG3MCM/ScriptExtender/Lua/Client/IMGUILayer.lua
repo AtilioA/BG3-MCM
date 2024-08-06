@@ -284,7 +284,7 @@ function IMGUILayer:PrepareMenu()
     end
 
     -- TODO: re-enable this after refactoring client-side code
-    -- MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
+    MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
 
     -- Table Layout
     FrameManager:initFrameLayout(MCM_WINDOW)
