@@ -106,7 +106,6 @@ Ext.RegisterNetListener(Channels.MCM_SERVER_SET_PROFILE, function(_, payload)
     end
 end)
 
-
 -- REFACTOR: these should be in a separate file or something
 local function dynamicOpacityWrapper(func)
     return MCMUtils:ConditionalWrapper(function()
