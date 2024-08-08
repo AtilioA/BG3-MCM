@@ -4,7 +4,7 @@ MCMProxy.GameState = 'Menu'
 
 function MCMProxy.IsMainMenu()
     if Ext.Net.IsHost then
-        return Ext.Net.IsHost()
+        return not Ext.Net.IsHost()
     end
 
     -- Old fallback since it's already here

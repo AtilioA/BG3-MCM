@@ -213,7 +213,7 @@
 
                         <b:Interaction.Triggers>
                             <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="400" TotalTicks="1">
-                                <b:ChangePropertyAction TargetName="MCMButton" PropertyName="Opacity" Value="1" />
+                                <b:ChangePropertyAction TargetName="MCMMainMenuButton" PropertyName="Opacity" Value="1" />
                                 <b:ControlStoryboardAction ControlStoryboardOption="Play">
                                     <b:ControlStoryboardAction.Storyboard>
                                         <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>

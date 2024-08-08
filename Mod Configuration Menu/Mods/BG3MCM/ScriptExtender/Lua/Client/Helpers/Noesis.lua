@@ -56,6 +56,7 @@ local function updateButtonMessage(newMessage, revertTime, isMessageUpdated)
     end)
 end
 
+-- REFACTOR: remove hasServer
 local function handleMCMButtonPress(button, hasServer)
     local pressCount = 0
     local pressLimit = 4
