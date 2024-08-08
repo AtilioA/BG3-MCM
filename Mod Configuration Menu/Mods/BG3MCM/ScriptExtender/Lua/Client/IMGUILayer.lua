@@ -301,8 +301,9 @@ end
 --- Create profile management header
 ---@return nil
 function IMGUILayer:CreateProfileManagementHeader()
-    -- TODO: re-enable this after refactoring client-side code
-    -- UIProfileManager:CreateProfileContent()
+    if Ext.Net.IsHost() then
+        UIProfileManager:CreateProfileContent()
+    end
     MCM_WINDOW:AddDummy(0, 10)
 end
 
