@@ -23,7 +23,7 @@ end
 function FrameManager:setVisibleFrame(guidToShow)
     for uuid, group in pairs(self.contentGroups) do
         if group then
-        group.Visible = (guidToShow == uuid)
+            group.Visible = (guidToShow == uuid)
         end
     end
 end
@@ -108,21 +108,21 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     newTab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
         -- REFACTOR: use modevents
-        if not MCMProxy.isMainMenu() then
-        Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+        if not MCMProxy.IsMainMenu() then
+            Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+                modGUID = modGUID,
+                tabName = tabName
+            }))
+        end
+    end
+
+    if not MCMProxy.IsMainMenu() then
+        tabCallback(newTab)
+        -- REFACTOR: use modevents
+        Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
             modGUID = modGUID,
             tabName = tabName
         }))
-    end
-    end
-
-    if not MCMProxy.isMainMenu() then
-    tabCallback(newTab)
-    -- REFACTOR: use modevents
-    Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
-        modGUID = modGUID,
-        tabName = tabName
-    }))
     end
 
     return newTab
@@ -145,13 +145,13 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
                 c:SetColor("Button", UIStyle.Colors["Button"])
             end
         end
-        if not MCMProxy.isMainMenu() then
-        Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
-            channel = Channels.MCM_MOD_TAB_ACTIVATED,
-            payload = {
-                modGUID = uuid
-            }
-        }))
+        if not MCMProxy.IsMainMenu() then
+            Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
+                channel = Channels.MCM_MOD_TAB_ACTIVATED,
+                payload = {
+                    modGUID = uuid
+                }
+            }))
         end
     end
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))

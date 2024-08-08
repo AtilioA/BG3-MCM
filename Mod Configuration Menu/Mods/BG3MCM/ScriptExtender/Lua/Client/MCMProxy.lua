@@ -2,18 +2,17 @@ MCMProxy = {}
 
 MCMProxy.GameState = 'Menu'
 
-function MCMProxy.isMainMenu()
+function MCMProxy.IsMainMenu()
+    if Ext.Net.IsHost then
+        return Ext.Net.IsHost()
+    end
+
+    -- Old fallback since it's already here
     local gameState = MCMProxy.GameState
 
     if gameState == 'Menu' then
         return true
     end
-
-    -- Useful states for determining server readiness (please norb save me)
-    -- if gameState ~= "LoadSession" and gameState ~= "LoadLevel" and gameState ~= "SwapLevel" and
-    --     gameState ~= "StopLoading" and gameState ~= "PrepareRunning" and gameState ~= "Running" then
-    --     return false
-    -- end
 
     return false
 end
@@ -22,7 +21,7 @@ end
 function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
     -- FrameManager:updateModDescriptionTooltip(modGUID, "Some functionality from this mod requires a save to be loaded first.")
 
-    if MCMProxy.isMainMenu() or not
+    if MCMProxy.IsMainMenu() or not
         FrameManager:GetGroup(modGUID) then
         -- local function addTempTextMainMenu(tabHeader)
         --     local tempTextDisclaimer = Ext.Loca.GetTranslatedString("h99e6c7f6eb9c43238ca27a89bb45b9690607")
@@ -39,7 +38,7 @@ function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
 end
 
 function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
-    if MCMProxy.isMainMenu() then
+    if MCMProxy.IsMainMenu() then
         -- Handle locally
         MCMAPI:SetSettingValue(settingId, value, modGUID)
         if setUIValue then
@@ -64,7 +63,7 @@ function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
 end
 
 function MCMProxy:ResetSettingValue(settingId, modGUID)
-    if MCMProxy.isMainMenu() then
+    if MCMProxy.IsMainMenu() then
         -- Handle locally
         MCMAPI:ResetSettingValue(settingId, modGUID)
         MCMClientState:SetClientStateValue(settingId, MCMAPI:GetSettingValue(settingId, modGUID), modGUID)
