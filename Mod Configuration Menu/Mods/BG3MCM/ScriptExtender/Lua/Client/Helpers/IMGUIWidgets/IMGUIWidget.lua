@@ -104,7 +104,7 @@ end
 ---@return nil
 function IMGUIWidget:SetupDescription(widget, group, setting)
     if not setting:GetDescription() or setting:GetDescription() == "" then
-        MCMWarn(0, "No description found for setting: " .. setting:GetId())
+        MCMDebug(1, "No description found for setting: " .. setting:GetId())
         return
     end
 
