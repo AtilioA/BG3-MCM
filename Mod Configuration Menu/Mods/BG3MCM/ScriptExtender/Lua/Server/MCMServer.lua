@@ -110,7 +110,7 @@ function MCMServer:SetProfile(profileName)
         Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
             channel = Channels.MCM_SERVER_SET_PROFILE,
             payload = {
-                fromProfile = self:GetCurrentProfile(),
+                fromProfile = ModConfig:GetCurrentProfile(),
                 toProfile = profileName
             }
         }))
@@ -190,14 +190,14 @@ end
 --     return ModConfig:GetProfiles()
 -- end
 
---- Get the current MCM profile's name
----@return string The name of the current profile
--- function MCMServer:GetCurrentProfile()
---     Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CURRENT_PROFILE,
---         Ext.Json.Stringify({ profileName = ModConfig.profileManager:GetCurrentProfile() }))
---     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
---     return ModConfig.profileManager:GetCurrentProfile()
--- end
+-- Get the current MCM profile's name
+--@return string The name of the current profile
+function MCMServer:GetCurrentProfile()
+    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CURRENT_PROFILE,
+        Ext.Json.Stringify({ profileName = ModConfig.profileManager:GetCurrentProfile() }))
+    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
+    return ModConfig.profileManager:GetCurrentProfile()
+end
 
 -- --- Check if a setting value is valid given the mod blueprint
 -- ---@param settingId string The id of the setting

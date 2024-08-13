@@ -77,6 +77,8 @@ function IMGUIAPI:UpdateSettingUIValue(settingId, value, modGUID)
 end
 
 --- Find the widget corresponding to a setting
+--- TODO: perform a traversal of the window nodes to find the widget;
+--- Storing references in a table is troublesome because they get lost for some reason
 ---@private
 ---@param modGUID string The UUID of the mod
 ---@param settingId string The ID of the setting to find the widget for
