@@ -97,7 +97,7 @@ function VCString:UpdateLocalizedMessage(handle, dynamicContent)
     local currentMessage = Ext.Loca.GetTranslatedString(handle)
 
     -- Replace the placeholder [1] with the dynamic content. The g flag is for global replacement.
-    local updatedMessage = string.gsub(currentMessage, "%[1%]", dynamicContent)
+    local updatedMessage = string.gsub(currentMessage, "%[1%]", function() return dynamicContent end)
 
     -- Update the translated string with the new content, altering it during runtime. Any GetTranslatedString calls will now return this updated message.
     Ext.Loca.UpdateTranslatedString(handle, updatedMessage)

@@ -82,6 +82,7 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
 
     --- Check if blueprint does NOT have both tabs and settings
     if not hasTabs and not hasSettings then
+        -- _D(blueprint)
         MCMWarn(0,
             "Blueprint for mod '" ..
             Ext.Mod.GetMod(self.currentModGuid).Info.Name ..

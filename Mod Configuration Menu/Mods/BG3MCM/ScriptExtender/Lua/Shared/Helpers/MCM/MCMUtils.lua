@@ -130,12 +130,12 @@ end
 
 -- Returns the character that the user is controlling
 function MCMUtils:GetUserCharacter(userId)
-    local partyMembers = self:GetPartyMembers()
-    for _, member in ipairs(partyMembers) do
-        if Osi.GetReservedUserID(member) == userId then
-            return member
+    for _, entity in pairs(Ext.Entity.GetAllEntitiesWithComponent("ClientControl")) do
+        if entity.UserReservedFor.UserID == userId then
+            return entity.Uuid.EntityUuid
         end
     end
+
     return nil
 end
 

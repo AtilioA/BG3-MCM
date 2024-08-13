@@ -5,12 +5,12 @@ EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
 function EHandlers.OnLevelGameplayStarted(levelName, isEditorMode)
     MCMDebug(2, "Level " .. levelName .. " started")
-    MCMAPI:LoadAndSendSettings()
+    MCMServer:LoadAndSendSettings()
 end
 
 function EHandlers.OnClientRequestConfigs(_)
     MCMDebug(1, "Received MCM settings request")
-    MCMAPI:LoadAndSendSettings()
+    MCMServer:LoadAndSendSettings()
 end
 
 function EHandlers.OnClientRequestSetSettingValue(_, payload, peerId)
@@ -25,7 +25,7 @@ function EHandlers.OnClientRequestSetSettingValue(_, payload, peerId)
         MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
     end
 
-    MCMAPI:SetSettingValue(settingId, value, modGUID, true)
+    MCMServer:SetSettingValue(settingId, value, modGUID, true)
 end
 
 function EHandlers.OnClientRequestResetSettingValue(_, payload, peerId)
@@ -34,12 +34,12 @@ function EHandlers.OnClientRequestResetSettingValue(_, payload, peerId)
     local modGUID = parsedPayload.modGUID
 
     MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modGUID)
-    MCMAPI:ResetSettingValue(settingId, modGUID, true)
+    MCMServer:ResetSettingValue(settingId, modGUID, true)
 end
 
 -- function EHandlers.OnClientRequestProfiles(_)
 --     MCMDebug(1, "Received profiles request")
---     MCMAPI:SendProfiles()
+--     MCMServer:SendProfiles()
 -- end
 
 function EHandlers.OnClientRequestSetProfile(_, payload, peerId)
@@ -47,7 +47,7 @@ function EHandlers.OnClientRequestSetProfile(_, payload, peerId)
     local profileName = parsedPayload.profileName
 
     MCMDebug(1, "Will set profile to " .. profileName)
-    MCMAPI:SetProfile(profileName)
+    MCMServer:SetProfile(profileName)
 end
 
 function EHandlers.OnClientRequestCreateProfile(_, payload, peerId)
@@ -55,7 +55,7 @@ function EHandlers.OnClientRequestCreateProfile(_, payload, peerId)
     local profileName = parsedPayload.profileName
 
     MCMDebug(1, "Will create profile " .. profileName)
-    MCMAPI:CreateProfile(profileName)
+    MCMServer:CreateProfile(profileName)
 end
 
 function EHandlers.OnClientRequestDeleteProfile(_, payload, peerId)
@@ -63,7 +63,7 @@ function EHandlers.OnClientRequestDeleteProfile(_, payload, peerId)
     local profileName = parsedPayload.profileName
 
     MCMDebug(1, "Will delete profile " .. profileName)
-    MCMAPI:DeleteProfile(profileName)
+    MCMServer:DeleteProfile(profileName)
 end
 
 function EHandlers.OnUserOpenedWindow(_, payload, peerId)
@@ -74,6 +74,7 @@ function EHandlers.OnUserOpenedWindow(_, payload, peerId)
     end
 
     if payloadData.playSound then
+        local userId = MCMUtils:PeerToUserID(peerId)
         MCMUtils:PlaySound(userId, EHandlers.SFX_OPEN_MCM_WINDOW)
     end
 end
@@ -86,6 +87,7 @@ function EHandlers.OnUserClosedWindow(_, payload, peerId)
     end
 
     if payloadData.playSound then
+        local userId = MCMUtils:PeerToUserID(peerId)
         MCMUtils:PlaySound(userId, EHandlers.SFX_CLOSE_MCM_WINDOW)
     end
 end

@@ -1,4 +1,5 @@
 RequireFiles("Server/", {
+    "MCMServer",
     "EventHandlers",
     "SubscribedEvents",
 })

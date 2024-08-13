@@ -114,12 +114,31 @@ function BlueprintSetting:GetDefault()
     return self.Default
 end
 
+-- REVIEW: GetLoca- or just always use handle logic? I don't see a reason to offer a way to not use handles
 function BlueprintSetting:GetDescription()
-    return self.Description
+    local descriptionText = self.Description or ""
+
+    if self.Handles and self.Handles.DescriptionHandle then
+        local translatedDescription = Ext.Loca.GetTranslatedString(self.Handles.DescriptionHandle)
+        if translatedDescription and translatedDescription ~= "" then
+            descriptionText = translatedDescription
+        end
+    end
+
+    return descriptionText
 end
 
 function BlueprintSetting:GetTooltip()
-    return self.Tooltip
+    local tooltipText = self.Tooltip or ""
+
+    if self.Handles and self.Handles.TooltipHandle then
+        local translatedTooltip = Ext.Loca.GetTranslatedString(self.Handles.TooltipHandle)
+        if translatedTooltip and translatedTooltip ~= "" then
+            tooltipText = translatedTooltip
+        end
+    end
+
+    return tooltipText
 end
 
 function BlueprintSetting:GetSection()
@@ -181,20 +200,14 @@ end
 --- Get the current value of the setting
 ---@return any
 function BlueprintSetting:GetValue()
-    -- Implement logic to retrieve the current value of the setting
-    -- This will likely involve interacting with the Config and MCMAPI classes
     return self.Default
 end
 
 --- Set the value of the setting
 ---@param value any
 function BlueprintSetting:SetValue(value)
-    -- Implement logic to set the value of the setting
-    -- This will likely involve interacting with the Config and MCMAPI classes
 end
 
 --- Reset the setting to its default value
 function BlueprintSetting:ResetToDefault()
-    -- Implement logic to reset the setting to its default value
-    -- This will likely involve interacting with the Config and MCMAPI classes
 end

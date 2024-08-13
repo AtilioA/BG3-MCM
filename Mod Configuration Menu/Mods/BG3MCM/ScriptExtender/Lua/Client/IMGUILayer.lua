@@ -36,8 +36,14 @@ function IMGUILayer:SetClientStateValue(settingId, value, modGUID)
     end
 
     self:UpdateVisibility(modGUID, settingId, value)
+    self:UpdateSettingValue(mod, settingId, value, modGUID)
+end
 
+function IMGUILayer:UpdateSettingValue(mod, settingId, value, modGUID)
+    -- Update client values for the setting
+    -- REFACTOR: this is not related to the IMGUI layer, should be moved to a more appropriate place
     mod.settingsValues[settingId] = value
+    MCMAPI.mods[modGUID].settingsValues[settingId] = value
 
     -- Check if the setting is of type 'text'; no need to update the UI value for text settings
     -- Also, doing so creates issues with the text input field
@@ -212,15 +218,16 @@ function IMGUILayer:ToggleMCMWindow(playSound)
     if MCM_WINDOW.Open == true then
         MCM_WINDOW.Visible = false
         MCM_WINDOW.Open = false
-        Ext.Net.PostMessageToServer(Channels.MCM_USER_CLOSED_WINDOW, Ext.Json.Stringify({
-            playSound = playSound
-        }))
+        -- TODO: re-enable this sfx logic after refactoring client-side code
+        -- Ext.Net.PostMessageToServer(Channels.MCM_USER_CLOSED_WINDOW, Ext.Json.Stringify({
+        --     playSound = playSound
+        -- }))
     else
         MCM_WINDOW.Visible = true
         MCM_WINDOW.Open = true
-        Ext.Net.PostMessageToServer(Channels.MCM_USER_OPENED_WINDOW, Ext.Json.Stringify({
-            playSound = playSound
-        }))
+        -- -- Ext.Net.PostMessageToServer(Channels.MCM_USER_OPENED_WINDOW, Ext.Json.Stringify({
+        --     playSound = playSound
+        -- }))
     end
 end
 
@@ -236,7 +243,7 @@ function IMGUILayer:SetActiveWindowAlpha(bool)
 end
 
 function IMGUILayer:NotifyMCMWindowReady()
-    Ext.Net.PostMessageToServer(Channels.MCM_WINDOW_READY, "")
+    -- Ext.Net.PostMessageToServer(Channels.MCM_WINDOW_READY, "")
 end
 
 function IMGUILayer:LoadMods(mods)
@@ -276,7 +283,9 @@ function IMGUILayer:PrepareMenu()
         self.welcomeText:Destroy()
     end
 
+    -- TODO: re-enable this after refactoring client-side code
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
+
     -- Table Layout
     FrameManager:initFrameLayout(MCM_WINDOW)
 end
@@ -292,7 +301,9 @@ end
 --- Create profile management header
 ---@return nil
 function IMGUILayer:CreateProfileManagementHeader()
-    UIProfileManager:CreateProfileContent()
+    if Ext.Net.IsHost() then
+        UIProfileManager:CreateProfileContent()
+    end
     MCM_WINDOW:AddDummy(0, 10)
 end
 
@@ -376,13 +387,14 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modGUID)
 
     local tab = modTabs:AddTabItem(tabName)
     tab.IDContext = modGUID .. "_" .. tabInfo:GetTabName()
-    tab.OnActivate = function()
-        MCMDebug(3, "Activating tab " .. tabInfo:GetTabName())
-        Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
-            modGUID = modGUID,
-            tabName = tabInfo:GetTabName()
-        }))
-    end
+    -- TODO: re-enable this after refactoring client-side code
+    -- tab.OnActivate = function()
+    --     MCMDebug(3, "Activating tab " .. tabInfo:GetTabName())
+    --     Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+    --         modGUID = modGUID,
+    --         tabName = tabInfo:GetTabName()
+    --     }))
+    -- end
 
     -- TODO: as always, this should be abstracted away somehow but ehh (this will be needed for nested tabs etc)
     local tabSections = tabInfo:GetSections()

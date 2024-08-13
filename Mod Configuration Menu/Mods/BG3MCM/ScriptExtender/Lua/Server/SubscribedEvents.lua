@@ -8,7 +8,8 @@ netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:new(E
 netEventsRegistry:register(Channels.MCM_USER_OPENED_WINDOW, NetCommand:new(EHandlers.OnUserOpenedWindow))
 netEventsRegistry:register(Channels.MCM_USER_CLOSED_WINDOW, NetCommand:new(EHandlers.OnUserClosedWindow))
 --- Net message handler for when the user spams the MCM button (the window is probably not open)
-netEventsRegistry:register(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, NetCommand:new(EHandlers.OnUserSpamMCMButton))
+netEventsRegistry:register(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,
+NetCommand:new(EHandlers.OnUserSpamMCMButton))
 netEventsRegistry:register(Channels.MCM_RELAY_TO_CLIENTS, NetCommand:new(EHandlers.OnRelayToClients))
 
 --- Authorized NetCommand interface (inherits from NetCommand, check if user can edit settings etc)
@@ -50,6 +51,11 @@ function SubscribedEvents.SubscribeToEvents()
 
     -- When the game is started, load the MCM settings
     Ext.Osiris.RegisterListener("LevelGameplayStarted", 2, "before", EHandlers.OnLevelGameplayStarted)
+
+    Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
+        MCMDebug(1, "UserConnected: " .. userID .. " " .. userName .. " " .. userProfileID)
+        MCMWarn(1, "TODO: creating MCM window for new user")
+    end)
 
     Ext.Events.SessionLoaded:Subscribe(EHandlers.OnSessionLoaded)
 

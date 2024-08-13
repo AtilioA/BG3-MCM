@@ -1,6 +1,8 @@
 -- "Give someone state and they'll have a bug one day, but teach them how to represent state in two separate locations that have to be kept in sync and they'll have bugs for a lifetime."
 -- -ryg
 
+-- Honestly, this is not worth being multiplayer-ready; I'll just make it work for the host for now.
+
 UIProfileManager = {}
 
 function UIProfileManager:FindProfileIndex(profile)
@@ -27,7 +29,7 @@ function UIProfileManager:CreateProfileContent()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile) - 1
 
     FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
-    local contentGroup = FrameManager:addButtonAndGetModTabBar(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil ,"MCM_profiles")
+    local contentGroup = FrameManager:addButtonAndGetModTabBar(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil,"MCM_profiles")
 
     local profileCombo = contentGroup:AddCombo("")
     profileCombo.Options = profiles.Profiles

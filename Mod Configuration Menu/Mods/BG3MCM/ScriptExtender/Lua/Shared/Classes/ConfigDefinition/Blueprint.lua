@@ -58,6 +58,7 @@ function Blueprint:New(options)
     local self = setmetatable({}, Blueprint)
     self.ModUUID = options.ModUUID or nil
     self.SchemaVersion = options.SchemaVersion or nil
+    self.Settings = options.Settings or nil
     self.ModName = options.ModName or nil
     self.Tabs = {}
 
