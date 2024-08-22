@@ -1,5 +1,5 @@
 --[[
-    This file has code adapted from sources originally licensed under the MIT License. The terms of the MIT License are as follows:
+    This file has code adapted from Compatibilty Framework sources originally licensed under the MIT License. The terms of the MIT License are as follows:
 
     MIT License
 
