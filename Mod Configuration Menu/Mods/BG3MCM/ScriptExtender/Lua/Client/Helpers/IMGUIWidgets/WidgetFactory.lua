@@ -1,4 +1,4 @@
---- Factory for creating IMGUI widgets based on the type of setting
+--- 'Factory' for creating IMGUI widgets based on the type of setting
 InputWidgetFactory = {
     int = function(group, setting, settingValue, modGUID)
         return IMGUIWidget:Create(group, setting, settingValue, modGUID, IntIMGUIWidget)

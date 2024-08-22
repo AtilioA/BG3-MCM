@@ -12,8 +12,8 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
             button:Destroy()
             button = group:AddButton(label)
         end
-        
-        button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
+
+        button.IDContext = modGUID .. (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
         button.OnClick = function()
             local newValue = instance.Widget.Value[1] + increment
             instance:UpdateCurrentValue(newValue)
@@ -21,7 +21,7 @@ function IntIMGUIWidget:new(group, setting, initialValue, modGUID)
         end
         if tooltip then
             local buttonTooltip = button:Tooltip()
-            buttonTooltip.IDContext = "ButtonTooltip_" .. setting.Id
+            buttonTooltip.IDContext = modGUID .. "WidgetTooltip_" .. setting.Id
             buttonTooltip:AddText(tooltip)
         end
         return button
