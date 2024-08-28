@@ -270,7 +270,7 @@
                             "type": "array"
                         }
                     ],
-                    "description": "The default value of the setting. It will be used for initialization and as a fallback if the setting is not found or is invalid in the settings JSON."
+                    "description": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid in the settings JSON."
                 },
                 "Tooltip": {
                     "type": "string",
