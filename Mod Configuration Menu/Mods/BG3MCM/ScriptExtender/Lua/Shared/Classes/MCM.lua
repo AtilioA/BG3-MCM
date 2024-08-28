@@ -31,18 +31,16 @@ function MCM:CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            Ext.Net.BroadcastMessage(Channels.MCM_SERVER_CREATED_PROFILE, Ext.Json.Stringify({
-                profileName = profileName,
-                newSettings = ModConfig.mods
-            }))
+            -- Ext.Net.BroadcastMessage(Channels.MCM_SERVER_CREATED_PROFILE, Ext.Json.Stringify({
+            --     profileName = profileName,
+            --     newSettings = ModConfig.mods
+            -- }))
 
             -- Notify other servers about the new profile creation
-            Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-                channel = Channels.MCM_SERVER_CREATED_PROFILE,
-                payload = {
-                    profileName = profileName
-                }
-            }))
+            ModEventManager:Trigger(Channels.MCM_SERVER_CREATED_PROFILE, {
+                profileName = profileName,
+                newSettings = ModConfig.mods
+            })
         end
     end
 
@@ -75,19 +73,16 @@ function MCM:SetProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SET_PROFILE, Ext.Json.Stringify({
-                profileName = profileName,
-                newSettings = ModConfig.mods
-            }))
+            -- Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SET_PROFILE, Ext.Json.Stringify({
+            --     profileName = profileName,
+            --     newSettings = ModConfig.mods
+            -- }))
 
             -- Notify other servers about the profile change
-            Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-                channel = Channels.MCM_SERVER_SET_PROFILE,
-                payload = {
-                    fromProfile = currentProfile,
-                    toProfile = profileName
-                }
-            }))
+            ModEventManager:Trigger(Channels.MCM_SERVER_SET_PROFILE, {
+                fromProfile = currentProfile,
+                toProfile = profileName
+            })
         end
     end
 

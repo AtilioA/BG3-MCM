@@ -21,27 +21,30 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
         MCMWarn(1, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
 
         -- Notify the client with the current value of the setting, so it can update its UI
-        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+        ModEventManager:Trigger(Channels.MCM_SETTING_UPDATED, {
             modGUID = modGUID,
             settingId = settingId,
             value = modSettingsTable[settingId]
-        }))
+        })
         return
     end
 
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 
-    -- This is kind of a hacky way to emit events to other servers
-    Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
-        Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
-
-    -- Notify clients that the setting has been updated
-    Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+    -- Notify other servers about the setting update
+    ModEventManager:Trigger(Channels.MCM_SAVED_SETTING, {
         modGUID = modGUID,
         settingId = settingId,
         value = value
-    }))
+    })
+
+    -- Notify clients that the setting has been updated
+    ModEventManager:Trigger(Channels.MCM_SETTING_UPDATED, {
+        modGUID = modGUID,
+        settingId = settingId,
+        value = value
+    })
 end
 
 ---@param settingId string The id of the setting to reset
@@ -59,11 +62,11 @@ function MCMServer:ResetSettingValue(settingId, modGUID, clientRequest)
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
-        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_RESET, Ext.Json.Stringify({
+        ModEventManager:Trigger(Channels.MCM_SETTING_RESET, {
             modGUID = modGUID,
             settingId = settingId,
             defaultValue = defaultValue
-        }))
+        })
     end
 end
 
@@ -74,18 +77,15 @@ function MCMServer:CreateProfile(profileName)
     local success = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
-        Ext.Net.BroadcastMessage(Channels.MCM_SERVER_CREATED_PROFILE, Ext.Json.Stringify({
+        ModEventManager:Trigger(Channels.MCM_SERVER_CREATED_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
-        }))
+        })
 
         -- REFACTOR: (USE MODEVENTS) Notify other servers about the new profile creation
-        Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-            channel = Channels.MCM_SERVER_CREATED_PROFILE,
-            payload = {
-                profileName = profileName
-            }
-        }))
+        ModEventManager:Trigger(Channels.MCM_SERVER_CREATED_PROFILE, {
+            profileName = profileName
+        })
     end
 
     self:SetProfile(profileName)
@@ -101,19 +101,16 @@ function MCMServer:SetProfile(profileName)
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
-        Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SET_PROFILE, Ext.Json.Stringify({
+        ModEventManager:Trigger(Channels.MCM_SERVER_SET_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
-        }))
+        })
 
         -- Notify other servers about the profile change
-        Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-            channel = Channels.MCM_SERVER_SET_PROFILE,
-            payload = {
-                fromProfile = ModConfig:GetCurrentProfile(),
-                toProfile = profileName
-            }
-        }))
+        ModEventManager:Trigger(Channels.MCM_SERVER_SET_PROFILE, {
+            fromProfile = ModConfig.profileManager:GetCurrentProfile(),
+            toProfile = profileName
+        })
     end
 
     return success
@@ -127,18 +124,15 @@ function MCMServer:DeleteProfile(profileName)
     local success = ModConfig.profileManager:DeleteProfile(profileName)
 
     if success then
-        Ext.Net.BroadcastMessage(Channels.MCM_SERVER_DELETED_PROFILE, Ext.Json.Stringify({
+        ModEventManager:Trigger(Channels.MCM_SERVER_DELETED_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
-        }))
+        })
 
         -- Notify other servers about the profile deletion
-        Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-            channel = Channels.MCM_SERVER_DELETED_PROFILE,
-            payload = {
-                profileName = profileName
-            }
-        }))
+        ModEventManager:Trigger(Channels.MCM_SERVER_DELETED_PROFILE, {
+            profileName = profileName
+        })
     end
 
     return success
@@ -148,8 +142,10 @@ function MCMServer:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     MCMAPI:LoadConfigs()
 
-    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
-        Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    ModEventManager:Trigger(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {
+        mods = MCMAPI.mods,
+        profiles = MCMAPI.profiles
+    })
 end
 
 --- Reset all settings for a mod to their default values

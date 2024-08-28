@@ -37,8 +37,7 @@ function IMGUIAPI:SetSettingValue(settingId, value, modGUID, setUIValue)
     MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
 
     -- FIXME: this is leaking listeners
-    Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
-        local data = Ext.Json.Parse(payload)
+    ModEventManager:Subscribe(Channels.MCM_SETTING_UPDATED, function(data)
         if data.modGUID == modGUID and data.settingId == settingId then
             if setUIValue then
                 setUIValue(data.value)

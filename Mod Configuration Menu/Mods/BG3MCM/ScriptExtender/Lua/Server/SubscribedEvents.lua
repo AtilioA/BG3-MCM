@@ -1,15 +1,18 @@
 SubscribedEvents = {}
 
 local netEventsRegistry = CommandRegistry:new()
+local modEventRegistry = CommandRegistry:new()
 
 --- Net message handler for when the (IMGUI) client requests the MCM settings to be loaded
 netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:new(EHandlers.OnClientRequestConfigs))
+
 --- Net message handlers for when the (IMGUI) client opens or closes the MCM window
-netEventsRegistry:register(Channels.MCM_USER_OPENED_WINDOW, NetCommand:new(EHandlers.OnUserOpenedWindow))
-netEventsRegistry:register(Channels.MCM_USER_CLOSED_WINDOW, NetCommand:new(EHandlers.OnUserClosedWindow))
+modEventRegistry:register(Channels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)
+modEventRegistry:register(Channels.MCM_USER_CLOSED_WINDOW, EHandlers.OnUserClosedWindow)
+
 --- Net message handler for when the user spams the MCM button (the window is probably not open)
 netEventsRegistry:register(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,
-NetCommand:new(EHandlers.OnUserSpamMCMButton))
+    NetCommand:new(EHandlers.OnUserSpamMCMButton))
 netEventsRegistry:register(Channels.MCM_RELAY_TO_CLIENTS, NetCommand:new(EHandlers.OnRelayToClients))
 
 --- Authorized NetCommand interface (inherits from NetCommand, check if user can edit settings etc)
@@ -44,6 +47,13 @@ local function registerNetListeners(registry)
     end
 end
 
+local function registerModEventListeners(registry)
+    for eventName, handler in pairs(registry) do
+        ModEventManager:RegisterEvent(eventName)
+        ModEventManager:Subscribe(eventName, handler)
+    end
+end
+
 -- Subscribe to events
 function SubscribedEvents.SubscribeToEvents()
     -- When resetting Lua states
@@ -60,6 +70,7 @@ function SubscribedEvents.SubscribeToEvents()
     Ext.Events.SessionLoaded:Subscribe(EHandlers.OnSessionLoaded)
 
     registerNetListeners(netEventsRegistry)
+    registerModEventListeners(modEventRegistry)
 end
 
 return SubscribedEvents
