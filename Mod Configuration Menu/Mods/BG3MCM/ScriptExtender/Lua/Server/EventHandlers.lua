@@ -6,6 +6,7 @@ EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 function EHandlers.OnLevelGameplayStarted(levelName, isEditorMode)
     MCMDebug(2, "Level " .. levelName .. " started")
     MCMServer:LoadAndSendSettings()
+    ModEventManager:IssueDeprecationWarning()
 end
 
 function EHandlers.OnClientRequestConfigs(_)

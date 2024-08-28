@@ -2,11 +2,10 @@ RequireFiles("Shared/Helpers/", {
     "VC/_Init",
     "Keybindings/_Init",
     "Validators/_Init",
-    "Channels",
+    "Events/_Init",
     "Config",
     "Printer",
     "Color",
-    "Messages",
     "Preprocessing/_Init",
     "MCM/_Init",
 })
