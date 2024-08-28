@@ -1,5 +1,6 @@
 Channels = {}
 
+-- TODO: standardize the naming of these channels
 -- Define channel constants for communication between the client and server
 Channels.MCM_RELAY_TO_SERVERS = "MCM_Relay_To_Servers"
 Channels.MCM_RELAY_TO_CLIENTS = "MCM_Relay_To_Clients"
