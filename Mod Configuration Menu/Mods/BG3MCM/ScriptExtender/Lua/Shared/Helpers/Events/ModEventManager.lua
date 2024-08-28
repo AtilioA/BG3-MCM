@@ -9,8 +9,26 @@ function ModEventManager:IssueDeprecationWarning()
     ---@return table<string, table<string, number>> listeners The mods using net listeners as mod events and the listeners' locations in the source files
     local function getDeprecatedNetListeners()
         local listeners = {}
+        local deprecatedChannels = {
+            -- Hardcoded because old mods will still use these even if I change in Channels.lua
+            "MCM_Saved_Setting",
+            "MCM_Setting_Updated",
+            "MCM_Setting_Reset",
+            "MCM_Reset_All_Mod_Settings",
+            "MCM_Server_Created_Profile",
+            "MCM_Server_Set_Profile",
+            "MCM_Server_Deleted_Profile",
+            "MCM_Mod_Tab_Added",
+            "MCM_Window_Ready",
+            "MCM_User_Opened_Window",
+            "MCM_User_Closed_Window",
+            "MCM_Mod_Tab_Activated",
+            "MCM_Mod_Subtab_Activated"
+        }
+
+        for _, channel in ipairs(deprecatedChannels) do
         -- Thanks Norbyte for the industry secret
-        for _i, listenerFunction in ipairs(Ext._Internal.EventManager.NetListeners.MCM_Saved_Setting) do
+            for _i, listenerFunction in ipairs(Ext._Internal.EventManager.NetListeners[channel] or {}) do
             local listenerInfo = debug.getinfo(listenerFunction)
 
             local source = listenerInfo.source
@@ -27,6 +45,7 @@ function ModEventManager:IssueDeprecationWarning()
                 source = source,
                 line = listenerInfo.linedefined
             })
+            end
         end
         return listeners
     end
