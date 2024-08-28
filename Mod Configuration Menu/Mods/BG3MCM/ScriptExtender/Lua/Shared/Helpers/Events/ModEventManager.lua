@@ -27,24 +27,24 @@ function ModEventManager:IssueDeprecationWarning()
         }
 
         for _, channel in ipairs(deprecatedChannels) do
-        -- Thanks Norbyte for the industry secret
+            -- Thanks Norbyte for the industry secret
             for _i, listenerFunction in ipairs(Ext._Internal.EventManager.NetListeners[channel] or {}) do
-            local listenerInfo = debug.getinfo(listenerFunction)
+                local listenerInfo = debug.getinfo(listenerFunction)
 
-            local source = listenerInfo.source
-            -- First directory is the mod directory
-            local modDir = source:match("([^/]+)/")
-            if not modDir then
-                return listeners
-            end
-            if not listeners[modDir] then
-                listeners[modDir] = {}
-            end
+                local source = listenerInfo.source
+                -- First directory is the mod directory
+                local modDir = source:match("([^/]+)/")
+                if not modDir then
+                    return listeners
+                end
+                if not listeners[modDir] then
+                    listeners[modDir] = {}
+                end
 
-            table.insert(listeners[modDir], {
-                source = source,
-                line = listenerInfo.linedefined
-            })
+                table.insert(listeners[modDir], {
+                    source = source,
+                    line = listenerInfo.linedefined
+                })
             end
         end
         return listeners
@@ -98,7 +98,7 @@ function ModEventManager:RegisterEvent(eventName)
         MCMDebug(0, "eventName cannot be nil")
         error("eventName cannot be nil")
     end
-    MCMDebug(1, "Registering mod event: " .. eventName)
+    MCMDebug(2, "Registering mod event: " .. eventName)
     Ext.RegisterModEvent('BG3MCM', eventName)
 end
 
@@ -119,10 +119,10 @@ function ModEventManager:Subscribe(eventName, callback)
     Ext.ModEvents['BG3MCM'][eventName]:Subscribe(callback)
 end
 
---- Trigger a mod event
+--- Emit a mod event
 ---@param eventName string The name of the event
 ---@param eventData table The data to pass with the event
-function ModEventManager:Trigger(eventName, eventData)
+function ModEventManager:Emit(eventName, eventData)
     if not eventName then
         MCMDebug(0, "eventName cannot be nil")
         error("eventName cannot be nil")
@@ -133,27 +133,15 @@ function ModEventManager:Trigger(eventName, eventData)
         self:RegisterEvent(eventName)
     end
 
-    MCMDebug(1, "Triggering mod event: " .. eventName .. " with data:" .. Ext.DumpExport(eventData))
+    MCMDebug(1, "Emitting mod event: " .. eventName)
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 
-    -- DEPRECATED: Use net messages for backward compatibility
-    local deprecatedEventData = setmetatable(eventData, {
-        __index = function(t, key)
-            print("Metamethod __index is being called for key:", key)
-            MCMWarn(0,
-                "Net messages usage for mod events is deprecated. SE v18 introduced Mod Events for this purpose. Please update your code.\nSee https://wiki.bg3.community/Tutorials/Mod-Frameworks/mod-configuration-menu#listening-to-mcm-events for more information.")
-            return rawget(t, key)
-        end
-    })
-
     if (Ext.IsServer()) then
-        MCMDebug(1, "Broadcasting deprecated net message: " .. eventName)
-        MCMDebug(1, Ext.DumpExport(deprecatedEventData))
-        Ext.Net.BroadcastMessage(eventName, Ext.Json.Stringify(deprecatedEventData))
+        MCMDebug(2, "Broadcasting deprecated net message: " .. eventName)
+        Ext.Net.BroadcastMessage(eventName, Ext.Json.Stringify(eventData))
     else
-        MCMDebug(1, "Posting deprecated net message to server: " .. eventName)
-        MCMDebug(1, Ext.DumpExport(deprecatedEventData))
-        Ext.Net.PostMessageToServer(eventName, Ext.Json.Stringify(deprecatedEventData))
+        MCMDebug(2, "Posting deprecated net message to server: " .. eventName)
+        Ext.Net.PostMessageToServer(eventName, Ext.Json.Stringify(eventData))
     end
 end
 

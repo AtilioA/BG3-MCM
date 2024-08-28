@@ -27,9 +27,11 @@ Ext.Events.ResetCompleted:Subscribe(function()
     MCMProxy.GameState = "Running"
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(MCMAPI.mods)
-    ModEventManager:Trigger(Channels.MCM_CLIENT_REQUEST_CONFIGS, {
+
+    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
-    })
+    }))
+
     if not MCM_WINDOW then
         return
     end
@@ -37,15 +39,11 @@ Ext.Events.ResetCompleted:Subscribe(function()
 end)
 
 --- SECTION: Mod events
-ModEventManager:Subscribe("MCM_SERVER_SEND_CONFIGS_TO_CLIENT", function(data)
+Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(data)
     local mods = data.mods
     local profiles = data.profiles
 
     MCMClientState:LoadMods(mods)
-end)
-
-ModEventManager:Subscribe("MCM_RELAY_TO_SERVERS", function(data)
-    Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
 end)
 
 ModEventManager:Subscribe("MCM_SETTING_RESET", function(data)

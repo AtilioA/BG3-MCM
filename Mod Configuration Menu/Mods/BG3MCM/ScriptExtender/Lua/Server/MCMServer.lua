@@ -21,7 +21,7 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
         MCMWarn(1, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
 
         -- Notify the client with the current value of the setting, so it can update its UI
-        ModEventManager:Trigger(Channels.MCM_SETTING_UPDATED, {
+        ModEventManager:Emit(Channels.MCM_SETTING_UPDATED, {
             modGUID = modGUID,
             settingId = settingId,
             value = modSettingsTable[settingId]
@@ -33,14 +33,14 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 
     -- Notify other servers about the setting update
-    ModEventManager:Trigger(Channels.MCM_SAVED_SETTING, {
+    ModEventManager:Emit(Channels.MCM_SAVED_SETTING, {
         modGUID = modGUID,
         settingId = settingId,
         value = value
     })
 
     -- Notify clients that the setting has been updated
-    ModEventManager:Trigger(Channels.MCM_SETTING_UPDATED, {
+    ModEventManager:Emit(Channels.MCM_SETTING_UPDATED, {
         modGUID = modGUID,
         settingId = settingId,
         value = value
@@ -62,7 +62,7 @@ function MCMServer:ResetSettingValue(settingId, modGUID, clientRequest)
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
-        ModEventManager:Trigger(Channels.MCM_SETTING_RESET, {
+        ModEventManager:Emit(Channels.MCM_SETTING_RESET, {
             modGUID = modGUID,
             settingId = settingId,
             defaultValue = defaultValue
@@ -77,13 +77,12 @@ function MCMServer:CreateProfile(profileName)
     local success = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
-        ModEventManager:Trigger(Channels.MCM_SERVER_CREATED_PROFILE, {
+        ModEventManager:Emit(Channels.MCM_SERVER_CREATED_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
-        -- REFACTOR: (USE MODEVENTS) Notify other servers about the new profile creation
-        ModEventManager:Trigger(Channels.MCM_SERVER_CREATED_PROFILE, {
+        ModEventManager:Emit(Channels.MCM_SERVER_CREATED_PROFILE, {
             profileName = profileName
         })
     end
@@ -101,13 +100,13 @@ function MCMServer:SetProfile(profileName)
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
-        ModEventManager:Trigger(Channels.MCM_SERVER_SET_PROFILE, {
+        ModEventManager:Emit(Channels.MCM_SERVER_SET_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
         -- Notify other servers about the profile change
-        ModEventManager:Trigger(Channels.MCM_SERVER_SET_PROFILE, {
+        ModEventManager:Emit(Channels.MCM_SERVER_SET_PROFILE, {
             fromProfile = ModConfig.profileManager:GetCurrentProfile(),
             toProfile = profileName
         })
@@ -124,13 +123,13 @@ function MCMServer:DeleteProfile(profileName)
     local success = ModConfig.profileManager:DeleteProfile(profileName)
 
     if success then
-        ModEventManager:Trigger(Channels.MCM_SERVER_DELETED_PROFILE, {
+        ModEventManager:Emit(Channels.MCM_SERVER_DELETED_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
         -- Notify other servers about the profile deletion
-        ModEventManager:Trigger(Channels.MCM_SERVER_DELETED_PROFILE, {
+        ModEventManager:Emit(Channels.MCM_SERVER_DELETED_PROFILE, {
             profileName = profileName
         })
     end
@@ -142,10 +141,10 @@ function MCMServer:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     MCMAPI:LoadConfigs()
 
-    ModEventManager:Trigger(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {
+    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({
         mods = MCMAPI.mods,
         profiles = MCMAPI.profiles
-    })
+    }))
 end
 
 --- Reset all settings for a mod to their default values

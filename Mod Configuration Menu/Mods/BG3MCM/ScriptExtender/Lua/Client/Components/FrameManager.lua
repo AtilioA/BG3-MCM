@@ -107,22 +107,20 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     newTab.IDContext = modGUID .. "_" .. tabName
     newTab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
-        -- REFACTOR: use modevents
         if not MCMProxy.IsMainMenu() then
-            Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+            ModEventManager:Emit(Channels.MCM_MOD_SUBTAB_ACTIVATED, {
                 modGUID = modGUID,
                 tabName = tabName
-            }))
+            })
         end
     end
 
     if not MCMProxy.IsMainMenu() then
         tabCallback(newTab)
-        -- REFACTOR: use modevents
-        Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
+        ModEventManager:Emit(Channels.MCM_MOD_TAB_ADDED, {
             modGUID = modGUID,
             tabName = tabName
-        }))
+        })
     end
 
     return newTab
@@ -146,12 +144,9 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
             end
         end
         if not MCMProxy.IsMainMenu() then
-            Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
-                channel = Channels.MCM_MOD_TAB_ACTIVATED,
-                payload = {
+            ModEventManager:Emit(Channels.MCM_MOD_TAB_ACTIVATED, {
                     modGUID = uuid
-                }
-            }))
+            })
         end
     end
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))

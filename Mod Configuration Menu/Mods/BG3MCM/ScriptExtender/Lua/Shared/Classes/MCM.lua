@@ -37,7 +37,7 @@ function MCM:CreateProfile(profileName)
             -- }))
 
             -- Notify other servers about the new profile creation
-            ModEventManager:Trigger(Channels.MCM_SERVER_CREATED_PROFILE, {
+            ModEventManager:Emit(Channels.MCM_SERVER_CREATED_PROFILE, {
                 profileName = profileName,
                 newSettings = ModConfig.mods
             })
@@ -79,7 +79,7 @@ function MCM:SetProfile(profileName)
             -- }))
 
             -- Notify other servers about the profile change
-            ModEventManager:Trigger(Channels.MCM_SERVER_SET_PROFILE, {
+            ModEventManager:Emit(Channels.MCM_SERVER_SET_PROFILE, {
                 fromProfile = currentProfile,
                 toProfile = profileName
             })
@@ -142,7 +142,8 @@ function MCM:IsSettingValueValid(settingId, value, modGUID)
         local isValid = DataPreprocessing:ValidateSetting(setting, value)
         if not isValid then
             MCMWarn(0,
-                "Value " .. tostring(value) .. " is invalid for setting '" .. settingId .. "' in mod '" .. modGUID .. "'.")
+                "Value " ..
+                tostring(value) .. " is invalid for setting '" .. settingId .. "' in mod '" .. modGUID .. "'.")
         end
         return isValid
     else
@@ -278,7 +279,6 @@ end
 function MCM:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     self:LoadConfigs()
-
 end
 
 -- UNUSED since profile management currently calls shared code

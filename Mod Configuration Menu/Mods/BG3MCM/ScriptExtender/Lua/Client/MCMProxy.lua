@@ -36,6 +36,7 @@ function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
         FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     end
 end
+
 function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
     if MCMProxy.IsMainMenu() then
         -- Handle locally
@@ -45,11 +46,11 @@ function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
         end
     else
         -- Send to server
-        ModEventManager:Trigger(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, {
+        Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
             modGUID = modGUID,
             settingId = settingId,
             value = value
-        })
+        }))
         ModEventManager:Subscribe(Channels.MCM_SETTING_UPDATED, function(data)
             if data.modGUID == modGUID and data.settingId == settingId then
                 if setUIValue then
@@ -67,9 +68,9 @@ function MCMProxy:ResetSettingValue(settingId, modGUID)
         MCMClientState:SetClientStateValue(settingId, MCMAPI:GetSettingValue(settingId, modGUID), modGUID)
     else
         -- Send to server
-        ModEventManager:Trigger(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, {
+        Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, Ext.Json.Stringify({
             modGUID = modGUID,
             settingId = settingId
-        })
+        }))
     end
 end
