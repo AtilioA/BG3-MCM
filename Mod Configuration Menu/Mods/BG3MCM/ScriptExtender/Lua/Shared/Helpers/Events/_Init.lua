@@ -1,4 +1,5 @@
 RequireFiles("Shared/Helpers/Events/", {
-    "Channels",
+    "NetChannels",
+    "EventChannels",
     "ModEventManager",
 })

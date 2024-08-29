@@ -145,33 +145,4 @@ function ModEventManager:Emit(eventName, eventData)
     end
 end
 
--- -- Table to keep track of functions that have already been warned
--- local warnedFunctions = {}
-
--- -- Function to wrap the original listener with a deprecation warning
--- ---@param originalFunction function The original listener function
--- local function wrapWithDeprecationWarning(originalFunction)
---     return function(...)
---         _D(
---             "Net messages usage for mod events is deprecated. SE v18 introduced Mod Events for this purpose. Please update your code.\nSee https://wiki.bg3.community/Tutorials/Mod-Frameworks/mod-configuration-menu#listening-to-mcm-events for more information.")
---         return originalFunction(...)
---     end
--- end
-
--- Ext.Timer.WaitFor(1000, function()
---     -- Iterate over all net listeners
---     for i, listenerFunction in ipairs(Ext._Internal.EventManager.NetListeners.MCM_Saved_Setting) do
---         -- Wrap the original function with the deprecation warning
---         local wrappedFunction = wrapWithDeprecationWarning(listenerFunction)
---         Ext._Internal.EventManager.NetListeners.MCM_Saved_Setting[i] = wrappedFunction
---         -- Check if the function has actually changed
---         if wrappedFunction == Ext._Internal.EventManager.NetListeners.MCM_Saved_Setting[i] then
---             print("Function at index " .. i .. " has changed.")
---             Ext._Internal.EventManager.NetListeners.MCM_Saved_Setting[i] = wrappedFunction
---         else
---             print("Function at index " .. i .. " has not changed.")
---         end
---     end
--- end)
-
 return ModEventManager

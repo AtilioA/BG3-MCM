@@ -4,36 +4,36 @@ local netEventsRegistry = CommandRegistry:new()
 local modEventRegistry = CommandRegistry:new()
 
 --- Net message handler for when the (IMGUI) client requests the MCM settings to be loaded
-netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:new(EHandlers.OnClientRequestConfigs))
+netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:new(EHandlers.OnClientRequestConfigs))
 
 --- Net message handlers for when the (IMGUI) client opens or closes the MCM window
-modEventRegistry:register(Channels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)
-modEventRegistry:register(Channels.MCM_USER_CLOSED_WINDOW, EHandlers.OnUserClosedWindow)
+modEventRegistry:register(EventChannels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)
+modEventRegistry:register(EventChannels.MCM_USER_CLOSED_WINDOW, EHandlers.OnUserClosedWindow)
 
 --- Net message handler for when the user spams the MCM button (the window is probably not open)
-netEventsRegistry:register(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,
+netEventsRegistry:register(NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,
     NetCommand:new(EHandlers.OnUserSpamMCMButton))
 
 --- Authorized NetCommand interface (inherits from NetCommand, check if user can edit settings etc)
 --- Net message handler for when the (IMGUI) client requests a setting to be set
-netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE,
+netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestSetSettingValue))
-netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE,
+netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestResetSettingValue))
 
 --- Net message handler for when the (IMGUI) client requests profiles data
--- registry:register(Channels.MCM_CLIENT_REQUEST_PROFILES, AuthorizedCommand:new(EHandlers.OnClientRequestProfiles))
+-- registry:register(NetChannels.MCM_CLIENT_REQUEST_PROFILES, AuthorizedCommand:new(EHandlers.OnClientRequestProfiles))
 
 --- Net message handler for when the (IMGUI) client requests a profile to be set
-netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_SET_PROFILE,
+netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_SET_PROFILE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestSetProfile))
 
 --- Net message handler for when the (IMGUI) client requests a profile to be created
-netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_CREATE_PROFILE,
+netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestCreateProfile))
 
 --- Net message handler for when the (IMGUI) client requests a profile to be deleted
-netEventsRegistry:register(Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE,
+netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestDeleteProfile))
 
 local function registerNetListeners(registry)

@@ -14,17 +14,22 @@ end
 ---@param modGUID GUIDSTRING The UUID of the mod
 function MCMServer:SetSettingValue(settingId, value, modGUID)
     local modSettingsTable = MCMAPI:GetAllModSettings(modGUID)
+    local oldValue = modSettingsTable[settingId]
 
     local isValid = MCMAPI:IsSettingValueValid(settingId, value, modGUID)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
     if not isValid then
-        MCMWarn(1, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
+        local errorMessage = "Invalid value for setting '" ..
+        settingId .. " (" .. tostring(value) .. "). Value will not be saved."
+        MCMWarn(1, errorMessage)
 
         -- Notify the client with the current value of the setting, so it can update its UI
-        ModEventManager:Emit(Channels.MCM_SETTING_UPDATED, {
+        ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
             modGUID = modGUID,
             settingId = settingId,
-            value = modSettingsTable[settingId]
+            value = value,
+            oldValue = value,
+            error = errorMessage
         })
         return
     end
@@ -32,18 +37,20 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 
-    -- Notify other servers about the setting update
-    ModEventManager:Emit(Channels.MCM_SAVED_SETTING, {
+    -- Notify clients
+    Ext.Net.BroadcastMessage(NetChannels.MCM_CLIENT_UPDATE_SETTING, Ext.Json.Stringify({
         modGUID = modGUID,
         settingId = settingId,
-        value = value
-    })
+        value = value,
+        oldValue = oldValue
+    }))
 
-    -- Notify clients that the setting has been updated
-    ModEventManager:Emit(Channels.MCM_SETTING_UPDATED, {
+    -- Notify other mods
+    ModEventManager:Emit(EventChannels.MCM_SAVED_SETTING, {
         modGUID = modGUID,
         settingId = settingId,
-        value = value
+        value = value,
+        oldValue = oldValue
     })
 end
 
@@ -62,7 +69,7 @@ function MCMServer:ResetSettingValue(settingId, modGUID, clientRequest)
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
-        ModEventManager:Emit(Channels.MCM_SETTING_RESET, {
+        ModEventManager:Emit(EventChannels.MCM_SETTING_RESET, {
             modGUID = modGUID,
             settingId = settingId,
             defaultValue = defaultValue
@@ -77,12 +84,12 @@ function MCMServer:CreateProfile(profileName)
     local success = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
-        ModEventManager:Emit(Channels.MCM_SERVER_CREATED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_CREATED_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
-        ModEventManager:Emit(Channels.MCM_SERVER_CREATED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_CREATED_PROFILE, {
             profileName = profileName
         })
     end
@@ -100,13 +107,13 @@ function MCMServer:SetProfile(profileName)
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
-        ModEventManager:Emit(Channels.MCM_SERVER_SET_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_SET_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
         -- Notify other servers about the profile change
-        ModEventManager:Emit(Channels.MCM_SERVER_SET_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_SET_PROFILE, {
             fromProfile = ModConfig.profileManager:GetCurrentProfile(),
             toProfile = profileName
         })
@@ -123,13 +130,13 @@ function MCMServer:DeleteProfile(profileName)
     local success = ModConfig.profileManager:DeleteProfile(profileName)
 
     if success then
-        ModEventManager:Emit(Channels.MCM_SERVER_DELETED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_DELETED_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
         -- Notify other servers about the profile deletion
-        ModEventManager:Emit(Channels.MCM_SERVER_DELETED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_DELETED_PROFILE, {
             profileName = profileName
         })
     end
@@ -141,7 +148,7 @@ function MCMServer:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     MCMAPI:LoadConfigs()
 
-    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({
+    Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({
         mods = MCMAPI.mods,
         profiles = MCMAPI.profiles
     }))
@@ -154,8 +161,8 @@ end
 --     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
 --     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
---     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
+--     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
+--         Ext.Json.Stringify({ channel = EventChannels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
 -- end
 
 -- UNUSED since profile management currently calls shared code
@@ -180,7 +187,7 @@ end
 --- Get the table of MCM profiles
 ---@return table<string, table> The table of profiles
 -- function MCMServer:GetProfiles()
---     Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_PROFILES,
+--     Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_PROFILES,
 --         Ext.Json.Stringify({ profiles = ModConfig:GetProfiles() }))
 --     return ModConfig:GetProfiles()
 -- end
@@ -188,7 +195,7 @@ end
 -- Get the current MCM profile's name
 --@return string The name of the current profile
 function MCMServer:GetCurrentProfile()
-    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CURRENT_PROFILE,
+    Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CURRENT_PROFILE,
         Ext.Json.Stringify({ profileName = ModConfig.profileManager:GetCurrentProfile() }))
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     return ModConfig.profileManager:GetCurrentProfile()

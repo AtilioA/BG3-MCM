@@ -28,7 +28,7 @@ Ext.Events.ResetCompleted:Subscribe(function()
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(MCMAPI.mods)
 
-    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
+    Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
 
@@ -39,14 +39,14 @@ Ext.Events.ResetCompleted:Subscribe(function()
 end)
 
 --- SECTION: Mod events
-Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(data)
+Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(data)
     local mods = data.mods
     local profiles = data.profiles
 
     MCMClientState:LoadMods(mods)
 end)
 
-ModEventManager:Subscribe("MCM_SETTING_RESET", function(data)
+ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     local modGUID = data.modGUID
     local settingId = data.settingId
     local defaultValue = data.defaultValue
@@ -69,7 +69,7 @@ local function UpdateMCMWindowValues(settingId, value, modGUID)
     end
 end
 
-ModEventManager:Subscribe("MCM_SETTING_UPDATED", function(data)
+ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
     local modGUID = data.modGUID
     local settingId = data.settingId
     local value = data.value
@@ -79,7 +79,7 @@ ModEventManager:Subscribe("MCM_SETTING_UPDATED", function(data)
     UpdateMCMWindowValues(settingId, value, modGUID)
 end)
 
-ModEventManager:Subscribe("MCM_MOD_TAB_ADDED", function(data)
+ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
     local modGUID = data.modGUID
     local tabName = data.tabName
     local tabCallback = data.tabCallback
@@ -88,7 +88,7 @@ ModEventManager:Subscribe("MCM_MOD_TAB_ADDED", function(data)
     IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
 end)
 
-ModEventManager:Subscribe("MCM_SERVER_SET_PROFILE", function(data)
+ModEventManager:Subscribe(EventChannels.MCM_SET_PROFILE, function(data)
     local newSettings = data.newSettings
 
     for modGUID, modSettings in pairs(newSettings) do

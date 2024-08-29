@@ -29,7 +29,7 @@ function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
         --     addTempText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
         -- end
 
-        Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
+        Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
             FrameManager:InsertModTab(modGUID, tabName, tabCallback)
         end)
     else
@@ -46,12 +46,12 @@ function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
         end
     else
         -- Send to server
-        Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
+        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
             modGUID = modGUID,
             settingId = settingId,
             value = value
         }))
-        ModEventManager:Subscribe(Channels.MCM_SETTING_UPDATED, function(data)
+        ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
             if data.modGUID == modGUID and data.settingId == settingId then
                 if setUIValue then
                     setUIValue(data.value)
@@ -68,7 +68,7 @@ function MCMProxy:ResetSettingValue(settingId, modGUID)
         MCMClientState:SetClientStateValue(settingId, MCMAPI:GetSettingValue(settingId, modGUID), modGUID)
     else
         -- Send to server
-        Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, Ext.Json.Stringify({
+        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, Ext.Json.Stringify({
             modGUID = modGUID,
             settingId = settingId
         }))

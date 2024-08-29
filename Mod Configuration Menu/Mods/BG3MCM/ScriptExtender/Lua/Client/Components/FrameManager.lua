@@ -108,7 +108,7 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     newTab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
         if not MCMProxy.IsMainMenu() then
-            ModEventManager:Emit(Channels.MCM_MOD_SUBTAB_ACTIVATED, {
+            ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
                 modGUID = modGUID,
                 tabName = tabName
             })
@@ -117,7 +117,7 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
 
     if not MCMProxy.IsMainMenu() then
         tabCallback(newTab)
-        ModEventManager:Emit(Channels.MCM_MOD_TAB_ADDED, {
+        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modGUID = modGUID,
             tabName = tabName
         })
@@ -144,7 +144,7 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
             end
         end
         if not MCMProxy.IsMainMenu() then
-            ModEventManager:Emit(Channels.MCM_MOD_TAB_ACTIVATED, {
+            ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, {
                     modGUID = uuid
             })
         end

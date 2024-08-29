@@ -31,13 +31,13 @@ function MCM:CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            -- Ext.Net.BroadcastMessage(Channels.MCM_SERVER_CREATED_PROFILE, Ext.Json.Stringify({
+            -- Ext.Net.BroadcastMessage(EventChannels.MCM_CREATED_PROFILE, Ext.Json.Stringify({
             --     profileName = profileName,
             --     newSettings = ModConfig.mods
             -- }))
 
             -- Notify other servers about the new profile creation
-            ModEventManager:Emit(Channels.MCM_SERVER_CREATED_PROFILE, {
+            ModEventManager:Emit(EventChannels.MCM_CREATED_PROFILE, {
                 profileName = profileName,
                 newSettings = ModConfig.mods
             })
@@ -73,13 +73,13 @@ function MCM:SetProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            -- Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SET_PROFILE, Ext.Json.Stringify({
+            -- Ext.Net.BroadcastMessage(EventChannels.MCM_SET_PROFILE, Ext.Json.Stringify({
             --     profileName = profileName,
             --     newSettings = ModConfig.mods
             -- }))
 
             -- Notify other servers about the profile change
-            ModEventManager:Emit(Channels.MCM_SERVER_SET_PROFILE, {
+            ModEventManager:Emit(EventChannels.MCM_SET_PROFILE, {
                 fromProfile = currentProfile,
                 toProfile = profileName
             })
@@ -234,7 +234,7 @@ function MCM:SetSettingValue(settingId, value, modGUID)
 
     -- if not clientRequest then
     -- Notify the client that the setting has been updated
-    -- Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+    -- Ext.Net.BroadcastMessage(EventChannels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
     --     modGUID = modGUID,
     --     settingId = settingId,
     --     value = value
@@ -257,7 +257,7 @@ function MCM:ResetSettingValue(settingId, modGUID, clientRequest)
             Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
     else
         self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
-        -- Ext.Net.BroadcastMessage(Channels.MCM_SETTING_RESET, Ext.Json.Stringify({
+        -- Ext.Net.BroadcastMessage(EventChannels.MCM_SETTING_RESET, Ext.Json.Stringify({
         --     modGUID = modGUID,
         --     settingId = settingId,
         --     defaultValue = defaultValue
@@ -272,8 +272,8 @@ end
 --     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
 --     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
---     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
+--     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
+--         Ext.Json.Stringify({ channel = EventChannels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
 -- end
 
 function MCM:LoadAndSendSettings()

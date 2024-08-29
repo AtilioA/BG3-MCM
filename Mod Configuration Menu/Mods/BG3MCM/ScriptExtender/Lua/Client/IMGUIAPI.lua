@@ -37,7 +37,7 @@ function IMGUIAPI:SetSettingValue(settingId, value, modGUID, setUIValue)
     MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
 
     -- FIXME: this is leaking listeners
-    ModEventManager:Subscribe(Channels.MCM_SETTING_UPDATED, function(data)
+    ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
         if data.modGUID == modGUID and data.settingId == settingId then
             if setUIValue then
                 setUIValue(data.value)
@@ -58,7 +58,7 @@ end
 -- ---@param profileName string The name of the profile to set
 -- ---@return nil
 -- function IMGUIAPI:SetProfile(profileName)
---     Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
+--     Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
 --         profileName = profileName
 --     }))
 -- end

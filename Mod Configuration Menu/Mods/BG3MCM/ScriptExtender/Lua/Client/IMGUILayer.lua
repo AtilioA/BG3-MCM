@@ -219,15 +219,15 @@ function IMGUILayer:ToggleMCMWindow(playSound)
         MCM_WINDOW.Visible = false
         MCM_WINDOW.Open = false
         -- TODO: re-enable this sfx logic after refactoring client-side code
-        -- Ext.Net.PostMessageToServer(Channels.MCM_USER_CLOSED_WINDOW, Ext.Json.Stringify({
-        --     playSound = playSound
-        -- }))
+        ModEventManager:Emit(EventChannels.MCM_USER_CLOSED_WINDOW, {
+            playSound = playSound
+        })
     else
         MCM_WINDOW.Visible = true
         MCM_WINDOW.Open = true
-        -- -- Ext.Net.PostMessageToServer(Channels.MCM_USER_OPENED_WINDOW, Ext.Json.Stringify({
-        --     playSound = playSound
-        -- }))
+        ModEventManager:Emit(EventChannels.MCM_USER_OPENED_WINDOW, {
+            playSound = playSound
+        })
     end
 end
 
@@ -243,7 +243,7 @@ function IMGUILayer:SetActiveWindowAlpha(bool)
 end
 
 function IMGUILayer:NotifyMCMWindowReady()
-    -- Ext.Net.PostMessageToServer(Channels.MCM_WINDOW_READY, "")
+    ModEventManager:Emit(EventChannels.MCM_WINDOW_READY, { MCM_WINDOW = MCM_WINDOW })
 end
 
 function IMGUILayer:LoadMods(mods)
@@ -390,7 +390,7 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modGUID)
     -- TODO: re-enable this after refactoring client-side code
     -- tab.OnActivate = function()
     --     MCMDebug(3, "Activating tab " .. tabInfo:GetTabName())
-    --     Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
+    --     Ext.Net.PostMessageToServer(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
     --         modGUID = modGUID,
     --         tabName = tabInfo:GetTabName()
     --     }))

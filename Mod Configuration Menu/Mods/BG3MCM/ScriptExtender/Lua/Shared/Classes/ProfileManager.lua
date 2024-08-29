@@ -111,7 +111,7 @@ function ProfileManager:SetCurrentProfile(profileName)
 
     -- TODO: untangle this from shared client/server code
     if Ext.IsServer() then
-        ModEventManager:Emit(Channels.MCM_SERVER_SET_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_SET_PROFILE, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
