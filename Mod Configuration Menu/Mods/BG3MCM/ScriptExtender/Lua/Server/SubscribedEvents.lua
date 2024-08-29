@@ -48,7 +48,6 @@ end
 
 local function registerModEventListeners(registry)
     for eventName, handler in pairs(registry) do
-        ModEventManager:RegisterEvent(eventName)
         ModEventManager:Subscribe(eventName, handler)
     end
 end

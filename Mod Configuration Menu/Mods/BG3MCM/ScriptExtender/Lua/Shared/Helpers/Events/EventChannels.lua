@@ -62,4 +62,23 @@ EventChannels.MCM_USER_OPENED_WINDOW = "MCM_User_Opened_Window"
 --- @return boolean playSound Whether a sound should be played when the window closes.
 EventChannels.MCM_USER_CLOSED_WINDOW = "MCM_User_Closed_Window"
 
+local function RegisterModEvents()
+    local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SAVED_SETTING)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_UPDATED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_RESET)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_CREATED_PROFILE)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SET_PROFILE)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_DELETED_PROFILE)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_MOD_TAB_ADDED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_MOD_TAB_ACTIVATED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_MOD_SUBTAB_ACTIVATED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_READY)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_USER_OPENED_WINDOW)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_USER_CLOSED_WINDOW)
+end
+
+RegisterModEvents()
+
 return EventChannels
