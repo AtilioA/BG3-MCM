@@ -91,15 +91,20 @@ end
 --     ModEventManager:IssueDeprecationWarning()
 -- end)
 
---- Register a new mod event
----@param eventName string The name of the event
-function ModEventManager:RegisterEvent(eventName)
-    if not eventName then
-        MCMDebug(0, "eventName cannot be nil")
-        error("eventName cannot be nil")
+--- Preprocess the event data for (deprecated) net messages
+--- Currently, only makes sure modUUID and modGUID are present, for backwards compatibility
+local function prepareNetData(eventData)
+    if not eventData then
+        eventData = {}
     end
-    MCMDebug(2, "Registering mod event: " .. eventName)
-    Ext.RegisterModEvent('BG3MCM', eventName)
+
+    if not eventData.modUUID then
+        eventData.modUUID = eventData.modGUID
+    end
+
+    if not eventData.modGUID then
+        eventData.modGUID = eventData.modUUID
+    end
 end
 
 --- Subscribe to a mod event
@@ -127,21 +132,18 @@ function ModEventManager:Emit(eventName, eventData)
         MCMDebug(0, "eventName cannot be nil")
         error("eventName cannot be nil")
     end
-    if not Ext.ModEvents['BG3MCM'] or not Ext.ModEvents['BG3MCM'][eventName] then
-        MCMDebug(1, "Registering event '" .. eventName .. "' because it was not found.")
-        -- Register the event if it does not exist
-        self:RegisterEvent(eventName)
-    end
+    local preparedEventData = prepareEventData(eventData)
 
     MCMDebug(1, "Emitting mod event: " .. eventName)
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 
+    local preparedNetData = prepareNetData(eventData)
     if (Ext.IsServer()) then
         MCMDebug(2, "Broadcasting deprecated net message: " .. eventName)
-        Ext.Net.BroadcastMessage(eventName, Ext.Json.Stringify(eventData))
+        Ext.Net.BroadcastMessage(eventName, Ext.Json.Stringify(preparedNetData))
     else
         MCMDebug(2, "Posting deprecated net message to server: " .. eventName)
-        Ext.Net.PostMessageToServer(eventName, Ext.Json.Stringify(eventData))
+        Ext.Net.PostMessageToServer(eventName, Ext.Json.Stringify(preparedNetData))
     end
 end
 
