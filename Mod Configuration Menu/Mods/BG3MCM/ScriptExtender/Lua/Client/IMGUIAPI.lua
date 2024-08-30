@@ -3,6 +3,24 @@ IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 
 IMGUIAPI.insertedTabs = {}
 
+--- Update values for the MCM window
+---@param settingId string The ID of the setting to update
+---@param value any The new value of the setting
+---@param modGUID string The UUID of the mod
+function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
+    if modGUID ~= ModuleUUID then
+        return
+    end
+
+    if not MCM_WINDOW then
+        return
+    end
+
+    if settingId == "auto_resize_window" then
+        MCM_WINDOW.AlwaysAutoResize = value
+    end
+end
+
 --- Insert a new tab for a mod in the MCM
 ---@param modGUID string The UUID of the mod
 ---@param tabName string The name of the tab to be inserted

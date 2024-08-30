@@ -37,13 +37,13 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
 
-    -- Notify clients
-    Ext.Net.BroadcastMessage(NetChannels.MCM_CLIENT_UPDATE_SETTING, Ext.Json.Stringify({
-        modGUID = modGUID,
-        settingId = settingId,
-        value = value,
-        oldValue = oldValue
-    }))
+    -- Notify MCM clients
+    -- Ext.Net.BroadcastMessage(NetChannels.MCM_SAVED_SETTING, Ext.Json.Stringify({
+    --     modGUID = modGUID,
+    --     settingId = settingId,
+    --     value = value,
+    --     oldValue = oldValue
+    -- }))
 
     -- Notify other mods
     ModEventManager:Emit(EventChannels.MCM_SAVED_SETTING, {

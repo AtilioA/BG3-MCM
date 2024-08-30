@@ -55,20 +55,6 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modGUID)
 end)
 
-local function UpdateMCMWindowValues(settingId, value, modGUID)
-    if modGUID ~= ModuleUUID then
-        return
-    end
-
-    if not MCM_WINDOW then
-        return
-    end
-
-    if settingId == "auto_resize_window" then
-        MCM_WINDOW.AlwaysAutoResize = value
-    end
-end
-
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
     local modGUID = data.modGUID
     local settingId = data.settingId
@@ -76,7 +62,7 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
 
     MCMClientState:SetClientStateValue(settingId, value, modGUID)
 
-    UpdateMCMWindowValues(settingId, value, modGUID)
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
 end)
 
 ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)

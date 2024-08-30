@@ -92,11 +92,14 @@ function NodeFinder:SearchNodeByID(strategy, modUUID, settingID)
     return traverse(root)
 end
 
-local nodeFinder = setmetatable({}, NodeFinder)
-local foundNode = nodeFinder:SearchNodeByID(ResetButtonStrategy, "1c132ec4-4cd2-4c40-aeb9-ff6ee0467da8", "mod_enabled")
-if foundNode then
-    _D("Node found: ")
-    _DS(foundNode)
-else
-    _D("Node not found.")
-end
+-- Ext.Timer.WaitFor(2000, function()
+--     local nodeFinder = setmetatable({}, NodeFinder)
+--     local foundNode = nodeFinder:SearchNodeByID(ResetButtonStrategy, "1c132ec4-4cd2-4c40-aeb9-ff6ee0467da8",
+--         "mod_enabled")
+--     if foundNode then
+--         _D("Node found: ")
+--         _DS(foundNode)
+--     else
+--         _D("Node not found.")
+--     end
+-- end)

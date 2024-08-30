@@ -55,8 +55,8 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
 
     uiGroupMod:AddSeparatorText(modName)
     if modDescription then
-        local modDescription = VCString:AddFullStop(VCString:Wrap(modDescription, 60))
-        uiGroupMod:AddText(modDescription)
+        local modDescription = VCString:AddFullStop(modDescription)
+        uiGroupMod:AddText(modDescription) --:SetStyle("TextWrapPos", 0.0)
         uiGroupMod:AddDummy(0, 5)
     end
 
@@ -77,6 +77,14 @@ end
 ---@param modUUID string
 ---@return any the group Content associated to modUUID
 function FrameManager:GetModTabBar(modUUID)
+    if not self.contentGroups or not self.contentGroups[modUUID] then
+        return nil
+    end
+
+    if table.isEmpty(self.contentGroups[modUUID].Children) then
+        return nil
+    end
+
     for _, child in ipairs(self.contentGroups[modUUID].Children) do
         if child.IDContext and child.IDContext:sub(-5) == "_TABS" then
             return child
@@ -145,7 +153,7 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
         end
         if not MCMProxy.IsMainMenu() then
             ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, {
-                    modGUID = uuid
+                modGUID = uuid
             })
         end
     end
