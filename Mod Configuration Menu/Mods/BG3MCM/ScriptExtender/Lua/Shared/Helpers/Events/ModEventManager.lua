@@ -150,7 +150,7 @@ function ModEventManager:Emit(eventName, eventData)
     if (Ext.IsServer()) then
         MCMDebug(2, "Broadcasting deprecated net message: " .. eventName)
         Ext.Net.BroadcastMessage(eventName, Ext.Json.Stringify(preparedNetData))
-    else
+    elseif not MCMProxy.IsMainMenu() then
         MCMDebug(2, "Posting deprecated net message to server: " .. eventName)
         Ext.Net.PostMessageToServer(eventName, Ext.Json.Stringify(preparedNetData))
     end
