@@ -143,7 +143,12 @@ function ModEventManager:Emit(eventName, eventData)
         return
     end
 
-    MCMDebug(1, "Emitting mod event: " .. eventName)
+    xpcall(function()
+        MCMDebug(1, "Emitting mod event: " .. eventName .. " with data: " .. Ext.DumpExport(eventData))
+    end, function(err)
+        MCMDebug(1, "Emitting mod event: " .. eventName)
+    end)
+
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 
     local preparedNetData = prepareNetData(eventData)

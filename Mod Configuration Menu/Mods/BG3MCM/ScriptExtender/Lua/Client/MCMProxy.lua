@@ -1,3 +1,5 @@
+--- MCMProxy ensures that mod settings can be managed and updated from the main menu if necessary, or from the server if the game is running.
+
 MCMProxy = {}
 
 MCMProxy.GameState = 'Menu'
