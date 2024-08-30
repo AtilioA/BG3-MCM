@@ -127,7 +127,8 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
         tabCallback(newTab)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modGUID = modGUID,
-            tabName = tabName
+            tabName = tabName,
+            tabCallback = tabCallback
         })
     end
 
