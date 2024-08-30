@@ -4,5 +4,5 @@ RequireFiles("Shared/Classes/", {
     "ProfileManager",
     "ModConfig",
     "JsonLayer",
-    "MCM",
+    "MCMAPI",
 })

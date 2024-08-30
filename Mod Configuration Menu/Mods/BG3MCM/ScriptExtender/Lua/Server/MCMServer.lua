@@ -1,4 +1,5 @@
-MCMServer = {}
+---@class MCMServer
+MCMServer = _Class:Create("MCMServer", nil, {})
 
 --- Loads the profile manager and the configurations for all mods.
 ---@return nil
@@ -6,6 +7,28 @@ function MCMServer:LoadConfigs()
     MCMAPI.mods = ModConfig:GetSettings()
     MCMAPI.profiles = ModConfig:GetProfiles()
     MCMTest(0, "Done loading MCM configs")
+end
+
+--- Get the settings table for a mod
+---@param modGUID GUIDSTRING The UUID of the mod to retrieve settings from
+---@return table<string, table> - The settings table for the mod
+function MCMServer:GetAllModSettings(modGUID)
+    if not modGUID then
+        MCMWarn(0, "modGUID is nil. Cannot get mod settings.")
+        return {}
+    end
+
+    local mod = MCMAPI.mods[modGUID]
+    if not mod then
+        MCMWarn(0,
+            "Mod " ..
+            modGUID ..
+            " was not found by MCM.\nDouble check your blueprint filename, directory, and whether it's well-defined. Please contact " ..
+            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        return {}
+    end
+
+    return mod.settingsValues
 end
 
 --- Set the value of a configuration setting
@@ -20,7 +43,7 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
     if not isValid then
         local errorMessage = "Invalid value for setting '" ..
-        settingId .. " (" .. tostring(value) .. "). Value will not be saved."
+            settingId .. " (" .. tostring(value) .. "). Value will not be saved."
         MCMWarn(1, errorMessage)
 
         -- Notify the client with the current value of the setting, so it can update its UI
@@ -226,29 +249,29 @@ end
 --     end
 -- end
 
--- --- Get the value of a configuration setting
--- ---@param settingId string The id of the setting
--- ---@param modGUID string The UUID of the mod that has the setting
--- ---@return any The value of the setting
--- function MCMServer:GetSettingValue(settingId, modGUID)
---     if not modGUID then
---         MCMWarn(0, "modGUID is nil. Cannot get setting value.")
---         return nil
---     end
+--- Get the value of a configuration setting
+---@param settingId string The id of the setting
+---@param modGUID string The UUID of the mod that has the setting
+---@return any The value of the setting
+function MCMServer:GetSettingValue(settingId, modGUID)
+    if not modGUID then
+        MCMWarn(0, "modGUID is nil. Cannot get setting value.")
+        return nil
+    end
 
---     local modSettingsTable = MCMAPI:GetAllModSettings(modGUID)
---     if not modSettingsTable then
---         MCMWarn(0, "Mod settings table not found for mod '" .. modGUID .. "'.")
---         return nil
---     end
+    local modSettingsTable = MCMAPI:GetAllModSettings(modGUID)
+    if not modSettingsTable then
+        MCMWarn(0, "Mod settings table not found for mod '" .. modGUID .. "'.")
+        return nil
+    end
 
---     if modSettingsTable[settingId] ~= nil then
---         return modSettingsTable[settingId]
---     end
+    if modSettingsTable[settingId] ~= nil then
+        return modSettingsTable[settingId]
+    end
 
---     -- No settingId
---     MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modGUID)
---     return nil
--- end
+    -- No settingId
+    MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modGUID)
+    return nil
+end
 
 return MCMServer

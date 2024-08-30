@@ -1,8 +1,10 @@
 --- MCMProxy ensures that mod settings can be managed and updated from the main menu if necessary, or from the server if the game is running.
-
-MCMProxy = {}
-
-MCMProxy.GameState = 'Menu'
+---
+---@class MCMProxy
+---@field GameState string The current game state. Might be used to determine if the game is in the main menu.
+MCMProxy = _Class:Create("MCMProxy", nil, {
+    GameState = 'Menu'
+})
 
 function MCMProxy.IsMainMenu()
     if Ext.Net.IsHost then
@@ -17,6 +19,21 @@ function MCMProxy.IsMainMenu()
     end
 
     return false
+end
+
+function MCMProxy:LoadConfigs()
+    local function loadConfigs()
+        self.mods = ModConfig:GetSettings()
+        self.profiles = ModConfig:GetProfiles()
+    end
+    
+    if MCMProxy.IsMainMenu() then
+        loadConfigs()
+    else
+        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
+            message = "Requesting MCM settings from server."
+        }))
+    end
 end
 
 -- TODO: add temporary message to inform users that custom MCM tabs are not available in the main menu
@@ -36,6 +53,14 @@ function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
         end)
     else
         FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+    end
+end
+
+function MCMProxy:GetSettingValue(settingId, modGUID)
+    if MCMProxy.IsMainMenu() then
+        return MCMAPI:GetSettingValue(settingId, modGUID)
+    else
+        return MCMClientState:GetClientStateValue(settingId, modGUID)
     end
 end
 
