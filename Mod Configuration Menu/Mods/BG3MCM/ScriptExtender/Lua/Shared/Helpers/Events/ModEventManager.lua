@@ -124,6 +124,10 @@ function ModEventManager:Subscribe(eventName, callback)
     Ext.ModEvents['BG3MCM'][eventName]:Subscribe(callback)
 end
 
+function ModEventManager:IsEventRegistered(eventName)
+    return Ext.ModEvents['BG3MCM'] and Ext.ModEvents['BG3MCM'][eventName]
+end
+
 --- Emit a mod event
 ---@param eventName string The name of the event
 ---@param eventData table The data to pass with the event
@@ -132,7 +136,12 @@ function ModEventManager:Emit(eventName, eventData)
         MCMDebug(0, "eventName cannot be nil")
         error("eventName cannot be nil")
     end
-    local preparedEventData = prepareEventData(eventData)
+
+    if not self:IsEventRegistered(eventName) then
+        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
+        MCMWarn(0, Ext.DumpExport(Ext.ModEvents['BG3MCM']))
+        return
+    end
 
     MCMDebug(1, "Emitting mod event: " .. eventName)
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
