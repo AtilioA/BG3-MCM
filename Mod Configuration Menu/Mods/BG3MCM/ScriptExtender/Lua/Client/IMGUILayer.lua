@@ -219,13 +219,13 @@ function IMGUILayer:ToggleMCMWindow(playSound)
         MCM_WINDOW.Visible = false
         MCM_WINDOW.Open = false
         -- TODO: re-enable this sfx logic after refactoring client-side code
-        ModEventManager:Emit(EventChannels.MCM_USER_CLOSED_WINDOW, {
+        ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {
             playSound = playSound
         })
     else
         MCM_WINDOW.Visible = true
         MCM_WINDOW.Open = true
-        ModEventManager:Emit(EventChannels.MCM_USER_OPENED_WINDOW, {
+        ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
             playSound = playSound
         })
     end

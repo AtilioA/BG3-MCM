@@ -2,7 +2,7 @@ MCMPrinter = Printer:New { Prefix = "Mod Configuration Menu", ApplyColor = true,
 
 -- Update the Printer debug level when the setting is changed, since the value is only used during the object's creation
 -- NOTE: this does not work as expected because there are two sources of truth for the debug level: MCM settings.json and VCConfig json file
-Ext.ModEvents['BG3MCM'][EventChannels.MCM_SAVED_SETTING]:Subscribe(function(payload)
+Ext.ModEvents['BG3MCM'][EventChannels.MCM_SETTING_SAVED]:Subscribe(function(payload)
     if not payload or payload.modUUID ~= ModuleUUID or not payload.settingId then
         return
     end

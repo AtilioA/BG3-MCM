@@ -61,7 +61,7 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
     -- Notify MCM clients
-    -- Ext.Net.BroadcastMessage(NetChannels.MCM_SAVED_SETTING, Ext.Json.Stringify({
+    -- Ext.Net.BroadcastMessage(NetChannels.MCM_SETTING_SAVED, Ext.Json.Stringify({
     --     modUUID = modUUID,
     --     settingId = settingId,
     --     value = value,
@@ -69,7 +69,7 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
     -- }))
 
     -- Notify other mods
-    ModEventManager:Emit(EventChannels.MCM_SAVED_SETTING, {
+    ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
         modUUID = modUUID,
         settingId = settingId,
         value = value,
@@ -107,12 +107,12 @@ function MCMServer:CreateProfile(profileName)
     local success = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
-        ModEventManager:Emit(EventChannels.MCM_CREATED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_CREATED, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
-        ModEventManager:Emit(EventChannels.MCM_CREATED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_CREATED, {
             profileName = profileName
         })
     end
@@ -130,13 +130,13 @@ function MCMServer:SetProfile(profileName)
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
-        ModEventManager:Emit(EventChannels.MCM_SET_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
         -- Notify other servers about the profile change
-        ModEventManager:Emit(EventChannels.MCM_SET_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
             fromProfile = ModConfig.profileManager:GetCurrentProfile(),
             toProfile = profileName
         })
@@ -153,13 +153,13 @@ function MCMServer:DeleteProfile(profileName)
     local success = ModConfig.profileManager:DeleteProfile(profileName)
 
     if success then
-        ModEventManager:Emit(EventChannels.MCM_DELETED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_DELETED, {
             profileName = profileName,
             newSettings = ModConfig.mods
         })
 
         -- Notify other servers about the profile deletion
-        ModEventManager:Emit(EventChannels.MCM_DELETED_PROFILE, {
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_DELETED, {
             profileName = profileName
         })
     end
@@ -185,7 +185,7 @@ end
 
 --     ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
 --     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = EventChannels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modUUID = modUUID, settings = defaultSettings } }))
+--         Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
 -- UNUSED since profile management currently calls shared code

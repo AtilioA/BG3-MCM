@@ -10,8 +10,8 @@ netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:ne
 netEventsRegistry:register(NetChannels.MCM_RELAY_TO_CLIENTS, NetCommand:new(EHandlers.OnRelayToClients))
 
 --- Net message handlers for when the (IMGUI) client opens or closes the MCM window
-modEventRegistry:register(EventChannels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)
-modEventRegistry:register(EventChannels.MCM_USER_CLOSED_WINDOW, EHandlers.OnUserClosedWindow)
+modEventRegistry:register(EventChannels.MCM_WINDOW_OPENED, EHandlers.OnUserOpenedWindow)
+modEventRegistry:register(EventChannels.MCM_WINDOW_CLOSED, EHandlers.OnUserClosedWindow)
 
 --- Net message handler for when the user spams the MCM button (the window is probably not open)
 netEventsRegistry:register(NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,

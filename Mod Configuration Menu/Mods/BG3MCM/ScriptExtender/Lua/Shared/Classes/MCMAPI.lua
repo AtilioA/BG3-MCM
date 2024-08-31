@@ -31,13 +31,13 @@ function MCMAPI:CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            -- Ext.Net.BroadcastMessage(EventChannels.MCM_CREATED_PROFILE, Ext.Json.Stringify({
+            -- Ext.Net.BroadcastMessage(EventChannels.MCM_PROFILE_CREATED, Ext.Json.Stringify({
             --     profileName = profileName,
             --     newSettings = ModConfig.mods
             -- }))
 
             -- Notify other servers about the new profile creation
-            ModEventManager:Emit(EventChannels.MCM_CREATED_PROFILE, {
+            ModEventManager:Emit(EventChannels.MCM_PROFILE_CREATED, {
                 profileName = profileName,
                 newSettings = ModConfig.mods
             })
@@ -73,13 +73,13 @@ function MCMAPI:SetProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            -- Ext.Net.BroadcastMessage(EventChannels.MCM_SET_PROFILE, Ext.Json.Stringify({
+            -- Ext.Net.BroadcastMessage(EventChannels.MCM_PROFILE_ACTIVATED, Ext.Json.Stringify({
             --     profileName = profileName,
             --     newSettings = ModConfig.mods
             -- }))
 
             -- Notify other servers about the profile change
-            ModEventManager:Emit(EventChannels.MCM_SET_PROFILE, {
+            ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
                 fromProfile = currentProfile,
                 toProfile = profileName
             })
@@ -233,7 +233,15 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID)
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
+    -- REFACTOR: get rid of this event and simply use the MCM_SETTING_SAVED for both internal and external communication
     ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
+        modUUID = modUUID,
+        settingId = settingId,
+        value = value,
+        oldValue = oldValue
+    })
+
+    ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
         modUUID = modUUID,
         settingId = settingId,
         value = value,
@@ -289,7 +297,7 @@ end
 
 --     ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
 --     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = EventChannels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modUUID = modUUID, settings = defaultSettings } }))
+--         Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
 function MCMAPI:LoadAndSendSettings()

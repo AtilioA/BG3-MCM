@@ -107,7 +107,7 @@ ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
     IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
 end)
 
-ModEventManager:Subscribe(EventChannels.MCM_SET_PROFILE, function(data)
+ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
     local newSettings = data.newSettings
 
     for modUUID, modSettings in pairs(newSettings) do
