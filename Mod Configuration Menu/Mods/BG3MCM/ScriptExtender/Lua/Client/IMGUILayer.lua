@@ -243,7 +243,7 @@ function IMGUILayer:SetActiveWindowAlpha(bool)
 end
 
 function IMGUILayer:NotifyMCMWindowReady()
-    ModEventManager:Emit(EventChannels.MCM_WINDOW_READY, { MCM_WINDOW = MCM_WINDOW })
+    ModEventManager:Emit(EventChannels.MCM_WINDOW_READY, {})
 end
 
 function IMGUILayer:LoadMods(mods)
