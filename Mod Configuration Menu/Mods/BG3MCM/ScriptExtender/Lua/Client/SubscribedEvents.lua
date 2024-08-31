@@ -1,4 +1,3 @@
---- SECTION: Ext events
 local function handleEscapeKey()
     Ext.Timer.WaitFor(200, function()
         local MCMButton = Noesis:FindMCMGameMenuButton()
@@ -21,7 +20,16 @@ local function handleKeyInput(e)
     end
 end
 
-Ext.Events.KeyInput:Subscribe(handleKeyInput)
+--- SECTION: Ext events
+Ext.Events.GameStateChanged:Subscribe(function(e)
+    MCMProxy.GameState = e.ToState
+
+    if e.ToState == Ext.Enums.ClientGameState["Menu"] then
+        MCMAPI:LoadConfigs()
+        MCMClientState:LoadMods(MCMAPI.mods)
+        Noesis:ListenToMainMenuButtonPress()
+    end
+end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
     MCMProxy.GameState = "Running"
@@ -38,7 +46,9 @@ Ext.Events.ResetCompleted:Subscribe(function()
     MCM_WINDOW.Visible = true
 end)
 
---- SECTION: Mod events
+Ext.Events.KeyInput:Subscribe(handleKeyInput)
+
+--- SECTION: Net messages
 Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
     local data = Ext.Json.Parse(payload)
     local mods = data.mods
@@ -49,6 +59,18 @@ Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(
     MCMClientState:LoadMods(mods)
 end)
 
+Ext.RegisterNetListener(EventChannels.MCM_SETTING_UPDATED, function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local modGUID = data.modGUID
+    local settingId = data.settingId
+    local value = data.value
+
+    MCMClientState:SetClientStateValue(settingId, value, modGUID)
+
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
+end)
+
+--- SECTION: Mod events
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     local modGUID = data.modGUID
     local settingId = data.settingId
@@ -67,17 +89,6 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
     local value = data.value
 
     _D(MCMClientState)
-    MCMClientState:SetClientStateValue(settingId, value, modGUID)
-
-    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
-end)
-
-Ext.RegisterNetListener(EventChannels.MCM_SETTING_UPDATED, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
-    local settingId = data.settingId
-    local value = data.value
-
     MCMClientState:SetClientStateValue(settingId, value, modGUID)
 
     IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
@@ -102,6 +113,7 @@ ModEventManager:Subscribe(EventChannels.MCM_SET_PROFILE, function(data)
     end
 end)
 
+-- SECTION: Noesis events
 -- REFACTOR: these should be in a separate file or something
 local function dynamicOpacityWrapper(func)
     return MCMUtils:ConditionalWrapper(function()
