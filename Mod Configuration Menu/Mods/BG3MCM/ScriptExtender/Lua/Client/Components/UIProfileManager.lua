@@ -79,7 +79,7 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
             self:UpdateDeleteProfileButton(deleteProfileButton, MCMAPI:GetCurrentProfile())
 
             -- TODO: handle the response from the server
-            Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_DELETE_PROFILE, Ext.Json.Stringify({
+            Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE, Ext.Json.Stringify({
                 profileName = currentProfile
             }))
         else
@@ -97,7 +97,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
             MCMAPI:SetProfile(newProfileName.Text)
 
             -- TODO: handle the response from the server
-            Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CREATE_PROFILE, Ext.Json.Stringify({
+            Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE, Ext.Json.Stringify({
                 profileName = newProfileName.Text
             }))
 
@@ -127,7 +127,7 @@ function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileB
         MCMAPI:SetProfile(selectedProfile)
 
         -- TODO: handle the response from the server
-        Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
+        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
             profileName = selectedProfile
         }))
 

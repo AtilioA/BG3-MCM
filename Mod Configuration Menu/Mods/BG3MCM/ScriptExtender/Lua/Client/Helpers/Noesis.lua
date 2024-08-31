@@ -72,7 +72,7 @@ local function handleMCMButtonPress(button, hasServer)
             updateButtonMessage("No MCM window? See troubleshooting steps in the mod page.",
                 revertTime, isMessageUpdated)
             if hasServer then
-                Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, Ext.Json.Stringify({}))
+                Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, Ext.Json.Stringify({}))
             end
         else
             Ext.Timer.WaitFor(timeWindow, function()

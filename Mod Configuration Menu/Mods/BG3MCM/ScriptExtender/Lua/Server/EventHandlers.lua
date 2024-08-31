@@ -6,6 +6,7 @@ EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 function EHandlers.OnLevelGameplayStarted(levelName, isEditorMode)
     MCMDebug(2, "Level " .. levelName .. " started")
     MCMServer:LoadAndSendSettings()
+    ModEventManager:IssueDeprecationWarning()
 end
 
 function EHandlers.OnClientRequestConfigs(_)
@@ -17,24 +18,24 @@ function EHandlers.OnClientRequestSetSettingValue(_, payload, peerId)
     local parsedPayload = Ext.Json.Parse(payload)
     local settingId = parsedPayload.settingId
     local value = parsedPayload.value
-    local modGUID = parsedPayload.modGUID
+    local modUUID = parsedPayload.modUUID
 
     if type(value) == "table" then
-        MCMDebug(2, "Will set " .. settingId .. " to " .. Ext.Json.Stringify(value) .. " for mod " .. modGUID)
+        MCMDebug(2, "Will set " .. settingId .. " to " .. Ext.Json.Stringify(value) .. " for mod " .. modUUID)
     else
-        MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
+        MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modUUID)
     end
 
-    MCMServer:SetSettingValue(settingId, value, modGUID, true)
+    MCMServer:SetSettingValue(settingId, value, modUUID, true)
 end
 
 function EHandlers.OnClientRequestResetSettingValue(_, payload, peerId)
     local parsedPayload = Ext.Json.Parse(payload)
     local settingId = parsedPayload.settingId
-    local modGUID = parsedPayload.modGUID
+    local modUUID = parsedPayload.modUUID
 
-    MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modGUID)
-    MCMServer:ResetSettingValue(settingId, modGUID, true)
+    MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modUUID)
+    MCMServer:ResetSettingValue(settingId, modUUID, true)
 end
 
 -- function EHandlers.OnClientRequestProfiles(_)
@@ -109,7 +110,7 @@ local function updateNotificationStatus(userId, MCMModVars)
     -- TODO: Also check mcm_params file (implement this later on)
     MCMModVars.Notifications = MCMModVars.Notifications or {}
     MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] = MCMModVars.Notifications
-    ["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
+        ["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
     if not MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] then
         MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] = true
         MCMUtils:SyncModVars(ModuleUUID)

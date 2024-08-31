@@ -19,11 +19,11 @@ function FrameManager:initFrameLayout(parent)
     self.contentCell = row:AddCell()
 end
 
----@param guidToShow string
-function FrameManager:setVisibleFrame(guidToShow)
+---@param uuidToShow string
+function FrameManager:setVisibleFrame(uuidToShow)
     for uuid, group in pairs(self.contentGroups) do
         if group then
-            group.Visible = (guidToShow == uuid)
+            group.Visible = (uuidToShow == uuid)
         end
     end
 end
@@ -55,8 +55,8 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
 
     uiGroupMod:AddSeparatorText(modName)
     if modDescription then
-        local modDescription = VCString:AddFullStop(VCString:Wrap(modDescription, 60))
-        uiGroupMod:AddText(modDescription)
+        local modDescription = VCString:AddFullStop(modDescription)
+        uiGroupMod:AddText(modDescription) --:SetStyle("TextWrapPos", 0.0)
         uiGroupMod:AddDummy(0, 5)
     end
 
@@ -77,6 +77,14 @@ end
 ---@param modUUID string
 ---@return any the group Content associated to modUUID
 function FrameManager:GetModTabBar(modUUID)
+    if not self.contentGroups or not self.contentGroups[modUUID] then
+        return nil
+    end
+
+    if table.isEmpty(self.contentGroups[modUUID].Children) then
+        return nil
+    end
+
     for _, child in ipairs(self.contentGroups[modUUID].Children) do
         if child.IDContext and child.IDContext:sub(-5) == "_TABS" then
             return child
@@ -86,43 +94,43 @@ function FrameManager:GetModTabBar(modUUID)
 end
 
 --- Insert a new tab for a mod in the MCM
----@param modGUID string The UUID of the mod
+---@param modUUID string The UUID of the mod
 ---@param tabName string The name of the tab to be inserted
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
-function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+function FrameManager:InsertModTab(modUUID, tabName, tabCallback)
     if not MCM_WINDOW then
         return
     end
-    local modTabBar = FrameManager:GetModTabBar(modGUID)
+    local modTabBar = FrameManager:GetModTabBar(modUUID)
 
     if not modTabBar then
-        local modData = Ext.Mod.GetMod(modGUID)
-        MCMWarn(0, "'InsertModTab' called before any modTabBarCreated: " .. modData.Info.Name .. ". Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+        local modData = Ext.Mod.GetMod(modUUID)
+        MCMWarn(0, "'InsertModTab' called before any modTabBar created: " .. modData.Info.Name .. ". Please contact " ..
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return
     end
 
     local newTab = modTabBar:AddTabItem(tabName)
-    newTab.IDContext = modGUID .. "_" .. tabName
-    newTab.OnActivate = function()
-        MCMDebug(3, "Activating tab " .. tabName)
-        -- REFACTOR: use modevents
-        if not MCMProxy.IsMainMenu() then
-            Ext.Net.PostMessageToServer(Channels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
-                modGUID = modGUID,
-                tabName = tabName
-            }))
-        end
+    newTab.IDContext = modUUID .. "_" .. tabName
+
+    newTab.UserData = newTab.UserData or {}
+    if tabCallback and not newTab.UserData["Callback"] then
+        newTab.UserData.Callback = tabCallback
+        tabCallback(newTab)
+
+        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
+            modUUID = modUUID,
+            tabName = tabName,
+        })
     end
 
-    if not MCMProxy.IsMainMenu() then
-        tabCallback(newTab)
-        -- REFACTOR: use modevents
-        Ext.Net.PostMessageToServer(Channels.MCM_MOD_TAB_ADDED, Ext.Json.Stringify({
-            modGUID = modGUID,
+    newTab.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tabName)
+        ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
+            modUUID = modUUID,
             tabName = tabName
-        }))
+        })
     end
 
     return newTab
@@ -146,12 +154,9 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
             end
         end
         if not MCMProxy.IsMainMenu() then
-            Ext.Net.PostMessageToServer(Channels.MCM_RELAY_TO_CLIENTS, Ext.Json.Stringify({
-                channel = Channels.MCM_MOD_TAB_ACTIVATED,
-                payload = {
-                    modGUID = uuid
-                }
-            }))
+            ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, {
+                modUUID = uuid
+            })
         end
     end
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))

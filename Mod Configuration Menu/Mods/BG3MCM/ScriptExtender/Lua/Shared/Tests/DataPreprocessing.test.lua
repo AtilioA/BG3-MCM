@@ -59,9 +59,9 @@ function TestSanitizeBlueprintWithSchemaVersion()
             },
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNotNil(sanitizedBlueprint)
 end
@@ -69,9 +69,9 @@ end
 function TestSanitizeBlueprintWithoutSchemaVersion()
     local blueprint = Blueprint:New({
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -81,9 +81,9 @@ function TestBlueprintShouldntHaveSections()
         SchemaVersion = 1,
         Settings = {}
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -103,9 +103,9 @@ function TestBlueprintShouldHaveTabsOrSettings()
             },
         },
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint1 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithTabs, modGUID)
+    local sanitizedBlueprint1 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithTabs, modUUID)
 
     local blueprintWithSettings = Blueprint:New({
         SchemaVersion = 1,
@@ -123,9 +123,9 @@ function TestBlueprintShouldHaveTabsOrSettings()
         }
     })
 
-    local modGUID2 = TestConstants.ModuleUUIDs[1]
+    local modUUID2 = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint2 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithSettings, modGUID2)
+    local sanitizedBlueprint2 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithSettings, modUUID2)
 
 
     TestSuite.AssertTrue(sanitizedBlueprint1 ~= nil and sanitizedBlueprint2 ~= nil)
@@ -141,9 +141,9 @@ function TestBlueprintShouldntHaveTabsAndSettings()
             SettingId = "setting-1",
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -173,9 +173,9 @@ function TestUniqueTabIds()
             },
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -200,9 +200,9 @@ function TestUniqueSectionIds()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -218,12 +218,12 @@ function TestUniqueSettingIds()
     blueprintWithRepeatedIDAtSectionLevel.Tabs[1].Sections[1].Settings[1].Id = blueprintWithRepeatedIDAtSectionLevel
         .Tabs[1].Sections[1].Settings[2].Id
 
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprintRoot = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtRootLevel, modGUID)
-    local sanitizedBlueprintTab = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtTabLevel, modGUID)
+    local sanitizedBlueprintRoot = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtRootLevel, modUUID)
+    local sanitizedBlueprintTab = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtTabLevel, modUUID)
     local sanitizedBlueprintSection = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtSectionLevel,
-        modGUID)
+        modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprintRoot)
     TestSuite.AssertNil(sanitizedBlueprintTab)
@@ -235,8 +235,8 @@ function TestValidateSettingType()
     blueprint.Settings[1].Type = "invalid"
     TestSuite.Not(TestSuite.AssertContains)(TestConstants.validTypes, blueprint.Settings[1].Type)
 
-    local modGUID = TestConstants.ModuleUUIDs[1]
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
     TestSuite.AssertNil(sanitizedBlueprint)
 
     ---
@@ -245,7 +245,7 @@ function TestValidateSettingType()
     blueprint.Tabs[1].Settings[1].Type = "invalid"
     TestSuite.Not(TestSuite.AssertContains)(TestConstants.validTypes, blueprint.Tabs[1].Settings[1].Type)
 
-    sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
     TestSuite.AssertNil(sanitizedBlueprint)
 
     ---
@@ -254,7 +254,7 @@ function TestValidateSettingType()
     blueprint.Tabs[1].Sections[1].Settings[1].Type = "invalid"
     TestSuite.Not(TestSuite.AssertContains)(TestConstants.validTypes, blueprint.Tabs[1].Sections[1].Settings[1].Type)
 
-    sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
     TestSuite.AssertNil(sanitizedBlueprint)
 end
 
@@ -269,9 +269,9 @@ function BlueprintShouldHaveOptionsForEnum()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -287,9 +287,9 @@ function BlueprintShouldHaveOptionsForRadio()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -323,10 +323,10 @@ function BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
-    local sanitizedBlueprintWithChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    local sanitizedBlueprintWithChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
     TestSuite.AssertNil(sanitizedBlueprintWithChoices)
@@ -376,12 +376,12 @@ function BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
-    local sanitizedBlueprintWithChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    local sanitizedBlueprintWithChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modUUID)
     local sanitizedBlueprintWithStringChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithStringChoices,
-        modGUID)
+        modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
     TestSuite.AssertNil(sanitizedBlueprintWithChoices)
@@ -401,9 +401,9 @@ function BlueprintShouldHaveMinAndMaxForSlider()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -423,9 +423,9 @@ function BlueprintMinAndMaxForSliderShouldBeNumbers()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -445,9 +445,9 @@ function BlueprintMinShouldBeLessThanMaxForSlider()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -468,9 +468,9 @@ function TestBlueprintDefaultForEnumShouldBeOneOfTheOptions()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -491,9 +491,9 @@ function TestBlueprintDefaultForRadioShouldBeOneOfTheOptions()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -600,9 +600,9 @@ function TestBlueprintDefaultForIntShouldBeNumber()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -618,9 +618,9 @@ function TestBlueprintDefaultForFloatShouldBeNumber()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -641,9 +641,9 @@ function TestBlueprintDefaultForEnumShouldBeOneOfTheOptions()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -664,9 +664,9 @@ function TestBlueprintDefaultForRadioShouldBeOneOfTheOptions()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -682,9 +682,9 @@ function TestBlueprintDefaultForCheckboxShouldBeBoolean()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -700,9 +700,9 @@ function TestBlueprintDefaultForStringShouldBeString()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -718,7 +718,7 @@ function TestBlueprintDefaultForColorShouldBeVec4()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
     local correctBlueprint = Blueprint:New({
         SchemaVersion = 1,
@@ -731,8 +731,8 @@ function TestBlueprintDefaultForColorShouldBeVec4()
         }
     })
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
-    local sanitizedCorrectBlueprint = BlueprintPreprocessing:SanitizeBlueprint(correctBlueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    local sanitizedCorrectBlueprint = BlueprintPreprocessing:SanitizeBlueprint(correctBlueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
     TestSuite.AssertNotNil(sanitizedCorrectBlueprint)
@@ -753,9 +753,9 @@ function TestBlueprintDefaultForSliderIntShouldBeInteger()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -775,9 +775,9 @@ function TestBlueprintDefaultForSliderFloatShouldBeNumber()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -797,9 +797,9 @@ function TestBlueprintDefaultForDragIntShouldBeInteger()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -819,9 +819,9 @@ function TestBlueprintDefaultForDragFloatShouldBeNumber()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -841,9 +841,9 @@ function TestBlueprintDefaultForSliderShouldBeBetweenMinAndMax()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -863,9 +863,9 @@ function TestBlueprintDefaultForDragShouldBeBetweenMinAndMax()
             }
         }
     })
-    local modGUID = TestConstants.ModuleUUIDs[1]
+    local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end

@@ -1,7 +1,7 @@
 ---@class HelperBlueprintPreprocessing
 BlueprintPreprocessing = _Class:Create("HelperBlueprintPreprocessing", nil)
--- The current mod GUID being processed
-BlueprintPreprocessing.currentModGuid = nil
+-- The UUID of the mod being currently processed
+BlueprintPreprocessing.currentmodUUID = nil
 
 
 --- TODO: clean this up, but currently better than nothing
@@ -62,7 +62,8 @@ function BlueprintPreprocessing:CheckValidIDs(blueprint)
         end
 
         if not isValid then
-            MCMWarn(0, "Missing ID in element: " .. (element and element.GetLocaName and element:GetLocaName() or "Unknown"))
+            MCMWarn(0,
+                "Missing ID in element: " .. (element and element.GetLocaName and element:GetLocaName() or "Unknown"))
         end
         return isValid
     end
@@ -85,16 +86,16 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
         -- _D(blueprint)
         MCMWarn(0,
             "Blueprint for mod '" ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
             "' does not have any tabs or settings. Please contact " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return true
     elseif hasTabs and hasSettings then
         MCMWarn(0,
             "Blueprint for mod '" ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
             "' has both tabs and settings. Please contact " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return true
     end
 
@@ -104,16 +105,16 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
     if hasSections then
         MCMWarn(0,
             "Sections found directly in blueprint for mod '" ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-            "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+            "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return true
     end
 
     if not self:CheckValidIDs(blueprint) then
         MCMWarn(0,
             "Missing IDs in blueprint for mod '" ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-            "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+            "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return true
     end
 
@@ -134,8 +135,8 @@ function BlueprintPreprocessing:VerifyTabIDUniqueness(blueprint)
         if tabIDs[tab.TabId] then
             MCMWarn(0,
                 "Duplicate tab ID found in blueprint for mod '" ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-                "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+                "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
         tabIDs[tab.TabId] = true
@@ -160,8 +161,8 @@ function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint)
             if sectionIDs[section.SectionId] then
                 MCMWarn(0,
                     "Duplicate section ID found in blueprint for mod '" ..
-                    Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-                    "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+                    "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
             end
             sectionIDs[section.SectionId] = true
@@ -184,8 +185,8 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint)
                 if settingIDs[setting.Id] then
                     MCMWarn(0,
                         "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod '" ..
-                        Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-                        "'. Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                        Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+                        "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                     isValid = false
                     goto continue
                 end
@@ -326,7 +327,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             "Setting '" ..
             setting.Id ..
             "' is missing a 'Default' value. Please contact " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
 
@@ -336,7 +337,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be a boolean. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     elseif setting.Type == "int" then
@@ -345,7 +346,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be an integer. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     elseif setting.Type == "float" then
@@ -354,7 +355,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be a number. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     elseif setting.Type == "text" then
@@ -363,7 +364,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be a string. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
         -- TODO: add list type
@@ -373,7 +374,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be a boolean. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     elseif setting.Type == "enum" or setting.Type == "radio" then
@@ -382,7 +383,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be a string. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     elseif setting.Type == "slider_int" or setting.Type == "drag_int" then
@@ -391,7 +392,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be an integer. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     elseif setting.Type == "slider_float" or setting.Type == "drag_float" then
@@ -400,7 +401,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be a number. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     elseif setting.Type == "color_picker" or setting.Type == "color_edit" then
@@ -409,7 +410,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be a table of 4 numbers. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     end
@@ -424,7 +425,7 @@ function BlueprintPreprocessing:BlueprintDefaultShouldBeWithinRange(setting)
                 "Default value for setting '" ..
                 setting.Id ..
                 "' must be within the range of 'Options.Min' and 'Options.Max'. Please contact " ..
-                Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
     end
@@ -437,7 +438,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
             "Enum setting '" ..
             setting.Id ..
             "' must have 'Options.Choices' defined. Please contact " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
 
@@ -446,7 +447,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
             "Enum setting '" ..
             setting.Id ..
             "' must have a 'Default' value that is one of the 'Options.Choices'. Please contact " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
     return true
@@ -480,7 +481,7 @@ function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayO
             "Radio setting '" ..
             setting.Id ..
             "' must have 'Options.Choices' defined. Please contact " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
 
@@ -539,9 +540,9 @@ end
 
 --- Sanitizes blueprint data by removing elements without SchemaVersions and converting string booleans
 ---@param blueprint table The blueprint data to sanitize
----@param modGUID string The mod's unique identifier
-function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
-    self.currentModGuid = modGUID
+---@param modUUID string The mod's unique identifier
+function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    self.currentmodUUID = modUUID
     if not self:HasSchemaVersionsEntry(blueprint) then
         return
     end
@@ -549,27 +550,27 @@ function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modGUID)
     if self:HasIncorrectStructure(blueprint) then
         MCMWarn(0,
             "Blueprint for mod '" ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
+            Ext.Mod.GetMod(modUUID).Info.Name ..
             "' has incorrect structure and can't be used. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return
     end
 
     if not self:VerifyIDUniqueness(blueprint) then
         MCMWarn(0,
             "Blueprint for mod '" ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
+            Ext.Mod.GetMod(modUUID).Info.Name ..
             "' has duplicate IDs and can't be used. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return
     end
 
     if not self:ValidateBlueprintSettings(blueprint) then
         MCMWarn(0,
             "Blueprint for mod '" ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
+            Ext.Mod.GetMod(modUUID).Info.Name ..
             "' has invalid settings and can't be used. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return
     end
 
@@ -580,13 +581,13 @@ end
 --- Sanitize all blueprints for a given set of mods
 ---@param mods table<string, table> The mods data to sanitize
 function BlueprintPreprocessing:SanitizeBlueprints(mods)
-    for modGUID, mcmTable in pairs(mods) do
-        if not self:SanitizeBlueprint(mcmTable.blueprint, modGUID) then
-            mods[modGUID] = nil
+    for modUUID, mcmTable in pairs(mods) do
+        if not self:SanitizeBlueprint(mcmTable.blueprint, modUUID) then
+            mods[modUUID] = nil
             MCMWarn(0,
                 "Blueprint validation failed for mod: " ..
-                Ext.Mod.GetMod(modGUID).Info.Name ..
-                ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+                Ext.Mod.GetMod(modUUID).Info.Name ..
+                ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         end
     end
 end
@@ -598,14 +599,14 @@ function BlueprintPreprocessing:HasSchemaVersionsEntry(data)
     if not data.SchemaVersion then
         MCMWarn(0,
             "No 'SchemaVersion' section found in data for mod: " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     elseif type(data.SchemaVersion) ~= "number" then
         MCMWarn(0,
             "Invalid 'SchemaVersion' section (not a number) found in data for mod: " ..
-            Ext.Mod.GetMod(self.currentModGuid).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(self.currentModGuid).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
     return true

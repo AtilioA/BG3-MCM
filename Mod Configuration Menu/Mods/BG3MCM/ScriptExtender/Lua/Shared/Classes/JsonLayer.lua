@@ -1,5 +1,5 @@
 --[[
-    This file has code adapted from sources originally licensed under the MIT License. The terms of the MIT License are as follows:
+    This file has code adapted from Compatibilty Framework sources originally licensed under the MIT License. The terms of the MIT License are as follows:
 
     MIT License
 
@@ -68,15 +68,15 @@ end
 
 --- Parse the JSON file for the mod
 ---@param configStr string The string representation of the JSON file (to be parsed)
----@param modGUID GUIDSTRING The UUID of the mod that the config file belongs to
+---@param modUUID GUIDSTRING The UUID of the mod that the config file belongs to
 ---@return table|nil data The parsed JSON data, or nil if the JSON could not be parsed
-function JsonLayer:TryParseModJSON(configStr, modGUID)
-    if modGUID == nil then
-        MCMWarn(1, "modGUID is nil. Cannot load config.")
+function JsonLayer:TryParseModJSON(configStr, modUUID)
+    if modUUID == nil then
+        MCMWarn(1, "modUUID is nil. Cannot load config.")
         return nil
     end
 
-    MCMDebug(4, "Entering TryParseModJSON with parameters: " .. configStr .. ", " .. modGUID)
+    MCMDebug(4, "Entering TryParseModJSON with parameters: " .. configStr .. ", " .. modUUID)
 
     local success, data = pcall(Ext.Json.Parse, configStr)
     if success then
@@ -84,8 +84,8 @@ function JsonLayer:TryParseModJSON(configStr, modGUID)
     else
         MCMWarn(0,
             "Invalid MCM config JSON file for mod " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " for assistance.")
+            Ext.Mod.GetMod(modUUID).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " for assistance.")
         return nil
     end
 end
@@ -116,7 +116,7 @@ function JsonLayer:LoadBlueprintForMod(modData)
         if incorrectConfig ~= nil then
             MCMWarn(0,
                 string.format(
-                "MCM_blueprint.json found in incorrect location for mod %s. Please move it alongside the mod's meta.lsx file.",
+                    "MCM_blueprint.json found in incorrect location for mod %s. Please move it alongside the mod's meta.lsx file.",
                     modData.Info.Name))
         end
     end

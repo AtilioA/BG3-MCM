@@ -1,4 +1,5 @@
-MCMServer = {}
+---@class MCMServer
+MCMServer = _Class:Create("MCMServer", nil, {})
 
 --- Loads the profile manager and the configurations for all mods.
 ---@return nil
@@ -8,62 +9,94 @@ function MCMServer:LoadConfigs()
     MCMTest(0, "Done loading MCM configs")
 end
 
+--- Get the settings table for a mod
+---@param modUUID GUIDSTRING The UUID of the mod to retrieve settings from
+---@return table<string, table> - The settings table for the mod
+function MCMServer:GetAllModSettings(modUUID)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot get mod settings.")
+        return {}
+    end
+
+    local mod = MCMAPI.mods[modUUID]
+    if not mod then
+        MCMWarn(0,
+            "Mod " ..
+            modUUID ..
+            " was not found by MCM.\nDouble check your blueprint filename, directory, and whether it's well-defined. Please contact " ..
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+        return {}
+    end
+
+    return mod.settingsValues
+end
+
 --- Set the value of a configuration setting
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
----@param modGUID GUIDSTRING The UUID of the mod
-function MCMServer:SetSettingValue(settingId, value, modGUID)
-    local modSettingsTable = MCMAPI:GetAllModSettings(modGUID)
+---@param modUUID GUIDSTRING The UUID of the mod
+function MCMServer:SetSettingValue(settingId, value, modUUID)
+    local modSettingsTable = MCMAPI:GetAllModSettings(modUUID)
+    local oldValue = modSettingsTable[settingId]
 
-    local isValid = MCMAPI:IsSettingValueValid(settingId, value, modGUID)
+    local isValid = MCMAPI:IsSettingValueValid(settingId, value, modUUID)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
     if not isValid then
-        MCMWarn(1, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
+        local errorMessage = "Invalid value for setting '" ..
+            settingId .. " (" .. tostring(value) .. "). Value will not be saved."
+        MCMWarn(1, errorMessage)
 
         -- Notify the client with the current value of the setting, so it can update its UI
-        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-            modGUID = modGUID,
+        ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
+            modUUID = modUUID,
             settingId = settingId,
-            value = modSettingsTable[settingId]
-        }))
+            value = value,
+            oldValue = value,
+            error = errorMessage
+        })
         return
     end
 
     modSettingsTable[settingId] = value
-    ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
+    ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
-    -- This is kind of a hacky way to emit events to other servers
-    Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
-        Ext.Json.Stringify({ channel = Channels.MCM_SAVED_SETTING, payload = { modGUID = modGUID, settingId = settingId, value = value } }))
+    -- Notify MCM clients
+    -- Ext.Net.BroadcastMessage(NetChannels.MCM_SETTING_SAVED, Ext.Json.Stringify({
+    --     modUUID = modUUID,
+    --     settingId = settingId,
+    --     value = value,
+    --     oldValue = oldValue
+    -- }))
 
-    -- Notify clients that the setting has been updated
-    Ext.Net.BroadcastMessage(Channels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-        modGUID = modGUID,
+    -- Notify other mods
+    ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
+        modUUID = modUUID,
         settingId = settingId,
-        value = value
-    }))
+        value = value,
+        oldValue = oldValue
+    })
 end
 
 ---@param settingId string The id of the setting to reset
----@param modGUID? GUIDSTRING The UUID of the mod (optional)
+---@param modUUID? GUIDSTRING The UUID of the mod (optional)
 ---@param clientRequest? boolean Whether the request came from the client
-function MCMServer:ResetSettingValue(settingId, modGUID, clientRequest)
-    modGUID = modGUID or ModuleUUID
+function MCMServer:ResetSettingValue(settingId, modUUID, clientRequest)
+    modUUID = modUUID or ModuleUUID
 
-    local blueprint = MCMAPI:GetModBlueprint(modGUID)
+    local blueprint = MCMAPI:GetModBlueprint(modUUID)
 
     local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
         MCMWarn(0,
-            "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modGUID .. "'. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modUUID .. "'. Please contact " ..
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
     else
-        self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
-        Ext.Net.BroadcastMessage(Channels.MCM_SETTING_RESET, Ext.Json.Stringify({
-            modGUID = modGUID,
+        self:SetSettingValue(settingId, defaultValue, modUUID, clientRequest)
+        ModEventManager:Emit(EventChannels.MCM_SETTING_RESET, {
+            modUUID = modUUID,
             settingId = settingId,
             defaultValue = defaultValue
-        }))
+        })
     end
 end
 
@@ -74,18 +107,14 @@ function MCMServer:CreateProfile(profileName)
     local success = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
-        Ext.Net.BroadcastMessage(Channels.MCM_SERVER_CREATED_PROFILE, Ext.Json.Stringify({
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_CREATED, {
             profileName = profileName,
             newSettings = ModConfig.mods
-        }))
+        })
 
-        -- REFACTOR: (USE MODEVENTS) Notify other servers about the new profile creation
-        Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-            channel = Channels.MCM_SERVER_CREATED_PROFILE,
-            payload = {
-                profileName = profileName
-            }
-        }))
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_CREATED, {
+            profileName = profileName
+        })
     end
 
     self:SetProfile(profileName)
@@ -101,19 +130,16 @@ function MCMServer:SetProfile(profileName)
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
-        Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SET_PROFILE, Ext.Json.Stringify({
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
             profileName = profileName,
             newSettings = ModConfig.mods
-        }))
+        })
 
         -- Notify other servers about the profile change
-        Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-            channel = Channels.MCM_SERVER_SET_PROFILE,
-            payload = {
-                fromProfile = self:GetCurrentProfile(),
-                toProfile = profileName
-            }
-        }))
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
+            fromProfile = ModConfig.profileManager:GetCurrentProfile(),
+            toProfile = profileName
+        })
     end
 
     return success
@@ -127,18 +153,15 @@ function MCMServer:DeleteProfile(profileName)
     local success = ModConfig.profileManager:DeleteProfile(profileName)
 
     if success then
-        Ext.Net.BroadcastMessage(Channels.MCM_SERVER_DELETED_PROFILE, Ext.Json.Stringify({
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_DELETED, {
             profileName = profileName,
             newSettings = ModConfig.mods
-        }))
+        })
 
         -- Notify other servers about the profile deletion
-        Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS, Ext.Json.Stringify({
-            channel = Channels.MCM_SERVER_DELETED_PROFILE,
-            payload = {
-                profileName = profileName
-            }
-        }))
+        ModEventManager:Emit(EventChannels.MCM_PROFILE_DELETED, {
+            profileName = profileName
+        })
     end
 
     return success
@@ -148,19 +171,21 @@ function MCMServer:LoadAndSendSettings()
     MCMDebug(1, "Reloading MCM configs...")
     MCMAPI:LoadConfigs()
 
-    Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
-        Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({
+        mods = MCMAPI.mods,
+        profiles = MCMAPI.profiles
+    }))
 end
 
 --- Reset all settings for a mod to their default values
----@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
--- function MCMServer:ResetAllSettings(modGUID)
---     local modBlueprint = MCMAPI.blueprints[modGUID]
+---@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
+-- function MCMServer:ResetAllSettings(modUUID)
+--     local modBlueprint = MCMAPI.blueprints[modUUID]
 --     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
---     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
---     Ext.Net.BroadcastMessage(Channels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = Channels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
+--     ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
+--     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
+--         Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
 -- UNUSED since profile management currently calls shared code
@@ -185,26 +210,26 @@ end
 --- Get the table of MCM profiles
 ---@return table<string, table> The table of profiles
 -- function MCMServer:GetProfiles()
---     Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_PROFILES,
+--     Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_PROFILES,
 --         Ext.Json.Stringify({ profiles = ModConfig:GetProfiles() }))
 --     return ModConfig:GetProfiles()
 -- end
 
---- Get the current MCM profile's name
----@return string The name of the current profile
--- function MCMServer:GetCurrentProfile()
---     Ext.Net.BroadcastMessage(Channels.MCM_SERVER_SEND_CURRENT_PROFILE,
---         Ext.Json.Stringify({ profileName = ModConfig.profileManager:GetCurrentProfile() }))
---     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
---     return ModConfig.profileManager:GetCurrentProfile()
--- end
+-- Get the current MCM profile's name
+--@return string The name of the current profile
+function MCMServer:GetCurrentProfile()
+    Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CURRENT_PROFILE,
+        Ext.Json.Stringify({ profileName = ModConfig.profileManager:GetCurrentProfile() }))
+    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
+    return ModConfig.profileManager:GetCurrentProfile()
+end
 
 -- --- Check if a setting value is valid given the mod blueprint
 -- ---@param settingId string The id of the setting
 -- ---@param value any The value to check
 -- ---@return boolean Whether the value is valid
--- function MCMServer:IsSettingValueValid(settingId, value, modGUID)
---     local blueprint = MCMAPI:GetModBlueprint(modGUID)
+-- function MCMServer:IsSettingValueValid(settingId, value, modUUID)
+--     local blueprint = MCMAPI:GetModBlueprint(modUUID)
 --     local setting = blueprint:GetAllSettings()[settingId]
 
 --     if setting then
@@ -219,34 +244,34 @@ end
 --             "Setting '" ..
 --             settingId ..
 --             "' not found in the blueprint for mod '" ..
---             modGUID .. "'. Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+--             modUUID .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
 --         return false
 --     end
 -- end
 
--- --- Get the value of a configuration setting
--- ---@param settingId string The id of the setting
--- ---@param modGUID string The UUID of the mod that has the setting
--- ---@return any The value of the setting
--- function MCMServer:GetSettingValue(settingId, modGUID)
---     if not modGUID then
---         MCMWarn(0, "modGUID is nil. Cannot get setting value.")
---         return nil
---     end
+--- Get the value of a configuration setting
+---@param settingId string The id of the setting
+---@param modUUID string The UUID of the mod that has the setting
+---@return any The value of the setting
+function MCMServer:GetSettingValue(settingId, modUUID)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot get setting value.")
+        return nil
+    end
 
---     local modSettingsTable = MCMAPI:GetAllModSettings(modGUID)
---     if not modSettingsTable then
---         MCMWarn(0, "Mod settings table not found for mod '" .. modGUID .. "'.")
---         return nil
---     end
+    local modSettingsTable = MCMAPI:GetAllModSettings(modUUID)
+    if not modSettingsTable then
+        MCMWarn(0, "Mod settings table not found for mod '" .. modUUID .. "'.")
+        return nil
+    end
 
---     if modSettingsTable[settingId] ~= nil then
---         return modSettingsTable[settingId]
---     end
+    if modSettingsTable[settingId] ~= nil then
+        return modSettingsTable[settingId]
+    end
 
---     -- No settingId
---     MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modGUID)
---     return nil
--- end
+    -- No settingId
+    MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modUUID)
+    return nil
+end
 
 return MCMServer

@@ -1,5 +1,5 @@
 -- This became a factory of sorts cause OOP in Lua is a mess
--- TODO: ADD MODGUID TO ALL IDCONTEXTS SINCE THEY MIGHT NOT BE UNIQUE ACROSS DIFFERENT MODS
+-- TODO: ADD modUUID TO ALL IDCONTEXTS SINCE THEY MIGHT NOT BE UNIQUE ACROSS DIFFERENT MODS
 
 ---@class IMGUIWidget
 ---@field Widget any The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
@@ -17,22 +17,22 @@ end
 ---@param group any The IMGUI group to add the widget to
 ---@param setting BlueprintSetting The Setting object that this widget will be responsible for
 ---@param initialValue any The initial value of the widget
----@param modGUID string The GUID of the mod that owns this widget
+---@param modUUID string The UUID of the mod that owns this widget
 ---@param widgetClass any The class of the widget to create
-function IMGUIWidget:Create(group, setting, initialValue, modGUID, widgetClass)
+function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     local widgetName = setting:GetLocaName()
     if widgetName == nil or widgetName == "" then
         widgetName = setting:GetId()
     end
 
     group:AddText(widgetName)
-    local widget = widgetClass:new(group, setting, initialValue, modGUID)
-    widget.Widget.IDContext = modGUID .. "_" .. setting:GetId()
+    local widget = widgetClass:new(group, setting, initialValue, modUUID)
+    widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
 
     if widget.AddResetButton then
-        widget:AddResetButton(group, setting, modGUID)
+        widget:AddResetButton(group, setting, modUUID)
     else
-        self:AddResetButton(group, setting, modGUID)
+        self:AddResetButton(group, setting, modUUID)
     end
 
     self:InitializeWidget(widget, group, setting)
@@ -58,10 +58,10 @@ end
 --- Add a reset button to the widget
 ---@param group any The IMGUI group to add the button to
 ---@param setting BlueprintSetting The Setting object that this widget will be responsible for
----@param modGUID string The GUID of the mod that owns this widget
+---@param modUUID string The UUID of the mod that owns this widget
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
-function IMGUIWidget:AddResetButton(group, setting, modGUID)
+function IMGUIWidget:AddResetButton(group, setting, modUUID)
     local resetButton = group:AddImageButton("[Reset]", "ico_reset_d", { 40, 40 })
 
     if not resetButton.Image or resetButton.Image.Icon == "" then
@@ -69,10 +69,10 @@ function IMGUIWidget:AddResetButton(group, setting, modGUID)
         resetButton = group:AddButton("[Reset]")
     end
 
-    resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting:GetId()
+    resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
     resetButton:Tooltip():AddText("Reset this setting to its default")
     resetButton.OnClick = function()
-        IMGUIAPI:ResetSettingValue(setting:GetId(), modGUID)
+        IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
     end
     resetButton.SameLine = true
 end

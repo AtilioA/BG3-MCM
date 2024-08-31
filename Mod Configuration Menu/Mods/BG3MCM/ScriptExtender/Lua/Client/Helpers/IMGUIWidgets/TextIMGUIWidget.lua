@@ -1,12 +1,12 @@
 ---@class TextIMGUIWidget: IMGUIWidget
 TextIMGUIWidget = _Class:Create("TextIMGUIWidget", IMGUIWidget)
 
-function TextIMGUIWidget:new(group, setting, initialValue, modGUID)
+function TextIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = TextIMGUIWidget })
 
     instance.Widget = group:AddInputText("", initialValue)
     instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Text, modGUID)
+        IMGUIAPI:SetSettingValue(setting.Id, value.Text, modUUID)
     end
 
     instance.Widget.AutoSelectAll = true

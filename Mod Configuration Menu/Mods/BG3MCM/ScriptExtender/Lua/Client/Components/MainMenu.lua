@@ -22,7 +22,7 @@ function MainMenu.CreateMainMenu()
 
         helpTroubleshootingPopup:AddSeparatorText("Known Issues")
         local uiNotShowingBT = helpTroubleshootingPopup:AddBulletText(
-            "UI not showing: Don't alt-tab before main menu, test both Vulkan and DirectX 11")
+            "UI not showing up: test both Vulkan and DirectX 11")
         uiNotShowingBT:SetColor("Text", Color.HEXToRGBA("#FF2323"))
         helpTroubleshootingPopup:AddBulletText("Keybindings: Unfocus MCM window before using keybinds")
 

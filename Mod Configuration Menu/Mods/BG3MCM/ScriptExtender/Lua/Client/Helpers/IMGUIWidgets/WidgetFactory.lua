@@ -1,46 +1,46 @@
---- Factory for creating IMGUI widgets based on the type of setting
+--- 'Factory' for creating IMGUI widgets based on the type of setting
 InputWidgetFactory = {
-    int = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, IntIMGUIWidget)
+    int = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, IntIMGUIWidget)
     end,
-    float = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, FloatIMGUIWidget)
+    float = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, FloatIMGUIWidget)
     end,
-    checkbox = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, CheckboxIMGUIWidget)
+    checkbox = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, CheckboxIMGUIWidget)
     end,
-    text = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, TextIMGUIWidget)
+    text = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, TextIMGUIWidget)
     end,
-    list = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, ListIMGUIWidget)
+    list = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, ListIMGUIWidget)
     end,
-    enum = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, EnumIMGUIWidget)
+    enum = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, EnumIMGUIWidget)
     end,
-    slider_int = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, SliderIntIMGUIWidget)
+    slider_int = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, SliderIntIMGUIWidget)
     end,
-    slider_float = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, SliderFloatIMGUIWidget)
+    slider_float = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, SliderFloatIMGUIWidget)
     end,
-    drag_int = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, DragIntIMGUIWidget)
+    drag_int = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, DragIntIMGUIWidget)
     end,
-    drag_float = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, DragFloatIMGUIWidget)
+    drag_float = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, DragFloatIMGUIWidget)
     end,
-    radio = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, RadioIMGUIWidget)
+    radio = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, RadioIMGUIWidget)
     end,
-    color_picker = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, ColorPickerIMGUIWidget)
+    color_picker = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, ColorPickerIMGUIWidget)
     end,
-    color_edit = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, ColorEditIMGUIWidget)
+    color_edit = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, ColorEditIMGUIWidget)
     end,
-    keybinding = function(group, setting, settingValue, modGUID)
-        return IMGUIWidget:Create(group, setting, settingValue, modGUID, KeybindingIMGUIWidget)
+    keybinding = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, KeybindingIMGUIWidget)
     end,
 }
 

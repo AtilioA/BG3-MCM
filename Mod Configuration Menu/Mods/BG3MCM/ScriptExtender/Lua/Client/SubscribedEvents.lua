@@ -1,4 +1,3 @@
---- SECTION: Ext events
 local function handleEscapeKey()
     Ext.Timer.WaitFor(200, function()
         local MCMButton = Noesis:FindMCMGameMenuButton()
@@ -21,91 +20,104 @@ local function handleKeyInput(e)
     end
 end
 
-Ext.Events.KeyInput:Subscribe(handleKeyInput)
+--- SECTION: Ext events
+Ext.Events.GameStateChanged:Subscribe(function(e)
+    MCMProxy.GameState = e.ToState
+
+    if e.ToState == Ext.Enums.ClientGameState["Menu"] then
+        MCMAPI:LoadConfigs()
+        MCMClientState:LoadMods(MCMAPI.mods)
+        Noesis:ListenToMainMenuButtonPress()
+    end
+end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
     MCMProxy.GameState = "Running"
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(MCMAPI.mods)
-    Ext.Net.PostMessageToServer(Channels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
+
+    Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
+
     if not MCM_WINDOW then
         return
     end
     MCM_WINDOW.Visible = true
 end)
 
---- SECTION: Net listeners
-Ext.RegisterNetListener(Channels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
-    local configs = Ext.Json.Parse(payload)
-    local mods = configs.mods
-    local profiles = configs.profiles
+Ext.Events.KeyInput:Subscribe(handleKeyInput)
 
+--- SECTION: Net messages
+Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local mods = data.mods
+    local profiles = data.profiles
+
+    MCMProxy.GameState = "Running"
+    MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(mods)
 end)
 
-Ext.RegisterNetListener(Channels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
+Ext.RegisterNetListener(EventChannels.MCM_SETTING_UPDATED, function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local modUUID = data.modUUID
+    local settingId = data.settingId
+    local value = data.value
+
+    MCMClientState:SetClientStateValue(settingId, value, modUUID)
+
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
+end)
+
+Ext.RegisterNetListener(NetChannels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
     local data = Ext.Json.Parse(metapayload)
     Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
 end)
 
-Ext.RegisterNetListener(Channels.MCM_SETTING_RESET, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
+--- SECTION: Mod events
+ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
+    local modUUID = data.modUUID
     local settingId = data.settingId
     local defaultValue = data.defaultValue
 
     -- Update the displayed value for the setting
-    IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modGUID)
+    IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modUUID)
+    -- MCMClientState:SetClientStateValue(settingId, defaultValue, modUUID)
 end)
 
-local function UpdateMCMWindowValues(settingId, value, modGUID)
-    if modGUID ~= ModuleUUID then
-        return
-    end
-
-    if not MCM_WINDOW then
-        return
-    end
-
-    if settingId == "auto_resize_window" then
-        MCM_WINDOW.AlwaysAutoResize = value
-    end
-end
-
-Ext.RegisterNetListener(Channels.MCM_SETTING_UPDATED, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
+-- FIXME: not working for some reason
+ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
+    MCMDebug(1, "Firing MCM_SETTING_UPDATED on client")
+    local modUUID = data.modUUID
     local settingId = data.settingId
     local value = data.value
 
-    MCMClientState:SetClientStateValue(settingId, value, modGUID)
+    MCMClientState:SetClientStateValue(settingId, value, modUUID)
 
-    UpdateMCMWindowValues(settingId, value, modGUID)
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
 end)
 
-Ext.RegisterNetListener(Channels.MCM_MOD_TAB_ADDED, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
+ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
+    local modUUID = data.modUUID
     local tabName = data.tabName
     local tabCallback = data.tabCallback
 
     -- Update the IMGUILayer to include the new tab
-    IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
+    IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
 end)
 
-Ext.RegisterNetListener(Channels.MCM_SERVER_SET_PROFILE, function(_, payload)
-    local data = Ext.Json.Parse(payload)
+ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
     local newSettings = data.newSettings
 
-    for modGUID, modSettings in pairs(newSettings) do
+    for modUUID, modSettings in pairs(newSettings) do
         for settingId, settingValue in pairs(modSettings.settingsValues) do
-            IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modGUID)
+            IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modUUID)
         end
     end
 end)
 
+-- SECTION: Noesis events
 -- REFACTOR: these should be in a separate file or something
 local function dynamicOpacityWrapper(func)
     return MCMUtils:ConditionalWrapper(function()
