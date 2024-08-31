@@ -221,6 +221,7 @@ end
 ---@param modGUID GUIDSTRING The UUID of the mod
 function MCMAPI:SetSettingValue(settingId, value, modGUID)
     local modSettingsTable = self:GetAllModSettings(modGUID)
+    local oldValue = modSettingsTable[settingId]
 
     local isValid = self:IsSettingValueValid(settingId, value, modGUID)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
@@ -235,13 +236,31 @@ function MCMAPI:SetSettingValue(settingId, value, modGUID)
     ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
         modGUID = modGUID,
         settingId = settingId,
-        value = value
+        value = value,
+        oldValue = oldValue
     })
+
+    -- FIXME: we should be able to just emit the event and let the client handle it, but the client is not receiving the event for some reason
+    if Ext.IsServer() then
+        Ext.Net.BroadcastMessage(EventChannels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+            modGUID = modGUID,
+            settingId = settingId,
+            value = value,
+            oldValue = oldValue
+        }))
+    else -- Client
+        Ext.Net.PostMessageToServer(EventChannels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
+            modGUID = modGUID,
+            settingId = settingId,
+            value = value,
+            oldValue = oldValue
+        }))
+    end
 end
 
 ---@param settingId string The id of the setting to reset
 ---@param modGUID? GUIDSTRING The UUID of the mod (optional)
----@param clientRequest? boolean Whether the request came from the client
+---@param clientRequest? boolean (deprecated) Whether the request came from the client
 function MCMAPI:ResetSettingValue(settingId, modGUID, clientRequest)
     modGUID = modGUID or ModuleUUID
 

@@ -39,10 +39,13 @@ Ext.Events.ResetCompleted:Subscribe(function()
 end)
 
 --- SECTION: Mod events
-Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(data)
+Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
+    local data = Ext.Json.Parse(payload)
     local mods = data.mods
     local profiles = data.profiles
 
+    MCMProxy.GameState = "Running"
+    MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(mods)
 end)
 
@@ -53,9 +56,24 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
 
     -- Update the displayed value for the setting
     IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modGUID)
+    -- MCMClientState:SetClientStateValue(settingId, value, modGUID)
 end)
 
+-- FIXME: not working for some reason
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
+    _D("Firing MCM_SETTING_UPDATED on client")
+    local modGUID = data.modGUID
+    local settingId = data.settingId
+    local value = data.value
+
+    _D(MCMClientState)
+    MCMClientState:SetClientStateValue(settingId, value, modGUID)
+
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
+end)
+
+Ext.RegisterNetListener(EventChannels.MCM_SETTING_UPDATED, function(_, payload)
+    local data = Ext.Json.Parse(payload)
     local modGUID = data.modGUID
     local settingId = data.settingId
     local value = data.value
