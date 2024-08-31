@@ -2,6 +2,9 @@
 
 NetChannels = {}
 
+NetChannels.MCM_RELAY_TO_SERVERS = "MCM_Relay_To_Servers"
+NetChannels.MCM_RELAY_TO_CLIENTS = "MCM_Relay_To_Clients"
+
 NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT = "MCM_Server_Send_Configs_To_Client"
 
 NetChannels.MCM_CLIENT_REQUEST_CONFIGS = "MCM_Client_Request_Configs"

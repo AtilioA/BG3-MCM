@@ -2,6 +2,79 @@ ModEventManager = {}
 
 local hasCheckedNetDeprecationWarning = false
 
+local function emitModEvent(eventName, eventData)
+    if not ModEventManager:IsEventRegistered(eventName) then
+        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
+        MCMWarn(0, Ext.DumpExport(Ext.ModEvents['BG3MCM']))
+        return
+    end
+
+    xpcall(function()
+        MCMDebug(1, "Emitting mod event: " .. eventName .. " with data: " .. Ext.DumpExport(eventData))
+    end, function(err)
+        MCMDebug(1, "Emitting mod event: " .. eventName)
+    end)
+
+    Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
+end
+
+local function broadcastDeprecatedNetMessage(eventName, eventData)
+    local function createMetapayload(eventName, payload)
+        return Ext.Json.Stringify({
+            channel = eventName,
+            payload = payload
+        })
+    end
+
+    local function postNetMessageToServerAndClients(metapayload)
+        local data = Ext.Json.Parse(metapayload)
+        if not data or not data.channel or not data.payload then
+            MCMDebug(0, "Invalid data received from metapayload.")
+            return
+        end
+
+        xpcall(function()
+            if Ext.IsServer() then
+                Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
+                Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS, metapayload)
+            elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
+                Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
+                Ext.Net.PostMessageToServer(NetChannels.MCM_RELAY_TO_CLIENTS, metapayload)
+            end
+        end, function(err)
+            MCMDebug(0, "Error while broadcasting or posting net message: " .. tostring(err))
+        end)
+    end
+
+    local function prepareNetData(eventData)
+        if not eventData or table.isEmpty(eventData) then
+            eventData = {}
+        end
+
+        if not eventData.modUUID then
+            eventData.modUUID = eventData.modGUID
+        end
+
+        if not eventData.modGUID then
+            eventData.modGUID = eventData.modUUID
+        end
+
+        return eventData
+    end
+
+    ---
+    local preparedNetData = prepareNetData(eventData)
+    local metapayload = createMetapayload(eventName, preparedNetData)
+
+    if Ext.IsServer() then
+        MCMDebug(2, "Broadcasting deprecated net message: " .. eventName)
+        postNetMessageToServerAndClients(metapayload)
+    elseif not MCMProxy.IsMainMenu() then
+        MCMDebug(2, "Posting deprecated net message to server: " .. eventName)
+        postNetMessageToServerAndClients(metapayload)
+    end
+end
+
 function ModEventManager:IssueDeprecationWarning()
     if hasCheckedNetDeprecationWarning then return end
 
@@ -87,27 +160,6 @@ function ModEventManager:IssueDeprecationWarning()
     handleDeprecatedNetListeners(getDeprecatedNetListeners())
 end
 
--- Ext.Timer.WaitFor(2000, function()
---     ModEventManager:IssueDeprecationWarning()
--- end)
---- Preprocess the event data for (deprecated) net messages
---- Currently, only makes sure modUUID and modGUID are present, for backwards compatibility
-local function prepareNetData(eventData)
-    if not eventData or table.isEmpty(eventData) then
-        eventData = {}
-    end
-
-    if not eventData.modUUID then
-        eventData.modUUID = eventData.modGUID
-    end
-
-    if not eventData.modGUID then
-        eventData.modGUID = eventData.modUUID
-    end
-
-    return eventData
-end
-
 --- Subscribe to a mod event
 ---@param eventName string The name of the event
 ---@param callback function The callback function to handle the event
@@ -138,28 +190,8 @@ function ModEventManager:Emit(eventName, eventData)
         error("eventName cannot be nil")
     end
 
-    if not self:IsEventRegistered(eventName) then
-        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
-        MCMWarn(0, Ext.DumpExport(Ext.ModEvents['BG3MCM']))
-        return
-    end
-
-    xpcall(function()
-        MCMDebug(1, "Emitting mod event: " .. eventName .. " with data: " .. Ext.DumpExport(eventData))
-    end, function(err)
-        MCMDebug(1, "Emitting mod event: " .. eventName)
-    end)
-
-    Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
-
-    local preparedNetData = prepareNetData(eventData)
-    if (Ext.IsServer()) then
-        MCMDebug(2, "Broadcasting deprecated net message: " .. eventName)
-        Ext.Net.BroadcastMessage(eventName, Ext.Json.Stringify(preparedNetData))
-    elseif not MCMProxy.IsMainMenu() then
-        MCMDebug(2, "Posting deprecated net message to server: " .. eventName)
-        Ext.Net.PostMessageToServer(eventName, Ext.Json.Stringify(preparedNetData))
-    end
+    emitModEvent(eventName, eventData)
+    broadcastDeprecatedNetMessage(eventName, eventData)
 end
 
 return ModEventManager

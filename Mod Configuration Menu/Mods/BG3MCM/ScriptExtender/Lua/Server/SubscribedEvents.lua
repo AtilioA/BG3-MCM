@@ -6,6 +6,9 @@ local modEventRegistry = CommandRegistry:new()
 --- Net message handler for when the (IMGUI) client requests the MCM settings to be loaded
 netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:new(EHandlers.OnClientRequestConfigs))
 
+--- Net message handler to relay messages to other clients (backwards support for deprecated net message usage)
+netEventsRegistry:register(NetChannels.MCM_RELAY_TO_CLIENTS, NetCommand:new(EHandlers.OnRelayToClients))
+
 --- Net message handlers for when the (IMGUI) client opens or closes the MCM window
 modEventRegistry:register(EventChannels.MCM_USER_OPENED_WINDOW, EHandlers.OnUserOpenedWindow)
 modEventRegistry:register(EventChannels.MCM_USER_CLOSED_WINDOW, EHandlers.OnUserClosedWindow)

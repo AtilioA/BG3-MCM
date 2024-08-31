@@ -110,7 +110,7 @@ local function updateNotificationStatus(userId, MCMModVars)
     -- TODO: Also check mcm_params file (implement this later on)
     MCMModVars.Notifications = MCMModVars.Notifications or {}
     MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] = MCMModVars.Notifications
-    ["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
+        ["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"] or {}
     if not MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] then
         MCMModVars.Notifications["MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION"][tostring(userId)] = true
         MCMUtils:SyncModVars(ModuleUUID)
@@ -131,6 +131,11 @@ function EHandlers.OnUserSpamMCMButton(_, payload, peerId)
     else
         MCMDebug(1, "Failed to show notification - userCharacter is nil")
     end
+end
+
+function EHandlers.OnRelayToClients(_, metapayload)
+    local data = Ext.Json.Parse(metapayload)
+    Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
 end
 
 return EHandlers
