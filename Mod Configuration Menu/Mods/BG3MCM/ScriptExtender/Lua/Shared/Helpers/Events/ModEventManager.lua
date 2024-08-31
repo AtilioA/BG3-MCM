@@ -2,6 +2,21 @@ ModEventManager = {}
 
 local hasCheckedNetDeprecationWarning = false
 
+local deprecatedEventNameMap = {
+    MCM_Setting_Saved = "MCM_Saved_Setting",
+    MCM_Setting_Reset = "MCM_Setting_Reset",
+    MCM_All_Mod_Settings_Reset = "MCM_Reset_All_Mod_Settings",
+    MCM_Profile_Created = "MCM_Created_Profile",
+    MCM_Profile_Activated = "MCM_Set_Profile",
+    MCM_Profile_Deleted = "MCM_Deleted_Profile",
+    MCM_Mod_Tab_Added = "MCM_Mod_Tab_Added",
+    MCM_Mod_Tab_Activated = "MCM_Mod_Tab_Activated",
+    MCM_Mod_Subtab_Activated = "MCM_Mod_Subtab_Activated",
+    MCM_Window_Ready = "MCM_Window_Ready",
+    MCM_Window_Opened = "MCM_User_Opened_Window",
+    MCM_Window_Closed = "MCM_User_Closed_Window"
+}
+
 local function emitModEvent(eventName, eventData)
     if not ModEventManager:IsEventRegistered(eventName) then
         MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
@@ -64,13 +79,14 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
 
     ---
     local preparedNetData = prepareNetData(eventData)
-    local metapayload = createMetapayload(eventName, preparedNetData)
+    local deprecatedEventName = deprecatedEventNameMap[eventName] or eventName
+    local metapayload = createMetapayload(deprecatedEventName, preparedNetData)
 
     if Ext.IsServer() then
-        MCMDebug(2, "Broadcasting deprecated net message: " .. eventName)
+        MCMDebug(2, "Broadcasting deprecated net message: " .. deprecatedEventName)
         postNetMessageToServerAndClients(metapayload)
     elseif not MCMProxy.IsMainMenu() then
-        MCMDebug(2, "Posting deprecated net message to server: " .. eventName)
+        MCMDebug(2, "Posting deprecated net message to server: " .. deprecatedEventName)
         postNetMessageToServerAndClients(metapayload)
     end
 end
@@ -78,7 +94,7 @@ end
 function ModEventManager:IssueDeprecationWarning()
     if hasCheckedNetDeprecationWarning then return end
 
-    -- Gets all the deprecated net listeners (MCM_Saved_Setting) and their source files
+    -- Gets all the deprecated net listeners (e.g.: MCM_Saved_Setting) and their source files
     ---@return table<string, table<string, number>> listeners The mods using net listeners as mod events and the listeners' locations in the source files
     local function getDeprecatedNetListeners()
         local listeners = {}
