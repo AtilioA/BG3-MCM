@@ -3,14 +3,14 @@ RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
 ---@param value number
 ---@return table buttons The buttons created
-function RadioIMGUIWidget:new(group, setting, initialValue, modGUID)
-    if not group or not setting or not modGUID then
+function RadioIMGUIWidget:new(group, setting, initialValue, modUUID)
+    if not group or not setting or not modUUID then
         return {}
     end
 
     local instance = setmetatable({}, { __index = RadioIMGUIWidget })
     instance.Widget = self:CreateRadioButtons(group, setting, initialValue)
-    self:SetRadioButtonCallbacks(instance.Widget, setting, modGUID)
+    self:SetRadioButtonCallbacks(instance.Widget, setting, modUUID)
     return instance
 end
 
@@ -34,12 +34,12 @@ end
 
 ---@param buttons table The radio buttons to set callbacks for
 ---@param setting BlueprintSetting The setting containing the radio button options
----@param modGUID string The UUID of the mod
-function RadioIMGUIWidget:SetRadioButtonCallbacks(buttons, setting, modGUID)
+---@param modUUID string The UUID of the mod
+function RadioIMGUIWidget:SetRadioButtonCallbacks(buttons, setting, modUUID)
     for _, button in ipairs(buttons) do
         button.OnChange = function(value)
             if value and value.Label then
-                IMGUIAPI:SetSettingValue(setting:GetId(), value.Label, modGUID)
+                IMGUIAPI:SetSettingValue(setting:GetId(), value.Label, modUUID)
                 self:UncheckOtherRadioButtons(buttons, button)
             end
         end

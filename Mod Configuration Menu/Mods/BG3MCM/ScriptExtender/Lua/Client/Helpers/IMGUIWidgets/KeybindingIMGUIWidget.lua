@@ -1,7 +1,7 @@
 ---@class KeybindingIMGUIWidget: IMGUIWidget
 KeybindingIMGUIWidget = _Class:Create("KeybindingIMGUIWidget", IMGUIWidget)
 
-function KeybindingIMGUIWidget:new(group, setting, initialValue, modGUID)
+function KeybindingIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = KeybindingIMGUIWidget })
 
     instance.Widget = {
@@ -45,7 +45,7 @@ function KeybindingIMGUIWidget:new(group, setting, initialValue, modGUID)
                 Modifier = value
                     .Options[value.SelectedIndex + 1] or "NONE"
             },
-            modGUID
+            modUUID
         )
     end
 
@@ -57,7 +57,7 @@ function KeybindingIMGUIWidget:new(group, setting, initialValue, modGUID)
                 Modifier = instance.Widget.ModifierWidget.Options
                     [instance.Widget.ModifierWidget.SelectedIndex + 1] or "NONE"
             },
-            modGUID
+            modUUID
         )
     end
 
@@ -80,6 +80,6 @@ function KeybindingIMGUIWidget:UpdateCurrentValue(value)
     end
 end
 
-function KeybindingIMGUIWidget:UpdateKeybindingValue(setting, newValue, modGUID)
-    IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
+function KeybindingIMGUIWidget:UpdateKeybindingValue(setting, newValue, modUUID)
+    IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
 end

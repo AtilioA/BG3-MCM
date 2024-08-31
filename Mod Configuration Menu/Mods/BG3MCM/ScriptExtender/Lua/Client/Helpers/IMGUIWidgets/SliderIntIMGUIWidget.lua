@@ -2,7 +2,7 @@
 SliderIntIMGUIWidget = _Class:Create("SliderIntIMGUIWidget", IMGUIWidget)
 
 ---@return any
-function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
+function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = SliderIntIMGUIWidget })
 
     -- Helper function to create increment/decrement buttons
@@ -20,7 +20,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
             local newValue = math.max(setting.Options.Min,
                 math.min(setting.Options.Max, instance.Widget.Value[1] + increment))
             instance:UpdateCurrentValue(newValue)
-            IMGUIAPI:SetSettingValue(setting.Id, newValue, modGUID)
+            IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
             local buttonTooltip = button:Tooltip()
@@ -37,7 +37,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modGUID)
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
     instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modGUID)
+        IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
     end
     instance.Widget.SameLine = true
 

@@ -6,7 +6,7 @@
 ---@field settings table<string, any>
 
 ---@class ModConfig
----@field private mods ModsConfig A table of modGUIDs that has a table of blueprints and settings for each mod
+---@field private mods ModsConfig A table of modUUIDs that has a table of blueprints and settings for each mod
 ---@field private profiles ProfileManager A table of profile data
 -- The ModConfig class orchestrates the management of mod configuration values within MCM.
 -- It provides methods for loading settings, saving settings, updating settings, calling validation, and managing the overall configuration *state* of the mods.
@@ -33,18 +33,18 @@ ModConfig.MCMParamsFilename = "mcm_params.json"
 
 --- SECTION: FILE HANDLING
 --- Generates the full path to a settings file, starting from the Script Extender folder.
---- @param modGUID GUIDSTRING The mod's UUID to get the path for.
-function ModConfig:GetSettingsFilePath(modGUID)
-    return self.profileManager:GetModProfileSettingsPath(modGUID) .. "/settings.json"
+--- @param modUUID GUIDSTRING The mod's UUID to get the path for.
+function ModConfig:GetSettingsFilePath(modUUID)
+    return self.profileManager:GetModProfileSettingsPath(modUUID) .. "/settings.json"
 end
 
 -- TODO: as always, refactor this nuclear waste (might only do when introducing recursive handling of tabs and sections)
 --- Save the settings for a mod to the settings file with tab and section information.
---- @param modGUID GUIDSTRING The mod's UUID to save the settings for.
-function ModConfig:SaveSettingsForMod(modGUID)
-    local configFilePath = self:GetSettingsFilePath(modGUID)
-    local blueprint = self.mods[modGUID].blueprint
-    local settings = self.mods[modGUID].settingsValues
+--- @param modUUID GUIDSTRING The mod's UUID to save the settings for.
+function ModConfig:SaveSettingsForMod(modUUID)
+    local configFilePath = self:GetSettingsFilePath(modUUID)
+    local blueprint = self.mods[modUUID].blueprint
+    local settings = self.mods[modUUID].settingsValues
     local updatedSettings = {}
 
     for _, tab in ipairs(blueprint:GetTabs()) do
@@ -89,16 +89,16 @@ end
 
 --- Save the settings for all mods to the settings files.
 function ModConfig:SaveAllSettings()
-    for modGUID, _settingsTable in pairs(self.mods) do
-        self:SaveSettingsForMod(modGUID)
+    for modUUID, _settingsTable in pairs(self.mods) do
+        self:SaveSettingsForMod(modUUID)
     end
 end
 
 --- Update the settings for a mod and save them to the settings file.
-function ModConfig:UpdateAllSettingsForMod(modGUID, settings)
-    self.mods[modGUID].settingsValues = settings
+function ModConfig:UpdateAllSettingsForMod(modUUID, settings)
+    self.mods[modUUID].settingsValues = settings
     -- TODO: Validate and sanitize data
-    self:SaveSettingsForMod(modGUID)
+    self:SaveSettingsForMod(modUUID)
 end
 
 --- SECTION: MCM CONFIG/PROFILE HANDLING
@@ -144,8 +144,8 @@ end
 --- SECTION: SETTINGS HANDLING
 --- Load the settings for each mod from the settings file.
 function ModConfig:LoadSettings()
-    for modGUID, settingsTable in pairs(self.mods) do
-        self:LoadSettingsForMod(modGUID, self.mods[modGUID].blueprint)
+    for modUUID, settingsTable in pairs(self.mods) do
+        self:LoadSettingsForMod(modUUID, self.mods[modUUID].blueprint)
     end
 end
 
@@ -175,26 +175,26 @@ function ModConfig:GetSettings()
 end
 
 --- Load the settings for a mod from the settings file.
----@param modGUID string The UUID of the mod
+---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
-function ModConfig:LoadSettingsForMod(modGUID, blueprint)
-    local settingsFilePath = self:GetSettingsFilePath(modGUID)
+function ModConfig:LoadSettingsForMod(modUUID, blueprint)
+    local settingsFilePath = self:GetSettingsFilePath(modUUID)
     local settings = JsonLayer:LoadJSONFile(settingsFilePath)
     if settings then
         local flattenedSettings = JsonLayer:FlattenSettingsJSON(settings)
-        self:HandleLoadedSettings(modGUID, blueprint, flattenedSettings, settingsFilePath)
+        self:HandleLoadedSettings(modUUID, blueprint, flattenedSettings, settingsFilePath)
     else
-        self:HandleMissingSettings(modGUID, blueprint, settingsFilePath)
+        self:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
     end
 end
 
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
----@param modGUID string The UUID of the mod
+---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
 ---@param settings table The table with all settings for the mod
 ---@param settingsFilePath string The file path of the settings.json file
-function ModConfig:HandleLoadedSettings(modGUID, blueprint, settings, settingsFilePath)
-    MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modGUID).Info.Name)
+function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
+    MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modUUID).Info.Name)
     -- Add new settings, remove deprecated settings, update JSON file
     self:AddKeysMissingFromBlueprint(blueprint, settings)
     self:RemoveDeprecatedKeys(blueprint, settings)
@@ -202,27 +202,27 @@ function ModConfig:HandleLoadedSettings(modGUID, blueprint, settings, settingsFi
     settings = DataPreprocessing:ValidateAndFixSettings(blueprint, settings)
     JsonLayer:SaveJSONFile(settingsFilePath, settings)
 
-    self.mods[modGUID].settingsValues = settings
+    self.mods[modUUID].settingsValues = settings
 
-    MCMTest(2, Ext.Json.Stringify(self.mods[modGUID].settingsValues))
+    MCMTest(2, Ext.Json.Stringify(self.mods[modUUID].settingsValues))
     -- TODO: untangle this from shared client/server code
     -- Abhorrent hack to update the client's UI with the new settings. Since this is just a secondary feature, it is what it is for now. Sorry!
     -- if Ext.IsClient() and IMGUIAPI then
-    --     for settingId, settingValue in pairs(self.mods[modGUID].settingsValues) do
-    --         MCMClientState:SetClientStateValue(settingId, settingValue, modGUID)
+    --     for settingId, settingValue in pairs(self.mods[modUUID].settingsValues) do
+    --         MCMClientState:SetClientStateValue(settingId, settingValue, modUUID)
     --     end
     -- end
 end
 
 --- Handle the missing settings for a mod. If the settings file is missing, the default settings from the blueprint are saved to the file.
----@param modGUID string The UUID of the mod
+---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
 ---@param settingsFilePath string The file path of the settings.json file
-function ModConfig:HandleMissingSettings(modGUID, blueprint, settingsFilePath)
+function ModConfig:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
     local defaultSettingsJSON = Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
-    self.mods[modGUID].settingsValues = defaultSettingsJSON
+    self.mods[modUUID].settingsValues = defaultSettingsJSON
     MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
-        Ext.Mod.GetMod(modGUID).Info.Name, settingsFilePath)
+        Ext.Mod.GetMod(modUUID).Info.Name, settingsFilePath)
     JsonLayer:SaveJSONFile(settingsFilePath, defaultSettingsJSON)
 end
 
@@ -266,23 +266,23 @@ end
 --- SECTION: BLUEPRINT HANDLING
 --- Submit the blueprint data to the ModConfig instance
 ---@param data table The mod blueprint data to submit
----@param modGUID string The UUID of the mod that the blueprint data belongs to
+---@param modUUID string The UUID of the mod that the blueprint data belongs to
 ---@return nil
-function ModConfig:SubmitBlueprint(data, modGUID)
-    local preprocessedData = DataPreprocessing:PreprocessData(data, modGUID)
+function ModConfig:SubmitBlueprint(data, modUUID)
+    local preprocessedData = DataPreprocessing:PreprocessData(data, modUUID)
     if not preprocessedData then
         MCMWarn(0,
             "Failed to preprocess data for mod: " ..
-            Ext.Mod.GetMod(modGUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(modUUID).Info.Name ..
+            ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return
     end
 
-    self.mods[modGUID] = {
+    self.mods[modUUID] = {
         blueprint = Blueprint:New(preprocessedData),
     }
 
-    MCMTest(2, "Blueprint for mod '" .. Ext.Mod.GetMod(modGUID).Info.Name .. "' is ready to be used.")
+    MCMTest(2, "Blueprint for mod '" .. Ext.Mod.GetMod(modUUID).Info.Name .. "' is ready to be used.")
 end
 
 --- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_blueprint.json" and be located in the mod's directory, alongside the mod's meta.lsx file.

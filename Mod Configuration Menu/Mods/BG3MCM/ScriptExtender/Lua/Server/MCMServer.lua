@@ -10,21 +10,21 @@ function MCMServer:LoadConfigs()
 end
 
 --- Get the settings table for a mod
----@param modGUID GUIDSTRING The UUID of the mod to retrieve settings from
+---@param modUUID GUIDSTRING The UUID of the mod to retrieve settings from
 ---@return table<string, table> - The settings table for the mod
-function MCMServer:GetAllModSettings(modGUID)
-    if not modGUID then
-        MCMWarn(0, "modGUID is nil. Cannot get mod settings.")
+function MCMServer:GetAllModSettings(modUUID)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot get mod settings.")
         return {}
     end
 
-    local mod = MCMAPI.mods[modGUID]
+    local mod = MCMAPI.mods[modUUID]
     if not mod then
         MCMWarn(0,
             "Mod " ..
-            modGUID ..
+            modUUID ..
             " was not found by MCM.\nDouble check your blueprint filename, directory, and whether it's well-defined. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return {}
     end
 
@@ -34,12 +34,12 @@ end
 --- Set the value of a configuration setting
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
----@param modGUID GUIDSTRING The UUID of the mod
-function MCMServer:SetSettingValue(settingId, value, modGUID)
-    local modSettingsTable = MCMAPI:GetAllModSettings(modGUID)
+---@param modUUID GUIDSTRING The UUID of the mod
+function MCMServer:SetSettingValue(settingId, value, modUUID)
+    local modSettingsTable = MCMAPI:GetAllModSettings(modUUID)
     local oldValue = modSettingsTable[settingId]
 
-    local isValid = MCMAPI:IsSettingValueValid(settingId, value, modGUID)
+    local isValid = MCMAPI:IsSettingValueValid(settingId, value, modUUID)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
     if not isValid then
         local errorMessage = "Invalid value for setting '" ..
@@ -48,7 +48,7 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
 
         -- Notify the client with the current value of the setting, so it can update its UI
         ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
-            modGUID = modGUID,
+            modUUID = modUUID,
             settingId = settingId,
             value = value,
             oldValue = value,
@@ -58,11 +58,11 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
     end
 
     modSettingsTable[settingId] = value
-    ModConfig:UpdateAllSettingsForMod(modGUID, modSettingsTable)
+    ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
     -- Notify MCM clients
     -- Ext.Net.BroadcastMessage(NetChannels.MCM_SAVED_SETTING, Ext.Json.Stringify({
-    --     modGUID = modGUID,
+    --     modUUID = modUUID,
     --     settingId = settingId,
     --     value = value,
     --     oldValue = oldValue
@@ -70,7 +70,7 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
 
     -- Notify other mods
     ModEventManager:Emit(EventChannels.MCM_SAVED_SETTING, {
-        modGUID = modGUID,
+        modUUID = modUUID,
         settingId = settingId,
         value = value,
         oldValue = oldValue
@@ -78,22 +78,22 @@ function MCMServer:SetSettingValue(settingId, value, modGUID)
 end
 
 ---@param settingId string The id of the setting to reset
----@param modGUID? GUIDSTRING The UUID of the mod (optional)
+---@param modUUID? GUIDSTRING The UUID of the mod (optional)
 ---@param clientRequest? boolean Whether the request came from the client
-function MCMServer:ResetSettingValue(settingId, modGUID, clientRequest)
-    modGUID = modGUID or ModuleUUID
+function MCMServer:ResetSettingValue(settingId, modUUID, clientRequest)
+    modUUID = modUUID or ModuleUUID
 
-    local blueprint = MCMAPI:GetModBlueprint(modGUID)
+    local blueprint = MCMAPI:GetModBlueprint(modUUID)
 
     local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
         MCMWarn(0,
-            "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modGUID .. "'. Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modUUID .. "'. Please contact " ..
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
     else
-        self:SetSettingValue(settingId, defaultValue, modGUID, clientRequest)
+        self:SetSettingValue(settingId, defaultValue, modUUID, clientRequest)
         ModEventManager:Emit(EventChannels.MCM_SETTING_RESET, {
-            modGUID = modGUID,
+            modUUID = modUUID,
             settingId = settingId,
             defaultValue = defaultValue
         })
@@ -178,14 +178,14 @@ function MCMServer:LoadAndSendSettings()
 end
 
 --- Reset all settings for a mod to their default values
----@param modGUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
--- function MCMServer:ResetAllSettings(modGUID)
---     local modBlueprint = MCMAPI.blueprints[modGUID]
+---@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
+-- function MCMServer:ResetAllSettings(modUUID)
+--     local modBlueprint = MCMAPI.blueprints[modUUID]
 --     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
---     ModConfig:UpdateAllSettingsForMod(modGUID, defaultSettings)
+--     ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
 --     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = EventChannels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modGUID = modGUID, settings = defaultSettings } }))
+--         Ext.Json.Stringify({ channel = EventChannels.MCM_RESET_ALL_MOD_SETTINGS, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
 -- UNUSED since profile management currently calls shared code
@@ -228,8 +228,8 @@ end
 -- ---@param settingId string The id of the setting
 -- ---@param value any The value to check
 -- ---@return boolean Whether the value is valid
--- function MCMServer:IsSettingValueValid(settingId, value, modGUID)
---     local blueprint = MCMAPI:GetModBlueprint(modGUID)
+-- function MCMServer:IsSettingValueValid(settingId, value, modUUID)
+--     local blueprint = MCMAPI:GetModBlueprint(modUUID)
 --     local setting = blueprint:GetAllSettings()[settingId]
 
 --     if setting then
@@ -244,24 +244,24 @@ end
 --             "Setting '" ..
 --             settingId ..
 --             "' not found in the blueprint for mod '" ..
---             modGUID .. "'. Please contact " .. Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+--             modUUID .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
 --         return false
 --     end
 -- end
 
 --- Get the value of a configuration setting
 ---@param settingId string The id of the setting
----@param modGUID string The UUID of the mod that has the setting
+---@param modUUID string The UUID of the mod that has the setting
 ---@return any The value of the setting
-function MCMServer:GetSettingValue(settingId, modGUID)
-    if not modGUID then
-        MCMWarn(0, "modGUID is nil. Cannot get setting value.")
+function MCMServer:GetSettingValue(settingId, modUUID)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot get setting value.")
         return nil
     end
 
-    local modSettingsTable = MCMAPI:GetAllModSettings(modGUID)
+    local modSettingsTable = MCMAPI:GetAllModSettings(modUUID)
     if not modSettingsTable then
-        MCMWarn(0, "Mod settings table not found for mod '" .. modGUID .. "'.")
+        MCMWarn(0, "Mod settings table not found for mod '" .. modUUID .. "'.")
         return nil
     end
 
@@ -270,7 +270,7 @@ function MCMServer:GetSettingValue(settingId, modGUID)
     end
 
     -- No settingId
-    MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modGUID)
+    MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modUUID)
     return nil
 end
 

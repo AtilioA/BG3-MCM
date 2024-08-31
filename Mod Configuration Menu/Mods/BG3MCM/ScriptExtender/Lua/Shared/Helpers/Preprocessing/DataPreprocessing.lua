@@ -105,9 +105,9 @@ end
 
 --- Recursively preprocess tabs and sections to create Blueprint instances for each element found.
 ---@param elementData table The current tab or section data to preprocess.
----@param modGUID string The UUID of the mod that the item data belongs to.
+---@param modUUID string The UUID of the mod that the item data belongs to.
 ---@return table - The preprocessed tab or section data.
-function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
+function DataPreprocessing:RecursivePreprocess(elementData, modUUID)
     local processedData = {}
 
     if elementData.TabName then
@@ -124,7 +124,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
         -- Process nested Tabs if they exist
         if elementData.Tabs then
             for _, nestedTab in ipairs(elementData.Tabs) do
-                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modGUID))
+                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modUUID))
             end
         end
     end
@@ -145,7 +145,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modGUID)
         -- Process nested Tabs in Sections if they exist
         if elementData.Tabs then
             for _, nestedTab in ipairs(elementData.Tabs) do
-                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modGUID))
+                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modUUID))
             end
         end
     end
@@ -172,11 +172,11 @@ end
 
 --- Entry point function to preprocess data including SchemaVersion and ModName.
 ---@param data table The full item data to preprocess
----@param modGUID string The UUID of the mod that the item data belongs to
+---@param modUUID string The UUID of the mod that the item data belongs to
 ---@return table<string, BlueprintSetting>|nil The preprocessed data, or nil if preprocessing failed
-function DataPreprocessing:PreprocessData(data, modGUID)
+function DataPreprocessing:PreprocessData(data, modUUID)
     local preprocessedData = {
-        ModUUID = modGUID,
+        ModUUID = modUUID,
         SchemaVersion = data.SchemaVersion,
         ModName = data.ModName,
         Tabs = {},
@@ -185,7 +185,7 @@ function DataPreprocessing:PreprocessData(data, modGUID)
 
     -- Recursively process each top-level Tab
     for _, tab in ipairs(data.Tabs or {}) do
-        table.insert(preprocessedData.Tabs, self:RecursivePreprocess(tab, modGUID))
+        table.insert(preprocessedData.Tabs, self:RecursivePreprocess(tab, modUUID))
     end
 
     -- Process each top-level Setting

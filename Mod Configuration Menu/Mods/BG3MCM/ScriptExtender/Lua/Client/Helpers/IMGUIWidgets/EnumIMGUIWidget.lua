@@ -4,8 +4,8 @@ EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 ---@param group any
 ---@param setting BlueprintSetting
 ---@param initialValue any
----@param modGUID string
-function EnumIMGUIWidget:new(group, setting, initialValue, modGUID)
+---@param modUUID string
+function EnumIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = EnumIMGUIWidget })
     instance.Widget = group:AddCombo("", initialValue)
     instance.Widget.UserData = {
@@ -15,7 +15,7 @@ function EnumIMGUIWidget:new(group, setting, initialValue, modGUID)
     instance.Widget.Options = instance.optionsLabels
 
     instance:setInitialSelection(initialValue)
-    instance:setOnChangeCallback(setting, modGUID)
+    instance:setOnChangeCallback(setting, modUUID)
 
     return instance
 end
@@ -52,10 +52,10 @@ function EnumIMGUIWidget:setInitialSelection(initialValue)
     end
 end
 
-function EnumIMGUIWidget:setOnChangeCallback(setting, modGUID)
+function EnumIMGUIWidget:setOnChangeCallback(setting, modUUID)
     self.Widget.OnChange = function(value)
         IMGUIAPI:SetSettingValue(setting:GetId(),
-            self.Widget.UserData.OptionsLookup[value.Options[value.SelectedIndex + 1]], modGUID)
+            self.Widget.UserData.OptionsLookup[value.Options[value.SelectedIndex + 1]], modUUID)
     end
 end
 

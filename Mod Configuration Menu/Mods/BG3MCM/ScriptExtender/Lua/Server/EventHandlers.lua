@@ -18,24 +18,24 @@ function EHandlers.OnClientRequestSetSettingValue(_, payload, peerId)
     local parsedPayload = Ext.Json.Parse(payload)
     local settingId = parsedPayload.settingId
     local value = parsedPayload.value
-    local modGUID = parsedPayload.modGUID
+    local modUUID = parsedPayload.modUUID
 
     if type(value) == "table" then
-        MCMDebug(2, "Will set " .. settingId .. " to " .. Ext.Json.Stringify(value) .. " for mod " .. modGUID)
+        MCMDebug(2, "Will set " .. settingId .. " to " .. Ext.Json.Stringify(value) .. " for mod " .. modUUID)
     else
-        MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modGUID)
+        MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modUUID)
     end
 
-    MCMServer:SetSettingValue(settingId, value, modGUID, true)
+    MCMServer:SetSettingValue(settingId, value, modUUID, true)
 end
 
 function EHandlers.OnClientRequestResetSettingValue(_, payload, peerId)
     local parsedPayload = Ext.Json.Parse(payload)
     local settingId = parsedPayload.settingId
-    local modGUID = parsedPayload.modGUID
+    local modUUID = parsedPayload.modUUID
 
-    MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modGUID)
-    MCMServer:ResetSettingValue(settingId, modGUID, true)
+    MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modUUID)
+    MCMServer:ResetSettingValue(settingId, modUUID, true)
 end
 
 -- function EHandlers.OnClientRequestProfiles(_)

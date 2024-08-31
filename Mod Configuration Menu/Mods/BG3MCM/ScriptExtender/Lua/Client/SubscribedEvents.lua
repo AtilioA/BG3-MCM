@@ -61,13 +61,13 @@ end)
 
 Ext.RegisterNetListener(EventChannels.MCM_SETTING_UPDATED, function(_, payload)
     local data = Ext.Json.Parse(payload)
-    local modGUID = data.modGUID
+    local modUUID = data.modUUID
     local settingId = data.settingId
     local value = data.value
 
-    MCMClientState:SetClientStateValue(settingId, value, modGUID)
+    MCMClientState:SetClientStateValue(settingId, value, modUUID)
 
-    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
 end)
 
 Ext.RegisterNetListener(NetChannels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
@@ -77,42 +77,42 @@ end)
 
 --- SECTION: Mod events
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
-    local modGUID = data.modGUID
+    local modUUID = data.modUUID
     local settingId = data.settingId
     local defaultValue = data.defaultValue
 
     -- Update the displayed value for the setting
-    IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modGUID)
-    -- MCMClientState:SetClientStateValue(settingId, defaultValue, modGUID)
+    IMGUIAPI:UpdateSettingUIValue(settingId, defaultValue, modUUID)
+    -- MCMClientState:SetClientStateValue(settingId, defaultValue, modUUID)
 end)
 
 -- FIXME: not working for some reason
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
     MCMDebug(1, "Firing MCM_SETTING_UPDATED on client")
-    local modGUID = data.modGUID
+    local modUUID = data.modUUID
     local settingId = data.settingId
     local value = data.value
 
-    MCMClientState:SetClientStateValue(settingId, value, modGUID)
+    MCMClientState:SetClientStateValue(settingId, value, modUUID)
 
-    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modGUID)
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
 end)
 
 ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
-    local modGUID = data.modGUID
+    local modUUID = data.modUUID
     local tabName = data.tabName
     local tabCallback = data.tabCallback
 
     -- Update the IMGUILayer to include the new tab
-    IMGUIAPI:InsertModMenuTab(modGUID, tabName, tabCallback)
+    IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
 end)
 
 ModEventManager:Subscribe(EventChannels.MCM_SET_PROFILE, function(data)
     local newSettings = data.newSettings
 
-    for modGUID, modSettings in pairs(newSettings) do
+    for modUUID, modSettings in pairs(newSettings) do
         for settingId, settingValue in pairs(modSettings.settingsValues) do
-            IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modGUID)
+            IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modUUID)
         end
     end
 end)

@@ -26,7 +26,7 @@ function MCMProxy:LoadConfigs()
         self.mods = ModConfig:GetSettings()
         self.profiles = ModConfig:GetProfiles()
     end
-    
+
     if MCMProxy.IsMainMenu() then
         loadConfigs()
     else
@@ -37,11 +37,11 @@ function MCMProxy:LoadConfigs()
 end
 
 -- TODO: add temporary message to inform users that custom MCM tabs are not available in the main menu
-function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
-    -- FrameManager:updateModDescriptionTooltip(modGUID, "Some functionality from this mod requires a save to be loaded first.")
+function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
+    -- FrameManager:updateModDescriptionTooltip(modUUID, "Some functionality from this mod requires a save to be loaded first.")
 
     if MCMProxy.IsMainMenu() or not
-        FrameManager:GetGroup(modGUID) then
+        FrameManager:GetGroup(modUUID) then
         -- local function addTempTextMainMenu(tabHeader)
         --     local tempTextDisclaimer = Ext.Loca.GetTranslatedString("h99e6c7f6eb9c43238ca27a89bb45b9690607")
         --     addTempText = tabHeader:AddText(tempTextDisclaimer)
@@ -49,38 +49,38 @@ function MCMProxy:InsertModMenuTab(modGUID, tabName, tabCallback)
         -- end
 
         Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-            FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+            FrameManager:InsertModTab(modUUID, tabName, tabCallback)
         end)
     else
-        FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+        FrameManager:InsertModTab(modUUID, tabName, tabCallback)
     end
 end
 
-function MCMProxy:GetSettingValue(settingId, modGUID)
+function MCMProxy:GetSettingValue(settingId, modUUID)
     if MCMProxy.IsMainMenu() then
-        return MCMAPI:GetSettingValue(settingId, modGUID)
+        return MCMAPI:GetSettingValue(settingId, modUUID)
     else
-        return MCMClientState:GetClientStateValue(settingId, modGUID)
+        return MCMClientState:GetClientStateValue(settingId, modUUID)
     end
 end
 
-function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
+function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
     if MCMProxy.IsMainMenu() then
         -- Handle locally
-        MCMAPI:SetSettingValue(settingId, value, modGUID)
+        MCMAPI:SetSettingValue(settingId, value, modUUID)
         if setUIValue then
             setUIValue(value)
         end
     else
         -- Send to server
         Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
-            modGUID = modGUID,
+            modUUID = modUUID,
             settingId = settingId,
             value = value
         }))
         -- Check if server updated the setting
         ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
-            if data.modGUID ~= modGUID or data.settingId ~= settingId then
+            if data.modUUID ~= modUUID or data.settingId ~= settingId then
                 return
             end
 
@@ -91,15 +91,15 @@ function MCMProxy:SetSettingValue(settingId, value, modGUID, setUIValue)
     end
 end
 
-function MCMProxy:ResetSettingValue(settingId, modGUID)
+function MCMProxy:ResetSettingValue(settingId, modUUID)
     if MCMProxy.IsMainMenu() then
         -- Handle locally
-        MCMAPI:ResetSettingValue(settingId, modGUID)
-        MCMClientState:SetClientStateValue(settingId, MCMAPI:GetSettingValue(settingId, modGUID), modGUID)
+        MCMAPI:ResetSettingValue(settingId, modUUID)
+        MCMClientState:SetClientStateValue(settingId, MCMAPI:GetSettingValue(settingId, modUUID), modUUID)
     else
         -- Send to server
         Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, Ext.Json.Stringify({
-            modGUID = modGUID,
+            modUUID = modUUID,
             settingId = settingId
         }))
     end

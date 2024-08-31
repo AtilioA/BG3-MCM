@@ -19,11 +19,11 @@ function FrameManager:initFrameLayout(parent)
     self.contentCell = row:AddCell()
 end
 
----@param guidToShow string
-function FrameManager:setVisibleFrame(guidToShow)
+---@param uuidToShow string
+function FrameManager:setVisibleFrame(uuidToShow)
     for uuid, group in pairs(self.contentGroups) do
         if group then
-            group.Visible = (guidToShow == uuid)
+            group.Visible = (uuidToShow == uuid)
         end
     end
 end
@@ -94,25 +94,25 @@ function FrameManager:GetModTabBar(modUUID)
 end
 
 --- Insert a new tab for a mod in the MCM
----@param modGUID string The UUID of the mod
+---@param modUUID string The UUID of the mod
 ---@param tabName string The name of the tab to be inserted
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
-function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
+function FrameManager:InsertModTab(modUUID, tabName, tabCallback)
     if not MCM_WINDOW then
         return
     end
-    local modTabBar = FrameManager:GetModTabBar(modGUID)
+    local modTabBar = FrameManager:GetModTabBar(modUUID)
 
     if not modTabBar then
-        local modData = Ext.Mod.GetMod(modGUID)
+        local modData = Ext.Mod.GetMod(modUUID)
         MCMWarn(0, "'InsertModTab' called before any modTabBar created: " .. modData.Info.Name .. ". Please contact " ..
-            Ext.Mod.GetMod(modGUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return
     end
 
     local newTab = modTabBar:AddTabItem(tabName)
-    newTab.IDContext = modGUID .. "_" .. tabName
+    newTab.IDContext = modUUID .. "_" .. tabName
 
     newTab.UserData = newTab.UserData or {}
     if tabCallback and not newTab.UserData["Callback"] then
@@ -120,7 +120,7 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
         tabCallback(newTab)
 
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
-            modGUID = modGUID,
+            modUUID = modUUID,
             tabName = tabName,
         })
     end
@@ -128,7 +128,7 @@ function FrameManager:InsertModTab(modGUID, tabName, tabCallback)
     newTab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
         ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
-            modGUID = modGUID,
+            modUUID = modUUID,
             tabName = tabName
         })
     end
@@ -155,7 +155,7 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
         end
         if not MCMProxy.IsMainMenu() then
             ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, {
-                modGUID = uuid
+                modUUID = uuid
             })
         end
     end

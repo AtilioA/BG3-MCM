@@ -1,11 +1,11 @@
 ---@class SliderFloatIMGUIWidget: IMGUIWidget
 SliderFloatIMGUIWidget = _Class:Create("SliderFloatIMGUIWidget", IMGUIWidget)
 
-function SliderFloatIMGUIWidget:new(group, setting, initialValue, modGUID)
+function SliderFloatIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = SliderFloatIMGUIWidget })
     instance.Widget = group:AddSlider("", initialValue, setting.Options.Min, setting.Options.Max)
     instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modGUID)
+        IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
     end
     return instance
 end

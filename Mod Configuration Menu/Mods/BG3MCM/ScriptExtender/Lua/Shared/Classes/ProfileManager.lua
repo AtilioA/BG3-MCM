@@ -171,13 +171,13 @@ function ProfileManager:DeleteProfile(profileName)
 end
 
 --- Generates the full path to a settings file, starting from the Script Extender folder.
---- @param modGUID GUIDSTRING The mod's UUID to get the path for.
+--- @param modUUID GUIDSTRING The mod's UUID to get the path for.
 --- @return string The full path to the settings file.
-function ProfileManager:GetModProfileSettingsPath(modGUID)
+function ProfileManager:GetModProfileSettingsPath(modUUID)
     local MCMPath = Ext.Mod.GetMod(ModuleUUID).Info.Directory
     local profileName = self:GetCurrentProfile()
     local profilePath = MCMPath .. '/' .. "Profiles" .. '/' .. profileName
 
-    local modFolderName = Ext.Mod.GetMod(modGUID).Info.Directory
+    local modFolderName = Ext.Mod.GetMod(modUUID).Info.Directory
     return profilePath .. '/' .. modFolderName
 end

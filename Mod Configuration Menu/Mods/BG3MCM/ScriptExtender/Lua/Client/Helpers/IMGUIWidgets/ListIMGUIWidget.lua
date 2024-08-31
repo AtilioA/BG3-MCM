@@ -3,11 +3,11 @@
 ---@class ListIMGUIWidget: IMGUIWidget
 ListIMGUIWidget = _Class:Create("ListIMGUIWidget", IMGUIWidget)
 
-function ListIMGUIWidget:new(group, setting, initialValue, modGUID)
+function ListIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = ListIMGUIWidget })
     instance.Widget = { List = initialValue or {} }
     instance.Widget.Group = group
-    instance.Widget.ModGUID = modGUID
+    instance.Widget.modUUID = modUUID
     instance.Widget.Setting = setting
 
     instance.Widget.TableGroup = group:AddGroup("ListTableGroup" .. setting.Id)
@@ -37,7 +37,7 @@ function ListIMGUIWidget:RenderList()
         tooltip:AddText("Remove '" .. value .. "' from the list")
         removeButton.OnClick = function()
             table.remove(self.Widget.List, i)
-            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.ModGUID)
+            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.modUUID)
             self:Refresh()
         end
     end
@@ -73,7 +73,7 @@ function ListIMGUIWidget:AddInputAndAddButton()
             end
 
             table.insert(self.Widget.List, newText)
-            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.ModGUID)
+            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.modUUID)
             self:Refresh()
         end
     end
@@ -101,15 +101,15 @@ end
 --- Add a reset button to the widget
 ---@param group any The IMGUI group to add the button to
 ---@param setting BlueprintSetting The Setting object that this widget will be responsible for
----@param modGUID string The GUID of the mod that owns this widget
+---@param modUUID string The UUID of the mod that owns this widget
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
-function ListIMGUIWidget:AddResetButton(group, setting, modGUID)
+function ListIMGUIWidget:AddResetButton(group, setting, modUUID)
     local resetButton = group:AddButton("[Reset list]")
-    resetButton.IDContext = modGUID .. "_" .. "ResetButton_" .. setting:GetId()
+    resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
     resetButton:Tooltip():AddText("Reset this list to its default values")
     resetButton.OnClick = function()
-        IMGUIAPI:ResetSettingValue(setting:GetId(), modGUID)
+        IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
     end
     resetButton.SameLine = true
 end
