@@ -90,11 +90,10 @@ end
 -- Ext.Timer.WaitFor(2000, function()
 --     ModEventManager:IssueDeprecationWarning()
 -- end)
-
 --- Preprocess the event data for (deprecated) net messages
 --- Currently, only makes sure modUUID and modGUID are present, for backwards compatibility
 local function prepareNetData(eventData)
-    if not eventData then
+    if not eventData or table.isEmpty(eventData) then
         eventData = {}
     end
 
@@ -105,6 +104,8 @@ local function prepareNetData(eventData)
     if not eventData.modGUID then
         eventData.modGUID = eventData.modUUID
     end
+
+    return eventData
 end
 
 --- Subscribe to a mod event
