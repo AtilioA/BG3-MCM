@@ -94,7 +94,7 @@ function Noesis:HandleMainMenuMCMButtonPress(button)
 end
 
 function Noesis:ListenToMainMenuButtonPress()
-    Ext.Timer.WaitFor(3000, function()
+    Ext.Timer.WaitFor(4000, function()
         local MCMMainMenuButton = Noesis:FindMCMainMenuButton()
         if not MCMMainMenuButton then
             MCMDebug(1, "MCMMainMenuButton not found. Not listening for clicks on it.")
