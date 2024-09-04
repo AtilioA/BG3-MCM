@@ -13,6 +13,6 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
         MCMAPI:LoadConfigs()
         MCMClientState:LoadMods(MCMAPI.mods)
-        Noesis:ListenToMainMenuButtonPress()
+        Noesis:MonitorMainMenuButtonPress()
     end
 end)

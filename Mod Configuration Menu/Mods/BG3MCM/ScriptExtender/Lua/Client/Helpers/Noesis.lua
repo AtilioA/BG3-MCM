@@ -72,7 +72,8 @@ local function handleMCMButtonPress(button, hasServer)
             updateButtonMessage("No MCM window? See troubleshooting steps in the mod page.",
                 revertTime, isMessageUpdated)
             if hasServer then
-                Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION, Ext.Json.Stringify({}))
+                Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,
+                    Ext.Json.Stringify({}))
             end
         else
             Ext.Timer.WaitFor(timeWindow, function()
@@ -93,14 +94,15 @@ function Noesis:HandleMainMenuMCMButtonPress(button)
     handleMCMButtonPress(button, false)
 end
 
-function Noesis:ListenToMainMenuButtonPress()
-    Ext.Timer.WaitFor(4000, function()
-        local MCMMainMenuButton = Noesis:FindMCMainMenuButton()
-        if not MCMMainMenuButton then
-            MCMDebug(1, "MCMMainMenuButton not found. Not listening for clicks on it.")
-            return
+function Noesis:MonitorMainMenuButtonPress()
+    VCTimer:ExecuteWithIntervalUntilCondition(function()
+        local mainMenuButton = Noesis:FindMCMainMenuButton()
+        if not mainMenuButton then
+            MCMDebug(0, "Main menu button not found. Unable to monitor clicks.")
+            return false
         end
 
-        self:HandleMainMenuMCMButtonPress(MCMMainMenuButton)
-    end)
+        self:HandleMainMenuMCMButtonPress(mainMenuButton)
+        return mainMenuButton ~= nil
+    end, 2000, function() return not MCMProxy:IsMainMenu() end)
 end
