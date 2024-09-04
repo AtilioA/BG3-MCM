@@ -6,7 +6,7 @@ MCMServer = _Class:Create("MCMServer", nil, {})
 function MCMServer:LoadConfigs()
     MCMAPI.mods = ModConfig:GetSettings()
     MCMAPI.profiles = ModConfig:GetProfiles()
-    MCMTest(0, "Done loading MCM configs")
+    MCMTest(0, "Finished loading MCM blueprints")
 end
 
 --- Get the settings table for a mod
