@@ -149,7 +149,7 @@ function ModEventManager:IssueDeprecationWarning()
             table.insert(usageMessages, string.format("source: %s | line: %d", usage.source, usage.line))
         end
         return string.format(
-            "Deprecated net message usage detected to simulate mod events. SE v18 introduced Mod Events for this purpose.\n%s, please update the code for %s in the following files:\n%s\nSee https://wiki.bg3.community/Tutorials/Mod-Frameworks/mod-configuration-menu#listening-to-mcm-events for more information.\n",
+            "%s, please update the code for %s in the following files:\n%s\n",
             modInfo.Author, modInfo.Name, table.concat(usageMessages, ",\n")
         )
     end
@@ -160,6 +160,12 @@ function ModEventManager:IssueDeprecationWarning()
         local loadOrder = Ext.Mod.GetLoadOrder()
         if not loadOrder then return end
 
+        local header =
+        "Deprecated net message usage detected to simulate mod events. SE v18 introduced Mod Events for this purpose.\n"
+        local footer =
+        "See https://wiki.bg3.community/Tutorials/Mod-Frameworks/mod-configuration-menu#listening-to-mcm-events for more information.\n"
+        local warningMessages = {}
+
         for _, modUUID in ipairs(loadOrder) do
             local modData = Ext.Mod.GetMod(modUUID)
             if not isValidModData(modData) then return end
@@ -167,9 +173,12 @@ function ModEventManager:IssueDeprecationWarning()
             local modInfo = modData.Info
             local modDir = modInfo.Directory
             if deprecatedNetListeners[modDir] then
-                local warningMessage = createWarningMessage(modInfo, deprecatedNetListeners[modDir])
-                MCMWarn(0, warningMessage)
+                table.insert(warningMessages, createWarningMessage(modInfo, deprecatedNetListeners[modDir]))
             end
+        end
+
+        if #warningMessages > 0 and (MCMAPI:GetSettingValue("print_deprecation_warnings", ModuleUUID) or Ext.Debug.IsDeveloperMode()) then
+            MCMWarn(0, header .. table.concat(warningMessages, "\n") .. footer)
         end
     end
 
