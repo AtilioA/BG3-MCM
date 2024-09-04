@@ -20,7 +20,7 @@ MCMAPI = _Class:Create("MCM", nil, {
 function MCMAPI:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
-    MCMTest(0, "Done loading MCM configs")
+    MCMTest(0, "Finished loading MCM blueprints")
 end
 
 --- Create a new MCM profile

@@ -35,4 +35,7 @@
     <content contentuid="ha303b737440345dd831870ef6b4ff7256601" version="1">Sobre</content>
     <content contentuid="h45722336fcb04208a1b46356190835bb2d86" version="1">Dicas de UI</content>
     <content contentuid="h99e6c7f6eb9c43238ca27a89bb45b9690607" version="1">Esta aba pode ter conteúdo personalizado que não está disponível no menu principal.</content>
+    <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Printar avisos de descontinuação para mods com código desatualizado.&lt;br&gt;Eles ainda serão exibidos se o modo desenvolvedor estiver ativado.</content>
+    <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Printar avisos de descontinuação</content>
+    <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Depuração</content>
 </contentList>
