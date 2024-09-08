@@ -289,7 +289,7 @@
                 "Options": {
                     "type": "object",
                     "properties": {},
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type).",
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
                     // "additionalProperties": false
                 },
                 "Handles": {
