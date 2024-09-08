@@ -8,6 +8,7 @@ netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, NetCommand:ne
 
 --- Net message handler to relay messages to other clients (backwards support for deprecated net message usage)
 netEventsRegistry:register(NetChannels.MCM_RELAY_TO_CLIENTS, NetCommand:new(EHandlers.OnRelayToClients))
+netEventsRegistry:register(NetChannels.MCM_EMIT_ON_SERVER, NetCommand:new(EHandlers.OnEmitOnServer))
 
 --- Net message handlers for when the (IMGUI) client opens or closes the MCM window
 modEventRegistry:register(EventChannels.MCM_WINDOW_OPENED, EHandlers.OnUserOpenedWindow)

@@ -75,6 +75,16 @@ Ext.RegisterNetListener(NetChannels.MCM_RELAY_TO_SERVERS, function(_, metapayloa
     Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
 end)
 
+Ext.RegisterNetListener(NetChannels.MCM_EMIT_ON_CLIENTS, function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local eventName = data.eventName
+    local eventData = data.eventData
+
+    MCMDebug(1, "Emitting event " .. eventName .. " on clients as well.")
+
+    Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
+end)
+
 --- SECTION: Mod events
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     local modUUID = data.modUUID

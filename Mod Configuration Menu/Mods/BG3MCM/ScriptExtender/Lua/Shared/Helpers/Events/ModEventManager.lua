@@ -17,7 +17,27 @@ local deprecatedEventNameMap = {
     MCM_Window_Closed = "MCM_User_Closed_Window"
 }
 
-local function emitModEvent(eventName, eventData)
+--- Emits a mod event with the given data in the given event name. If bothContexts is true, the event will be emitted in both contexts.
+--- @param eventName string The name of the event
+--- @param eventData table The data to pass with the event
+--- @param bothContexts? boolean Whether to emit the event in both contexts. Default is true.
+local function emitModEvent(eventName, eventData, bothContexts)
+    local function relayModEventEmissionToOtherContext(eventName, eventData, bothContexts)
+        xpcall(function()
+            if bothContexts == nil or bothContexts then
+                if Ext.IsServer() then
+                    Ext.Net.BroadcastMessage(NetChannels.MCM_EMIT_ON_CLIENTS,
+                        Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
+                elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
+                    Ext.Net.PostMessageToServer(NetChannels.MCM_EMIT_ON_SERVER,
+                        Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
+                end
+            end
+        end, function(err)
+            MCMDebug(0, "Error while emitting mod event: " .. tostring(err))
+        end)
+    end
+
     if not ModEventManager:IsEventRegistered(eventName) then
         MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
         MCMWarn(0, Ext.DumpExport(Ext.ModEvents['BG3MCM']))
@@ -31,6 +51,7 @@ local function emitModEvent(eventName, eventData)
     end)
 
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
+    relayModEventEmissionToOtherContext(eventName, eventData, bothContexts)
 end
 
 local function broadcastDeprecatedNetMessage(eventName, eventData)
@@ -48,6 +69,7 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
             return
         end
 
+        -- Always be prepared for the worst
         xpcall(function()
             if Ext.IsServer() then
                 Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
@@ -209,13 +231,14 @@ end
 --- Emit a mod event
 ---@param eventName string The name of the event
 ---@param eventData table The data to pass with the event
-function ModEventManager:Emit(eventName, eventData)
+---@param bothContexts? boolean Whether to emit the event in both contexts. Default is true.
+function ModEventManager:Emit(eventName, eventData, bothContexts)
     if not eventName then
         MCMDebug(0, "eventName cannot be nil")
         error("eventName cannot be nil")
     end
 
-    emitModEvent(eventName, eventData)
+    emitModEvent(eventName, eventData, bothContexts)
     broadcastDeprecatedNetMessage(eventName, eventData)
 end
 
