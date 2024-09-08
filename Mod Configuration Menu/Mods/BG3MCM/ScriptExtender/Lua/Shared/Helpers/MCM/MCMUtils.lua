@@ -206,4 +206,28 @@ function MCMUtils.UpdateLoca()
     end
 end
 
+function MCMUtils:ShouldWarnAboutNPAKM()
+    local NoPressAnyKeyMenuUUID = "2bae5aa8-bf6a-d196-069c-4269f71d22a3"
+    local NoPressAnyKeyMenuMCMUUID = "eb263453-0cc2-4f0c-2375-f4e0f60e8a12"
+    local NoPressAnyKeyMenuPTSDUUID = "8c417ab1-195a-2c2a-abbf-70a2da9166da"
+
+    if Ext.Mod.IsModLoaded(NoPressAnyKeyMenuUUID) or Ext.Mod.IsModLoaded(NoPressAnyKeyMenuPTSDUUID) then
+        return true
+    end
+
+    -- Also double check, because with inactive mods you never know
+    if Ext.Mod.IsModLoaded(NoPressAnyKeyMenuMCMUUID) then
+        return false
+    end
+end
+
+function MCMUtils:WarnAboutNPAKM()
+    if not self:ShouldWarnAboutNPAKM() then
+        return
+    end
+
+    MCMWarn(0,
+    "You're using 'No Press Any Key Menu' without the compatibility patch for MCM. Please replace it with the patched version available at its mod page.")
+end
+
 return MCMUtils
