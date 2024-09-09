@@ -85,7 +85,7 @@ function VCTimer:CallWithInterval(callback, interval, totalTime)
         end
 
         local stop = callback()
-        if stop ~= nil or stop ~= false then
+        if stop ~= nil and stop ~= false then
             return
         end
 

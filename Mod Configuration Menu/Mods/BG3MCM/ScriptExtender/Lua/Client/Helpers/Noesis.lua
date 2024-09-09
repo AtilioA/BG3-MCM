@@ -28,7 +28,7 @@ function Noesis:FindMCMGameMenuButton()
         MCMDebug(3, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
         return target
     else
-        MCMDebug(1, "MCMButton not found")
+        -- MCMDebug(1, "MCMButton not found")
     end
 end
 

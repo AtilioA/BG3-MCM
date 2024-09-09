@@ -1,12 +1,13 @@
 local function handleEscapeKey()
-    Ext.Timer.WaitFor(200, function()
+    VCTimer:CallWithInterval(function()
         local MCMButton = Noesis:FindMCMGameMenuButton()
         if not MCMButton then
             MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
-            return
+            return nil
         end
         Noesis:HandleGameMenuMCMButtonPress(MCMButton)
-    end)
+        return MCMButton
+    end, 100, 1000)
 end
 
 local function handleKeyInput(e)
@@ -47,6 +48,11 @@ Ext.Events.ResetCompleted:Subscribe(function()
 end)
 
 Ext.Events.KeyInput:Subscribe(handleKeyInput)
+
+-- TODO: add controller support
+-- Ext.Events.ControllerButtonInput:Subscribe(function(e)
+--     _D(e)
+-- end)
 
 --- SECTION: Net messages
 Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
