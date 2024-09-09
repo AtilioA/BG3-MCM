@@ -23,15 +23,15 @@ local deprecatedEventNameMap = {
 --- @param bothContexts? boolean Whether to emit the event in both contexts. Default is true.
 local function emitModEvent(eventName, eventData, bothContexts)
     local function relayModEventEmissionToOtherContext(eventName, eventData, bothContexts)
+        if bothContexts == false then return end
+
         xpcall(function()
-            if bothContexts == nil or bothContexts then
-                if Ext.IsServer() then
-                    Ext.Net.BroadcastMessage(NetChannels.MCM_EMIT_ON_CLIENTS,
-                        Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
-                elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
-                    Ext.Net.PostMessageToServer(NetChannels.MCM_EMIT_ON_SERVER,
-                        Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
-                end
+            if Ext.IsServer() then
+                Ext.Net.BroadcastMessage(NetChannels.MCM_EMIT_ON_CLIENTS,
+                    Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
+            elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
+                Ext.Net.PostMessageToServer(NetChannels.MCM_EMIT_ON_SERVER,
+                    Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
             end
         end, function(err)
             MCMDebug(0, "Error while emitting mod event: " .. tostring(err))

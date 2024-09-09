@@ -59,17 +59,6 @@ Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(
     MCMClientState:LoadMods(mods)
 end)
 
-Ext.RegisterNetListener(EventChannels.MCM_SETTING_UPDATED, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modUUID = data.modUUID
-    local settingId = data.settingId
-    local value = data.value
-
-    MCMClientState:SetClientStateValue(settingId, value, modUUID)
-
-    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
-end)
-
 Ext.RegisterNetListener(NetChannels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
     local data = Ext.Json.Parse(metapayload)
     Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
@@ -97,7 +86,7 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
 end)
 
 -- FIXME: not working for some reason
-ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
+ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
     MCMDebug(1, "Firing MCM_SETTING_UPDATED on client")
     local modUUID = data.modUUID
     local settingId = data.settingId

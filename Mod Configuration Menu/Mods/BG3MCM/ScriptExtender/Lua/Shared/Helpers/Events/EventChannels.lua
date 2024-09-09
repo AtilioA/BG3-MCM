@@ -6,8 +6,8 @@ EventChannels = {}
 --- @return any oldValue The old value of the setting
 --- @return any value The new value of the setting
 EventChannels.MCM_SETTING_SAVED = "MCM_Setting_Saved"
--- Deprecated: Use MCM_SETTING_SAVED instead
-EventChannels.MCM_SETTING_UPDATED = "MCM_Setting_Updated"
+-- REMOVED: Use MCM_SETTING_SAVED instead
+-- EventChannels.MCM_SETTING_UPDATED = "MCM_Setting_Updated"
 
 --- Fired when a setting is reset to its default value.
 --- @return string modUUID The UUID of the mod
@@ -64,7 +64,6 @@ local function RegisterModEvents()
     local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
 
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_SAVED)
-    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_UPDATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_RESET)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_CREATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_ACTIVATED)

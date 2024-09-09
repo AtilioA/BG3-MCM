@@ -233,37 +233,12 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID)
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
-    -- REFACTOR: get rid of this event and simply use the MCM_SETTING_SAVED for both internal and external communication
-    ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
-        modUUID = modUUID,
-        settingId = settingId,
-        value = value,
-        oldValue = oldValue
-    })
-
     ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
         modUUID = modUUID,
         settingId = settingId,
         value = value,
         oldValue = oldValue
     })
-
-    -- FIXME: we should be able to just emit the event and let the client handle it, but the client is not receiving the event for some reason
-    if Ext.IsServer() then
-        Ext.Net.BroadcastMessage(EventChannels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-            modUUID = modUUID,
-            settingId = settingId,
-            value = value,
-            oldValue = oldValue
-        }))
-    else -- Client
-        Ext.Net.PostMessageToServer(EventChannels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-            modUUID = modUUID,
-            settingId = settingId,
-            value = value,
-            oldValue = oldValue
-        }))
-    end
 end
 
 ---@param settingId string The id of the setting to reset
