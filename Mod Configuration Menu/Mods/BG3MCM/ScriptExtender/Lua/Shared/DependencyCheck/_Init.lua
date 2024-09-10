@@ -28,12 +28,27 @@ local function isVersionCompatible(loadedVersion, requiredVersion)
     return true
 end
 
+--- Checks if the two given versions are equal.
+--- @param version1 vec4 The first version.
+--- @param version2 vec4 The second version.
+--- @return boolean True if the versions are equal, false otherwise.
+local function areVersionsEqual(version1, version2)
+    for i = 1, 4 do
+        if version1[i] ~= version2[i] then
+            return false
+        end
+    end
+
+    return true
+end
+
 --- Checks if the loaded mod version is compatible with the required dependency version.
----@param mod table The mod that requires the dependency.
+---@param mod Module The mod that requires the dependency.
 ---@param dependency ModuleInfo The required dependency.
 ---@param loadedMod Module The loaded dependency mod.
 ---@param issues table The table to record issues in.
 local function checkVersionCompatibility(mod, dependency, loadedMod, issues)
+    local mainModVersion = mod.Info.ModVersion
     local loadedVersion = loadedMod.Info.ModVersion
     local requiredVersion = dependency.ModVersion
 
@@ -41,7 +56,12 @@ local function checkVersionCompatibility(mod, dependency, loadedMod, issues)
         string.format("Checking version compatibility for mod '%s' with dependency '%s'.", mod.Info.Name, dependency
             .Name))
 
-    if not isVersionCompatible(loadedVersion, requiredVersion) then
+
+    -- This is unfortunately necessary due to an MMT bug
+    local versionsEqual = areVersionsEqual(mainModVersion, requiredVersion)
+    local versionCompatible = isVersionCompatible(loadedVersion, requiredVersion)
+
+    if not versionsEqual and not versionCompatible then
         local errorMessage = string.format(
             "Mod '%s' requires '%s' version %d.%d.%d.%d or higher, but loaded version is %d.%d.%d.%d\nPlease update %s.",
             mod.Info.Name, dependency.Name,
@@ -53,7 +73,6 @@ local function checkVersionCompatibility(mod, dependency, loadedMod, issues)
             dependencyName = dependency.Name,
             errorMessage = errorMessage
         })
-    else
     end
 end
 
