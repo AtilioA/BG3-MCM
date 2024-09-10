@@ -4,6 +4,8 @@
 
 MCMUtils = {}
 
+MCMUtils.NPAKMWarned = false
+
 --- Utility function to check if a table contains a value
 ---@param tbl table The table to search
 ---@param element any The element to find
@@ -221,13 +223,101 @@ function MCMUtils:ShouldWarnAboutNPAKM()
     end
 end
 
+-- TODO: move to a separate file
+---@class IMGUIWarningWindow
+---@field window any
+---@field warningLevel integer
+---@field warningMessage string
+IMGUIWarningWindow = _Class:Create("IMGUIWarningWindow", nil, {
+    window = nil,
+    warningLevel = 0,
+    warningMessage = ""
+})
+
+---@param level integer
+---@param message string
+function IMGUIWarningWindow:new(level, message)
+    local instance = setmetatable({}, { __index = IMGUIWarningWindow })
+    instance.warningLevel = level
+    instance.warningMessage = message
+    instance:CreateWindow()
+    return instance
+end
+
+function IMGUIWarningWindow:CreateWindow()
+    self.window = Ext.IMGUI.NewWindow("MCM Warning")
+    self.window:SetStyle("Alpha", 1.0)
+    self.window:SetColor("TitleBgActive", Color.NormalizedRGBA(255, 10, 10, 1))
+    self.window:SetColor("TitleBg", Color.NormalizedRGBA(255, 38, 38, 0.78))
+    self.window:SetColor("WindowBg", Color.NormalizedRGBA(18, 18, 18, 1))
+    self.window:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+    self.window.AlwaysAutoResize = true
+    self.window.Closeable = true
+    self.window.Visible = true
+    self.window.Open = true
+
+    local iconSize = 64
+
+    local borderColor = Color.HEXToRGBA("#FF2222")
+    local icon = "ico_warning_yellow"
+    if self.warningLevel == 0 then
+        icon = "ico_exclamation_01"
+        borderColor = Color.HEXToRGBA("#FF2222")
+    elseif self.warningLevel == 1 then
+        borderColor = Color.HEXToRGBA("#FF9922")
+        icon = "ico_exclamation_02"
+    else
+        icon = "ico_warning_yellow"
+        borderColor = Color.HEXToRGBA("#FFCC22")
+    end
+
+    local itemIcon = self.window:AddImage(icon, { iconSize, iconSize })
+    if not itemIcon.ImageData or itemIcon.ImageData.Icon == "" then
+        itemIcon:Destroy()
+    end
+
+    itemIcon.SameLine = true
+    itemIcon.Border = borderColor
+    if itemIcon then
+        itemIcon.IDContext = "WarningIcon"
+    end
+
+    local messageText = self.window:AddText(self.warningMessage)
+    -- messageText.Padding = { iconPadding, iconPadding, iconPadding, iconPadding }
+    messageText:SetColor("Text", borderColor)
+    -- messageText.TextWrapPos = 0.0
+    messageText.SameLine = true
+
+    -- self.window:AddDummy(0, 10)
+    -- self.window:AddDummy(700, 0)
+    -- local dismissButton = self.window:AddButton("Dismiss")
+    -- dismissButton.OnClick = function()
+    --     self.window:Destroy()
+    --     self.window.Visible = false
+    --     -- MCMUtils.NPAKMWarned = false
+    -- end
+    -- dismissButton.SameLine = true
+end
+
+--- Displays a warning message to the user
+---@param level integer The warning level
+---@param message string The message to display
+function MCMUtils:CreateIMGUIWarning(level, message)
+    if not self.NPAKMWarned then
+        IMGUIWarningWindow:new(level, message)
+        self.NPAKMWarned = true
+    end
+end
+
 function MCMUtils:WarnAboutNPAKM()
     if not self:ShouldWarnAboutNPAKM() then
         return
     end
 
+    self:CreateIMGUIWarning(0,
+        "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.")
     MCMWarn(0,
-    "You're using 'No Press Any Key Menu' without the compatibility patch for MCM. Please replace it with the patched version available at its mod page.")
+        "You're using 'No Press Any Key Menu' without the compatibility patch for MCM. Please replace it with the patched version available at its mod page.")
 end
 
 return MCMUtils
