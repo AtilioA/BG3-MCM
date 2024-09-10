@@ -302,7 +302,7 @@ end
 local function injectMCMToModTable(modUUID)
     if modUUID == ModuleUUID then return end
 
-    MCMPrint(1, "Injecting MCM to mod table for modUUID: " .. modUUID)
+    MCMPrint(2, "Injecting MCM to mod table for modUUID: " .. modUUID)
 
     local modTableName = Ext.Mod.GetMod(modUUID).Info.Directory
     MCMPrint(1, "Mod table name: " .. modTableName)
@@ -354,4 +354,4 @@ local function setupModsMetatable()
     setmetatable(Mods, modsMetatable)
 end
 
--- setupModsMetatable()
+setupModsMetatable()
