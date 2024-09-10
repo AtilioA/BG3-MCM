@@ -115,7 +115,7 @@ function DependencyCheck:EvaluateLoadOrderDependencies()
 
     MCMDebug(1, "Evaluating load order dependencies for available mods.")
     for _, mod in ipairs(availableMods) do
-        if mod.Info.Author ~= "" and mod.Info.Author ~= "LS" and mod.Dependencies then
+        if Ext.Mod.IsModLoaded(mod.Info.ModuleUUID) and mod.Info.Author ~= "" and mod.Info.Author ~= "LS" and mod.Dependencies then
             checkDependencies(mod, mod.Dependencies, issues)
         end
     end
