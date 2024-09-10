@@ -250,7 +250,6 @@ end
 
 function IMGUIWarningWindow:CreateWindow()
     self.window = Ext.IMGUI.NewWindow(self.title)
-    _D(self.window)
     self.window:SetStyle("Alpha", 1.0)
     self.window:SetColor("TitleBgActive", Color.NormalizedRGBA(255, 10, 10, 1))
     self.window:SetColor("TitleBg", Color.NormalizedRGBA(255, 38, 38, 0.78))
@@ -277,9 +276,9 @@ function IMGUIWarningWindow:CreateWindow()
     end
 
     local itemIcon = self.window:AddImage(icon, { iconSize, iconSize })
-    if not itemIcon.ImageData or itemIcon.ImageData.Icon == "" then
-        itemIcon:Destroy()
-    end
+    -- if not itemIcon.ImageData or itemIcon.ImageData.Icon == "" then
+    --     itemIcon:Destroy()
+    -- end
 
     if itemIcon then
         itemIcon.SameLine = true
