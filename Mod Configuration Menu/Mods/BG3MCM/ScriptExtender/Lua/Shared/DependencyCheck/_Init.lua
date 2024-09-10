@@ -81,8 +81,9 @@ end
 ---@param dependency ModuleInfo The missing dependency.
 ---@param issues table The table to record issues in.
 local function recordMissingDependency(mod, dependency, issues)
-    local errorMessage = string.format("Mod '%s' requires dependency '%s', but it is not loaded.", mod.Info.Name,
-        dependency.Name)
+    local errorMessage = string.format("Mod '%s' requires dependency '%s', which is not loaded.\nPlease install %s.",
+    mod.Info.Name,
+        dependency.Name, dependency.Name)
     MCMWarn(1, "Missing dependency recorded: " .. errorMessage)
     table.insert(issues, {
         modName = mod.Info.Name,
