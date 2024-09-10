@@ -228,24 +228,29 @@ end
 ---@field window any
 ---@field warningLevel integer
 ---@field warningMessage string
+---@field title string
 IMGUIWarningWindow = _Class:Create("IMGUIWarningWindow", nil, {
     window = nil,
     warningLevel = 0,
-    warningMessage = ""
+    warningMessage = "",
+    title = "Warning"
 })
 
----@param level integer
----@param message string
-function IMGUIWarningWindow:new(level, message)
+---@param level integer The warning level
+---@param title string The title of the warning window
+---@param message string The message to display in the window
+function IMGUIWarningWindow:new(level, title, message)
     local instance = setmetatable({}, { __index = IMGUIWarningWindow })
     instance.warningLevel = level
     instance.warningMessage = message
+    instance.title = title
     instance:CreateWindow()
     return instance
 end
 
 function IMGUIWarningWindow:CreateWindow()
-    self.window = Ext.IMGUI.NewWindow("MCM Warning")
+    self.window = Ext.IMGUI.NewWindow(self.title)
+    _D(self.window)
     self.window:SetStyle("Alpha", 1.0)
     self.window:SetColor("TitleBgActive", Color.NormalizedRGBA(255, 10, 10, 1))
     self.window:SetColor("TitleBg", Color.NormalizedRGBA(255, 38, 38, 0.78))
@@ -276,11 +281,51 @@ function IMGUIWarningWindow:CreateWindow()
         itemIcon:Destroy()
     end
 
-    itemIcon.SameLine = true
-    itemIcon.Border = borderColor
     if itemIcon then
-        itemIcon.IDContext = "WarningIcon"
+        itemIcon.SameLine = true
+        itemIcon.Border = borderColor
+        if itemIcon then
+            itemIcon.IDContext = "WarningIcon"
+        end
     end
+
+    -- Add blinking functionality
+    local isFocused = true
+    local blinkInterval = 500 -- milliseconds
+    local blinkTimer
+
+    local function toggleVisibility()
+        if not isFocused then
+            self.window.Visible = not self.window.Visible
+            print("Window visibility toggled to: " .. tostring(self.window.Visible))
+        else
+            self.window.Visible = true
+            print("Window is focused, setting visibility to true.")
+            if blinkTimer then
+                Ext.Timer.Cancel(blinkTimer)
+                blinkTimer = nil
+                print("Blink timer cancelled.")
+            end
+        end
+    end
+
+    self.window.OnActivate = function()
+        isFocused = true
+        print("Window activated.")
+        toggleVisibility()
+    end
+
+    self.window.OnDeactivate = function()
+        isFocused = false
+        print("Window deactivated.")
+        if not blinkTimer then
+            blinkTimer = Ext.Timer.WaitFor(blinkInterval, function()
+                toggleVisibility()
+            end)
+            print("Blink timer started with interval: " .. blinkInterval .. " ms.")
+        end
+    end
+
 
     local messageText = self.window:AddText(self.warningMessage)
     -- messageText.Padding = { iconPadding, iconPadding, iconPadding, iconPadding }
@@ -301,10 +346,18 @@ end
 
 --- Displays a warning message to the user
 ---@param level integer The warning level
+---@param title string The title of the warning window
 ---@param message string The message to display
-function MCMUtils:CreateIMGUIWarning(level, message)
+function MCMUtils:CreateIMGUIWarning(level, title, message)
+    if Ext.IsClient() then
+        return IMGUIWarningWindow:new(level, title, message)
+    end
+end
+
+function MCMUtils:CreateNPAKMIMGUIWarning()
     if not self.NPAKMWarned then
-        IMGUIWarningWindow:new(level, message)
+        IMGUIWarningWindow:new(0, "Wrong No Press Any Key Menu version",
+            "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.")
         self.NPAKMWarned = true
     end
 end
@@ -314,10 +367,19 @@ function MCMUtils:WarnAboutNPAKM()
         return
     end
 
-    self:CreateIMGUIWarning(0,
-        "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.")
+    self:CreateNPAKMIMGUIWarning()
     MCMWarn(0,
         "You're using 'No Press Any Key Menu' without the compatibility patch for MCM. Please replace it with the patched version available at its mod page.")
+end
+
+function MCMUtils:WarnAboutLoadOrderDependencies()
+    local issues = DependencyCheck:EvaluateLoadOrderDependencies()
+    for _, issue in ipairs(issues) do
+        local dependencyIssueTitle = "Dependency issue detected: " ..
+            issue.modName .. " depends on " .. issue.dependencyName
+        self:CreateIMGUIWarning(0, dependencyIssueTitle, issue.errorMessage)
+        MCMWarn(0, issue.errorMessage)
+    end
 end
 
 return MCMUtils
