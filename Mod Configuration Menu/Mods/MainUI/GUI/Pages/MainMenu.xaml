@@ -272,7 +272,7 @@
                     </ls:LSButton>
 
                     <ls:LSButton x:Name="MCMMainMenuButton" Style="{StaticResource BigBrownButtonStyle}"
-                    Content="{Binding Source='hae2bbc06g288dg43dagb3a5g967fa625c769', Converter={StaticResource TranslatedStringConverter}}"
+                    Content="{Binding Source='h6e8c611890eb4a589f1777131bebe79a2fcd', Converter={StaticResource TranslatedStringConverter}}"
                     Command="{Binding CustomEvent}" CommandParameter="OpenMCMOptions"
                     SoundID="UI_HUD_MainMenu_Options" Opacity="0" Margin="{StaticResource MainButtonSpacing}">
                         <Button.RenderTransform>

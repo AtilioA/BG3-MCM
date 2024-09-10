@@ -38,4 +38,5 @@
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Printar avisos de descontinuação para mods com código desatualizado.&lt;br&gt;Eles ainda serão exibidos se o modo desenvolvedor estiver ativado.</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Printar avisos de descontinuação</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Depuração</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">MCM está 'inativo' na sua load order e não funcionará. Faça-o ficar ATIVO/habilitado no seu gerenciador de mods.</content>
 </contentList>
