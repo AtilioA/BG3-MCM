@@ -74,7 +74,7 @@ function MainMenu.CreateMainMenu()
         aboutPopupLicense:AddText(VCString:Wrap(
             "BG3MCM's code is licensed under AGPLv3. For details, refer to the GitHub link in the mod description.", 100))
         aboutPopupLicense:AddText(VCString:Wrap(
-            "BG3MCM has code adapted from Compatibility Framework and Volition Cabinet, both under the MIT License, as well as BG3SE, which is licensed under the MIT License with an additional Commons Clause. Copies of these licenses have been included in the relevant sections of this mod's code.",
+            "BG3MCM incorporates code from the Compatibility Framework, BG3ModManager, and Volition Cabinet, all of which are licensed under the MIT License. Additionally, BG3SE is licensed under the MIT License with an added Commons Clause. Copies of these licenses are included in the appropriate sections of this mod's code.",
             100))
         aboutPopupLicense:AddText(VCString:Wrap(
             "Mod authors and translators may enable donation points for any mods using this framework as a dependency, and may freely use examples provided to help build integration with this mod.",
@@ -84,7 +84,7 @@ function MainMenu.CreateMainMenu()
             100))
         aboutPopupLicense:AddSeparator()
         aboutPopupLicense:AddText(VCString:Wrap(
-            "I extend my gratitude to Norbyte, Focus and the CL team for making their code available under such open and permissive licenses, enabling seamless collaboration across the modding community!",
+            "I extend my gratitude to Norbyte, LaughingLeader, Focus and the CL team for making their code available under such open and permissive licenses, enabling seamless collaboration across the modding community!",
             100))
 
         return aboutPopupLicense
