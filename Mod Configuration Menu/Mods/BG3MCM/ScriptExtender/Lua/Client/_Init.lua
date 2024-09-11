@@ -16,3 +16,5 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
         MCMUtils:WarnAboutLoadOrderDependencies()
     end
 end)
+
+MCMUtils:WarnAboutLoadOrderDependencies()
