@@ -205,11 +205,11 @@
                         },
                         {
                             "const": "list_v2",
-                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them."
+                            "description": "(STILL UNIMPLEMENTED) A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them."
                         },
                         {
                             "const": "list",
-                            "description": "DEPRECATED. USE `list_v2` INSTEAD.A list of items with a text input below to add new items.\nThe list is initialized with default values if provided."
+                            "description": "(WILL BE DEPRECATED). A list of items with a text input below to add new items.\nThe list is initialized with default values if provided."
                         },
                         {
                             "const": "enum",
