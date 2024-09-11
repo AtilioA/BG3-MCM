@@ -4,6 +4,8 @@ NetChannels = {}
 
 NetChannels.MCM_RELAY_TO_SERVERS = "MCM_Relay_To_Servers"
 NetChannels.MCM_RELAY_TO_CLIENTS = "MCM_Relay_To_Clients"
+NetChannels.MCM_EMIT_ON_SERVER = "MCM_Emit_On_Server"
+NetChannels.MCM_EMIT_ON_CLIENTS = "MCM_Emit_On_Clients"
 
 NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT = "MCM_Server_Send_Configs_To_Client"
 

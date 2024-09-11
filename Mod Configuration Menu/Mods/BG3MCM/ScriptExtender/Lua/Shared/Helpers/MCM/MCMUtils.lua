@@ -4,6 +4,8 @@
 
 MCMUtils = {}
 
+MCMUtils.NPAKMWarned = false
+
 --- Utility function to check if a table contains a value
 ---@param tbl table The table to search
 ---@param element any The element to find
@@ -203,6 +205,179 @@ function MCMUtils.UpdateLoca()
                 Ext.Loca.UpdateTranslatedString(handle, value)
             end
         end
+    end
+end
+
+function MCMUtils:ShouldWarnAboutNPAKM()
+    local NoPressAnyKeyMenuUUID = "2bae5aa8-bf6a-d196-069c-4269f71d22a3"
+    local NoPressAnyKeyMenuMCMUUID = "eb263453-0cc2-4f0c-2375-f4e0f60e8a12"
+    local NoPressAnyKeyMenuPTSDUUID = "8c417ab1-195a-2c2a-abbf-70a2da9166da"
+
+    if Ext.Mod.IsModLoaded(NoPressAnyKeyMenuUUID) or Ext.Mod.IsModLoaded(NoPressAnyKeyMenuPTSDUUID) then
+        return true
+    end
+
+    -- Also double check, because with inactive mods you never know
+    if Ext.Mod.IsModLoaded(NoPressAnyKeyMenuMCMUUID) then
+        return false
+    end
+end
+
+-- TODO: move to a separate file
+---@class IMGUIWarningWindow
+---@field window any
+---@field warningLevel integer
+---@field warningMessage string
+---@field title string
+IMGUIWarningWindow = _Class:Create("IMGUIWarningWindow", nil, {
+    window = nil,
+    warningLevel = 0,
+    warningMessage = "",
+    title = "Warning"
+})
+
+---@param level integer The warning level
+---@param title string The title of the warning window
+---@param message string The message to display in the window
+function IMGUIWarningWindow:new(level, title, message)
+    local instance = setmetatable({}, { __index = IMGUIWarningWindow })
+    instance.warningLevel = level
+    instance.warningMessage = message
+    instance.title = title
+    instance:CreateWindow()
+    return instance
+end
+
+function IMGUIWarningWindow:CreateWindow()
+    self.window = Ext.IMGUI.NewWindow(self.title)
+    self.window:SetStyle("Alpha", 1.0)
+    self.window:SetColor("TitleBgActive", Color.NormalizedRGBA(255, 10, 10, 1))
+    self.window:SetColor("TitleBg", Color.NormalizedRGBA(255, 38, 38, 0.78))
+    self.window:SetColor("WindowBg", Color.NormalizedRGBA(18, 18, 18, 1))
+    self.window:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+    self.window.AlwaysAutoResize = true
+    self.window.Closeable = true
+    self.window.Visible = true
+    self.window.Open = true
+
+    local iconSize = 64
+
+    local borderColor = Color.HEXToRGBA("#FF2222")
+    local icon = "ico_warning_yellow"
+    if self.warningLevel == 0 then
+        icon = "ico_exclamation_01"
+        borderColor = Color.HEXToRGBA("#FF2222")
+    elseif self.warningLevel == 1 then
+        borderColor = Color.HEXToRGBA("#FF9922")
+        icon = "ico_exclamation_02"
+    else
+        icon = "ico_warning_yellow"
+        borderColor = Color.HEXToRGBA("#FFCC22")
+    end
+
+    local itemIcon = self.window:AddImage(icon, { iconSize, iconSize })
+    -- if not itemIcon.ImageData or itemIcon.ImageData.Icon == "" then
+    --     itemIcon:Destroy()
+    -- end
+
+    if itemIcon then
+        itemIcon.SameLine = true
+        itemIcon.Border = borderColor
+        if itemIcon then
+            itemIcon.IDContext = "WarningIcon"
+        end
+    end
+
+    -- Add blinking functionality
+    local isFocused = true
+    local blinkInterval = 500 -- milliseconds
+    local blinkTimer
+
+    local function toggleVisibility()
+        if not isFocused then
+            self.window.Visible = not self.window.Visible
+            print("Window visibility toggled to: " .. tostring(self.window.Visible))
+        else
+            self.window.Visible = true
+            print("Window is focused, setting visibility to true.")
+            if blinkTimer then
+                Ext.Timer.Cancel(blinkTimer)
+                blinkTimer = nil
+                print("Blink timer cancelled.")
+            end
+        end
+    end
+
+    self.window.OnActivate = function()
+        isFocused = true
+        print("Window activated.")
+        toggleVisibility()
+    end
+
+    self.window.OnDeactivate = function()
+        isFocused = false
+        print("Window deactivated.")
+        if not blinkTimer then
+            blinkTimer = Ext.Timer.WaitFor(blinkInterval, function()
+                toggleVisibility()
+            end)
+            print("Blink timer started with interval: " .. blinkInterval .. " ms.")
+        end
+    end
+
+
+    local messageText = self.window:AddText(self.warningMessage)
+    -- messageText.Padding = { iconPadding, iconPadding, iconPadding, iconPadding }
+    messageText:SetColor("Text", borderColor)
+    -- messageText.TextWrapPos = 0.0
+    messageText.SameLine = true
+
+    -- self.window:AddDummy(0, 10)
+    -- self.window:AddDummy(700, 0)
+    -- local dismissButton = self.window:AddButton("Dismiss")
+    -- dismissButton.OnClick = function()
+    --     self.window:Destroy()
+    --     self.window.Visible = false
+    --     -- MCMUtils.NPAKMWarned = false
+    -- end
+    -- dismissButton.SameLine = true
+end
+
+--- Displays a warning message to the user
+---@param level integer The warning level
+---@param title string The title of the warning window
+---@param message string The message to display
+function MCMUtils:CreateIMGUIWarning(level, title, message)
+    if Ext.IsClient() then
+        return IMGUIWarningWindow:new(level, title, message)
+    end
+end
+
+function MCMUtils:CreateNPAKMIMGUIWarning()
+    if not self.NPAKMWarned then
+        IMGUIWarningWindow:new(0, "Wrong No Press Any Key Menu version",
+            "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.")
+        self.NPAKMWarned = true
+    end
+end
+
+function MCMUtils:WarnAboutNPAKM()
+    if not self:ShouldWarnAboutNPAKM() then
+        return
+    end
+
+    self:CreateNPAKMIMGUIWarning()
+    MCMWarn(0,
+        "You're using 'No Press Any Key Menu' without the compatibility patch for MCM. Please replace it with the patched version available at its mod page.")
+end
+
+function MCMUtils:WarnAboutLoadOrderDependencies()
+    local issues = DependencyCheck:EvaluateLoadOrderDependencies()
+    for _, issue in ipairs(issues) do
+        local dependencyIssueTitle = "Dependency issue detected: " ..
+            issue.modName .. " depends on " .. issue.dependencyName
+        self:CreateIMGUIWarning(0, dependencyIssueTitle, issue.errorMessage)
+        MCMWarn(0, issue.errorMessage)
     end
 end
 

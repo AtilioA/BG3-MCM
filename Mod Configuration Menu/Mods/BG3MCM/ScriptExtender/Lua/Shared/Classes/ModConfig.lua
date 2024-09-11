@@ -263,36 +263,6 @@ function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
     end
 end
 
--- Norb won't allow us to do this :(
--- local function injectMCMToModTable(modUUID)
---     MCMPrint(1, "Injecting MCM to mod table for modUUID: " .. modUUID)
-
---     local modTableName = Ext.Mod.GetMod(modUUID).Info.Directory
---     MCMPrint(1, "Mod table name: " .. modTableName)
---     local modTable = Mods[modTableName]
---     if not modTable then
---         MCMWarn(1, "Mod table not found for modUUID: " .. modUUID)
---         return
---     end
-
---     if not modTable.MCM then
---         MCMPrint(1, "Creating MCM table for mod: " .. modTableName)
---         modTable.MCM = {}
---     end
-
---     modTable.MCM.Get = function(settingId)
---         MCMPrint(1, "Getting setting value for settingId: " .. settingId)
---         return MCMAPI:GetSettingValue(settingId, modUUID)
---     end
-
---     modTable.MCMGet2 = function(settingId)
---         MCMPrint(1, "Getting setting value for settingId: " .. settingId)
---         return MCMAPI:GetSettingValue(settingId, modUUID)
---     end
-
---     MCMPrint(1, "Successfully injected MCM to mod table for modUUID: " .. modUUID)
--- end
-
 --- SECTION: BLUEPRINT HANDLING
 --- Submit the blueprint data to the ModConfig instance
 ---@param data table The mod blueprint data to submit

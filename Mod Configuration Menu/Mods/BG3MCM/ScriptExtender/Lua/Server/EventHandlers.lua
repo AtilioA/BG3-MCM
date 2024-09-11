@@ -138,4 +138,14 @@ function EHandlers.OnRelayToClients(_, metapayload)
     Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
 end
 
+function EHandlers.OnEmitOnServer(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local eventName = data.eventName
+    local eventData = data.eventData
+
+    MCMDebug(1, "Emitting event " .. eventName .. " on server as well.")
+
+    Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
+end
+
 return EHandlers

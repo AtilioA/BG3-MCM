@@ -79,7 +79,7 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
             value = value
         }))
         -- Check if server updated the setting
-        ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
+        ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
             if data.modUUID ~= modUUID or data.settingId ~= settingId then
                 return
             end

@@ -9,6 +9,7 @@ end
 
 RequireFiles("Shared/", {
     "MetaClass",
+    "DependencyCheck/_Init",
     "Helpers/_Init",
     "Classes/_Init",
     "Tests/_Init",

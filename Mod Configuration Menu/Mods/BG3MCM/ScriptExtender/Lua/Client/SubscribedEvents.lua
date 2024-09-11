@@ -1,22 +1,23 @@
 local function handleEscapeKey()
-    Ext.Timer.WaitFor(200, function()
+    VCTimer:CallWithInterval(function()
         local MCMButton = Noesis:FindMCMGameMenuButton()
         if not MCMButton then
             MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
-            return
+            return nil
         end
         Noesis:HandleGameMenuMCMButtonPress(MCMButton)
-    end)
+        return MCMButton
+    end, 100, 1000)
 end
 
 local function handleKeyInput(e)
     if e.Event == "KeyDown" and e.Repeat == false then
         KeybindingManager:HandleKeyUpInput(e)
-        return
-    end
 
-    if e.Event == "KeyUp" and e.Repeat == false and e.Key == "ESCAPE" then
-        handleEscapeKey()
+        if e.Key == "ESCAPE" then
+            handleEscapeKey()
+        end
+        return
     end
 end
 
@@ -48,6 +49,11 @@ end)
 
 Ext.Events.KeyInput:Subscribe(handleKeyInput)
 
+-- TODO: add controller support
+-- Ext.Events.ControllerButtonInput:Subscribe(function(e)
+--     _D(e)
+-- end)
+
 --- SECTION: Net messages
 Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
     local data = Ext.Json.Parse(payload)
@@ -59,20 +65,19 @@ Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(
     MCMClientState:LoadMods(mods)
 end)
 
-Ext.RegisterNetListener(EventChannels.MCM_SETTING_UPDATED, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modUUID = data.modUUID
-    local settingId = data.settingId
-    local value = data.value
-
-    MCMClientState:SetClientStateValue(settingId, value, modUUID)
-
-    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
-end)
-
 Ext.RegisterNetListener(NetChannels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
     local data = Ext.Json.Parse(metapayload)
     Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
+end)
+
+Ext.RegisterNetListener(NetChannels.MCM_EMIT_ON_CLIENTS, function(_, payload)
+    local data = Ext.Json.Parse(payload)
+    local eventName = data.eventName
+    local eventData = data.eventData
+
+    MCMDebug(1, "Emitting event " .. eventName .. " on clients as well.")
+
+    Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 end)
 
 --- SECTION: Mod events
@@ -87,7 +92,7 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
 end)
 
 -- FIXME: not working for some reason
-ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
+ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
     MCMDebug(1, "Firing MCM_SETTING_UPDATED on client")
     local modUUID = data.modUUID
     local settingId = data.settingId

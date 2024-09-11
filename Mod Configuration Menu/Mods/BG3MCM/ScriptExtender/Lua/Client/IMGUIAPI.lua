@@ -55,7 +55,7 @@ function IMGUIAPI:SetSettingValue(settingId, value, modUUID, setUIValue)
     MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
 
     -- FIXME: this is leaking listeners
-    ModEventManager:Subscribe(EventChannels.MCM_SETTING_UPDATED, function(data)
+    ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
         if data.modUUID == modUUID and data.settingId == settingId then
             if setUIValue then
                 setUIValue(data.value)

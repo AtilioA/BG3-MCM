@@ -233,37 +233,12 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID)
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
-    -- REFACTOR: get rid of this event and simply use the MCM_SETTING_SAVED for both internal and external communication
-    ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
-        modUUID = modUUID,
-        settingId = settingId,
-        value = value,
-        oldValue = oldValue
-    })
-
     ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
         modUUID = modUUID,
         settingId = settingId,
         value = value,
         oldValue = oldValue
     })
-
-    -- FIXME: we should be able to just emit the event and let the client handle it, but the client is not receiving the event for some reason
-    if Ext.IsServer() then
-        Ext.Net.BroadcastMessage(EventChannels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-            modUUID = modUUID,
-            settingId = settingId,
-            value = value,
-            oldValue = oldValue
-        }))
-    else -- Client
-        Ext.Net.PostMessageToServer(EventChannels.MCM_SETTING_UPDATED, Ext.Json.Stringify({
-            modUUID = modUUID,
-            settingId = settingId,
-            value = value,
-            oldValue = oldValue
-        }))
-    end
 end
 
 ---@param settingId string The id of the setting to reset
@@ -323,3 +298,60 @@ end
 --     MCMDebug(1, "Will delete the profile named " .. profileToDelete)
 --     MCMAPI:DeleteProfile(profileToDelete)
 -- end)
+
+local function injectMCMToModTable(modUUID)
+    if modUUID == ModuleUUID then return end
+
+    MCMPrint(2, "Injecting MCM to mod table for modUUID: " .. modUUID)
+
+    local modTableName = Ext.Mod.GetMod(modUUID).Info.Directory
+    MCMPrint(1, "Mod table name: " .. modTableName)
+    local modTable = Mods[modTableName]
+    if not modTable then
+        MCMWarn(2, "Mod table not found for modUUID: " .. modUUID)
+        return
+    end
+
+    if modTable.MCM then
+        MCMPrint(1, "MCM already exists in mod table for modUUID: " .. modUUID .. ". Skipping metatable injection.")
+        return
+    end
+
+    local MCM = {}
+
+    -- Define useful functions for mods to use
+    MCM.Get = function(settingId)
+        -- MCMDebug(1, "Getting setting value for settingId: " .. settingId)
+        return MCMAPI:GetSettingValue(settingId, modUUID)
+    end
+
+    MCM.Set = function(settingId, value)
+        -- MCMDebug(1, "Setting value for settingId: " .. settingId .. " to: " .. tostring(value))
+        MCMAPI:SetSettingValue(settingId, value, modUUID)
+    end
+
+    Mods[modTableName].MCM = MCM
+
+    MCMTest(1, "Successfully injected MCM to mod table for modUUID: " .. modUUID)
+end
+
+local function setupModsMetatable()
+    -- Define a custom __newindex function to listen for new entries in the Mods table
+    local modsMetatable = {
+        __newindex = function(table, key, value)
+            MCMDebug(2, "New mod being added to Mods table: " .. tostring(key))
+
+            -- Set the new key-value pair in the table as normal
+            rawset(table, key, value)
+
+            if ModConfig.mods[value.ModuleUUID] then
+                injectMCMToModTable(value.ModuleUUID)
+            end
+        end
+    }
+
+    -- Set the metatable for the Mods table
+    setmetatable(Mods, modsMetatable)
+end
+
+setupModsMetatable()

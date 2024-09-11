@@ -204,8 +204,12 @@
                             "description": "A single-line string text input."
                         },
                         {
+                            "const": "list_v2",
+                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them."
+                        },
+                        {
                             "const": "list",
-                            "description": "A list of items with a text input below to add new items.\nThe list is initialized with default values if provided."
+                            "description": "DEPRECATED. USE `list_v2` INSTEAD.A list of items with a text input below to add new items.\nThe list is initialized with default values if provided."
                         },
                         {
                             "const": "enum",
@@ -284,30 +288,9 @@
                 },
                 "Options": {
                     "type": "object",
-                    "properties": {
-                        "Choices": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": {
-                                "type": "string"
-                            },
-                            "description": "The available set of choices for the setting, used for enum and radio types."
-                        },
-                        "Min": {
-                            "type": "number",
-                            "description": "The minimum value for the setting, used for slider/drag types."
-                        },
-                        "Max": {
-                            "type": "number",
-                            "description": "The maximum value for the setting, used for slider/drag types."
-                        },
-                        "Multiline": {
-                            "type": "boolean",
-                            "description": "Whether the text input should be multiline, used for text type."
-                        }
-                    },
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). Will be localized if handles are provided.",
-                    "additionalProperties": false
+                    "properties": {},
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
+                    // "additionalProperties": false
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -329,18 +312,28 @@
                 }
             },
             "then": {
+                "required": [
+                    "Options"
+                ],
                 "properties": {
                     "Options": {
+                        "type": "object",
+                        "properties": {
+                            "Choices": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "The available set of choices for the enum/radio. Will be localized if handles are provided (ChoicesHandles)"
+                            }
+                        },
                         "required": [
                             "Choices"
                         ]
                     }
-                },
-                "required": [
-                    "Options"
-                ]
+                }
             },
-            // Sliders/drags do not actually require min/max heh
             "else": {
                 "if": {
                     "properties": {
@@ -355,17 +348,77 @@
                     }
                 },
                 "then": {
+                    "required": [
+                        "Options"
+                    ],
                     "properties": {
                         "Options": {
+                            "type": "object",
+                            "properties": {
+                                "Min": {
+                                    "type": "number",
+                                    "description": "The minimum value for the slider/drag."
+                                },
+                                "Max": {
+                                    "type": "number",
+                                    "description": "The maximum value for the slider/drag."
+                                }
+                            },
                             "required": [
                                 "Min",
                                 "Max"
                             ]
                         }
+                    }
+                },
+                "else": {
+                    "if": {
+                        "properties": {
+                            "Type": {
+                                "const": "text"
+                            }
+                        }
                     },
-                    "required": [
-                        "Options"
-                    ]
+                    "then": {
+                        "properties": {
+                            "Options": {
+                                "type": "object",
+                                "properties": {
+                                    "Multiline": {
+                                        "type": "boolean",
+                                        "description": "Whether the text input should be multiline. Disabled by default."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "else": {
+                        "if": {
+                            "properties": {
+                                "Type": {
+                                    "const": "list_v2"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "Options": {
+                                    "type": "object",
+                                    "properties": {
+                                        "PageSize": {
+                                            "type": "integer",
+                                            "minimum": 5,
+                                            "description": "The number of items to display in the list at once. Minimum 5. 10 by default."
+                                        },
+                                        "ShowSearchBar": {
+                                            "type": "boolean",
+                                            "description": "Whether to show a search bar in the list. Will search through all items and filter the list. Enabled by default."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "description": "A single setting in the MCM menu, which can be of various types for different input methods.",
@@ -403,15 +456,35 @@
                     "Description": "This setting accepts string values."
                 },
                 {
+                    "Id": "ListV2Setting",
+                    "Name": "List V2 Setting",
+                    "Type": "list_v2",
+                    "Description": "This is a list v2 setting",
+                    "Default": [
+                        {
+                            "enabled": true,
+                            "elements": [
+                                "a",
+                                "b",
+                                "c"
+                            ]
+                        }
+                    ],
+                    "Options": {
+                        "PageSize": 2,
+                        "ShowSearchBar": true
+                    }
+                },
+                {
                     "Id": "ListSetting",
-                    "Name": "List Setting",
+                    "Name": "(DEPRECATED) List Setting",
                     "Type": "list",
                     "Default": [
                         "Item 1",
                         "Item 2"
                     ],
-                    "Tooltip": "This is a list setting.",
-                    "Description": "This setting allows adding or removing items from a list."
+                    "Tooltip": "(DEPRECATED) This is a list setting.",
+                    "Description": "(DEPRECATED) This setting allows adding or removing items from a list."
                 },
                 {
                     "Id": "EnumSetting",
@@ -668,7 +741,7 @@
                         "type": "string",
                         "minLength": 1
                     },
-                    "description": "Handles that can be used to localize choices for the setting."
+                    "description": "Handles to be used to localize choices for enums/radios."
                 }
             },
             "required": [

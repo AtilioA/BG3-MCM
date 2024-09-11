@@ -1,5 +1,7 @@
 Noesis = {}
 
+MCM_BUTTON_HANDLE_ORIGINAL_CONTENT = Ext.Loca.GetTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7")
+
 --- Thanks Norbyte for this!
 function Noesis:findNoesisElementByName(element, name)
     if not element then
@@ -26,7 +28,7 @@ function Noesis:FindMCMGameMenuButton()
         MCMDebug(3, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
         return target
     else
-        MCMDebug(1, "MCMButton not found")
+        -- MCMDebug(1, "MCMButton not found")
     end
 end
 
@@ -47,11 +49,10 @@ local function updateButtonMessage(newMessage, revertTime, isMessageUpdated)
     end
     isMessageUpdated = true
 
-    local originalMessage = Ext.Loca.GetTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7")
     Ext.Loca.UpdateTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7", newMessage)
     -- Revert to original message after revertTime
     Ext.Timer.WaitFor(revertTime, function()
-        Ext.Loca.UpdateTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7", originalMessage)
+        Ext.Loca.UpdateTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7", MCM_BUTTON_HANDLE_ORIGINAL_CONTENT)
         isMessageUpdated = false
     end)
 end
@@ -98,7 +99,8 @@ function Noesis:MonitorMainMenuButtonPress()
     VCTimer:ExecuteWithIntervalUntilCondition(function()
         local mainMenuButton = Noesis:FindMCMainMenuButton()
         if not mainMenuButton then
-            MCMDebug(0, "Main menu button not found. Unable to monitor clicks.")
+            MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
+            MCMUtils:WarnAboutNPAKM()
             return false
         end
 

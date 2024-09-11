@@ -47,7 +47,7 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
         MCMWarn(1, errorMessage)
 
         -- Notify the client with the current value of the setting, so it can update its UI
-        ModEventManager:Emit(EventChannels.MCM_SETTING_UPDATED, {
+        ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
             modUUID = modUUID,
             settingId = settingId,
             value = value,
