@@ -131,7 +131,7 @@ local function checkDependency(mod, dependency, issues)
     end
 end
 
-local function checkDependencies(mod, dependencies, issues)
+local function checkModDependencies(mod, dependencies, issues)
     for _, dependency in ipairs(dependencies) do
         checkDependency(mod, dependency, issues)
     end
@@ -148,7 +148,7 @@ function DependencyCheck:EvaluateLoadOrderDependencies()
     MCMDebug(1, "Evaluating load order dependencies for available mods.")
     for _, mod in ipairs(availableMods) do
         if Ext.Mod.IsModLoaded(mod.Info.ModuleUUID) and mod.Info.Author ~= "" and mod.Info.Author ~= "LS" and mod.Dependencies then
-            checkDependencies(mod, mod.Dependencies, issues)
+            checkModDependencies(mod, mod.Dependencies, issues)
         end
     end
 

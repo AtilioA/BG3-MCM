@@ -29,11 +29,26 @@ IgnoredModDependencies = {
         "Game/GUI/Assets"
     },
     Mods = {
+        ["991c9c7a-fb80-40cb-8f0d-b92d4e80e9b1"] = {
+            Name = "Gustav",
+            UUID = "991c9c7a-fb80-40cb-8f0d-b92d4e80e9b1",
+            Author = "Larian Studios",
+            Description = "The main story campaign dependency.",
+            Reason = "Vanilla pak file"
+        },
         ["e842840a-2449-588c-b0c4-22122cfce31b"] = {
             Name = "DiceSet_01",
             UUID = "e842840a-2449-588c-b0c4-22122cfce31b",
             Author = "Larian Studios",
             Description = "",
+            Reason = "Vanilla pak file"
+        },
+        ["28ac9ce2-2aba-8cda-b3b5-6e922f71b6b8"] = {
+            Name = "GustavDev",
+            UUID = "28ac9ce2-2aba-8cda-b3b5-6e922f71b6b8",
+            Author = "Larian Studios",
+            Description = "The main story campaign.",
+            Tags = "Campaign",
             Reason = "Vanilla pak file"
         },
         ["b176a0ac-d79f-ed9d-5a87-5c2c80874e10"] = {
@@ -69,13 +84,6 @@ IgnoredModDependencies = {
             UUID = "3d0c5ff8-c95d-c907-ff3e-34b204f1c630",
             Author = "Larian Studios",
             Description = "",
-            Reason = "Vanilla pak file"
-        },
-        ["991c9c7a-fb80-40cb-8f0d-b92d4e80e9b1"] = {
-            Name = "Gustav",
-            UUID = "991c9c7a-fb80-40cb-8f0d-b92d4e80e9b1",
-            Author = "Larian Studios",
-            Description = "The main story campaign dependency.",
             Reason = "Vanilla pak file"
         },
         ["e5c9077e-1fca-4f24-b55d-464f512c98a8"] = {
