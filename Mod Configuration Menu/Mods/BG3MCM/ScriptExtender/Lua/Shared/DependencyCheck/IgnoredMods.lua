@@ -120,12 +120,12 @@ IgnoredModDependencies = {
             Description = "",
             Reason = "Vanilla pak file"
         },
-        ["4cb0fd40-7212-4fe9-8733-9a8dbc6637ae"] = {
-            Name = "unique_tav",
-            UUID = "4cb0fd40-7212-4fe9-8733-9a8dbc6637ae",
-            Author = "kartoffel Trips KittHaven",
-            Description = "Unique Tav",
-            Reason = "SE bug: mod has no PublishVersion and SE returns 0.0.0.0 as version"
-        }
+        -- ["4cb0fd40-7212-4fe9-8733-9a8dbc6637ae"] = {
+        --     Name = "unique_tav",
+        --     UUID = "4cb0fd40-7212-4fe9-8733-9a8dbc6637ae",
+        --     Author = "kartoffel Trips KittHaven",
+        --     Description = "Unique Tav",
+        --     Reason = "SE bug: mod has no PublishVersion and SE returns 0.0.0.0 as version"
+        -- }
     }
 }

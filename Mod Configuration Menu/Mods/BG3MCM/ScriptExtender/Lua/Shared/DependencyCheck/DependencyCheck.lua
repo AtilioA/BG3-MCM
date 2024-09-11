@@ -14,14 +14,14 @@ DependencyCheck = _Class:Create("DependencyCheck", nil, {})
 ---@field errorMessage string
 
 --- Checks if the loaded version is compatible with the required version.
----@param loadedVersion vec4 The loaded mod version.
+---@param loadedDependencyVersion vec4 The loaded mod version.
 ---@param requiredVersion vec4 The required mod version.
 ---@return boolean True if compatible, false otherwise.
-local function isVersionCompatible(loadedVersion, requiredVersion)
+local function isDependencyVersionCompatible(loadedDependencyVersion, requiredVersion)
     for i = 1, 4 do
-        if loadedVersion[i] < requiredVersion[i] then
+        if loadedDependencyVersion[i] < requiredVersion[i] then
             return false
-        elseif loadedVersion[i] > requiredVersion[i] then
+        elseif loadedDependencyVersion[i] > requiredVersion[i] then
             return true
         end
     end
@@ -45,28 +45,43 @@ end
 --- Checks if the loaded mod version is compatible with the required dependency version.
 ---@param mod Module The mod that requires the dependency.
 ---@param dependency ModuleInfo The required dependency.
----@param loadedMod Module The loaded dependency mod.
+---@param loadedDependencyMod Module The loaded dependency mod.
 ---@param issues table The table to record issues in.
-local function checkVersionCompatibility(mod, dependency, loadedMod, issues)
+local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, issues)
+    local function checkIfDependencyHasVersionInfo()
+        if areVersionsEqual(loadedDependencyMod.Info.ModVersion, { 0, 0, 0, 0 }) then
+            MCMWarn(1,
+                string.format("Ignoring dependency '%s' for mod '%s' since it has no version information.", dependency.Name, mod.Info.Name))
+            return true
+        end
+        return false
+    end
+
     local mainModVersion = mod.Info.ModVersion
-    local loadedVersion = loadedMod.Info.ModVersion
+    local loadedDependencyVersion = loadedDependencyMod.Info.ModVersion
     local requiredVersion = dependency.ModVersion
+
+
+    -- Necessary due to a SE bug
+    if checkIfDependencyHasVersionInfo() then
+        return
+    end
 
     MCMDebug(3,
         string.format("Checking version compatibility for mod '%s' with dependency '%s'.", mod.Info.Name, dependency
             .Name))
 
-
     -- This is unfortunately necessary due to an MMT bug
     local versionsEqual = areVersionsEqual(mainModVersion, requiredVersion)
-    local versionCompatible = isVersionCompatible(loadedVersion, requiredVersion)
+    local versionCompatible = isDependencyVersionCompatible(loadedDependencyVersion, requiredVersion)
 
     if not versionsEqual and not versionCompatible then
         local errorMessage = string.format(
             "Mod '%s' requires '%s' version %d.%d.%d.%d or higher, but loaded version is %d.%d.%d.%d\nPlease update %s.",
             mod.Info.Name, dependency.Name,
             requiredVersion[1], requiredVersion[2], requiredVersion[3], requiredVersion[4],
-            loadedVersion[1], loadedVersion[2], loadedVersion[3], loadedVersion[4], dependency.Name
+            loadedDependencyVersion[1], loadedDependencyVersion[2], loadedDependencyVersion[3],
+            loadedDependencyVersion[4], dependency.Name
         )
         table.insert(issues, {
             modName = mod.Info.Name,
@@ -107,11 +122,12 @@ local function checkDependency(mod, dependency, issues)
         return
     end
 
-    local loadedMod = Ext.Mod.GetMod(dependency.ModuleUUIDString)
-    if not loadedMod then
+    local loadedDependencyMod = Ext.Mod.GetMod(dependency.ModuleUUIDString)
+
+    if not loadedDependencyMod then
         recordMissingDependency(mod, dependency, issues)
     else
-        checkVersionCompatibility(mod, dependency, loadedMod, issues)
+        checkVersionCompatibility(mod, dependency, loadedDependencyMod, issues)
     end
 end
 
