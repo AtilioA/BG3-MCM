@@ -1,4 +1,5 @@
 RequireFiles("Shared/Helpers/", {
+    "Table/_Init",
     "Events/_Init",
     "VC/_Init",
     "Keybindings/_Init",

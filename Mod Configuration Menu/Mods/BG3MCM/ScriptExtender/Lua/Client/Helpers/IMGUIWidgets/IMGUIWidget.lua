@@ -119,7 +119,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     if descriptionHandle and descriptionHandle ~= "" then
         local translatedDescription = Ext.Loca.GetTranslatedString(descriptionHandle)
         if translatedDescription and translatedDescription ~= "" then
-            descriptionText = MCMUtils.ReplaceBrWithNewlines(translatedDescription)
+            descriptionText = VCString:ReplaceBrWithNewlines(translatedDescription)
         end
     end
 

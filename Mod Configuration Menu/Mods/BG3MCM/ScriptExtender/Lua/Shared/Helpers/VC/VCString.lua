@@ -158,3 +158,13 @@ function VCString:Wrap(text, width)
     -- Concatenate the lines into a single string with newline characters
     return table.concat(lines, "\n")
 end
+
+--- Add newlines after each period in a string
+function VCString:AddNewlinesAfterPeriods(description)
+    return string.gsub(description, "%. ", ".\n")
+end
+
+--- Replace <br> tags with newlines in a string
+function VCString:ReplaceBrWithNewlines(description)
+    return string.gsub(description, "<br>", "\n")
+end

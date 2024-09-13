@@ -197,7 +197,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
     UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
 
     self.welcomeText = MCM_WINDOW:AddText(
-        MCMUtils.ReplaceBrWithNewlines(
+        VCString:ReplaceBrWithNewlines(
             Ext.Loca.GetTranslatedString(
                 "h81a4a9991875424984b876d017675879c959")
         )
@@ -317,7 +317,7 @@ function IMGUILayer:CreateMainTable()
         self.visibilityTriggers[modUUID] = {}
 
         local modName = self:GetModName(modUUID)
-        local modDescription = MCMUtils.AddNewlinesAfterPeriods(Ext.Mod.GetMod(modUUID).Info.Description)
+        local modDescription = VCString:AddNewlinesAfterPeriods(Ext.Mod.GetMod(modUUID).Info.Description)
         FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
         self.mods[modUUID].widgets = {}
 
@@ -468,7 +468,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         local sectionDescriptionText = sectionDescription
         local translatedDescription = Ext.Loca.GetTranslatedString(section:GetHandles().DescriptionHandle)
         if translatedDescription ~= nil and translatedDescription ~= "" then
-            sectionDescriptionText = MCMUtils.ReplaceBrWithNewlines(translatedDescription)
+            sectionDescriptionText = VCString:ReplaceBrWithNewlines(translatedDescription)
         end
 
         local addedDescription = sectionContentElement:AddText(sectionDescriptionText)
