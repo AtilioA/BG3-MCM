@@ -90,7 +90,7 @@ function Printer:Print(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
         if self.DebugLevel > 0 then
-            s = string.format("[%s][D%s][%s]: ", self.Prefix, self.DebugLevel, self.Machine)
+            s = string.format("[%s][D%s][%s]: ", self.Prefix, debugLevel, self.Machine)
         else
             s = string.format("[%s][%s]: ", self.Prefix, self.Machine)
         end
