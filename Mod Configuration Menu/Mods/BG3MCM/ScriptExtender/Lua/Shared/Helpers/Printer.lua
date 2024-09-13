@@ -29,6 +29,14 @@ function MCMDebug(debugLevel, ...)
     MCMPrinter:PrintDebug(debugLevel, ...)
 end
 
+function MCMDeprecation(debugLevel, ...)
+    MCMPrinter:SetFontColor(220, 100, 0)
+
+    if MCM and MCM.Get("print_deprecation_warnings") then
+        MCMPrinter:PrintWarning(debugLevel, ...)
+    end
+end
+
 function MCMWarn(debugLevel, ...)
     MCMPrinter:SetFontColor(255, 100, 50)
     MCMPrinter:PrintWarning(debugLevel, ...)
