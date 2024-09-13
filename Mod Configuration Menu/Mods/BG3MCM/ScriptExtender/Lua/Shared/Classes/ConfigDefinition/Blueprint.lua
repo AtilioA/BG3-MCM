@@ -1,6 +1,7 @@
 ---@class Blueprint
 ---@field private ModUUID string
 ---@field private SchemaVersion number
+---@field private Optional boolean
 ---@field private ModName? string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Settings? BlueprintSetting[]
@@ -9,12 +10,17 @@ Blueprint = _Class:Create("Blueprint", nil, {
     ModUUID = nil,
     ModName = nil,
     SchemaVersion = nil,
+    Optional = false,
     Tabs = {},
     Handles = {}
 })
 
 function Blueprint:GetSchemaVersion()
     return self.SchemaVersion
+end
+
+function Blueprint:GetOptional()
+    return self.Optional
 end
 
 function Blueprint:GetModName()

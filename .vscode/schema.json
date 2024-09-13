@@ -4,6 +4,11 @@
     "additionalProperties": false,
     "$comment": "This JSON Schema validates blueprint files that define the configuration structure for mods using the Mod Configuration Menu (MCM).\nIt ensures the blueprint adheres to the expected format and contains all necessary elements for proper MCM integration.",
     "properties": {
+        "Optional": {
+            "type": "boolean",
+            "description": "Whether the MCM usage is optional or not. Default is `false` and will warn if the meta.lsx is missing MCM as a dependency.",
+            "default": false
+        },
         "SchemaVersion": {
             "type": "integer",
             "oneOf": [

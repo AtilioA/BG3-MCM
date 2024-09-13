@@ -31,6 +31,42 @@ ModConfig.MCMParamsFilename = "mcm_params.json"
 -- --   [2] = parseVersion2Config,
 -- -- }
 
+--- Checks if a mod that has a blueprint has added MCM as a dependency. If it has not and MCM is not optional, a warning is logged.
+function ModConfig:CheckMCMDependency(modUUID, blueprint)
+    if modUUID == ModuleUUID then
+        return
+    end
+
+    if blueprint:GetOptional() then
+        return
+    end
+
+    local modData = Ext.Mod.GetMod(modUUID)
+    local modDependencies = modData.Dependencies
+    if not modDependencies then
+        MCMWarn(0,
+            string.format(
+                "Mod '%s' does not have any dependencies. Please contact %s to add MCM as a dependency, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
+                modData.Info.Author))
+        return
+    end
+
+    local hasMCMDependency = false
+    for _, dependency in pairs(modDependencies) do
+        if dependency.ModuleUUID == ModuleUUID then
+            -- MCM is already a dependency, no need to log a warning
+            hasMCMDependency = true
+            return
+        end
+    end
+    if not hasMCMDependency then
+        MCMWarn(0,
+            string.format(
+                "Mod '%s' requires MCM but does not have MCM as a dependency. Please contact %s to add MCM as a dependency in the meta.lsx file, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.", modData.Info.Name,
+                modData.Info.Author))
+    end
+end
+
 --- SECTION: FILE HANDLING
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modUUID GUIDSTRING The mod's UUID to get the path for.
@@ -281,6 +317,9 @@ function ModConfig:SubmitBlueprint(data, modUUID)
     self.mods[modUUID] = {
         blueprint = Blueprint:New(preprocessedData),
     }
+
+    local modBlueprint = self.mods[modUUID].blueprint
+    ModConfig:CheckMCMDependency(modUUID, modBlueprint)
 
     -- WIP/test
     -- xpcall(function() injectMCMToModTable(modUUID) end,

@@ -178,6 +178,7 @@ function DataPreprocessing:PreprocessData(data, modUUID)
     local preprocessedData = {
         ModUUID = modUUID,
         SchemaVersion = data.SchemaVersion,
+        Optional = data.Optional,
         ModName = data.ModName,
         Tabs = {},
         Settings = {}
