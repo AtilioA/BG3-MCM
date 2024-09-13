@@ -9,6 +9,7 @@
 DependencyCheck = _Class:Create("DependencyCheck", nil, {})
 
 ---@class DependencyCheckResult
+---@field id string
 ---@field modName string
 ---@field dependencyName string
 ---@field errorMessage string
@@ -50,8 +51,12 @@ end
 local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, issues)
     local function checkIfDependencyHasVersionInfo()
         if areVersionsEqual(loadedDependencyMod.Info.ModVersion, { 0, 0, 0, 0 }) then
-            MCMWarn(1,
-                string.format("Ignoring dependency '%s' for mod '%s' since it has no version information.", dependency.Name, mod.Info.Name))
+            local depMod = Ext.Mod.GetMod(dependency.ModuleUUIDString)
+            local dependencyInfo = depMod and depMod.Info or {}
+            MCMDeprecation(0,
+                string.format(
+                    "Ignoring dependency '%s' for mod '%s' because it has no version information.\nPlease contact %s to update/fix the meta.lsx file for '%s'. The version node might have an outdated ID (it should be Version64).",
+                    dependencyInfo.Name, depMod.Info.Name, dependencyInfo.Author, dependencyInfo.Name))
             return true
         end
         return false
@@ -76,6 +81,12 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
     local versionCompatible = isDependencyVersionCompatible(loadedDependencyVersion, requiredVersion)
 
     if not versionsEqual and not versionCompatible then
+        local issueID = string.format("Dependency_Version_Issue_%s_Requires_%s_%s_Loaded_%s",
+            mod.Info.ModuleUUID,
+            dependency.ModuleUUIDString,
+            requiredVersion[1] .. "." .. requiredVersion[2] .. "." .. requiredVersion[3] .. "." .. requiredVersion[4],
+            loadedDependencyVersion[1] .. "." .. loadedDependencyVersion[2] .. "." .. loadedDependencyVersion[3] .. "."
+        )
         local errorMessage = string.format(
             "Mod '%s' requires '%s' version %d.%d.%d.%d or higher, but loaded version is %d.%d.%d.%d\nPlease update %s.",
             mod.Info.Name, dependency.Name,
@@ -84,6 +95,7 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             loadedDependencyVersion[4], dependency.Name
         )
         table.insert(issues, {
+            id = issueID,
             modName = mod.Info.Name,
             dependencyName = dependency.Name,
             errorMessage = errorMessage
@@ -96,11 +108,16 @@ end
 ---@param dependency ModuleInfo The missing dependency.
 ---@param issues table The table to record issues in.
 local function recordMissingDependency(mod, dependency, issues)
+    local issueID = string.format("Missing_Dependency_%s_Requires_%s",
+        mod.Info.ModuleUUID,
+        dependency.ModuleUUIDString
+    )
     local errorMessage = string.format("Mod '%s' requires dependency '%s', which is not loaded.\nPlease install %s.",
         mod.Info.Name,
         dependency.Name, dependency.Name)
     MCMWarn(1, "Missing dependency recorded: " .. errorMessage)
     table.insert(issues, {
+        id = issueID,
         modName = mod.Info.Name,
         dependencyName = dependency.Name,
         errorMessage = errorMessage
@@ -109,7 +126,7 @@ end
 
 --- Checks the dependencies of a mod and records any issues.
 ---@param mod Module The mod to check dependencies for.
----@param dependencies ModuleInfo The list of dependencies to check.
+---@param dependency ModuleInfo The list of dependencies to check.
 ---@param issues table The table to record issues in.
 local function checkDependency(mod, dependency, issues)
     -- Ignore the dependency if it is listed in the ignored mods
@@ -131,13 +148,14 @@ local function checkDependency(mod, dependency, issues)
     end
 end
 
+---@param mod Module The mod to check dependencies for.
+---@param dependencies ModuleInfo The list of dependencies to check.
+---@param issues table The table to record issues in.
 local function checkModDependencies(mod, dependencies, issues)
     for _, dependency in ipairs(dependencies) do
         checkDependency(mod, dependency, issues)
     end
 end
-
--- ... existing code ...
 
 --- Checks mod dependencies and returns a list of issues.
 ---@return DependencyCheckResult[] issues A list of issues with mod dependencies.
