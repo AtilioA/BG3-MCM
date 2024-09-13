@@ -374,6 +374,6 @@ function ModConfig:HandleLoadBlueprintError(modData, err)
     else
         -- Handle other unexpected errors (which ones lol)
         MCMWarn(0, "An unexpected blueprint error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
-            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue:\n" .. err)
     end
 end
