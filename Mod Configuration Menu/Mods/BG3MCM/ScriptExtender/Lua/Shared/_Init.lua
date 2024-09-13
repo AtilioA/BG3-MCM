@@ -7,6 +7,11 @@ function RequireFiles(path, files)
     end
 end
 
+-- Import NotiFramework for both server and clients
+RequireFiles("NotiFramework/", {
+    "_Init"
+})
+
 RequireFiles("Shared/", {
     "MetaClass",
     "DependencyCheck/_Init",
