@@ -136,6 +136,7 @@ end
 -- TODO: move to a separate file
 ---@class IMGUIWarningWindow
 ---@field window any
+---@field id string
 ---@field warningLevel integer
 ---@field warningMessage string
 ---@field title string
@@ -146,11 +147,14 @@ IMGUIWarningWindow = _Class:Create("IMGUIWarningWindow", nil, {
     title = "Warning"
 })
 
+--- Creates a new warning window
+---@param id string The unique identifier for the warning window
 ---@param level integer The warning level
 ---@param title string The title of the warning window
 ---@param message string The message to display in the window
-function IMGUIWarningWindow:new(level, title, message)
+function IMGUIWarningWindow:new(id, level, title, message)
     local instance = setmetatable({}, { __index = IMGUIWarningWindow })
+    instance.id = id
     instance.warningLevel = level
     instance.warningMessage = message
     instance.title = title
@@ -166,9 +170,11 @@ function IMGUIWarningWindow:CreateWindow()
     self.window:SetColor("WindowBg", Color.NormalizedRGBA(18, 18, 18, 1))
     self.window:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     self.window.AlwaysAutoResize = true
-    self.window.Closeable = true
+    self.window.Closeable = false
     self.window.Visible = true
     self.window.Open = true
+
+    local messageGroup = self.window:AddGroup("message_group")
 
     local iconSize = 64
 
@@ -185,7 +191,7 @@ function IMGUIWarningWindow:CreateWindow()
         borderColor = Color.HEXToRGBA("#FFCC22")
     end
 
-    local itemIcon = self.window:AddImage(icon, { iconSize, iconSize })
+    local itemIcon = messageGroup:AddImage(icon, { iconSize, iconSize })
     -- if not itemIcon.ImageData or itemIcon.ImageData.Icon == "" then
     --     itemIcon:Destroy()
     -- end
@@ -199,95 +205,82 @@ function IMGUIWarningWindow:CreateWindow()
     end
 
     -- Add blinking functionality
-    local isFocused = true
-    local blinkInterval = 500 -- milliseconds
-    local blinkTimer
+    -- local isFocused = true
+    -- local blinkInterval = 500 -- milliseconds
+    -- local blinkTimer
 
-    local function toggleVisibility()
-        if not isFocused then
-            self.window.Visible = not self.window.Visible
-            print("Window visibility toggled to: " .. tostring(self.window.Visible))
-        else
-            self.window.Visible = true
-            print("Window is focused, setting visibility to true.")
-            if blinkTimer then
-                Ext.Timer.Cancel(blinkTimer)
-                blinkTimer = nil
-                print("Blink timer cancelled.")
-            end
-        end
-    end
+    -- local function toggleVisibility()
+    --     if not isFocused then
+    --         self.window.Visible = not self.window.Visible
+    --         print("Window visibility toggled to: " .. tostring(self.window.Visible))
+    --     else
+    --         self.window.Visible = true
+    --         print("Window is focused, setting visibility to true.")
+    --         if blinkTimer then
+    --             Ext.Timer.Cancel(blinkTimer)
+    --             blinkTimer = nil
+    --             print("Blink timer cancelled.")
+    --         end
+    --     end
+    -- end
 
-    self.window.OnActivate = function()
-        isFocused = true
-        print("Window activated.")
-        toggleVisibility()
-    end
+    -- self.window.OnActivate = function()
+    --     isFocused = true
+    --     print("Window activated.")
+    --     toggleVisibility()
+    -- end
 
-    self.window.OnDeactivate = function()
-        isFocused = false
-        print("Window deactivated.")
-        if not blinkTimer then
-            blinkTimer = Ext.Timer.WaitFor(blinkInterval, function()
-                toggleVisibility()
-            end)
-            print("Blink timer started with interval: " .. blinkInterval .. " ms.")
-        end
-    end
+    -- self.window.OnDeactivate = function()
+    --     isFocused = false
+    --     print("Window deactivated.")
+    --     if not blinkTimer then
+    --         blinkTimer = Ext.Timer.WaitFor(blinkInterval, function()
+    --             toggleVisibility()
+    --         end)
+    --         print("Blink timer started with interval: " .. blinkInterval .. " ms.")
+    --     end
+    -- end
 
-
-    local messageText = self.window:AddText(self.warningMessage)
+    local messageText = messageGroup:AddText(self.warningMessage)
     -- messageText.Padding = { iconPadding, iconPadding, iconPadding, iconPadding }
     messageText:SetColor("Text", borderColor)
     -- messageText.TextWrapPos = 0.0
     messageText.SameLine = true
 
-    -- self.window:AddDummy(0, 10)
-    -- self.window:AddDummy(700, 0)
-    -- local dismissButton = self.window:AddButton("Dismiss")
-    -- dismissButton.OnClick = function()
-    --     self.window:Destroy()
-    --     self.window.Visible = false
-    --     -- MCMUtils.NPAKMWarned = false
-    -- end
-    -- dismissButton.SameLine = true
+    -- Add "Don't show this again" button
+    messageGroup:AddDummy(0, 10)
+    local countdown = 5
+    local dontShowButton = self.window:AddButton("Don't show this again (" .. countdown .. ")")
+    dontShowButton.OnClick = function()
+        -- Store the preference in JSON using NotificationPreferences
+        MCMDebug(1, "Saving user preference to suppress notification: " .. self.id .. ".")
+        NotificationPreferences:StoreUserDontShowPreference(self.id)
+        self.window.Visible = false
+        self.window:SetCollapsed(true)
+        self.window:Destroy()
+    end
+    dontShowButton.SameLine = false
+    dontShowButton.Disabled = true
+
+    -- Update the button label each second as a countdown
+    VCTimer:CallWithInterval(function()
+        countdown = countdown - 1
+        dontShowButton.Label = "Don't show this again (" .. countdown .. ")"
+        if countdown <= 0 then
+            dontShowButton.Disabled = false
+            dontShowButton.Label = "Don't show this again"
+            self.window.Closeable = true
+        end
+    end, 1000, 5000)
 end
 
 --- Displays a warning message to the user
 ---@param level integer The warning level
 ---@param title string The title of the warning window
 ---@param message string The message to display
-function MCMUtils:CreateIMGUIWarning(level, title, message)
-    if Ext.IsClient() then
-        return IMGUIWarningWindow:new(level, title, message)
-    end
-end
-
-function MCMUtils:CreateNPAKMIMGUIWarning()
-    if not self.NPAKMWarned then
-        IMGUIWarningWindow:new(0, "Wrong No Press Any Key Menu version",
-            "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.")
-        self.NPAKMWarned = true
-    end
-end
-
-function MCMUtils:WarnAboutNPAKM()
-    if not self:ShouldWarnAboutNPAKM() then
-        return
-    end
-
-    self:CreateNPAKMIMGUIWarning()
-    MCMWarn(0,
-        "You're using 'No Press Any Key Menu' without the compatibility patch for MCM. Please replace it with the patched version available at its mod page.")
-end
-
-function MCMUtils:WarnAboutLoadOrderDependencies()
-    local issues = DependencyCheck:EvaluateLoadOrderDependencies()
-    for _, issue in ipairs(issues) do
-        local dependencyIssueTitle = "Dependency issue detected: " ..
-            issue.modName .. " depends on " .. issue.dependencyName
-        self:CreateIMGUIWarning(0, dependencyIssueTitle, issue.errorMessage)
-        MCMWarn(0, issue.errorMessage)
+function MCMUtils:CreateIMGUIWarning(id, level, title, message)
+    if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id) then
+        return IMGUIWarningWindow:new(id, level, title, message)
     end
 end
 
