@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentList>
     <!-- Temporary handle in case MCM is inactive -->
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">MCM is currently 'inactive' in your load order and won't work. Ensure it's ACTIVE/enabled in your mod manager.</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">MCM is 'inactive' in your load order, possibly due to mods with invalid UUIDs.&#x0a;Ensure MCM is active in your mod manager.&#x0a;This message will disappear if MCM is active.</content>
     <!-- Used for MCM window, etc -->
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
     <!-- Used for some buttons (can be overridden during runtime to display advice) -->
