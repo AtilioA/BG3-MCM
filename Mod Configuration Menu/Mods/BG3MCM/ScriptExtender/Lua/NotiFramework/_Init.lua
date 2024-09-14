@@ -7,8 +7,11 @@ function RequireFiles(path, files)
     end
 end
 
-RequireFiles("NotiFramework/", {
+RequireFiles("Shared/", {
     "MetaClass",
+})
+
+RequireFiles("NotiFramework/", {
     "NotificationPreferences",
     "NotificationManager",
     -- "Printer/_Init"
