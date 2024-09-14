@@ -41,11 +41,29 @@ end
 function MCMDependencies:WarnAboutLoadOrderDependencies()
     local issues = DependencyCheck:EvaluateLoadOrderDependencies()
     for _, issue in ipairs(issues) do
-        if NotificationPreferences:ShouldShowNotification(issue.id) then
-            local dependencyIssueTitle = "Dependency issue detected: " ..
-                issue.modName .. " depends on " .. issue.dependencyName
-            NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage)
-            MCMWarn(0, issue.errorMessage)
-        end
+        local dependencyIssueTitle = "Dependency issue detected: " ..
+            issue.modName .. " depends on " .. issue.dependencyName
+        NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage)
+        MCMWarn(0, issue.errorMessage)
     end
 end
+
+-- function MCMDependencies:CreateNotificationForEachLevel()
+--     -- Info level notification
+--     local infoId = "MCM_Dependency_Info"
+--     NotificationManager:CreateIMGUINotification(infoId, 'info', "Information", "This is an informational notification.")
+
+--     -- Success level notification
+--     local successId = "MCM_Dependency_Success"
+--     NotificationManager:CreateIMGUINotification(successId, 'success', "Success", "This is a success notification.")
+
+--     -- Warning level notification
+--     local warningId = "MCM_Dependency_Warning"
+--     NotificationManager:CreateIMGUINotification(warningId, 'warning', "Warning", "This is a warning notification.")
+
+--     -- Error level notification
+--     local errorId = "MCM_Dependency_Error"
+--     NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.")
+-- end
+
+-- MCMDependencies:CreateNotificationForEachLevel()
