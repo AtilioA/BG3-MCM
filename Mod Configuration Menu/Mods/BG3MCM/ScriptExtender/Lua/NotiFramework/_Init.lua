@@ -11,6 +11,14 @@ RequireFiles("Shared/", {
     "MetaClass",
 })
 
+RequireFiles("Shared/Classes/", {
+    "JsonLayer",
+})
+
+RequireFiles("Shared/Helpers/", {
+    "Color",
+})
+
 RequireFiles("NotiFramework/", {
     "NotificationPreferences",
     "NotificationManager",
