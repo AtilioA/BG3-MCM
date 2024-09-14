@@ -100,7 +100,6 @@ function Noesis:MonitorMainMenuButtonPress()
         local mainMenuButton = Noesis:FindMCMainMenuButton()
         if not mainMenuButton then
             MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
-            MCMUtils:WarnAboutNPAKM()
             return false
         end
 

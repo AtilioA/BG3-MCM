@@ -1,4 +1,8 @@
-MCMDependencies = {}
+---@class MCMDependencies
+---@field NPAKMWarned boolean
+MCMDependencies = _Class:Create("MCMDependencies", nil, {
+    NPAKMWarned = false
+})
 
 function MCMDependencies:ShouldWarnAboutNPAKM()
     local NoPressAnyKeyMenuUUID = "2bae5aa8-bf6a-d196-069c-4269f71d22a3"
@@ -18,7 +22,7 @@ end
 function MCMDependencies:CreateNPAKMIMGUIWarning()
     if not self.NPAKMWarned then
         local id = "NPAKM_MCM_Compatibility_Patch_Missing"
-        IMGUIWarningWindow:new(id, 0, "Wrong No Press Any Key Menu version",
+        NotificationManager:CreateIMGUINotification(id, 'error', "Wrong No Press Any Key Menu version",
             "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.")
         self.NPAKMWarned = true
     end
@@ -40,7 +44,7 @@ function MCMDependencies:WarnAboutLoadOrderDependencies()
         if NotificationPreferences:ShouldShowNotification(issue.id) then
             local dependencyIssueTitle = "Dependency issue detected: " ..
                 issue.modName .. " depends on " .. issue.dependencyName
-            self:CreateIMGUIWarning(issue.id, 0, dependencyIssueTitle, issue.errorMessage)
+            NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage)
             MCMWarn(0, issue.errorMessage)
         end
     end
