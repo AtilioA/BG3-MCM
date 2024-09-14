@@ -28,6 +28,34 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
     }
 })
 
+NotificationManager.NotificationStyles =
+{
+    error = {
+        icon = "ico_exclamation_01",
+        borderColor = Color.HEXToRGBA("#FF2222"),
+        titleBgActive = Color.NormalizedRGBA(255, 38, 38, 1),
+        titleBg = Color.NormalizedRGBA(255, 10, 10, 0.67),
+    },
+    warning = {
+        icon = "tutorial_warning_yellow",
+        borderColor = Color.HEXToRGBA("#DD9922"),
+        titleBgActive = Color.NormalizedRGBA(221, 153, 34, 1),
+        titleBg = Color.NormalizedRGBA(255, 140, 0, 0.67)
+    },
+    info = {
+        icon = "talkNotice_h",
+        borderColor = Color.HEXToRGBA("#22CCFF"),
+        titleBgActive = Color.NormalizedRGBA(0, 100, 255, 1),
+        titleBg = Color.NormalizedRGBA(0, 125, 255, 0.67),
+    },
+    success = {
+        icon = "vendorAttitude_04",
+        borderColor = Color.HEXToRGBA("#22FF22"),
+        titleBgActive = Color.NormalizedRGBA(0, 155, 0, 1),
+        titleBg = Color.NormalizedRGBA(30, 155, 30, 0.67),
+    }
+}
+
 --- Creates a new warning IMGUIwindow
 ---@param id string The unique identifier for the warning IMGUIwindow
 ---@param level NotificationLevel The warning level
@@ -52,20 +80,23 @@ end
 
 function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow:SetStyle("Alpha", 1.0)
-    self.IMGUIwindow:SetColor("TitleBgActive", Color.NormalizedRGBA(255, 10, 10, 1))
-    self.IMGUIwindow:SetColor("TitleBg", Color.NormalizedRGBA(255, 38, 38, 0.78))
     self.IMGUIwindow:SetColor("WindowBg", Color.NormalizedRGBA(18, 18, 18, 1))
     self.IMGUIwindow:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     self.IMGUIwindow.AlwaysAutoResize = true
     self.IMGUIwindow.Closeable = false
     self.IMGUIwindow.Visible = true
     self.IMGUIwindow.Open = true
+
+    self.IMGUIwindow:SetColor("TitleBg", self:GetStyleTitleBg())
+    self.IMGUIwindow:SetColor("TitleBgActive", self:GetStyleTitleBgActive())
+    self.IMGUIwindow:SetColor("TitleBgCollapsed", self:GetStyleTitleBg())
 end
 
 function NotificationManager:CreateMessageGroup()
     local messageGroup = self.IMGUIwindow:AddGroup("message_group")
     local iconSize = 64
-    local borderColor, icon = self:GetIconAndBorderColor()
+    local borderColor = self:GetStyleBorderColor()
+    local icon = self:GetStyleIcon()
 
     local itemIcon = messageGroup:AddImage(icon, { iconSize, iconSize })
     if itemIcon then
@@ -80,23 +111,24 @@ function NotificationManager:CreateMessageGroup()
 end
 
 -- TODO: get proper icons for each level
-function NotificationManager:GetIconAndBorderColor()
-    local borderColor = Color.HEXToRGBA("#FF2222")
-    local icon = "talkNotice_h"
+function NotificationManager:GetStyleBorderColor()
+    local style = self.NotificationStyles[self.notificationLevel]
+    return style.borderColor
+end
 
-    if self.notificationLevel == 'warning' then
-        icon = "ico_exclamation_01"
-    elseif self.notificationLevel == 'error' then
-        borderColor = Color.HEXToRGBA("#FF9922")
-        icon = "tutorial_warning_yellow"
-    elseif self.notificationLevel == 'info' then
-        icon = "talkNotice_h"
-        borderColor = Color.HEXToRGBA("#22CCFF")
-    elseif self.notificationLevel == 'success' then
-        icon = "vendorAttitude_04"
-        borderColor = Color.HEXToRGBA("#22FF22")
-    end
-    return borderColor, icon
+function NotificationManager:GetStyleIcon()
+    local style = self.NotificationStyles[self.notificationLevel]
+    return style.icon
+end
+
+function NotificationManager:GetStyleTitleBg()
+    local style = self.NotificationStyles[self.notificationLevel]
+    return style.titleBg
+end
+
+function NotificationManager:GetStyleTitleBgActive()
+    local style = self.NotificationStyles[self.notificationLevel]
+    return style.titleBgActive
 end
 
 function NotificationManager:CreateDontShowAgainButton(countdownTime)
@@ -133,7 +165,7 @@ function NotificationManager:CreateDontShowAgainButton(countdownTime)
         countdown = countdown - 1
 
         dontShowAgainButton:SetColor("Button", Color.NormalizedRGBA(50, 50, 50, 0.5))
-        dontShowAgainButton.Label = dontShowAgainButtonLocalizedLabel .. (" .. countdown .. ")
+        dontShowAgainButton.Label = dontShowAgainButtonLocalizedLabel .. " (" .. countdown .. ")"
         if countdown <= 0 then
             dontShowAgainButton.Disabled = false
             dontShowAgainButton.Label = dontShowAgainButtonLocalizedLabel

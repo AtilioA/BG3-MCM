@@ -1,5 +1,3 @@
--- TODO: Move somewhere else
-
 ---@class NotificationPreferences
 ---@field NotificationPreferencesFilePath string
 NotificationPreferences = _Class:Create("NotificationPreferences", nil, {
