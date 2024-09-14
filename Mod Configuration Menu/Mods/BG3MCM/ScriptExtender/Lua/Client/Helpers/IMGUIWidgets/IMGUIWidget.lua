@@ -7,6 +7,27 @@ IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
     Widget = nil
 })
 
+-- Function to estimate icon size based on viewport size
+-- This is used to scale the icon size based on the resolution, so that it looks good on all resolutions
+-- I don't know if this is the best way to do it. I just made it up.
+---@param height integer The height of the viewport
+---@return number iconSize The estimated icon size
+function IMGUIWidget:EstimateIconSize(height)
+    -- Estimate the icon size using this made up formula
+    local iconSize = 0.0194 * height + 0.048
+
+    return math.floor(iconSize + 0.5)
+end
+
+--- Get the icon sizes for the widget
+--- This is used to set the size of the icon for the widget
+---@return vec2 - A table containing the icon sizes, e.g. { 32, 32 }
+function IMGUIWidget:GetIconSizes()
+    local viewportSize = Ext.IMGUI.GetViewportSize()
+    local iconSize = self:EstimateIconSize(viewportSize[2])
+    return { iconSize, iconSize }
+end
+
 function IMGUIWidget:new()
     error(
         "This is an abstract class and cannot be instantiated directly. IMGUIWidget:New() must be overridden in a derived class")
@@ -62,7 +83,7 @@ end
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modUUID)
-    local resetButton = group:AddImageButton("[Reset]", "ico_reset_d", { 40, 40 })
+    local resetButton = group:AddImageButton("[Reset]", "ico_reset_d", IMGUIWidget:GetIconSizes())
 
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()

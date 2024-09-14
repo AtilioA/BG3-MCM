@@ -7,7 +7,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Helper function to create increment/decrement buttons
     local function createIncrementButton(label, icon, increment, tooltip)
-        local button = group:AddImageButton(label, icon, { 40, 40 })
+        local button = group:AddImageButton(label, icon, IMGUIWidget:GetIconSizes())
 
         -- MCMDebug(1, Ext.DumpExport(button))
         if not button.Image or button.Image.Icon == "" then

@@ -26,7 +26,7 @@ function ListIMGUIWidget:RenderList()
         local textCell = tableRow:AddCell()
         local buttonCell = tableRow:AddCell()
         textCell:AddText(value)
-        local removeButton = buttonCell:AddImageButton("[X]", "popin_closeIco_d", { 40, 40 })
+        local removeButton = buttonCell:AddImageButton("[X]", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
 
         if not removeButton.Image or removeButton.Image.Icon == "" then
             removeButton:Destroy()
