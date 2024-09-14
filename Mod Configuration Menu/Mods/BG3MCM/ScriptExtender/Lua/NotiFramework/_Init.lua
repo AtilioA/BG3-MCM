@@ -11,4 +11,5 @@ RequireFiles("NotiFramework/", {
     "MetaClass",
     "NotificationPreferences",
     "NotificationManager",
+    -- "Printer/_Init"
 })
