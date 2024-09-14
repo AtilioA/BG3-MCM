@@ -42,4 +42,5 @@
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Print deprecation warnings for mods with outdated code.&lt;br&gt;They will still be printed if developer mode is enabled (logic OR).</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Print deprecation warnings</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Debug</content>
+    <content contentuid="h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f" version="1">Don't show this again</content>
 </contentList>

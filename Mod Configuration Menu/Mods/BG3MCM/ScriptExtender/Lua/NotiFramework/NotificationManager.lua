@@ -106,8 +106,10 @@ function NotificationManager:CreateDontShowAgainButton(countdownTime)
 
     local messageGroup = self.IMGUIwindow:AddGroup("message_group")
     messageGroup:AddDummy(0, 10)
+
     local countdown = (countdownTime or self.options.dontShowAgainButtonCountdown) + 1
-    local dontShowAgainButton = self.IMGUIwindow:AddButton("Don't show this again (" .. countdown .. ")")
+    local dontShowAgainButtonLocalizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
+    local dontShowAgainButton = self.IMGUIwindow:AddButton(dontShowAgainButtonLocalizedLabel .. " (" .. countdown .. ")")
 
     if not dontShowAgainButton.UserData then
         dontShowAgainButton.UserData = {}
@@ -123,6 +125,7 @@ function NotificationManager:CreateDontShowAgainButton(countdownTime)
         self.IMGUIwindow:SetCollapsed(true)
         self.IMGUIwindow:Destroy()
     end
+
     dontShowAgainButton.SameLine = false
     dontShowAgainButton.Disabled = true
 
@@ -130,10 +133,10 @@ function NotificationManager:CreateDontShowAgainButton(countdownTime)
         countdown = countdown - 1
 
         dontShowAgainButton:SetColor("Button", Color.NormalizedRGBA(50, 50, 50, 0.5))
-        dontShowAgainButton.Label = "Don't show this again (" .. countdown .. ")"
+        dontShowAgainButton.Label = dontShowAgainButtonLocalizedLabel .. (" .. countdown .. ")
         if countdown <= 0 then
             dontShowAgainButton.Disabled = false
-            dontShowAgainButton.Label = "Don't show this again"
+            dontShowAgainButton.Label = dontShowAgainButtonLocalizedLabel
             self.IMGUIwindow.Closeable = true
             -- dontShowAgainButton:SetColor("Button", dontShowAgainButton.UserData.originalColor)
             dontShowAgainButton:SetColor("Button", UIStyle.Colors.Button)
