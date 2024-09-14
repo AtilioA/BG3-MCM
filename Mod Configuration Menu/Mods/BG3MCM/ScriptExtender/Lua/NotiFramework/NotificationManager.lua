@@ -47,7 +47,7 @@ function NotificationManager:InitializeNotificationWindow()
     self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title)
     self:ConfigureWindowStyle()
     self:CreateMessageGroup()
-    self:CreateDontShowButton()
+    self:CreateDontShowAgainButton()
 end
 
 function NotificationManager:ConfigureWindowStyle()
@@ -99,16 +99,23 @@ function NotificationManager:GetIconAndBorderColor()
     return borderColor, icon
 end
 
-function NotificationManager:CreateDontShowButton(countdownTime)
+function NotificationManager:CreateDontShowAgainButton(countdownTime)
     if not self.options.dontShowAgainButton then
         return
     end
 
     local messageGroup = self.IMGUIwindow:AddGroup("message_group")
     messageGroup:AddDummy(0, 10)
-    local countdown = countdownTime or self.options.dontShowAgainButtonCountdown
-    local dontShowButton = self.IMGUIwindow:AddButton("Don't show this again (" .. countdown .. ")")
-    dontShowButton.OnClick = function()
+    local countdown = (countdownTime or self.options.dontShowAgainButtonCountdown) + 1
+    local dontShowAgainButton = self.IMGUIwindow:AddButton("Don't show this again (" .. countdown .. ")")
+
+    if not dontShowAgainButton.UserData then
+        dontShowAgainButton.UserData = {}
+    end
+    dontShowAgainButton.UserData.originalColor = dontShowAgainButton:GetColor("Button")
+    -- FIXME: UserData is [] despite of this :)
+
+    dontShowAgainButton.OnClick = function()
         -- Store the preference in JSON using NotificationPreferences
         MCMDebug(1, "Saving user preference to suppress notification: " .. self.id .. ".")
         NotificationPreferences:StoreUserDontShowPreference(self.id)
@@ -116,25 +123,30 @@ function NotificationManager:CreateDontShowButton(countdownTime)
         self.IMGUIwindow:SetCollapsed(true)
         self.IMGUIwindow:Destroy()
     end
-    dontShowButton.SameLine = false
-    dontShowButton.Disabled = true
+    dontShowAgainButton.SameLine = false
+    dontShowAgainButton.Disabled = true
 
     local function updateCountdownAndLabel()
         countdown = countdown - 1
-        dontShowButton.Label = "Don't show this again (" .. countdown .. ")"
+
+        dontShowAgainButton:SetColor("Button", Color.NormalizedRGBA(50, 50, 50, 0.5))
+        dontShowAgainButton.Label = "Don't show this again (" .. countdown .. ")"
         if countdown <= 0 then
-            dontShowButton.Disabled = false
-            dontShowButton.Label = "Don't show this again"
+            dontShowAgainButton.Disabled = false
+            dontShowAgainButton.Label = "Don't show this again"
             self.IMGUIwindow.Closeable = true
+            -- dontShowAgainButton:SetColor("Button", dontShowAgainButton.UserData.originalColor)
+            dontShowAgainButton:SetColor("Button", UIStyle.Colors.Button)
             -- Stop the timer
+            return true
+        else
+            -- Continue the timer
             return false
         end
-        -- Continue the timer
-        return true
     end
 
     -- Update the button label each second as a countdown
-    VCTimer:CallWithInterval(updateCountdownAndLabel, 1000, countdownTime * 1000)
+    VCTimer:CallWithInterval(updateCountdownAndLabel, 1000, countdown * 1000)
 end
 
 --- Displays a warning message to the user
