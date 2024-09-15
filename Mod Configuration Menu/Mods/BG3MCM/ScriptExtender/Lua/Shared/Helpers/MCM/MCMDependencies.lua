@@ -23,7 +23,8 @@ function MCMDependencies:CreateNPAKMIMGUIWarning()
     if not self.NPAKMWarned then
         local id = "NPAKM_MCM_Compatibility_Patch_Missing"
         NotificationManager:CreateIMGUINotification(id, 'error', "Wrong No Press Any Key Menu version",
-            "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.")
+            "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not work correctly.\n\nPlease replace it with the patched version from Caites' mod page.",
+            ModuleUUID)
         self.NPAKMWarned = true
     end
 end
@@ -43,27 +44,28 @@ function MCMDependencies:WarnAboutLoadOrderDependencies()
     for _, issue in ipairs(issues) do
         local dependencyIssueTitle = "Dependency issue detected: " ..
             issue.modName .. " depends on " .. issue.dependencyName
-        NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage)
+        NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage,
+            ModuleUUID)
         MCMWarn(0, issue.errorMessage)
     end
 end
 
--- function MCMDependencies:CreateNotificationForEachLevel()
---     -- Info level notification
---     local infoId = "MCM_Dependency_Info"
---     NotificationManager:CreateIMGUINotification(infoId, 'info', "Information", "This is an informational notification.")
+function MCMDependencies:CreateNotificationForEachLevel()
+    -- Info level notification
+    local infoId = "MCM_Dependency_Info"
+    NotificationManager:CreateIMGUINotification(infoId, 'info', "Information", "This is an informational notification.", ModuleUUID)
 
---     -- Success level notification
---     local successId = "MCM_Dependency_Success"
---     NotificationManager:CreateIMGUINotification(successId, 'success', "Success", "This is a success notification.")
+    -- Success level notification
+    local successId = "MCM_Dependency_Success"
+    NotificationManager:CreateIMGUINotification(successId, 'success', "Success", "This is a success notification.", ModuleUUID)
 
---     -- Warning level notification
---     local warningId = "MCM_Dependency_Warning"
---     NotificationManager:CreateIMGUINotification(warningId, 'warning', "Warning", "This is a warning notification.")
+    -- Warning level notification
+    local warningId = "MCM_Dependency_Warning"
+    NotificationManager:CreateIMGUINotification(warningId, 'warning', "Warning", "This is a warning notification.", ModuleUUID)
 
---     -- Error level notification
---     local errorId = "MCM_Dependency_Error"
---     NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.")
--- end
+    -- Error level notification
+    local errorId = "MCM_Dependency_Error"
+    NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.", ModuleUUID)
+end
 
 -- MCMDependencies:CreateNotificationForEachLevel()

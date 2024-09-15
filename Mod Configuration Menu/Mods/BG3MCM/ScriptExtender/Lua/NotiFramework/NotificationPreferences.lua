@@ -9,8 +9,12 @@ function NotificationPreferences:LoadUserPreferences()
     return data or {}
 end
 
-local function storeUserPreference(key, value)
-    if key == nil or value == nil then
+--- Stores the user preference for a notification
+--- @param notificationKey string The unique identifier for the notification
+--- @param modKey string|nil The key of the mod (optional)
+--- @param preferenceValue table The preference value to store
+local function storeUserPreference(notificationKey, modKey, preferenceValue)
+    if notificationKey == nil or preferenceValue == nil then
         return
     end
 
@@ -19,23 +23,71 @@ local function storeUserPreference(key, value)
         preferences = {}
     end
 
-    preferences[key] = value
+    if modKey then
+        if not preferences[modKey] then
+            preferences[modKey] = {}
+        end
+        -- Merge the existing values with the new preferenceValue
+        preferences[modKey][notificationKey] = preferences[modKey][notificationKey] or {}
+        for k, v in pairs(preferenceValue) do
+            preferences[modKey][notificationKey][k] = v
+        end
+    else
+        -- Merge the existing values with the new preferenceValue
+        preferences[notificationKey] = preferences[notificationKey] or {}
+        for k, v in pairs(preferenceValue) do
+            preferences[notificationKey][k] = v
+        end
+    end
+
     JsonLayer:SaveJSONFile(NotificationPreferences.NotificationPreferencesFilePath, preferences)
 end
 
-function NotificationPreferences:StoreUserDontShowPreference(key)
-    storeUserPreference(key, { show = false })
+local function getModName(modUUID)
+    if modUUID then
+        local mod = Ext.Mod.GetMod(modUUID)
+        if mod and mod.Info then
+            return mod.Info.Directory
+        end
+    end
+    return 'Global'
 end
 
-function NotificationPreferences:ShouldShowNotification(key)
+--- Stores the user preference for a notification
+--- @param modUUID string The UUID of the mod that owns the notification
+--- @param key string The key of the notification
+--- @return nil
+function NotificationPreferences:StoreUserDontShowPreference(modUUID, key)
+    if not key then
+        MCMWarn(0, "No key provided to store user preference.")
+        return
+    end
+
+    storeUserPreference(key, getModName(modUUID), { show = false })
+end
+
+--- Checks if a notification should be shown
+--- @param key string The key of the notification
+--- @param modUUID string The UUID of the mod that owns the notification
+--- @return boolean
+function NotificationPreferences:ShouldShowNotification(key, modUUID)
     local preferences = NotificationPreferences:LoadUserPreferences()
 
+    -- Ensure modUUID is valid before accessing preferences
+    if not modUUID then return true end
+
+    local modName = getModName(modUUID)
+
+    if preferences[modName] == nil then
+        preferences[modName] = {}
+    end
+
     -- Default to showing the notification if the preference is not set or malformed
-    if preferences[key] == nil or type(preferences[key]) ~= "table" or preferences[key]["show"] == nil then
-        preferences[key] = { show = true }
+    if preferences[modName][key] == nil or type(preferences[modName][key]) ~= "table" or preferences[modName][key]["show"] == nil then
+        preferences[modName][key] = { show = true }
         JsonLayer:SaveJSONFile(self.NotificationPreferencesFilePath, preferences)
         return true
     end
 
-    return preferences[key]["show"]
+    return preferences[modName][key]["show"]
 end

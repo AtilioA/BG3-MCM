@@ -16,6 +16,7 @@
 ---@field message string
 ---@field title string
 ---@field options NotificationOptions
+---@field modUUID string
 NotificationManager = _Class:Create("NotificationManager", nil, {
     IMGUIwindow = nil,
     notificationLevel = 'info',
@@ -61,12 +62,14 @@ NotificationManager.NotificationStyles =
 ---@param level NotificationLevel The warning level
 ---@param title string The title of the warning IMGUIwindow
 ---@param message string The message to display in the IMGUIwindow
-function NotificationManager:new(id, level, title, message)
+---@param modUUID string The UUID of the mod that owns the warning
+function NotificationManager:new(id, level, title, message, modUUID)
     local instance = setmetatable({}, { __index = NotificationManager })
     instance.id = id
     instance.notificationLevel = level
-    instance.message = message
     instance.title = title
+    instance.message = message
+    instance.modUUID = modUUID
     instance:InitializeNotificationWindow()
     return instance
 end
@@ -152,7 +155,7 @@ function NotificationManager:CreateDontShowAgainButton(countdownTime)
     dontShowAgainButton.OnClick = function()
         -- Store the preference in JSON using NotificationPreferences
         MCMDebug(1, "Saving user preference to suppress notification: " .. self.id .. ".")
-        NotificationPreferences:StoreUserDontShowPreference(self.id)
+        NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
         self.IMGUIwindow.Visible = false
         self.IMGUIwindow:SetCollapsed(true)
         self.IMGUIwindow:Destroy()
@@ -188,8 +191,9 @@ end
 ---@param level NotificationLevel The warning level
 ---@param title string The title of the warning IMGUIwindow
 ---@param message string The message to display
-function NotificationManager:CreateIMGUINotification(id, level, title, message)
-    if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id) then
-        return NotificationManager:new(id, level, title, message)
+---@param modUUID string The UUID of the mod that owns the warning
+function NotificationManager:CreateIMGUINotification(id, level, title, message, modUUID)
+    if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id, self.modUUID) then
+        return NotificationManager:new(id, level, title, message, modUUID)
     end
 end
