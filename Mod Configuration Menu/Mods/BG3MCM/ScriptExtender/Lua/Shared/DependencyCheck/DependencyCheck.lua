@@ -85,7 +85,8 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             mod.Info.ModuleUUID,
             dependency.ModuleUUIDString,
             requiredVersion[1] .. "." .. requiredVersion[2] .. "." .. requiredVersion[3] .. "." .. requiredVersion[4],
-            loadedDependencyVersion[1] .. "." .. loadedDependencyVersion[2] .. "." .. loadedDependencyVersion[3] .. "."
+            loadedDependencyVersion[1] ..
+            "." .. loadedDependencyVersion[2] .. "." .. loadedDependencyVersion[3] .. "." .. loadedDependencyVersion[4]
         )
         local errorMessage = string.format(
             "Mod '%s' requires '%s' version %d.%d.%d.%d or higher, but loaded version is %d.%d.%d.%d\nPlease update %s.",
