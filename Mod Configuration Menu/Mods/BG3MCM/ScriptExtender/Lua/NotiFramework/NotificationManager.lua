@@ -193,7 +193,7 @@ end
 ---@param message string The message to display
 ---@param modUUID string The UUID of the mod that owns the warning
 function NotificationManager:CreateIMGUINotification(id, level, title, message, modUUID)
-    if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id, self.modUUID) then
+    if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id, modUUID) then
         return NotificationManager:new(id, level, title, message, modUUID)
     end
 end
