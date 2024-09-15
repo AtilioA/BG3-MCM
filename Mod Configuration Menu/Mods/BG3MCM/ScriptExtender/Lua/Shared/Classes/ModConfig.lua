@@ -62,7 +62,8 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
     if not hasMCMDependency then
         MCMWarn(0,
             string.format(
-                "Mod '%s' requires MCM but does not have MCM as a dependency. Please contact %s to add MCM as a dependency in the meta.lsx file, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.", modData.Info.Name,
+                "Mod '%s' requires MCM but does not have MCM as a dependency. Please contact %s to add MCM as a dependency in the meta.lsx file, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
+                modData.Info.Name,
                 modData.Info.Author))
     end
 end
@@ -230,7 +231,7 @@ end
 ---@param settings table The table with all settings for the mod
 ---@param settingsFilePath string The file path of the settings.json file
 function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
-    MCMTest(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modUUID).Info.Name)
+    MCMSuccess(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modUUID).Info.Name)
     -- Add new settings, remove deprecated settings, update JSON file
     self:AddKeysMissingFromBlueprint(blueprint, settings)
     self:RemoveDeprecatedKeys(blueprint, settings)
@@ -240,7 +241,7 @@ function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFi
 
     self.mods[modUUID].settingsValues = settings
 
-    MCMTest(2, Ext.Json.Stringify(self.mods[modUUID].settingsValues))
+    MCMSuccess(2, Ext.Json.Stringify(self.mods[modUUID].settingsValues))
     -- TODO: untangle this from shared client/server code
     -- Abhorrent hack to update the client's UI with the new settings. Since this is just a secondary feature, it is what it is for now. Sorry!
     -- if Ext.IsClient() and IMGUIAPI then
@@ -325,7 +326,7 @@ function ModConfig:SubmitBlueprint(data, modUUID)
     -- xpcall(function() injectMCMToModTable(modUUID) end,
     --     function(err) MCMWarn(0, "Error injecting MCM to mod table: " .. tostring(err)) end)
 
-    MCMTest(2, "Blueprint for mod '" .. Ext.Mod.GetMod(modUUID).Info.Name .. "' is ready to be used.")
+    MCMSuccess(2, "Blueprint for mod '" .. Ext.Mod.GetMod(modUUID).Info.Name .. "' is ready to be used.")
 end
 
 --- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_blueprint.json" and be located in the mod's directory, alongside the mod's meta.lsx file.

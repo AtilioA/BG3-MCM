@@ -18,10 +18,9 @@ function MCMPrint(debugLevel, ...)
     MCMPrinter:Print(debugLevel, ...)
 end
 
--- TODO: Change to 'success'
-function MCMTest(debugLevel, ...)
-    MCMPrinter:SetFontColor(100, 200, 150)
-    MCMPrinter:PrintTest(debugLevel, ...)
+function MCMSuccess(debugLevel, ...)
+    MCMPrinter:SetFontColor(50, 255, 100)
+    MCMPrinter:Print(debugLevel, ...)
 end
 
 function MCMDebug(debugLevel, ...)

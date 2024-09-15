@@ -20,7 +20,7 @@ MCMAPI = _Class:Create("MCM", nil, {
 function MCMAPI:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
-    MCMTest(0, "Finished loading MCM blueprints")
+    MCMSuccess(0, "Finished loading MCM blueprints")
 end
 
 --- Create a new MCM profile
@@ -332,7 +332,7 @@ local function injectMCMToModTable(modUUID)
 
     Mods[modTableName].MCM = MCM
 
-    MCMTest(1, "Successfully injected MCM to mod table for modUUID: " .. modUUID)
+    MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. modUUID)
 end
 
 local function setupModsMetatable()
