@@ -87,14 +87,6 @@ local function handleMCMButtonPress(button, hasServer)
     end)
 end
 
-local function getOriginalFontSize(mainMenuButton)
-    local optionsButton = Noesis:findNoesisElementByName(mainMenuButton, "OptionsButton")
-    if optionsButton then
-        return optionsButton:GetProperty("FontSize")
-    end
-    return 32
-end
-
 function Noesis:HandleGameMenuMCMButtonPress(button)
     handleMCMButtonPress(button, true)
 end
@@ -110,8 +102,6 @@ function Noesis:MonitorMainMenuButtonPress()
             MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
             return false
         end
-
-        mainMenuButton:SetProperty("FontSize", getOriginalFontSize(mainMenuButton))
 
         self:HandleMainMenuMCMButtonPress(mainMenuButton)
         return mainMenuButton ~= nil
