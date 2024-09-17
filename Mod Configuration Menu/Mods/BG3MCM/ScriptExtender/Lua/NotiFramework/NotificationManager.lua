@@ -111,6 +111,7 @@ function NotificationManager:CreateMessageGroup()
     local messageText = messageGroup:AddText(self.message)
     messageText:SetColor("Text", borderColor)
     messageText.SameLine = true
+    messageText.TextWrapPos = 0
 end
 
 -- TODO: get proper icons for each level

@@ -202,6 +202,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
                 "h81a4a9991875424984b876d017675879c959")
         )
     )
+    self.welcomeText.TextWrapPos = 0
 
     MainMenu.CreateMainMenu()
 
@@ -364,6 +365,7 @@ function IMGUILayer:CreateModMenuFrame(modUUID)
 
         local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
         local modInfoText = uiGroupMod:AddText(infoText)
+        modInfoText.TextWrapPos = 0
         modInfoText:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.5))
         modInfoText.IDContext = modUUID .. "_FOOTER"
     end
@@ -472,6 +474,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         end
 
         local addedDescription = sectionContentElement:AddText(sectionDescriptionText)
+        addedDescription.TextWrapPos = 0
         addedDescription.IDContext = sectionGroup.IDContext .. "_Description_" .. sectionId
         addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
         sectionContentElement:AddDummy(0, 2)

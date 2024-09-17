@@ -46,7 +46,9 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
         widgetName = setting:GetId()
     end
 
-    group:AddText(widgetName)
+    local widgetNameText = group:AddText(widgetName)
+    widgetNameText.TextWrapPos = 0
+
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
 
@@ -145,6 +147,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     end
 
     local addedDescription = group:AddText(descriptionText)
+    addedDescription.TextWrapPos = 0
 
     addedDescription.IDContext = group.IDContext .. "_Description_" .. setting:GetId()
 

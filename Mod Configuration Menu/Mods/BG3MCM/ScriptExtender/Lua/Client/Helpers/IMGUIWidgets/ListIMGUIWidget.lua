@@ -25,7 +25,10 @@ function ListIMGUIWidget:RenderList()
         local tableRow = imguiTable:AddRow()
         local textCell = tableRow:AddCell()
         local buttonCell = tableRow:AddCell()
-        textCell:AddText(value)
+
+        local textObject = textCell:AddText(value)
+        textObject.TextWrapPos = 0
+
         local removeButton = buttonCell:AddImageButton("[X]", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
 
         if not removeButton.Image or removeButton.Image.Icon == "" then

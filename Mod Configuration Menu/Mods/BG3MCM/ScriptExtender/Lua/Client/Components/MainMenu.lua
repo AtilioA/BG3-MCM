@@ -6,8 +6,9 @@ function MainMenu.CreateMainMenu()
 
         -- Adding content sections
         helpTroubleshootingPopup:AddSeparatorText("Troubleshooting and Reporting")
-        helpTroubleshootingPopup:AddText(
+        local text1 = helpTroubleshootingPopup:AddText(
             "Script Extender's (SE) IMGUI implementation is still in development. If you're having issues:")
+        text1.TextWrapPos = 0
         helpTroubleshootingPopup:AddBulletText("Disable overlays (Nvidia/AMD/Discord, etc);")
         helpTroubleshootingPopup:AddBulletText("If crashing under Vulkan, test without IMGUI mods like MCM")
         helpTroubleshootingPopup:AddBulletText("Verify the problem persists with no other DLL mods")
@@ -27,7 +28,8 @@ function MainMenu.CreateMainMenu()
         helpTroubleshootingPopup:AddBulletText("Keybindings: Unfocus MCM window before using keybinds")
 
         helpTroubleshootingPopup:AddSeparatorText("More Information")
-        helpTroubleshootingPopup:AddText("For more details, visit the MCM page on Nexus.")
+        local text2 = helpTroubleshootingPopup:AddText("For more details, visit the MCM page on Nexus.")
+        text2.TextWrapPos = 0
 
         return helpTroubleshootingPopup
     end
@@ -35,15 +37,22 @@ function MainMenu.CreateMainMenu()
     local function CreateHelpUIPopup()
         local helpPopupUI = MCM_WINDOW:AddPopup("UI Help")
         helpPopupUI:AddSeparatorText("UI Help")
-        helpPopupUI:AddText("With MCM, you can configure the settings of mods that use MCM.")
-        helpPopupUI:AddText("To get started, click a mod from the list on the left.")
+        local text1 = helpPopupUI:AddText("With MCM, you can configure the settings of mods that use MCM.")
+        text1.TextWrapPos = 0
+        local text2 = helpPopupUI:AddText("To get started, click a mod from the list on the left.")
+        text2.TextWrapPos = 0
         helpPopupUI:AddSeparatorText("Navigating the settings")
-        helpPopupUI:AddText("All settings are saved automatically as you make changes.")
-        helpPopupUI:AddText("To reset a setting, click the reset button next to it.")
-        helpPopupUI:AddText("You can control + click a slider to type in a specific value.")
+        local text3 = helpPopupUI:AddText("All settings are saved automatically as you make changes.")
+        text3.TextWrapPos = 0
+        local text4 = helpPopupUI:AddText("To reset a setting, click the reset button next to it.")
+        text4.TextWrapPos = 0
+        local text5 = helpPopupUI:AddText("You can control + click a slider to type in a specific value.")
+        text5.TextWrapPos = 0
         helpPopupUI:AddSeparator()
-        helpPopupUI:AddText("MCM uses IMGUI, which is a library also used by ReShade and other mods.")
-        helpPopupUI:AddText("For more information, visit the MCM page on Nexus.")
+        local text6 = helpPopupUI:AddText("MCM uses IMGUI, which is a library also used by ReShade and other mods.")
+        text6.TextWrapPos = 0
+        local text7 = helpPopupUI:AddText("For more information, visit the MCM page on Nexus.")
+        text7.TextWrapPos = 0
         return helpPopupUI
     end
 

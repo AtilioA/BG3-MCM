@@ -55,8 +55,9 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
 
     uiGroupMod:AddSeparatorText(modName)
     if modDescription then
-        local modDescription = VCString:AddFullStop(modDescription)
-        uiGroupMod:AddText(modDescription) --:SetStyle("TextWrapPos", 0.0)
+        local modDescriptionText = VCString:AddFullStop(modDescription)
+        local descriptionTextObject = uiGroupMod:AddText(modDescriptionText)
+        descriptionTextObject.TextWrapPos = 0
         uiGroupMod:AddDummy(0, 5)
     end
 
