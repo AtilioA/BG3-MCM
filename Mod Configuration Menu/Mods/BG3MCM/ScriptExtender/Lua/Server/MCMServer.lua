@@ -79,19 +79,24 @@ end
 
 ---@param settingId string The id of the setting to reset
 ---@param modUUID? GUIDSTRING The UUID of the mod (optional)
----@param clientRequest? boolean Whether the request came from the client
-function MCMServer:ResetSettingValue(settingId, modUUID, clientRequest)
+function MCMServer:ResetSettingValue(settingId, modUUID)
     modUUID = modUUID or ModuleUUID
 
     local blueprint = MCMAPI:GetModBlueprint(modUUID)
+    if not blueprint then
+        MCMWarn(0, "Blueprint not found for mod '" .. modUUID .. "'. Please contact " ..
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+        return
+    end
 
     local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
         MCMWarn(0,
-            "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modUUID .. "'. Please contact " ..
+            "Default value for setting '" ..
+            settingId .. "' not found in the blueprint for mod '" .. modUUID .. "'. Please contact " ..
             Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
     else
-        self:SetSettingValue(settingId, defaultValue, modUUID, clientRequest)
+        self:SetSettingValue(settingId, defaultValue, modUUID)
         ModEventManager:Emit(EventChannels.MCM_SETTING_RESET, {
             modUUID = modUUID,
             settingId = settingId,
