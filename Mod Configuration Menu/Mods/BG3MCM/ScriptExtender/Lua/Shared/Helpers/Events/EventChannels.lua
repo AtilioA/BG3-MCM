@@ -40,7 +40,6 @@ EventChannels.MCM_MOD_TAB_ADDED = "MCM_Mod_Tab_Added"
 
 --- Fired when the user clicks a mod in the mod list in MCM's left panel.
 --- @return string modUUID The UUID of the mod
---- @return string tabName The name of the activated tab
 EventChannels.MCM_MOD_TAB_ACTIVATED = "MCM_Mod_Tab_Activated"
 
 --- Fired when a subtab within a mod tab is activated.

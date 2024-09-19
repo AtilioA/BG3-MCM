@@ -204,7 +204,8 @@ function Printer:Dump(info, useOptions, includeTime)
                 IterateUserdata = self.IterateUserdata,
                 AvoidRecursion = self.AvoidRecursion,
                 LimitArrayElements = self.LimitArrayElements,
-                LimitDepth = self.LimitDepth
+                LimitDepth = self.LimitDepth,
+                MaxDepth = 64
             })
         else
             infoString = Ext.DumpExport(info)
@@ -213,7 +214,7 @@ function Printer:Dump(info, useOptions, includeTime)
     end
 end
 
----@param array FlashArray
+---@param array table
 ---@param arrayName? string
 function Printer:DumpArray(array, arrayName)
     if self.DebugLevel > 0 then

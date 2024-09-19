@@ -1,6 +1,6 @@
 ---@class HelperVCTimer: nil
 ---@field RegisteredObjectTimers table<string, table<Guid, boolean>>
-VCTimer = _Class:Create("HelperTimer", nil, {
+VCTimer = _Class:Create("HelperVCTimer", nil, {
     RegisteredObjectTimers = {}
 })
 

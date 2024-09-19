@@ -28,7 +28,7 @@
     SOFTWARE.
 ]]
 
----@class HelperConfig: Helper
+---@class HelperConfig: nil
 --- @field folderName string|nil The folder where the configuration files are located.
 --- @field configFilePath string|nil The path to the configuration JSON file.
 --- @field defaultConfig table The default configuration values for the mod, utilized when the configuration file is not found or when missing keys are detected.
@@ -78,14 +78,14 @@ end
 --- @param filePath string The file path to save the configuration to.
 --- @param config table The configuration table to save.
 function VCConfig:SaveConfig(filePath, config)
-    local configFileContent = Ext.Json.Stringify(config, { Beautify = true })
+    local configFileContent = Ext.Json.Stringify(config)
     Ext.IO.SaveFile(self:GetModFolderPath(filePath), configFileContent)
 end
 
 --- Saves the current configuration to its file, using the object's values.
 function VCConfig:SaveCurrentConfig()
     Ext.IO.SaveFile(self:GetModFolderPath(self.configFilePath),
-        Ext.Json.Stringify(self.currentConfig, { Beautify = true }))
+        Ext.Json.Stringify(self.currentConfig))
 end
 
 --- Updates an existing configuration with values from the default configuration.
