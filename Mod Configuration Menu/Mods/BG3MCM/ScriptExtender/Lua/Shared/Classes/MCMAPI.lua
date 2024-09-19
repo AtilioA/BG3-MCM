@@ -10,7 +10,7 @@
 -- - Retrieving the settings and blueprints for individual mods
 -- - Setting and getting the values of configuration settings
 -- - Resetting settings to their default values
-MCMAPI = _Class:Create("MCM", nil, {
+MCMAPI = _Class:Create("MCMAPI", nil, {
     mods = {},
     profiles = {},
 })
@@ -123,10 +123,12 @@ end
 
 --- Get the Blueprint table for a mod
 ---@param modUUID GUIDSTRING The UUID of the mod.
----@return Blueprint - The Blueprint for the mod
+---@return Blueprint|nil - The Blueprint for the mod, or nil if the mod was not found
 function MCMAPI:GetModBlueprint(modUUID)
-    if modUUID then
+    if modUUID and self.mods and self.mods[modUUID] then
         return self.mods[modUUID].blueprint
+    else
+        return nil
     end
 end
 
@@ -135,18 +137,20 @@ end
 ---@param value any The value to check
 ---@return boolean Whether the value is valid
 function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
-    local blueprint = self:GetModBlueprint(modUUID)
-    local setting = blueprint:GetAllSettings()[settingId]
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot validate setting value.")
+        return false
+    end
 
-    if setting then
-        local isValid = DataPreprocessing:ValidateSetting(setting, value)
-        if not isValid then
-            MCMWarn(0,
-                "Value " ..
-                tostring(value) .. " is invalid for setting '" .. settingId .. "' in mod '" .. modUUID .. "'.")
-        end
-        return isValid
-    else
+    -- TODO: add blueprint methods to solve this
+    local blueprint = self:GetModBlueprint(modUUID)
+    if not blueprint then
+        MCMWarn(0, "Blueprint not found for mod '" .. modUUID .. "'.")
+        return false
+    end
+
+    local setting = blueprint:GetAllSettings()[settingId]
+    if not setting then
         MCMWarn(0,
             "Setting '" ..
             settingId ..
@@ -154,6 +158,14 @@ function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
             modUUID .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return false
     end
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, value)
+    if not isValid then
+        MCMWarn(0,
+            "Value " ..
+            tostring(value) .. " is invalid for setting '" .. settingId .. "' in mod '" .. modUUID .. "'.")
+    end
+    return isValid
 end
 
 --- Get the value of a configuration setting
@@ -178,6 +190,7 @@ function MCMAPI:GetSettingValue(settingId, modUUID)
 
     -- No settingId
     self:HandleMissingSetting(settingId, modSettingsTable, modUUID)
+
     return nil
 end
 
@@ -220,13 +233,28 @@ end
 ---@param value any The new value of the setting
 ---@param modUUID GUIDSTRING The UUID of the mod
 function MCMAPI:SetSettingValue(settingId, value, modUUID)
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Value will not be saved.")
+        return
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Value will not be saved.")
+        return
+    end
+
     local modSettingsTable = self:GetAllModSettings(modUUID)
+    if not modSettingsTable then
+        MCMWarn(0, "Mod settings table is nil for mod UUID: " .. modUUID)
+        return
+    end
+
     local oldValue = modSettingsTable[settingId]
 
     local isValid = self:IsSettingValueValid(settingId, value, modUUID)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
     if not isValid then
-        MCMWarn(1, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
+        MCMWarn(0, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
         return
     end
 
@@ -248,6 +276,10 @@ function MCMAPI:ResetSettingValue(settingId, modUUID, clientRequest)
     modUUID = modUUID or ModuleUUID
 
     local blueprint = self:GetModBlueprint(modUUID)
+    if not blueprint then
+        MCMWarn(0, "Blueprint not found for mod UUID: " .. modUUID)
+        return
+    end
 
     local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
@@ -265,7 +297,6 @@ function MCMAPI:ResetSettingValue(settingId, modUUID, clientRequest)
 end
 
 --- Reset all settings for a mod to their default values
----@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
 -- function MCMAPI:ResetAllSettings(modUUID)
 --     local modBlueprint = self.blueprints[modUUID]
 --     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
