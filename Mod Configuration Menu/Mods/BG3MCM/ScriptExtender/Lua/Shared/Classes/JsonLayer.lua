@@ -62,7 +62,7 @@ end
 --- @param filePath string The file path to save the content to.
 --- @param content table The table with content to save to the file.
 function JsonLayer:SaveJSONFile(filePath, content)
-    local fileContent = Ext.Json.Stringify(content, { Beautify = true })
+    local fileContent = Ext.Json.Stringify(content)
     Ext.IO.SaveFile(filePath, fileContent)
 end
 
@@ -133,7 +133,7 @@ function JsonLayer:LoadBlueprintForMod(modData)
     local data = self:TryParseModJSON(config, modData.Info.ModuleUUID)
     if data == nil or type(data) ~= "table" then
         return self:JSONParseError("Failed to load MCM blueprint JSON file for mod: " ..
-            modData.Info.Name .. ". Please contact " .. modData.Info.Author .. " about this issue.")
+            modData.Info.Name .. ". Blueprint is present but malformed. Please contact " .. modData.Info.Author .. " about this issue.")
     end
 
     return data
