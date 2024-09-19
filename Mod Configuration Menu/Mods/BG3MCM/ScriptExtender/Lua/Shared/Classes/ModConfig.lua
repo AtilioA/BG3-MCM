@@ -147,7 +147,6 @@ function ModConfig:GetMCMParamsFilePath()
 end
 
 ---Loads the MCM params file from the specified file path, used to load the profiles.
----@param paramsFilepath string The file path of the MCM params file to load.
 ---@return table|nil data parsed MCM params data, or nil if the file could not be loaded or parsed.
 function ModConfig:LoadMCMParams()
     local function loadMCMParamsFromFile(paramsFilepath)
@@ -360,7 +359,7 @@ end
 
 --- Handle errors that occur when loading a blueprint for a mod.
 ---@param modData table The mod data for the mod that the blueprint was being loaded for
----@param err table The error that occurred when loading the blueprint (thrown by JsonLayer)
+---@param err unknown|nil The error that occurred when loading the blueprint (thrown by JsonLayer)
 function ModConfig:HandleLoadBlueprintError(modData, err)
     if not err then
         MCMWarn(0, "An unexpected blueprint error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..

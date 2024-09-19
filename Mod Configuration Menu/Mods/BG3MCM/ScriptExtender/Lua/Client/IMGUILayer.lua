@@ -178,6 +178,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
         modMenuTitle = "Mod Configuration Menu"
     end
 
+    ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
 
@@ -325,7 +326,7 @@ function IMGUILayer:CreateMainTable()
         self:CreateModMenuFrame(modUUID)
 
         local modSettings = self.mods[modUUID].settingsValues
-        for settingId, group in pairs(self.visibilityTriggers[modUUID]) do
+        for settingId, _group in pairs(self.visibilityTriggers[modUUID]) do
             self:UpdateVisibility(modUUID, settingId, modSettings[settingId])
         end
     end
@@ -371,7 +372,7 @@ function IMGUILayer:CreateModMenuFrame(modUUID)
     end
 
     -- Iterate over each tab in the mod blueprint to create a subtab for each
-    for _, tabInfo in ipairs(modBlueprint.Tabs) do
+    for _, tabInfo in ipairs(modBlueprint:GetTabs()) do
         self:CreateModMenuSubTab(modTabBar, tabInfo, modSettings, modUUID)
     end
 
@@ -379,42 +380,44 @@ function IMGUILayer:CreateModMenuFrame(modUUID)
 end
 
 --- Create a new tab for a mod in the MCM
----@param modsTab any The main tab for the mod
----@param tab BlueprintTab The tab to create a tab for
+---@param modTabs ExtuiTabBar The main tab for the mod
+---@param blueprintTab BlueprintTab The tab to create a tab for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modUUID string The UUID of the mod
 ---@return nil
-function IMGUILayer:CreateModMenuSubTab(modTabs, tabInfo, modSettings, modUUID)
-    local tabName = tabInfo:GetLocaName()
+function IMGUILayer:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modUUID)
+    local tabName = blueprintTab:GetLocaName()
 
-    local tab = modTabs:AddTabItem(tabName)
-    tab.IDContext = modUUID .. "_" .. tabInfo:GetTabName()
+    local imguiTab = modTabs:AddTabItem(tabName)
+    imguiTab.IDContext = modUUID .. "_" .. blueprintTab:GetTabName()
     -- TODO: re-enable this after refactoring client-side code
-    -- tab.OnActivate = function()
-    --     MCMDebug(3, "Activating tab " .. tabInfo:GetTabName())
+    -- imguiTab.OnActivate = function()
+    --     MCMDebug(3, "Activating imguiTab " .. blueprintTab:GetTabName())
     --     Ext.Net.PostMessageToServer(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
     --         modUUID = modUUID,
-    --         tabName = tabInfo:GetTabName()
+    --         tabName = blueprintTab:GetTabName()
     --     }))
     -- end
 
     -- TODO: as always, this should be abstracted away somehow but ehh (this will be needed for nested tabs etc)
-    local tabSections = tabInfo:GetSections()
-    local tabSettings = tabInfo:GetSettings()
+    local tabSections = blueprintTab:GetSections()
+    local tabSettings = blueprintTab:GetSettings()
 
-    self:manageVisibleIf(modUUID, tabInfo, tab)
+    self:manageVisibleIf(modUUID, blueprintTab, imguiTab)
 
     if #tabSections > 0 then
-        for sectionIndex, section in ipairs(tabInfo:GetSections()) do
-            self:CreateModMenuSection(sectionIndex, tab, section, modSettings, modUUID)
+        for sectionIndex, section in ipairs(blueprintTab:GetSections()) do
+            self:CreateModMenuSection(sectionIndex, imguiTab, section, modSettings, modUUID)
         end
     elseif #tabSettings > 0 then
         for _, setting in ipairs(tabSettings) do
-            self:CreateModMenuSetting(tab, setting, modSettings, modUUID)
+            self:CreateModMenuSetting(imguiTab, setting, modSettings, modUUID)
         end
     end
 end
-
+---@param modUUID string
+---@param elementInfo table
+---@param uiElement ImguiHandle
 function IMGUILayer:manageVisibleIf(modUUID, elementInfo, uiElement)
     if elementInfo.VisibleIf and elementInfo.VisibleIf.Conditions then
         for _, condition in ipairs(elementInfo.VisibleIf.Conditions) do

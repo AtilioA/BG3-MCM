@@ -178,7 +178,7 @@ function MCMServer:LoadAndSendSettings()
 end
 
 --- Reset all settings for a mod to their default values
----@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
+-- -@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
 -- function MCMServer:ResetAllSettings(modUUID)
 --     local modBlueprint = MCMAPI.blueprints[modUUID]
 --     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)

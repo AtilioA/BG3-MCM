@@ -1,8 +1,6 @@
 ---@class RadioIMGUIWidget: IMGUIWidget
 RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
----@param value number
----@return table buttons The buttons created
 function RadioIMGUIWidget:new(group, setting, initialValue, modUUID)
     if not group or not setting or not modUUID then
         return {}

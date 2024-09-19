@@ -1,4 +1,7 @@
 ---@class FrameManager: MetaClass
+---@field menuCell any
+---@field contentCell any
+---@field contentGroups table<string, any>
 FrameManager = _Class:Create("FrameManager", nil, {
     menuCell = nil,
     contentCell = nil,
