@@ -19,6 +19,7 @@ BlueprintSection = _Class:Create("BlueprintSection", nil, {
 
 --- Constructor for the BlueprintSection class.
 --- @param options table
+--- @return BlueprintSection
 function BlueprintSection:New(options)
     local self = setmetatable({}, BlueprintSection)
     self.SectionId = options.SectionId or ""

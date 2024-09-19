@@ -60,6 +60,7 @@ end
 --- Constructor for the Blueprint class.
 --- @class Blueprint
 --- @param options table
+--- @return Blueprint
 function Blueprint:New(options)
     local self = setmetatable({}, Blueprint)
     self.ModUUID = options.ModUUID or nil
@@ -95,7 +96,9 @@ function Blueprint:AddSection(name, description)
         sectionName = name,
         sectionDescription = description
     })
+
     table.insert(self.Tabs, section)
+
     return section
 end
 

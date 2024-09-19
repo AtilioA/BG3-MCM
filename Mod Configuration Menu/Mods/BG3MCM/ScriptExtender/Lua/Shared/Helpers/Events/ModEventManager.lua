@@ -47,7 +47,7 @@ local function emitModEvent(eventName, eventData, bothContexts)
     xpcall(function()
         MCMDebug(1, "Emitting mod event: " .. eventName .. " with data: " .. Ext.DumpExport(eventData))
     end, function(err)
-        MCMDebug(1, "Emitting mod event: " .. eventName)
+        MCMWarn(0, "Error while emitting mod event: " .. tostring(err))
     end)
 
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)

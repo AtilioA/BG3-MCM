@@ -15,6 +15,6 @@ Config:UpdateCurrentConfig()
 
 Config:AddConfigReloadedCallback(function(configInstance)
     MCMPrinter.DebugLevel = configInstance:GetCurrentDebugLevel()
-    MCMPrint(0, "Config reloaded: " .. Ext.Json.Stringify(configInstance:getCfg(), { Beautify = true }))
+    MCMPrint(0, "Config reloaded: " .. Ext.Json.Stringify(configInstance:getCfg()))
 end)
 Config:RegisterReloadConfigCommand("mcm_reload")
