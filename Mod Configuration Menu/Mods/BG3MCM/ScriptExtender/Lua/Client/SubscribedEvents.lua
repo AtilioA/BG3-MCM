@@ -33,15 +33,13 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
 end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
-    -- MCMProxy.GameState = "Menu"
+    MCMProxy.GameState = "Running"
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(MCMAPI.mods)
 
-    if not Ext.Net.IsHost() then
     Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
         message = "Client reset has completed. Requesting MCM settings from server."
     }))
-    end
 
     if not MCM_WINDOW then
         return
