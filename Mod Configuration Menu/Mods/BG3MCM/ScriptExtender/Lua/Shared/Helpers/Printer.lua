@@ -37,7 +37,12 @@ function MCMDeprecation(debugLevel, ...)
 end
 
 function MCMWarn(debugLevel, ...)
-    MCMPrinter:SetFontColor(255, 100, 50)
+    MCMPrinter:SetFontColor(255, 100, 30)
+    MCMPrinter:PrintWarning(debugLevel, ...)
+end
+
+function MCMError(debugLevel, ...)
+    MCMPrinter:SetFontColor(255, 38, 38)
     MCMPrinter:PrintWarning(debugLevel, ...)
 end
 

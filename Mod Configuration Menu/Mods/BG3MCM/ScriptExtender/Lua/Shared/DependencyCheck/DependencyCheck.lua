@@ -158,21 +158,33 @@ local function checkModDependencies(mod, dependencies, issues)
     end
 end
 
+local function isValidMod(mod)
+    return mod and mod.Info and mod.Info.ModuleUUID and Ext.Mod.IsModLoaded(mod.Info.ModuleUUID)
+        and mod.Info.Author ~= "" and mod.Info.Author ~= "LS"
+        and mod.Dependencies
+end
+
 --- Checks mod dependencies and returns a list of issues.
 ---@return DependencyCheckResult[] issues A list of issues with mod dependencies.
 function DependencyCheck:EvaluateLoadOrderDependencies()
-    local issues = {}
-    local availableMods = Ext.Mod.GetModManager().AvailableMods
+    xpcall(function()
+        local issues = {}
+        local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
 
-    MCMDebug(1, "Evaluating load order dependencies for available mods.")
-    for _, mod in ipairs(availableMods) do
-        if Ext.Mod.IsModLoaded(mod.Info.ModuleUUID) and mod.Info.Author ~= "" and mod.Info.Author ~= "LS" and mod.Dependencies then
-            checkModDependencies(mod, mod.Dependencies, issues)
+        MCMDebug(1, "Evaluating load order dependencies for available mods.")
+        for _, mod in ipairs(availableMods) do
+            if isValidMod(mod) then
+                checkModDependencies(mod, mod.Dependencies, issues)
+            end
         end
-    end
 
-    MCMDebug(1, "Dependency evaluation complete. Issues found: " .. #issues)
-    return issues
+        MCMDebug(1, "Dependency evaluation complete. Issues found: " .. #issues)
+        return issues
+    end, function(e)
+        MCMError(0, "Error evaluating load order dependencies: " .. e)
+    end)
+    
+    return {}
 end
 
 return DependencyCheck
