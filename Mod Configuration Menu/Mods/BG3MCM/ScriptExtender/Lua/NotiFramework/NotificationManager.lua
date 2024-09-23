@@ -8,7 +8,7 @@
 ---@field duration integer The duration in seconds the notification will be displayed
 ---@field dontShowAgainButton boolean If true, a 'Don't show again' button will be displayed
 ---@field dontShowAgainButtonCountdown integer The countdown time in seconds for the 'Don't show again' button
----@field showOnce boolean (UNIMPLEMENTED) If true, the notification will only be shown once
+---@field showOnce boolean If true, the notification will only be shown once
 
 ---@class NotificationManager
 ---@field IMGUIwindow ExtuiWindow
@@ -35,6 +35,11 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
     _timer = nil,
 })
 
+---@class NotificationStyle
+---@field icon string The icon name to display in the notification
+---@field borderColor table<number> The RGBA color of the border
+---@field titleBgActive table<number> The RGBA color of the active title background
+---@field titleBg table<number> The RGBA color of the title background
 NotificationManager.NotificationStyles =
 {
     error = {
@@ -89,6 +94,8 @@ function NotificationManager:new(id, level, title, message, options, modUUID)
     return instance
 end
 
+--- Initializes the notification window and sets up its components
+---@return nil
 function NotificationManager:InitializeNotificationWindow()
     self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title)
     self:ConfigureWindowStyle()
@@ -107,6 +114,8 @@ function NotificationManager:InitializeNotificationWindow()
     self:StartFadeOutTimer()
 end
 
+--- Cleans up and destroys the IMGUIwindow, also handling the show once parameter
+---@return nil
 function NotificationManager:Destroy()
     self.IMGUIwindow.Visible = false
     self.IMGUIwindow:SetCollapsed(true)
@@ -115,13 +124,16 @@ function NotificationManager:Destroy()
     self:HandleShowOnce()
 end
 
+--- Stores the user preference to not show the notification again, if the option is enabled
+---@return nil
 function NotificationManager:HandleShowOnce()
     if self.options.showOnce then
         NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
     end
 end
 
---- Resets the fade-out timer and alpha when the notification is activated
+--- Resets the fade-out timer and alpha when the notification is activated (unused)
+---@return nil
 function NotificationManager:ResetFadeOutTimer()
     self.IMGUIwindow.Visible = true
     self._alpha = 1.0
@@ -132,6 +144,7 @@ function NotificationManager:ResetFadeOutTimer()
 end
 
 --- Starts the fade-out effect and the auto-close of the notification window
+---@return nil
 function NotificationManager:StartFadeOutTimer()
     local notificationDuration = self.options.duration
     local fadeOutDuration = 2
@@ -163,6 +176,8 @@ function NotificationManager:StartFadeOutTimer()
     VCTimer:CallWithInterval(updateAlpha, frameInterval, notificationDuration * 1000)
 end
 
+--- Configures the style of the notification window
+---@return nil
 function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow:SetStyle("Alpha", 1.0)
     self.IMGUIwindow:SetColor("WindowBg", Color.NormalizedRGBA(18, 18, 18, 1))
@@ -177,9 +192,10 @@ function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow:SetColor("TitleBgCollapsed", self:GetStyleTitleBg())
 end
 
+--- Creates a message group within the notification window
+---@return nil
 function NotificationManager:CreateMessageGroup()
     local messageGroup = self.IMGUIwindow:AddGroup("message_group")
-    local iconSize = 64
     local borderColor = self:GetStyleBorderColor()
     local icon = self:GetStyleIcon()
 
@@ -195,27 +211,37 @@ function NotificationManager:CreateMessageGroup()
     messageText.SameLine = true
 end
 
--- TODO: get proper icons for each level
+--- Gets the border color style for the notification level
+---@return table<number>
 function NotificationManager:GetStyleBorderColor()
     local style = self.NotificationStyles[self.notificationLevel]
     return style.borderColor
 end
 
+--- Gets the icon style for the notification level
+---@return string
 function NotificationManager:GetStyleIcon()
     local style = self.NotificationStyles[self.notificationLevel]
     return style.icon
 end
 
+--- Gets the title background style for the notification level
+---@return table<number>
 function NotificationManager:GetStyleTitleBg()
     local style = self.NotificationStyles[self.notificationLevel]
     return style.titleBg
 end
 
+--- Gets the active title background style for the notification level
+---@return table<number>
 function NotificationManager:GetStyleTitleBgActive()
     local style = self.NotificationStyles[self.notificationLevel]
     return style.titleBgActive
 end
 
+--- Creates a "Don't show again" button in the notification window
+---@param countdownTime number? Optional countdown time for the button
+---@return nil
 function NotificationManager:CreateDontShowAgainButton(countdownTime)
     if not self.options.dontShowAgainButton then
         return
