@@ -53,22 +53,47 @@ end
 function MCMDependencies:CreateNotificationForEachLevel()
     -- Info level notification
     local infoId = "MCM_Dependency_Info"
+    local infoOptions = {
+        duration = math.random(2, 10),
+        dontShowAgainButton = math.random(0, 1) == 1,
+        dontShowAgainButtonCountdown = math.random(2, 7),
+        showOnce = math.random(0, 1) == 1
+    }
     NotificationManager:CreateIMGUINotification(infoId, 'info', "Information", "This is an informational notification.",
-        ModuleUUID)
+        infoOptions, ModuleUUID)
 
     -- Success level notification
     local successId = "MCM_Dependency_Success"
+    local successOptions = {
+        duration = math.random(2, 10),
+        dontShowAgainButton = math.random(0, 1) == 1,
+        dontShowAgainButtonCountdown = math.random(2, 7),
+        showOnce = math.random(0, 1) == 1
+    }
     NotificationManager:CreateIMGUINotification(successId, 'success', "Success", "This is a success notification.",
-        ModuleUUID)
+        successOptions, ModuleUUID)
 
     -- Warning level notification
     local warningId = "MCM_Dependency_Warning"
+    local warningOptions = {
+        duration = math.random(2, 10),
+        dontShowAgainButton = math.random(0, 1) == 1,
+        dontShowAgainButtonCountdown = math.random(2, 7),
+        showOnce = math.random(0, 1) == 1
+    }
     NotificationManager:CreateIMGUINotification(warningId, 'warning', "Warning", "This is a warning notification.",
-        ModuleUUID)
+        warningOptions, ModuleUUID)
 
     -- Error level notification
     local errorId = "MCM_Dependency_Error"
-    NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.", ModuleUUID)
+    local errorOptions = {
+        duration = math.random(2, 10),
+        dontShowAgainButton = true,
+        dontShowAgainButtonCountdown = math.random(2, 7),
+        showOnce = true
+    }
+    NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.", errorOptions,
+    ModuleUUID)
 end
 
 -- MCMDependencies:CreateNotificationForEachLevel()
