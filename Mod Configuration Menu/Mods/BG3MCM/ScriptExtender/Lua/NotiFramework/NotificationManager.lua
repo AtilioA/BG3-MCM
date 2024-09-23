@@ -1,3 +1,10 @@
+local DEFAULT_DURATION = 10
+local DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN = 5
+local FADE_OUT_DURATION = 2
+-- 60 FPS
+local FRAME_INTERVAL = 1000 / 60
+local ICON_SIZE = 64
+
 ---@alias NotificationLevel
 ---| 'info'
 ---| 'success'
@@ -7,7 +14,7 @@
 ---@class NotificationOptions
 ---@field duration integer The duration in seconds the notification will be displayed
 ---@field dontShowAgainButton boolean If true, a 'Don't show again' button will be displayed
----@field dontShowAgainButtonCountdown integer The countdown time in seconds for the 'Don't show again' button
+---@field dontShowAgainButtonCountdownInSec integer The countdown time in seconds for the 'Don't show again' button
 ---@field showOnce boolean If true, the notification will only be shown once
 
 ---@class NotificationManager
@@ -26,9 +33,9 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
     message = "",
     title = "Info",
     options = {
-        duration = 10,
+        duration = DEFAULT_DURATION,
         dontShowAgainButton = true,
-        dontShowAgainButtonCountdown = 5,
+        dontShowAgainButtonCountdownInSec = DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
         showOnce = false
     },
     _alpha = 1.0,
@@ -98,7 +105,7 @@ function NotificationManager:new(id, level, title, message, options, modUUID)
         options = {
             duration = options.duration,
             dontShowAgainButton = options.dontShowAgainButton,
-            dontShowAgainButtonCountdown = options.dontShowAgainButtonCountdown,
+            dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec,
             showOnce = options.showOnce
         }
     })
@@ -159,11 +166,7 @@ end
 ---@return nil
 function NotificationManager:StartFadeOutTimer()
     local notificationDuration = self.options.duration
-    local fadeOutDuration = 2
-    local fadeStartTime = notificationDuration - fadeOutDuration
-
-    -- 60 FPS
-    local frameInterval = 1000 / 60
+    local fadeStartTime = notificationDuration - FADE_OUT_DURATION
 
     local startTime = self._timer or Ext.Utils.MonotonicTime()
 
@@ -172,7 +175,7 @@ function NotificationManager:StartFadeOutTimer()
         local timePassed = (self._timer - startTime) / 1000
 
         if timePassed >= fadeStartTime then
-            local fadeRatio = (notificationDuration - timePassed) / fadeOutDuration
+            local fadeRatio = (notificationDuration - timePassed) / FADE_OUT_DURATION
             self._alpha = fadeRatio > 0 and fadeRatio or 0
             self.IMGUIwindow:SetStyle("Alpha", self._alpha)
         end
@@ -185,7 +188,7 @@ function NotificationManager:StartFadeOutTimer()
         return false
     end
 
-    VCTimer:CallWithInterval(updateAlpha, frameInterval, notificationDuration * 1000)
+    VCTimer:CallWithInterval(updateAlpha, FRAME_INTERVAL, notificationDuration * 1000)
 end
 
 --- Configures the style of the notification window
@@ -211,7 +214,7 @@ function NotificationManager:CreateMessageGroup()
     local borderColor = self:GetStyleBorderColor()
     local icon = self:GetStyleIcon()
 
-    local itemIcon = messageGroup:AddImage(icon, { iconSize, iconSize })
+    local itemIcon = messageGroup:AddImage(icon, { ICON_SIZE, ICON_SIZE })
     if itemIcon then
         itemIcon.SameLine = true
         itemIcon.Border = borderColor
@@ -252,9 +255,9 @@ function NotificationManager:GetStyleTitleBgActive()
 end
 
 --- Creates a "Don't show again" button in the notification window
----@param countdownTime number? Optional countdown time for the button
+---@param countdownTimeInSec number? Optional countdown time for the button
 ---@return nil
-function NotificationManager:CreateDontShowAgainButton(countdownTime)
+function NotificationManager:CreateDontShowAgainButton(countdownTimeInSec)
     if not self.options.dontShowAgainButton then
         return
     end
@@ -262,8 +265,8 @@ function NotificationManager:CreateDontShowAgainButton(countdownTime)
     local messageGroup = self.IMGUIwindow:AddGroup("message_group")
     messageGroup:AddDummy(0, 10)
 
-    local countdown = (countdownTime or self.options.dontShowAgainButtonCountdown) + 1
-    local dontShowAgainButtonLocalizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
+    local countdown = (countdownTimeInSec or self.options.dontShowAgainButtonCountdownInSec) + 1
+    local dontShowAgainButtonLocalizedLabel = "Don't show again"
     local dontShowAgainButton = self.IMGUIwindow:AddButton(dontShowAgainButtonLocalizedLabel .. " (" .. countdown .. ")")
 
     if not dontShowAgainButton.UserData then
