@@ -56,7 +56,7 @@ NotificationManager.NotificationStyles =
         titleBg = Color.NormalizedRGBA(0, 125, 255, 0.67),
     },
     success = {
-        icon = "vendorAttitude_04",
+        icon = "ico_classRes_luck",
         borderColor = Color.HEXToRGBA("#22FF22"),
         titleBgActive = Color.NormalizedRGBA(0, 155, 0, 1),
         titleBg = Color.NormalizedRGBA(30, 155, 30, 0.67),
