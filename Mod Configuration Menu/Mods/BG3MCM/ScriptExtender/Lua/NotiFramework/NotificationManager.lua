@@ -70,14 +70,21 @@ NotificationManager.NotificationStyles =
 ---@param message string The message to display in the IMGUIwindow
 ---@param options NotificationOptions The options for the warning IMGUIwindow
 ---@param modUUID string The UUID of the mod that owns the warning
+---@return NotificationManager
 function NotificationManager:new(id, level, title, message, options, modUUID)
-    local instance = setmetatable({}, { __index = NotificationManager })
-    instance.id = id
-    instance.notificationLevel = level
-    instance.title = title
-    instance.message = message
-    instance.modUUID = modUUID
-    instance.options.duration = options.duration
+    local instance = _MetaClass.New(NotificationManager, {
+        id = id,
+        notificationLevel = level,
+        title = title,
+        message = message,
+        modUUID = modUUID,
+        options = {
+            duration = options.duration,
+            dontShowAgainButton = options.dontShowAgainButton,
+            dontShowAgainButtonCountdown = options.dontShowAgainButtonCountdown,
+            showOnce = options.showOnce
+        }
+    })
     instance:InitializeNotificationWindow()
     return instance
 end
