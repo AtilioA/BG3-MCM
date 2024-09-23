@@ -54,10 +54,8 @@ function MCMDependencies:CreateNotificationForEachLevel()
     -- Info level notification
     local infoId = "MCM_Dependency_Info"
     local infoOptions = {
-        duration = math.random(2, 10),
         dontShowAgainButton = math.random(0, 1) == 1,
-        dontShowAgainButtonCountdown = math.random(2, 7),
-        showOnce = math.random(0, 1) == 1
+        dontShowAgainButtonCountdownInSec = math.random(2, 7),
     }
     NotificationManager:CreateIMGUINotification(infoId, 'info', "Information", "This is an informational notification.",
         infoOptions, ModuleUUID)
@@ -67,7 +65,7 @@ function MCMDependencies:CreateNotificationForEachLevel()
     local successOptions = {
         duration = math.random(2, 10),
         dontShowAgainButton = math.random(0, 1) == 1,
-        dontShowAgainButtonCountdown = math.random(2, 7),
+        dontShowAgainButtonCountdownInSec = math.random(2, 7),
         showOnce = math.random(0, 1) == 1
     }
     NotificationManager:CreateIMGUINotification(successId, 'success', "Success", "This is a success notification.",
@@ -78,7 +76,7 @@ function MCMDependencies:CreateNotificationForEachLevel()
     local warningOptions = {
         duration = math.random(2, 10),
         dontShowAgainButton = math.random(0, 1) == 1,
-        dontShowAgainButtonCountdown = math.random(2, 7),
+        dontShowAgainButtonCountdownInSec = math.random(2, 7),
         showOnce = math.random(0, 1) == 1
     }
     NotificationManager:CreateIMGUINotification(warningId, 'warning', "Warning", "This is a warning notification.",
@@ -88,8 +86,8 @@ function MCMDependencies:CreateNotificationForEachLevel()
     local errorId = "MCM_Dependency_Error"
     local errorOptions = {
         duration = math.random(2, 10),
-        dontShowAgainButton = true,
-        dontShowAgainButtonCountdown = math.random(2, 7),
+        -- dontShowAgainButton = true,
+        dontShowAgainButtonCountdownInSec = math.random(2, 7),
         showOnce = true
     }
     NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.", errorOptions,
