@@ -1,3 +1,5 @@
+-- TODO: split into separate files: NotificationManager.lua, NotificationStyles.lua, NotificationOptions.lua?
+
 -- Indefinite duration for notifications
 local DEFAULT_DURATION = nil
 
@@ -83,7 +85,7 @@ NotificationManager.NotificationStyles =
 ---@return NotificationOptions The processed options
 local function preprocessOptions(options)
     if options.duration then
-    options.duration = math.max(options.duration, options.dontShowAgainButtonCountdownInSec)
+        options.duration = math.max(options.duration, options.dontShowAgainButtonCountdownInSec)
     end
 
     options.showOnce = options.showOnce and not options.dontShowAgainButton
@@ -185,7 +187,7 @@ function NotificationManager:StartFadeOutTimer()
             local fadeRatio = (notificationDuration - timePassed) / FADE_OUT_DURATION
             self._alpha = fadeRatio > 0 and fadeRatio or 0
             if self.IMGUIwindow then
-            self.IMGUIwindow:SetStyle("Alpha", self._alpha)
+                self.IMGUIwindow:SetStyle("Alpha", self._alpha)
             end
         end
 
@@ -271,41 +273,65 @@ function NotificationManager:CreateDontShowAgainButton(countdownTimeInSec)
         return
     end
 
-    local messageGroup = self.IMGUIwindow:AddGroup("message_group")
-    messageGroup:AddDummy(0, 10)
+    self.IMGUIwindow:AddDummy(0, 10)
 
     local countdown = (countdownTimeInSec or self.options.dontShowAgainButtonCountdownInSec) + 1
-    local dontShowAgainButtonLocalizedLabel = "Don't show again"
-    local dontShowAgainButton = self.IMGUIwindow:AddButton(dontShowAgainButtonLocalizedLabel .. " (" .. countdown .. ")")
+    local dontShowAgainButtonLocalizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
+    local dontShowAgainButton = self:CreateIMGUIDontShowAgainButton(countdown, dontShowAgainButtonLocalizedLabel)
 
-    if not dontShowAgainButton.UserData then
-        dontShowAgainButton.UserData = {}
+    self:SetupDontShowAgainButtonOnClick(dontShowAgainButton)
+    self:StartButtonCountdown(dontShowAgainButton, countdown)
+end
+
+--- Creates a button for the notification
+---@param countdown number The countdown time for the button
+---@param label string The label for the button
+---@return ExtuiButton button The created button
+function NotificationManager:CreateIMGUIDontShowAgainButton(countdown, label)
+    local buttonLabel = label
+    if countdown then
+        buttonLabel = buttonLabel .. " (" .. countdown .. ")"
     end
-    dontShowAgainButton.UserData.originalColor = dontShowAgainButton:GetColor("Button")
-    -- FIXME: UserData is [] despite of this :)
 
-    dontShowAgainButton.OnClick = function()
-        -- Store the preference in JSON using NotificationPreferences
+    local button = self.IMGUIwindow:AddButton(buttonLabel)
+    button.UserData = button.UserData or {}
+    button.UserData.originalColor = button:GetColor("Button")
+    button.SameLine = false
+    button.Disabled = true
+    return button
+end
+
+--- Sets up the "Don't show again" button's click behavior
+---@param button ExtuiButton The button to set up
+---@return nil
+function NotificationManager:SetupDontShowAgainButtonOnClick(button)
+    button.OnClick = function()
         MCMDebug(1, "Saving user preference to suppress notification: " .. self.id .. ".")
         NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
         self:Destroy()
     end
+end
 
-    dontShowAgainButton.SameLine = false
-    dontShowAgainButton.Disabled = true
+--- Starts the countdown for the button and updates its label
+---@param button ExtuiButton The button to start the countdown on
+---@param countdown number|nil The initial countdown time
+---@return nil
+function NotificationManager:StartButtonCountdown(button, countdown)
+    if not countdown then
+        return
+    end
+    local dontShowAgainButtonLocalizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
 
     local function updateCountdownAndLabel()
         countdown = countdown - 1
+        button:SetColor("Button", Color.NormalizedRGBA(50, 50, 50, 0.5))
+        button.Label = dontShowAgainButtonLocalizedLabel .. " (" .. countdown .. ")"
 
-        dontShowAgainButton:SetColor("Button", Color.NormalizedRGBA(50, 50, 50, 0.5))
-        dontShowAgainButton.Label = dontShowAgainButtonLocalizedLabel .. " (" .. countdown .. ")"
         if countdown <= 0 then
-            dontShowAgainButton.Disabled = false
-            dontShowAgainButton.Label = dontShowAgainButtonLocalizedLabel
+            button.Disabled = false
+            button.Label = button.Label:match("^(.*) %(%d+%)")
             self.IMGUIwindow.Closeable = true
-            -- dontShowAgainButton:SetColor("Button", dontShowAgainButton.UserData.originalColor)
-            dontShowAgainButton:SetColor("Button", UIStyle.Colors.Button)
-            -- Stop the timer
+            button:SetColor("Button", UIStyle.Colors.Button)
             return true
         else
             -- Continue the timer
