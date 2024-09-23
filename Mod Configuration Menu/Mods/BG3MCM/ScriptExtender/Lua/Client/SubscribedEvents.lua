@@ -33,7 +33,8 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
 end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
-    MCMProxy.GameState = "Running"
+    -- MCMProxy.GameState = "Running"
+    
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(MCMAPI.mods)
 
