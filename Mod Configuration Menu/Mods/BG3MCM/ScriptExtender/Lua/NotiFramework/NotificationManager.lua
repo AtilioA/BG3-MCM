@@ -95,6 +95,12 @@ function NotificationManager:InitializeNotificationWindow()
     self:CreateMessageGroup()
     self:CreateDontShowAgainButton()
 
+    -- Also missing from the SE IMGUI API
+    -- self.IMGUIwindow:OnClose(function()
+    --     -- or HandleShowOnce?
+    --     self:Destroy()
+    -- end)
+
     -- On hover or something like that. Can't be done with current API
     -- self:ResetFadeOutTimer()
 
@@ -105,6 +111,14 @@ function NotificationManager:Destroy()
     self.IMGUIwindow.Visible = false
     self.IMGUIwindow:SetCollapsed(true)
     self.IMGUIwindow:Destroy()
+
+    self:HandleShowOnce()
+end
+
+function NotificationManager:HandleShowOnce()
+    if self.options.showOnce then
+        NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
+    end
 end
 
 --- Resets the fade-out timer and alpha when the notification is activated
@@ -140,7 +154,6 @@ function NotificationManager:StartFadeOutTimer()
 
         if timePassed >= notificationDuration then
             self:Destroy()
-            self.IMGUIwindow.Visible = false
             MCMDebug(1, "Notification window closed after " .. notificationDuration .. " seconds.")
             return true
         end
