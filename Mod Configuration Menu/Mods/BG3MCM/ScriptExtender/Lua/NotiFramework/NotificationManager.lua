@@ -5,6 +5,7 @@
 ---| 'error'
 
 ---@class NotificationOptions
+---@field duration integer The duration in seconds the notification will be displayed
 ---@field dontShowAgainButton boolean If true, a 'Don't show again' button will be displayed
 ---@field dontShowAgainButtonCountdown integer The countdown time in seconds for the 'Don't show again' button
 ---@field showOnce boolean (UNIMPLEMENTED) If true, the notification will only be shown once
@@ -16,6 +17,8 @@
 ---@field message string
 ---@field title string
 ---@field options NotificationOptions
+---@field private _alpha number
+---@field private _timer number
 ---@field modUUID string
 NotificationManager = _Class:Create("NotificationManager", nil, {
     IMGUIwindow = nil,
@@ -23,10 +26,13 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
     message = "",
     title = "Info",
     options = {
+        duration = 10,
         dontShowAgainButton = true,
         dontShowAgainButtonCountdown = 5,
         showOnce = false
-    }
+    },
+    _alpha = 1.0,
+    _timer = nil,
 })
 
 NotificationManager.NotificationStyles =
@@ -62,14 +68,16 @@ NotificationManager.NotificationStyles =
 ---@param level NotificationLevel The warning level
 ---@param title string The title of the warning IMGUIwindow
 ---@param message string The message to display in the IMGUIwindow
+---@param options NotificationOptions The options for the warning IMGUIwindow
 ---@param modUUID string The UUID of the mod that owns the warning
-function NotificationManager:new(id, level, title, message, modUUID)
+function NotificationManager:new(id, level, title, message, options, modUUID)
     local instance = setmetatable({}, { __index = NotificationManager })
     instance.id = id
     instance.notificationLevel = level
     instance.title = title
     instance.message = message
     instance.modUUID = modUUID
+    instance.options.duration = options.duration
     instance:InitializeNotificationWindow()
     return instance
 end
@@ -79,6 +87,60 @@ function NotificationManager:InitializeNotificationWindow()
     self:ConfigureWindowStyle()
     self:CreateMessageGroup()
     self:CreateDontShowAgainButton()
+
+    -- On hover or something like that. Can't be done with current API
+    -- self:ResetFadeOutTimer()
+
+    self:StartFadeOutTimer()
+end
+
+function NotificationManager:Destroy()
+    self.IMGUIwindow.Visible = false
+    self.IMGUIwindow:SetCollapsed(true)
+    self.IMGUIwindow:Destroy()
+end
+
+--- Resets the fade-out timer and alpha when the notification is activated
+function NotificationManager:ResetFadeOutTimer()
+    self.IMGUIwindow.Visible = true
+    self._alpha = 1.0
+    self._timer = Ext.Utils.MonotonicTime()
+    self.IMGUIwindow:SetStyle("Alpha", self._alpha)
+
+    self:StartFadeOutTimer()
+end
+
+--- Starts the fade-out effect and the auto-close of the notification window
+function NotificationManager:StartFadeOutTimer()
+    local notificationDuration = self.options.duration
+    local fadeOutDuration = 2
+    local fadeStartTime = notificationDuration - fadeOutDuration
+
+    -- 60 FPS
+    local frameInterval = 1000 / 60
+
+    local startTime = self._timer or Ext.Utils.MonotonicTime()
+
+    local function updateAlpha()
+        self._timer = Ext.Utils.MonotonicTime()
+        local timePassed = (self._timer - startTime) / 1000
+
+        if timePassed >= fadeStartTime then
+            local fadeRatio = (notificationDuration - timePassed) / fadeOutDuration
+            self._alpha = fadeRatio > 0 and fadeRatio or 0
+            self.IMGUIwindow:SetStyle("Alpha", self._alpha)
+        end
+
+        if timePassed >= notificationDuration then
+            self:Destroy()
+            self.IMGUIwindow.Visible = false
+            MCMDebug(1, "Notification window closed after " .. notificationDuration .. " seconds.")
+            return true
+        end
+        return false
+    end
+
+    VCTimer:CallWithInterval(updateAlpha, frameInterval, notificationDuration * 1000)
 end
 
 function NotificationManager:ConfigureWindowStyle()
@@ -111,7 +173,6 @@ function NotificationManager:CreateMessageGroup()
     local messageText = messageGroup:AddText(self.message)
     messageText:SetColor("Text", borderColor)
     messageText.SameLine = true
-    messageText.TextWrapPos = 0
 end
 
 -- TODO: get proper icons for each level
@@ -157,9 +218,7 @@ function NotificationManager:CreateDontShowAgainButton(countdownTime)
         -- Store the preference in JSON using NotificationPreferences
         MCMDebug(1, "Saving user preference to suppress notification: " .. self.id .. ".")
         NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
-        self.IMGUIwindow.Visible = false
-        self.IMGUIwindow:SetCollapsed(true)
-        self.IMGUIwindow:Destroy()
+        self:Destroy()
     end
 
     dontShowAgainButton.SameLine = false
@@ -192,9 +251,10 @@ end
 ---@param level NotificationLevel The warning level
 ---@param title string The title of the warning IMGUIwindow
 ---@param message string The message to display
+---@param options NotificationOptions The options for the warning
 ---@param modUUID string The UUID of the mod that owns the warning
-function NotificationManager:CreateIMGUINotification(id, level, title, message, modUUID)
+function NotificationManager:CreateIMGUINotification(id, level, title, message, options, modUUID)
     if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id, modUUID) then
-        return NotificationManager:new(id, level, title, message, modUUID)
+        return NotificationManager:new(id, level, title, message, options, modUUID)
     end
 end
