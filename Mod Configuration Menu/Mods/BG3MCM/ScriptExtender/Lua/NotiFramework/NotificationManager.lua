@@ -68,6 +68,16 @@ NotificationManager.NotificationStyles =
     }
 }
 
+--- Preprocesses options to ensure they are valid and consistent
+--- e.g.: duration should be at least the same as the countdown, showOnce should not be enabled if the button is enabled
+---@param options NotificationOptions The options to preprocess
+---@return NotificationOptions The processed options
+local function preprocessOptions(options)
+    options.duration = math.max(options.duration, options.dontShowAgainButtonCountdownInSec)
+    options.showOnce = options.showOnce and not options.dontShowAgainButton
+    return options
+end
+
 --- Creates a new warning IMGUIwindow
 ---@param id string The unique identifier for the warning IMGUIwindow
 ---@param level NotificationLevel The warning level
@@ -77,6 +87,8 @@ NotificationManager.NotificationStyles =
 ---@param modUUID string The UUID of the mod that owns the warning
 ---@return NotificationManager
 function NotificationManager:new(id, level, title, message, options, modUUID)
+    -- Preprocess options for validity
+    options = preprocessOptions(options)
     local instance = _MetaClass.New(NotificationManager, {
         id = id,
         notificationLevel = level,
