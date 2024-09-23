@@ -1,4 +1,6 @@
-local DEFAULT_DURATION = 10
+-- Indefinite duration for notifications
+local DEFAULT_DURATION = nil
+
 local DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN = 5
 local FADE_OUT_DURATION = 2
 -- 60 FPS
@@ -12,10 +14,10 @@ local ICON_SIZE = 64
 ---| 'error'
 
 ---@class NotificationOptions
----@field duration integer The duration in seconds the notification will be displayed
----@field dontShowAgainButton boolean If true, a 'Don't show again' button will be displayed
----@field dontShowAgainButtonCountdownInSec integer The countdown time in seconds for the 'Don't show again' button
----@field showOnce boolean If true, the notification will only be shown once
+---@field duration integer|nil? The duration in seconds the notification will be displayed
+---@field dontShowAgainButton boolean? If true, a 'Don't show again' button will be displayed
+---@field dontShowAgainButtonCountdownInSec integer? The countdown time in seconds for the 'Don't show again' button
+---@field showOnce boolean? If true, the notification will only be shown once
 
 ---@class NotificationManager
 ---@field IMGUIwindow ExtuiWindow
@@ -80,7 +82,10 @@ NotificationManager.NotificationStyles =
 ---@param options NotificationOptions The options to preprocess
 ---@return NotificationOptions The processed options
 local function preprocessOptions(options)
+    if options.duration then
     options.duration = math.max(options.duration, options.dontShowAgainButtonCountdownInSec)
+    end
+
     options.showOnce = options.showOnce and not options.dontShowAgainButton
     return options
 end
@@ -146,7 +151,7 @@ end
 --- Stores the user preference to not show the notification again, if the option is enabled
 ---@return nil
 function NotificationManager:HandleShowOnce()
-    if self.options.showOnce then
+    if self.options.showOnce == true then
         NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
     end
 end
@@ -165,19 +170,23 @@ end
 --- Starts the fade-out effect and the auto-close of the notification window
 ---@return nil
 function NotificationManager:StartFadeOutTimer()
+    if not self.options or not self.options.duration then return end
     local notificationDuration = self.options.duration
     local fadeStartTime = notificationDuration - FADE_OUT_DURATION
 
     local startTime = self._timer or Ext.Utils.MonotonicTime()
 
     local function updateAlpha()
+        -- TODO: update title with remaining duration?
         self._timer = Ext.Utils.MonotonicTime()
         local timePassed = (self._timer - startTime) / 1000
 
         if timePassed >= fadeStartTime then
             local fadeRatio = (notificationDuration - timePassed) / FADE_OUT_DURATION
             self._alpha = fadeRatio > 0 and fadeRatio or 0
+            if self.IMGUIwindow then
             self.IMGUIwindow:SetStyle("Alpha", self._alpha)
+            end
         end
 
         if timePassed >= notificationDuration then
