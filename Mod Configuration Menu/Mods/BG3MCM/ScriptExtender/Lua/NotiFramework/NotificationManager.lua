@@ -1,5 +1,3 @@
--- TODO: split into separate files: NotificationManager.lua, NotificationStyles.lua, NotificationOptions.lua?
-
 -- Indefinite duration for notifications
 local DEFAULT_DURATION = nil
 
@@ -8,18 +6,6 @@ local FADE_OUT_DURATION = 2
 -- 60 FPS
 local FRAME_INTERVAL = 1000 / 60
 local ICON_SIZE = 64
-
----@alias NotificationSeverity
----| 'info'
----| 'success'
----| 'warning'
----| 'error'
-
----@class NotificationOptions
----@field duration integer|nil? The duration in seconds the notification will be displayed
----@field dontShowAgainButton boolean? If true, a 'Don't show again' button will be displayed
----@field dontShowAgainButtonCountdownInSec integer? The countdown time in seconds for the 'Don't show again' button
----@field showOnce boolean? If true, the notification will only be shown once
 
 ---@class NotificationManager
 ---@field IMGUIwindow ExtuiWindow
@@ -58,53 +44,6 @@ function NotificationManager:GetAvailableNotificationOptions()
     }
 end
 
----@class NotificationStyle
----@field icon string The icon name to display in the notification
----@field borderColor table<number> The RGBA color of the border
----@field titleBgActive table<number> The RGBA color of the active title background
----@field titleBg table<number> The RGBA color of the title background
-NotificationManager.NotificationStyles =
-{
-    error = {
-        icon = "ico_exclamation_01",
-        borderColor = Color.HEXToRGBA("#FF2222"),
-        titleBgActive = Color.NormalizedRGBA(255, 38, 38, 1),
-        titleBg = Color.NormalizedRGBA(255, 10, 10, 0.67),
-    },
-    warning = {
-        icon = "tutorial_warning_yellow",
-        borderColor = Color.HEXToRGBA("#DD9922"),
-        titleBgActive = Color.NormalizedRGBA(221, 153, 34, 1),
-        titleBg = Color.NormalizedRGBA(255, 140, 0, 0.67)
-    },
-    info = {
-        icon = "talkNotice_h",
-        borderColor = Color.HEXToRGBA("#22CCFF"),
-        titleBgActive = Color.NormalizedRGBA(0, 100, 255, 1),
-        titleBg = Color.NormalizedRGBA(0, 125, 255, 0.67),
-    },
-    success = {
-        icon = "ico_classRes_luck",
-        borderColor = Color.HEXToRGBA("#22FF22"),
-        titleBgActive = Color.NormalizedRGBA(0, 155, 0, 1),
-        titleBg = Color.NormalizedRGBA(30, 155, 30, 0.67),
-    }
-}
-
---- Preprocesses options to ensure they are valid and consistent
---- e.g.: duration should be at least the same as the countdown, showOnce should not be enabled if the button is enabled
----@param options NotificationOptions The options to preprocess
----@return NotificationOptions options The processed options
-local function preprocessOptions(options)
-    if not options then return {} end
-    if options.duration and options.dontShowAgainButtonCountdownInSec then
-        options.duration = math.max(options.duration, options.dontShowAgainButtonCountdownInSec)
-    end
-
-    options.showOnce = options.showOnce and not options.dontShowAgainButton
-    return options
-end
-
 --- Creates a new warning IMGUIwindow
 ---@param id string The unique identifier for the warning IMGUIwindow
 ---@param severity NotificationSeverity The warning severity
@@ -115,7 +54,7 @@ end
 ---@return NotificationManager
 function NotificationManager:new(id, severity, title, message, options, modUUID)
     -- Preprocess options for validity
-    options = preprocessOptions(options)
+    options = NotificationOptions:PreprocessOptions(options)
     local instance = _MetaClass.New(NotificationManager, {
         id = id,
         notificationSeverity = severity,
@@ -227,17 +166,17 @@ function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow.Visible = true
     self.IMGUIwindow.Open = true
 
-    self.IMGUIwindow:SetColor("TitleBg", self:GetStyleTitleBg())
-    self.IMGUIwindow:SetColor("TitleBgActive", self:GetStyleTitleBgActive())
-    self.IMGUIwindow:SetColor("TitleBgCollapsed", self:GetStyleTitleBg())
+    self.IMGUIwindow:SetColor("TitleBg", NotificationStyles:GetStyleTitleBg(self.notificationSeverity))
+    self.IMGUIwindow:SetColor("TitleBgActive", NotificationStyles:GetStyleTitleBg(self.notificationSeverity))
+    self.IMGUIwindow:SetColor("TitleBgCollapsed", NotificationStyles:GetStyleTitleBg(self.notificationSeverity))
 end
 
 --- Creates a message group within the notification window
 ---@return nil
 function NotificationManager:CreateMessageGroup()
     local messageGroup = self.IMGUIwindow:AddGroup("message_group")
-    local borderColor = self:GetStyleBorderColor()
-    local icon = self:GetStyleIcon()
+    local borderColor = NotificationStyles:GetStyleBorderColor(self.notificationSeverity)
+    local icon = NotificationStyles:GetStyleIcon(self.notificationSeverity)
 
     local itemIcon = messageGroup:AddImage(icon, { ICON_SIZE, ICON_SIZE })
     if itemIcon then
@@ -249,34 +188,6 @@ function NotificationManager:CreateMessageGroup()
     local messageText = messageGroup:AddText(self.message)
     messageText:SetColor("Text", borderColor)
     messageText.SameLine = true
-end
-
---- Gets the border color style for the notification severity
----@return table<number>
-function NotificationManager:GetStyleBorderColor()
-    local style = self.NotificationStyles[self.notificationSeverity]
-    return style.borderColor
-end
-
---- Gets the icon style for the notification severity
----@return string
-function NotificationManager:GetStyleIcon()
-    local style = self.NotificationStyles[self.notificationSeverity]
-    return style.icon
-end
-
---- Gets the title background style for the notification severity
----@return table<number>
-function NotificationManager:GetStyleTitleBg()
-    local style = self.NotificationStyles[self.notificationSeverity]
-    return style.titleBg
-end
-
---- Gets the active title background style for the notification severity
----@return table<number>
-function NotificationManager:GetStyleTitleBgActive()
-    local style = self.NotificationStyles[self.notificationSeverity]
-    return style.titleBgActive
 end
 
 --- Creates a "Don't show again" button in the notification window

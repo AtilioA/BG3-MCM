@@ -21,6 +21,8 @@ RequireFiles("Shared/Helpers/", {
 
 RequireFiles("NotiFramework/", {
     "NotificationPreferences",
+    "NotificationStyles",
+    "NotificationOptions",
     "NotificationManager",
     -- "Printer/_Init"
 })
