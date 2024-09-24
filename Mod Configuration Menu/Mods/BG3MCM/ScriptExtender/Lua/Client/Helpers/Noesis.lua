@@ -35,7 +35,7 @@ end
 function Noesis:FindMCMainMenuButton()
     local target = self:findNoesisElementByName(Ext.UI.GetRoot(), "MCMMainMenuButton")
     if target then
-        MCMDebug(0, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
+        MCMDebug(1, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
         return target
     else
         MCMDebug(1, "MCMMainMenuButton not found")

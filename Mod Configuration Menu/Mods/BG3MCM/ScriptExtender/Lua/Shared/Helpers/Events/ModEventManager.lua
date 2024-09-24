@@ -34,7 +34,7 @@ local function emitModEvent(eventName, eventData, bothContexts)
                     Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
             end
         end, function(err)
-            MCMDebug(0, "Error while emitting mod event: " .. tostring(err))
+            MCMWarn(0, "Error while emitting mod event: " .. tostring(err))
         end)
     end
 
@@ -65,7 +65,7 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
     local function postNetMessageToServerAndClients(metapayload)
         local data = Ext.Json.Parse(metapayload)
         if not data or not data.channel or not data.payload then
-            MCMDebug(0, "Invalid data received from metapayload.")
+            MCMWarn(0, "Invalid data received from metapayload.")
             return
         end
 
@@ -79,7 +79,7 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
                 Ext.Net.PostMessageToServer(NetChannels.MCM_RELAY_TO_CLIENTS, metapayload)
             end
         end, function(err)
-            MCMDebug(0, "Error while broadcasting or posting net message: " .. tostring(err))
+            MCMWarn(0, "Error while broadcasting or posting net message: " .. tostring(err))
         end)
     end
 
@@ -212,11 +212,11 @@ end
 ---@param callback function The callback function to handle the event
 function ModEventManager:Subscribe(eventName, callback)
     if not eventName or not callback then
-        MCMDebug(0, "eventName and callback cannot be nil")
+        MCMWarn(0, "eventName and callback cannot be nil")
         error("eventName and callback cannot be nil")
     end
     if not Ext.ModEvents['BG3MCM'] or not Ext.ModEvents['BG3MCM'][eventName] then
-        MCMDebug(0, "Event '" .. eventName .. "' is not registered.")
+        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
         error("Event '" .. eventName .. "' is not registered.")
     end
 
@@ -234,7 +234,7 @@ end
 ---@param bothContexts? boolean Whether to emit the event in both contexts. Default is true.
 function ModEventManager:Emit(eventName, eventData, bothContexts)
     if not eventName then
-        MCMDebug(0, "eventName cannot be nil")
+        MCMWarn(0, "eventName cannot be nil")
         error("eventName cannot be nil")
     end
 
