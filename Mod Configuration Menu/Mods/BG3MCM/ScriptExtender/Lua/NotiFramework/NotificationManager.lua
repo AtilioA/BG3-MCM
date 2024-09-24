@@ -46,6 +46,18 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
     _timer = nil,
 })
 
+--- Returns a table of all possible NotificationOptions fields
+--- The keys will be the possible fields from NotificationOptions
+---@return table<string, string>
+function NotificationManager:GetAvailableNotificationOptions()
+    return {
+        duration = "integer|nil",
+        dontShowAgainButton = "boolean|nil",
+        dontShowAgainButtonCountdownInSec = "integer|nil",
+        showOnce = "boolean|nil",
+    }
+end
+
 ---@class NotificationStyle
 ---@field icon string The icon name to display in the notification
 ---@field borderColor table<number> The RGBA color of the border
@@ -379,6 +391,7 @@ function NotificationManager:InjectNotificationManagerToModTable(modUUID)
     end
 
     modTable.NotificationManager = self:CreateNotificationFunctions(modUUID)
+    modTable.NotificationManager.NotificationOptions = NotificationManager:GetAvailableNotificationOptions()
 
     MCMSuccess(2, "Successfully injected NotificationManager to mod table for modUUID: " .. modUUID)
 end
