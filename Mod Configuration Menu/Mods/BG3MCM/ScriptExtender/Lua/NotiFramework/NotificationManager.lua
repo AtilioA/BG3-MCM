@@ -82,9 +82,10 @@ NotificationManager.NotificationStyles =
 --- Preprocesses options to ensure they are valid and consistent
 --- e.g.: duration should be at least the same as the countdown, showOnce should not be enabled if the button is enabled
 ---@param options NotificationOptions The options to preprocess
----@return NotificationOptions The processed options
+---@return NotificationOptions options The processed options
 local function preprocessOptions(options)
-    if options.duration then
+    if not options then return {} end
+    if options.duration and options.dontShowAgainButtonCountdownInSec then
         options.duration = math.max(options.duration, options.dontShowAgainButtonCountdownInSec)
     end
 
