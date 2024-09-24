@@ -167,8 +167,10 @@ end
 --- Checks mod dependencies and returns a list of issues.
 ---@return DependencyCheckResult[] issues A list of issues with mod dependencies.
 function DependencyCheck:EvaluateLoadOrderDependencies()
-    xpcall(function()
-        local issues = {}
+    local success = false
+    local issues = {}
+
+    success, issues = xpcall(function()
         local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
 
         MCMDebug(1, "Evaluating load order dependencies for available mods.")
@@ -182,9 +184,14 @@ function DependencyCheck:EvaluateLoadOrderDependencies()
         return issues
     end, function(e)
         MCMError(0, "Error evaluating load order dependencies: " .. e)
+        return {}
     end)
-    
-    return {}
+
+    if not success then
+        MCMError(0, "Error evaluating load order dependencies.")
+    end
+
+    return issues
 end
 
 return DependencyCheck
