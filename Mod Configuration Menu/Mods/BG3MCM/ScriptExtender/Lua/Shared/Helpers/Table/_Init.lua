@@ -61,5 +61,8 @@ end
 
 --- Check if a table is empty ([], {})
 function table.isEmpty(tbl)
+    if not tbl then
+        return true
+    end
     return next(tbl) == nil
 end
