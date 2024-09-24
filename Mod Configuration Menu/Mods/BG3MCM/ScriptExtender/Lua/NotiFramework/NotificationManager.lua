@@ -9,7 +9,7 @@ local FADE_OUT_DURATION = 2
 local FRAME_INTERVAL = 1000 / 60
 local ICON_SIZE = 64
 
----@alias NotificationLevel
+---@alias NotificationSeverity
 ---| 'info'
 ---| 'success'
 ---| 'warning'
@@ -24,7 +24,7 @@ local ICON_SIZE = 64
 ---@class NotificationManager
 ---@field IMGUIwindow ExtuiWindow
 ---@field id string
----@field notificationLevel NotificationLevel
+---@field notificationSeverity NotificationSeverity
 ---@field message string
 ---@field title string
 ---@field options NotificationOptions
@@ -33,7 +33,7 @@ local ICON_SIZE = 64
 ---@field modUUID string
 NotificationManager = _Class:Create("NotificationManager", nil, {
     IMGUIwindow = nil,
-    notificationLevel = 'info',
+    notificationSeverity = 'info',
     message = "",
     title = "Info",
     options = {
@@ -95,18 +95,18 @@ end
 
 --- Creates a new warning IMGUIwindow
 ---@param id string The unique identifier for the warning IMGUIwindow
----@param level NotificationLevel The warning level
+---@param severity NotificationSeverity The warning severity
 ---@param title string The title of the warning IMGUIwindow
 ---@param message string The message to display in the IMGUIwindow
 ---@param options NotificationOptions The options for the warning IMGUIwindow
 ---@param modUUID string The UUID of the mod that owns the warning
 ---@return NotificationManager
-function NotificationManager:new(id, level, title, message, options, modUUID)
+function NotificationManager:new(id, severity, title, message, options, modUUID)
     -- Preprocess options for validity
     options = preprocessOptions(options)
     local instance = _MetaClass.New(NotificationManager, {
         id = id,
-        notificationLevel = level,
+        notificationSeverity = severity,
         title = title,
         message = message,
         modUUID = modUUID,
@@ -238,31 +238,31 @@ function NotificationManager:CreateMessageGroup()
     messageText.SameLine = true
 end
 
---- Gets the border color style for the notification level
+--- Gets the border color style for the notification severity
 ---@return table<number>
 function NotificationManager:GetStyleBorderColor()
-    local style = self.NotificationStyles[self.notificationLevel]
+    local style = self.NotificationStyles[self.notificationSeverity]
     return style.borderColor
 end
 
---- Gets the icon style for the notification level
+--- Gets the icon style for the notification severity
 ---@return string
 function NotificationManager:GetStyleIcon()
-    local style = self.NotificationStyles[self.notificationLevel]
+    local style = self.NotificationStyles[self.notificationSeverity]
     return style.icon
 end
 
---- Gets the title background style for the notification level
+--- Gets the title background style for the notification severity
 ---@return table<number>
 function NotificationManager:GetStyleTitleBg()
-    local style = self.NotificationStyles[self.notificationLevel]
+    local style = self.NotificationStyles[self.notificationSeverity]
     return style.titleBg
 end
 
---- Gets the active title background style for the notification level
+--- Gets the active title background style for the notification severity
 ---@return table<number>
 function NotificationManager:GetStyleTitleBgActive()
-    local style = self.NotificationStyles[self.notificationLevel]
+    local style = self.NotificationStyles[self.notificationSeverity]
     return style.titleBgActive
 end
 
@@ -345,13 +345,13 @@ function NotificationManager:StartButtonCountdown(button, countdown)
 end
 
 --- Displays a warning message to the user
----@param level NotificationLevel The warning level
+---@param severity NotificationSeverity The warning severity
 ---@param title string The title of the warning IMGUIwindow
 ---@param message string The message to display
 ---@param options NotificationOptions The options for the warning
 ---@param modUUID string The UUID of the mod that owns the warning
-function NotificationManager:CreateIMGUINotification(id, level, title, message, options, modUUID)
+function NotificationManager:CreateIMGUINotification(id, severity, title, message, options, modUUID)
     if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id, modUUID) then
-        return NotificationManager:new(id, level, title, message, options, modUUID)
+        return NotificationManager:new(id, severity, title, message, options, modUUID)
     end
 end
