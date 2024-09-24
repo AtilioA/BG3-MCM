@@ -66,7 +66,7 @@ function MCMDependencies:CreateNotificationForEachLevel()
         duration = math.random(2, 10),
         dontShowAgainButton = math.random(0, 1) == 1,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
-        showOnce = math.random(0, 1) == 1
+        displayOnceOnly = math.random(0, 1) == 1
     }
     NotificationManager:CreateIMGUINotification(successId, 'success', "Success", "This is a success notification.",
         successOptions, ModuleUUID)
@@ -77,7 +77,7 @@ function MCMDependencies:CreateNotificationForEachLevel()
         duration = math.random(2, 10),
         dontShowAgainButton = math.random(0, 1) == 1,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
-        showOnce = math.random(0, 1) == 1
+        displayOnceOnly = math.random(0, 1) == 1
     }
     NotificationManager:CreateIMGUINotification(warningId, 'warning', "Warning", "This is a warning notification.",
         warningOptions, ModuleUUID)
@@ -88,7 +88,7 @@ function MCMDependencies:CreateNotificationForEachLevel()
         duration = math.random(2, 10),
         -- dontShowAgainButton = true,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
-        showOnce = true
+        displayOnceOnly = true
     }
     NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.", errorOptions,
     ModuleUUID)

@@ -26,7 +26,7 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
         duration = DEFAULT_DURATION,
         dontShowAgainButton = true,
         dontShowAgainButtonCountdownInSec = DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
-        showOnce = false
+        displayOnceOnly = false
     },
     _alpha = 1.0,
     _timer = nil,
@@ -40,7 +40,7 @@ function NotificationManager:GetAvailableNotificationOptions()
         duration = "integer|nil",
         dontShowAgainButton = "boolean|nil",
         dontShowAgainButtonCountdownInSec = "integer|nil",
-        showOnce = "boolean|nil",
+        displayOnceOnly = "boolean|nil",
     }
 end
 
@@ -65,7 +65,7 @@ function NotificationManager:new(id, severity, title, message, options, modUUID)
             duration = options.duration,
             dontShowAgainButton = options.dontShowAgainButton,
             dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec,
-            showOnce = options.showOnce
+            displayOnceOnly = options.displayOnceOnly
         }
     })
     instance:InitializeNotificationWindow()
@@ -83,7 +83,7 @@ function NotificationManager:InitializeNotificationWindow()
 
     -- Also missing from the SE IMGUI API
     -- self.IMGUIwindow:OnClose(function()
-    --     -- or HandleShowOnce?
+    --     -- or HandleDisplayOnceOnly?
     --     self:Destroy()
     -- end)
 
@@ -100,13 +100,13 @@ function NotificationManager:Destroy()
     self.IMGUIwindow:SetCollapsed(true)
     self.IMGUIwindow:Destroy()
 
-    self:HandleShowOnce()
+    self:HandleDisplayOnceOnly()
 end
 
 --- Stores the user preference to not show the notification again, if the option is enabled
 ---@return nil
-function NotificationManager:HandleShowOnce()
-    if self.options.showOnce == true then
+function NotificationManager:HandleDisplayOnceOnly()
+    if self.options.displayOnceOnly == true then
         NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
     end
 end
