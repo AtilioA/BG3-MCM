@@ -11,6 +11,7 @@ NotificationOptions = {}
 ---@field dontShowAgainButton boolean? If true, a 'Don't show again' button will be displayed
 ---@field dontShowAgainButtonCountdownInSec integer? The countdown time in seconds for the 'Don't show again' button
 ---@field displayOnceOnly boolean? If true, the notification will only be shown once
+---@field buttons table<string, function>? A table of button labels and their corresponding callback functions
 
 --- Preprocesses options to ensure they are valid and consistent
 --- e.g.: duration should be at least the same as the countdown, displayOnceOnly should not be enabled if the button is enabled

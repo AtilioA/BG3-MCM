@@ -56,6 +56,16 @@ function MCMDependencies:CreateNotificationForEachLevel()
     local infoOptions = {
         dontShowAgainButton = math.random(0, 1) == 1,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
+        buttons = {
+            ["More Info"] = function()
+                NotificationManager:CreateIMGUINotification("Info_More_Info", 'info', "More Info",
+                    "Here is more information about the notification.", {}, ModuleUUID)
+            end,
+            ["View Details"] = function()
+                NotificationManager:CreateIMGUINotification("Success_View_Details", 'success', "Details",
+                    "Here are the details of the success notification.", {}, ModuleUUID)
+            end,
+        }
     }
     NotificationManager:CreateIMGUINotification(infoId, 'info', "Information", "This is an informational notification.",
         infoOptions, ModuleUUID)
@@ -66,7 +76,6 @@ function MCMDependencies:CreateNotificationForEachLevel()
         duration = math.random(2, 10),
         dontShowAgainButton = math.random(0, 1) == 1,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
-        displayOnceOnly = math.random(0, 1) == 1
     }
     NotificationManager:CreateIMGUINotification(successId, 'success', "Success", "This is a success notification.",
         successOptions, ModuleUUID)
@@ -77,7 +86,12 @@ function MCMDependencies:CreateNotificationForEachLevel()
         duration = math.random(2, 10),
         dontShowAgainButton = math.random(0, 1) == 1,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
-        displayOnceOnly = math.random(0, 1) == 1
+        buttons = {
+            ["Take Action"] = function()
+                NotificationManager:CreateIMGUINotification("Warning_Take_Action", 'warning', "Action Required",
+                    "Please take action regarding this warning.", {}, ModuleUUID)
+            end
+        }
     }
     NotificationManager:CreateIMGUINotification(warningId, 'warning', "Warning", "This is a warning notification.",
         warningOptions, ModuleUUID)
@@ -86,12 +100,15 @@ function MCMDependencies:CreateNotificationForEachLevel()
     local errorId = "MCM_Dependency_Error"
     local errorOptions = {
         duration = math.random(2, 10),
-        -- dontShowAgainButton = true,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
-        displayOnceOnly = true
+        buttons = {
+            ["Retry"] = function()
+                MCMDebug(1, "Retrying the operation related to the error.")
+            end,
+        }
     }
     NotificationManager:CreateIMGUINotification(errorId, 'error', "Error", "This is an error notification.", errorOptions,
-    ModuleUUID)
+        ModuleUUID)
 end
 
 -- MCMDependencies:CreateNotificationForEachLevel()

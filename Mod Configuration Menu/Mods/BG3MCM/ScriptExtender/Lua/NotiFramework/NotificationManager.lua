@@ -26,7 +26,7 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
         duration = DEFAULT_DURATION,
         dontShowAgainButton = true,
         dontShowAgainButtonCountdownInSec = DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
-        displayOnceOnly = false
+        displayOnceOnly = false,
     },
     _alpha = 1.0,
     _timer = nil,
@@ -65,7 +65,8 @@ function NotificationManager:new(id, severity, title, message, options, modUUID)
             duration = options.duration,
             dontShowAgainButton = options.dontShowAgainButton,
             dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec,
-            displayOnceOnly = options.displayOnceOnly
+            displayOnceOnly = options.displayOnceOnly,
+            buttons = options.buttons
         }
     })
     instance:InitializeNotificationWindow()
@@ -80,6 +81,7 @@ function NotificationManager:InitializeNotificationWindow()
     self:ConfigureWindowStyle()
     self:CreateMessageGroup()
     self:CreateDontShowAgainButton()
+    self:CreateCustomButtons(self.options.buttons)
 
     -- Also missing from the SE IMGUI API
     -- self.IMGUIwindow:OnClose(function()
@@ -91,6 +93,40 @@ function NotificationManager:InitializeNotificationWindow()
     -- self:ResetFadeOutTimer()
 
     self:StartFadeOutTimer()
+end
+
+--- Creates custom buttons from the options, if provided, and assigns their callbacks
+---@param buttons table<string, function> The button labels and their callbacks
+---@return nil
+function NotificationManager:CreateCustomButtons(buttons)
+    if table.isEmpty(buttons) then return end
+    
+    local hasDontShowAgainButton = self.options.dontShowAgainButton
+
+    local buttonCallbacksGroup = self.IMGUIwindow:AddGroup("button_callbacks_group")
+
+    if hasDontShowAgainButton then
+        buttonCallbacksGroup:AddDummy(0, 20)
+        buttonCallbacksGroup.SameLine = true
+    end
+
+    local isFirstButton = true
+    for label, callback in pairs(buttons) do
+        local button = self.IMGUIwindow:AddButton(label)
+
+        if isFirstButton and not hasDontShowAgainButton then
+            buttonCallbacksGroup:AddDummy(0, 10)
+            button.SameLine = false
+        else
+            button.SameLine = hasDontShowAgainButton ~= nil
+        end
+
+        button.OnClick = function()
+            callback()
+            -- self:Destroy()
+        end
+        isFirstButton = false
+    end
 end
 
 --- Cleans up and destroys the IMGUIwindow, also handling the show once parameter
