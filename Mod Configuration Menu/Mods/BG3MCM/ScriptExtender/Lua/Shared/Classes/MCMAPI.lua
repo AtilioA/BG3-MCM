@@ -378,6 +378,7 @@ local function setupModsMetatable()
             if ModConfig.mods[value.ModuleUUID] then
                 injectMCMToModTable(value.ModuleUUID)
             end
+            NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)
         end
     }
 

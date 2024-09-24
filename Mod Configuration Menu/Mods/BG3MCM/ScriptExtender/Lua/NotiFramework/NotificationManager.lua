@@ -125,6 +125,7 @@ end
 ---@return nil
 function NotificationManager:InitializeNotificationWindow()
     self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title)
+    self.IMGUIwindow.IDContext = self.modUUID .. self.id
     self:ConfigureWindowStyle()
     self:CreateMessageGroup()
     self:CreateDontShowAgainButton()
@@ -354,4 +355,47 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
     if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id, modUUID) then
         return NotificationManager:new(id, severity, title, message, options, modUUID)
     end
+end
+
+function NotificationManager:InjectNotificationManagerToModTable(modUUID)
+    if Ext.IsServer() then return end
+    if modUUID == ModuleUUID then return end
+
+    MCMPrint(2, "Injecting NotificationManager to mod table for modUUID: " .. modUUID)
+
+    local modTableName = Ext.Mod.GetMod(modUUID).Info.Directory
+    MCMPrint(2, "Mod table name: " .. modTableName)
+    local modTable = Mods[modTableName]
+    if not modTable then
+        MCMWarn(2, "Mod table not found for modUUID: " .. modUUID)
+        return
+    end
+
+    if modTable.NotificationManager then
+        MCMPrint(1,
+            "NotificationManager already exists in mod table for modUUID: " ..
+            modUUID .. ". Skipping metatable injection.")
+        return
+    end
+
+    modTable.NotificationManager = self:CreateNotificationFunctions(modUUID)
+
+    MCMSuccess(2, "Successfully injected NotificationManager to mod table for modUUID: " .. modUUID)
+end
+
+function NotificationManager:CreateNotificationFunctions(modUUID)
+    return {
+        ShowInfo = function(id, title, message, options)
+            NotificationManager:CreateIMGUINotification(id, 'info', title, message, options, modUUID)
+        end,
+        ShowSuccess = function(id, title, message, options)
+            NotificationManager:CreateIMGUINotification(id, 'success', title, message, options, modUUID)
+        end,
+        ShowWarning = function(id, title, message, options)
+            NotificationManager:CreateIMGUINotification(id, 'warning', title, message, options, modUUID)
+        end,
+        ShowError = function(id, title, message, options)
+            NotificationManager:CreateIMGUINotification(id, 'error', title, message, options, modUUID)
+        end
+    }
 end
