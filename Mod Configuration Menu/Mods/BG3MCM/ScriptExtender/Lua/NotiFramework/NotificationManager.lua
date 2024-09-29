@@ -325,7 +325,7 @@ function NotificationManager:InjectNotificationManagerToModTable(modUUID)
 
     MCMPrint(2, "Injecting NotificationManager to mod table for modUUID: " .. modUUID)
 
-    local modTableName = Ext.Mod.GetMod(modUUID).Info.Directory
+    local modTableName = ModUUIDToModTableName[modUUID]
     MCMPrint(2, "Mod table name: " .. modTableName)
     local modTable = Mods[modTableName]
     if not modTable then
