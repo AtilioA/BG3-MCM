@@ -415,6 +415,7 @@ function IMGUILayer:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modU
         end
     end
 end
+
 ---@param modUUID string
 ---@param elementInfo table
 ---@param uiElement ImguiHandle
@@ -482,10 +483,12 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
         addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
         sectionContentElement:AddDummy(0, 2)
     end
-
     -- Iterate over each setting in the section to create a widget for each
-    for _, setting in pairs(section:GetSettings()) do
+    for i, setting in pairs(section:GetSettings()) do
         self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
+        if i ~= #section:GetSettings() then
+            sectionContentElement:AddDummy(0, 10)
+        end
     end
 end
 

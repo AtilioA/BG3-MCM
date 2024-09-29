@@ -60,7 +60,6 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
 
     self:InitializeWidget(widget, group, setting)
 
-    group:AddDummy(0, 2)
     return widget
 end
 
@@ -152,6 +151,4 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     addedDescription.IDContext = group.IDContext .. "_Description_" .. setting:GetId()
 
     addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
-
-    group:AddDummy(0, 3)
 end
