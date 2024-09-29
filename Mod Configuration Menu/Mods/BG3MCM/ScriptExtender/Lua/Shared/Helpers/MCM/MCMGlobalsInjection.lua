@@ -2,7 +2,8 @@
 ModUUIDToModTableName = {}
 
 -- Utility function to populate the reverse lookup table from existing Mods
-local function initializeReverseLookup()
+-- Thanks to LaughingLeader for this!
+local function initializeReverseLookupTable(lookupTable)
     for _, modUUID in pairs(Ext.Mod.GetLoadOrder()) do
         local mod = Ext.Mod.GetMod(modUUID)
         local scriptExtenderConfigPath = string.format("Mods/%s/ScriptExtender/Config.json", mod.Info.Directory)
@@ -11,7 +12,7 @@ local function initializeReverseLookup()
             local modConfig = Ext.Json.Parse(config)
             if modConfig ~= nil then
                 local modTable = modConfig.ModTable
-                ModUUIDToModTableName[mod.Info.ModuleUUID] = modTable
+                lookupTable[mod.Info.ModuleUUID] = modTable
             end
         else
             MCMWarn(3, string.format("No config for %s at %s", mod.Info.Name, scriptExtenderConfigPath))
@@ -106,7 +107,7 @@ local function setupModsMetatable()
 end
 
 -- Initialize the reverse lookup table with existing Config.json files
-initializeReverseLookup()
+initializeReverseLookupTable(ModUUIDToModTableName)
 
 -- Set up the metatable to handle future additions to Mods and possible MCM injection
 setupModsMetatable()
