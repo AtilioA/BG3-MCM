@@ -14,6 +14,45 @@
                     "SectionName": "General settings",
                     "Settings": [
                         {
+                            "Id": "ListV2Setting",
+                            "Name": "List V2 Setting",
+                            "Type": "list_v2",
+                            "Description": "This is a list v2 setting",
+                            "Default": {
+                                "enabled": true,
+                                "elements": [
+                                    {
+                                        "name": "a",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "name": "b",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "name": "c",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "name": "a2",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "name": "b2",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "name": "c2",
+                                        "enabled": true
+                                    }
+                                ]
+                            },
+                            "Options": {
+                                "PageSize": 5,
+                                "ShowSearchBar": true
+                            }
+                        },
+                        {
                             "Id": "toggle_mcm_keybinding",
                             "Name": "Toggle MCM window",
                             "Type": "keybinding",

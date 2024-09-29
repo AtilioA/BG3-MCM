@@ -210,7 +210,7 @@
                         },
                         {
                             "const": "list_v2",
-                            "description": "(STILL UNIMPLEMENTED) A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them."
+                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them."
                         },
                         {
                             "const": "list",
@@ -469,16 +469,37 @@
                         {
                             "enabled": true,
                             "elements": [
-                                "a",
-                                "b",
-                                "c"
-                            ]
+                                {
+                                    "name": "a",
+                                    "enabled": true
+                                },
+                                {
+                                    "name": "b",
+                                    "enabled": true
+                                },
+                                {
+                                    "name": "c",
+                                    "enabled": true
+                                },
+                                {
+                                    "name": "d",
+                                    "enabled": false
+                                },
+                                {
+                                    "name": "e",
+                                    "enabled": false
+                                },
+                                {
+                                    "name": "f",
+                                    "enabled": false
+                                }
+                            ],
+                            "Options": {
+                                "PageSize": 2,
+                                "ShowSearchBar": true
+                            }
                         }
-                    ],
-                    "Options": {
-                        "PageSize": 2,
-                        "ShowSearchBar": true
-                    }
+                    ]
                 },
                 {
                     "Id": "ListSetting",

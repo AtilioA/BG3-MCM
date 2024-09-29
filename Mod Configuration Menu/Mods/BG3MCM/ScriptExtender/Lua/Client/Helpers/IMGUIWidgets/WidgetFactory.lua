@@ -15,6 +15,9 @@ InputWidgetFactory = {
     list = function(group, setting, settingValue, modUUID)
         return IMGUIWidget:Create(group, setting, settingValue, modUUID, ListIMGUIWidget)
     end,
+    list_v2 = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, ListV2IMGUIWidget)
+    end,
     enum = function(group, setting, settingValue, modUUID)
         return IMGUIWidget:Create(group, setting, settingValue, modUUID, EnumIMGUIWidget)
     end,
