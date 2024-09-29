@@ -45,13 +45,13 @@ JsonLayer.MCMBlueprintPathPattern = string.gsub("Mods/%s/MCM_blueprint.json", "'
 function JsonLayer:LoadJSONFile(filePath)
     local fileContent = Ext.IO.LoadFile(filePath)
     if not fileContent or fileContent == "" then
-        MCMDebug(2, "Config file not found: " .. filePath)
+        MCMDebug(2, "JSON file not found: " .. filePath)
         return nil
     end
 
     local success, data = pcall(Ext.Json.Parse, fileContent)
     if not success then
-        MCMWarn(0, "Failed to parse config file: " .. filePath)
+        MCMWarn(0, "Failed to parse JSON file: " .. filePath)
         return nil
     end
 
@@ -67,23 +67,23 @@ function JsonLayer:SaveJSONFile(filePath, content)
 end
 
 --- Parse the JSON file for the mod
----@param configStr string The string representation of the JSON file (to be parsed)
----@param modUUID GUIDSTRING The UUID of the mod that the config file belongs to
+---@param blueprintJSONStr string The string representation of the JSON file (to be parsed)
+---@param modUUID GUIDSTRING The UUID of the mod that the blueprint file belongs to
 ---@return table|nil data The parsed JSON data, or nil if the JSON could not be parsed
-function JsonLayer:TryParseModJSON(configStr, modUUID)
+function JsonLayer:TryParseModBlueprintJSON(blueprintJSONStr, modUUID)
     if modUUID == nil then
         MCMWarn(1, "modUUID is nil. Cannot load config.")
         return nil
     end
 
-    MCMDebug(4, "Entering TryParseModJSON with parameters: " .. configStr .. ", " .. modUUID)
+    MCMDebug(4, "Entering TryParseModBlueprintJSON with parameters: " .. blueprintJSONStr .. ", " .. modUUID)
 
-    local success, data = pcall(Ext.Json.Parse, configStr)
+    local success, data = pcall(Ext.Json.Parse, blueprintJSONStr)
     if success then
         return data
     else
         MCMWarn(0,
-            "Invalid MCM config JSON file for mod " ..
+            "Invalid MCM Blueprint JSON file for mod " ..
             Ext.Mod.GetMod(modUUID).Info.Name ..
             ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " for assistance.")
         return nil
@@ -127,10 +127,10 @@ function JsonLayer:LoadBlueprintForMod(modData)
     local blueprintFilepath = self.MCMBlueprintPathPattern:format(modData.Info.Directory)
     local config = Ext.IO.LoadFile(blueprintFilepath, "data")
     if config == nil or config == "" then
-        return self:FileNotFoundError("Config file not found for mod: " .. modData.Info.Name)
+        return self:FileNotFoundError("Blueprint file not found for mod: " .. modData.Info.Name)
     end
 
-    local data = self:TryParseModJSON(config, modData.Info.ModuleUUID)
+    local data = self:TryParseModBlueprintJSON(config, modData.Info.ModuleUUID)
     if data == nil or type(data) ~= "table" then
         return self:JSONParseError("Failed to load MCM blueprint JSON file for mod: " ..
             modData.Info.Name .. ". Blueprint is present but malformed. Please contact " .. modData.Info.Author .. " about this issue.")
