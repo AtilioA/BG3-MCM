@@ -155,7 +155,7 @@ function ListV2IMGUIWidget:CreateTable(tableGroup)
         imguiTable:SetColor("TableRowBgAlt", Color.NormalizedRGBA(133, 74, 38, 0.15))
     end
 
-    imguiTable:AddColumn("Enabled", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    imguiTable:AddColumn("Active", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
     imguiTable:AddColumn("Up/down", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
     imguiTable:AddColumn("Name", "WidthStretch")
     imguiTable:AddColumn("Remove", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
@@ -169,7 +169,7 @@ end
 
 function ListV2IMGUIWidget:AddTableHeader(imguiTable)
     local headerRow = imguiTable:AddRow()
-    headerRow:AddCell():AddText("Enabled")
+    headerRow:AddCell():AddText("Active")
     headerRow:AddCell():AddText("Up/down")
     headerRow:AddCell():AddText("Name")
     headerRow:AddCell():AddText("Remove")
@@ -218,6 +218,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     moveUpButton:Tooltip():AddText("Move '" .. element.name .. "' up in the list")
 
     local moveDownButton = moveCell:AddImageButton("", "panner_down_h", IMGUIWidget:GetIconSizes())
+    moveDownButton.SameLine = true
     if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
         moveDownButton:Destroy()
         moveDownButton = moveCell:AddButton("Down")
