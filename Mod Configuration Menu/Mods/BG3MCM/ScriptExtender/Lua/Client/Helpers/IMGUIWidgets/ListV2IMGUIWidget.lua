@@ -1,3 +1,5 @@
+-- TODO: add IDContext to all buttons and inputs
+
 ---@class ListV2IMGUIWidget: IMGUIWidget
 ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 
@@ -41,6 +43,7 @@ function ListV2IMGUIWidget:RenderHeader()
 
     -- Enable/disable entire list
     local enabledCheckbox = headerGroup:AddCheckbox("Enable entire list")
+    enabledCheckbox.IDContext = self.Widget.modUUID .. "_EnableCheckbox_" .. self.Widget.Setting.Id
     enabledCheckbox:Tooltip():AddText(
         "Check to enable the list, uncheck to disable it, without removing/disabling any elements.")
     enabledCheckbox.Checked = self.Widget.Enabled
