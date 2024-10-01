@@ -24,11 +24,14 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, modUUID)
     instance.Widget.HeaderGroup = group:AddGroup("ListHeaderGroup_" .. setting.Id)
     instance.Widget.TableGroup = group:AddGroup("ListTableGroup_" .. setting.Id)
     instance.Widget.InputGroup = group:AddGroup("ListInputGroup_" .. setting.Id)
+    instance.Widget.ResetGroup = group:AddGroup("ListResetGroup_" .. setting.Id)
 
     instance:FilterElements()
     instance:RenderHeader()
     instance:RenderList()
     instance:AddInputAndAddButton()
+    -- Not needed since it's called by IMGUIWidget
+    -- instance:AddResetButton(instance.Widget.ResetGroup, setting, modUUID)
 
     return instance
 end
@@ -37,7 +40,7 @@ function ListV2IMGUIWidget:RenderHeader()
     local headerGroup = self.Widget.HeaderGroup
 
     -- Enable/disable entire list
-    local enabledCheckbox = headerGroup:AddCheckbox("Enable list")
+    local enabledCheckbox = headerGroup:AddCheckbox("Enable entire list")
     enabledCheckbox:Tooltip():AddText(
         "Check to enable the list, uncheck to disable it, without removing/disabling any elements.")
     enabledCheckbox.Checked = self.Widget.Enabled
@@ -67,6 +70,10 @@ function ListV2IMGUIWidget:RenderHeader()
             self.Widget.SearchInput.SameLine = true
         else
             self.Widget.SearchInput.Text = self.Widget.SearchText
+        end
+        if not self.Widget.Enabled then
+            self:ApplyDisabledStyle(self.Widget.SearchInput)
+            self.Widget.SearchInput.ReadOnly = true
         end
     end
 end
@@ -118,7 +125,6 @@ end
 function ListV2IMGUIWidget:RenderList()
     local tableGroup = self.Widget.TableGroup
     local elements = self.Widget.FilteredElements
-
     local pageSize = self.Widget.PageSize
     local totalElements = #elements
     local totalPages = math.ceil(totalElements / pageSize)
@@ -126,6 +132,17 @@ function ListV2IMGUIWidget:RenderList()
     local currentPage = self.Widget.CurrentPage
     if currentPage > totalPages then currentPage = totalPages end
 
+    local imguiTable = self:CreateTable(tableGroup)
+    self:AddTableHeader(imguiTable)
+
+    for i = (currentPage - 1) * pageSize + 1, math.min(currentPage * pageSize, totalElements) do
+        self:RenderTableRow(imguiTable, elements[i])
+    end
+
+    self:RenderPaginationControls(tableGroup, totalPages)
+end
+
+function ListV2IMGUIWidget:CreateTable(tableGroup)
     local columns = 4
     local imguiTable = tableGroup:AddTable("", columns)
     imguiTable.Sortable = true
@@ -133,152 +150,235 @@ function ListV2IMGUIWidget:RenderList()
     imguiTable.BordersInner = true
     imguiTable.RowBg = true
 
-    -- Define the columns with their respective flags
-    imguiTable:AddColumn("Enabled", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
-    imguiTable:AddColumn("Up/down", "WidthFixed", IMGUIWidget:GetIconSizes()[0]) -- Move Up/Down
-    imguiTable:AddColumn("Name", "WidthStretch")
-    imguiTable:AddColumn("Remove", "WidthFixed", IMGUIWidget:GetIconSizes()[0])  -- Move Up/Down
-
-    -- Add a header row for the columns
-    local headerRow = imguiTable:AddRow()
-    headerRow:AddCell():AddText("Enabled")
-    headerRow:AddCell():AddText("Move")
-    headerRow:AddCell():AddText("Name")
-    headerRow:AddCell():AddText("Remove")
-
-    -- TODO: Handle sorting somehow
-
-    for i = (currentPage - 1) * pageSize + 1, math.min(currentPage * pageSize, totalElements) do
-        local entry = elements[i]
-        local element = entry.element
-        local indexInElements = entry.indexInElements
-
-        local tableRow = imguiTable:AddRow()
-
-        -- Enable/disable checkbox
-        local checkboxCell = tableRow:AddCell()
-        local enabledCheckbox = checkboxCell:AddCheckbox("")
-        enabledCheckbox.Checked = element.enabled ~= false
-        enabledCheckbox.OnChange = function(checkbox)
-            element.enabled = checkbox.Checked
-            local settingValue = {
-                enabled = self.Widget.Enabled,
-                elements = self.Widget.Elements
-            }
-            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
-            self:RefreshList()
-        end
-
-        if element.enabled then
-            enabledCheckbox:Tooltip():AddText("Click to disable '" ..
-                element.name .. "' (without removing it from the list)")
-        else
-            enabledCheckbox:Tooltip():AddText("Click to enable '" ..
-                element.name .. "' (without removing it from the list)")
-        end
-
-        -- Move up button
-        local moveUpCell = tableRow:AddCell()
-        local moveUpButton = moveUpCell:AddImageButton("", "panner_up_h", IMGUIWidget:GetIconSizes())
-        if not moveUpButton.Image or moveUpButton.Image.Icon == "" then
-            moveUpButton:Destroy()
-            moveUpButton = moveUpCell:AddButton("Up")
-        end
-        moveUpButton.OnClick = function()
-            self:MoveElement(indexInElements, -1)
-        end
-        local tooltipUp = moveUpButton:Tooltip()
-        tooltipUp:AddText("Move '" .. element.name .. "' up in the list")
-
-        -- Move down button
-        -- local moveDownCell = tableRow:AddCell()
-        local moveDownButton = moveUpCell:AddImageButton("", "panner_down_h", IMGUIWidget:GetIconSizes())
-        if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
-            moveDownButton:Destroy()
-            moveDownButton = moveUpCell:AddButton("Down")
-        end
-        moveDownButton.OnClick = function()
-            self:MoveElement(indexInElements, 1)
-        end
-        local tooltipDown = moveDownButton:Tooltip()
-        tooltipDown:AddText("Move '" .. element.name .. "' down in the list")
-
-        -- Name text
-        local nameCell = tableRow:AddCell()
-        local nameText = nameCell:AddText(element.name)
-
-        -- Remove button
-        local removeCell = tableRow:AddCell()
-        local removeButton = removeCell:AddImageButton("", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
-        if not removeButton.Image or removeButton.Image.Icon == "" then
-            removeButton:Destroy()
-            removeButton = removeCell:AddButton("Remove")
-        end
-        removeButton.OnClick = function()
-            table.remove(self.Widget.Elements, indexInElements)
-            local settingValue = {
-                enabled = self.Widget.Enabled,
-                elements = self.Widget.Elements
-            }
-            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
-            self:FilterElements()
-            self:Refresh()
-        end
-        local tooltipRemove = removeButton:Tooltip()
-        tooltipRemove:AddText("Remove '" .. element.name .. "' from the list")
+    if not self.Widget.Enabled then
+        imguiTable:SetColor("TableRowBg", Color.NormalizedRGBA(161, 176, 87, 0.15))
+        imguiTable:SetColor("TableRowBgAlt", Color.NormalizedRGBA(133, 74, 38, 0.15))
     end
 
-    -- Pagination controls after the table
+    imguiTable:AddColumn("Enabled", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    imguiTable:AddColumn("Up/down", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    imguiTable:AddColumn("Name", "WidthStretch")
+    imguiTable:AddColumn("Remove", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+
+    if not self.Widget.Enabled then
+        self:ApplyDisabledStyle(imguiTable)
+    end
+
+    return imguiTable
+end
+
+function ListV2IMGUIWidget:AddTableHeader(imguiTable)
+    local headerRow = imguiTable:AddRow()
+    headerRow:AddCell():AddText("Enabled")
+    headerRow:AddCell():AddText("Up/down")
+    headerRow:AddCell():AddText("Name")
+    headerRow:AddCell():AddText("Remove")
+end
+
+function ListV2IMGUIWidget:RenderTableRow(imguiTable, entry)
+    local element = entry.element
+    local indexInElements = entry.indexInElements
+    local tableRow = imguiTable:AddRow()
+
+    self:AddCheckboxCell(tableRow, element)
+    self:AddMoveButtons(tableRow, indexInElements, element)
+    self:AddNameCell(tableRow, element)
+    self:AddRemoveButton(tableRow, indexInElements, element)
+end
+
+function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
+    local checkboxCell = tableRow:AddCell()
+    local enabledCheckbox = checkboxCell:AddCheckbox("")
+    enabledCheckbox.Checked = element.enabled ~= false
+    enabledCheckbox.OnChange = function(checkbox)
+        element.enabled = checkbox.Checked
+        self:UpdateSettings()
+        self:RefreshList()
+    end
+
+    local tooltipText = element.enabled and
+        "Click to disable '" .. element.name .. "' (without removing it from the list)" or
+        "Click to enable '" .. element.name .. "' (without removing it from the list)"
+    enabledCheckbox:Tooltip():AddText(tooltipText)
+
+    if not self.Widget.Enabled then
+        enabledCheckbox.Disabled = true
+        self:ApplyDisabledStyle(enabledCheckbox)
+    end
+end
+
+function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
+    local moveCell = tableRow:AddCell()
+    local moveUpButton = moveCell:AddImageButton("", "panner_up_h", IMGUIWidget:GetIconSizes())
+    if not moveUpButton.Image or moveUpButton.Image.Icon == "" then
+        moveUpButton:Destroy()
+        moveUpButton = moveCell:AddButton("Up")
+    end
+    moveUpButton.OnClick = function() self:MoveElement(indexInElements, -1) end
+    moveUpButton:Tooltip():AddText("Move '" .. element.name .. "' up in the list")
+
+    local moveDownButton = moveCell:AddImageButton("", "panner_down_h", IMGUIWidget:GetIconSizes())
+    if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
+        moveDownButton:Destroy()
+        moveDownButton = moveCell:AddButton("Down")
+    end
+    moveDownButton.OnClick = function() self:MoveElement(indexInElements, 1) end
+    moveDownButton:Tooltip():AddText("Move '" .. element.name .. "' down in the list")
+
+    if not self.Widget.Enabled then
+        moveUpButton.Disabled = true
+        moveDownButton.Disabled = true
+        self:ApplyDisabledStyle(moveUpButton)
+        self:ApplyDisabledStyle(moveDownButton)
+    end
+end
+
+function ListV2IMGUIWidget:AddNameCell(tableRow, element)
+    local nameCell = tableRow:AddCell()
+    local nameText = nameCell:AddText(element.name)
+    if not self.Widget.Enabled then
+        self:ApplyDisabledStyle(nameText)
+    end
+end
+
+function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
+    local removeCell = tableRow:AddCell()
+    local removeButton = removeCell:AddImageButton("", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
+    if not removeButton.Image or removeButton.Image.Icon == "" then
+        removeButton:Destroy()
+        removeButton = removeCell:AddButton("Remove")
+    end
+    removeButton.OnClick = function()
+        table.remove(self.Widget.Elements, indexInElements)
+        self:UpdateSettings()
+        self:FilterElements()
+        self:Refresh()
+    end
+    removeButton:Tooltip():AddText("Remove '" .. element.name .. "' from the list")
+
+    if not self.Widget.Enabled then
+        removeButton.Disabled = true
+        self:ApplyDisabledStyle(removeButton)
+    end
+end
+
+function ListV2IMGUIWidget:RenderPaginationControls(tableGroup, totalPages)
     local paginationGroup = tableGroup:AddGroup("PaginationGroup")
     paginationGroup:AddSpacing()
     if totalPages > 1 then
-        local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
-        if not prevButton.Image or prevButton.Image.Icon == "" then
-            prevButton:Destroy()
-            prevButton = paginationGroup:AddButton("<")
-        end
-        prevButton.OnClick = function()
-            if self.Widget.CurrentPage > 1 then
-                self.Widget.CurrentPage = self.Widget.CurrentPage - 1
-                self:Refresh()
-            end
-        end
-        prevButton.SameLine = true
-
-        local function getPageText(widget)
-            local isFiltered = widget.SearchText and widget.SearchText ~= ""
-            local totalElementCount = isFiltered and #widget.FilteredElements or #widget.Elements
-            local currentElementCount = math.min(widget.CurrentPage * widget.PageSize, totalElementCount)
-            local filterText = isFiltered and " (filtered)" or ""
-            totalPages = math.ceil(totalElementCount / widget.PageSize)
-            widget.CurrentPage = math.min(widget.CurrentPage, totalPages)
-
-            return string.format(
-                "Page %d of %d%s | %d/%d elements",
-                widget.CurrentPage,
-                totalPages,
-                filterText,
-                currentElementCount,
-                totalElementCount
-            )
-        end
-
-        local pageText = paginationGroup:AddText(getPageText(self.Widget))
-        pageText.SameLine = true
-
-        local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
-        if not nextButton.Image or nextButton.Image.Icon == "" then
-            nextButton:Destroy()
-            nextButton = paginationGroup:AddButton(">")
-        end
-        nextButton.OnClick = function()
-            if self.Widget.CurrentPage < totalPages then
-                self.Widget.CurrentPage = self.Widget.CurrentPage + 1
-                self:Refresh()
-            end
-        end
-        nextButton.SameLine = true
+        self:AddPaginationButtons(paginationGroup, totalPages)
     end
+end
+
+function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
+    local currentPage = self.Widget.CurrentPage
+    local function addPageButton(label, pageNumber, disabled)
+        local paddedLabel = " " .. label .. " "
+        local button = paginationGroup:AddButton(paddedLabel)
+        button.OnClick = function()
+            self.Widget.CurrentPage = pageNumber
+            self:Refresh()
+        end
+        if disabled then
+            button.Disabled = true
+            self:ApplyDisabledStyle(button)
+        end
+        button.SameLine = true
+    end
+
+    -- Previous Button
+    local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
+    if not prevButton.Image or prevButton.Image.Icon == "" then
+        prevButton:Destroy()
+        prevButton = paginationGroup:AddButton("<")
+    end
+    prevButton.OnClick = function()
+        if self.Widget.CurrentPage > 1 then
+            self.Widget.CurrentPage = self.Widget.CurrentPage - 1
+            self:Refresh()
+        end
+    end
+    if currentPage == 1 then
+        prevButton.Disabled = true
+        self:ApplyDisabledStyle(prevButton)
+    end
+    prevButton.SameLine = true
+
+    -- First Page
+    addPageButton("1", 1, currentPage == 1)
+
+    -- Input for page number
+    if currentPage <= totalPages - 2 or currentPage >= 3 then
+        local pageInput = paginationGroup:AddInputText("", tostring(currentPage))
+        pageInput.Text = '...'
+        pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1], 0 }
+        pageInput:Tooltip():AddText("Click and enter a page number to navigate to it")
+        pageInput.AutoSelectAll = true
+        pageInput.OnChange = function(input)
+            local pageNumber = tonumber(input.Text)
+            if not pageNumber then return end
+            pageNumber = math.min(pageNumber, totalPages)
+            pageNumber = math.max(pageNumber, 1)
+
+            self.Widget.CurrentPage = pageNumber
+            self:Refresh()
+        end
+        pageInput.SameLine = true
+    end
+
+    -- Current Page
+    if currentPage > 1 and currentPage < totalPages then
+        addPageButton(tostring(currentPage), currentPage, true)
+    end
+
+    -- Last Page
+    if totalPages > 1 then
+        addPageButton(tostring(totalPages), totalPages, currentPage == totalPages)
+    end
+
+    -- Next Button
+    local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
+    if not nextButton.Image or nextButton.Image.Icon == "" then
+        nextButton:Destroy()
+        nextButton = paginationGroup:AddButton(">")
+    end
+    nextButton.OnClick = function()
+        if self.Widget.CurrentPage < totalPages then
+            self.Widget.CurrentPage = self.Widget.CurrentPage + 1
+            self:Refresh()
+        end
+    end
+    if currentPage == totalPages then
+        nextButton.Disabled = true
+        self:ApplyDisabledStyle(nextButton)
+    end
+    nextButton.SameLine = true
+end
+
+function ListV2IMGUIWidget:GetPageText()
+    local isFiltered = self.Widget.SearchText and self.Widget.SearchText ~= ""
+    local totalElementCount = isFiltered and #self.Widget.FilteredElements or #self.Widget.Elements
+    local currentElementCount = math.min(self.Widget.CurrentPage * self.Widget.PageSize, totalElementCount)
+    local filterText = isFiltered and " (filtered)" or ""
+    local totalPages = math.ceil(totalElementCount / self.Widget.PageSize)
+    self.Widget.CurrentPage = math.min(self.Widget.CurrentPage, totalPages)
+
+    return string.format(
+        "Page %d of %d%s | %d/%d elements",
+        self.Widget.CurrentPage,
+        totalPages,
+        filterText,
+        currentElementCount,
+        totalElementCount
+    )
+end
+
+function ListV2IMGUIWidget:UpdateSettings()
+    local settingValue = {
+        enabled = self.Widget.Enabled,
+        elements = self.Widget.Elements
+    }
+    IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
 end
 
 function ListV2IMGUIWidget:MoveElement(index, direction)
@@ -293,11 +393,7 @@ function ListV2IMGUIWidget:MoveElement(index, direction)
         self.Widget.Elements[index]
 
     -- Update the setting value
-    local settingValue = {
-        enabled = self.Widget.Enabled,
-        elements = self.Widget.Elements
-    }
-    IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
+    self:UpdateSettings()
 
     -- Refresh the widget
     self:FilterElements()
@@ -312,7 +408,6 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     textInput.AutoSelectAll = true
     textInput.SameLine = true
     textInput.OnChange = function(input)
-        _DS(input)
         newElementName = input.Text
     end
     local addButton = inputGroup:AddImageButton("Add", "ico_plus_d", IMGUIWidget:GetIconSizes())
@@ -322,20 +417,24 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end
     addButton.SameLine = true
     addButton.OnClick = function()
-        if newElementName ~= "" then
-            local newElement = { name = newElementName, enabled = true }
-            table.insert(self.Widget.Elements, newElement)
-            local settingValue = {
-                enabled = self.Widget.Enabled,
-                elements = self.Widget.Elements
-            }
-            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
-            self:FilterElements()
-            self:Refresh()
-            -- Reset input
-            textInput.Text = ""
-            newElementName = ""
-        end
+        if not newElementName or newElementName == "" then return end
+
+        local newElement = { name = newElementName, enabled = true }
+        table.insert(self.Widget.Elements, newElement)
+        self:UpdateSettings()
+        self:FilterElements()
+        self:Refresh()
+
+        -- Reset input after adding
+        textInput.Text = ""
+        newElementName = ""
+    end
+
+    if not self.Widget.Enabled then
+        textInput.ReadOnly = true
+        addButton.Disabled = true
+        self:ApplyDisabledStyle(textInput)
+        self:ApplyDisabledStyle(addButton)
     end
 end
 
@@ -360,8 +459,10 @@ end
 function ListV2IMGUIWidget:Refresh()
     clearGroup(self.Widget.TableGroup)
     clearGroup(self.Widget.InputGroup)
+    clearGroup(self.Widget.ResetGroup)
     self:RenderList()
     self:AddInputAndAddButton()
+    -- self:AddResetButton(self.Widget.ResetGroup, self.Widget.Setting, self.Widget.modUUID)
 end
 
 function ListV2IMGUIWidget:RefreshList()
@@ -392,6 +493,11 @@ function ListV2IMGUIWidget:AddResetButton(group, setting, modUUID)
     end
 
     self:AddDeleteAllButton(group, modUUID)
+
+    if not self.Widget.Enabled then
+        resetButton.Disabled = true
+        self:ApplyDisabledStyle(resetButton)
+    end
 end
 
 --- Add a delete all button to the widget
@@ -406,6 +512,11 @@ function ListV2IMGUIWidget:AddDeleteAllButton(group, modUUID)
         self:ShowDeleteAllConfirmationPopup()
     end
     deleteAllButton.SameLine = true
+
+    if not self.Widget.Enabled then
+        deleteAllButton.Disabled = true
+        self:ApplyDisabledStyle(deleteAllButton)
+    end
 end
 
 function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
@@ -435,4 +546,9 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
         self.Widget.ResetConfirmationPopup:Destroy()
     end
     self.Widget.ResetConfirmationPopup:Open()
+end
+
+-- Function to apply disabled style to elements
+function ListV2IMGUIWidget:ApplyDisabledStyle(element)
+    element:SetColor("Text", Color.NormalizedRGBA(100, 100, 100, 1))
 end
