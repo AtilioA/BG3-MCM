@@ -33,6 +33,9 @@ ModConfig.MCMParamsFilename = "mcm_params.json"
 
 --- Checks if a mod that has a blueprint has added MCM as a dependency. If it has not and MCM is not optional, a warning is logged.
 function ModConfig:CheckMCMDependency(modUUID, blueprint)
+    -- Avoid unnecessary verbosity
+    if Ext.IsServer() then return end
+
     if modUUID == ModuleUUID then
         return
     end

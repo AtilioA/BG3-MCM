@@ -1,3 +1,24 @@
+local warnedListDeprecation = {}
+
+local function warnListDeprecation(modUUID)
+    if warnedListDeprecation[modUUID] then return end
+
+    if modUUID then
+        local mod = Ext.Mod.GetMod(modUUID)
+        if not mod then return MCMWarn(0, "Mod UUID '" .. modUUID .. "' not found") end
+        local modInfo = mod.Info
+        if not modInfo then return MCMWarn(0, "Mod Info not found for mod UUID '" .. modUUID .. "'") end
+        MCMWarn(0,
+            "Mod '" ..
+            modInfo.Name ..
+            "' is using deprecated 'list' setting type. Please contact " ..
+            modInfo.Author .. " to update to 'list_v2'.")
+    else
+        MCMDeprecation(0, "Mod is using deprecated 'list' setting type. Please update usage to 'list_v2'.")
+    end
+    warnedListDeprecation[modUUID] = true
+end
+
 --- 'Factory' for creating IMGUI widgets based on the type of setting
 InputWidgetFactory = {
     int = function(group, setting, settingValue, modUUID)
@@ -13,6 +34,7 @@ InputWidgetFactory = {
         return IMGUIWidget:Create(group, setting, settingValue, modUUID, TextIMGUIWidget)
     end,
     list = function(group, setting, settingValue, modUUID)
+        warnListDeprecation(modUUID)
         return IMGUIWidget:Create(group, setting, settingValue, modUUID, ListIMGUIWidget)
     end,
     list_v2 = function(group, setting, settingValue, modUUID)
