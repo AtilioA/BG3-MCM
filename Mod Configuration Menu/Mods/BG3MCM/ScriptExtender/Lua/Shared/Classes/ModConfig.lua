@@ -47,7 +47,7 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
         MCMWarn(0,
             string.format(
                 "Mod '%s' does not have any dependencies. Please contact %s to add MCM as a dependency, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
-                modData.Info.Author))
+                modData.Info.Name, modData.Info.Author))
         return
     end
 
