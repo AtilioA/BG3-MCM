@@ -841,7 +841,14 @@
                     "description": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
                 },
                 "ExpectedValue": {
-                    "type": "string",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "boolean"
+                        }
+                    ],
                     "description": "The expected value of the setting specified by SettingId for this element to be visible."
                 }
             },
