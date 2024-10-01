@@ -158,6 +158,30 @@ function Printer:PrintWarning(debugLevel, ...)
     end
 end
 
+function Printer:PrintDeprecation(debugLevel, ...)
+    if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
+        local s
+        if self.DebugLevel > 1 then
+            s = string.format("[%s][%s][%s]: ", self.Prefix, "DEPRECATION", self.Machine)
+        else
+            s = string.format("[%s][%s][%s]: ", self.Prefix, "DEPRECATION", self.Machine)
+        end
+
+        if self.ApplyColor then
+            s = self:Colorize(s)
+        end
+
+        local f
+        if #{ ... } <= 1 then
+            f = tostring(...)
+        else
+            f = string.format(...)
+        end
+
+        Ext.Utils.PrintWarning(s .. f)
+    end
+end
+
 function Printer:PrintDebug(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
