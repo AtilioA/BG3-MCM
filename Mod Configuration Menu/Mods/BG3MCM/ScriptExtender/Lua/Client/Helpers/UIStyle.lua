@@ -61,7 +61,6 @@ UIStyle.Colors = {
     ["WindowBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
 }
 
--- OK
 UIStyle.Styles = {
     ["Alpha"]                   = 1.0,
     ["ButtonTextAlign"]         = 0.5, -- vec2?
@@ -102,21 +101,5 @@ function UIStyle:ApplyStyleToIMGUIElement(element)
         element:SetStyle(k, v)
     end
 end
-
--- --  Function to add padding each line both side to center and make button same size
--- function UIStyle:PadLines(lines)
---     local paddedLines = {}
---     for _, line in ipairs(lines) do
---         local magicNumber = 65 -
---             #
---             line
---         local blankToPrepend = math.ceil((magicNumber - #line) / 2)
---         line = ("%" .. (blankToPrepend + #line) .. "s"):format(line)
---         line = ("%-" .. magicNumber .. "s"):format(line)
---         table.insert(paddedLines, line)
---     end
---     local text = table.concat(paddedLines, "\n")
---     return text
--- end
 
 return UIStyle
