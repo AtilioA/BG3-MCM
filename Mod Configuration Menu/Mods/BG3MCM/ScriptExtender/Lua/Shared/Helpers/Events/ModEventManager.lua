@@ -105,10 +105,10 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
     local metapayload = createMetapayload(deprecatedEventName, preparedNetData)
 
     if Ext.IsServer() then
-        MCMDebug(2, "Broadcasting deprecated net message: " .. deprecatedEventName)
+        MCMDeprecation(2, "Broadcasting deprecated net message: " .. deprecatedEventName)
         postNetMessageToServerAndClients(metapayload)
     elseif not MCMProxy.IsMainMenu() then
-        MCMDebug(2, "Posting deprecated net message to server: " .. deprecatedEventName)
+        MCMDeprecation(2, "Posting deprecated net message to server: " .. deprecatedEventName)
         postNetMessageToServerAndClients(metapayload)
     end
 end
@@ -199,8 +199,8 @@ function ModEventManager:IssueDeprecationWarning()
             end
         end
 
-        if #warningMessages > 0 and (MCMAPI:GetSettingValue("print_deprecation_warnings", ModuleUUID) or Ext.Debug.IsDeveloperMode()) then
-            MCMWarn(0, header .. table.concat(warningMessages, "\n") .. footer)
+        if #warningMessages > 0 then
+            MCMDeprecation(0, header .. table.concat(warningMessages, "\n") .. footer)
         end
     end
 

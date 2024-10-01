@@ -32,6 +32,7 @@ function MCMDeprecation(debugLevel, ...)
     MCMPrinter:SetFontColor(200, 80, 0)
 
     if not MCMAPI:GetSettingValue("print_deprecation_warnings", ModuleUUID) then return end
+    if not Ext.Debug.IsDeveloperMode() then return end
 
     MCMPrinter:PrintDeprecation(debugLevel, ...)
 end

@@ -8,7 +8,7 @@ local function warnListDeprecation(modUUID)
         if not mod then return MCMWarn(0, "Mod UUID '" .. modUUID .. "' not found") end
         local modInfo = mod.Info
         if not modInfo then return MCMWarn(0, "Mod Info not found for mod UUID '" .. modUUID .. "'") end
-        MCMWarn(0,
+        MCMDeprecation(0,
             "Mod '" ..
             modInfo.Name ..
             "' is using deprecated 'list' setting type. Please contact " ..
