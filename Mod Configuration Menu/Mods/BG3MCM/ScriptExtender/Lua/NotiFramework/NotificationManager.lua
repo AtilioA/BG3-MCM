@@ -67,7 +67,8 @@ function NotificationManager:new(id, severity, title, message, options, modUUID)
             duration = options.duration,
             -- This shouldn't even be needed, but this is Lua after all
             dontShowAgainButton = options.dontShowAgainButton or DEFAULT_DONT_SHOW_AGAIN_BUTTON,
-            dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec or DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
+            dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec or
+                DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
             displayOnceOnly = options.displayOnceOnly,
             buttons = options.buttons
         }
@@ -200,7 +201,8 @@ function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow:SetStyle("Alpha", 1.0)
     self.IMGUIwindow:SetColor("WindowBg", Color.NormalizedRGBA(18, 18, 18, 1))
     self.IMGUIwindow:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
-    self.IMGUIwindow.AlwaysAutoResize = false
+    self.IMGUIwindow.AlwaysAutoResize = true
+    -- self.IMGUIwindow:SetSize({500, 250})
     self.IMGUIwindow.Closeable = false
     self.IMGUIwindow.Visible = true
     self.IMGUIwindow.Open = true
@@ -315,7 +317,12 @@ end
 ---@param options NotificationOptions The options for the warning
 ---@param modUUID string The UUID of the mod that owns the warning
 function NotificationManager:CreateIMGUINotification(id, severity, title, message, options, modUUID)
-    if Ext.IsClient() and NotificationPreferences:ShouldShowNotification(id, modUUID) then
+    if Ext.IsServer() then
+        -- TODO: Ext.Net.PostMessageToClient
+        return
+    end
+
+    if NotificationPreferences:ShouldShowNotification(id, modUUID) then
         return NotificationManager:new(id, severity, title, message, options, modUUID)
     end
 end
@@ -349,15 +356,36 @@ end
 
 function NotificationManager:CreateNotificationFunctions(modUUID)
     return {
+        --- Displays a warning message to the user
+        ---@param id string The unique identifier for the notification
+        ---@param title string The title of the warning IMGUIwindow
+        ---@param message string The message to display
+        ---@param options NotificationOptions The options for the warning
+        ---@return function
         ShowInfo = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'info', title, message, options, modUUID)
         end,
+        ---@param id string The unique identifier for the notification
+        ---@param title string The title of the warning IMGUIwindow
+        ---@param message string The message to display
+        ---@param options NotificationOptions The options for the warning
+        ---@return function
         ShowSuccess = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'success', title, message, options, modUUID)
         end,
+        ---@param id string The unique identifier for the notification
+        ---@param title string The title of the warning IMGUIwindow
+        ---@param message string The message to display
+        ---@param options NotificationOptions The options for the warning
+        ---@return function
         ShowWarning = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'warning', title, message, options, modUUID)
         end,
+        ---@param id string The unique identifier for the notification
+        ---@param title string The title of the warning IMGUIwindow
+        ---@param message string The message to display
+        ---@param options NotificationOptions The options for the warning
+        ---@return function
         ShowError = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'error', title, message, options, modUUID)
         end
