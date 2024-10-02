@@ -17,11 +17,11 @@ function MCMUtils.SortModsByName(mods)
         table.insert(sortedUuids, uuid)
     end
 
-    -- Sort the sortedUuids, placing the mod with UUID 755a8a72-407f-4f0d-9a33-274ac0f0b53d first
+    -- Sort the sortedUuids, placing MCM first
     table.sort(sortedUuids, function(a, b)
-        if a == "755a8a72-407f-4f0d-9a33-274ac0f0b53d" then
+        if a == ModuleUUID then
             return true
-        elseif b == "755a8a72-407f-4f0d-9a33-274ac0f0b53d" then
+        elseif b == ModuleUUID then
             return false
         else
             local modAName = MCMClientState:GetModName(a)
