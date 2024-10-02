@@ -81,6 +81,11 @@ local function injectMCMToModTable(modUUID)
         MCMAPI:SetSettingValue(settingId, value, modUUID)
     end
 
+    MCM.Reset = function(settingId)
+        -- MCMDebug(1, "Resetting setting value for settingId: " .. settingId)
+        MCMAPI:ResetSettingValue(settingId, modUUID)
+    end
+
     modTable.MCM = MCM
 
     MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. modUUID)
