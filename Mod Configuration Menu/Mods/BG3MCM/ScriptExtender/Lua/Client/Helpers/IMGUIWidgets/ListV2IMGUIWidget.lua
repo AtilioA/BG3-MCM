@@ -15,6 +15,7 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, modUUID)
     instance.Widget.PageSize = (setting.Options and setting.Options.PageSize) or 10
     if instance.Widget.PageSize < 5 then instance.Widget.PageSize = 5 end
     instance.Widget.ShowSearchBar = (setting.Options and setting.Options.ShowSearchBar) ~= false
+    instance.Widget.ReadOnly = (setting.Options and setting.Options.ReadOnly) == true
 
     instance.Widget.CurrentPage = 1
     instance.Widget.FilteredElements = {}
@@ -23,15 +24,19 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, modUUID)
     -- Add groups
     instance.Widget.HeaderGroup = group:AddGroup("ListHeaderGroup_" .. setting.Id)
     instance.Widget.TableGroup = group:AddGroup("ListTableGroup_" .. setting.Id)
-    instance.Widget.InputGroup = group:AddGroup("ListInputGroup_" .. setting.Id)
-    instance.Widget.ResetGroup = group:AddGroup("ListResetGroup_" .. setting.Id)
+    if not instance.Widget.ReadOnly then
+        instance.Widget.InputGroup = group:AddGroup("ListInputGroup_" .. setting.Id)
+        instance.Widget.ResetGroup = group:AddGroup("ListResetGroup_" .. setting.Id)
+    end
 
     instance:FilterElements()
     instance:RenderHeader()
     instance:RenderList()
-    instance:AddInputAndAddButton()
-    -- Not needed since it's called by IMGUIWidget
-    -- instance:AddResetButton(instance.Widget.ResetGroup, setting, modUUID)
+    if not instance.Widget.ReadOnly then
+        instance:AddInputAndAddButton()
+        -- Not needed since it's called by IMGUIWidget
+        -- instance:AddResetButton(instance.Widget.ResetGroup, setting, modUUID)
+    end
 
     return instance
 end
@@ -155,7 +160,11 @@ function ListV2IMGUIWidget:RenderList()
 end
 
 function ListV2IMGUIWidget:CreateTable(tableGroup)
-    local columns = 4
+    local columns = 3 -- Reduced by 1 if ReadOnly is true
+    if not self.Widget.ReadOnly then
+        columns = 4
+    end
+
     local imguiTable = tableGroup:AddTable("", columns)
     imguiTable.Sortable = true
     imguiTable.BordersOuter = true
@@ -170,7 +179,9 @@ function ListV2IMGUIWidget:CreateTable(tableGroup)
     imguiTable:AddColumn("Active", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
     imguiTable:AddColumn("Up/down", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
     imguiTable:AddColumn("Name", "WidthStretch")
-    imguiTable:AddColumn("Remove", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    if not self.Widget.ReadOnly then
+        imguiTable:AddColumn("Remove", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    end
 
     if not self.Widget.Enabled then
         self:ApplyDisabledStyle(imguiTable)
@@ -184,7 +195,9 @@ function ListV2IMGUIWidget:AddTableHeader(imguiTable)
     headerRow:AddCell():AddText("Active")
     headerRow:AddCell():AddText("Up/down")
     headerRow:AddCell():AddText("Name")
-    headerRow:AddCell():AddText("Remove")
+    if not self.Widget.ReadOnly then
+        headerRow:AddCell():AddText("Remove")
+    end
 end
 
 function ListV2IMGUIWidget:RenderTableRow(imguiTable, entry)
@@ -195,7 +208,9 @@ function ListV2IMGUIWidget:RenderTableRow(imguiTable, entry)
     self:AddCheckboxCell(tableRow, element)
     self:AddMoveButtons(tableRow, indexInElements, element)
     self:AddNameCell(tableRow, element)
-    self:AddRemoveButton(tableRow, indexInElements, element)
+    if not self.Widget.ReadOnly then
+        self:AddRemoveButton(tableRow, indexInElements, element)
+    end
 end
 
 function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
@@ -496,11 +511,15 @@ end
 
 function ListV2IMGUIWidget:Refresh()
     clearGroup(self.Widget.TableGroup)
-    clearGroup(self.Widget.InputGroup)
-    clearGroup(self.Widget.ResetGroup)
+    if not self.Widget.ReadOnly then
+        clearGroup(self.Widget.InputGroup)
+        clearGroup(self.Widget.ResetGroup)
+    end
     self:RenderList()
-    self:AddInputAndAddButton()
-    -- self:AddResetButton(self.Widget.ResetGroup, self.Widget.Setting, self.Widget.modUUID)
+    if not self.Widget.ReadOnly then
+        self:AddInputAndAddButton()
+        -- self:AddResetButton(self.Widget.ResetGroup, self.Widget.Setting, self.Widget.modUUID)
+    end
 end
 
 function ListV2IMGUIWidget:RefreshList()
@@ -530,7 +549,9 @@ function ListV2IMGUIWidget:AddResetButton(group, setting, modUUID)
         self:ShowResetConfirmationPopup(setting, modUUID)
     end
 
-    self:AddDeleteAllButton(group, modUUID)
+    if not self.Widget.ReadOnly then
+        self:AddDeleteAllButton(group, modUUID)
+    end
 
     if not self.Widget.Enabled then
         resetButton.Disabled = true
