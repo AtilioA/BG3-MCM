@@ -94,8 +94,10 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     local text = self.Widget.ConfirmationPopup:AddText("Are you sure you want to delete all elements?")
     text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+
     local confirmButton = self.Widget.ConfirmationPopup:AddButton("Yes")
     confirmButton.IDContext = self.Widget.modUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
+    confirmButton:Tooltip():AddText("Confirm deletion of all elements")
     confirmButton.OnClick = function()
         self.Widget.Elements = {}
         local settingValue = {
@@ -110,9 +112,12 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     local cancelButton = self.Widget.ConfirmationPopup:AddButton("No")
     cancelButton.IDContext = self.Widget.modUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id
+    cancelButton:Tooltip():AddText("Cancel deletion of all elements")
     cancelButton.OnClick = function()
         self.Widget.ConfirmationPopup:Destroy()
     end
+    cancelButton.SameLine = true
+
     self.Widget.ConfirmationPopup:Open()
 end
 
@@ -571,6 +576,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
 
     local confirmButton = self.Widget.ResetConfirmationPopup:AddButton("Yes")
     confirmButton.IDContext = self.Widget.modUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
+    confirmButton:Tooltip():AddText("Confirm reset of the list")
     confirmButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
         self:UpdateCurrentValue({
@@ -582,9 +588,12 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
 
     local cancelButton = self.Widget.ResetConfirmationPopup:AddButton("No")
     cancelButton.IDContext = self.Widget.modUUID .. "_CancelReset_" .. self.Widget.Setting.Id
+    cancelButton:Tooltip():AddText("Cancel reset of the list")
     cancelButton.OnClick = function()
         self.Widget.ResetConfirmationPopup:Destroy()
     end
+    cancelButton.SameLine = true
+
     self.Widget.ResetConfirmationPopup:Open()
 end
 
