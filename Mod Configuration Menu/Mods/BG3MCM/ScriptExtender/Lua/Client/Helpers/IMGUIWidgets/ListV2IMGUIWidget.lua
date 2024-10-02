@@ -470,17 +470,22 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end
     addButton.SameLine = true
     addButton.OnClick = function()
-        if not newElementName or newElementName == "" then return end
+        xpcall(function()
+            -- Dumb IMGUI bug workaround (yes, it's a bug, don't cope)
+            if not newElementName or newElementName == "" then return end
 
-        local newElement = { name = newElementName, enabled = true }
-        table.insert(self.Widget.Elements, newElement)
-        self:UpdateSettings()
-        self:FilterElements()
-        self:Refresh()
+            local newElement = { name = newElementName, enabled = true }
+            table.insert(self.Widget.Elements, newElement)
+            self:UpdateSettings()
+            self:FilterElements()
+            self:Refresh()
 
-        -- Reset input after adding
-        textInput.Text = ""
-        newElementName = ""
+            -- Reset input after adding
+            textInput.Text = ""
+            newElementName = ""
+        end, function(err)
+            MCMDebug(1, "Error adding new element: " .. tostring(err))
+        end)
     end
 
     if not self.Widget.Enabled then
