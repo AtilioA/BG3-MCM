@@ -24,6 +24,7 @@ function MCMDependencies:CreateNPAKMIMGUIWarning()
         local id = "NPAKM_MCM_Compatibility_Patch_Missing"
         NotificationManager:CreateIMGUINotification(id, 'error', "Wrong No Press Any Key Menu version",
             "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\nYour main menu may not display the MCM button correctly.\n\nPlease replace it with the patched version from Caites' mod page.",
+            {},
             ModuleUUID)
         self.NPAKMWarned = true
     end
@@ -44,7 +45,8 @@ function MCMDependencies:WarnAboutLoadOrderDependencies()
     for _, issue in ipairs(issues) do
         local dependencyIssueTitle = "Dependency issue detected: " ..
             issue.modName .. " depends on " .. issue.dependencyName
-        NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage, {}, ModuleUUID)
+        NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage, {},
+            ModuleUUID)
 
         MCMWarn(0, issue.errorMessage)
     end
