@@ -241,6 +241,50 @@ function ModConfig:LoadSettingsForMod(modUUID, blueprint)
     end
 end
 
+function ModConfig:MigrateDeprecatedKeys(blueprint, settings)
+    local allSettings = blueprint:GetAllSettings()
+    MCMDebug(2, "Migrating deprecated keys for blueprint: " .. blueprint:GetModUUID())
+
+    for _, setting in pairs(allSettings) do
+        -- If it's a listV2 setting, migrate it to the new format
+        self:HandleListV2SettingMigration(blueprint, setting, settings)
+    end
+end
+
+function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
+    if setting:GetType() ~= "list_v2" then
+        return
+    end
+
+    local oldSetting = settings[setting:GetId()]
+    if not oldSetting or type(oldSetting) ~= "table" or oldSetting.elements ~= nil then
+        MCMWarn(1, "Old setting for " .. setting:GetId() .. " is not valid. Skipping migration.")
+        return
+    end
+
+    settings[setting:GetId()] = {
+        elements = {},
+        enabled = true
+    }
+
+    for _, element in ipairs(oldSetting) do
+        MCMDebug(1, "Migrating element: " .. element .. " for setting: " .. setting:GetId())
+        table.insert(settings[setting:GetId()].elements, {
+            name = element,
+            enabled = true
+        })
+    end
+
+    NotificationManager:CreateIMGUINotification('Migrated_listV2_setting_' ..
+        setting:GetId() .. 'for_mod_' .. blueprint:GetModUUID(), 'success',
+        "Migrated ListV2 setting " .. setting:GetLocaName(),
+        " The ListV2 setting for mod " .. blueprint:GetModUUID() .. " has been migrated to the new format.", {
+            duration = 10,
+        }, ModuleUUID)
+
+    MCMSuccess(0, "Successfully migrated ListV2 setting: " .. setting:GetId())
+end
+
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
 ---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
@@ -248,6 +292,7 @@ end
 ---@param settingsFilePath string The file path of the settings.json file
 function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
     MCMSuccess(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modUUID).Info.Name)
+    self:MigrateDeprecatedKeys(blueprint, settings)
     -- Add new settings, remove deprecated settings, update JSON file
     self:AddKeysMissingFromBlueprint(blueprint, settings)
     self:RemoveDeprecatedKeys(blueprint, settings)
