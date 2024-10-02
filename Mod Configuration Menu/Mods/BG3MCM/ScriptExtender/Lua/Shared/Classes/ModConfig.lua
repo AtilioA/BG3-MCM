@@ -46,11 +46,12 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
 
     local modData = Ext.Mod.GetMod(modUUID)
     local modDependencies = modData.Dependencies
+    local modVersion = string.format("%d.%d.%d.%d", modData.Info.ModVersion[1], modData.Info.ModVersion[2], modData.Info.ModVersion[3], modData.Info.ModVersion[4])
     if not modDependencies then
         MCMWarn(0,
             string.format(
-                "Mod '%s' does not have any dependencies. Please contact %s to add MCM as a dependency, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
-                modData.Info.Name, modData.Info.Author))
+                "Mod '%s' %s does not have any dependencies. Please contact %s to add MCM as a dependency, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
+                modData.Info.Name, modVersion, modData.Info.Author))
         return
     end
 
@@ -65,8 +66,8 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
     if not hasMCMDependency then
         MCMWarn(0,
             string.format(
-                "Mod '%s' requires MCM but does not have MCM as a dependency. Please contact %s to add MCM as a dependency in the meta.lsx file, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
-                modData.Info.Name,
+                "Mod '%s' %s requires MCM but does not have MCM as a dependency. Please contact %s to add MCM as a dependency in the meta.lsx file, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
+                modData.Info.Name, modVersion,
                 modData.Info.Author))
     end
 end
