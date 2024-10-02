@@ -46,7 +46,8 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
 
     local modData = Ext.Mod.GetMod(modUUID)
     local modDependencies = modData.Dependencies
-    local modVersion = string.format("%d.%d.%d.%d", modData.Info.ModVersion[1], modData.Info.ModVersion[2], modData.Info.ModVersion[3], modData.Info.ModVersion[4])
+    local modVersion = string.format("%d.%d.%d.%d", modData.Info.ModVersion[1], modData.Info.ModVersion[2],
+        modData.Info.ModVersion[3], modData.Info.ModVersion[4])
     if not modDependencies then
         MCMWarn(0,
             string.format(
@@ -214,6 +215,18 @@ function ModConfig:GetSettings()
     return self.mods
 end
 
+-- Function to determine if a setting group should be preserved in the settings file (when flattening the JSON)
+local function shouldPreserveSettingGroup(key, value)
+    -- Function to determine if a table is a setting group
+    local function isListV2SettingGroup(tbl)
+        return type(tbl) == "table" and tbl.elements ~= nil and tbl.enabled ~= nil
+    end
+
+    if isListV2SettingGroup(value) or table.isArray(value) or KeybindingManager:IsKeybindingTable(value) then
+        return true
+    end
+end
+
 --- Load the settings for a mod from the settings file.
 ---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
@@ -221,7 +234,7 @@ function ModConfig:LoadSettingsForMod(modUUID, blueprint)
     local settingsFilePath = self:GetSettingsFilePath(modUUID)
     local settings = JsonLayer:LoadJSONFile(settingsFilePath)
     if settings then
-        local flattenedSettings = JsonLayer:FlattenSettingsJSON(settings)
+        local flattenedSettings = JsonLayer:FlattenSettingsJSON(settings, shouldPreserveSettingGroup)
         self:HandleLoadedSettings(modUUID, blueprint, flattenedSettings, settingsFilePath)
     else
         self:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
@@ -271,13 +284,15 @@ end
 --- @param settings BlueprintSetting The settings to update
 function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
     local allSettings = blueprint:GetAllSettings()
-
     for _, setting in pairs(allSettings) do
         if settings[setting:GetId()] == nil then
-            if settings[setting:GetOldId()] ~= nil and settings[setting:GetOldId()] ~= nil then
+            MCMDebug(3, "Setting missing: " .. setting:GetId())
+            if settings[setting:GetOldId()] ~= nil then
                 settings[setting:GetId()] = settings[setting:GetOldId()]
+                MCMDebug(3, "Using old setting value for: " .. setting:GetId())
             else
                 settings[setting:GetId()] = setting:GetDefault()
+                MCMDebug(3, "Setting default value for: " .. setting:GetId())
             end
         end
     end
@@ -298,6 +313,7 @@ function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
     -- Remove any settings that are not in the valid set
     for key in pairs(settings) do
         if not validSettings[key] then
+            MCMWarn(2, "Removing deprecated setting: " .. key)
             settings[key] = nil
         end
     end

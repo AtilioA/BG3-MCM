@@ -133,26 +133,34 @@ function JsonLayer:LoadBlueprintForMod(modData)
     local data = self:TryParseModBlueprintJSON(config, modData.Info.ModuleUUID)
     if data == nil or type(data) ~= "table" then
         return self:JSONParseError("Failed to load MCM blueprint JSON file for mod: " ..
-            modData.Info.Name .. ". Blueprint is present but malformed. Please contact " .. modData.Info.Author .. " about this issue.")
+            modData.Info.Name ..
+            ". Blueprint is present but malformed. Please contact " .. modData.Info.Author .. " about this issue.")
     end
 
     return data
 end
 
+--- REFACTOR: Flattening the settings table is not a good idea, and this could create issues with more arbitrary settings structures (in the future). A tree structure should probably solve this issue while not relying on a flat associative array.
 --- Flatten the settings table into a single table with the setting ID as the key
 ---@param settings table The settings table to flatten
----@return table flattenedSettings flattened settings table
-function JsonLayer:FlattenSettingsJSON(settings)
+---@param shouldPreserveFunction function A predicate function that determines whether to preserve a table
+---@return table flattenedSettings Flattened settings table
+function JsonLayer:FlattenSettingsJSON(settings, shouldPreserveFunction)
     local flatJson = {}
 
     -- Function to recursively flatten the table
     local function flattenTable(tbl)
         for key, value in pairs(tbl) do
-            if type(value) == "table" and not table.isArray(value) and not KeybindingManager:IsKeybindingTable(value) then
-                -- If the value is a table, recurse
-                flattenTable(value)
+            if type(value) == "table" then
+                if shouldPreserveFunction and shouldPreserveFunction(key, value) then
+                    -- Preserve the table as a separate top-level key
+                    flatJson[key] = value
+                else
+                    -- Recurse into nested tables
+                    flattenTable(value)
+                end
             else
-                -- If the value is not a table, add it to the flat table
+                -- Assign non-table values directly
                 flatJson[key] = value
             end
         end
