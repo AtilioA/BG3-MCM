@@ -121,3 +121,26 @@ function VCTimer:ExecuteWithIntervalUntilCondition(mainCallback, intervalMs, con
 
     attemptCallbackExecution()
 end
+
+--- Creates a debounced version of the provided function.
+--- The debounced function delays the execution of `func` until after `delayInMs` milliseconds have elapsed since the last time the debounced function was invoked.
+--- If the debounced function is called again before the delay period ends, the previous timer is canceled and a new one is started.
+--- @param delayInMs integer The delay in milliseconds before `func` is executed.
+--- @param func function The function to debounce.
+--- @return function - A debounced version of `func`.
+function VCTimer:Debounce(delayInMs, func)
+    local timer = nil
+
+    return function(...)
+        local args = { ... }
+
+        if timer then
+            Ext.Timer.Cancel(timer)
+        end
+
+        timer = Ext.Timer.WaitFor(delayInMs, function()
+            func(table.unpack(args))
+            timer = nil
+        end)
+    end
+end
