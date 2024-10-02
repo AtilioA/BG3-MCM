@@ -50,24 +50,33 @@ end
 ---@param issues table The table to record issues in.
 local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, issues)
     local function checkIfDependencyHasVersionInfo()
-        if areVersionsEqual(loadedDependencyMod.Info.ModVersion, { 0, 0, 0, 0 }) then
-            local depMod = Ext.Mod.GetMod(dependency.ModuleUUIDString)
-            local dependencyInfo = depMod and depMod.Info or {}
-            MCMDeprecation(0,
-                string.format(
-                    "Ignoring dependency '%s' for mod '%s' because it has no version information.\nPlease contact %s to update/fix the meta.lsx file for '%s'. The version node might have an outdated ID (it should be Version64).",
-                    dependencyInfo.Name, depMod.Info.Name, dependencyInfo.Author, dependencyInfo.Name))
-            return true
-        end
-        return false
+        if not areVersionsEqual(loadedDependencyMod.Info.ModVersion, { 0, 0, 0, 0 }) then return false end
+
+        local depMod = Ext.Mod.GetMod(dependency.ModuleUUIDString)
+        local dependencyInfo = depMod and depMod.Info or {}
+
+        local issueID = string.format("Dependency_Missing_Version_Info_%s_Requires_%s",
+            mod.Info.ModuleUUID,
+            dependency.ModuleUUIDString
+        )
+        local errorMessage = string.format(
+            "Ignoring dependency '%s' for mod '%s' because it has no version information.\nPlease contact %s to update/fix the meta.lsx file for '%s'.\nThe version node might have an outdated ID (it should be Version64).",
+            dependencyInfo.Name, depMod.Info.Name, dependencyInfo.Author, dependencyInfo.Name)
+
+        table.insert(issues, {
+            id = issueID,
+            modName = mod.Info.Name,
+            dependencyName = dependency.Name,
+            errorMessage = errorMessage
+        })
+        return true
     end
 
     local mainModVersion = mod.Info.ModVersion
     local loadedDependencyVersion = loadedDependencyMod.Info.ModVersion
     local requiredVersion = dependency.ModVersion
 
-
-    -- Necessary due to a SE bug
+    -- Necessary due to old/broken meta.lsx
     if checkIfDependencyHasVersionInfo() then
         return
     end
