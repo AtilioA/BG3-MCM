@@ -1,22 +1,59 @@
+---@class ElementTable
+---@field enabled boolean
+---@field name string
+
+---@class FilteredElements
+---@field element ElementTable
+---@field indexInElements number
+
+---@class ListV2SettingValue
+---@field enabled boolean
+---@field elements ElementTable[]
+
 ---@class ListV2IMGUIWidget: IMGUIWidget
 ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 
-function ListV2IMGUIWidget:new(group, setting, initialValue, modUUID)
+---@class ListV2IMGUIWidget.Widget
+---@field Group ExtuiGroup The main IMGUI group for the widget
+---@field ModUUID string The UUID of the mod owning this widget
+---@field Setting BlueprintSetting The setting associated with this widget
+---@field Enabled boolean Indicates if the list is enabled
+---@field Elements ElementTable[] The list of elements
+---@field PageSize number Number of elements per page
+---@field ShowSearchBar boolean Indicates if the search bar is shown
+---@field AllowReordering boolean Indicates if elements can be reordered
+---@field ReadOnly boolean Indicates if the list is read-only
+---@field CurrentPage number The current page number
+---@field FilteredElements FilteredElements[] The filtered elements based on search
+---@field SearchText string The current search text
+---@field HeaderGroup ExtuiGroup The header group
+---@field TableGroup ExtuiGroup The table group
+---@field InputGroup ExtuiGroup|nil The input group (nil if ReadOnly)
+---@field ResetGroup ExtuiGroup|nil The reset group (nil if ReadOnly)
+---@field ConfirmationPopup ExtuiGroup|nil The confirmation popup group (if open)
+
+---Creates a new instance of ListV2IMGUIWidget
+---@param group ExtuiGroup The parent IMGUI group
+---@param setting BlueprintSetting The setting associated with this widget
+---@param initialValue ListV2SettingValue|nil The initial value for the widget
+---@param ModUUID string The UUID of the mod owning this widget
+---@return ListV2IMGUIWidget instance The new instance of ListV2IMGUIWidget
+function ListV2IMGUIWidget:new(group, setting, initialValue, ModUUID)
     local instance = setmetatable({}, { __index = ListV2IMGUIWidget })
     instance.Widget = {}
     instance.Widget.Group = group
-    instance.Widget.modUUID = modUUID
+    instance.Widget.ModUUID = ModUUID
     instance.Widget.Setting = setting
 
     initialValue = initialValue or {}
     instance.Widget.Enabled = initialValue.enabled ~= false
     instance.Widget.Elements = initialValue.elements or {}
 
-    instance.Widget.PageSize = (setting.Options and setting.Options.PageSize) or 10
+    instance.Widget.PageSize = (setting:GetOptions() and setting:GetOptions().PageSize) or 10
     if instance.Widget.PageSize < 5 then instance.Widget.PageSize = 5 end
-    instance.Widget.ShowSearchBar = (setting.Options and setting.Options.ShowSearchBar) ~= false
-    instance.Widget.AllowReordering = (setting.Options and setting.Options.AllowReordering) ~= false
-    instance.Widget.ReadOnly = (setting.Options and setting.Options.ReadOnly) == true
+    instance.Widget.ShowSearchBar = (setting:GetOptions() and setting:GetOptions().ShowSearchBar) ~= false
+    instance.Widget.AllowReordering = (setting:GetOptions() and setting:GetOptions().AllowReordering) ~= false
+    instance.Widget.ReadOnly = (setting:GetOptions() and setting:GetOptions().ReadOnly) == true
 
     instance.Widget.CurrentPage = 1
     instance.Widget.FilteredElements = {}
@@ -36,18 +73,20 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, modUUID)
     if not instance.Widget.ReadOnly then
         instance:AddInputAndAddButton()
         -- Not needed since it's called by IMGUIWidget
-        -- instance:AddResetButton(instance.Widget.ResetGroup, setting, modUUID)
+        -- instance:AddResetButton(instance.Widget.ResetGroup, setting, ModUUID)
     end
 
     return instance
 end
 
+---Renders the header section of the widget, including the enable checkbox and search bar
+---@return nil
 function ListV2IMGUIWidget:RenderHeader()
     local headerGroup = self.Widget.HeaderGroup
 
     -- Enable/disable entire list
     local enabledCheckbox = headerGroup:AddCheckbox("Enable entire list")
-    enabledCheckbox.IDContext = self.Widget.modUUID .. "_EnableCheckbox_" .. self.Widget.Setting.Id
+    enabledCheckbox.IDContext = self.Widget.ModUUID .. "_EnableCheckbox_" .. self.Widget.Setting.Id
     enabledCheckbox:Tooltip():AddText(
         "Check to enable the list, uncheck to disable it, without removing/disabling any elements.")
     enabledCheckbox.Checked = self.Widget.Enabled
@@ -57,7 +96,7 @@ function ListV2IMGUIWidget:RenderHeader()
             enabled = self.Widget.Enabled,
             elements = self.Widget.Elements
         }
-        IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
+        IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.ModUUID)
         self:Refresh()
     end
     enabledCheckbox.SameLine = false
@@ -68,7 +107,7 @@ function ListV2IMGUIWidget:RenderHeader()
         headerGroup:AddText("Search by name:")
         if not self.Widget.SearchInput then
             self.Widget.SearchInput = headerGroup:AddInputText("", self.Widget.SearchText)
-            self.Widget.SearchInput.IDContext = self.Widget.modUUID .. "_SearchInput_" .. self.Widget.Setting.Id
+            self.Widget.SearchInput.IDContext = self.Widget.ModUUID .. "_SearchInput_" .. self.Widget.Setting.Id
             self.Widget.SearchInput.OnChange = function(input)
                 self.Widget.SearchText = input.Text
                 self:FilterElements()
@@ -86,6 +125,8 @@ function ListV2IMGUIWidget:RenderHeader()
     end
 end
 
+---Displays a confirmation popup before deleting all elements
+---@return nil
 function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     -- Check if the popup group exists and destroy it if it does
     xpcall(function()
@@ -96,13 +137,13 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     -- Create a new group for popup confirmation
     self.Widget.ConfirmationPopup = self.Widget.Group:AddPopup("ConfirmDeleteAllPopup")
-    self.Widget.ConfirmationPopup.IDContext = self.Widget.modUUID .. "_ConfirmDeleteAllPopup_" .. self.Widget.Setting.Id
+    self.Widget.ConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAllPopup_" .. self.Widget.Setting.Id
 
     local text = self.Widget.ConfirmationPopup:AddText("Are you sure you want to delete all elements?")
     text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
 
     local confirmButton = self.Widget.ConfirmationPopup:AddButton("Yes")
-    confirmButton.IDContext = self.Widget.modUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
+    confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
     confirmButton:Tooltip():AddText("Confirm deletion of all elements")
     confirmButton.OnClick = function()
         self.Widget.Elements = {}
@@ -110,14 +151,14 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
             enabled = self.Widget.Enabled,
             elements = self.Widget.Elements
         }
-        IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
+        IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.ModUUID)
         self:FilterElements()
         self:Refresh()
         self.Widget.ConfirmationPopup:Destroy()
     end
 
     local cancelButton = self.Widget.ConfirmationPopup:AddButton("No")
-    cancelButton.IDContext = self.Widget.modUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id
+    cancelButton.IDContext = self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id
     cancelButton:Tooltip():AddText("Cancel deletion of all elements")
     cancelButton.OnClick = function()
         self.Widget.ConfirmationPopup:Destroy()
@@ -127,6 +168,8 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     self.Widget.ConfirmationPopup:Open()
 end
 
+---Filters elements based on the current search text
+---@return nil
 function ListV2IMGUIWidget:FilterElements()
     local filtered = {}
     local searchText = self.Widget.SearchText:lower()
@@ -140,6 +183,8 @@ function ListV2IMGUIWidget:FilterElements()
     self.Widget.FilteredElements = filtered
 end
 
+---Renders the list of elements, including the table and pagination controls
+---@return nil
 function ListV2IMGUIWidget:RenderList()
     local tableGroup = self.Widget.TableGroup
     local elements = self.Widget.FilteredElements
@@ -160,6 +205,9 @@ function ListV2IMGUIWidget:RenderList()
     self:RenderPaginationControls(tableGroup, totalPages)
 end
 
+---Creates the IMGUI table with appropriate columns
+---@param tableGroup ExtuiGroup The group to which the table belongs
+---@return ExtuiTable imguiTable The created IMGUI table
 function ListV2IMGUIWidget:CreateTable(tableGroup)
     local columns = 4
     -- No 'Remove' column if the list is read-only
@@ -198,6 +246,9 @@ function ListV2IMGUIWidget:CreateTable(tableGroup)
     return imguiTable
 end
 
+---Adds the header row to the IMGUI table
+---@param imguiTable any The IMGUI table to which the header is added (replace `any` with the actual table type if known)
+---@return nil
 function ListV2IMGUIWidget:AddTableHeader(imguiTable)
     local headerRow = imguiTable:AddRow()
     headerRow:AddCell():AddText("Active")
@@ -210,6 +261,10 @@ function ListV2IMGUIWidget:AddTableHeader(imguiTable)
     end
 end
 
+---Renders a single table row for an element
+---@param imguiTable any The IMGUI table to which the row is added (replace `any` with the actual table type if known)
+---@param entry { element: ElementTable, indexInElements: number } The entry containing the element and its index
+---@return nil
 function ListV2IMGUIWidget:RenderTableRow(imguiTable, entry)
     local element = entry.element
     local indexInElements = entry.indexInElements
@@ -228,10 +283,14 @@ function ListV2IMGUIWidget:RenderTableRow(imguiTable, entry)
     end
 end
 
+---Adds the checkbox cell to a table row
+---@param tableRow any The IMGUI table row (replace `any` with the actual table type if known)
+---@param element ElementTable The element to which the checkbox corresponds
+---@return nil
 function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     local checkboxCell = tableRow:AddCell()
     local enabledCheckbox = checkboxCell:AddCheckbox("")
-    enabledCheckbox.IDContext = self.Widget.modUUID ..
+    enabledCheckbox.IDContext = self.Widget.ModUUID ..
         "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name
     enabledCheckbox.Checked = element.enabled ~= false
     enabledCheckbox.OnChange = function(checkbox)
@@ -251,16 +310,21 @@ function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     end
 end
 
+---Adds the move up and move down buttons to a table row
+---@param tableRow any The IMGUI table row (replace `any` with the actual table type if known)
+---@param indexInElements number The current index of the element in the list
+---@param element ElementTable The element to move
+---@return nil
 function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     local moveCell = tableRow:AddCell()
 
     -- Move up button
     local moveUpButton = moveCell:AddImageButton("", "panner_up_h", IMGUIWidget:GetIconSizes())
-    moveUpButton.IDContext = self.Widget.modUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name
+    moveUpButton.IDContext = self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not moveUpButton.Image or moveUpButton.Image.Icon == "" then
         moveUpButton:Destroy()
         moveUpButton = moveCell:AddButton("Up")
-        moveUpButton.IDContext = self.Widget.modUUID ..
+        moveUpButton.IDContext = self.Widget.ModUUID ..
             "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveUpButton.OnClick = function() self:MoveElement(indexInElements, -1) end
@@ -268,12 +332,12 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
 
     -- Move down button
     local moveDownButton = moveCell:AddImageButton("", "panner_down_h", IMGUIWidget:GetIconSizes())
-    moveDownButton.IDContext = self.Widget.modUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name
+    moveDownButton.IDContext = self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name
     moveDownButton.SameLine = true
     if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
         moveDownButton:Destroy()
         moveDownButton = moveCell:AddButton("Down")
-        moveDownButton.IDContext = self.Widget.modUUID ..
+        moveDownButton.IDContext = self.Widget.ModUUID ..
             "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveDownButton.OnClick = function() self:MoveElement(indexInElements, 1) end
@@ -287,23 +351,32 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     end
 end
 
+---Adds the name cell to a table row
+---@param tableRow any The IMGUI table row (replace `any` with the actual table type if known)
+---@param element ElementTable The element whose name is being displayed
+---@return nil
 function ListV2IMGUIWidget:AddNameCell(tableRow, element)
     local nameCell = tableRow:AddCell()
     local nameText = nameCell:AddText(element.name)
-    nameText.IDContext = self.Widget.modUUID .. "_ElementName_" .. self.Widget.Setting.Id .. "_" .. element.name
+    nameText.IDContext = self.Widget.ModUUID .. "_ElementName_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not self.Widget.Enabled then
         self:ApplyDisabledStyle(nameText)
     end
 end
 
+---Adds the remove button to a table row
+---@param tableRow any The IMGUI table row (replace `any` with the actual table type if known)
+---@param indexInElements number The current index of the element in the list
+---@param element ElementTable The element to remove
+---@return nil
 function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
     local removeCell = tableRow:AddCell()
     local removeButton = removeCell:AddImageButton("", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
-    removeButton.IDContext = self.Widget.modUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name
+    removeButton.IDContext = self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not removeButton.Image or removeButton.Image.Icon == "" then
         removeButton:Destroy()
         removeButton = removeCell:AddButton("Remove")
-        removeButton.IDContext = self.Widget.modUUID ..
+        removeButton.IDContext = self.Widget.ModUUID ..
             "_Remove_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     removeButton.OnClick = function()
@@ -320,21 +393,29 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
     end
 end
 
+---Renders the pagination controls below the table
+---@param tableGroup ExtuiGroup The group to which pagination controls are added
+---@param totalPages number The total number of pages
+---@return nil
 function ListV2IMGUIWidget:RenderPaginationControls(tableGroup, totalPages)
     local paginationGroup = tableGroup:AddGroup("PaginationGroup")
-    paginationGroup.IDContext = self.Widget.modUUID .. "_PaginationGroup_" .. self.Widget.Setting.Id
+    paginationGroup.IDContext = self.Widget.ModUUID .. "_PaginationGroup_" .. self.Widget.Setting.Id
     paginationGroup:AddSpacing()
     if totalPages > 1 then
         self:AddPaginationButtons(paginationGroup, totalPages)
     end
 end
 
+---Adds pagination buttons to the pagination group
+---@param paginationGroup ExtuiGroup The group to which pagination buttons are added
+---@param totalPages number The total number of pages
+---@return nil
 function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     local currentPage = self.Widget.CurrentPage
     local function addPageButton(label, pageNumber, disabled)
         local paddedLabel = " " .. label .. " "
         local button = paginationGroup:AddButton(paddedLabel)
-        button.IDContext = self.Widget.modUUID .. "_PageButton_" .. self.Widget.Setting.Id .. "_" .. pageNumber
+        button.IDContext = self.Widget.ModUUID .. "_PageButton_" .. self.Widget.Setting.Id .. "_" .. pageNumber
         button.OnClick = function()
             self.Widget.CurrentPage = pageNumber
             self:Refresh()
@@ -348,11 +429,11 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
 
     -- Previous Button
     local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
-    prevButton.IDContext = self.Widget.modUUID .. "_PrevPage_" .. self.Widget.Setting.Id
+    prevButton.IDContext = self.Widget.ModUUID .. "_PrevPage_" .. self.Widget.Setting.Id
     if not prevButton.Image or prevButton.Image.Icon == "" then
         prevButton:Destroy()
         prevButton = paginationGroup:AddButton("<")
-        prevButton.IDContext = self.Widget.modUUID .. "_PrevPage_Button_" .. self.Widget.Setting.Id
+        prevButton.IDContext = self.Widget.ModUUID .. "_PrevPage_Button_" .. self.Widget.Setting.Id
     end
     prevButton.OnClick = function()
         if self.Widget.CurrentPage > 1 then
@@ -372,7 +453,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     -- Input for page number
     if currentPage <= totalPages - 2 or currentPage >= 3 then
         local pageInput = paginationGroup:AddInputText("", tostring(currentPage))
-        pageInput.IDContext = self.Widget.modUUID .. "_PageInput_" .. self.Widget.Setting.Id
+        pageInput.IDContext = self.Widget.ModUUID .. "_PageInput_" .. self.Widget.Setting.Id
         pageInput.Text = '...'
         pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1], 0 }
         pageInput:Tooltip():AddText("Click and enter a page number to navigate to it")
@@ -401,11 +482,11 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
 
     -- Next Button
     local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
-    nextButton.IDContext = self.Widget.modUUID .. "_NextPage_" .. self.Widget.Setting.Id
+    nextButton.IDContext = self.Widget.ModUUID .. "_NextPage_" .. self.Widget.Setting.Id
     if not nextButton.Image or nextButton.Image.Icon == "" then
         nextButton:Destroy()
         nextButton = paginationGroup:AddButton(">")
-        nextButton.IDContext = self.Widget.modUUID .. "_NextPage_Button_" .. self.Widget.Setting.Id
+        nextButton.IDContext = self.Widget.ModUUID .. "_NextPage_Button_" .. self.Widget.Setting.Id
     end
     nextButton.OnClick = function()
         if self.Widget.CurrentPage < totalPages then
@@ -420,6 +501,8 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     nextButton.SameLine = true
 end
 
+---Generates a status text showing the current page and element count
+---@return string The formatted page status text
 function ListV2IMGUIWidget:GetPageText()
     local isFiltered = self.Widget.SearchText and self.Widget.SearchText ~= ""
     local totalElementCount = isFiltered and #self.Widget.FilteredElements or #self.Widget.Elements
@@ -438,14 +521,20 @@ function ListV2IMGUIWidget:GetPageText()
     )
 end
 
+---Updates local state and settings in IMGUIAPI with the current widget state
+---@return nil
 function ListV2IMGUIWidget:UpdateSettings()
     local settingValue = {
         enabled = self.Widget.Enabled,
         elements = self.Widget.Elements
     }
-    IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.modUUID)
+    IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.ModUUID)
 end
 
+---Moves an element within the list
+---@param index number The current index of the element
+---@param direction number The direction to move (-1 for up, 1 for down)
+---@return nil
 function ListV2IMGUIWidget:MoveElement(index, direction)
     local newIndex = index + direction
 
@@ -465,23 +554,25 @@ function ListV2IMGUIWidget:MoveElement(index, direction)
     self:RefreshList()
 end
 
+---Adds the input field and add button to allow adding new elements
+---@return nil
 function ListV2IMGUIWidget:AddInputAndAddButton()
     local inputGroup = self.Widget.InputGroup
     local newElementName = ""
     inputGroup:AddText("Add new element: ")
     local textInput = inputGroup:AddInputText("", newElementName)
-    textInput.IDContext = self.Widget.modUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
+    textInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
     textInput.AutoSelectAll = true
     textInput.SameLine = true
     textInput.OnChange = function(input)
         newElementName = input.Text
     end
     local addButton = inputGroup:AddImageButton("Add", "ico_plus_d", IMGUIWidget:GetIconSizes())
-    addButton.IDContext = self.Widget.modUUID .. "_AddElementButton_" .. self.Widget.Setting.Id
+    addButton.IDContext = self.Widget.ModUUID .. "_AddElementButton_" .. self.Widget.Setting.Id
     if not addButton.Image or addButton.Image.Icon == "" then
         addButton:Destroy()
         addButton = inputGroup:AddButton("Add")
-        addButton.IDContext = self.Widget.modUUID .. "_AddElement_Button_" .. self.Widget.Setting.Id
+        addButton.IDContext = self.Widget.ModUUID .. "_AddElement_Button_" .. self.Widget.Setting.Id
     end
     addButton.SameLine = true
     addButton.OnClick = function()
@@ -511,6 +602,9 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end
 end
 
+---Checks if an element with the given name exists in the list
+---@param name string The name of the element to check
+---@return boolean True if the element exists, false otherwise
 function ListV2IMGUIWidget:ElementExists(name)
     for _, element in ipairs(self.Widget.Elements) do
         if element.name == name then
@@ -520,6 +614,9 @@ function ListV2IMGUIWidget:ElementExists(name)
     return false
 end
 
+---Clears all child elements from an IMGUI group
+---@param group ExtuiGroup The group to clear
+---@return nil
 local function clearGroup(group)
     if not group then
         return
@@ -529,6 +626,8 @@ local function clearGroup(group)
     end
 end
 
+---Refreshes the entire widget, re-rendering all components
+---@return nil
 function ListV2IMGUIWidget:Refresh()
     clearGroup(self.Widget.TableGroup)
     if not self.Widget.ReadOnly then
@@ -538,15 +637,20 @@ function ListV2IMGUIWidget:Refresh()
     self:RenderList()
     if not self.Widget.ReadOnly then
         self:AddInputAndAddButton()
-        -- self:AddResetButton(self.Widget.ResetGroup, self.Widget.Setting, self.Widget.modUUID)
+        -- self:AddResetButton(self.Widget.ResetGroup, self.Widget.Setting, self.Widget.ModUUID)
     end
 end
 
+---Refreshes only the list table without re-rendering the header or input sections
+---@return nil
 function ListV2IMGUIWidget:RefreshList()
     clearGroup(self.Widget.TableGroup)
     self:RenderList()
 end
 
+---Updates the current value of the widget with new data
+---@param value ListV2SettingValue The new value to set
+---@return nil
 function ListV2IMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Enabled = value.enabled ~= false
     self.Widget.Elements = value.elements or {}
@@ -555,22 +659,22 @@ function ListV2IMGUIWidget:UpdateCurrentValue(value)
 end
 
 --- Add reset and delete all buttons to the widget
----@param group any The IMGUI group to add the button to
+---@param group ExtuiGroup  The IMGUI group to add the button to
 ---@param setting BlueprintSetting The Setting object that this widget will be responsible for
----@param modUUID string The UUID of the mod that owns this widget
+---@param ModUUID string The UUID of the mod that owns this widget
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
-function ListV2IMGUIWidget:AddResetButton(group, setting, modUUID)
+function ListV2IMGUIWidget:AddResetButton(group, setting, ModUUID)
     group:AddDummy(40, 0)
     local resetButton = group:AddButton("[Reset list]")
-    resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
+    resetButton.IDContext = ModUUID .. "_" .. "ResetButton_" .. setting:GetId()
     resetButton:Tooltip():AddText("Reset this list to its default values")
     resetButton.OnClick = function()
-        self:ShowResetConfirmationPopup(setting, modUUID)
+        self:ShowResetConfirmationPopup(setting, ModUUID)
     end
 
     if not self.Widget.ReadOnly then
-        self:AddDeleteAllButton(group, modUUID)
+        self:AddDeleteAllButton(group, ModUUID)
     end
 
     if not self.Widget.Enabled then
@@ -579,13 +683,13 @@ function ListV2IMGUIWidget:AddResetButton(group, setting, modUUID)
     end
 end
 
---- Add a delete all button to the widget
----@param group any The IMGUI group to add the button to
----@param modUUID string The UUID of the mod that owns this widget
+---Adds a "Delete All" button to the widget
+---@param group ExtuiGroup The group to add the button to
+---@param ModUUID string The UUID of the mod owning this widget
 ---@return nil
-function ListV2IMGUIWidget:AddDeleteAllButton(group, modUUID)
+function ListV2IMGUIWidget:AddDeleteAllButton(group, ModUUID)
     local deleteAllButton = group:AddButton("[Delete all]")
-    deleteAllButton.IDContext = modUUID .. "_" .. "DeleteAllButton_" .. self.Widget.Setting.Id
+    deleteAllButton.IDContext = ModUUID .. "_" .. "DeleteAllButton_" .. self.Widget.Setting.Id
     deleteAllButton:Tooltip():AddText("Delete all elements from the list")
     deleteAllButton.OnClick = function()
         self:ShowDeleteAllConfirmationPopup()
@@ -598,7 +702,11 @@ function ListV2IMGUIWidget:AddDeleteAllButton(group, modUUID)
     end
 end
 
-function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
+---Displays a confirmation popup before resetting the list to default values
+---@param setting BlueprintSetting The setting associated with this widget
+---@param ModUUID string The UUID of the mod owning this widget
+---@return nil
+function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     -- Check if the popup group exists and destroy it if it does
     xpcall(function()
         if self.Widget.ResetConfirmationPopup then
@@ -608,7 +716,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
 
     -- Create a new group for popup confirmation
     self.Widget.ResetConfirmationPopup = self.Widget.Group:AddPopup("ConfirmResetPopup")
-    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.modUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
+    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
         .Id
 
     local text = self.Widget.ResetConfirmationPopup:AddText(
@@ -616,10 +724,10 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
     text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
 
     local confirmButton = self.Widget.ResetConfirmationPopup:AddButton("Yes")
-    confirmButton.IDContext = self.Widget.modUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
+    confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
     confirmButton:Tooltip():AddText("Confirm reset of the list")
     confirmButton.OnClick = function()
-        IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
+        IMGUIAPI:ResetSettingValue(setting:GetId(), ModUUID)
         self:UpdateCurrentValue({
             enabled = true,
             elements = setting:GetDefault().elements
@@ -628,7 +736,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
     end
 
     local cancelButton = self.Widget.ResetConfirmationPopup:AddButton("No")
-    cancelButton.IDContext = self.Widget.modUUID .. "_CancelReset_" .. self.Widget.Setting.Id
+    cancelButton.IDContext = self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting.Id
     cancelButton:Tooltip():AddText("Cancel reset of the list")
     cancelButton.OnClick = function()
         self.Widget.ResetConfirmationPopup:Destroy()
@@ -638,7 +746,9 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
     self.Widget.ResetConfirmationPopup:Open()
 end
 
--- Function to apply disabled style to elements
+---Applies a disabled style to an IMGUI element
+---@param element ExtuiStyledRenderable The IMGUI element to style
+---@return nil
 function ListV2IMGUIWidget:ApplyDisabledStyle(element)
     element:SetColor("Text", Color.NormalizedRGBA(100, 100, 100, 1))
 end
