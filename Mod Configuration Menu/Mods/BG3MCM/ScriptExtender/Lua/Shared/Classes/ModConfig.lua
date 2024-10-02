@@ -258,7 +258,7 @@ function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
 
     local oldSetting = settings[setting:GetId()]
     if not oldSetting or type(oldSetting) ~= "table" or oldSetting.elements ~= nil then
-        MCMWarn(1, "Old setting for " .. setting:GetId() .. " is not valid. Skipping migration.")
+        MCMDebug(3, "Old setting for " .. setting:GetId() .. " does not exist or is not valid. Skipping migration.")
         return
     end
 
