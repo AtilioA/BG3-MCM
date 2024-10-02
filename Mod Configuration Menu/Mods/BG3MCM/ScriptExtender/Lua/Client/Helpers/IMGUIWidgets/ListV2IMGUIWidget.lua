@@ -1,3 +1,7 @@
+---@alias MoveDirection
+---| 'up'
+---| 'down'
+
 ---@class ElementTable
 ---@field enabled boolean
 ---@field name string
@@ -327,7 +331,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
         moveUpButton.IDContext = self.Widget.ModUUID ..
             "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
-    moveUpButton.OnClick = function() self:MoveElement(indexInElements, -1) end
+    moveUpButton.OnClick = function() self:MoveElement(indexInElements, 'up') end
     moveUpButton:Tooltip():AddText("Move '" .. element.name .. "' up in the list")
 
     -- Move down button
@@ -340,7 +344,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
         moveDownButton.IDContext = self.Widget.ModUUID ..
             "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
-    moveDownButton.OnClick = function() self:MoveElement(indexInElements, 1) end
+    moveDownButton.OnClick = function() self:MoveElement(indexInElements, 'down') end
     moveDownButton:Tooltip():AddText("Move '" .. element.name .. "' down in the list")
 
     if not self.Widget.Enabled then
@@ -533,10 +537,15 @@ end
 
 ---Moves an element within the list
 ---@param index number The current index of the element
----@param direction number The direction to move (-1 for up, 1 for down)
+---@param direction MoveDirection The direction to move ('up' or 'down')
 ---@return nil
 function ListV2IMGUIWidget:MoveElement(index, direction)
-    local newIndex = index + direction
+    local directionIncrement = -1
+    if direction == 'down' then
+        directionIncrement = 1
+    end
+
+    local newIndex = index + directionIncrement
 
     if newIndex < 1 or newIndex > #self.Widget.Elements then
         return
@@ -546,7 +555,7 @@ function ListV2IMGUIWidget:MoveElement(index, direction)
     self.Widget.Elements[index], self.Widget.Elements[newIndex] = self.Widget.Elements[newIndex],
         self.Widget.Elements[index]
 
-    -- Update the setting value
+    -- Update the setting value state
     self:UpdateSettings()
 
     -- Refresh the widget
