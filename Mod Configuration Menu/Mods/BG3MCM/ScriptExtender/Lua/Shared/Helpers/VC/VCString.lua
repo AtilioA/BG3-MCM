@@ -159,6 +159,35 @@ function VCString:Wrap(text, width)
     return table.concat(lines, "\n")
 end
 
+---Checks if the search text fuzzy matches the target string
+---@param target string The string to search within
+---@param pattern string The fuzzy pattern to match
+---@return boolean True if the pattern matches the target fuzzily, false otherwise
+function VCString:FuzzyMatch(target, pattern)
+    local patternLen = #pattern
+    local targetLen = #target
+
+    if patternLen == 0 then
+        return true
+    end
+
+    local patternIndex = 1
+    for i = 1, targetLen do
+        local targetChar = target:sub(i, i)
+        local patternChar = pattern:sub(patternIndex, patternIndex)
+
+        if targetChar == patternChar then
+            patternIndex = patternIndex + 1
+
+            if patternIndex > patternLen then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
 --- Add newlines after each period in a string
 function VCString:AddNewlinesAfterPeriods(description)
     return string.gsub(description, "%. ", ".\n")

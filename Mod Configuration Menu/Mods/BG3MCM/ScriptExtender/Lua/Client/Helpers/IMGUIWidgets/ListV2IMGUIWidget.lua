@@ -172,14 +172,15 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     self.Widget.ConfirmationPopup:Open()
 end
 
----Filters elements based on the current search text
+---Filters elements based on the current search text (fuzzy)
 ---@return nil
 function ListV2IMGUIWidget:FilterElements()
     local filtered = {}
     local searchText = self.Widget.SearchText:lower()
 
     for i, value in ipairs(self.Widget.Elements) do
-        if searchText == "" or value.name:lower():find(searchText, 1, true) then
+        local elementName = value.name:lower()
+        if searchText == "" or VCString:FuzzyMatch(elementName, searchText) then
             table.insert(filtered, { element = value, indexInElements = i })
         end
     end
