@@ -422,6 +422,11 @@
                                         "ReadOnly": {
                                             "type": "boolean",
                                             "description": "Whether the list is read-only or not. This will disable the ability to add or remove items from the list. Disabled by default."
+                                        },
+                                        "AllowReordering": {
+                                            "type": "boolean",
+                                            "description": "Whether the list allows reordering items UI. Enabled by default."
+                                        }
                                     }
                                 }
                             }

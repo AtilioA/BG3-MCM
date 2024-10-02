@@ -15,6 +15,7 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, modUUID)
     instance.Widget.PageSize = (setting.Options and setting.Options.PageSize) or 10
     if instance.Widget.PageSize < 5 then instance.Widget.PageSize = 5 end
     instance.Widget.ShowSearchBar = (setting.Options and setting.Options.ShowSearchBar) ~= false
+    instance.Widget.AllowReordering = (setting.Options and setting.Options.AllowReordering) ~= false
     instance.Widget.ReadOnly = (setting.Options and setting.Options.ReadOnly) == true
 
     instance.Widget.CurrentPage = 1
@@ -160,9 +161,14 @@ function ListV2IMGUIWidget:RenderList()
 end
 
 function ListV2IMGUIWidget:CreateTable(tableGroup)
-    local columns = 3 -- Reduced by 1 if ReadOnly is true
-    if not self.Widget.ReadOnly then
-        columns = 4
+    local columns = 4
+    -- No 'Remove' column if the list is read-only
+    if self.Widget.ReadOnly then
+        columns = columns - 1
+    end
+    -- No 'Up/down' column if reordering is disabled
+    if not self.Widget.AllowReordering then
+        columns = columns - 1
     end
 
     local imguiTable = tableGroup:AddTable("", columns)
@@ -177,7 +183,9 @@ function ListV2IMGUIWidget:CreateTable(tableGroup)
     end
 
     imguiTable:AddColumn("Active", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
-    imguiTable:AddColumn("Up/down", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    if self.Widget.AllowReordering then
+        imguiTable:AddColumn("Up/down", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    end
     imguiTable:AddColumn("Name", "WidthStretch")
     if not self.Widget.ReadOnly then
         imguiTable:AddColumn("Remove", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
@@ -193,7 +201,9 @@ end
 function ListV2IMGUIWidget:AddTableHeader(imguiTable)
     local headerRow = imguiTable:AddRow()
     headerRow:AddCell():AddText("Active")
-    headerRow:AddCell():AddText("Up/down")
+    if self.Widget.AllowReordering then
+        headerRow:AddCell():AddText("Up/down")
+    end
     headerRow:AddCell():AddText("Name")
     if not self.Widget.ReadOnly then
         headerRow:AddCell():AddText("Remove")
@@ -206,8 +216,13 @@ function ListV2IMGUIWidget:RenderTableRow(imguiTable, entry)
     local tableRow = imguiTable:AddRow()
 
     self:AddCheckboxCell(tableRow, element)
-    self:AddMoveButtons(tableRow, indexInElements, element)
+
+    if self.Widget.AllowReordering then
+        self:AddMoveButtons(tableRow, indexInElements, element)
+    end
+
     self:AddNameCell(tableRow, element)
+
     if not self.Widget.ReadOnly then
         self:AddRemoveButton(tableRow, indexInElements, element)
     end
@@ -217,7 +232,7 @@ function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     local checkboxCell = tableRow:AddCell()
     local enabledCheckbox = checkboxCell:AddCheckbox("")
     enabledCheckbox.IDContext = self.Widget.modUUID ..
-    "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name
+        "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name
     enabledCheckbox.Checked = element.enabled ~= false
     enabledCheckbox.OnChange = function(checkbox)
         element.enabled = checkbox.Checked
@@ -246,7 +261,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
         moveUpButton:Destroy()
         moveUpButton = moveCell:AddButton("Up")
         moveUpButton.IDContext = self.Widget.modUUID ..
-        "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
+            "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveUpButton.OnClick = function() self:MoveElement(indexInElements, -1) end
     moveUpButton:Tooltip():AddText("Move '" .. element.name .. "' up in the list")
@@ -259,7 +274,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
         moveDownButton:Destroy()
         moveDownButton = moveCell:AddButton("Down")
         moveDownButton.IDContext = self.Widget.modUUID ..
-        "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
+            "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveDownButton.OnClick = function() self:MoveElement(indexInElements, 1) end
     moveDownButton:Tooltip():AddText("Move '" .. element.name .. "' down in the list")
@@ -289,7 +304,7 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
         removeButton:Destroy()
         removeButton = removeCell:AddButton("Remove")
         removeButton.IDContext = self.Widget.modUUID ..
-        "_Remove_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
+            "_Remove_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     removeButton.OnClick = function()
         table.remove(self.Widget.Elements, indexInElements)
@@ -594,7 +609,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
     -- Create a new group for popup confirmation
     self.Widget.ResetConfirmationPopup = self.Widget.Group:AddPopup("ConfirmResetPopup")
     self.Widget.ResetConfirmationPopup.IDContext = self.Widget.modUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
-    .Id
+        .Id
 
     local text = self.Widget.ResetConfirmationPopup:AddText(
         "Are you sure you want to reset the list to its default values?")
