@@ -140,7 +140,7 @@
                     <Grid>
                         <ls:LSButton x:Name="ContinueButton"  Style="{StaticResource BigBlueButtonStyle}"
                                  Content="{Binding Source='h45db0d8cg465fg4c1dg8c21gc894286fa41e', Converter={StaticResource TranslatedStringConverter}}"
-                                 Command="{Binding ContinueGameCommand}"
+                                 Command="{Binding SkipModValidationAndLoadGameCommand}"
                                  Visibility="{Binding SelectedSave, Converter={StaticResource NullToCollapsedConverter}}"
                                  SoundID="UI_HUD_MainMenu_Continue" Opacity="0" IsEnabled="True">
                             <Button.RenderTransform>
