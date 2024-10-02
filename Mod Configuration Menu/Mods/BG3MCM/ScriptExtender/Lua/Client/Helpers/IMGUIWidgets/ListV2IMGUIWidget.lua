@@ -1,5 +1,3 @@
--- TODO: add IDContext to all buttons and inputs
-
 ---@class ListV2IMGUIWidget: IMGUIWidget
 ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 
@@ -64,6 +62,7 @@ function ListV2IMGUIWidget:RenderHeader()
         headerGroup:AddText("Search by name:")
         if not self.Widget.SearchInput then
             self.Widget.SearchInput = headerGroup:AddInputText("", self.Widget.SearchText)
+            self.Widget.SearchInput.IDContext = self.Widget.modUUID .. "_SearchInput_" .. self.Widget.Setting.Id
             self.Widget.SearchInput.OnChange = function(input)
                 self.Widget.SearchText = input.Text
                 self:FilterElements()
@@ -91,9 +90,12 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     -- Create a new group for popup confirmation
     self.Widget.ConfirmationPopup = self.Widget.Group:AddPopup("ConfirmDeleteAllPopup")
+    self.Widget.ConfirmationPopup.IDContext = self.Widget.modUUID .. "_ConfirmDeleteAllPopup_" .. self.Widget.Setting.Id
+
     local text = self.Widget.ConfirmationPopup:AddText("Are you sure you want to delete all elements?")
     text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
     local confirmButton = self.Widget.ConfirmationPopup:AddButton("Yes")
+    confirmButton.IDContext = self.Widget.modUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
     confirmButton.OnClick = function()
         self.Widget.Elements = {}
         local settingValue = {
@@ -105,7 +107,9 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
         self:Refresh()
         self.Widget.ConfirmationPopup:Destroy()
     end
+
     local cancelButton = self.Widget.ConfirmationPopup:AddButton("No")
+    cancelButton.IDContext = self.Widget.modUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id
     cancelButton.OnClick = function()
         self.Widget.ConfirmationPopup:Destroy()
     end
@@ -192,6 +196,8 @@ end
 function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     local checkboxCell = tableRow:AddCell()
     local enabledCheckbox = checkboxCell:AddCheckbox("")
+    enabledCheckbox.IDContext = self.Widget.modUUID ..
+    "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name
     enabledCheckbox.Checked = element.enabled ~= false
     enabledCheckbox.OnChange = function(checkbox)
         element.enabled = checkbox.Checked
@@ -212,19 +218,28 @@ end
 
 function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     local moveCell = tableRow:AddCell()
+
+    -- Move up button
     local moveUpButton = moveCell:AddImageButton("", "panner_up_h", IMGUIWidget:GetIconSizes())
+    moveUpButton.IDContext = self.Widget.modUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not moveUpButton.Image or moveUpButton.Image.Icon == "" then
         moveUpButton:Destroy()
         moveUpButton = moveCell:AddButton("Up")
+        moveUpButton.IDContext = self.Widget.modUUID ..
+        "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveUpButton.OnClick = function() self:MoveElement(indexInElements, -1) end
     moveUpButton:Tooltip():AddText("Move '" .. element.name .. "' up in the list")
 
+    -- Move down button
     local moveDownButton = moveCell:AddImageButton("", "panner_down_h", IMGUIWidget:GetIconSizes())
+    moveDownButton.IDContext = self.Widget.modUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name
     moveDownButton.SameLine = true
     if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
         moveDownButton:Destroy()
         moveDownButton = moveCell:AddButton("Down")
+        moveDownButton.IDContext = self.Widget.modUUID ..
+        "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveDownButton.OnClick = function() self:MoveElement(indexInElements, 1) end
     moveDownButton:Tooltip():AddText("Move '" .. element.name .. "' down in the list")
@@ -240,6 +255,7 @@ end
 function ListV2IMGUIWidget:AddNameCell(tableRow, element)
     local nameCell = tableRow:AddCell()
     local nameText = nameCell:AddText(element.name)
+    nameText.IDContext = self.Widget.modUUID .. "_ElementName_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not self.Widget.Enabled then
         self:ApplyDisabledStyle(nameText)
     end
@@ -248,9 +264,12 @@ end
 function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
     local removeCell = tableRow:AddCell()
     local removeButton = removeCell:AddImageButton("", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
+    removeButton.IDContext = self.Widget.modUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not removeButton.Image or removeButton.Image.Icon == "" then
         removeButton:Destroy()
         removeButton = removeCell:AddButton("Remove")
+        removeButton.IDContext = self.Widget.modUUID ..
+        "_Remove_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     removeButton.OnClick = function()
         table.remove(self.Widget.Elements, indexInElements)
@@ -268,6 +287,7 @@ end
 
 function ListV2IMGUIWidget:RenderPaginationControls(tableGroup, totalPages)
     local paginationGroup = tableGroup:AddGroup("PaginationGroup")
+    paginationGroup.IDContext = self.Widget.modUUID .. "_PaginationGroup_" .. self.Widget.Setting.Id
     paginationGroup:AddSpacing()
     if totalPages > 1 then
         self:AddPaginationButtons(paginationGroup, totalPages)
@@ -279,6 +299,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     local function addPageButton(label, pageNumber, disabled)
         local paddedLabel = " " .. label .. " "
         local button = paginationGroup:AddButton(paddedLabel)
+        button.IDContext = self.Widget.modUUID .. "_PageButton_" .. self.Widget.Setting.Id .. "_" .. pageNumber
         button.OnClick = function()
             self.Widget.CurrentPage = pageNumber
             self:Refresh()
@@ -292,9 +313,11 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
 
     -- Previous Button
     local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
+    prevButton.IDContext = self.Widget.modUUID .. "_PrevPage_" .. self.Widget.Setting.Id
     if not prevButton.Image or prevButton.Image.Icon == "" then
         prevButton:Destroy()
         prevButton = paginationGroup:AddButton("<")
+        prevButton.IDContext = self.Widget.modUUID .. "_PrevPage_Button_" .. self.Widget.Setting.Id
     end
     prevButton.OnClick = function()
         if self.Widget.CurrentPage > 1 then
@@ -314,6 +337,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     -- Input for page number
     if currentPage <= totalPages - 2 or currentPage >= 3 then
         local pageInput = paginationGroup:AddInputText("", tostring(currentPage))
+        pageInput.IDContext = self.Widget.modUUID .. "_PageInput_" .. self.Widget.Setting.Id
         pageInput.Text = '...'
         pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1], 0 }
         pageInput:Tooltip():AddText("Click and enter a page number to navigate to it")
@@ -342,9 +366,11 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
 
     -- Next Button
     local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
+    nextButton.IDContext = self.Widget.modUUID .. "_NextPage_" .. self.Widget.Setting.Id
     if not nextButton.Image or nextButton.Image.Icon == "" then
         nextButton:Destroy()
         nextButton = paginationGroup:AddButton(">")
+        nextButton.IDContext = self.Widget.modUUID .. "_NextPage_Button_" .. self.Widget.Setting.Id
     end
     nextButton.OnClick = function()
         if self.Widget.CurrentPage < totalPages then
@@ -409,15 +435,18 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     local newElementName = ""
     inputGroup:AddText("Add new element: ")
     local textInput = inputGroup:AddInputText("", newElementName)
+    textInput.IDContext = self.Widget.modUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
     textInput.AutoSelectAll = true
     textInput.SameLine = true
     textInput.OnChange = function(input)
         newElementName = input.Text
     end
     local addButton = inputGroup:AddImageButton("Add", "ico_plus_d", IMGUIWidget:GetIconSizes())
+    addButton.IDContext = self.Widget.modUUID .. "_AddElementButton_" .. self.Widget.Setting.Id
     if not addButton.Image or addButton.Image.Icon == "" then
         addButton:Destroy()
         addButton = inputGroup:AddButton("Add")
+        addButton.IDContext = self.Widget.modUUID .. "_AddElement_Button_" .. self.Widget.Setting.Id
     end
     addButton.SameLine = true
     addButton.OnClick = function()
@@ -510,7 +539,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:AddDeleteAllButton(group, modUUID)
     local deleteAllButton = group:AddButton("[Delete all]")
-    deleteAllButton.IDContext = modUUID .. "_" .. "DeleteAllButton"
+    deleteAllButton.IDContext = modUUID .. "_" .. "DeleteAllButton_" .. self.Widget.Setting.Id
     deleteAllButton:Tooltip():AddText("Delete all elements from the list")
     deleteAllButton.OnClick = function()
         self:ShowDeleteAllConfirmationPopup()
@@ -533,10 +562,15 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
 
     -- Create a new group for popup confirmation
     self.Widget.ResetConfirmationPopup = self.Widget.Group:AddPopup("ConfirmResetPopup")
+    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.modUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
+    .Id
+
     local text = self.Widget.ResetConfirmationPopup:AddText(
         "Are you sure you want to reset the list to its default values?")
     text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+
     local confirmButton = self.Widget.ResetConfirmationPopup:AddButton("Yes")
+    confirmButton.IDContext = self.Widget.modUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
     confirmButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
         self:UpdateCurrentValue({
@@ -545,7 +579,9 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, modUUID)
         })
         self.Widget.ResetConfirmationPopup:Destroy()
     end
+
     local cancelButton = self.Widget.ResetConfirmationPopup:AddButton("No")
+    cancelButton.IDContext = self.Widget.modUUID .. "_CancelReset_" .. self.Widget.Setting.Id
     cancelButton.OnClick = function()
         self.Widget.ResetConfirmationPopup:Destroy()
     end
