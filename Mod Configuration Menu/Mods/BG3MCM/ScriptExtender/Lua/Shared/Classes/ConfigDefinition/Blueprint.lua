@@ -15,6 +15,10 @@ Blueprint = _Class:Create("Blueprint", nil, {
     Handles = {}
 })
 
+function Blueprint:GetModUUID()
+    return self.ModUUID
+end
+
 function Blueprint:GetSchemaVersion()
     return self.SchemaVersion
 end
