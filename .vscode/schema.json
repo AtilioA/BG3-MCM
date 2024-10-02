@@ -413,19 +413,23 @@
                                         "PageSize": {
                                             "type": "integer",
                                             "minimum": 5,
-                                            "description": "The number of items to display in the list at once. Minimum 5. 10 by default."
+                                            "description": "The number of items to display in the list at once. Minimum 5. 10 by default.",
+                                            "default": 10
                                         },
                                         "ShowSearchBar": {
                                             "type": "boolean",
-                                            "description": "Whether to show a search bar in the list. Will search through all items and filter the list. Enabled by default."
+                                            "description": "Whether to show a search bar in the list. Will search through all items and filter the list. Enabled by default.",
+                                            "default": false
                                         },
                                         "ReadOnly": {
                                             "type": "boolean",
-                                            "description": "Whether the list is read-only or not. This will disable the ability to add or remove items from the list. Disabled by default."
+                                            "description": "Whether the list is read-only or not. This will disable the ability to add or remove items from the list. Disabled by default.",
+                                            "default": true
                                         },
                                         "AllowReordering": {
                                             "type": "boolean",
-                                            "description": "Whether the list allows reordering items UI. Enabled by default."
+                                            "description": "Whether the list allows reordering items UI. Enabled by default.",
+                                            "default": false
                                         }
                                     }
                                 }
@@ -687,7 +691,8 @@
                     "properties": {
                         "IsCollapsible": {
                             "type": "boolean",
-                            "description": "Whether the section is collapsible or not."
+                            "description": "Whether the section is collapsible or not.",
+                            "default": true
                         }
                     }
                 }
