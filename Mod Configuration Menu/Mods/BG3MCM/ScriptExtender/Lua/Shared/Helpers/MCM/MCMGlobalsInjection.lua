@@ -60,6 +60,22 @@ local function injectMCMToModTable(modUUID)
         return MCMAPI:GetSettingValue(settingId, modUUID)
     end
 
+    -- Return a list of enabled items from a list setting; empty table if list is disabled
+    MCM.GetList = function(listSettingId)
+        local setting = MCM.Get(listSettingId)
+
+        local enabledItems = {}
+        if not setting or not setting.enabled then return enabledItems end
+
+        for _, element in ipairs(setting.elements) do
+            if element.enabled then
+                enabledItems[element.name] = true
+            end
+        end
+
+        return enabledItems
+    end
+
     MCM.Set = function(settingId, value)
         -- MCMDebug(1, "Setting value for settingId: " .. settingId .. " to: " .. tostring(value))
         MCMAPI:SetSettingValue(settingId, value, modUUID)
