@@ -200,7 +200,7 @@ function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow:SetStyle("Alpha", 1.0)
     self.IMGUIwindow:SetColor("WindowBg", Color.NormalizedRGBA(18, 18, 18, 1))
     self.IMGUIwindow:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
-    self.IMGUIwindow.AlwaysAutoResize = true
+    self.IMGUIwindow.AlwaysAutoResize = false
     self.IMGUIwindow.Closeable = false
     self.IMGUIwindow.Visible = true
     self.IMGUIwindow.Open = true
@@ -227,6 +227,7 @@ function NotificationManager:CreateMessageGroup()
     local messageText = messageGroup:AddText(self.message)
     messageText:SetColor("Text", borderColor)
     messageText.SameLine = true
+    messageText.TextWrapPos = 0
 end
 
 --- Creates a "Don't show again" button in the notification window
