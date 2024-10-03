@@ -1,3 +1,29 @@
+local function updateLoca()
+    for _, file in ipairs({ "BG3MCM_English.loca" }) do
+        local fileName = string.format("Localization/English/%s.xml", file)
+        local contents = Ext.IO.LoadFile(fileName, "data")
+
+        if not contents then
+            return
+        end
+
+        for line in string.gmatch(contents, "([^\r\n]+)\r*\n") do
+            local handle, value = string.match(line, '<content contentuid="(%w+)".->(.+)</content>')
+            if handle ~= nil and value ~= nil then
+                value = value:gsub("&[lg]t;", {
+                    ['&lt;'] = "<",
+                    ['&gt;'] = ">"
+                })
+                Ext.Loca.UpdateTranslatedString(handle, value)
+            end
+        end
+    end
+end
+
+if Ext.Debug.IsDeveloperMode() then
+    MCMUtils.UpdateLoca()
+end
+
 ---Ext.Require files at the path
 ---@param path string
 ---@param files string[]
@@ -40,7 +66,3 @@ end
 
 -- Unfortunately needed since postponing this will cause problems with mods that need to use the API during script initialization
 MCMAPI:LoadConfigs()
-
-if Ext.Debug.IsDeveloperMode() then
-    MCMUtils.UpdateLoca()
-end
