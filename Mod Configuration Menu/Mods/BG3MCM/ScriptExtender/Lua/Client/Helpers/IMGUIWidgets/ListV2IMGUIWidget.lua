@@ -739,8 +739,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
 
     -- Create a new group for popup confirmation
     self.Widget.ResetConfirmationPopup = self.Widget.Group:AddPopup("ConfirmResetPopup")
-    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
-        .Id
+    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting.Id
 
     local text = self.Widget.ResetConfirmationPopup:AddText(
         Ext.Loca.GetTranslatedString("h983f2fd776cd40ab844efcca6300d9c87eb5"))
@@ -752,11 +751,16 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     confirmButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("h6ca43c8ed1ec4292af8c51472528c21ed0gd"))
     confirmButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), ModUUID)
+
         self:UpdateCurrentValue({
-            enabled = true,
+            enabled = setting:GetDefault().enabled,
             elements = setting:GetDefault().elements
         })
+
         self.Widget.ResetConfirmationPopup:Destroy()
+
+        self:FilterElements()
+        self:Refresh()
     end
 
     local cancelButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
