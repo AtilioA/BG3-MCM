@@ -62,10 +62,10 @@
     <content contentuid="hf10161d75da04360907b151e4eb07054f8cb" version="1">Add new element:</content>
     <content contentuid="h4b543fe6f0fd4d8199950d7a16b3879ca7d1" version="1">Add</content>
     <content contentuid="hefc87cc64ef74547b4ccade4ff1676994d53" version="1">[Reset list]</content>
-    <content contentuid="hd2a185ef63ff4c6695b20baf5fd6e08b2b8a" version="1">Reset this list to its default values</content>
+    <content contentuid="hd2a185ef63ff4c6695b20baf5fd6e08b2b8a" version="1">Reset this list to its default elements</content>
     <content contentuid="hfdeffc59d25b4fa0910682fd3bb78f7b4d04" version="1">[Delete all]</content>
     <content contentuid="he16594af5abf4f44b6545facfa654b669g0a" version="1">Delete all elements from the list</content>
-    <content contentuid="h983f2fd776cd40ab844efcca6300d9c87eb5" version="1">Are you sure you want to reset the list to its default values?</content>
+    <content contentuid="h983f2fd776cd40ab844efcca6300d9c87eb5" version="1">Are you sure you want to reset the list to its default elements?</content>
     <content contentuid="hc22c8995c3d34cb69b677e2c52a7ec3a4691" version="1">Yes</content>
     <content contentuid="h6ca43c8ed1ec4292af8c51472528c21ed0gd" version="1">Confirm reset of the list</content>
     <content contentuid="h8886849a4a674633a14df972d408cb71d012" version="1">No</content>
