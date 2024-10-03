@@ -413,7 +413,8 @@
                                         "PageSize": {
                                             "type": "integer",
                                             "minimum": 5,
-                                            "description": "The number of items to display in the list at once. Minimum 5. 10 by default.",
+                                            "maximum": 20,
+                                            "description": "The number of items to display in the list at once. Minimum 5, maximum 20. 5 by default.",
                                             "default": 10
                                         },
                                         "ShowSearchBar": {
