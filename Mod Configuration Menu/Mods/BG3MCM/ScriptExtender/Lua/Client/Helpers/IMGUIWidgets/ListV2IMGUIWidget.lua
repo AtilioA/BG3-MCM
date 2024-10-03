@@ -475,7 +475,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
         pageInput:Tooltip():AddText(Ext.Loca.GetTranslatedString("hb22eb0c6c4ed41b28966287ab5b20c7b35a3"))
         pageInput.AutoSelectAll = true
         pageInput.OnChange = function(input)
-            local pageNumber = tonumber(input.Text)
+            local pageNumber = tonumber(input.Text:match('%d+'))
             if not pageNumber then return end
             pageNumber = math.min(pageNumber, totalPages)
             pageNumber = math.max(pageNumber, 1)
