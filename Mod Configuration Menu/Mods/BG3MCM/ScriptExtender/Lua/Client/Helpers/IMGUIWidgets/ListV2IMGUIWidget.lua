@@ -89,10 +89,10 @@ function ListV2IMGUIWidget:RenderHeader()
     local headerGroup = self.Widget.HeaderGroup
 
     -- Enable/disable entire list
-    local enabledCheckbox = headerGroup:AddCheckbox("Enable entire list")
+    local enabledCheckbox = headerGroup:AddCheckbox(Ext.Loca.GetTranslatedString("h4ffde733fba3492387caa52d9c585d57f177"))
     enabledCheckbox.IDContext = self.Widget.ModUUID .. "_EnableCheckbox_" .. self.Widget.Setting.Id
     enabledCheckbox:Tooltip():AddText(
-        "Check to enable the list, uncheck to disable it, without removing/disabling any elements.")
+        Ext.Loca.GetTranslatedString("h17e2c93763d54f3f9b5da8722d09cf90fab9"))
     enabledCheckbox.Checked = self.Widget.Enabled
     enabledCheckbox.OnChange = function(checkbox)
         self.Widget.Enabled = checkbox.Checked
@@ -108,7 +108,7 @@ function ListV2IMGUIWidget:RenderHeader()
     -- Search
     if self.Widget.ShowSearchBar then
         headerGroup:AddSpacing()
-        headerGroup:AddText("Search by name:")
+        headerGroup:AddText(Ext.Loca.GetTranslatedString("h9b0d0bba0bf64006a6dd8ed86a4d5353a3d8"))
         if not self.Widget.SearchInput then
             self.Widget.SearchInput = headerGroup:AddInputText("", self.Widget.SearchText)
             self.Widget.SearchInput.IDContext = self.Widget.ModUUID .. "_SearchInput_" .. self.Widget.Setting.Id
@@ -143,12 +143,14 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     self.Widget.ConfirmationPopup = self.Widget.Group:AddPopup("ConfirmDeleteAllPopup")
     self.Widget.ConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAllPopup_" .. self.Widget.Setting.Id
 
-    local text = self.Widget.ConfirmationPopup:AddText("Are you sure you want to delete all elements?")
+    local text = self.Widget.ConfirmationPopup:AddText(Ext.Loca.GetTranslatedString(
+        "h60c5e6f97c914061887ad783cccf5ac3371f"))
     text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
 
-    local confirmButton = self.Widget.ConfirmationPopup:AddButton("Yes")
+    local confirmButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
+        "hb2adccb2f863414991f8475d5b394dbb5f65"))
     confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
-    confirmButton:Tooltip():AddText("Confirm deletion of all elements")
+    confirmButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("he9e1eaf8a127430bba164fd001b3131aa5c1"))
     confirmButton.OnClick = function()
         self.Widget.Elements = {}
         local settingValue = {
@@ -161,9 +163,10 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
         self.Widget.ConfirmationPopup:Destroy()
     end
 
-    local cancelButton = self.Widget.ConfirmationPopup:AddButton("No")
+    local cancelButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
+        "h3481631a19f94c1181c338b3ce88cfff5805"))
     cancelButton.IDContext = self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id
-    cancelButton:Tooltip():AddText("Cancel deletion of all elements")
+    cancelButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("h390af8814d814ef89fd24feb697262452agc"))
     cancelButton.OnClick = function()
         self.Widget.ConfirmationPopup:Destroy()
     end
@@ -235,13 +238,16 @@ function ListV2IMGUIWidget:CreateTable(tableGroup)
         imguiTable:SetColor("TableRowBgAlt", Color.NormalizedRGBA(133, 74, 38, 0.15))
     end
 
-    imguiTable:AddColumn("Active", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7268106aaf6f4d1d90f279554082e1faedbd"), "WidthFixed",
+        IMGUIWidget:GetIconSizes()[0])
     if self.Widget.AllowReordering then
-        imguiTable:AddColumn("Up/down", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7b51e015aaa54af789c1ee0c3fbfa48eabb5"), "WidthFixed",
+            IMGUIWidget:GetIconSizes()[0])
     end
-    imguiTable:AddColumn("Name", "WidthStretch")
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"), "WidthStretch")
     if not self.Widget.ReadOnly then
-        imguiTable:AddColumn("Remove", "WidthFixed", IMGUIWidget:GetIconSizes()[0])
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0"), "WidthFixed",
+            IMGUIWidget:GetIconSizes()[0])
     end
 
     if not self.Widget.Enabled then
@@ -256,13 +262,13 @@ end
 ---@return nil
 function ListV2IMGUIWidget:AddTableHeader(imguiTable)
     local headerRow = imguiTable:AddRow()
-    headerRow:AddCell():AddText("Active")
+    headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h7268106aaf6f4d1d90f279554082e1faedbd"))
     if self.Widget.AllowReordering then
-        headerRow:AddCell():AddText("Up/down")
+        headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h7b51e015aaa54af789c1ee0c3fbfa48eabb5"))
     end
-    headerRow:AddCell():AddText("Name")
+    headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"))
     if not self.Widget.ReadOnly then
-        headerRow:AddCell():AddText("Remove")
+        headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0"))
     end
 end
 
@@ -305,6 +311,7 @@ function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     end
 
     local tooltipText = element.enabled and
+        -- TODO: make it localizable with string interpolation
         "Click to disable '" .. element.name .. "' (without removing it from the list)" or
         "Click to enable '" .. element.name .. "' (without removing it from the list)"
     enabledCheckbox:Tooltip():AddText(tooltipText)
@@ -328,11 +335,12 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     moveUpButton.IDContext = self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not moveUpButton.Image or moveUpButton.Image.Icon == "" then
         moveUpButton:Destroy()
-        moveUpButton = moveCell:AddButton("Up")
+        moveUpButton = moveCell:AddButton(Ext.Loca.GetTranslatedString("h9d7807ea594c4e5cb10d616f4a100c94341g"))
         moveUpButton.IDContext = self.Widget.ModUUID ..
             "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveUpButton.OnClick = function() self:MoveElement(indexInElements, 'up') end
+    -- TODO: make it localizable with string interpolation
     moveUpButton:Tooltip():AddText("Move '" .. element.name .. "' up in the list")
 
     -- Move down button
@@ -341,11 +349,12 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     moveDownButton.SameLine = true
     if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
         moveDownButton:Destroy()
-        moveDownButton = moveCell:AddButton("Down")
+        moveDownButton = moveCell:AddButton(Ext.Loca.GetTranslatedString("h5259f8b44fdd4186bccca1948332cf250ac3"))
         moveDownButton.IDContext = self.Widget.ModUUID ..
             "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveDownButton.OnClick = function() self:MoveElement(indexInElements, 'down') end
+    -- TODO: make it localizable with string interpolation
     moveDownButton:Tooltip():AddText("Move '" .. element.name .. "' down in the list")
 
     if not self.Widget.Enabled then
@@ -380,7 +389,7 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
     removeButton.IDContext = self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not removeButton.Image or removeButton.Image.Icon == "" then
         removeButton:Destroy()
-        removeButton = removeCell:AddButton("Remove")
+        removeButton = removeCell:AddButton(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0"))
         removeButton.IDContext = self.Widget.ModUUID ..
             "_Remove_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
@@ -390,6 +399,8 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
         self:FilterElements()
         self:Refresh()
     end
+
+    -- TODO: make it localizable with string interpolation
     removeButton:Tooltip():AddText("Remove '" .. element.name .. "' from the list")
 
     if not self.Widget.Enabled then
@@ -461,7 +472,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
         pageInput.IDContext = self.Widget.ModUUID .. "_PageInput_" .. self.Widget.Setting.Id
         pageInput.Text = '...'
         pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1], 0 }
-        pageInput:Tooltip():AddText("Click and enter a page number to navigate to it")
+        pageInput:Tooltip():AddText(Ext.Loca.GetTranslatedString("hb22eb0c6c4ed41b28966287ab5b20c7b35a3"))
         pageInput.AutoSelectAll = true
         pageInput.OnChange = function(input)
             local pageNumber = tonumber(input.Text)
@@ -512,10 +523,11 @@ function ListV2IMGUIWidget:GetPageText()
     local isFiltered = self.Widget.SearchText and self.Widget.SearchText ~= ""
     local totalElementCount = isFiltered and #self.Widget.FilteredElements or #self.Widget.Elements
     local currentElementCount = math.min(self.Widget.CurrentPage * self.Widget.PageSize, totalElementCount)
-    local filterText = isFiltered and " (filtered)" or ""
+    local filterText = isFiltered and Ext.Loca.GetTranslatedString("hb95bf2a27ec04873b561c53aa35066a75b83") or ""
     local totalPages = math.ceil(totalElementCount / self.Widget.PageSize)
     self.Widget.CurrentPage = math.min(self.Widget.CurrentPage, totalPages)
 
+    -- TODO: make it localizable with string interpolation
     return string.format(
         "Page %d of %d%s | %d/%d elements",
         self.Widget.CurrentPage,
@@ -569,7 +581,7 @@ end
 function ListV2IMGUIWidget:AddInputAndAddButton()
     local inputGroup = self.Widget.InputGroup
     local newElementName = ""
-    inputGroup:AddText("Add new element: ")
+    inputGroup:AddText(Ext.Loca.GetTranslatedString("hf10161d75da04360907b151e4eb07054f8cb"))
     local textInput = inputGroup:AddInputText("", newElementName)
     textInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
     textInput.AutoSelectAll = true
@@ -577,11 +589,12 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     textInput.OnChange = function(input)
         newElementName = input.Text
     end
-    local addButton = inputGroup:AddImageButton("Add", "ico_plus_d", IMGUIWidget:GetIconSizes())
+    local addButton = inputGroup:AddImageButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"),
+        "ico_plus_d", IMGUIWidget:GetIconSizes())
     addButton.IDContext = self.Widget.ModUUID .. "_AddElementButton_" .. self.Widget.Setting.Id
     if not addButton.Image or addButton.Image.Icon == "" then
         addButton:Destroy()
-        addButton = inputGroup:AddButton("Add")
+        addButton = inputGroup:AddButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"))
         addButton.IDContext = self.Widget.ModUUID .. "_AddElement_Button_" .. self.Widget.Setting.Id
     end
     addButton.SameLine = true
@@ -676,9 +689,9 @@ end
 ---@see IMGUIAPI:ResetSettingValue
 function ListV2IMGUIWidget:AddResetButton(group, setting, ModUUID)
     group:AddDummy(40, 0)
-    local resetButton = group:AddButton("[Reset list]")
+    local resetButton = group:AddButton(Ext.Loca.GetTranslatedString("hefc87cc64ef74547b4ccade4ff1676994d53"))
     resetButton.IDContext = ModUUID .. "_" .. "ResetButton_" .. setting:GetId()
-    resetButton:Tooltip():AddText("Reset this list to its default values")
+    resetButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("hd2a185ef63ff4c6695b20baf5fd6e08b2b8a"))
     resetButton.OnClick = function()
         self:ShowResetConfirmationPopup(setting, ModUUID)
     end
@@ -698,9 +711,9 @@ end
 ---@param ModUUID string The UUID of the mod owning this widget
 ---@return nil
 function ListV2IMGUIWidget:AddDeleteAllButton(group, ModUUID)
-    local deleteAllButton = group:AddButton("[Delete all]")
+    local deleteAllButton = group:AddButton(Ext.Loca.GetTranslatedString("hfdeffc59d25b4fa0910682fd3bb78f7b4d04"))
     deleteAllButton.IDContext = ModUUID .. "_" .. "DeleteAllButton_" .. self.Widget.Setting.Id
-    deleteAllButton:Tooltip():AddText("Delete all elements from the list")
+    deleteAllButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("he16594af5abf4f44b6545facfa654b669g0a"))
     deleteAllButton.OnClick = function()
         self:ShowDeleteAllConfirmationPopup()
     end
@@ -730,12 +743,13 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
         .Id
 
     local text = self.Widget.ResetConfirmationPopup:AddText(
-        "Are you sure you want to reset the list to its default values?")
+        Ext.Loca.GetTranslatedString("h983f2fd776cd40ab844efcca6300d9c87eb5"))
     text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
 
-    local confirmButton = self.Widget.ResetConfirmationPopup:AddButton("Yes")
+    local confirmButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
+        "hc22c8995c3d34cb69b677e2c52a7ec3a4691"))
     confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
-    confirmButton:Tooltip():AddText("Confirm reset of the list")
+    confirmButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("h6ca43c8ed1ec4292af8c51472528c21ed0gd"))
     confirmButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), ModUUID)
         self:UpdateCurrentValue({
@@ -745,9 +759,10 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
         self.Widget.ResetConfirmationPopup:Destroy()
     end
 
-    local cancelButton = self.Widget.ResetConfirmationPopup:AddButton("No")
+    local cancelButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
+        "h8886849a4a674633a14df972d408cb71d012"))
     cancelButton.IDContext = self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting.Id
-    cancelButton:Tooltip():AddText("Cancel reset of the list")
+    cancelButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("hdf197961585844d394b3e372417ac6fd66eg"))
     cancelButton.OnClick = function()
         self.Widget.ResetConfirmationPopup:Destroy()
     end

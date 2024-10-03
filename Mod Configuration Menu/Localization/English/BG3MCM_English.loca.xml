@@ -43,4 +43,30 @@
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Print deprecation warnings</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Debug</content>
     <content contentuid="h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f" version="1">Don't show this again</content>
-</contentList>
+    <content contentuid="h9b0d0bba0bf64006a6dd8ed86a4d5353a3d8" version="1">Search by name:</content>
+    <content contentuid="h17e2c93763d54f3f9b5da8722d09cf90fab9" version="1">Check to enable the list, uncheck to disable it, without removing/disabling any elements.</content>
+    <content contentuid="h4ffde733fba3492387caa52d9c585d57f177" version="1">Enable entire list</content>
+    <content contentuid="h60c5e6f97c914061887ad783cccf5ac3371f" version="1">Are you sure you want to delete all elements?</content>
+    <content contentuid="hb2adccb2f863414991f8475d5b394dbb5f65" version="1">Yes</content>
+    <content contentuid="he9e1eaf8a127430bba164fd001b3131aa5c1" version="1">Confirm deletion of all elements</content>
+    <content contentuid="h3481631a19f94c1181c338b3ce88cfff5805" version="1">No</content>
+    <content contentuid="h390af8814d814ef89fd24feb697262452agc" version="1">Cancel deletion of all elements</content>
+    <content contentuid="h7268106aaf6f4d1d90f279554082e1faedbd" version="1">Active</content>
+    <content contentuid="h7b51e015aaa54af789c1ee0c3fbfa48eabb5" version="1">Up/down</content>
+    <content contentuid="h917591f3d3984b62a13f0c6cd6a8d2710de6" version="1">Name</content>
+    <content contentuid="hc8ac6fff0508437d936bb1ae51e9a3dfc8a0" version="1">Remove</content>
+    <content contentuid="h9d7807ea594c4e5cb10d616f4a100c94341g" version="1">Up</content>
+    <content contentuid="h5259f8b44fdd4186bccca1948332cf250ac3" version="1">Down</content>
+    <content contentuid="hb22eb0c6c4ed41b28966287ab5b20c7b35a3" version="1">Click and enter a page number to navigate to it</content>
+    <content contentuid="hb95bf2a27ec04873b561c53aa35066a75b83" version="1">(filtered)</content>
+    <content contentuid="hf10161d75da04360907b151e4eb07054f8cb" version="1">Add new element:</content>
+    <content contentuid="h4b543fe6f0fd4d8199950d7a16b3879ca7d1" version="1">Add</content>
+    <content contentuid="hefc87cc64ef74547b4ccade4ff1676994d53" version="1">[Reset list]</content>
+    <content contentuid="hd2a185ef63ff4c6695b20baf5fd6e08b2b8a" version="1">Reset this list to its default values</content>
+    <content contentuid="hfdeffc59d25b4fa0910682fd3bb78f7b4d04" version="1">[Delete all]</content>
+    <content contentuid="he16594af5abf4f44b6545facfa654b669g0a" version="1">Delete all elements from the list</content>
+    <content contentuid="h983f2fd776cd40ab844efcca6300d9c87eb5" version="1">Are you sure you want to reset the list to its default values?</content>
+    <content contentuid="hc22c8995c3d34cb69b677e2c52a7ec3a4691" version="1">Yes</content>
+    <content contentuid="h6ca43c8ed1ec4292af8c51472528c21ed0gd" version="1">Confirm reset of the list</content>
+    <content contentuid="h8886849a4a674633a14df972d408cb71d012" version="1">No</content>
+    <content contentuid="hdf197961585844d394b3e372417ac6fd66eg" version="1">Cancel reset of the list</content>
