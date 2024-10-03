@@ -428,8 +428,8 @@
                                         },
                                         "AllowReordering": {
                                             "type": "boolean",
-                                            "description": "Whether the list allows reordering items UI. Enabled by default.",
-                                            "default": false
+                                            "description": "Whether the list allows reordering items UI. Disabled by default.",
+                                            "default": true
                                         }
                                     }
                                 }
