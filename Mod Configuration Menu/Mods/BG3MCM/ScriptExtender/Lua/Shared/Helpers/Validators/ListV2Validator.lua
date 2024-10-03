@@ -3,17 +3,17 @@ ListV2Validator = _Class:Create("ListV2Validator", Validator)
 
 function ListV2Validator.Validate(config, value)
     if type(value) ~= "table" then
-        MCMWarn(0, "Value must be a table")
+        MCMWarn(1, "Value must be a table")
         return false
     end
 
     if value.enabled == nil or type(value.enabled) ~= "boolean" then
-        MCMWarn(0, "list_v2's 'enabled' must be a boolean")
+        MCMWarn(1, "list_v2's 'enabled' must be a boolean")
         return false
     end
 
     if not value.elements or type(value.elements) ~= "table" then
-        MCMWarn(0, "list_v2's 'elements' must be a table.")
+        MCMWarn(1, "list_v2's 'elements' must be a table.")
         return false
     end
 
