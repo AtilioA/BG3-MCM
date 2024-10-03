@@ -53,7 +53,7 @@
                             "Id": "auto_resize_window",
                             "Name": "Automatically resize window",
                             "Type": "checkbox",
-                            "Default": true,
+                            "Default": false,
                             "Description": "Dynamically resize the MCM window to fit settings.",
                             "Tooltip": "If disabled, the window might require scrolling.\nYou'll be able to resize the window manually by dragging the bottom-right corner.",
                             "Handles": {
