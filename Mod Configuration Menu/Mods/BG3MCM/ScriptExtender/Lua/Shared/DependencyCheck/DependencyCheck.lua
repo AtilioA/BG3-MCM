@@ -60,8 +60,8 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             dependency.ModuleUUIDString
         )
         local errorMessage = string.format(
-            "Ignoring dependency '%s' for mod '%s' because it has no version information.\nPlease contact %s to update/fix the meta.lsx file for '%s'.\nThe version node might have an outdated ID (it should be Version64).",
-            dependencyInfo.Name, depMod.Info.Name, dependencyInfo.Author, dependencyInfo.Name)
+            "Can't check dependency '%s' for mod '%s' because it has no version information.\nThis doesn't impact functionality, but please contact %s to update the meta.lsx file for '%s'.\nThe version node might have an outdated ID (it should be Version64).",
+            dependencyInfo.Name, mod.Info.Name, dependencyInfo.Author, dependencyInfo.Name)
 
         table.insert(issues, {
             id = issueID,
