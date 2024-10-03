@@ -53,7 +53,7 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, ModUUID)
     instance.Widget.Enabled = initialValue.enabled ~= false
     instance.Widget.Elements = initialValue.elements or {}
 
-    instance.Widget.PageSize = (setting:GetOptions() and setting:GetOptions().PageSize) or 10
+    instance.Widget.PageSize = math.min((setting:GetOptions() and setting:GetOptions().PageSize) or 5, 20)
     if instance.Widget.PageSize < 5 then instance.Widget.PageSize = 5 end
     instance.Widget.ShowSearchBar = (setting:GetOptions() and setting:GetOptions().ShowSearchBar) ~= false
     instance.Widget.AllowReordering = (setting:GetOptions() and setting:GetOptions().AllowReordering) == true
