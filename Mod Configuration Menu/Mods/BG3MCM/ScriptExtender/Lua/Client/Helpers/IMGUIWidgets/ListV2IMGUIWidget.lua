@@ -604,7 +604,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
             if not newElementName or newElementName == "" then return end
 
             local newElement = { name = newElementName, enabled = true }
-            table.insert(self.Widget.Elements, newElement)
+            table.insert(self.Widget.Elements, 1, newElement)
             self:UpdateSettings()
             self:FilterElements()
             self:Refresh()
