@@ -652,11 +652,13 @@ end
 ---Refreshes the entire widget, re-rendering all components
 ---@return nil
 function ListV2IMGUIWidget:Refresh()
+    -- clearGroup(self.Widget.HeaderGroup)
     clearGroup(self.Widget.TableGroup)
     if not self.Widget.ReadOnly then
         clearGroup(self.Widget.InputGroup)
         clearGroup(self.Widget.ResetGroup)
     end
+    -- self:RenderHeader()
     self:RenderList()
     if not self.Widget.ReadOnly then
         self:AddInputAndAddButton()
@@ -701,7 +703,6 @@ function ListV2IMGUIWidget:AddResetButton(group, setting, ModUUID)
     end
 
     if not self.Widget.Enabled then
-        resetButton.Disabled = true
         self:ApplyDisabledStyle(resetButton)
     end
 end
@@ -720,7 +721,6 @@ function ListV2IMGUIWidget:AddDeleteAllButton(group, ModUUID)
     deleteAllButton.SameLine = true
 
     if not self.Widget.Enabled then
-        deleteAllButton.Disabled = true
         self:ApplyDisabledStyle(deleteAllButton)
     end
 end
