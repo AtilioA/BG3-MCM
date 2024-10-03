@@ -112,11 +112,11 @@ function ListV2IMGUIWidget:RenderHeader()
         if not self.Widget.SearchInput then
             self.Widget.SearchInput = headerGroup:AddInputText("", self.Widget.SearchText)
             self.Widget.SearchInput.IDContext = self.Widget.ModUUID .. "_SearchInput_" .. self.Widget.Setting.Id
-            self.Widget.SearchInput.OnChange = VCTimer:Debounce(function(input)
+            self.Widget.SearchInput.OnChange = VCTimer:Debounce(50, function(input)
                 self.Widget.SearchText = input.Text
                 self:FilterElements()
                 self:RefreshList()
-            end, 50)
+            end)
             self.Widget.SearchInput.AutoSelectAll = true
             self.Widget.SearchInput.SameLine = true
         else
