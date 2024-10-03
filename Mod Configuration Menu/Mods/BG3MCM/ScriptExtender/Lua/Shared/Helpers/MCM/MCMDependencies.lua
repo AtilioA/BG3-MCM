@@ -45,10 +45,10 @@ function MCMDependencies:WarnAboutLoadOrderDependencies()
     for _, issue in ipairs(issues) do
         local dependencyIssueTitle = "Dependency issue detected: " ..
             issue.modName .. " depends on " .. issue.dependencyName
-        NotificationManager:CreateIMGUINotification(issue.id, 'error', dependencyIssueTitle, issue.errorMessage, {},
+        NotificationManager:CreateIMGUINotification(issue.id, issue.severity, dependencyIssueTitle, issue.resultMessage, {},
             ModuleUUID)
 
-        MCMWarn(0, issue.errorMessage)
+        MCMWarn(0, issue.resultMessage)
     end
 end
 

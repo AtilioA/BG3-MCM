@@ -10,9 +10,10 @@ DependencyCheck = _Class:Create("DependencyCheck", nil, {})
 
 ---@class DependencyCheckResult
 ---@field id string
+---@field severity NotificationSeverity
 ---@field modName string
 ---@field dependencyName string
----@field errorMessage string
+---@field resultMessage string
 
 --- Checks if the loaded version is compatible with the required version.
 ---@param loadedDependencyVersion vec4 The loaded mod version.
@@ -59,7 +60,7 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             mod.Info.ModuleUUID,
             dependency.ModuleUUIDString
         )
-        local errorMessage = string.format(
+        local resultMessage = string.format(
             "Can't check dependency '%s' for mod '%s' because it has no version information.\nThis doesn't impact functionality, but please contact %s to update the meta.lsx file for '%s'.\nThe version node might have an outdated ID (it should be Version64).",
             dependencyInfo.Name, mod.Info.Name, dependencyInfo.Author, dependencyInfo.Name)
 
@@ -67,7 +68,8 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             id = issueID,
             modName = mod.Info.Name,
             dependencyName = dependency.Name,
-            errorMessage = errorMessage
+            resultMessage = resultMessage,
+            severity = "warning"
         })
         return true
     end
@@ -97,7 +99,7 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             loadedDependencyVersion[1] ..
             "." .. loadedDependencyVersion[2] .. "." .. loadedDependencyVersion[3] .. "." .. loadedDependencyVersion[4]
         )
-        local errorMessage = string.format(
+        local resultMessage = string.format(
             "Mod '%s' requires '%s' version %d.%d.%d.%d or higher, but loaded version is %d.%d.%d.%d\nPlease update %s.",
             mod.Info.Name, dependency.Name,
             requiredVersion[1], requiredVersion[2], requiredVersion[3], requiredVersion[4],
@@ -108,7 +110,8 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             id = issueID,
             modName = mod.Info.Name,
             dependencyName = dependency.Name,
-            errorMessage = errorMessage
+            resultMessage = resultMessage,
+            severity = "error"
         })
     end
 end
@@ -122,15 +125,16 @@ local function recordMissingDependency(mod, dependency, issues)
         mod.Info.ModuleUUID,
         dependency.ModuleUUIDString
     )
-    local errorMessage = string.format("Mod '%s' requires dependency '%s', which is not loaded.\nPlease install %s.",
+    local resultMessage = string.format("Mod '%s' requires dependency '%s', which is not loaded.\nPlease install %s.",
         mod.Info.Name,
         dependency.Name, dependency.Name)
-    MCMWarn(1, "Missing dependency recorded: " .. errorMessage)
+    MCMWarn(1, "Missing dependency recorded: " .. resultMessage)
     table.insert(issues, {
         id = issueID,
         modName = mod.Info.Name,
         dependencyName = dependency.Name,
-        errorMessage = errorMessage
+        resultMessage = resultMessage,
+        severity = "error"
     })
 end
 
