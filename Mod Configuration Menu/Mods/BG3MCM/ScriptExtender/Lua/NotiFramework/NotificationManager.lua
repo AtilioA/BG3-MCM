@@ -103,6 +103,7 @@ end
 ---@param buttons table<string, function> The button labels and their callbacks
 ---@return nil
 function NotificationManager:CreateCustomButtons(buttons)
+    if not buttons then return end
     if table.isEmpty(buttons) then return end
 
     local hasDontShowAgainButton = self.options.dontShowAgainButton
@@ -229,7 +230,7 @@ function NotificationManager:CreateMessageGroup()
     local messageText = messageGroup:AddText(self.message)
     messageText:SetColor("Text", borderColor)
     messageText.SameLine = true
-    messageText.TextWrapPos = 0
+    -- messageText.TextWrapPos = 0
 end
 
 --- Creates a "Don't show again" button in the notification window
