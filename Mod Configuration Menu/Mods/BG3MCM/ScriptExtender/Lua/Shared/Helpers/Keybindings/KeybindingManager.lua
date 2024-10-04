@@ -8,15 +8,17 @@ function KeybindingManager:IsKeybindingTable(value)
     return type(value) == "table" and value.ScanCode ~= nil and value.Modifier ~= nil
 end
 
-function KeybindingManager:IsActiveModifier(modifier)
-    return table.contains({
-        "LShift",
-        "RShift",
-        "LCtrl",
-        "RCtrl",
-        "LAlt",
-        "RAlt"
-    }, modifier)
+function KeybindingManager:IsActiveModifier(key)
+    local activeModifiers = {
+        ["LSHIFT"] = true,
+        ["RSHIFT"] = true,
+        ["LCTRL"] = true,
+        ["RCTRL"] = true,
+        ["LALT"] = true,
+        ["RALT"] = true
+    }
+
+    return activeModifiers[key:upper()] or activeModifiers[key] or false
 end
 
 function KeybindingManager:GetToggleKeybinding()
