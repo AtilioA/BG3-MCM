@@ -77,19 +77,19 @@ function KeybindingV2IMGUIWidget:RenderSearchBar()
 
     -- Create the search bar only if it doesn't exist
     if not self.Widget.DynamicElements.SearchInput then
-    group:AddSpacing()
-    group:AddText("Search:")
-    local searchInput = group:AddInputText("", self.Widget.SearchText)
-    searchInput.IDContext = "SearchInput"
-    searchInput.AutoSelectAll = true
-    searchInput.OnChange = function(input)
-        self.Widget.SearchText = input.Text
-        self.Widget.DebounceSearch()
-    end
-    group:AddSeparator()
+        group:AddSpacing()
+        group:AddText("Search:")
+        local searchInput = group:AddInputText("", self.Widget.SearchText)
+        searchInput.IDContext = "SearchInput"
+        searchInput.AutoSelectAll = true
+        searchInput.OnChange = function(input)
+            self.Widget.SearchText = input.Text
+            self.Widget.DebounceSearch()
+        end
+        group:AddSeparator()
 
         -- Store the search input for later reference
-    self.Widget.DynamicElements.SearchInput = searchInput
+        self.Widget.DynamicElements.SearchInput = searchInput
     end
 end
 
@@ -237,8 +237,8 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         end
 
         -- Add the key to the currently pressed keys
-        self.PressedKeys = {}
-        self.AllPressedKeys = {}
+        self.PressedKeys[e.Key] = true
+        self.AllPressedKeys[e.Key] = true
     elseif e.Event == "KeyUp" then
         -- Remove the key from currently pressed keys
         self.PressedKeys[e.Key] = nil
@@ -267,7 +267,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             self.AllPressedKeys = {}
 
             -- Format and assign the keybinding
-            local keybinding = self:FormatKeybinding(keys, e.Modifiers)
+            local keybinding = self:FormatKeybinding(keys)
             self:AssignKeybinding(keybinding)
         end
     end
