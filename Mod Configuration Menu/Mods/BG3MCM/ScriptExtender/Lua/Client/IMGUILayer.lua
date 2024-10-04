@@ -268,6 +268,7 @@ function IMGUILayer:CreateModMenu()
     self:PrepareMenu()
     self:ConvertModTablesToBlueprints()
     self:CreateProfileManagementHeader()
+    self:CreateKeybindingsPage()
     self:CreateMainTable()
 end
 
@@ -515,3 +516,66 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID
         self.mods[modUUID].widgets[setting:GetId()] = widget
     end
 end
+
+function IMGUILayer:CreateKeybindingsPage()
+    -- REFACTOR: rework this stub UUID thing from FrameManager
+    local hotkeysUUID = "MCM_HOTKEYS"
+
+    -- Add the "Hotkeys" button to the menu
+    local menuButton = FrameManager:CreateMenuButton(FrameManager.menuCell, "Hotkeys", hotkeysUUID)
+
+    -- Create the content group for hotkeys
+    local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
+    FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
+
+    -- Create the KeybindingIMGUIWidget
+    local keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
+    self.KeybindingWidget = keybindingWidget -- Store for later use if needed
+
+    -- Collect all mods' keybindings (this will be done beforehand in the future)
+    -- local allModKeybindings = {}
+    -- for modUUID, modSettings in pairs(self.mods) do
+    --     if modSettings.keybindings then
+    --         local modKeybindings = {
+    --             ModName = self:GetModName(modUUID),
+    --             Actions = modSettings.keybindings  -- Assume modSettings has a 'keybindings' field
+    --         }
+    --         table.insert(allModKeybindings, modKeybindings)
+    --     end
+    -- end
+
+    local allModKeybindings = {
+        {
+            ModName = "Mod1",
+            Actions = {
+                { ActionName = "Action1", KeyboardMouseBinding = "E", ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil },
+                { ActionName = "Action2", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil }
+            }
+        },
+        {
+            ModName = "Mod2",
+            Actions = {
+                { ActionName = "Action3", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil },
+                { ActionName = "Action4", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil }
+            }
+        },
+        {
+            ModName = "Mod3",
+            Actions = {
+                { ActionName = "Action5", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil },
+                { ActionName = "Action6", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil }
+            }
+        }
+    }
+
+    -- Register the keybindings with the widget
+    keybindingWidget:RegisterModKeybindings(allModKeybindings)
+end
+
+-- function IMGUILayer:RegisterModKeybindings(modUUID, actions)
+--     if not self.mods[modUUID] then
+--         self.mods[modUUID] = { keybindings = actions }
+--     else
+--         self.mods[modUUID].keybindings = actions
+--     end
+-- end

@@ -15,5 +15,6 @@ RequireFiles("Client/Helpers/IMGUIWidgets/", {
     "ListIMGUIWidget",
     "ListV2IMGUIWidget",
     "KeybindingIMGUIWidget",
+    "KeybindingV2IMGUIWidget",
     "WidgetFactory",
 })
