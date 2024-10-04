@@ -75,12 +75,8 @@ end
 function KeybindingV2IMGUIWidget:RenderSearchBar()
     local group = self.Widget.Group
 
-    -- Destroy previous search input if it exists
-    if self.Widget.DynamicElements.SearchInput then
-        self.Widget.DynamicElements.SearchInput:Destroy()
-        self.Widget.DynamicElements.SearchInput = nil
-    end
-
+    -- Create the search bar only if it doesn't exist
+    if not self.Widget.DynamicElements.SearchInput then
     group:AddSpacing()
     group:AddText("Search:")
     local searchInput = group:AddInputText("", self.Widget.SearchText)
@@ -92,8 +88,9 @@ function KeybindingV2IMGUIWidget:RenderSearchBar()
     end
     group:AddSeparator()
 
-    -- Store the search input for later cleanup
+        -- Store the search input for later reference
     self.Widget.DynamicElements.SearchInput = searchInput
+    end
 end
 
 function KeybindingV2IMGUIWidget:RenderKeybindingTables()
@@ -406,12 +403,6 @@ function KeybindingV2IMGUIWidget:ClearDynamicElements()
         modHeader:Destroy()
     end
     self.Widget.DynamicElements.ModHeaders = {}
-
-    -- Destroy search input
-    if self.Widget.DynamicElements.SearchInput then
-        self.Widget.DynamicElements.SearchInput:Destroy()
-        self.Widget.DynamicElements.SearchInput = nil
-    end
 
     -- Destroy 'No matching keybindings' text
     if self.Widget.DynamicElements.NoResultsText then
