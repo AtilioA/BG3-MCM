@@ -130,9 +130,9 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
     -- Add Columns with fixed widths
     imguiTable:AddColumn("Action Name", "WidthStretch")
-    imguiTable:AddColumn("Keyboard/Mouse Input", "WidthFixed", 300)
-    imguiTable:AddColumn("Controller Input", "WidthFixed", 150)
-    imguiTable:AddColumn("Reset", "WidthFixed", 50)
+    imguiTable:AddColumn("Keyboard/Mouse Input", "WidthFixed", 400)
+    imguiTable:AddColumn("Controller Input", "WidthFixed", 400)
+    imguiTable:AddColumn("Reset", "WidthFixed", 100)
 
     -- Add rows for each action
     for _, action in ipairs(mod.Actions) do
