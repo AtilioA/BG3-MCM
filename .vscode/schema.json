@@ -210,11 +210,7 @@
                         },
                         {
                             "const": "list_v2",
-                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them."
-                        },
-                        {
-                            "const": "list",
-                            "description": "(WILL BE DEPRECATED). A list of items with a text input below to add new items.\nThe list is initialized with default values if provided."
+                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them. Replaces the deprecated 'list' type."
                         },
                         {
                             "const": "enum",
@@ -249,8 +245,8 @@
                             "description": "A color editor widget. Similar to a color picker, but with only the color fields displayed."
                         },
                         {
-                            "const": "keybinding",
-                            "description": "A keybinding input, consisting of an optional modifier and a key."
+                            "const": "keybinding_v2",
+                            "description": "A keybinding/hotkey input, consisting of optional modifiers and a key, and listed in the 'Hotkeys' section of MCM. Replaces the deprecated 'keybinding' type. Remember to inject the hotkey functionality in your mod via the MCM API, otherwise the hotkeys will not do anything."
                         }
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
@@ -295,7 +291,6 @@
                     "type": "object",
                     "properties": {},
                     "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
-                    // "additionalProperties": false
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -435,6 +430,251 @@
                                     }
                                 }
                             }
+                        },
+                        "else": {
+                            "if": {
+                                "properties": {
+                                    "Type": {
+                                        "const": "keybinding_v2"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "required": [
+                                    "Options",
+                                    "Default"
+                                ],
+                                "properties": {
+                                    "Default": {
+                                        "type": "object",
+                                        "properties": {
+                                            "Keyboard": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "ModifierKeys": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "Ctrl",
+                                                                "Shift",
+                                                                "Alt",
+                                                                "Meta"
+                                                            ]
+                                                        },
+                                                        "description": "Modifier keys for the keyboard binding."
+                                                    },
+                                                    "Keys": {
+                                                        "type": "array",
+                                                        "minItems": 1,
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "A",
+                                                                "B",
+                                                                "C",
+                                                                "D",
+                                                                "E",
+                                                                "F",
+                                                                "G",
+                                                                "H",
+                                                                "I",
+                                                                "J",
+                                                                "K",
+                                                                "L",
+                                                                "M",
+                                                                "N",
+                                                                "O",
+                                                                "P",
+                                                                "Q",
+                                                                "R",
+                                                                "S",
+                                                                "T",
+                                                                "U",
+                                                                "V",
+                                                                "W",
+                                                                "X",
+                                                                "Y",
+                                                                "Z",
+                                                                "NUM_1",
+                                                                "NUM_2",
+                                                                "NUM_3",
+                                                                "NUM_4",
+                                                                "NUM_5",
+                                                                "NUM_6",
+                                                                "NUM_7",
+                                                                "NUM_8",
+                                                                "NUM_9",
+                                                                "NUM_0",
+                                                                "RETURN",
+                                                                "TAB",
+                                                                "SPACE",
+                                                                "MINUS",
+                                                                "EQUALS",
+                                                                "LEFTBRACKET",
+                                                                "RIGHTBRACKET",
+                                                                "BACKSLASH",
+                                                                "SEMICOLON",
+                                                                "APOSTROPHE",
+                                                                "GRAVE",
+                                                                "COMMA",
+                                                                "PERIOD",
+                                                                "SLASH",
+                                                                "F1",
+                                                                "F2",
+                                                                "F3",
+                                                                "F4",
+                                                                "F5",
+                                                                "F6",
+                                                                "F7",
+                                                                "F8",
+                                                                "F9",
+                                                                "F10",
+                                                                "F11",
+                                                                "F12",
+                                                                "PRINTSCREEN",
+                                                                "PAUSE",
+                                                                "INSERT",
+                                                                "HOME",
+                                                                "PAGEUP",
+                                                                "DEL",
+                                                                "END",
+                                                                "PAGEDOWN",
+                                                                "RIGHT",
+                                                                "LEFT",
+                                                                "DOWN",
+                                                                "UP",
+                                                                "KP_DIVIDE",
+                                                                "KP_MULTIPLY",
+                                                                "KP_MINUS",
+                                                                "KP_PLUS",
+                                                                "KP_ENTER",
+                                                                "KP_1",
+                                                                "KP_2",
+                                                                "KP_3",
+                                                                "KP_4",
+                                                                "KP_5",
+                                                                "KP_6",
+                                                                "KP_7",
+                                                                "KP_8",
+                                                                "KP_9",
+                                                                "KP_0",
+                                                                "KP_PERIOD"
+                                                            ]
+                                                        },
+                                                        "description": "Primary keys for the keyboard binding."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "Keys"
+                                                ],
+                                                "additionalProperties": false
+                                            },
+                                            "Mouse": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "Button": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9]+$",
+                                                        "description": "Mouse button number for the mouse binding."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "Button"
+                                                ],
+                                                "additionalProperties": false
+                                            },
+                                            "Controller": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "Buttons": {
+                                                        "type": "array",
+                                                        "minItems": 1,
+                                                        "items": {
+                                                            "type": "string",
+                                                            "minLength": 1,
+                                                            "enum": [
+                                                                "A",
+                                                                "B",
+                                                                "Back",
+                                                                "DPadDown",
+                                                                "DPadLeft",
+                                                                "DPadRight",
+                                                                "DPadUp",
+                                                                "Guide",
+                                                                "LeftShoulder",
+                                                                "LeftStick",
+                                                                "Misc1",
+                                                                "Paddle1",
+                                                                "Paddle2",
+                                                                "Paddle3",
+                                                                "Paddle4",
+                                                                "RightShoulder",
+                                                                "RightStick",
+                                                                "Start",
+                                                                "Touchpad",
+                                                                "X",
+                                                                "Y"
+                                                            ]
+                                                        },
+                                                        "description": "Controller buttons for the controller binding."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "Buttons"
+                                                ],
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        "anyOf": [
+                                            {
+                                                "oneOf": [
+                                                    {
+                                                        "required": [
+                                                            "Keyboard"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "required": [
+                                                            "Mouse"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "Controller"
+                                                ]
+                                            }
+                                        ],
+                                        "description": "Default keybinding configuration. Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence."
+                                    },
+                                    "Options": {
+                                        "type": "object",
+                                        "properties": {
+                                            "ShouldTriggerOnKeyDown": {
+                                                "type": "boolean",
+                                                "description": "Trigger the action when the key is pressed down. Default: true",
+                                                "default": true
+                                            },
+                                            "ShouldTriggerOnKeyUp": {
+                                                "type": "boolean",
+                                                "description": "Trigger the action when the key is released. Default: false",
+                                                "default": false
+                                            },
+                                            "ShouldTriggerOnRepeat": {
+                                                "type": "boolean",
+                                                "description": "Trigger the action repeatedly while the key is held down. Default: false",
+                                                "default": false
+                                            }
+                                        },
+                                        "required": [],
+                                        "additionalProperties": false,
+                                        "description": "Optional: Options for how the keybinding should behave."
+                                    }
+                                }
+                            },
+                            "else": {}
                         }
                     }
                 }
@@ -497,33 +737,14 @@
                                 {
                                     "name": "d",
                                     "enabled": false
-                                },
-                                {
-                                    "name": "e",
-                                    "enabled": false
-                                },
-                                {
-                                    "name": "f",
-                                    "enabled": false
                                 }
                             ],
                             "Options": {
-                                "PageSize": 2,
+                                "PageSize": 5,
                                 "ShowSearchBar": true
                             }
                         }
                     ]
-                },
-                {
-                    "Id": "ListSetting",
-                    "Name": "(DEPRECATED) List Setting",
-                    "Type": "list",
-                    "Default": [
-                        "Item 1",
-                        "Item 2"
-                    ],
-                    "Tooltip": "(DEPRECATED) This is a list setting.",
-                    "Description": "(DEPRECATED) This setting allows adding or removing items from a list."
                 },
                 {
                     "Id": "EnumSetting",
@@ -630,15 +851,37 @@
                     "Description": "This setting allows editing a color value directly."
                 },
                 {
-                    "Id": "KeybindingSetting",
+                    "Id": "KeybindingV2Setting",
                     "Name": "Keybinding Setting",
-                    "Type": "keybinding",
+                    "Type": "keybinding_v2",
                     "Default": {
-                        "Modifier": "Ctrl",
-                        "ScanCode": "K"
+                        "Keyboard": {
+                            "ModifierKeys": [
+                                "Ctrl",
+                                "Shift"
+                            ],
+                            "Keys": [
+                                "K"
+                            ]
+                        },
+                        // NOTE: Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence.
+                        "Mouse": {
+                            "Button": "1"
+                        },
+                        "Controller": {
+                            "Buttons": [
+                                "LeftShoulder",
+                                "A"
+                            ]
+                        }
                     },
                     "Tooltip": "This is a keybinding setting.",
-                    "Description": "This setting allows setting a keybinding with an optional modifier."
+                    "Description": "This setting allows setting a keybinding with an optional modifier.",
+                    "Options": {
+                        "ShouldTriggerOnKeyDown": true,
+                        "ShouldTriggerOnKeyUp": false,
+                        "ShouldTriggerOnRepeat": false
+                    }
                 }
             ]
         },
