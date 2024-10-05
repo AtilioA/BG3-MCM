@@ -440,10 +440,6 @@
                                 }
                             },
                             "then": {
-                                "required": [
-                                    "Options",
-                                    "Default"
-                                ],
                                 "properties": {
                                     "Default": {
                                         "type": "object",
