@@ -13,20 +13,31 @@
                     "SectionId": "general_settings",
                     "SectionName": "General settings",
                     "Settings": [
-                        {
-                            "Id": "toggle_mcm_keybinding",
-                            "Name": "Toggle MCM window",
-                            "Type": "keybinding",
-                            "Default": {
-                                "ScanCode": "INSERT",
-                                "Modifier": ""
-                            },
-                            "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",
-                            "Handles": {
-                                "NameHandle": "hb2789893dcaf46fca8c40add9358e1f2ca93",
-                                "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
-                            }
-                        },
+                        // {
+                        //     "Id": "reset_se",
+                        //     "Name": "Reset SE",
+                        //     "Type": "keybinding_v2",
+                        //     "Default": {
+                        //         "Keyboard": {
+                        //             "Keys": [
+                        //                 "A"
+                        //             ],
+                        //             "ModifierKeys": [
+                        //                 "Alt"
+                        //             ]
+                        //         },
+                        //         "Controller": {
+                        //             "Buttons": [
+                        //                 "A"
+                        //             ]
+                        //         }
+                        //     },
+                        //     "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",
+                        //     "Handles": {
+                        //         "NameHandle": "hb2789893dcaf46fca8c40add9358e1f2ca93",
+                        //         "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
+                        //     }
+                        // },
                         {
                             "Id": "host-only_mode",
                             "Name": "Host-only mode",

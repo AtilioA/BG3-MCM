@@ -41,7 +41,7 @@ end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
     -- MCMProxy.GameState = "Running"
-    
+
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(MCMAPI.mods)
 
@@ -56,6 +56,38 @@ Ext.Events.ResetCompleted:Subscribe(function()
 end)
 
 Ext.Events.KeyInput:Subscribe(handleKeyInput)
+
+-- Ext.Events.MouseButtonInput:Subscribe(function(e)
+--     _D(e)
+--     if e.Pressed then
+--         _D(e)
+--         -- Handle mouse button input here
+--         -- Example: Check which button was pressed and its position
+--         if e.Button == 1 then -- Left mouse button
+--             print("Left mouse button pressed at: (" .. e.X .. ", " .. e.Y .. ")")
+--         elseif e.Button == 2 then -- Right mouse button
+--             print("Right mouse button pressed at: (" .. e.X .. ", " .. e.Y .. ")")
+--         end
+--     end
+-- end)
+
+-- -- Handle controller axis input
+-- Ext.Events.ControllerAxisInput:Subscribe(function(e)
+
+--     -- _D(e)
+--     -- Handle controller axis input here
+--     -- print("Controller axis " .. e.Axis .. " moved with value: " .. e.Value)
+-- end)
+
+-- -- Handle controller button input
+-- Ext.Events.ControllerButtonInput:Subscribe(function(e)
+--     -- e:PreventAction()
+--     -- e:StopPropagation()
+--     -- _D(e)
+--     -- if e.Pressed then
+--         -- print("Controller button " .. e.Button .. " pressed.")
+--     -- end
+-- end)
 
 -- TODO: add controller support
 -- Ext.Events.ControllerButtonInput:Subscribe(function(e)
