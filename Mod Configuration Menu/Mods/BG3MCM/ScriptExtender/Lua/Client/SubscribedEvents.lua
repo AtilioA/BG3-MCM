@@ -16,7 +16,14 @@ local function handleKeyInput(e)
 
         if e.Key == "ESCAPE" then
             handleEscapeKey()
+            return
         end
+
+        if e.Key == "R" then
+            Ext.Debug.Reset()
+            return
+        end
+
         return
     end
 end
