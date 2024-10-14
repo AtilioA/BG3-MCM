@@ -751,19 +751,19 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "ModNameHandle": {
+                "NameHandle": {
                     "type": "string",
                     "minLength": 1,
                     "description": "The handle to be used to localize the name of the mod."
                 },
-                "ModDescriptionHandle": {
+                "DescriptionHandle": {
                     "type": "string",
                     "minLength": 1,
                     "description": "The handle to be used to localize the description of the mod."
                 }
             },
             "required": [
-                "ModNameHandle"
+                "NameHandle"
             ],
             "description": "Handles that can be used to localize the top-level mod strings."
         },
