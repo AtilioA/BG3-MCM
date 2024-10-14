@@ -318,8 +318,8 @@ function IMGUILayer:CreateMainTable()
     for _, modUUID in ipairs(sortedModKeys) do
         self.visibilityTriggers[modUUID] = {}
 
-        local modName = self:GetModName(modUUID)
-        local modDescription = VCString:AddNewlinesAfterPeriods(Ext.Mod.GetMod(modUUID).Info.Description)
+        local modName = self.mods[modUUID].blueprint:GetModName()
+        local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
         FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
         self.mods[modUUID].widgets = {}
 
@@ -331,18 +331,6 @@ function IMGUILayer:CreateMainTable()
         end
     end
     FrameManager:setVisibleFrame(ModuleUUID)
-end
-
---- Get the mod name, considering custom blueprint names
----@param modUUID string
----@return string
-function IMGUILayer:GetModName(modUUID)
-    local modName = Ext.Mod.GetMod(modUUID).Info.Name
-    local blueprintCustomName = self.mods[modUUID].blueprint:GetModName()
-    if blueprintCustomName then
-        modName = blueprintCustomName
-    end
-    return modName
 end
 
 --- Create a new tab for a mod in the MCM

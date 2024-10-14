@@ -180,6 +180,8 @@ function DataPreprocessing:PreprocessData(data, modUUID)
         SchemaVersion = data.SchemaVersion,
         Optional = data.Optional,
         ModName = data.ModName,
+        ModDescription = data.ModDescription,
+        Handles = data.Handles,
         Tabs = {},
         Settings = {}
     }

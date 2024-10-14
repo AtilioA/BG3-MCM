@@ -22,14 +22,17 @@
         "ModName": {
             "type": "string",
             "minLength": 1,
-            "description": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that historically had multiple names due to multiple versions.\nNote that you can always change your mod's name in its meta.lsx file without repercussions.",
+            "description": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that historically had multiple names due to multiple versions.\nNote that you can always change your mod's name in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles.",
             "examples": [
                 "My Mod Name To Be Displayed On MCM"
             ]
         },
         "ModDescription": {
-            "type": ["string", "null"],
-            "description": "The description of the mod to use instead of its registered description. This can be useful to hide the description or to provide a custom one for MCM.\nNote that you can always change your mod's description in its meta.lsx file without repercussions.",
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "The description of the mod to use instead of its registered description. This can be useful to hide the description or to provide a custom one for MCM.\nNote that you can always change your mod's description in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles.",
             "examples": [
                 "My Mod Description To Be Displayed On MCM"
             ]
