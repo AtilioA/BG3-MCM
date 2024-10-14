@@ -27,6 +27,17 @@
                 "My Mod Name To Be Displayed On MCM"
             ]
         },
+        "ModDescription": {
+            "type": ["string", "null"],
+            "description": "The description of the mod to use instead of its registered description. This can be useful to hide the description or to provide a custom one for MCM.\nNote that you can always change your mod's description in its meta.lsx file without repercussions.",
+            "examples": [
+                "My Mod Description To Be Displayed On MCM"
+            ]
+        },
+        "Handles": {
+            "$ref": "#/definitions/TopLevelHandles",
+            "description": "Handles to localize the top-level mod's strings."
+        },
         "Tabs": {
             "description": "The tabs that will be displayed in the MCM menu.\nEach tab can contain either sections or settings.\nTabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
             "type": "array",
@@ -735,6 +746,26 @@
                 "NameHandle"
             ],
             "description": "Handles that can be used to localize tab strings."
+        },
+        "TopLevelHandles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ModNameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the mod."
+                },
+                "ModDescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the mod."
+                }
+            },
+            "required": [
+                "ModNameHandle"
+            ],
+            "description": "Handles that can be used to localize the top-level mod strings."
         },
         "SectionHandles": {
             "type": "object",
