@@ -146,6 +146,16 @@ function IMGUILayer:EvaluateCondition(operator, value, triggerValue, modUUID)
     return false
 end
 
+function IMGUILayer:GetModName(modUUID)
+    if not modUUID then
+        return nil
+    end
+
+    if self.mods[modUUID] and self.mods[modUUID].blueprint then
+        return self.mods[modUUID].blueprint:GetModName()
+    end
+end
+
 function IMGUILayer:GetClientStateValue(settingId, modUUID)
     modUUID = modUUID or ModuleUUID
     if not modUUID or not settingId then
