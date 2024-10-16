@@ -36,7 +36,14 @@ function Blueprint:GetModName()
             return translatedName
         end
     end
-    return self.ModName or ""
+
+    local modName = self.ModName
+    local modData = Ext.Mod.GetMod(self.ModUUID)
+    if (not self.ModName or self.ModName == "") and modData and modData.Info then
+        modName = modData.Info.Name
+    end
+
+    return modName
 end
 
 function Blueprint:SetModName(value)
@@ -50,7 +57,14 @@ function Blueprint:GetModDescription()
             return translatedDescription
         end
     end
-    return self.ModDescription or ""
+
+    local modDescription = self.ModDescription
+    local modData = Ext.Mod.GetMod(self.ModUUID)
+    if (not self.ModDescription or self.ModDescription == "") and modData and modData.Info then
+        modDescription = modData.Info.Description
+    end
+
+    return modDescription
 end
 
 function Blueprint:GetHandles()
