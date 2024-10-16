@@ -21,7 +21,7 @@ local function updateLoca()
 end
 
 if Ext.Debug.IsDeveloperMode() then
-    MCMUtils.UpdateLoca()
+    updateLoca()
 end
 
 ---Ext.Require files at the path
