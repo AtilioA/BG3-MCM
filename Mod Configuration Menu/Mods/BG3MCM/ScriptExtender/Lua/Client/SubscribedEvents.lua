@@ -34,13 +34,16 @@ end)
 
 Ext.Events.ResetCompleted:Subscribe(function()
     -- MCMProxy.GameState = "Running"
-    
-    MCMAPI:LoadConfigs()
-    MCMClientState:LoadMods(MCMAPI.mods)
 
-    Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
-        message = "Client reset has completed. Requesting MCM settings from server."
-    }))
+    -- This doesn't even work, event does not fire during the main menu :shrug:
+    if MCMProxy.IsMainMenu() then
+        MCMAPI:LoadConfigs()
+        MCMClientState:LoadMods(MCMAPI.mods)
+    else
+        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
+            message = "Client reset has completed. Requesting MCM settings from server."
+        }))
+    end
 
     if not MCM_WINDOW then
         return
