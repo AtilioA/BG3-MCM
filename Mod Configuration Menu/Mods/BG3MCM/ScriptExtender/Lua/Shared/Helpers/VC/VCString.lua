@@ -190,6 +190,11 @@ end
 
 --- Add newlines after each period in a string
 function VCString:AddNewlinesAfterPeriods(description)
+    if not description or description == "" then
+        MCMWarn(3, "Description is nil or empty.")
+        return nil
+    end
+
     return string.gsub(description, "%. ", ".\n")
 end
 
