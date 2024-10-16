@@ -10,6 +10,16 @@ function NodeTypeStrategy:ConstructIDContext(modUUID, settingID)
 end
 
 -- Implement specific strategies
+---@class SettingWidgetStrategy : NodeTypeStrategy
+SettingWidgetStrategy = setmetatable({}, NodeTypeStrategy)
+
+---@param modUUID string The UUID of the mod
+---@param settingID string The ID of the setting
+---@return string - The constructed ID context
+function SettingWidgetStrategy:ConstructIDContext(modUUID, settingID)
+    return modUUID .. "_" .. settingID
+end
+
 ---@class ResetButtonStrategy : NodeTypeStrategy
 ResetButtonStrategy = setmetatable({}, { __index = NodeTypeStrategy })
 
@@ -78,15 +88,26 @@ function NodeFinder:SearchNodeByID(strategy, modUUID, settingID)
     local targetIDContext = strategy:ConstructIDContext(modUUID, settingID)
 
     local function traverse(node)
-        if not targetIDContext or not node then return nil end
-        if node.IDContext == targetIDContext then return node end
+        local success, result = xpcall(function()
+            if not targetIDContext or not node then return nil end
+            if node.IDContext == targetIDContext then return node end
 
-        for _, child in ipairs(node.Children or {}) do
-            local result = traverse(child)
-            if result then return result end
+            for _, child in ipairs(node.Children or {}) do
+                local result = traverse(child)
+                if result then return result end
+            end
+
+            return nil
+        end, function(err)
+            MCMDebug(1, "Error in Traversal.lua: " .. err)
+            return nil
+        end)
+
+        if success then
+            return result
+        else
+            return nil
         end
-
-        return nil
     end
 
     return traverse(root)
@@ -103,3 +124,78 @@ end
 --         _D("Node not found.")
 --     end
 -- end)
+
+Ext.RegisterConsoleCommand("mcm_find_node", function(command, settingID)
+    local nodeFinder = setmetatable({}, NodeFinder)
+    local foundNode = nodeFinder:SearchNodeByID(ResetButtonStrategy, ModuleUUID, settingID)
+    _D(foundNode)
+end)
+
+-- Function to create a flat mapping of all nodes under MCM_WINDOW
+function CreateNodeMapping()
+    local mapping = {}
+    local root = MCM_WINDOW
+
+    if not root then
+        _D("MCM_WINDOW is not defined.")
+        return mapping
+    end
+
+    -- Recursive traversal function
+    local function traverse(node)
+        if not node then return end
+
+        local key = node.IDContext or node.ID or tostring(node)
+
+        if key then
+            mapping[key] = node
+        else
+            _D("Node without a unique identifier found.")
+        end
+
+        -- Traverse children if any
+        if node.Children then
+            for _, child in ipairs(node.Children) do
+                xpcall(function() traverse(child) end, function(err)
+                    -- _D("Error traversing child node: " .. tostring(err))
+                end)
+            end
+        end
+    end
+
+    -- Start traversal from the root
+    traverse(root)
+
+    return mapping
+end
+
+-- Register the console command to create and display the node mapping
+Ext.RegisterConsoleCommand("mcm_create_mapping", function(command, elementKey)
+    _D("Attempting to create node mapping...")
+    local mapping = CreateNodeMapping()
+
+    if not next(mapping) then
+        _D("No nodes found in MCM_WINDOW.")
+        return
+    end
+
+    -- Function to pretty-print the mapping table
+    local function PrintMapping(map)
+        for key, node in pairs(map) do
+            _D(string.format("Key: %s, Node: %s", key, tostring(node)))
+        end
+    end
+    if elementKey then
+        local idc = ResetButtonStrategy:ConstructIDContext(ModuleUUID, elementKey)
+        _D(idc)
+        local specificNode = mapping[idc]
+        if specificNode then
+            _DS(specificNode)
+        else
+            _D(string.format("No node found for Key '%s'.", elementKey))
+        end
+    else
+        _D("Node Mapping:")
+        PrintMapping(mapping)
+    end
+end)
