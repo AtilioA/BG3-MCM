@@ -182,7 +182,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
         MCMDebug(2, "Welcome text already exists, skipping...")
         return true
     end
-
+    
     local modMenuTitle = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
     if modMenuTitle == nil or modMenuTitle == "" then
         modMenuTitle = "Mod Configuration Menu"
@@ -207,13 +207,15 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
 
-    self.welcomeText = MCM_WINDOW:AddText(
-        VCString:ReplaceBrWithNewlines(
-            Ext.Loca.GetTranslatedString(
-                "h81a4a9991875424984b876d017675879c959")
+    if table.isEmpty(self.mods) then
+        self.welcomeText = MCM_WINDOW:AddText(
+            VCString:ReplaceBrWithNewlines(
+                Ext.Loca.GetTranslatedString(
+                    "h81a4a9991875424984b876d017675879c959")
+            )
         )
-    )
-    self.welcomeText.TextWrapPos = 0
+        self.welcomeText.TextWrapPos = 0
+    end
 
     MainMenu.CreateMainMenu()
 
@@ -260,6 +262,8 @@ end
 
 function IMGUILayer:LoadMods(mods)
     self.mods = mods
+
+    -- if MCM_WINDOW then MCM_WINDOW:Destroy() end
     local createdWindow = self:CreateMainIMGUIWindow()
     if not createdWindow then
         return
@@ -291,10 +295,6 @@ end
 --- Initialize menu settings and destroy welcome text if it exists
 ---@return nil
 function IMGUILayer:PrepareMenu()
-    if self.welcomeText then
-        self.welcomeText:Destroy()
-    end
-
     -- TODO: re-enable this after refactoring client-side code
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
 
@@ -451,6 +451,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     local sectionDescription = section:GetDescription()
     local sectionOptions = section:GetOptions()
     local sectionGroup = modGroup:AddGroup(sectionId)
+    sectionGroup.IDContext = modUUID .. "_" .. sectionId .. "_Group"
 
     self:manageVisibleIf(modUUID, section, sectionGroup)
 
@@ -477,7 +478,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
 
         local addedDescription = sectionContentElement:AddText(sectionDescriptionText)
         addedDescription.TextWrapPos = 0
-        addedDescription.IDContext = sectionGroup.IDContext .. "_Description_" .. sectionId
+        addedDescription.IDContext = sectionGroup.IDContext .. "_Description_"
         addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
         sectionContentElement:AddDummy(0, 2)
     end
@@ -506,6 +507,7 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
         local widgetGroup = modGroup:AddGroup(setting:GetId())
+        widgetGroup.IDContext = modUUID .. "_" .. setting:GetId() .. "_Group"
         local widget = createWidget(widgetGroup, setting, settingValue, modUUID)
 
         self:manageVisibleIf(modUUID, setting, widgetGroup)
