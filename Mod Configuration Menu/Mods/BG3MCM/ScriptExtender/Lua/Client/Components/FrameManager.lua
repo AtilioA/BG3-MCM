@@ -146,7 +146,7 @@ end
 ---@return any
 function FrameManager:CreateMenuButton(menuCell, text, uuid)
     local button = menuCell:AddButton(text)
-    button.IDContext = "Button" .. uuid
+    button.IDContext = "MenuButton_" .. text .. "_" .. uuid 
     button.OnClick = function()
         self:setVisibleFrame(uuid)
         MCMDebug(2, "Set mod Visible : " .. button.IDContext)

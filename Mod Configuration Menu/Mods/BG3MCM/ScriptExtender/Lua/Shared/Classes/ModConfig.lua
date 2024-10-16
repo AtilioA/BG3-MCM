@@ -303,13 +303,6 @@ function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFi
     self.mods[modUUID].settingsValues = settings
 
     MCMSuccess(2, Ext.Json.Stringify(self.mods[modUUID].settingsValues))
-    -- TODO: untangle this from shared client/server code
-    -- Abhorrent hack to update the client's UI with the new settings. Since this is just a secondary feature, it is what it is for now. Sorry!
-    -- if Ext.IsClient() and IMGUIAPI then
-    --     for settingId, settingValue in pairs(self.mods[modUUID].settingsValues) do
-    --         MCMClientState:SetClientStateValue(settingId, settingValue, modUUID)
-    --     end
-    -- end
 end
 
 --- Handle the missing settings for a mod. If the settings file is missing, the default settings from the blueprint are saved to the file.
