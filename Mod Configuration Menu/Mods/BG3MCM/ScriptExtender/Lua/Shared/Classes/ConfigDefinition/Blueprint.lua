@@ -87,6 +87,7 @@ function Blueprint:New(options)
     self.ModUUID = options.ModUUID or nil
     self.SchemaVersion = options.SchemaVersion or nil
     self.Settings = options.Settings or nil
+    self.Optional = options.Optional or false
     self.ModName = options.ModName or nil
     self.ModDescription = options.ModDescription or nil
     self.Handles = options.Handles or nil
