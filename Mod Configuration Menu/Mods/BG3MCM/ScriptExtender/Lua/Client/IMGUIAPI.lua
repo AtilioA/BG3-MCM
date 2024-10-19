@@ -45,6 +45,29 @@ function IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
     MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
 end
 
+--- Insert search results for a list_v2 setting in the MCM
+---@param modUUID string The UUID of the mod
+---@param settingId string The ID of the list_v2 setting to insert search results for
+---@param searchResults table The search results to insert
+---@return nil
+function IMGUIAPI:InsertListV2SearchResults(modUUID, settingId, searchResults)
+    MCMDebug(1,
+        "IMGUIAPI:InsertListV2SearchResults - Starting to insert search results for settingId: " ..
+        settingId .. " and modUUID: " .. modUUID)
+
+    -- Step 1: Find the widget corresponding to the setting
+    local widget = self:findWidgetForSetting(settingId, modUUID)
+    if not widget then
+        MCMWarn("IMGUIAPI:InsertListV2SearchResults - Widget not found for settingId: " ..
+            settingId .. " and modUUID: " .. modUUID)
+        return
+    end
+    MCMDebug(1, "IMGUIAPI:InsertListV2SearchResults - Found widget for settingId: " .. settingId)
+
+    widget.Widget.Suggestions = searchResults
+    widget.Widget.instance:RenderSearchResults()
+end
+
 --- Send a message to the server to update a setting value
 ---@param settingId string The ID of the setting to update
 ---@param value any The new value of the setting
@@ -102,7 +125,7 @@ end
 ---@return any | nil - The widget corresponding to the setting, or nil if no widget was found
 function IMGUIAPI:findWidgetForSetting(settingId, modUUID)
     -- Check if the mod has any registered widgets
-    local widgets = self:getModWidgets(modUUID)
+    local widgets = self:GetModWidgets(modUUID)
     if widgets then
         return widgets[settingId]
     end
@@ -112,7 +135,7 @@ end
 ---@private
 ---@param modUUID string The UUID of the mod
 ---@return table<string, any> | nil - widgets for the mod (keyed by setting ID), or nil if the mod has no widgets
-function IMGUIAPI:getModWidgets(modUUID)
+function IMGUIAPI:GetModWidgets(modUUID)
     if not MCMClientState or not MCMClientState.mods then
         return nil
     end
@@ -120,7 +143,7 @@ function IMGUIAPI:getModWidgets(modUUID)
         return nil
     end
     if not MCMClientState.mods[modUUID].widgets then
-    return nil
+        return nil
     end
 
     return MCMClientState.mods[modUUID].widgets
