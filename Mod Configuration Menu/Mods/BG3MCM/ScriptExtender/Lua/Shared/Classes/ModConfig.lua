@@ -268,7 +268,7 @@ function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
     }
 
     for _, element in ipairs(oldSetting) do
-        MCMDebug(1, "Migrating element: " .. element .. " for setting: " .. setting:GetId())
+        -- MCMDebug(1, "Migrating element: " .. element .. " for setting: " .. setting:GetId())
         table.insert(settings[setting:GetId()].elements, {
             name = element,
             enabled = true
