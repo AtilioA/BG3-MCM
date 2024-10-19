@@ -445,6 +445,13 @@
                                             "type": "boolean",
                                             "description": "Whether the list allows reordering items UI. Disabled by default.",
                                             "default": true
+                                        },
+                                        "Suggestions": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "description": "A list of suggestions that will be displayed when the user types in the input box."
                                         }
                                     }
                                 }
@@ -492,41 +499,43 @@
                     "Name": "List V2 Setting",
                     "Type": "list_v2",
                     "Description": "This is a list v2 setting",
-                    "Default": [
-                        {
-                            "enabled": true,
-                            "elements": [
-                                {
-                                    "name": "a",
-                                    "enabled": true
-                                },
-                                {
-                                    "name": "b",
-                                    "enabled": true
-                                },
-                                {
-                                    "name": "c",
-                                    "enabled": true
-                                },
-                                {
-                                    "name": "d",
-                                    "enabled": false
-                                },
-                                {
-                                    "name": "e",
-                                    "enabled": false
-                                },
-                                {
-                                    "name": "f",
-                                    "enabled": false
-                                }
-                            ],
-                            "Options": {
-                                "PageSize": 2,
-                                "ShowSearchBar": true
+                    "Default": {
+                        "enabled": true,
+                        "elements": [
+                            {
+                                "name": "a",
+                                "enabled": true
+                            },
+                            {
+                                "name": "b",
+                                "enabled": true
+                            },
+                            {
+                                "name": "c",
+                                "enabled": true
+                            },
+                            {
+                                "name": "d",
+                                "enabled": false
+                            },
+                            {
+                                "name": "e",
+                                "enabled": false
+                            },
+                            {
+                                "name": "f",
+                                "enabled": false
                             }
-                        }
-                    ]
+                        ]
+                    },
+                    "Options": {
+                        "PageSize": 5,
+                        "ShowSearchBar": true,
+                        "Suggestions": [
+                            "element 1",
+                            "element 2"
+                        ]
+                    }
                 },
                 {
                     "Id": "ListSetting",
