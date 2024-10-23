@@ -45,6 +45,7 @@ ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 function ListV2IMGUIWidget:new(group, setting, initialValue, ModUUID)
     local instance = setmetatable({}, { __index = ListV2IMGUIWidget })
     instance.Widget = {}
+    instance.Widget.instance = instance
     instance.Widget.Group = group
     instance.Widget.ModUUID = ModUUID
     instance.Widget.Setting = setting
@@ -58,6 +59,7 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, ModUUID)
     instance.Widget.ShowSearchBar = (setting:GetOptions() and setting:GetOptions().ShowSearchBar) ~= false
     instance.Widget.AllowReordering = (setting:GetOptions() and setting:GetOptions().AllowReordering) == true
     instance.Widget.ReadOnly = (setting:GetOptions() and setting:GetOptions().ReadOnly) == true
+    instance.Widget.Suggestions = (setting:GetOptions() and setting:GetOptions().Suggestions) or {}
 
     instance.Widget.CurrentPage = 1
     instance.Widget.FilteredElements = {}
@@ -578,7 +580,7 @@ end
 
 ---Adds the input field and add button to allow adding new elements
 ---@return nil
-function ListV2IMGUIWidget:AddInputAndAddButton()
+function ListV2IMGUIWidget:AddInputAndAddButton2()
     local inputGroup = self.Widget.InputGroup
     local newElementName = ""
     inputGroup:AddText(Ext.Loca.GetTranslatedString("hf10161d75da04360907b151e4eb07054f8cb"))
@@ -625,6 +627,276 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end
 end
 
+-- TODO: reduce code duplication (table + pagination), this is terrible
+
+---Adds the input field and add button to allow adding new elements
+---@return nil
+---Adds the input field, add button, and the collapsible header for search results
+---@return nil
+function ListV2IMGUIWidget:AddInputAndAddButton()
+    local inputGroup = self.Widget.InputGroup
+    inputGroup:AddText(Ext.Loca.GetTranslatedString("hf10161d75da04360907b151e4eb07054f8cb"))
+
+    xpcall(function()
+        -- Input field for adding new elements
+        _D(self.Widget.NewElementInput)
+        if not self.Widget.NewElementInput then
+            self.Widget.NewElementInput = inputGroup:AddInputText("", "")
+            self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
+            self.Widget.NewElementInput.AutoSelectAll = true
+            self.Widget.NewElementInput.SameLine = true
+            self.Widget.NewElementInput.OnChange = function(input)
+                self.Widget.NewElementName = input.Text
+                -- Refresh search results when input changes
+                self:FilterSearchResults()
+                self:RefreshSearchResults()
+            end
+        else
+            self.Widget.NewElementInput.Text = self.Widget.NewElementName or ""
+        end
+    end, function(err)
+        MCMDebug(1, "Error in adding new element input: " .. tostring(err))
+        self.Widget.NewElementInput = inputGroup:AddInputText("", "")
+        self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
+        self.Widget.NewElementInput.AutoSelectAll = true
+        self.Widget.NewElementInput.SameLine = true
+        self.Widget.NewElementInput.OnChange = function(input)
+            self.Widget.NewElementName = input.Text
+            -- Refresh search results when input changes
+            self:FilterSearchResults()
+            self:RefreshSearchResults()
+        end
+    end)
+
+    -- Add button
+    local addButton = inputGroup:AddImageButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"),
+        "ico_plus_d", IMGUIWidget:GetIconSizes())
+    addButton.IDContext = self.Widget.ModUUID .. "_AddElementButton_" .. self.Widget.Setting.Id
+    if not addButton.Image or addButton.Image.Icon == "" then
+        addButton:Destroy()
+        addButton = inputGroup:AddButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"))
+        addButton.IDContext = self.Widget.ModUUID .. "_AddElement_Button_" .. self.Widget.Setting.Id
+    end
+    addButton.SameLine = true
+    addButton.OnClick = function()
+        xpcall(function()
+            -- Dumb IMGUI bug workaround (yes, it's a bug, don't cope)
+            local newElement = { name = self.Widget.NewElementName, enabled = true }
+            table.insert(self.Widget.Elements, 1, newElement)
+            self:UpdateSettings()
+            self:FilterElements()
+            self:Refresh()
+
+            -- Reset input after adding
+            self.Widget.NewElementInput.Text = ""
+            self.Widget.NewElementName = ""
+        end, function(err)
+            MCMDebug(1, "Error adding new element: " .. tostring(err))
+        end)
+    end
+
+    if not self.Widget.Enabled then
+        self.Widget.NewElementInput.ReadOnly = true
+        addButton.Disabled = true
+        self:ApplyDisabledStyle(self.Widget.NewElementInput)
+        self:ApplyDisabledStyle(addButton)
+    end
+
+    -- Add Collapsible Header for suggestions/search results
+    if not self.Widget.SearchResultsGroup then
+        self.Widget.SearchResultsGroup = inputGroup:AddGroup("SearchResultsGroup_" .. self.Widget.Setting.Id)
+        self.Widget.SearchResultsGroup.IDContext = self.Widget.ModUUID ..
+            "_SearchResultsGroup_" .. self.Widget.Setting.Id
+    end
+
+    self:RenderSearchResults()
+end
+
+---Creates the search results table
+---@param parentGroup ExtuiGroup The parent group to which the table is added
+---@return ExtuiTable imguiTable The created IMGUI table
+function ListV2IMGUIWidget:CreateSearchResultsTable(parentGroup)
+    local imguiTable = parentGroup:AddTable("", 2)
+    imguiTable.Sortable = false
+    imguiTable.BordersOuter = true
+    imguiTable.BordersInner = true
+    imguiTable.RowBg = true
+
+    if not self.Widget.Enabled then
+        self:ApplyDisabledStyle(imguiTable)
+    end
+
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"), "WidthStretch")
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"), "WidthFixed",
+        IMGUIWidget:GetIconSizes()[0])
+
+    return imguiTable
+end
+
+---Adds the header row to the search results table
+---@param imguiTable any The IMGUI table to which the header is added
+---@return nil
+function ListV2IMGUIWidget:AddSearchResultsTableHeader(imguiTable)
+    local headerRow = imguiTable:AddRow()
+    headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"))
+    headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"))
+end
+
+---Renders a single row in the search results table
+---@param imguiTable any The IMGUI table to which the row is added
+---@param result any The search result item
+---@return nil
+function ListV2IMGUIWidget:RenderSearchResultRow(imguiTable, result)
+    local tableRow = imguiTable:AddRow()
+
+    -- Name cell
+    local nameCell = tableRow:AddCell()
+    local nameText = nameCell:AddText(result)
+    nameText.IDContext = self.Widget.ModUUID .. "_SearchResultName_" .. self.Widget.Setting.Id .. "_" .. result
+
+    -- Add button cell
+    local addCell = tableRow:AddCell()
+    local addButton = addCell:AddImageButton("", "ico_plus_d", IMGUIWidget:GetIconSizes())
+    addButton.IDContext = self.Widget.ModUUID .. "_AddSearchResult_" .. self.Widget.Setting.Id .. "_" .. result
+    if not addButton.Image or addButton.Image.Icon == "" then
+        addButton:Destroy()
+        addButton = addCell:AddButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"))
+        addButton.IDContext = self.Widget.ModUUID ..
+            "_AddSearchResult_Button_" .. self.Widget.Setting.Id .. "_" .. result
+    end
+
+    addButton.OnClick = function()
+        if self:ElementExists(result) then
+            addButton.Disabled = true
+            addButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("h35a4dfd6f3a54dc6a1ba9a4c90a4355a6ce6"))
+        else
+            table.insert(self.Widget.Elements, { name = result, enabled = true })
+            self:UpdateSettings()
+            self:FilterElements()
+            self:Refresh()
+        end
+    end
+    addButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("h134c0b997c2c47b8a2fcb8975e164bd71e24"))
+
+    if not self.Widget.Enabled then
+        addButton.Disabled = true
+        self:ApplyDisabledStyle(addButton)
+    end
+end
+
+---Renders pagination controls for the search results
+---@param parentGroup ExtuiGroup The parent group to which pagination controls are added
+---@param totalPages number The total number of pages
+---@return nil
+function ListV2IMGUIWidget:RenderSearchResultsPagination(parentGroup, totalPages)
+    local paginationGroup = parentGroup:AddGroup("SearchResultsPaginationGroup")
+    paginationGroup.IDContext = self.Widget.ModUUID .. "_SearchResultsPaginationGroup_" .. self.Widget.Setting.Id
+    paginationGroup:AddSpacing()
+    if totalPages > 1 then
+        self:AddSearchResultsPaginationButtons(paginationGroup, totalPages)
+    end
+end
+
+---Adds pagination buttons to the search results pagination group
+---@param paginationGroup ExtuiGroup The group to which pagination buttons are added
+---@param totalPages number The total number of pages
+---@return nil
+function ListV2IMGUIWidget:AddSearchResultsPaginationButtons(paginationGroup, totalPages)
+    local currentPage = self.Widget.SearchResultsCurrentPage
+    local function addPageButton(label, pageNumber, disabled)
+        local paddedLabel = " " .. label .. " "
+        local button = paginationGroup:AddButton(paddedLabel)
+        button.IDContext = self.Widget.ModUUID ..
+            "_SearchResultsPageButton_" .. self.Widget.Setting.Id .. "_" .. pageNumber
+        button.OnClick = function()
+            self.Widget.SearchResultsCurrentPage = pageNumber
+            self:RefreshSearchResults()
+        end
+        if disabled then
+            button.Disabled = true
+            self:ApplyDisabledStyle(button)
+        end
+        button.SameLine = true
+    end
+
+    -- Previous button
+    local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
+    prevButton.IDContext = self.Widget.ModUUID .. "_SearchResultsPrevPage_" .. self.Widget.Setting.Id
+    if not prevButton.Image or prevButton.Image.Icon == "" then
+        prevButton:Destroy()
+        prevButton = paginationGroup:AddButton("<")
+        prevButton.IDContext = self.Widget.ModUUID .. "_SearchResultsPrevPage_Button_" .. self.Widget.Setting.Id
+    end
+    prevButton.OnClick = function()
+        if self.Widget.SearchResultsCurrentPage > 1 then
+            self.Widget.SearchResultsCurrentPage = self.Widget.SearchResultsCurrentPage - 1
+            self:RefreshSearchResults()
+        end
+    end
+    if currentPage == 1 then
+        prevButton.Disabled = true
+        self:ApplyDisabledStyle(prevButton)
+    end
+    prevButton.SameLine = true
+
+    -- Page buttons
+    for page = 1, totalPages do
+        addPageButton(tostring(page), page, currentPage == page)
+    end
+
+    -- Next button
+    local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
+    nextButton.IDContext = self.Widget.ModUUID .. "_SearchResultsNextPage_" .. self.Widget.Setting.Id
+    if not nextButton.Image or nextButton.Image.Icon == "" then
+        nextButton:Destroy()
+        nextButton = paginationGroup:AddButton(">")
+        nextButton.IDContext = self.Widget.ModUUID .. "_SearchResultsNextPage_Button_" .. self.Widget.Setting.Id
+    end
+    nextButton.OnClick = function()
+        if self.Widget.SearchResultsCurrentPage < totalPages then
+            self.Widget.SearchResultsCurrentPage = self.Widget.SearchResultsCurrentPage + 1
+            self:RefreshSearchResults()
+        end
+    end
+    if currentPage == totalPages then
+        nextButton.Disabled = true
+        self:ApplyDisabledStyle(nextButton)
+    end
+    nextButton.SameLine = true
+end
+
+---Fetches search results based on the input text using fuzzy search
+---@param searchText string The search text input by the user
+---@return table searchResults The list of search results
+function ListV2IMGUIWidget:GetSearchResults(searchText)
+    local results = {}
+    local lowerSearchText = searchText:lower()
+    for _, item in ipairs(self.Widget.Suggestions) do
+        if not self:ElementExists(item) and VCString:FuzzyMatch(item:lower(), lowerSearchText) then
+            table.insert(results, item)
+        end
+    end
+
+    return results
+end
+
+---Filters the search results based on the new element input text
+---@return nil
+function ListV2IMGUIWidget:FilterSearchResults()
+    if not self.Widget.NewElementName or self.Widget.NewElementName == "" then
+        self.Widget.SearchResults = {}
+    else
+        self.Widget.SearchResults = self:GetSearchResults(self.Widget.NewElementName)
+    end
+    self.Widget.SearchResultsCurrentPage = 1
+end
+
+---Refreshes only the search results without re-rendering the entire widget
+---@return nil
+function ListV2IMGUIWidget:RefreshSearchResults()
+    self:RenderSearchResults()
+end
+
 ---Checks if an element with the given name exists in the list
 ---@param name string The name of the element to check
 ---@return boolean True if the element exists, false otherwise
@@ -641,12 +913,16 @@ end
 ---@param group ExtuiGroup The group to clear
 ---@return nil
 local function clearGroup(group)
-    if not group then
-        return
-    end
-    for _, child in ipairs(group.Children or {}) do
-        child:Destroy()
-    end
+    xpcall(function()
+        if not group then
+            return
+        end
+        for _, child in ipairs(group.Children or {}) do
+            child:Destroy()
+        end
+    end, function(err)
+        MCMDebug(1, "Error clearing group: " .. tostring(err))
+    end)
 end
 
 ---Refreshes the entire widget, re-rendering all components
@@ -739,7 +1015,8 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
 
     -- Create a new group for popup confirmation
     self.Widget.ResetConfirmationPopup = self.Widget.Group:AddPopup("ConfirmResetPopup")
-    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting.Id
+    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
+        .Id
 
     local text = self.Widget.ResetConfirmationPopup:AddText(
         Ext.Loca.GetTranslatedString("h983f2fd776cd40ab844efcca6300d9c87eb5"))
@@ -780,4 +1057,51 @@ end
 ---@return nil
 function ListV2IMGUIWidget:ApplyDisabledStyle(element)
     element:SetColor("Text", Color.NormalizedRGBA(100, 100, 100, 1))
+end
+
+---Renders the search results below the input field
+---@return nil
+function ListV2IMGUIWidget:RenderSearchResults()
+    clearGroup(self.Widget.SearchResultsGroup)
+
+    -- Only render if there is search text
+    if not self.Widget.NewElementName or self.Widget.NewElementName == "" then
+        return
+    end
+
+    -- Prepare search results
+    self.Widget.SearchResults = self:GetSearchResults(self.Widget.NewElementName)
+
+    if not self.Widget.SearchResults or #self.Widget.SearchResults == 0 then
+        return
+    end
+
+    self.Widget.SearchResultsGroup = self.Widget.InputGroup:AddGroup("SearchResultsGroup_" .. self.Widget.Setting.Id)
+
+
+    local searchResultsGroup = self.Widget.SearchResultsGroup
+    -- Add "suggestions" collapsing header
+    local collapsibleHeader = searchResultsGroup:AddCollapsingHeader("Suggestions")
+    collapsibleHeader.DefaultOpen = true
+    collapsibleHeader.IDContext = self.Widget.ModUUID .. "_SearchResultsHeader_" .. self.Widget.Setting.Id
+
+    -- Pagination parameters
+    local pageSize = self.Widget.PageSize
+    local totalResults = #self.Widget.SearchResults
+    local totalPages = math.ceil(totalResults / pageSize)
+    if totalPages == 0 then totalPages = 1 end
+    local currentPage = self.Widget.SearchResultsCurrentPage or 1
+    if currentPage > totalPages then currentPage = totalPages end
+    self.Widget.SearchResultsCurrentPage = currentPage
+
+    -- Render the suggestions Table
+    local imguiTable = self:CreateSearchResultsTable(collapsibleHeader)
+    self:AddSearchResultsTableHeader(imguiTable)
+
+    for i = (currentPage - 1) * pageSize + 1, math.min(currentPage * pageSize, totalResults) do
+        self:RenderSearchResultRow(imguiTable, self.Widget.SearchResults[i])
+    end
+
+    -- Render pagination controls
+    self:RenderSearchResultsPagination(collapsibleHeader, totalPages)
 end
