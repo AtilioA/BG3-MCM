@@ -48,23 +48,23 @@ end
 --- Insert search results for a list_v2 setting in the MCM
 ---@param modUUID string The UUID of the mod
 ---@param settingId string The ID of the list_v2 setting to insert search results for
----@param searchResults table The search results to insert
+---@param suggestions table The search results to insert
 ---@return nil
-function IMGUIAPI:InsertListV2SearchResults(modUUID, settingId, searchResults)
+function IMGUIAPI:InsertListV2Suggestions(modUUID, settingId, suggestions)
     MCMDebug(1,
-        "IMGUIAPI:InsertListV2SearchResults - Starting to insert search results for settingId: " ..
+        "IMGUIAPI:InsertListV2Suggestions - Starting to insert search results for settingId: " ..
         settingId .. " and modUUID: " .. modUUID)
 
     -- Step 1: Find the widget corresponding to the setting
     local widget = self:findWidgetForSetting(settingId, modUUID)
     if not widget then
-        MCMWarn("IMGUIAPI:InsertListV2SearchResults - Widget not found for settingId: " ..
+        MCMWarn("IMGUIAPI:InsertListV2Suggestions - Widget not found for settingId: " ..
             settingId .. " and modUUID: " .. modUUID)
         return
     end
-    MCMDebug(1, "IMGUIAPI:InsertListV2SearchResults - Found widget for settingId: " .. settingId)
+    MCMDebug(1, "IMGUIAPI:InsertListV2Suggestions - Found widget for settingId: " .. settingId)
 
-    widget.Widget.Suggestions = searchResults
+    widget.Widget.Suggestions = suggestions
     widget.Widget.instance:RenderSearchResults()
 end
 
