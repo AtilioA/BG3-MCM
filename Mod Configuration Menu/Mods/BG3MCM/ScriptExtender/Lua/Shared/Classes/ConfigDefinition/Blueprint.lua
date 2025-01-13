@@ -3,12 +3,14 @@
 ---@field private SchemaVersion number
 ---@field private Optional boolean
 ---@field private ModName? string
+---@field private ModDescription? string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Settings? BlueprintSetting[]
 ---@field private Handles? table
 Blueprint = _Class:Create("Blueprint", nil, {
     ModUUID = nil,
     ModName = nil,
+    ModDescription = nil,
     SchemaVersion = nil,
     Optional = false,
     Tabs = {},
@@ -28,11 +30,41 @@ function Blueprint:GetOptional()
 end
 
 function Blueprint:GetModName()
-    return self.ModName
+    if self.Handles and self.Handles.NameHandle then
+        local translatedName = Ext.Loca.GetTranslatedString(self.Handles.NameHandle)
+        if translatedName and translatedName ~= "" then
+            return translatedName
+        end
+    end
+
+    local modName = self.ModName
+    local modData = Ext.Mod.GetMod(self.ModUUID)
+    if (not self.ModName or self.ModName == "") and modData and modData.Info then
+        modName = modData.Info.Name
+    end
+
+    return modName
 end
 
 function Blueprint:SetModName(value)
     self.ModName = value
+end
+
+function Blueprint:GetModDescription()
+    if self.Handles and self.Handles.DescriptionHandle then
+        local translatedDescription = Ext.Loca.GetTranslatedString(self.Handles.DescriptionHandle)
+        if translatedDescription and translatedDescription ~= "" then
+            return translatedDescription
+        end
+    end
+
+    local modDescription = self.ModDescription
+    local modData = Ext.Mod.GetMod(self.ModUUID)
+    if (not self.ModDescription or self.ModDescription == "") and modData and modData.Info then
+        modDescription = modData.Info.Description
+    end
+
+    return modDescription
 end
 
 function Blueprint:GetHandles()
@@ -58,11 +90,10 @@ function Blueprint:GetSettings()
 end
 
 function Blueprint:SetSettings(value)
-    self.Tabs = value
+    self.Settings = value
 end
 
 --- Constructor for the Blueprint class.
---- @class Blueprint
 --- @param options table
 --- @return Blueprint
 function Blueprint:New(options)
@@ -70,7 +101,10 @@ function Blueprint:New(options)
     self.ModUUID = options.ModUUID or nil
     self.SchemaVersion = options.SchemaVersion or nil
     self.Settings = options.Settings or nil
+    self.Optional = options.Optional or false
     self.ModName = options.ModName or nil
+    self.ModDescription = options.ModDescription or nil
+    self.Handles = options.Handles or nil
     self.Tabs = {}
 
     -- Call BlueprintSection constructor for each section
@@ -79,7 +113,6 @@ function Blueprint:New(options)
             local tab = BlueprintTab:New(tabOptions)
             table.insert(self.Tabs, tab)
         end
-        -- Only one of Tabs or Settings should be present
     elseif options.Settings then
         self.Settings = {}
         for _, settingOptions in ipairs(options.Settings) do
@@ -106,7 +139,6 @@ function Blueprint:AddSection(name, description)
     return section
 end
 
--- TODO: use throughout the codebase, etc
 function Blueprint:GetAllSettings()
     local allSettings = {}
 

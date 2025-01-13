@@ -31,11 +31,6 @@ function MCMAPI:CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            -- Ext.Net.BroadcastMessage(EventChannels.MCM_PROFILE_CREATED, Ext.Json.Stringify({
-            --     profileName = profileName,
-            --     newSettings = ModConfig.mods
-            -- }))
-
             -- Notify other servers about the new profile creation
             ModEventManager:Emit(EventChannels.MCM_PROFILE_CREATED, {
                 profileName = profileName,
@@ -73,11 +68,6 @@ function MCMAPI:SetProfile(profileName)
 
     if success then
         if Ext.IsServer() then
-            -- Ext.Net.BroadcastMessage(EventChannels.MCM_PROFILE_ACTIVATED, Ext.Json.Stringify({
-            --     profileName = profileName,
-            --     newSettings = ModConfig.mods
-            -- }))
-
             -- Notify other servers about the profile change
             ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
                 fromProfile = currentProfile,

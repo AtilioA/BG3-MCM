@@ -146,6 +146,16 @@ function IMGUILayer:EvaluateCondition(operator, value, triggerValue, modUUID)
     return false
 end
 
+function IMGUILayer:GetModName(modUUID)
+    if not modUUID then
+        return nil
+    end
+
+    if self.mods[modUUID] and self.mods[modUUID].blueprint then
+        return self.mods[modUUID].blueprint:GetModName()
+    end
+end
+
 function IMGUILayer:GetClientStateValue(settingId, modUUID)
     modUUID = modUUID or ModuleUUID
     if not modUUID or not settingId then
@@ -158,6 +168,24 @@ function IMGUILayer:GetClientStateValue(settingId, modUUID)
     end
 
     return mod.settingsValues[settingId]
+end
+
+--- Get the initial size for the MCM window based on the current viewport resolution.
+function GetInitialMCMWindowSize()
+    -- Base dimensions for a 1440p viewport (manually tested)
+    local BASE_WIDTH = 650
+    local BASE_HEIGHT = 700
+    local BASE_RESOLUTION_HEIGHT = 1440
+
+    local viewportSize = Ext.IMGUI.GetViewportSize()
+    local currentHeight = viewportSize[2]
+
+    -- Compute scaled width and height, round to nearest integer
+    local scaleFactor = currentHeight / BASE_RESOLUTION_HEIGHT
+    local width = math.floor(BASE_WIDTH * scaleFactor + 0.5)
+    local height = math.floor(BASE_HEIGHT * scaleFactor + 0.5)
+
+    return { width, height }
 end
 
 --- Create the main IMGUI window for MCM
@@ -195,15 +223,19 @@ function IMGUILayer:CreateMainIMGUIWindow()
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
 
+    MCM_WINDOW:SetSize(GetInitialMCMWindowSize())
+
     UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
 
-    self.welcomeText = MCM_WINDOW:AddText(
-        VCString:ReplaceBrWithNewlines(
-            Ext.Loca.GetTranslatedString(
-                "h81a4a9991875424984b876d017675879c959")
+    if table.isEmpty(self.mods) then
+        self.welcomeText = MCM_WINDOW:AddText(
+            VCString:ReplaceBrWithNewlines(
+                Ext.Loca.GetTranslatedString(
+                    "h81a4a9991875424984b876d017675879c959")
+            )
         )
-    )
-    self.welcomeText.TextWrapPos = 0
+        self.welcomeText.TextWrapPos = 0
+    end
 
     MainMenu.CreateMainMenu()
 
@@ -250,6 +282,8 @@ end
 
 function IMGUILayer:LoadMods(mods)
     self.mods = mods
+
+    -- if MCM_WINDOW then MCM_WINDOW:Destroy() end
     local createdWindow = self:CreateMainIMGUIWindow()
     if not createdWindow then
         return
@@ -282,10 +316,6 @@ end
 --- Initialize menu settings and destroy welcome text if it exists
 ---@return nil
 function IMGUILayer:PrepareMenu()
-    if self.welcomeText then
-        self.welcomeText:Destroy()
-    end
-
     -- TODO: re-enable this after refactoring client-side code
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
 
@@ -319,8 +349,8 @@ function IMGUILayer:CreateMainTable()
     for _, modUUID in ipairs(sortedModKeys) do
         self.visibilityTriggers[modUUID] = {}
 
-        local modName = self:GetModName(modUUID)
-        local modDescription = VCString:AddNewlinesAfterPeriods(Ext.Mod.GetMod(modUUID).Info.Description)
+        local modName = self.mods[modUUID].blueprint:GetModName()
+        local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
         FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
         self.mods[modUUID].widgets = {}
 
@@ -332,18 +362,6 @@ function IMGUILayer:CreateMainTable()
         end
     end
     FrameManager:setVisibleFrame(ModuleUUID)
-end
-
---- Get the mod name, considering custom blueprint names
----@param modUUID string
----@return string
-function IMGUILayer:GetModName(modUUID)
-    local modName = Ext.Mod.GetMod(modUUID).Info.Name
-    local blueprintCustomName = self.mods[modUUID].blueprint:GetModName()
-    if blueprintCustomName then
-        modName = blueprintCustomName
-    end
-    return modName
 end
 
 --- Create a new tab for a mod in the MCM
@@ -454,6 +472,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
     local sectionDescription = section:GetDescription()
     local sectionOptions = section:GetOptions()
     local sectionGroup = modGroup:AddGroup(sectionId)
+    sectionGroup.IDContext = modUUID .. "_" .. sectionId .. "_Group"
 
     self:manageVisibleIf(modUUID, section, sectionGroup)
 
@@ -480,7 +499,7 @@ function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSet
 
         local addedDescription = sectionContentElement:AddText(sectionDescriptionText)
         addedDescription.TextWrapPos = 0
-        addedDescription.IDContext = sectionGroup.IDContext .. "_Description_" .. sectionId
+        addedDescription.IDContext = sectionGroup.IDContext .. "_Description_"
         addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
         sectionContentElement:AddDummy(0, 2)
     end
@@ -509,6 +528,7 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID
             "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
         local widgetGroup = modGroup:AddGroup(setting:GetId())
+        widgetGroup.IDContext = modUUID .. "_" .. setting:GetId() .. "_Group"
         local widget = createWidget(widgetGroup, setting, settingValue, modUUID)
 
         self:manageVisibleIf(modUUID, setting, widgetGroup)

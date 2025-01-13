@@ -22,10 +22,24 @@
         "ModName": {
             "type": "string",
             "minLength": 1,
-            "description": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that historically had multiple names due to multiple versions.\nNote that you can always change your mod's name in its meta.lsx file without repercussions.",
+            "description": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that historically had multiple names due to multiple versions.\nNote that you can always change your mod's name in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles.",
             "examples": [
                 "My Mod Name To Be Displayed On MCM"
             ]
+        },
+        "ModDescription": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "The description of the mod to use instead of its registered description. This can be useful to hide the description or to provide a custom one for MCM.\nNote that you can always change your mod's description in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles.",
+            "examples": [
+                "My Mod Description To Be Displayed On MCM"
+            ]
+        },
+        "Handles": {
+            "$ref": "#/definitions/TopLevelHandles",
+            "description": "Handles to localize the top-level mod's strings."
         },
         "Tabs": {
             "description": "The tabs that will be displayed in the MCM menu.\nEach tab can contain either sections or settings.\nTabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
@@ -426,6 +440,13 @@
                                             "type": "boolean",
                                             "description": "Whether the list allows reordering items UI. Disabled by default.",
                                             "default": true
+                                        },
+                                        "Suggestions": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "description": "A list of suggestions that will be displayed when the user types in the input box."
                                         }
                                     }
                                 }
@@ -714,33 +735,43 @@
                     "Name": "List V2 Setting",
                     "Type": "list_v2",
                     "Description": "This is a list v2 setting",
-                    "Default": [
-                        {
-                            "enabled": true,
-                            "elements": [
-                                {
-                                    "name": "a",
-                                    "enabled": true
-                                },
-                                {
-                                    "name": "b",
-                                    "enabled": true
-                                },
-                                {
-                                    "name": "c",
-                                    "enabled": true
-                                },
-                                {
-                                    "name": "d",
-                                    "enabled": false
-                                }
-                            ],
-                            "Options": {
-                                "PageSize": 5,
-                                "ShowSearchBar": true
+                    "Default": {
+                        "enabled": true,
+                        "elements": [
+                            {
+                                "name": "a",
+                                "enabled": true
+                            },
+                            {
+                                "name": "b",
+                                "enabled": true
+                            },
+                            {
+                                "name": "c",
+                                "enabled": true
+                            },
+                            {
+                                "name": "d",
+                                "enabled": false
+                            },
+                            {
+                                "name": "e",
+                                "enabled": false
+                            },
+                            {
+                                "name": "f",
+                                "enabled": false
                             }
-                        }
-                    ]
+                        ]
+                    },
+                    "Options": {
+                        "PageSize": 5,
+                        "ShowSearchBar": true,
+                        "Suggestions": [
+                            "element 1",
+                            "element 2"
+                        ]
+                    }
                 },
                 {
                     "Id": "EnumSetting",
@@ -974,6 +1005,26 @@
                 "NameHandle"
             ],
             "description": "Handles that can be used to localize tab strings."
+        },
+        "TopLevelHandles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the mod."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the mod."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "Handles that can be used to localize the top-level mod strings."
         },
         "SectionHandles": {
             "type": "object",

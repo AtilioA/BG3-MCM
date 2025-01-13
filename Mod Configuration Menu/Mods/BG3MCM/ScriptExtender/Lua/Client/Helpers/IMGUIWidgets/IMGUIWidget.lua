@@ -148,7 +148,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     local addedDescription = group:AddText(descriptionText)
     addedDescription.TextWrapPos = 0
 
-    addedDescription.IDContext = group.IDContext .. "_Description_" .. setting:GetId()
+    addedDescription.IDContext = group.IDContext .. "_Description"
 
     addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
 end
