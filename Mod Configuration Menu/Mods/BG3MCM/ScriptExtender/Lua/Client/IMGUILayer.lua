@@ -170,6 +170,24 @@ function IMGUILayer:GetClientStateValue(settingId, modUUID)
     return mod.settingsValues[settingId]
 end
 
+--- Get the initial size for the MCM window based on the current viewport resolution.
+function GetInitialMCMWindowSize()
+    -- Base dimensions for a 1440p viewport (manually tested)
+    local BASE_WIDTH = 650
+    local BASE_HEIGHT = 700
+    local BASE_RESOLUTION_HEIGHT = 1440
+
+    local viewportSize = Ext.IMGUI.GetViewportSize()
+    local currentHeight = viewportSize[2]
+
+    -- Compute scaled width and height, round to nearest integer
+    local scaleFactor = currentHeight / BASE_RESOLUTION_HEIGHT
+    local width = math.floor(BASE_WIDTH * scaleFactor + 0.5)
+    local height = math.floor(BASE_HEIGHT * scaleFactor + 0.5)
+
+    return { width, height }
+end
+
 --- Create the main IMGUI window for MCM
 function IMGUILayer:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
@@ -182,7 +200,7 @@ function IMGUILayer:CreateMainIMGUIWindow()
         MCMDebug(2, "Welcome text already exists, skipping...")
         return true
     end
-    
+
     local modMenuTitle = Ext.Loca.GetTranslatedString("hae2bbc06g288dg43dagb3a5g967fa625c769")
     if modMenuTitle == nil or modMenuTitle == "" then
         modMenuTitle = "Mod Configuration Menu"
@@ -204,6 +222,8 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
+
+    MCM_WINDOW:SetSize(GetInitialMCMWindowSize())
 
     UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
 
