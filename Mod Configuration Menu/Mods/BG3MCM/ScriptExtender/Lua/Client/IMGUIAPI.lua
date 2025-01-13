@@ -46,11 +46,11 @@ function IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
 end
 
 --- Insert search results for a list_v2 setting in the MCM
----@param modUUID string The UUID of the mod
 ---@param settingId string The ID of the list_v2 setting to insert search results for
 ---@param suggestions table The search results to insert
+---@param modUUID string The UUID of the mod
 ---@return nil
-function IMGUIAPI:InsertListV2Suggestions(modUUID, settingId, suggestions)
+function IMGUIAPI:InsertListV2Suggestions(settingId, suggestions, modUUID)
     MCMDebug(1,
         "IMGUIAPI:InsertListV2Suggestions - Starting to insert search results for settingId: " ..
         settingId .. " and modUUID: " .. modUUID)
