@@ -1,6 +1,9 @@
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
 
+UNASSIGNED_CONTROLLER_BUTTON_STRING = "Unassigned controller button"
+UNASSIGNED_KEYBOARD_MOUSE_STRING = "Unassigned KB or Mouse keybinding"
+
 function KeybindingV2IMGUIWidget:new(group)
     local instance = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
     instance.Widget = {
@@ -52,8 +55,8 @@ function KeybindingV2IMGUIWidget:FilterActions()
             if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesController then
                 table.insert(filteredActions, {
                     ActionName = actionName,
-                    KeyboardMouseBinding = binding.keyboardBinding or "Unassigned",
-                    ControllerBinding = binding.controllerBinding or "Unassigned",
+                    KeyboardMouseBinding = binding.keyboardBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING,
+                    ControllerBinding = binding.controllerBinding or UNASSIGNED_CONTROLLER_BUTTON_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
                     DefaultControllerBinding = binding.defaultControllerBinding
                 })
@@ -115,8 +118,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     imguiTable.BordersInner = true
     imguiTable.RowBg = true
 
-    imguiTable:AddColumn("Action Name", "WidthStretch")
-    imguiTable:AddColumn("Keyboard/Mouse Input", "WidthFixed", 400)
+    imguiTable:AddColumn("Action Name", "WidthFixed", 250)
+    imguiTable:AddColumn("Keyboard/Mouse Input", "WidthFixed", 550)
     imguiTable:AddColumn("Controller Input", "WidthFixed", 400)
     imguiTable:AddColumn("Reset", "WidthFixed", 100)
 
@@ -128,7 +131,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         nameText:Tooltip():AddText("Action: " .. action.ActionName)
 
         local kbCell = row:AddCell()
-        local kbButton = kbCell:AddButton(action.KeyboardMouseBinding or "Unassigned")
+        local kbButton = kbCell:AddButton(action.KeyboardMouseBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING)
         kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionName
         kbButton.OnClick = function()
             self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
@@ -136,7 +139,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         kbButton:Tooltip():AddText("Click to assign a new key/mouse button.")
 
         local ctrlCell = row:AddCell()
-        local ctrlButton = ctrlCell:AddButton(action.ControllerBinding or "Unassigned")
+        local ctrlButton = ctrlCell:AddButton(action.ControllerBinding or UNASSIGNED_CONTROLLER_BUTTON_STRING)
         ctrlButton.IDContext = mod.ModName .. "_Controller_" .. action.ActionName
         ctrlButton.OnClick = function()
             self:StartListeningForInput(mod, action, "Controller", ctrlButton)
@@ -275,9 +278,9 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
         self:UnregisterInputEvents()
 
         if inputType == "KeyboardMouse" then
-            buttonElement.Label = action.KeyboardMouseBinding or "Unassigned"
+            buttonElement.Label = action.KeyboardMouseBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING
         else
-            buttonElement.Label = action.ControllerBinding or "Unassigned"
+            buttonElement.Label = action.ControllerBinding or UNASSIGNED_CONTROLLER_BUTTON_STRING
         end
         buttonElement.Disabled = false
     end
