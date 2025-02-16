@@ -67,6 +67,9 @@ InputWidgetFactory = {
     keybinding = function(group, setting, settingValue, modUUID)
         return IMGUIWidget:Create(group, setting, settingValue, modUUID, KeybindingIMGUIWidget)
     end,
+    keybinding_v2 = function(group, setting, settingValue, modUUID)
+        return IMGUIWidget:Create(group, setting, settingValue, modUUID, KeybindingV2IMGUIWidget)
+    end
 }
 
 return InputWidgetFactory
