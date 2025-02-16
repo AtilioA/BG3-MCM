@@ -542,6 +542,7 @@ function IMGUILayer:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
 
     -- Add the "Hotkeys" button to the menu
+    FrameManager:AddMenuSection("Hotkeys")
     local menuButton = FrameManager:CreateMenuButton(FrameManager.menuCell, "Hotkeys", hotkeysUUID)
 
     -- Create the content group for hotkeys
@@ -568,7 +569,7 @@ function IMGUILayer:CreateKeybindingsPage()
         {
             ModName = "Mod1",
             Actions = {
-                { ActionName = "Action1", KeyboardMouseBinding = "E", ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil },
+                { ActionName = "Action1", KeyboardMouseBinding = "E", ControllerBinding = nil, DefaultKeyboardMouseBinding = "D", DefaultControllerBinding = "A" },
                 { ActionName = "Action2", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil }
             }
         },
