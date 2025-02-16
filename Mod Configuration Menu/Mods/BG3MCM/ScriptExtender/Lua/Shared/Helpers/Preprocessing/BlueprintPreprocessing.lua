@@ -413,6 +413,97 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
+    elseif setting.Type == "keybinding_v2" then
+        if type(setting.Default) ~= "table" or
+            not (type(setting.Default["Keyboard"]) == "table" and type(setting.Default["Controller"]) == "table") then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a table containing 'Keyboard' and 'Controller' tables. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        -- Validate Keyboard configuration
+        local keyboard = setting.Default["Keyboard"]
+        if not keyboard.Keys or type(keyboard.Keys) ~= "table" or #keyboard.Keys == 0 then
+            MCMWarn(0,
+                "Keyboard.Keys must be a non-empty table. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+        for _, key in ipairs(keyboard.Keys) do
+            if type(key) ~= "string" or not table.contains(SDLKeys.ScanCodes, key) then
+                MCMWarn(0,
+                    "Invalid key '" ..
+                    key .. "' in Keyboard.Keys for setting '" .. setting.Id .. "'. Valid keys are: " ..
+                    table.concat(SDLKeys.ScanCodes, ", "))
+                return false
+            end
+        end
+
+        -- Validate ModifierKeys if provided
+        if keyboard.ModifierKeys then
+            if type(keyboard.ModifierKeys) ~= "table" then
+                MCMWarn(0,
+                    "Keyboard.ModifierKeys must be a table. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+            for _, mod in ipairs(keyboard.ModifierKeys) do
+                if type(mod) ~= "string" or not table.contains(SDLKeys.Modifiers, mod) then
+                    MCMWarn(0,
+                        "Invalid modifier '" ..
+                        mod .. "' in Keyboard.ModifierKeys for setting '" .. setting.Id .. "'. Valid modifiers are: " ..
+                        table.concat(SDLKeys.Modifiers, ", "))
+                    return false
+                end
+            end
+        end
+
+        -- Validate Controller configuration
+        local controller = setting.Default["Controller"]
+        if not controller.Buttons or type(controller.Buttons) ~= "table" or #controller.Buttons == 0 then
+            MCMWarn(0,
+                "Controller.Buttons must be a non-empty table. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+        for _, btn in ipairs(controller.Buttons) do
+            if type(btn) ~= "string" or not table.contains(Ext.Enums.SDLControllerButton, btn) then
+                MCMWarn(0,
+                    "Invalid button '" .. btn .. "' in Controller.Buttons for setting '" .. setting.Id .. "'.")
+                return false
+            end
+        end
+    elseif setting.Type == "list_v2" then
+        if type(setting.Default) ~= "table" or setting.Default.enabled == nil or type(setting.Default.elements) ~= "table" or #setting.Default.elements == 0 then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a non-empty table with 'enabled' and 'elements'. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        for _, element in ipairs(setting.Default.elements) do
+            if type(element) ~= "table" or not element.name or type(element.name) ~= "string" or element.name == "" then
+                MCMWarn(0,
+                    "Element " ..
+                    Ext.DumpExport(element) ..
+                    " for setting '" ..
+                    setting.Id .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+                return false
+            end
+            if element.enabled ~= nil and type(element.enabled) ~= "boolean" then
+                MCMWarn(0,
+                    "Element " ..
+                    Ext.DumpExport(element) ..
+                    " for setting '" ..
+                    setting.Id .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+                return false
+            end
+        end
     end
 
     return true

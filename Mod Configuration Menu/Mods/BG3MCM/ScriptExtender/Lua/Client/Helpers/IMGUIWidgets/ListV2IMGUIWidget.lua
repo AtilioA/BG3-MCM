@@ -639,7 +639,6 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
 
     xpcall(function()
         -- Input field for adding new elements
-        _D(self.Widget.NewElementInput)
         if not self.Widget.NewElementInput then
             self.Widget.NewElementInput = inputGroup:AddInputText("", "")
             self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
