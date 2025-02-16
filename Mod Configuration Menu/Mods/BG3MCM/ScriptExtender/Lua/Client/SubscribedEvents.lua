@@ -12,7 +12,7 @@ end
 
 local function handleKeyInput(e)
     if e.Event == "KeyDown" and e.Repeat == false then
-        KeybindingManager:HandleKeyUpInput(e)
+        -- KeybindingManager:HandleKeyUpInput(e)
 
         if e.Key == "ESCAPE" then
             handleEscapeKey()

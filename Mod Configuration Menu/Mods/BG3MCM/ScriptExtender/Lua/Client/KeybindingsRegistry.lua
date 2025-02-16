@@ -92,7 +92,7 @@ end
 
 --- Dispatch a keyboard event.
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
-    if e.Event ~= "KeyUp" then return end
+    if e.Event ~= "KeyDown" then return end
     -- For each registered keyboard binding, check if it matches.
     for modUUID, actions in pairs(registry) do
         for actionName, binding in pairs(actions) do

@@ -576,7 +576,7 @@ function IMGUILayer:CreateKeybindingsPage()
 
     -- Register an additional callback for a keyboard action.
     local function MyActionCallback(e)
-        -- Ext.Net.PostMessageToServer("MyAction1", Ext.Json.Stringify({}))
+        Ext.Net.PostMessageToServer("MyAction1", Ext.Json.Stringify({}))
     end
     local success = InputCallbackManager.RegisterKeybinding("Mod1", "MyAction1", MyActionCallback)
     if not success then
