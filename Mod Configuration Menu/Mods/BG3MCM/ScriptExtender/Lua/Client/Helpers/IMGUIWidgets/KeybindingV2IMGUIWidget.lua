@@ -223,6 +223,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
                 if KeybindingManager:IsActiveModifier(key) then
                     table.insert(modifierKeys, key)
                 else
+                    _D("Inserting key: " .. key)
                     table.insert(keys, key)
                 end
             end
