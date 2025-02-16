@@ -13,6 +13,7 @@ RequireFiles("Shared/Helpers/Validators/", {
     "ListV2Validator",
     "ColorValidator",
     "KeybindingValidator",
+    "KeybindingV2Validator",
 })
 
 -- Validator functions for different setting types
@@ -61,6 +62,9 @@ SettingValidators = {
     end,
     ["keybinding"] = function(setting, value)
         return KeybindingValidator.Validate(setting, value)
+    end,
+    ["keybinding_v2"] = function(setting, value)
+        return KeybindingV2Validator.Validate(setting, value)
     end,
 }
 
