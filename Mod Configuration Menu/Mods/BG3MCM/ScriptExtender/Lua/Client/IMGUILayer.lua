@@ -538,6 +538,7 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID
 end
 
 -- In your IMGUILayer or wherever you create the MCM UI:
+
 function IMGUILayer:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
 
@@ -547,14 +548,14 @@ function IMGUILayer:CreateKeybindingsPage()
     local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
 
-    -- Create our widget
+    -- Create our widget.
     local keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
     self.KeybindingWidget = keybindingWidget
 
-    -- Some sample data:
+    -- Sample mod keybindings.
     local allModKeybindings = {
         {
-            ModName = "Mod1", -- This value is used as the unique mod identifier.
+            ModName = "Mod1", -- used as the unique mod identifier.
             Actions = {
                 {
                     ActionName = "MyAction1",
@@ -570,18 +571,19 @@ function IMGUILayer:CreateKeybindingsPage()
         },
     }
 
-    keybindingWidget:RegisterModKeybindings(allModKeybindings)
+    -- Register the mod keybindings in the centralized registry.
+    KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
 
+    -- Register an additional callback for a keyboard action.
     local function MyActionCallback(e)
         print("MyAction callback fired for event:" .. Ext.DumpExport(e))
     end
-
-    -- Register the callback; the binding is looked up automatically in GlobalKeybindingsRegistry.
     local success = InputCallbackManager.RegisterKeybinding("Mod1", "MyAction1", MyActionCallback)
     if not success then
         print("Failed to register binding due to a conflict.")
     end
 
+    -- Initialize our reactive input dispatcher.
     InputCallbackManager.Initialize()
 end
 

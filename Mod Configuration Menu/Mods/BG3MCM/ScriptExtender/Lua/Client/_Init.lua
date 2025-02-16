@@ -1,4 +1,5 @@
 RequireFiles("Client/", {
+    "KeybindingsRegistry",
     "InputCallbackManager",
     "MCMProxy",
     "Components/_Init",
