@@ -1,4 +1,5 @@
 RequireFiles("Client/", {
+    "InputCallbackManager",
     "MCMProxy",
     "Components/_Init",
     "Helpers/_Init",

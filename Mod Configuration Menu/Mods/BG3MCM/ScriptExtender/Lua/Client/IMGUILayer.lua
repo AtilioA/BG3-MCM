@@ -537,60 +537,52 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID
     end
 end
 
+-- In your IMGUILayer or wherever you create the MCM UI:
 function IMGUILayer:CreateKeybindingsPage()
-    -- REFACTOR: rework this stub UUID thing from FrameManager
     local hotkeysUUID = "MCM_HOTKEYS"
 
-    -- Add the "Hotkeys" button to the menu
     FrameManager:AddMenuSection("Hotkeys")
-    local menuButton = FrameManager:CreateMenuButton(FrameManager.menuCell, "Hotkeys", hotkeysUUID)
+    FrameManager:CreateMenuButton(FrameManager.menuCell, "Hotkeys", hotkeysUUID)
 
-    -- Create the content group for hotkeys
     local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
 
-    -- Create the KeybindingIMGUIWidget
+    -- Create our widget
     local keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
-    self.KeybindingWidget = keybindingWidget -- Store for later use if needed
+    self.KeybindingWidget = keybindingWidget
 
-    -- Collect all mods' keybindings (this will be done beforehand in the future)
-    -- local allModKeybindings = {}
-    -- for modUUID, modSettings in pairs(self.mods) do
-    --     if modSettings.keybindings then
-    --         local modKeybindings = {
-    --             ModName = self:GetModName(modUUID),
-    --             Actions = modSettings.keybindings  -- Assume modSettings has a 'keybindings' field
-    --         }
-    --         table.insert(allModKeybindings, modKeybindings)
-    --     end
-    -- end
-
+    -- Some sample data:
     local allModKeybindings = {
         {
-            ModName = "Mod1",
+            ModName = "Mod1", -- This value is used as the unique mod identifier.
             Actions = {
-                { ActionName = "Action1", KeyboardMouseBinding = "E", ControllerBinding = nil, DefaultKeyboardMouseBinding = "D", DefaultControllerBinding = "A" },
-                { ActionName = "Action2", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil }
+                {
+                    ActionName = "MyAction1",
+                    KeyboardMouseBinding = { Key = "E", ModifierKey = "NONE" },
+                    ControllerBinding = "",
+                    DefaultKeyboardMouseBinding = "T",
+                    DefaultControllerBinding = "",
+                    OnBindingFired = function(action)
+                        print("Fired " .. action.ActionName .. " from Mod1!")
+                    end
+                },
             }
         },
-        {
-            ModName = "Mod2",
-            Actions = {
-                { ActionName = "Action3", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil },
-                { ActionName = "Action4", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil }
-            }
-        },
-        {
-            ModName = "Mod3",
-            Actions = {
-                { ActionName = "Action5", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil },
-                { ActionName = "Action6", KeyboardMouseBinding = nil, ControllerBinding = nil, DefaultKeyboardMouseBinding = nil, DefaultControllerBinding = nil }
-            }
-        }
     }
 
-    -- Register the keybindings with the widget
     keybindingWidget:RegisterModKeybindings(allModKeybindings)
+
+    local function MyActionCallback(e)
+        print("MyAction callback fired for event:" .. Ext.DumpExport(e))
+    end
+
+    -- Register the callback; the binding is looked up automatically in GlobalKeybindingsRegistry.
+    local success = InputCallbackManager.RegisterKeybinding("Mod1", "MyAction1", MyActionCallback)
+    if not success then
+        print("Failed to register binding due to a conflict.")
+    end
+
+    InputCallbackManager.Initialize()
 end
 
 -- function IMGUILayer:RegisterModKeybindings(modUUID, actions)
