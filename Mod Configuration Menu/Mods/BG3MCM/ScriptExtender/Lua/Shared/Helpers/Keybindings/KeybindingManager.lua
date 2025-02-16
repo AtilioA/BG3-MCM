@@ -40,12 +40,22 @@ function KeybindingManager:IsKeybindingPressed(e, keybinding)
     local scanCode = keybinding.ScanCode
     local modifier = keybinding.Modifier
 
+
+    if type(scanCode) == "table" then
+        for _, key in ipairs(scanCode) do
+            if self:IsKeybindingPressed(e, { ScanCode = key, Modifier = modifier }) then
+                return true
+            end
+        end
+        return false
+    else
     if e.Key ~= scanCode then
         return false
     end
 
 
     return self:IsModifierPressed(e, modifier)
+    end
 end
 
 function KeybindingManager:HandleKeyUpInput(e)

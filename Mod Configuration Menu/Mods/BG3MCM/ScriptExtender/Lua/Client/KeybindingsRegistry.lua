@@ -50,8 +50,6 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
                 controllerBinding = controllerNormalized,
                 defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
                 defaultControllerBinding = action.DefaultControllerBinding,
-                keyboardCallback = action.OnBindingFired, -- keyboard callback
-                controllerCallback = action.OnControllerBindingFired or nil
             }
         end
     end
@@ -67,11 +65,9 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionName, newBinding, inpu
     end
 
     if inputType == "KeyboardMouse" then
-        local normalized = KeybindingsRegistry.NormalizeKeyboardBinding({ Key = newBinding, ModifierKey = "NONE" })
-        modTable[actionName].keyboardBinding = normalized
+        modTable[actionName].keyboardBinding = newBinding
     elseif inputType == "Controller" then
-        local normalized = KeybindingsRegistry.NormalizeControllerBinding(newBinding)
-        modTable[actionName].controllerBinding = normalized
+        modTable[actionName].controllerBinding = newBinding
     end
     keybindingsSubject:OnNext(registry)
     return true
@@ -101,7 +97,10 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     for modUUID, actions in pairs(registry) do
         for actionName, binding in pairs(actions) do
             if binding.keyboardBinding and KeybindingManager and
-                KeybindingManager:IsKeybindingPressed(e, { ScanCode = binding.keyboardBinding, Modifier = "NONE" }) then
+                KeybindingManager:IsKeybindingPressed(e, {
+                    ScanCode = binding.keyboardBinding.Key,
+                    Modifier = binding.keyboardBinding.ModifierKey
+                }) then
                 print(string.format("[KeybindingsRegistry] Dispatching keyboard binding '%s' for mod '%s', action '%s'.",
                     binding.keyboardBinding, modUUID, actionName))
                 if binding.keyboardCallback then

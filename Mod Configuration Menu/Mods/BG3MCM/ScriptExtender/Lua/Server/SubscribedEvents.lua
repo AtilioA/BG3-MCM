@@ -40,6 +40,10 @@ netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE,
 netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestDeleteProfile))
 
+-- netEventsRegistry:register("MyAction1", function()
+--     Osi.PlayEffect(GetHostCharacter(), "001534b2-555c-c24e-5a1e-4bbc978240d3")
+-- end)
+
 local function registerNetListeners(registry)
     local function handleNetMessage(channel, payload, peerId)
         registry:execute(channel, payload, peerId)

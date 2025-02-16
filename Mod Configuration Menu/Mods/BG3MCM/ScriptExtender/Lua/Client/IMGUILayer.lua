@@ -561,11 +561,11 @@ function IMGUILayer:CreateKeybindingsPage()
                     ActionName = "MyAction1",
                     KeyboardMouseBinding = { Key = "E", ModifierKey = "NONE" },
                     ControllerBinding = "",
-                    DefaultKeyboardMouseBinding = "T",
+                    DefaultKeyboardMouseBinding = {
+                        Key = "E",
+                        ModifierKey = "LAlt",
+                    },
                     DefaultControllerBinding = "",
-                    OnBindingFired = function(action)
-                        print("Fired " .. action.ActionName .. " from Mod1!")
-                    end
                 },
             }
         },
@@ -576,7 +576,7 @@ function IMGUILayer:CreateKeybindingsPage()
 
     -- Register an additional callback for a keyboard action.
     local function MyActionCallback(e)
-        print("MyAction callback fired for event:" .. Ext.DumpExport(e))
+        -- Ext.Net.PostMessageToServer("MyAction1", Ext.Json.Stringify({}))
     end
     local success = InputCallbackManager.RegisterKeybinding("Mod1", "MyAction1", MyActionCallback)
     if not success then

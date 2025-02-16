@@ -48,8 +48,12 @@ function KeybindingV2IMGUIWidget:FilterActions()
         for actionName, binding in pairs(actions) do
             local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
             local matchesActionName = VCString:FuzzyMatch(actionName:upper(), searchText)
-            local matchesKeyboard = binding.keyboardBinding and
-                VCString:FuzzyMatch(binding.keyboardBinding:upper(), searchText)
+            -- TODO: fix fuzzy search with keybindings
+            -- _D(binding.keyboardBinding)
+            -- local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
+            --     VCString:FuzzyMatch(binding.keyboardBinding.Key:upper(), searchText) and
+            --     binding.keyboardBinding.ModifierKey and
+            --     VCString:FuzzyMatch(binding.keyboardBinding.ModifierKey:upper(), searchText)
             local matchesController = binding.controllerBinding and
                 VCString:FuzzyMatch(binding.controllerBinding:upper(), searchText)
             if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesController then
@@ -131,7 +135,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         nameText:Tooltip():AddText("Action: " .. action.ActionName)
 
         local kbCell = row:AddCell()
-        local kbButton = kbCell:AddButton(action.KeyboardMouseBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING)
+        local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
+            UNASSIGNED_KEYBOARD_MOUSE_STRING)
         kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionName
         kbButton.OnClick = function()
             self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
@@ -139,7 +144,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         kbButton:Tooltip():AddText("Click to assign a new key/mouse button.")
 
         local ctrlCell = row:AddCell()
-        local ctrlButton = ctrlCell:AddButton(action.ControllerBinding or UNASSIGNED_CONTROLLER_BUTTON_STRING)
+        local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(action.ControllerBinding) or
+            UNASSIGNED_CONTROLLER_BUTTON_STRING)
         ctrlButton.IDContext = mod.ModName .. "_Controller_" .. action.ActionName
         ctrlButton.OnClick = function()
             self:StartListeningForInput(mod, action, "Controller", ctrlButton)
@@ -212,12 +218,20 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         end
         if allReleased then
             local keys = {}
+            local modifierKeys = {}
             for key, _ in pairs(self.AllPressedKeys) do
-                table.insert(keys, key)
+                if KeybindingManager:IsActiveModifier(key) then
+                    table.insert(modifierKeys, key)
+                else
+                    table.insert(keys, key)
+                end
             end
             self.PressedKeys = {}
             self.AllPressedKeys = {}
-            local keybinding = self:FormatKeybinding(keys)
+            local keybinding = {
+                Key = keys,
+                ModifierKey = modifierKeys
+            }
             self:AssignKeybinding(keybinding)
         end
     end
@@ -233,10 +247,6 @@ function KeybindingV2IMGUIWidget:HandleControllerInput(e)
     if not self.Widget.ListeningForInput or not e.Pressed then return end
     local button = "Controller" .. tostring(e.Button)
     self:AssignKeybinding(button)
-end
-
-function KeybindingV2IMGUIWidget:FormatKeybinding(pressedKeys)
-    return table.concat(pressedKeys, "+")
 end
 
 function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
@@ -261,8 +271,8 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     KeybindingsRegistry.UpdateBinding(modData.ModName, action.ActionName, keybinding, inputType)
 
     -- NotificationManager:CreateIMGUINotification("Keybinding_Assigned", 'info', "Keybinding Assigned",
-        -- "Keybinding assigned to: " .. keybinding, {}, ModuleUUID)
-        
+    -- "Keybinding assigned to: " .. keybinding, {}, ModuleUUID)
+
     -- buttonElement.Label = keybinding
     -- buttonElement.Disabled = false
 end
