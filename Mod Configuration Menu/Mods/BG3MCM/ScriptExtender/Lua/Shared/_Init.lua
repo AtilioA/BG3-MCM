@@ -38,6 +38,8 @@ RequireFiles("NotiFramework/", {
     "_Init"
 })
 
+RequireFiles("Lib/reactivex/", { "_init" })
+
 RequireFiles("Shared/", {
     "MetaClass",
     "DependencyCheck/_Init",
@@ -55,7 +57,9 @@ else
 
     local versionNumber = table.concat(MODVERSION, ".")
     local SEVersionNumber = Ext.Utils.Version()
-    MCMPrint(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu version " .. versionNumber .. " loaded (SE version " .. SEVersionNumber .. ")")
+    MCMPrint(0,
+        "Volitio's Baldur's Gate 3 Mod Configuration Menu version " ..
+        versionNumber .. " loaded (SE version " .. SEVersionNumber .. ")")
 end
 
 MCMAPI = MCMAPI:New({}, "BG3MCM")
