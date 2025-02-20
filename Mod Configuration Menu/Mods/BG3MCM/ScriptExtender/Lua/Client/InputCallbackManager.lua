@@ -12,7 +12,10 @@ local controllerInputSubject = RX.Subject.Create()
 function InputCallbackManager.Initialize()
     -- Subscribe to Ext.Events and push events into local subjects.
     Ext.Events.KeyInput:Subscribe(function(e)
-        keyInputSubject:OnNext(e)
+        -- TODO: allow configurable repeat events (author-defined)
+        if e.Repeat == false then
+            keyInputSubject:OnNext(e)
+        end
     end)
     Ext.Events.ControllerButtonInput:Subscribe(function(e)
         controllerInputSubject:OnNext(e)
