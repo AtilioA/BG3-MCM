@@ -198,15 +198,36 @@ function KeybindingV2IMGUIWidget:UnregisterInputEvents()
 end
 
 function KeybindingV2IMGUIWidget:HandleKeyInput(e)
-    if not self.Widget.ListeningForInput then return end
+    if not self.Widget.ListeningForInput then
+        return
+    end
     self.PressedKeys = self.PressedKeys or {}
     self.AllPressedKeys = self.AllPressedKeys or {}
 
     if e.Event == "KeyDown" and not e.Repeat then
-        if e.Key == "BACKSPACE" then
+        if e.Key == "ESCAPE" then
+            -- Cancel listening without updating the binding.
             self:CancelKeybinding()
             return
+        elseif e.Key == "BACKSPACE" then
+            -- Remove/clear the binding.
+            local modData = self.Widget.CurrentListeningAction.Mod
+            local action = self.Widget.CurrentListeningAction.Action
+            local inputType = self.Widget.CurrentListeningAction.InputType
+
+            self.Widget.ListeningForInput = false
+            self.Widget.CurrentListeningAction = nil
+            self:UnregisterInputEvents()
+
+            if inputType == "KeyboardMouse" then
+                KeybindingsRegistry.UpdateBinding(modData.ModName, action.ActionName, "", "KeyboardMouse")
+            else
+                KeybindingsRegistry.UpdateBinding(modData.ModName, action.ActionName, "", "Controller")
+            end
+            return
         end
+
+        -- Otherwise, record keys.
         self.PressedKeys[e.Key] = true
         self.AllPressedKeys[e.Key] = true
     elseif e.Event == "KeyUp" then
@@ -216,6 +237,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             allReleased = false
             break
         end
+
         if allReleased then
             local keys = {}
             local modifierKeys = {}
@@ -229,24 +251,26 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             end
             self.PressedKeys = {}
             self.AllPressedKeys = {}
-            local keybinding = {
+            local newKeybinding = {
                 Key = keys,
                 ModifierKey = modifierKeys
             }
-            self:AssignKeybinding(keybinding)
+            self:AssignKeybinding(newKeybinding)
         end
     end
+end
+
+function KeybindingV2IMGUIWidget:HandleControllerInput(e)
+    if not self.Widget.ListeningForInput or not e.Pressed then
+        return
+    end
+    local button = "Controller" .. tostring(e.Button)
+    self:AssignKeybinding(button)
 end
 
 function KeybindingV2IMGUIWidget:HandleMouseInput(e)
     if not self.Widget.ListeningForInput or not e.Pressed then return end
     local button = "Mouse" .. tostring(e.Button)
-    self:AssignKeybinding(button)
-end
-
-function KeybindingV2IMGUIWidget:HandleControllerInput(e)
-    if not self.Widget.ListeningForInput or not e.Pressed then return end
-    local button = "Controller" .. tostring(e.Button)
     self:AssignKeybinding(button)
 end
 
