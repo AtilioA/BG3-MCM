@@ -1,8 +1,10 @@
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
 
+LISTENING_INPUT_STRING = "Listening... [ESC to cancel | BACKSPACE to clear]"
 UNASSIGNED_CONTROLLER_BUTTON_STRING = "Unassigned controller button"
-UNASSIGNED_KEYBOARD_MOUSE_STRING = "Unassigned KB or Mouse keybinding"
+-- UNASSIGNED_KEYBOARD_MOUSE_STRING = "Unassigned KB or Mouse keybinding"
+UNASSIGNED_KEYBOARD_MOUSE_STRING = "Unassigned keyboard keybinding"
 
 function KeybindingV2IMGUIWidget:new(group)
     local instance = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
@@ -166,7 +168,7 @@ function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, 
     self.Widget.ListeningForInput = true
     self.Widget.CurrentListeningAction = { Mod = mod, Action = action, InputType = inputType, Button = button }
     self:RegisterInputEvents()
-    button.Label = "Listening..."
+    button.Label = LISTENING_INPUT_STRING
     button.Disabled = true
 end
 
@@ -245,8 +247,9 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
                 if KeybindingManager:IsActiveModifier(key) then
                     table.insert(modifierKeys, key)
                 else
-                    _D("Inserting key: " .. key)
-                    table.insert(keys, key)
+                    -- REVIEW: Not sure how I feel about multi-key support. Probably overkill.
+                    -- table.insert(keys, key)
+                    keys = { key }
                 end
             end
             self.PressedKeys = {}
