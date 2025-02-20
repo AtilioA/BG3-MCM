@@ -313,9 +313,11 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
         self:UnregisterInputEvents()
 
         if inputType == "KeyboardMouse" then
-            buttonElement.Label = action.KeyboardMouseBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING
+            buttonElement.Label = KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
+                UNASSIGNED_KEYBOARD_MOUSE_STRING
         else
-            buttonElement.Label = action.ControllerBinding or UNASSIGNED_CONTROLLER_BUTTON_STRING
+            buttonElement.Label = KeyPresentationMapping:GetViewKey(action.ControllerBinding) or
+                UNASSIGNED_CONTROLLER_BUTTON_STRING
         end
         buttonElement.Disabled = false
     end

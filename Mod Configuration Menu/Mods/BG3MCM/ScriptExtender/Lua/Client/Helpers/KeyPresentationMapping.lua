@@ -156,6 +156,10 @@ end
 --- @param keybinding table A table containing "Key" and "ModifierKey".
 --- @return string The view string; if no mapping is found, returns the original value.
 function KeyPresentationMapping:GetKBViewKey(keybinding)
+    if not keybinding or (not keybinding.Key and not keybinding.ModifierKey) then
+        return UNASSIGNED_KEYBOARD_MOUSE_STRING
+    end
+
     local keys = {}
     if keybinding.Key then
         for _, key in ipairs(keybinding.Key) do
