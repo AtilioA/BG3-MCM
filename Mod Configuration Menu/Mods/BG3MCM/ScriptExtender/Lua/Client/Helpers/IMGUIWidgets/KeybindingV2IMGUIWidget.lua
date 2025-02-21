@@ -278,7 +278,10 @@ function KeybindingV2IMGUIWidget:HandleMouseInput(e)
 end
 
 function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
-    if not self.Widget.CurrentListeningAction then return end
+    if not self.Widget.CurrentListeningAction then
+        return
+    end
+
     local modData = self.Widget.CurrentListeningAction.Mod
     local action = self.Widget.CurrentListeningAction.Action
     local inputType = self.Widget.CurrentListeningAction.InputType
@@ -295,14 +298,46 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
             "Keybinding conflict with action: " .. conflictAction.ActionName, {}, ModuleUUID)
     end
 
-    -- Update the binding in the centralized registry.
-    KeybindingsRegistry.UpdateBinding(modData.ModName, action.ActionName, keybinding, inputType)
+    -- Retrieve the current binding from the registry.
+    local registry = KeybindingsRegistry.GetRegistry()
+    local currentBinding = (registry[modData.ModName] and registry[modData.ModName][action.ActionName]) or {}
 
-    -- NotificationManager:CreateIMGUINotification("Keybinding_Assigned", 'info', "Keybinding Assigned",
-    -- "Keybinding assigned to: " .. keybinding, {}, ModuleUUID)
+    local newPayload = {}
 
-    -- buttonElement.Label = keybinding
-    -- buttonElement.Disabled = false
+    if inputType == "KeyboardMouse" then
+        newPayload.Keyboard = {
+            Keys = keybinding.Key or keybinding,
+            ModifierKeys = keybinding.ModifierKey or {}
+        }
+        -- Preserve the current controller binding or fall back to the default.
+        newPayload.Controller = currentBinding.controllerBinding or modData.DefaultControllerBinding or { Buttons = {} }
+    else
+        newPayload.Controller = {
+            Buttons = { keybinding }
+        }
+        -- Preserve the current keyboard binding or fall back to the default.
+        newPayload.Keyboard = currentBinding.keyboardBinding or modData.DefaultKeyboardBinding or
+        { Keys = {}, ModifierKeys = {} }
+    end
+
+    local success = KeybindingsRegistry.UpdateBinding(modData.ModName, action.ActionName, keybinding, inputType)
+    if success then
+        -- Pass the payload containing both bindings.
+        MCMAPI:SetSettingValue(action.ActionName, newPayload, ModuleUUID)
+    else
+        print("Failed to update binding in registry for mod '" ..
+            modData.ModName .. "', action '" .. action.ActionName .. "'.")
+    end
+
+    -- Update the button label
+    if inputType == "KeyboardMouse" and type(keybinding) == "table" then
+        buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING
+    elseif inputType == "Controller" then
+        buttonElement.Label = keybinding
+    else
+        buttonElement.Label = UNASSIGNED_KEYBOARD_MOUSE_STRING
+    end
+    buttonElement.Disabled = false
 end
 
 function KeybindingV2IMGUIWidget:CancelKeybinding()
@@ -380,6 +415,10 @@ function KeybindingV2IMGUIWidget:Destroy()
         self._registrySubscription = nil
     end
     self.Widget.Group:Destroy()
+end
+
+function KeybindingV2IMGUIWidget:UpdateCurrentValue(value)
+    -- Not used.
 end
 
 return KeybindingV2IMGUIWidget

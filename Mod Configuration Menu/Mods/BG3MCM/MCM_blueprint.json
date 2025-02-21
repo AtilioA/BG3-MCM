@@ -14,7 +14,7 @@
                     "SectionName": "General settings",
                     "Settings": [
                         {
-                            "Id": "reset_se",
+                            "Id": "MyAction1",
                             "Name": "Reset SE",
                             "Type": "keybinding_v2",
                             "Default": {
