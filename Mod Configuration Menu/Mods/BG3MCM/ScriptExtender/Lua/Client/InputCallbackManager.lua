@@ -31,33 +31,33 @@ function InputCallbackManager.Initialize()
 end
 
 --- Registers a keyboard/mouse callback by delegating to the registry.
-function InputCallbackManager.RegisterKeybinding(modUUID, actionName, callback)
-    return KeybindingsRegistry.RegisterCallback(modUUID, actionName, "KeyboardMouse", callback)
+function InputCallbackManager.RegisterKeybinding(modUUID, actionId, callback)
+    return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "KeyboardMouse", callback)
 end
 
 --- Registers a controller callback.
-function InputCallbackManager.RegisterControllerBinding(modUUID, actionName, controllerBinding, callback)
-    if not KeybindingsRegistry.UpdateBinding(modUUID, actionName, controllerBinding, "Controller") then
+function InputCallbackManager.RegisterControllerBinding(modUUID, actionId, controllerBinding, callback)
+    if not KeybindingsRegistry.UpdateBinding(modUUID, actionId, controllerBinding, "Controller") then
         return false
     end
-    return KeybindingsRegistry.RegisterCallback(modUUID, actionName, "Controller", callback)
+    return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "Controller", callback)
 end
 
 --- Unregisters the keyboard callback.
-function InputCallbackManager.UnregisterKeybinding(modUUID, actionName)
+function InputCallbackManager.UnregisterKeybinding(modUUID, actionId)
     local reg = KeybindingsRegistry.GetRegistry()
-    if reg[modUUID] and reg[modUUID][actionName] then
-        reg[modUUID][actionName].keyboardCallback = nil
+    if reg[modUUID] and reg[modUUID][actionId] then
+        reg[modUUID][actionId].keyboardCallback = nil
         return true
     end
     return false
 end
 
 --- Unregisters the controller callback.
-function InputCallbackManager.UnregisterControllerBinding(modUUID, actionName)
+function InputCallbackManager.UnregisterControllerBinding(modUUID, actionId)
     local reg = KeybindingsRegistry.GetRegistry()
-    if reg[modUUID] and reg[modUUID][actionName] then
-        reg[modUUID][actionName].controllerCallback = nil
+    if reg[modUUID] and reg[modUUID][actionId] then
+        reg[modUUID][actionId].controllerCallback = nil
         return true
     end
     return false
