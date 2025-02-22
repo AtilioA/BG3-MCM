@@ -520,6 +520,10 @@ end
 ---@return nil
 ---@see InputWidgetFactory
 function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID)
+    if setting:GetType() == "keybinding_v2" then
+        return
+    end
+
     local settingValue = modSettings[setting:GetId()]
     local createWidget = InputWidgetFactory[setting:GetType()]
     if createWidget == nil then
@@ -613,7 +617,7 @@ function IMGUILayer:CreateKeybindingsPage()
     print("Creating keybindings page...") -- Log page creation
 
     -- Create a dedicated "Hotkeys" menu section via FrameManager.
-    FrameManager:AddMenuSection("Hotkeys")
+    FrameManager:AddMenuSection("Keybindings")
     FrameManager:CreateMenuButton(FrameManager.menuCell, "Hotkeys", hotkeysUUID)
 
     local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
