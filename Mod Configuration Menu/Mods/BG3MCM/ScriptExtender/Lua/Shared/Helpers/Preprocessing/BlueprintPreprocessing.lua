@@ -458,9 +458,9 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
 
         -- Validate Controller configuration
         local controller = setting.Default["Controller"]
-        if not controller.Buttons or type(controller.Buttons) ~= "table" or #controller.Buttons == 0 then
+        if not controller.Buttons or type(controller.Buttons) ~= "table" then
             MCMWarn(0,
-                "Controller.Buttons must be a non-empty table. Please contact " ..
+                "Controller.Buttons must be a table. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
