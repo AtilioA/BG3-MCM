@@ -636,6 +636,8 @@ function IMGUILayer:CreateKeybindingsPage()
         -- Initialize our reactive input dispatcher.
         InputCallbackManager.Initialize()
 
+        ModEventManager:Emit(EventChannels.MCM_KEYBINDINGS_LOADED, {})
+
         MCMProxy:RegisterMCMKeybindings()
     end
 end
