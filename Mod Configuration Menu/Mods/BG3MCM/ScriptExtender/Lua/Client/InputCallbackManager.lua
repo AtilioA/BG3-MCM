@@ -5,30 +5,30 @@ local RX = {
 InputCallbackManager = {}
 
 -- Create ReactiveX subjects to wrap input events.
-local keyInputSubject = RX.Subject.Create()
-local controllerInputSubject = RX.Subject.Create()
+-- local keyInputSubject = RX.Subject.Create()
+-- local controllerInputSubject = RX.Subject.Create()
 
 --- Initializes the manager: subscribes to global events and routes them into RX streams.
-function InputCallbackManager.Initialize()
-    -- Subscribe to Ext.Events and push events into local subjects.
-    Ext.Events.KeyInput:Subscribe(function(e)
-        -- TODO: allow configurable repeat events (author-defined)
-        if e.Repeat == false then
-            keyInputSubject:OnNext(e)
-        end
-    end)
-    Ext.Events.ControllerButtonInput:Subscribe(function(e)
-        controllerInputSubject:OnNext(e)
-    end)
+-- function InputCallbackManager.Initialize()
+--     -- Subscribe to Ext.Events and push events into local subjects.
+--     Ext.Events.KeyInput:Subscribe(function(e)
+--         -- TODO: allow configurable repeat events (author-defined)
+--         if e.Repeat == false then
+--             keyInputSubject:OnNext(e)
+--         end
+--     end)
+--     Ext.Events.ControllerButtonInput:Subscribe(function(e)
+--         controllerInputSubject:OnNext(e)
+--     end)
 
-    -- Subscribe to local subjects so that input events are dispatched via the registry.
-    keyInputSubject:Subscribe(function(e)
-        KeybindingsRegistry.DispatchKeyboardEvent(e)
-    end)
-    controllerInputSubject:Subscribe(function(e)
-        KeybindingsRegistry.DispatchControllerEvent(e)
-    end)
-end
+--     -- Subscribe to local subjects so that input events are dispatched via the registry.
+--     keyInputSubject:Subscribe(function(e)
+--         KeybindingsRegistry.DispatchKeyboardEvent(e)
+--     end)
+--     controllerInputSubject:Subscribe(function(e)
+--         KeybindingsRegistry.DispatchControllerEvent(e)
+--     end)
+-- end
 
 --- Registers a keyboard/mouse callback by delegating to the registry.
 function InputCallbackManager.RegisterKeybinding(modUUID, actionName, callback)

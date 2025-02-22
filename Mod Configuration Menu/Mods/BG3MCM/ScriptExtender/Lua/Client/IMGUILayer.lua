@@ -539,52 +539,126 @@ end
 
 -- In your IMGUILayer or wherever you create the MCM UI:
 
+---@class IMGUILayer: MetaClass
+---@field mods table<string, ModSettings>
+---@field private visibilityTriggers table<string, table>
+IMGUILayer = _Class:Create("IMGUILayer", nil, {
+    mods = {},
+    visibilityTriggers = {}
+})
+
+MCMClientState = IMGUILayer:New()
+
+------------------------------------------------------------
+-- Helper: Extract all keybinding settings from loaded mods.
+------------------------------------------------------------
+function IMGUILayer:GetAllKeybindings()
+    local keybindings = {}
+    -- Iterate over each mod loaded in MCMAPI.mods (which were loaded from JSON)
+    for modUUID, modData in pairs(self.mods) do
+        local blueprint = modData.blueprint
+        if blueprint then
+            local modKeybindings = { ModUUID = modUUID, Actions = {} }
+            local allSettings = blueprint:GetAllSettings()
+            -- Look for settings of type "keybinding_v2"
+            for settingId, setting in pairs(allSettings) do
+                if setting:GetType() == "keybinding_v2" then
+                    print("Found keybinding setting: " .. settingId) -- Log keybinding setting found
+                    local currentBinding = modData.settingsValues[settingId]
+                    -- Use the saved binding if present; otherwise fallback to blueprint defaults.
+                    local keyboardBinding = nil
+                    local controllerBinding = nil
+                    if currentBinding and currentBinding.Keyboard then
+                        _D(currentBinding)
+                        keyboardBinding = currentBinding.Keyboard
+                        print("Using saved keyboard binding for setting: " .. settingId) -- Log saved binding
+                    else
+                        _D(setting)
+                        _D(currentBinding)
+                        keyboardBinding = setting.Default and setting.Default.Keyboard or
+                            { Key = "", ModifierKeys = { "NONE" } }
+                        print("Falling back to default keyboard binding for setting: " .. settingId) -- Log fallback
+                    end
+                    if currentBinding and currentBinding.Controller then
+                        controllerBinding = currentBinding.Controller
+                        print("Using saved controller binding for setting: " .. settingId) -- Log saved binding
+                    else
+                        controllerBinding = setting.Default and setting.Default.Controller or ""
+                        print("Falling back to default controller binding for setting: " .. settingId) -- Log fallback
+                    end
+
+                    table.insert(modKeybindings.Actions, {
+                        ActionName = settingId,
+                        KeyboardMouseBinding = keyboardBinding,
+                        ControllerBinding = controllerBinding,
+                        DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
+                            { Key = "", ModifierKeys = { "NONE" } },
+                        DefaultControllerBinding = setting.Default and setting.Default.Controller or ""
+                    })
+                end
+            end
+            if #modKeybindings.Actions > 0 then
+                print("Adding keybindings for mod: " .. modUUID) -- Log keybindings added
+                table.insert(keybindings, modKeybindings)
+            end
+        end
+    end
+    print("Total keybindings collected: " .. #keybindings) -- Log total keybindings
+    return keybindings
+end
+
+------------------------------------------------------------
+-- Refactored: CreateKeybindingsPage (loads dynamic keybinding data)
+------------------------------------------------------------
 function IMGUILayer:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
+    print("Creating keybindings page...") -- Log page creation
 
+    -- Create a dedicated "Hotkeys" menu section via FrameManager.
     FrameManager:AddMenuSection("Hotkeys")
     FrameManager:CreateMenuButton(FrameManager.menuCell, "Hotkeys", hotkeysUUID)
 
     local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
 
-    -- Create our widget.
+    -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
     local keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
     self.KeybindingWidget = keybindingWidget
+    print("Keybinding widget created.") -- Log widget creation
 
-    -- Sample mod keybindings.
-    local allModKeybindings = {
-        {
-            ModName = "Mod1", -- used as the unique mod identifier.
-            Actions = {
-                {
-                    ActionName = "MyAction1",
-                    KeyboardMouseBinding = { Key = "E", ModifierKey = "NONE" },
-                    ControllerBinding = "",
-                    DefaultKeyboardMouseBinding = {
-                        Key = "E",
-                        ModifierKey = "LAlt",
-                    },
-                    DefaultControllerBinding = "",
-                },
-            }
-        },
-    }
+    -- Instead of dummy data, load keybindings from the mod settings (previously loaded from JSON)
+    local allModKeybindings = self:GetAllKeybindings()
+    if #allModKeybindings == 0 then
+        print("No keybinding settings found for any mod.") -- Log no keybindings found
+    else
+        print("Registering keybindings...")                -- Log registration start
+        _D(allModKeybindings)
+        -- Register these keybindings in the centralized registry.
+        KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
 
-    -- Register the mod keybindings in the centralized registry.
-    KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
+        -- For each keybinding action, register a generic callback.
+        local function GenericKeybindingCallback(e)
+            Ext.Net.PostMessageToServer("KeybindingAction", Ext.Json.Stringify({ action = e.ActionName, event = e }))
+        end
+        for _, modKey in ipairs(allModKeybindings) do
+            local modUUID = modKey.ModUUID
+            for _, action in ipairs(modKey.Actions) do
+                local success = InputCallbackManager.RegisterKeybinding(modUUID, action.ActionName,
+                    GenericKeybindingCallback)
+                if not success then
+                    print("Failed to register keybinding for mod '" ..
+                        modUUID .. "', action '" .. action.ActionName .. "'.") -- Log registration failure
+                else
+                    print("Successfully registered keybinding for mod '" ..
+                        modUUID .. "', action '" .. action.ActionName .. "'.") -- Log registration success
+                end
+            end
+        end
 
-    -- Register an additional callback for a keyboard action.
-    local function MyActionCallback(e)
-        Ext.Net.PostMessageToServer("MyAction1", Ext.Json.Stringify({}))
+        -- Initialize our reactive input dispatcher.
+        -- InputCallbackManager.Initialize()
+        print("Reactive input dispatcher initialized.") -- Log initialization
     end
-    local success = InputCallbackManager.RegisterKeybinding("Mod1", "MyAction1", MyActionCallback)
-    if not success then
-        print("Failed to register binding due to a conflict.")
-    end
-
-    -- Initialize our reactive input dispatcher.
-    InputCallbackManager.Initialize()
 end
 
 -- function IMGUILayer:RegisterModKeybindings(modUUID, actions)

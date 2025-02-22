@@ -19,9 +19,7 @@
                             "Type": "keybinding_v2",
                             "Default": {
                                 "Keyboard": {
-                                    "Keys": [
-                                        "X"
-                                    ],
+                                    "Key": "X",
                                     "ModifierKeys": [
                                         "LAlt"
                                     ]

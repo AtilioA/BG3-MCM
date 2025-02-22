@@ -153,28 +153,26 @@ function KeyPresentationMapping:GetViewKey(sdlKey)
 end
 
 --- Returns the presentation string for a given SDL key.
---- @param keybinding table A table containing "Key" and "ModifierKey".
+--- @param keybinding table A table containing "Key" and "ModifierKeys".
 --- @return string The view string; if no mapping is found, returns the original value.
 function KeyPresentationMapping:GetKBViewKey(keybinding)
-    if not keybinding or (not keybinding.Key and not keybinding.ModifierKey) then
+    if not keybinding or (not keybinding.Key and not keybinding.ModifierKeys) then
         return UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
 
-    local keys = {}
+    local keyStr = ""
     if keybinding.Key then
-        for _, key in ipairs(keybinding.Key) do
-            table.insert(keys, "[" .. (self.Mapping[key] or key) .. "]")
-        end
+        keyStr = "[" .. (self.Mapping[keybinding.Key] or keybinding.Key) .. "]"
     end
 
     local modifiers = {}
-    if keybinding.ModifierKey then
-        for _, modifier in ipairs(keybinding.ModifierKey) do
+    if keybinding.ModifierKeys then
+        for _, modifier in ipairs(keybinding.ModifierKeys) do
             table.insert(modifiers, "[" .. (self.Mapping[modifier] or modifier) .. "]")
         end
     end
 
-    return table.concat(modifiers, " + ") .. (next(modifiers) and " + " or "") .. table.concat(keys, "+")
+    return table.concat(modifiers, " + ") .. (next(modifiers) and " + " or "") .. keyStr
 end
 
 return KeyPresentationMapping

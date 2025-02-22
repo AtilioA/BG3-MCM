@@ -19,21 +19,17 @@ function KeybindingV2Validator.Validate(config, value)
 
     -- Validate Keyboard configuration if provided
     if value.Key then
-        if type(value.Key) ~= "table" then
-            MCMWarn(0, "Validation failed: Keyboard configuration is not a table.")
+        if type(value.Key) ~= "string" then
+            MCMWarn(0, "Validation failed: Keyboard configuration 'Key' is not a string.")
+            return false
+        end
+        if not table.contains(SDLKeys.ScanCodes, value.Key) then
+            MCMWarn(0, "Validation failed: Invalid key '" .. tostring(value.Key) .. "'.")
             return false
         end
 
-        local keys = value.Key
-        for _, key in ipairs(keys) do
-            if type(key) ~= "string" or not table.contains(SDLKeys.ScanCodes, key) then
-                MCMWarn(0, "Validation failed: Invalid key '" .. tostring(key) .. "' in Keys table.")
-                return false
-            end
-        end
-
         -- Validate ModifierKeys if provided: each must be valid.
-        local modifierKeys = value.Key.ModifierKeys
+        local modifierKeys = value.ModifierKeys
         if modifierKeys then
             if type(modifierKeys) ~= "table" then
                 MCMWarn(0, "Validation failed: ModifierKeys is not a table.")
@@ -61,6 +57,7 @@ function KeybindingV2Validator.Validate(config, value)
             return false
         end
         for _, btn in ipairs(buttons) do
+            _D(btn)
             if type(btn) ~= "string" then
                 MCMWarn(0, "Validation failed: Button '" .. tostring(btn) .. "' is not a string.")
                 return false

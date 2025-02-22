@@ -1,3 +1,5 @@
+--- TODO: add exception handling
+
 ---@class HelperBlueprintPreprocessing
 BlueprintPreprocessing = _Class:Create("HelperBlueprintPreprocessing", nil)
 -- The UUID of the mod being currently processed
@@ -426,20 +428,13 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
 
         -- Validate Keyboard configuration
         local keyboard = setting.Default["Keyboard"]
-        if not keyboard.Keys or type(keyboard.Keys) ~= "table" or #keyboard.Keys == 0 then
+        local key = keyboard.Key
+        if type(key) ~= "string" or not table.contains(SDLKeys.ScanCodes, key) then
             MCMWarn(0,
-                "Keyboard.Keys must be a non-empty table. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                "Invalid key '" ..
+                key .. "' in Keyboard.Key for setting '" .. setting.Id .. "'. Valid keys are: " ..
+                table.concat(SDLKeys.ScanCodes, ", "))
             return false
-        end
-        for _, key in ipairs(keyboard.Keys) do
-            if type(key) ~= "string" or not table.contains(SDLKeys.ScanCodes, key) then
-                MCMWarn(0,
-                    "Invalid key '" ..
-                    key .. "' in Keyboard.Keys for setting '" .. setting.Id .. "'. Valid keys are: " ..
-                    table.concat(SDLKeys.ScanCodes, ", "))
-                return false
-            end
         end
 
         -- Validate ModifierKeys if provided

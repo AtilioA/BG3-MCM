@@ -54,10 +54,10 @@ function KeybindingV2IMGUIWidget:FilterActions()
             -- _D(binding.keyboardBinding)
             -- local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
             --     VCString:FuzzyMatch(binding.keyboardBinding.Key:upper(), searchText) and
-            --     binding.keyboardBinding.ModifierKey and
-            --     VCString:FuzzyMatch(binding.keyboardBinding.ModifierKey:upper(), searchText)
-            local matchesController = binding.controllerBinding and
-                VCString:FuzzyMatch(binding.controllerBinding:upper(), searchText)
+            --     binding.keyboardBinding.ModifierKeys and
+            --     VCString:FuzzyMatch(binding.keyboardBinding.ModifierKeys:upper(), searchText)
+            -- local matchesController = binding.controllerBinding and
+            -- VCString:FuzzyMatch(binding.controllerBinding:upper(), searchText)
             if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesController then
                 table.insert(filteredActions, {
                     ActionName = actionName,
@@ -146,7 +146,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         kbButton:Tooltip():AddText("Click to assign a new key/mouse button.")
 
         local ctrlCell = row:AddCell()
-        local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(action.ControllerBinding) or
+        local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(action.ControllerBinding[1]) or
             UNASSIGNED_CONTROLLER_BUTTON_STRING)
         ctrlButton.IDContext = mod.ModName .. "_Controller_" .. action.ActionName
         ctrlButton.OnClick = function()
@@ -177,10 +177,11 @@ function KeybindingV2IMGUIWidget:RegisterInputEvents()
         KeyInput = Ext.Events.KeyInput:Subscribe(function(e)
             self:HandleKeyInput(e)
         end),
-        MouseButtonInput = Ext.Events.MouseButtonInput:Subscribe(function(e)
-            self:HandleMouseInput(e)
-        end),
+        -- MouseButtonInput = Ext.Events.MouseButtonInput:Subscribe(function(e)
+        --     self:HandleMouseInput(e)
+        -- end),
         ControllerButtonInput = Ext.Events.ControllerButtonInput:Subscribe(function(e)
+            e.PreventAction()
             self:HandleControllerInput(e)
         end)
     }
@@ -241,22 +242,22 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         end
 
         if allReleased then
-            local keys = {}
+            local key = ""
             local modifierKeys = {}
-            for key, _ in pairs(self.AllPressedKeys) do
-                if KeybindingManager:IsActiveModifier(key) then
-                    table.insert(modifierKeys, key)
+            for pressedKey, _ in pairs(self.AllPressedKeys) do
+                if KeybindingManager:IsActiveModifier(pressedKey) then
+                    table.insert(modifierKeys, pressedKey)
                 else
                     -- REVIEW: Not sure how I feel about multi-key support. Probably overkill.
                     -- table.insert(keys, key)
-                    keys = { key }
+                    key = pressedKey:upper()
                 end
             end
             self.PressedKeys = {}
             self.AllPressedKeys = {}
             local newKeybinding = {
-                Key = keys,
-                ModifierKey = modifierKeys
+                Key = key,
+                ModifierKeys = modifierKeys
             }
             self:AssignKeybinding(newKeybinding)
         end
@@ -291,53 +292,51 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     self.Widget.CurrentListeningAction = nil
     self:UnregisterInputEvents()
 
-    -- Check for conflicts.
     local conflictAction = self:CheckForConflicts(keybinding, modData, action, inputType)
     if conflictAction then
         NotificationManager:CreateIMGUINotification("Keybinding_Conflict", 'warning', "Keybinding Conflict",
             "Keybinding conflict with action: " .. conflictAction.ActionName, {}, ModuleUUID)
     end
 
-    -- Retrieve the current binding from the registry.
     local registry = KeybindingsRegistry.GetRegistry()
     local currentBinding = (registry[modData.ModName] and registry[modData.ModName][action.ActionName]) or {}
 
     local newPayload = {}
-
     if inputType == "KeyboardMouse" then
         newPayload.Keyboard = {
-            Keys = keybinding.Key or keybinding,
-            ModifierKeys = keybinding.ModifierKey or {}
+            Key = keybinding.Key or keybinding,
+            ModifierKeys = keybinding.ModifierKeys or {}
         }
-        -- Preserve the current controller binding or fall back to the default.
-        newPayload.Controller = currentBinding.controllerBinding or modData.DefaultControllerBinding or { Buttons = {} }
+        newPayload.Controller = {
+            Buttons = { currentBinding.controllerBinding[1] or modData.DefaultControllerBinding }
+        }
     else
         newPayload.Controller = {
             Buttons = { keybinding }
         }
-        -- Preserve the current keyboard binding or fall back to the default.
         newPayload.Keyboard = currentBinding.keyboardBinding or modData.DefaultKeyboardBinding or
-        { Keys = {}, ModifierKeys = {} }
+            { Key = "", ModifierKeys = {} }
     end
 
     local success = KeybindingsRegistry.UpdateBinding(modData.ModName, action.ActionName, keybinding, inputType)
     if success then
-        -- Pass the payload containing both bindings.
         MCMAPI:SetSettingValue(action.ActionName, newPayload, ModuleUUID)
     else
         print("Failed to update binding in registry for mod '" ..
             modData.ModName .. "', action '" .. action.ActionName .. "'.")
     end
 
-    -- Update the button label
-    if inputType == "KeyboardMouse" and type(keybinding) == "table" then
-        buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING
-    elseif inputType == "Controller" then
-        buttonElement.Label = keybinding
-    else
-        buttonElement.Label = UNASSIGNED_KEYBOARD_MOUSE_STRING
-    end
-    buttonElement.Disabled = false
+    xpcall(function()
+        if inputType == "KeyboardMouse" and type(keybinding) == "table" and buttonElement then
+            buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING
+        elseif inputType == "Controller" then
+            buttonElement.Label = keybinding
+        else
+            buttonElement.Label = UNASSIGNED_KEYBOARD_MOUSE_STRING
+        end
+        buttonElement.Disabled = false
+    end, function(err)
+    end)
 end
 
 function KeybindingV2IMGUIWidget:CancelKeybinding()
