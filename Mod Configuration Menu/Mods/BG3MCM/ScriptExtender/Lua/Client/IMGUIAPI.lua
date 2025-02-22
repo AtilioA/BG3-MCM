@@ -19,6 +19,10 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     if settingId == "auto_resize_window" then
         MCM_WINDOW.AlwaysAutoResize = value
     end
+
+    if settingId == "dynamic_opacity" and value == false then
+        MCMClientState:SetActiveWindowAlpha(true)
+    end
 end
 
 --- Insert a new tab for a mod in the MCM
