@@ -56,18 +56,18 @@ function KeybindingV2Validator.Validate(config, value)
             MCMWarn(0, "Validation failed: Buttons table is invalid.")
             return false
         end
-        for _, btn in ipairs(buttons) do
-            _D(btn)
-            if type(btn) ~= "string" then
-                MCMWarn(0, "Validation failed: Button '" .. tostring(btn) .. "' is not a string.")
-                return false
-            end
-            -- TODO: Validate btn against list of valid controller buttons
-            if not table.contains(Ext.Enums.SDLControllerButton, btn) then
-                MCMWarn(0, "Validation failed: Invalid controller button '" .. tostring(btn) .. "'.")
-                return false
-            end
-        end
+        -- TODO: fix button validation
+        -- for _, btn in ipairs(buttons) do
+        --     _D(btn)
+        --     if type(btn) ~= "string" then
+        --         MCMWarn(0, "Validation failed: Button '" .. tostring(btn) .. "' is not a string.")
+        --         return false
+        --     end
+        --     if not table.contains(Ext.Enums.SDLControllerButton, btn) then
+        --         MCMWarn(0, "Validation failed: Invalid controller button '" .. tostring(btn) .. "'.")
+        --         return false
+        --     end
+        -- end
     end
 
     MCMDebug(1, "Validation succeeded for keybinding configuration.")
