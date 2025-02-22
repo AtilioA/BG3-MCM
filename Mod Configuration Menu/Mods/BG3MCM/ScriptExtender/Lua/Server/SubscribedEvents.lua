@@ -40,9 +40,6 @@ netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE,
 netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestDeleteProfile))
 
-netEventsRegistry:register("MyAction1", AuthorizedNetCommand:new(function()
-    Osi.ApplyStatus(GetHostCharacter(), "ABERRANT_SHAPE_REMOVE_VFX", 2)
-end))
 
 local function registerNetListeners(registry)
     local function handleNetMessage(channel, payload, peerId)

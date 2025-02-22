@@ -629,31 +629,12 @@ function IMGUILayer:CreateKeybindingsPage()
         print("No keybinding settings found for any mod.") -- Log no keybindings found
     else
         print("Registering keybindings...")                -- Log registration start
-        _D(allModKeybindings)
         -- Register these keybindings in the centralized registry.
         KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
 
-        -- For each keybinding action, register a generic callback.
-        local function GenericKeybindingCallback(e)
-            Ext.Net.PostMessageToServer("KeybindingAction", Ext.Json.Stringify({ action = e.ActionName, event = e }))
-        end
-        for _, modKey in ipairs(allModKeybindings) do
-            local modUUID = modKey.ModUUID
-            for _, action in ipairs(modKey.Actions) do
-                local success = InputCallbackManager.RegisterKeybinding(modUUID, action.ActionName,
-                    GenericKeybindingCallback)
-                if not success then
-                    print("Failed to register keybinding for mod '" ..
-                        modUUID .. "', action '" .. action.ActionName .. "'.") -- Log registration failure
-                else
-                    print("Successfully registered keybinding for mod '" ..
-                        modUUID .. "', action '" .. action.ActionName .. "'.") -- Log registration success
-                end
-            end
-        end
-
         -- Initialize our reactive input dispatcher.
-        -- InputCallbackManager.Initialize()
+        InputCallbackManager.Initialize()
+
         print("Reactive input dispatcher initialized.") -- Log initialization
     end
 end
