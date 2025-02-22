@@ -48,9 +48,9 @@ function KeybindingV2IMGUIWidget:FilterActions()
     for modUUID, actions in pairs(registry) do
         local modName = Ext.Mod.GetMod(modUUID).Info.Name
         local filteredActions = {}
-        for actionName, binding in pairs(actions) do
+        for actionId, binding in pairs(actions) do
             local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
-            local matchesActionName = VCString:FuzzyMatch(actionName:upper(), searchText)
+            local matchesActionName = VCString:FuzzyMatch(actions[actionId].actionName:upper(), searchText)
             -- TODO: fix fuzzy search with keybindings
             -- _D(binding.keyboardBinding)
             local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
@@ -62,7 +62,8 @@ function KeybindingV2IMGUIWidget:FilterActions()
             if searchText == "" or matchesModName or matchesActionName or matchesKeyboard then
                 table.insert(filteredActions, {
                     ModUUID = modUUID,
-                    ActionName = actionName,
+                    ActionName = binding.actionName,
+                    ActionId = actionId,
                     KeyboardMouseBinding = binding.keyboardBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING,
                     ControllerBinding = binding.controllerBinding or UNASSIGNED_CONTROLLER_BUTTON_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
@@ -137,13 +138,13 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         local row = imguiTable:AddRow()
         local nameCell = row:AddCell()
         local nameText = nameCell:AddText(action.ActionName)
-        nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionName
+        nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
         nameText:Tooltip():AddText("Action: " .. action.ActionName)
 
         local kbCell = row:AddCell()
         local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
             UNASSIGNED_KEYBOARD_MOUSE_STRING)
-        kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionName
+        kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionId
         kbButton.OnClick = function()
             self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
         end
@@ -156,7 +157,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         end
         local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(ctrlBinding) or
             UNASSIGNED_CONTROLLER_BUTTON_STRING)
-        ctrlButton.IDContext = mod.ModName .. "_Controller_" .. action.ActionName
+        ctrlButton.IDContext = mod.ModName .. "_Controller_" .. action.ActionId
         ctrlButton.OnClick = function()
             self:StartListeningForInput(mod, action, "Controller", ctrlButton)
         end
@@ -164,9 +165,9 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
         local resetCell = row:AddCell()
         local resetButton = resetCell:AddButton("Reset")
-        resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionName
+        resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionId
         resetButton.OnClick = function()
-            self:ResetBinding(mod.ModUUID, action.ActionName)
+            self:ResetBinding(mod.ModUUID, action.ActionId)
         end
         resetButton:Tooltip():AddText("Reset to default binding.")
     end
@@ -231,9 +232,9 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             self:UnregisterInputEvents()
 
             if inputType == "KeyboardMouse" then
-                KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionName, "", "KeyboardMouse")
+                KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, "", "KeyboardMouse")
             else
-                KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionName, "", "Controller")
+                KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, "", "Controller")
             end
             return
         end
@@ -307,7 +308,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     end
 
     local registry = KeybindingsRegistry.GetRegistry()
-    local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionName]) or {}
+    local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
     local newPayload = {}
     if inputType == "KeyboardMouse" then
@@ -316,7 +317,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
             ModifierKeys = keybinding.ModifierKeys or {}
         }
         newPayload.Controller = {
-            Buttons = { currentBinding.controllerBinding[1] or modData.DefaultControllerBinding }
+            Buttons = { currentBinding.controllerBinding or modData.DefaultControllerBinding }
         }
     else
         newPayload.Controller = {
@@ -326,12 +327,12 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
             { Key = "", ModifierKeys = {} }
     end
 
-    local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionName, keybinding, inputType)
+    local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, keybinding, inputType)
     if success then
-        MCMAPI:SetSettingValue(action.ActionName, newPayload, ModuleUUID)
+        MCMAPI:SetSettingValue(action.ActionId, newPayload, ModuleUUID)
     else
         print("Failed to update binding in registry for mod '" ..
-            modData.ModName .. "', action '" .. action.ActionName .. "'.")
+            modData.ModName .. "', action '" .. action.ActionId .. "'.")
     end
 
     xpcall(function()
@@ -372,15 +373,15 @@ function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, curre
     -- Could probably use a lookup table for this.
     local registry = KeybindingsRegistry.GetRegistry()
     local currentModName = currentMod.ModName
-    local currentActionName = currentAction.ActionName
+    local currentActionId = currentAction.ActionId
     local isKeyboardMouse = (inputType == "KeyboardMouse")
 
     for modName, actions in pairs(registry) do
-        for actionName, binding in pairs(actions) do
-            if modName ~= currentModName or actionName ~= currentActionName then
+        for actionId, binding in pairs(actions) do
+            if modName ~= currentModName or actionId ~= currentActionId then
                 local existing = isKeyboardMouse and binding.keyboardBinding or binding.controllerBinding
                 if existing ~= "" and existing == keybinding then
-                    return { ActionName = actionName }
+                    return { ActionName = binding.actionName }
                 end
             end
         end
@@ -389,12 +390,12 @@ function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, curre
     return nil
 end
 
-function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionName)
+function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     local registry = KeybindingsRegistry.GetRegistry()
-    if registry[modUUID] and registry[modUUID][actionName] then
-        local binding = registry[modUUID][actionName]
-        KeybindingsRegistry.UpdateBinding(modUUID, actionName, binding.defaultKeyboardBinding, "KeyboardMouse")
-        KeybindingsRegistry.UpdateBinding(modUUID, actionName, binding.defaultControllerBinding, "Controller")
+    if registry[modUUID] and registry[modUUID][actionId] then
+        local binding = registry[modUUID][actionId]
+        KeybindingsRegistry.UpdateBinding(modUUID, actionId, binding.defaultKeyboardBinding, "KeyboardMouse")
+        KeybindingsRegistry.UpdateBinding(modUUID, actionId, binding.defaultControllerBinding, "Controller")
         self:RefreshUI()
     end
 end

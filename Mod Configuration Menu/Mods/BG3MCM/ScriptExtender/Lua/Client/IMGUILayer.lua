@@ -585,7 +585,8 @@ function IMGUILayer:GetAllKeybindings()
                     end
 
                     table.insert(modKeybindings.Actions, {
-                        ActionName = settingId,
+                        ActionId = setting.Id,
+                        ActionName = setting.Name,
                         KeyboardMouseBinding = keyboardBinding,
                         ControllerBinding = controllerBinding,
                         DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or

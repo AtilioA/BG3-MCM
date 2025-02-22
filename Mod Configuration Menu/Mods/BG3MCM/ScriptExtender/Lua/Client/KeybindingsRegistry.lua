@@ -45,18 +45,10 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
         for _, action in ipairs(mod.Actions) do
             local keyboardNormalized = nil
-            _D("Registering action:")
-            _D(action)
-            -- if action.KeyboardMouseBinding then
-            --     keyboardNormalized = action.KeyboardMouseBinding
-            -- end
-            -- local controllerNormalized = nil
-            -- if action.ControllerBinding and action.ControllerBinding ~= "" then
-            --     controllerNormalized = KeybindingsRegistry.NormalizeControllerBinding(action.ControllerBinding)
-            -- end
-            registry[mod.ModUUID][action.ActionName] = {
+            registry[mod.ModUUID][action.ActionId] = {
                 modUUID = mod.ModUUID,
                 actionName = action.ActionName,
+                actionId = action.ActionId,
                 keyboardBinding = action.KeyboardMouseBinding,
                 controllerBinding = action.ControllerBinding,
                 defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
@@ -68,34 +60,35 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
 end
 
 --- Updates a binding for a given mod/action.
-function KeybindingsRegistry.UpdateBinding(modUUID, actionName, newBinding, inputType)
+function KeybindingsRegistry.UpdateBinding(modUUID, actionId, newBinding, inputType)
     local modTable = registry[modUUID]
-    if not modTable or not modTable[actionName] then
-        print(string.format("No binding found for mod '%s', action '%s'.", modUUID, actionName))
+    _D(modTable)
+    if not modTable or not modTable[actionId] then
+        print(string.format("No binding found to update for mod '%s', action '%s'.", modUUID, actionId))
         return false
     end
 
     if inputType == "KeyboardMouse" then
-        modTable[actionName].keyboardBinding = newBinding
+        modTable[actionId].keyboardBinding = newBinding
     elseif inputType == "Controller" then
-        modTable[actionName].controllerBinding = newBinding
+        modTable[actionId].controllerBinding = newBinding
     end
     keybindingsSubject:OnNext(registry)
     return true
 end
 
 --- Registers a callback for a given binding.
-function KeybindingsRegistry.RegisterCallback(modUUID, actionName, inputType, callback)
+function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, callback)
     local modTable = registry[modUUID]
-    if not modTable or not modTable[actionName] then
-        print(string.format("No binding found for mod '%s', action '%s'.", modUUID, actionName))
+    if not modTable or not modTable[actionId] then
+        print(string.format("No binding found for mod '%s', action '%s'.", modUUID, actionId))
         return false
     end
 
     if inputType == "KeyboardMouse" then
-        modTable[actionName].keyboardCallback = callback
+        modTable[actionId].keyboardCallback = callback
     elseif inputType == "Controller" then
-        modTable[actionName].controllerCallback = callback
+        modTable[actionId].controllerCallback = callback
     end
     keybindingsSubject:OnNext(registry)
     return true
@@ -106,14 +99,14 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     if e.Event ~= "KeyDown" then return end
     -- For each registered keyboard binding, check if it matches.
     for modUUID, actions in pairs(registry) do
-        for actionName, binding in pairs(actions) do
+        for actionId, binding in pairs(actions) do
             if binding.keyboardBinding and KeybindingManager and
                 KeybindingManager:IsKeybindingPressed(e, {
                     ScanCode = binding.keyboardBinding.Key,
                     Modifier = binding.keyboardBinding.ModifierKeys
                 }) then
                 print(string.format("[KeybindingsRegistry] Dispatching keyboard binding '%s' for mod '%s', action '%s'.",
-                    binding.keyboardBinding.Key, modUUID, actionName))
+                    binding.keyboardBinding.Key, modUUID, actionId))
                 if binding.keyboardCallback then
                     binding.keyboardCallback(e)
                 end
@@ -127,11 +120,11 @@ function KeybindingsRegistry.DispatchControllerEvent(e)
     if not e.Pressed then return end
     local normalized = ("CONTROLLER" .. tostring(e.Button)):gsub("%s+", ""):upper()
     for modUUID, actions in pairs(registry) do
-        for actionName, binding in pairs(actions) do
+        for actionId, binding in pairs(actions) do
             if binding.controllerBinding == normalized then
                 print(string.format(
                     "[KeybindingsRegistry] Dispatching controller binding '%s' for mod '%s', action '%s'.",
-                    normalized, modUUID, actionName))
+                    normalized, modUUID, actionId))
                 if binding.controllerCallback then
                     binding.controllerCallback(e)
                 end
