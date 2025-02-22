@@ -104,3 +104,8 @@ function MCMProxy:ResetSettingValue(settingId, modUUID)
         }))
     end
 end
+
+function MCMProxy:RegisterMCMKeybindings()
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_keybinding",
+    function() IMGUILayer:ToggleMCMWindow(true) end)
+end

@@ -636,14 +636,6 @@ function IMGUILayer:CreateKeybindingsPage()
         -- Initialize our reactive input dispatcher.
         InputCallbackManager.Initialize()
 
-        print("Reactive input dispatcher initialized.") -- Log initialization
+        MCMProxy:RegisterMCMKeybindings()
     end
 end
-
--- function IMGUILayer:RegisterModKeybindings(modUUID, actions)
---     if not self.mods[modUUID] then
---         self.mods[modUUID] = { keybindings = actions }
---     else
---         self.mods[modUUID].keybindings = actions
---     end
--- end

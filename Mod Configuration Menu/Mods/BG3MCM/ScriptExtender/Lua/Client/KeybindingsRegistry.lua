@@ -17,7 +17,7 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
         return nil
     end
     local mod = (binding.ModifierKeys and type(binding.ModifierKeys) == "table") and #binding.ModifierKeys > 0 and
-    table.concat(binding.ModifierKeys, "+"):upper() or "NONE"
+        table.concat(binding.ModifierKeys, "+"):upper() or "NONE"
     local scan = binding.Key:upper()
     if mod ~= "NONE" then
         return mod .. "+" .. scan
@@ -81,7 +81,7 @@ end
 function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, callback)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
-        print(string.format("No binding found for mod '%s', action '%s'.", modUUID, actionId))
+        MCMWarn(0, string.format("No binding found for mod '%s', action '%s'.", modUUID, actionId))
         return false
     end
 

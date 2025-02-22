@@ -26,16 +26,6 @@ function KeybindingManager:IsActiveModifier(key)
     return isActive
 end
 
-function KeybindingManager:GetToggleKeybinding()
-    local toggleKeybinding = MCMClientState:GetClientStateValue("toggle_mcm_keybinding", ModuleUUID)
-    if not toggleKeybinding then
-        toggleKeybinding = {
-            ScanCode = "INSERT",
-            Modifier = "NONE"
-        }
-    end
-    return toggleKeybinding
-end
 
 function KeybindingManager:IsModifierNull(modifier)
     return modifier == nil or modifier == "" or modifier == "NONE"
@@ -96,14 +86,6 @@ function KeybindingManager:IsModifierPressed(e, modifiers)
     end
 
     return true
-end
-
-function KeybindingManager:HandleKeyUpInput(e)
-    local toggleKeybinding = self:GetToggleKeybinding()
-    -- TODO: decouple this MCM logic from the keybinding manager
-    if self:IsKeybindingPressed(e, toggleKeybinding) then
-        IMGUILayer:ToggleMCMWindow(true)
-    end
 end
 
 return KeybindingManager
