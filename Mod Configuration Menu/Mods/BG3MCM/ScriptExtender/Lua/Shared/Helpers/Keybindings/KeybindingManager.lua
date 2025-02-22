@@ -70,32 +70,27 @@ function KeybindingManager:ExtractActiveModifiers(modifiers)
 end
 
 -- Checks that all required modifiers are pressed.
--- Both the keybinding modifiers and event modifiers are normalized and filtered to only allowed ones.
 function KeybindingManager:IsModifierPressed(e, modifiers)
+    -- Normalize modifiers to a table
+    local mods = type(modifiers) == "table" and modifiers or { modifiers }
     local requiredSet = {}
-    if type(modifiers) == "table" then
-        for _, mod in ipairs(modifiers) do
-            local normalizedModifier = mod:upper()
-            if self:IsActiveModifier(normalizedModifier) then
-                requiredSet[normalizedModifier] = true
-            end
-        end
-    else
-        local normalizedModifier = modifiers:upper()
-        if self:IsActiveModifier(normalizedModifier) then
-            requiredSet[normalizedModifier] = true
+    for _, mod in ipairs(mods) do
+        local m = mod:upper()
+        if self:IsActiveModifier(m) then
+            requiredSet[m] = true
         end
     end
 
-    local eventActiveModifierSet = self:ExtractActiveModifiers(e.Modifiers)
+    local eventSet = self:ExtractActiveModifiers(e.Modifiers)
 
-    for reqMod, _ in pairs(requiredSet) do
-        if not eventActiveModifierSet[reqMod] then
+    -- Check that both sets are exactly equal:
+    for mod in pairs(requiredSet) do
+        if not eventSet[mod] then
             return false
         end
     end
-    for eventMod, _ in pairs(eventActiveModifierSet) do
-        if not requiredSet[eventMod] then
+    for mod in pairs(eventSet) do
+        if not requiredSet[mod] then
             return false
         end
     end
