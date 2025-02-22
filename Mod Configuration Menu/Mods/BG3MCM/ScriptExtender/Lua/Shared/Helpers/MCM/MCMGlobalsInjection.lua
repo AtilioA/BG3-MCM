@@ -27,6 +27,28 @@ local function getModTableNameByUUID(modUUID)
     return ModUUIDToModTableName[modUUID]
 end
 
+
+local function setupClientSideMCM(modUUID)
+    if Ext.IsServer() then return end
+
+    local modTableName = getModTableNameByUUID(modUUID)
+    if not modTableName then
+        MCMWarn(1, "Unable to find ModTable name for modUUID: " .. modUUID)
+        return
+    end
+
+    local modTable = Mods[modTableName]
+
+    if not modTable.MCM or table.isEmpty(modTable.MCM) then
+        modTable.MCM = {}
+    end
+    MCM = modTable.MCM
+    MCM['SetKeybindingCallback'] = function(settingId, callback)
+        InputCallbackManager.RegisterKeybinding(modUUID, settingId, callback)
+    end
+    Mods[modTableName].MCM = MCM
+end
+
 -- Function to inject MCM into the mod table
 local function injectMCMToModTable(modUUID)
     if modUUID == ModuleUUID then return end
@@ -47,12 +69,15 @@ local function injectMCMToModTable(modUUID)
         return
     end
 
-    if modTable.MCM then
-        MCMPrint(1, "MCM already exists in mod table for modUUID: " .. modUUID .. ". Skipping metatable injection.")
-        return
-    end
+    -- if modTable.MCM then
+    --     MCMPrint(1, "MCM already exists in mod table for modUUID: " .. modUUID .. ". Skipping metatable injection.")
+    --     return
+    -- end
 
-    local MCM = {}
+    if not modTable.MCM or table.isEmpty(modTable.MCM) then
+        modTable.MCM = {}
+    end
+    MCM = modTable.MCM
 
     -- Define useful functions for mods to use
     MCM.Get = function(settingId)
@@ -85,6 +110,8 @@ local function injectMCMToModTable(modUUID)
         -- MCMDebug(1, "Resetting setting value for settingId: " .. settingId)
         MCMAPI:ResetSettingValue(settingId, modUUID)
     end
+
+    setupClientSideMCM(modUUID)
 
     modTable.MCM = MCM
 
