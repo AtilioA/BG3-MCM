@@ -94,6 +94,11 @@ function KeybindingManager:IsModifierPressed(e, modifiers)
             return false
         end
     end
+    for eventMod, _ in pairs(eventActiveModifierSet) do
+        if not requiredSet[eventMod] then
+            return false
+        end
+    end
 
     return true
 end
