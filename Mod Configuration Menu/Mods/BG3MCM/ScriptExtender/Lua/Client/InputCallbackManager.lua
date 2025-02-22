@@ -31,6 +31,9 @@ function InputCallbackManager.Initialize()
 end
 
 --- Registers a keyboard/mouse callback by delegating to the registry.
+--- @param modUUID string
+--- @param actionId string
+--- @param callback function
 function InputCallbackManager.RegisterKeybinding(modUUID, actionId, callback)
     return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "KeyboardMouse", callback)
 end

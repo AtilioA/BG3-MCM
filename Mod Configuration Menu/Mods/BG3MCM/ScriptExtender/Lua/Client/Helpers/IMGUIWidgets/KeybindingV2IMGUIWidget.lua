@@ -329,7 +329,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
 
     local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, keybinding, inputType)
     if success then
-        MCMAPI:SetSettingValue(action.ActionId, newPayload, ModuleUUID)
+        MCMAPI:SetSettingValue(action.ActionId, newPayload, modData.ModUUID)
     else
         print("Failed to update binding in registry for mod '" ..
             modData.ModName .. "', action '" .. action.ActionId .. "'.")
