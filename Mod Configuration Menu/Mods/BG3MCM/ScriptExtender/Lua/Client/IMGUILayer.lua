@@ -637,6 +637,7 @@ function IMGUILayer:CreateKeybindingsPage()
         InputCallbackManager.Initialize()
 
         ModEventManager:Emit(EventChannels.MCM_KEYBINDINGS_LOADED, {})
+        InputCallbackManager.KeybindingsLoadedSubject:OnNext(true)
 
         MCMProxy:RegisterMCMKeybindings()
     end

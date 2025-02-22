@@ -86,7 +86,7 @@ local function setupClientSideMCM(modUUID)
     if not modTable then return end
 
     modTable.MCM['SetKeybindingCallback'] = function(settingId, callback)
-        InputCallbackManager.RegisterKeybinding(modUUID, settingId, callback)
+        InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
     end
 end
 
