@@ -14,20 +14,16 @@
                     "SectionName": "General settings",
                     "Settings": [
                         {
-                            "Id": "MyAction1",
-                            "Name": "Reset SE",
+                            "Id": "toggle_mcm_keybinding",
+                            "Name": "Toggle MCM window",
                             "Type": "keybinding_v2",
                             "Default": {
                                 "Keyboard": {
-                                    "Key": "X",
-                                    "ModifierKeys": [
-                                        "LAlt"
-                                    ]
+                                    "Key": "INSERT",
+                                    "ModifierKeys": []
                                 },
                                 "Controller": {
-                                    "Buttons": [
-                                        "A"
-                                    ]
+                                    "Buttons": []
                                 }
                             },
                             "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",
