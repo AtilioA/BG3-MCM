@@ -569,12 +569,9 @@ function IMGUILayer:GetAllKeybindings()
                     local keyboardBinding = nil
                     local controllerBinding = nil
                     if currentBinding and currentBinding.Keyboard then
-                        _D(currentBinding)
                         keyboardBinding = currentBinding.Keyboard
                         print("Using saved keyboard binding for setting: " .. settingId) -- Log saved binding
                     else
-                        _D(setting)
-                        _D(currentBinding)
                         keyboardBinding = setting.Default and setting.Default.Keyboard or
                             { Key = "", ModifierKeys = { "NONE" } }
                         print("Falling back to default keyboard binding for setting: " .. settingId) -- Log fallback

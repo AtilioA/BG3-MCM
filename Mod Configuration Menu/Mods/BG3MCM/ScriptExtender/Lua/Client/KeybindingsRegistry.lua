@@ -16,7 +16,8 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
         print("Invalid keyboard binding, expected a table with a 'Key' field.")
         return nil
     end
-    local mod = (binding.ModifierKeys and type(binding.ModifierKeys) == "table") and table.concat(binding.ModifierKeys, "+"):upper() or "NONE"
+    local mod = (binding.ModifierKeys and type(binding.ModifierKeys) == "table") and #binding.ModifierKeys > 0 and
+    table.concat(binding.ModifierKeys, "+"):upper() or "NONE"
     local scan = binding.Key:upper()
     if mod ~= "NONE" then
         return mod .. "+" .. scan
@@ -44,18 +45,20 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
         for _, action in ipairs(mod.Actions) do
             local keyboardNormalized = nil
-            if action.KeyboardMouseBinding then
-                keyboardNormalized = KeybindingsRegistry.NormalizeKeyboardBinding(action.KeyboardMouseBinding)
-            end
-            local controllerNormalized = nil
-            if action.ControllerBinding and action.ControllerBinding ~= "" then
-                controllerNormalized = KeybindingsRegistry.NormalizeControllerBinding(action.ControllerBinding)
-            end
+            _D("Registering action:")
+            _D(action)
+            -- if action.KeyboardMouseBinding then
+            --     keyboardNormalized = action.KeyboardMouseBinding
+            -- end
+            -- local controllerNormalized = nil
+            -- if action.ControllerBinding and action.ControllerBinding ~= "" then
+            --     controllerNormalized = KeybindingsRegistry.NormalizeControllerBinding(action.ControllerBinding)
+            -- end
             registry[mod.ModUUID][action.ActionName] = {
                 modUUID = mod.ModUUID,
                 actionName = action.ActionName,
-                keyboardBinding = keyboardNormalized,
-                controllerBinding = controllerNormalized,
+                keyboardBinding = action.KeyboardMouseBinding,
+                controllerBinding = action.ControllerBinding,
                 defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
                 defaultControllerBinding = action.DefaultControllerBinding,
             }
