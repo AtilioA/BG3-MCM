@@ -88,7 +88,7 @@ function KeybindingV2IMGUIWidget:RenderSearchBar()
     local group = self.Widget.Group
     if not self.Widget.DynamicElements.SearchInput then
         group:AddSpacing()
-        group:AddText("Search:")
+        group:AddText("Search keybindings:")
         local searchInput = group:AddInputText("", self.Widget.SearchText)
         searchInput.IDContext = "SearchInput"
         searchInput.AutoSelectAll = true
