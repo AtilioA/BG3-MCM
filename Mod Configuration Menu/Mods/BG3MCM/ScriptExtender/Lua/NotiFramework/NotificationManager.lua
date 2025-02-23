@@ -237,13 +237,13 @@ end
 ---@param countdownTimeInSec number? Optional countdown time for the button
 ---@return nil
 function NotificationManager:CreateDontShowAgainButton(countdownTimeInSec)
-    if not self.options.dontShowAgainButton then
+    if self.options.dontShowAgainButton ~= true then
         return
     end
 
     self.IMGUIwindow:AddDummy(0, 10)
 
-    local countdown = (countdownTimeInSec or (self.options.dontShowAgainButtonCountdownInSec)) + 1
+    local countdown = (countdownTimeInSec or self.options.dontShowAgainButtonCountdownInSec) + 1
     local dontShowAgainButtonLocalizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
     local dontShowAgainButton = self:CreateIMGUIDontShowAgainButton(countdown, dontShowAgainButtonLocalizedLabel)
 
