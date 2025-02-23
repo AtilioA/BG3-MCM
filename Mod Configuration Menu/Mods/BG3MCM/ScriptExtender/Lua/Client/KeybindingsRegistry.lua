@@ -62,7 +62,6 @@ end
 --- Updates a binding for a given mod/action.
 function KeybindingsRegistry.UpdateBinding(modUUID, actionId, newBinding, inputType)
     local modTable = registry[modUUID]
-    _D(modTable)
     if not modTable or not modTable[actionId] then
         print(string.format("No binding found to update for mod '%s', action '%s'.", modUUID, actionId))
         return false
@@ -97,7 +96,8 @@ end
 --- Dispatch a keyboard event.
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
     if e.Event ~= "KeyDown" then return end
-    -- For each registered keyboard binding, check if it matches.
+    local triggered = {}
+    -- Collect all bindings that match the key event.
     for modUUID, actions in pairs(registry) do
         for actionId, binding in pairs(actions) do
             if binding.keyboardBinding and KeybindingManager and
@@ -105,12 +105,30 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
                     ScanCode = binding.keyboardBinding.Key,
                     Modifier = binding.keyboardBinding.ModifierKeys
                 }) then
-                print(string.format("[KeybindingsRegistry] Dispatching keyboard binding '%s' for mod '%s', action '%s'.",
-                    binding.keyboardBinding.Key, modUUID, actionId))
-                if binding.keyboardCallback then
-                    binding.keyboardCallback(e)
-                end
+                table.insert(triggered, binding)
             end
+        end
+    end
+    if #triggered > 1 then
+        local keybindingStr = KeyPresentationMapping:GetKBViewKey(triggered[1].keyboardBinding)
+        if not keybindingStr then
+            keybindingStr = ""
+        end
+        NotificationManager:CreateIMGUINotification("Keybinding_Conflict" .. Ext.Math.Random(), 'warning',
+            "Keybinding conflict",
+            "Keybinding " .. keybindingStr .. " is bound to multiple actions.\nOpen MCM and rebind conflicting keys.", {
+                duration = 10,
+                dontShowAgainButton = false
+            }, ModuleUUID)
+            MCMClientState:ToggleMCMWindow(false)
+        if triggered[1].keyboardCallback then
+            triggered[1].keyboardCallback(e)
+        end
+    elseif #triggered == 1 then
+        if triggered[1].keyboardCallback then
+            MCMPrint(1, "Dispatching keyboard binding for mod '" ..
+                triggered[1].modUUID .. "', action '" .. triggered[1].actionName .. "'.")
+            triggered[1].keyboardCallback(e)
         end
     end
 end

@@ -170,6 +170,16 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             self:ResetBinding(mod.ModUUID, action.ActionId)
         end
         resetButton:Tooltip():AddText("Reset to default binding.")
+
+        -- Check for conflicts and set text color to red in case of a conflict
+        local conflictKB = self:CheckForConflicts(action.KeyboardMouseBinding, mod, action, "KeyboardMouse")
+        if conflictKB then
+            kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+        end
+        local conflictCtrl = self:CheckForConflicts(action.ControllerBinding, mod, action, "Controller")
+        if conflictCtrl then
+            ctrlButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+        end
     end
 end
 
@@ -301,7 +311,8 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     self.Widget.CurrentListeningAction = nil
     self:UnregisterInputEvents()
 
-    local conflictAction = self:CheckForConflicts(keybinding, modData, action, inputType)
+    local conflictAction = self:CheckForConflicts(keybinding, modData, action,
+        inputType)
     if conflictAction then
         NotificationManager:CreateIMGUINotification("Keybinding_Conflict", 'warning', "Keybinding Conflict",
             "Keybinding conflict with action: " .. conflictAction.ActionName, {}, ModuleUUID)
@@ -370,18 +381,35 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
 end
 
 function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, currentAction, inputType)
-    -- Could probably use a lookup table for this.
     local registry = KeybindingsRegistry.GetRegistry()
-    local currentModName = currentMod.ModName
+    local currentModUUID = currentMod.ModUUID
     local currentActionId = currentAction.ActionId
     local isKeyboardMouse = (inputType == "KeyboardMouse")
+    local normalizedNewBinding
 
-    for modName, actions in pairs(registry) do
+    if isKeyboardMouse then
+        normalizedNewBinding = KeybindingsRegistry.NormalizeKeyboardBinding(keybinding)
+    else
+        normalizedNewBinding = keybinding -- for controller input, keybinding is a string
+    end
+
+    for _modUUID, actions in pairs(registry) do
         for actionId, binding in pairs(actions) do
-            if modName ~= currentModName or actionId ~= currentActionId then
-                local existing = isKeyboardMouse and binding.keyboardBinding or binding.controllerBinding
-                if existing ~= "" and existing == keybinding then
-                    return { ActionName = binding.actionName }
+            -- Skip checking against the same binding
+            if actionId ~= currentActionId then
+                if isKeyboardMouse then
+                    local existing = binding.keyboardBinding
+                    if existing and existing ~= "" then
+                        local normalizedExisting = KeybindingsRegistry.NormalizeKeyboardBinding(existing)
+                        if normalizedExisting and normalizedExisting == normalizedNewBinding then
+                            return { ActionName = binding.actionName }
+                        end
+                    end
+                else
+                    local existing = binding.controllerBinding
+                    if existing and existing ~= "" and existing == normalizedNewBinding then
+                        return { ActionName = binding.actionName }
+                    end
                 end
             end
         end
