@@ -85,7 +85,7 @@ end
 --- Initializes the notification window and sets up its components
 ---@return nil
 function NotificationManager:InitializeNotificationWindow()
-    self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title)
+    self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title .. "##" .. math.floor(Ext.Math.Random() * 100000))
     self.IMGUIwindow.IDContext = self.modUUID .. self.id
     self:ConfigureWindowStyle()
     self:CreateMessageGroup()
