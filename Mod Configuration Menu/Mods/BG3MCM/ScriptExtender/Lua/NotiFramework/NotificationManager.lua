@@ -57,6 +57,11 @@ end
 function NotificationManager:new(id, severity, title, message, options, modUUID)
     -- Preprocess options for validity
     options = NotificationOptions:PreprocessOptions(options)
+    local dontShowAgainButton = options.dontShowAgainButton
+    if dontShowAgainButton == nil then
+        dontShowAgainButton = DEFAULT_DONT_SHOW_AGAIN_BUTTON
+    end
+
     local instance = _MetaClass.New(NotificationManager, {
         id = id,
         notificationSeverity = severity,
