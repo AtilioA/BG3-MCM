@@ -473,9 +473,9 @@
                                                         "items": {
                                                             "type": "string",
                                                             "enum": [
-                                                                "Ctrl",
-                                                                "Shift",
-                                                                "Alt",
+                                                                "LCtrl",
+                                                                "LShift",
+                                                                "LAlt",
                                                                 "Meta"
                                                             ]
                                                         },
@@ -887,9 +887,7 @@
                                 "Ctrl",
                                 "Shift"
                             ],
-                            "Keys": [
-                                "K"
-                            ]
+                            "Key": "K"
                         },
                         // NOTE: Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence.
                         "Mouse": {
