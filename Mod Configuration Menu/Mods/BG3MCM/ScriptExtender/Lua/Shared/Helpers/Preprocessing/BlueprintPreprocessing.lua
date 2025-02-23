@@ -472,11 +472,11 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             end
         end
     elseif setting.Type == "list_v2" then
-        if type(setting.Default) ~= "table" or setting.Default.enabled == nil or type(setting.Default.elements) ~= "table" or #setting.Default.elements == 0 then
+        if type(setting.Default) ~= "table" or setting.Default.enabled == nil or type(setting.Default.elements) ~= "table" then
             MCMWarn(0,
                 "Default value for setting '" ..
                 setting.Id ..
-                "' must be a non-empty table with 'enabled' and 'elements'. Please contact " ..
+                "' must be a table with 'enabled' and 'elements'. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
