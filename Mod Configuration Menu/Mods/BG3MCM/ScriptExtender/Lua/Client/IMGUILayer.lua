@@ -1,3 +1,5 @@
+-- TODO: decouple UI presentation from data handling (e.g. mod blueprint, settings values, keybinding gathering, etc)
+
 ---@class ModSettings
 ---@field blueprint Blueprint The blueprint for the mod
 ---@field settingsValues table<string, any> A table of settings for the mod
@@ -47,7 +49,7 @@ function IMGUILayer:UpdateSettingValue(mod, settingId, value, modUUID)
 
     -- Check if the setting is of type 'text'; no need to update the UI value for text settings
     -- Also, doing so creates issues with the text input field
-    local blueprint = MCMAPI:GetModBlueprint(modUUID)
+    -- local blueprint = MCMAPI:GetModBlueprint(modUUID)
     if not blueprint then return end
 
     local setting = blueprint:GetAllSettings()[settingId]
@@ -541,51 +543,37 @@ function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID
     end
 end
 
--- In your IMGUILayer or wherever you create the MCM UI:
-
----@class IMGUILayer: MetaClass
----@field mods table<string, ModSettings>
----@field private visibilityTriggers table<string, table>
-IMGUILayer = _Class:Create("IMGUILayer", nil, {
-    mods = {},
-    visibilityTriggers = {}
-})
-
-MCMClientState = IMGUILayer:New()
-
 ------------------------------------------------------------
 -- Helper: Extract all keybinding settings from loaded mods.
 ------------------------------------------------------------
 function IMGUILayer:GetAllKeybindings()
     local keybindings = {}
-    -- Iterate over each mod loaded in MCMAPI.mods (which were loaded from JSON)
+    -- Iterate over each mod loaded
     for modUUID, modData in pairs(self.mods) do
         local blueprint = modData.blueprint
         if blueprint then
             local modKeybindings = { ModUUID = modUUID, Actions = {} }
             local allSettings = blueprint:GetAllSettings()
-            -- Look for settings of type "keybinding_v2"
             for settingId, setting in pairs(allSettings) do
                 if setting:GetType() == "keybinding_v2" then
-                    print("Found keybinding setting: " .. settingId) -- Log keybinding setting found
                     local currentBinding = modData.settingsValues[settingId]
                     -- Use the saved binding if present; otherwise fallback to blueprint defaults.
                     local keyboardBinding = nil
                     local controllerBinding = nil
                     if currentBinding and currentBinding.Keyboard then
                         keyboardBinding = currentBinding.Keyboard
-                        print("Using saved keyboard binding for setting: " .. settingId) -- Log saved binding
+                        MCMDebug(1, "Using saved keyboard binding for setting: " .. settingId)
                     else
                         keyboardBinding = setting.Default and setting.Default.Keyboard or
                             { Key = "", ModifierKeys = { "NONE" } }
-                        print("Falling back to default keyboard binding for setting: " .. settingId) -- Log fallback
+                        MCMDebug(1, "Falling back to default keyboard binding for setting: " .. settingId)
                     end
                     if currentBinding and currentBinding.Controller then
                         controllerBinding = currentBinding.Controller
-                        print("Using saved controller binding for setting: " .. settingId) -- Log saved binding
+                        MCMDebug(1, "Using saved controller binding for setting: " .. settingId)
                     else
                         controllerBinding = setting.Default and setting.Default.Controller or ""
-                        print("Falling back to default controller binding for setting: " .. settingId) -- Log fallback
+                        MCMDebug(1, "Falling back to default controller binding for setting: " .. settingId)
                     end
 
                     table.insert(modKeybindings.Actions, {
@@ -600,21 +588,20 @@ function IMGUILayer:GetAllKeybindings()
                 end
             end
             if #modKeybindings.Actions > 0 then
-                print("Adding keybindings for mod: " .. modUUID) -- Log keybindings added
+                -- MCMDebug(1, "Adding keybindings for mod: " .. modUUID)
                 table.insert(keybindings, modKeybindings)
             end
         end
     end
-    print("Total keybindings collected: " .. #keybindings) -- Log total keybindings
+    -- MCMDebug(1, "Total keybindings collected: " .. #keybindings)
     return keybindings
 end
 
-------------------------------------------------------------
--- Refactored: CreateKeybindingsPage (loads dynamic keybinding data)
-------------------------------------------------------------
+
+-- TODO: extract this to FrameManager
 function IMGUILayer:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
-    print("Creating keybindings page...") -- Log page creation
+    -- MCMDebug(0, "Creating keybindings page...")
 
     -- Create a dedicated "Hotkeys" menu section via FrameManager.
     FrameManager:AddMenuSection("Keybindings")
@@ -626,21 +613,23 @@ function IMGUILayer:CreateKeybindingsPage()
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
     local keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
     self.KeybindingWidget = keybindingWidget
-    print("Keybinding widget created.") -- Log widget creation
+    -- MCMDebug(0, "Keybinding widget created.")
 
-    -- Instead of dummy data, load keybindings from the mod settings (previously loaded from JSON)
+    -- Load keybindings from the mod settings
     local allModKeybindings = self:GetAllKeybindings()
     if #allModKeybindings == 0 then
-        print("No keybinding settings found for any mod.") -- Log no keybindings found
+        -- MCMDebug(0, "No keybinding settings found for any mod.")
     else
-        print("Registering keybindings...")                -- Log registration start
-        -- Register these keybindings in the centralized registry.
+        -- MCMDebug(0, "Registering keybindings...")
+        -- Register the keybindings in the centralized registry.
         KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
 
         -- Initialize our reactive input dispatcher.
         InputCallbackManager.Initialize()
 
+        -- Technically, mods should not worry about this, but we'll emit an event here for them.
         ModEventManager:Emit(EventChannels.MCM_KEYBINDINGS_LOADED, {})
+        -- Tell the dispatcher that keybindings have been loaded so it may process any pending callbacks.
         InputCallbackManager.KeybindingsLoadedSubject:OnNext(true)
 
         MCMProxy:RegisterMCMKeybindings()

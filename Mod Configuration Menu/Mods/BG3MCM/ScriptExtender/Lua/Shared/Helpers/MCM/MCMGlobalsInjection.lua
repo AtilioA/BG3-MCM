@@ -43,6 +43,7 @@ local function getModTableForUUID(modUUID)
 end
 
 -- Helper: Ensure that the mod's MCM table exists and attach common functions.
+-- REFACTOR: extract functions to proper API file (MCMAPI/MCMServer)
 local function ensureModMCM(modTable, modUUID)
     if not modTable.MCM or table.isEmpty(modTable.MCM) then
         modTable.MCM = {}
@@ -58,19 +59,36 @@ local function ensureModMCM(modTable, modUUID)
         local setting = MCMInstance.Get(listSettingId)
         local enabledItems = {}
         if setting and setting.enabled then
-        for _, element in ipairs(setting.elements) do
-            if element.enabled then
-                enabledItems[element.name] = true
+            for _, element in ipairs(setting.elements) do
+                if element.enabled then
+                    enabledItems[element.name] = true
+                end
             end
         end
-        end
         return enabledItems
+    end
+
+    MCMInstance.SetListElement = function(listSettingId, elementName, enabled)
+        local setting = MCMInstance.Get(listSettingId)
+        if setting and setting.elements then
+            local elementFound = false
+            for _, element in ipairs(setting.elements) do
+                if element.name == elementName then
+                    element.enabled = enabled
+                    elementFound = true
+                    break
+                end
+            end
+            if not elementFound then
+                table.insert(setting.elements, { name = elementName, enabled = enabled })
+            end
+        end
+        return MCMAPI:SetSettingValue(listSettingId, setting, modUUID)
     end
 
     MCMInstance.Set = function(settingId, value)
         MCMAPI:SetSettingValue(settingId, value, modUUID)
     end
-
     MCMInstance.Reset = function(settingId)
         MCMAPI:ResetSettingValue(settingId, modUUID)
     end
