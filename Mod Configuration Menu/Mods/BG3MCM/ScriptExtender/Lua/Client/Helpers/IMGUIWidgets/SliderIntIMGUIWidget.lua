@@ -23,9 +23,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
-            local buttonTooltip = button:Tooltip()
-            buttonTooltip.IDContext = "ButtonTooltip_" .. setting.Id
-            buttonTooltip:AddText(tooltip)
+            IMGUILayer:AddTooltip(button, tooltip, "ButtonTooltip_" .. setting.Id)
         end
         return button
     end
@@ -57,8 +55,7 @@ function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
     -- Call the base class method first
     IMGUIWidget.SetupTooltip(self, widget, setting)
 
-    local tooltip = widget:Tooltip()
-    tooltip:AddText(string.format("Min: %s", setting.Options.Min))
+    local tooltip = IMGUILayer:AddTooltip(widget, string.format("Min: %s", setting.Options.Min), setting.Id .. "_TOOLTIP")
     tooltip:AddText(string.format("Max: %s", setting.Options.Max))
     if not table.isEmpty(tooltip.Children) then
         local tooltipSeparator = tooltip:AddSeparator()

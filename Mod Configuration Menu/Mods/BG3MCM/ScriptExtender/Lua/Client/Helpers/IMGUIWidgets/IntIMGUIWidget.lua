@@ -20,9 +20,7 @@ function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
-            local buttonTooltip = button:Tooltip()
-            buttonTooltip.IDContext = modUUID .. "WidgetTooltip_" .. setting.Id
-            buttonTooltip:AddText(tooltip)
+            IMGUILayer:AddTooltip(button, tooltip, modUUID .. "WidgetTooltip_" .. setting.Id)
         end
         return button
     end

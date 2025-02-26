@@ -85,14 +85,13 @@ end
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modUUID)
     local resetButton = group:AddImageButton("[Reset]", "ico_reset_d", IMGUIWidget:GetIconSizes())
-
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()
         resetButton = group:AddButton("[Reset]")
     end
-
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
-    resetButton:Tooltip():AddText("Reset this setting to its default")
+    IMGUILayer:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h132d4b2d4cd044c8a3956a77f7e3499d0737"),
+        modUUID .. "_" .. "ResetButton_" .. setting:GetId() .. "_TOOLTIP")
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
     end
@@ -103,20 +102,15 @@ function IMGUIWidget:SetupTooltip(widget, setting)
     if setting:GetTooltip() == nil or setting:GetTooltip() == "" then
         return
     end
-
-    if widget.Tooltip then
-        local tooltip = widget:Tooltip()
-
-        local tooltipText = setting:GetTooltip()
-        local translatedTooltip = nil
-        if setting.Handles.TooltipHandle ~= nil then
-            translatedTooltip = Ext.Loca.GetTranslatedString(setting.Handles.TooltipHandle)
-        end
-        if translatedTooltip ~= nil and translatedTooltip ~= "" then
-            tooltipText = translatedTooltip
-        end
-        tooltip:AddText(tooltipText)
+    local tooltipText = setting:GetTooltip()
+    local translatedTooltip = nil
+    if setting.Handles.TooltipHandle ~= nil then
+        translatedTooltip = Ext.Loca.GetTranslatedString(setting.Handles.TooltipHandle)
     end
+    if translatedTooltip ~= nil and translatedTooltip ~= "" then
+        tooltipText = translatedTooltip
+    end
+    IMGUILayer:AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
 end
 
 --- Add a slightly faded description text below the widget

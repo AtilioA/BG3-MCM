@@ -636,3 +636,20 @@ function IMGUILayer:CreateKeybindingsPage()
         MCMProxy:RegisterMCMKeybindings()
     end
 end
+
+--- Add a tooltip to a button
+---@param imguiObject ExtuiStyledRenderable
+---@param tooltipText string
+---@param uuid string
+---@return nil
+function IMGUILayer:AddTooltip(imguiObject, tooltipText, uuid)
+    local imguiObjectTooltip = imguiObject:Tooltip()
+    imguiObjectTooltip.IDContext = uuid .. "_TOOLTIP"
+    imguiObjectTooltip:AddText(tooltipText)
+    imguiObjectTooltip:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
+    imguiObjectTooltip:SetStyle("WindowPadding", 15, 15)
+    imguiObjectTooltip:SetStyle("PopupBorderSize", 2)
+    imguiObjectTooltip:SetColor("BorderShadow", {0,0,0,0.4})
+
+    return imguiObjectTooltip
+end

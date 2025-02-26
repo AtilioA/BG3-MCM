@@ -52,7 +52,7 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
 
     local menuButton = self:CreateMenuButton(self.menuCell, modName, modUUID)
     if modDescription then
-        self:AddTooltip(menuButton, modDescription, modUUID)
+        IMGUILayer:AddTooltip(menuButton, modDescription, modUUID)
     end
     local uiGroupMod = self.contentCell:AddGroup(modUUID)
 
@@ -146,7 +146,7 @@ end
 ---@return any
 function FrameManager:CreateMenuButton(menuCell, text, uuid)
     local button = menuCell:AddButton(text)
-    button.IDContext = "MenuButton_" .. text .. "_" .. uuid 
+    button.IDContext = "MenuButton_" .. text .. "_" .. uuid
     button.OnClick = function()
         self:setVisibleFrame(uuid)
         MCMDebug(2, "Set mod Visible : " .. button.IDContext)
@@ -165,15 +165,4 @@ function FrameManager:CreateMenuButton(menuCell, text, uuid)
     end
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     return button
-end
-
---- Add a tooltip to a button
----@param button any
----@param tooltipText string
----@param uuid string
----@return nil
-function FrameManager:AddTooltip(button, tooltipText, uuid)
-    local buttonTooltip = button:Tooltip()
-    buttonTooltip.IDContext = uuid .. "_TOOLTIP"
-    buttonTooltip:AddText(tooltipText)
 end
