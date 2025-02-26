@@ -198,7 +198,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
     end
 
     if self.welcomeText then
-        -- self.welcomeText:Destroy()
         MCMDebug(2, "Welcome text already exists, skipping...")
         return true
     end
@@ -224,8 +223,6 @@ function IMGUILayer:CreateMainIMGUIWindow()
 
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
-
-    MCM_WINDOW:SetSize(GetInitialMCMWindowSize())
 
     UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
 
@@ -297,9 +294,9 @@ end
 --- Create the main MCM menu, which contains a tree view for each mod that has MCM settings
 ---@return nil
 function IMGUILayer:CreateModMenu()
-    if not self:ShouldPopulateMenu() then
-        return
-    end
+    -- if not self:ShouldPopulateMenu() then
+    --     return
+    -- end
 
     self:PrepareMenu()
     self:ConvertModTablesToBlueprints()
@@ -312,7 +309,12 @@ end
 ---@return boolean
 function IMGUILayer:ShouldPopulateMenu()
     -- If uiGroup exist for MCM, init done, we don't want to populate the menu again
-    return FrameManager:GetGroup(ModuleUUID) == nil
+    local uiGroup = FrameManager:GetGroup(ModuleUUID)
+    if uiGroup ~= nil then
+        MCMWarn(0, "UI group for MCM already exists, skipping window creation.")
+        return false
+    end
+    return true
 end
 
 --- Initialize menu settings and destroy welcome text if it exists
@@ -596,7 +598,6 @@ function IMGUILayer:GetAllKeybindings()
     -- MCMDebug(1, "Total keybindings collected: " .. #keybindings)
     return keybindings
 end
-
 
 -- TODO: extract this to FrameManager
 function IMGUILayer:CreateKeybindingsPage()

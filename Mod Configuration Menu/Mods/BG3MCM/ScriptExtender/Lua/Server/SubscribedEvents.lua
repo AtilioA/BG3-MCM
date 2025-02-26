@@ -63,7 +63,7 @@ function SubscribedEvents.SubscribeToEvents()
     -- Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
 
     -- When the game is started, load the MCM settings
-    Ext.Osiris.RegisterListener("LevelGameplayStarted", 2, "before", EHandlers.OnLevelGameplayStarted)
+    Ext.Osiris.RegisterListener("SavegameLoaded", 0, "before", EHandlers.SavegameLoaded)
 
     Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
         MCMDebug(1, "UserConnected: " .. userID .. " " .. userName .. " " .. userProfileID)
