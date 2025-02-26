@@ -141,29 +141,25 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         local nameCell = row:AddCell()
         local nameText = nameCell:AddText(action.ActionName)
         nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
-        nameText:Tooltip():AddText("Action: " .. action.ActionName)
-
+        IMGUILayer:AddTooltip(nameText, "Action: " .. action.ActionName, mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
+        
         local kbCell = row:AddCell()
-        local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
-            UNASSIGNED_KEYBOARD_MOUSE_STRING)
+        local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING)
         kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionId
         kbButton.OnClick = function()
             self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
         end
-        kbButton:Tooltip():AddText("Click to assign a new key/mouse button.")
-
+        IMGUILayer:AddTooltip(kbButton, "Click to assign a new key/mouse button.", mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
+        
         local ctrlCell = row:AddCell()
         local ctrlBinding = action.ControllerBinding
-        if type(ctrlBinding) == "table" then
-            ctrlBinding = ctrlBinding[1]
-        end
-        local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(ctrlBinding) or
-            UNASSIGNED_CONTROLLER_BUTTON_STRING)
+        if type(ctrlBinding) == "table" then ctrlBinding = ctrlBinding[1] end
+        local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(ctrlBinding) or UNASSIGNED_CONTROLLER_BUTTON_STRING)
         ctrlButton.IDContext = mod.ModName .. "_Controller_" .. action.ActionId
         ctrlButton.OnClick = function()
             self:StartListeningForInput(mod, action, "Controller", ctrlButton)
         end
-        ctrlButton:Tooltip():AddText("Click to assign a new controller button.")
+        IMGUILayer:AddTooltip(ctrlButton, "Click to assign a new controller button.", mod.ModName .. "_Controller_" .. action.ActionId .. "_TOOLTIP")
 
         local resetCell = row:AddCell()
         local resetButton = resetCell:AddButton("Reset")
@@ -171,8 +167,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         resetButton.OnClick = function()
             self:ResetBinding(mod.ModUUID, action.ActionId)
         end
-        resetButton:Tooltip():AddText("Reset to default binding.")
-
+        IMGUILayer:AddTooltip(resetButton, "Reset to default binding.", mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
         -- Check for conflicts and set text color to red in case of a conflict
         local conflictKB = self:CheckForConflicts(action.KeyboardMouseBinding, mod, action, "KeyboardMouse")
         if conflictKB then

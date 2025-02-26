@@ -15,15 +15,11 @@ function SliderFloatIMGUIWidget:UpdateCurrentValue(value)
 end
 
 function SliderFloatIMGUIWidget:SetupTooltip(widget, setting)
-    -- Call the base class method first
-    IMGUIWidget.SetupTooltip(self, widget, setting)
-
-    local tooltip = widget:Tooltip()
-    tooltip:AddText(string.format("Min: %.2f", setting.Options.Min))
-    tooltip:AddText(string.format("Max: %.2f", setting.Options.Max))
-    if not table.isEmpty(tooltip.Children) then
-        local tooltipSeparator = tooltip:AddSeparator()
+    local tt = IMGUILayer:AddTooltip(widget, string.format("Min: %.2f", setting.Options.Min), setting.Id .. "_TOOLTIP")
+    tt:AddText(string.format("Max: %.2f", setting.Options.Max))
+    if not table.isEmpty(tt.Children) then
+        local tooltipSeparator = tt:AddSeparator()
         tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
     end
-    tooltip:AddText("CTRL + click to input value manually.")
+    tt:AddText("CTRL + click to input value manually.")
 end
