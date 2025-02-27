@@ -2,98 +2,125 @@ MainMenu = {}
 
 function MainMenu.CreateMainMenu()
     local function CreateHelpTroubleshootingPopup()
-        local helpTroubleshootingPopup = MCM_WINDOW:AddPopup("Help & Troubleshooting")
+        local helpTroubleshootingPopup = MCM_WINDOW:AddPopup(Ext.Loca.GetTranslatedString(
+            "hbdd48c8cba3e4c31931f1647cb5d73c813ef"))
 
         -- Adding content sections
-        helpTroubleshootingPopup:AddSeparatorText("Troubleshooting and Reporting")
+        helpTroubleshootingPopup:AddSeparatorText(Ext.Loca.GetTranslatedString("h361dd694cca74b30a87f02d035e35dcac0d4"))
         local text1 = helpTroubleshootingPopup:AddText(
-            "Script Extender's (SE) IMGUI implementation is still in development. If you're having issues:")
+            Ext.Loca.GetTranslatedString(
+                "hafec095716ec4208b2319d24b3c230d969d4"))
         text1.TextWrapPos = 0
-        helpTroubleshootingPopup:AddBulletText("Disable overlays (Nvidia/AMD/Discord, etc);")
-        helpTroubleshootingPopup:AddBulletText("If crashing under Vulkan, test without IMGUI mods like MCM")
-        helpTroubleshootingPopup:AddBulletText("Verify the problem persists with no other DLL mods")
-        helpTroubleshootingPopup:AddBulletText("Ensure you're using the latest BG3 version and SE Release version")
+        helpTroubleshootingPopup:AddBulletText(Ext.Loca.GetTranslatedString(
+            "h11f519e028834967a79753cfe1e6cae28726"))
+        helpTroubleshootingPopup:AddBulletText(Ext.Loca.GetTranslatedString(
+            "h264b744397944591bbfbcd2c69f57d2b7150"))
+        helpTroubleshootingPopup:AddBulletText(Ext.Loca.GetTranslatedString(
+            "h28faf9b0ffb34b109f4ad73eaed97833896g"))
+        helpTroubleshootingPopup:AddBulletText(Ext.Loca.GetTranslatedString(
+            "h48cad338a0ab4c06bb9060d24a8a5e52e52e"))
 
-        helpTroubleshootingPopup:AddSeparatorText("Reporting Issues")
+        helpTroubleshootingPopup:AddSeparatorText(Ext.Loca.GetTranslatedString("h52b099d222d14e21a68cbc088314712856dc"))
         helpTroubleshootingPopup:AddBulletText(
-            "Provide SE console logs - you can easily enable the SE console via BG3MM preferences")
-        helpTroubleshootingPopup:AddBulletText("Include system specs (GPU, CPU, OS)")
-        helpTroubleshootingPopup:AddBulletText("Describe behavior under DirectX 11 and Vulkan")
-        helpTroubleshootingPopup:AddBulletText("Upload crash reports if prompted by the SE")
+            Ext.Loca.GetTranslatedString(
+                "h2021eb6360bd4cce955f32816edc5b06abdg"))
+        helpTroubleshootingPopup:AddBulletText(Ext.Loca.GetTranslatedString("h4d23bb6e90d2429aa85dea0d7bd5774a79ed"))
+        helpTroubleshootingPopup:AddBulletText(Ext.Loca.GetTranslatedString(
+            "ha1dd54cb1e754f1099bbf9889210d19c6904"))
+        helpTroubleshootingPopup:AddBulletText(Ext.Loca.GetTranslatedString("hc417ce5922854d5dae5c51d7a3dae9b46f19"))
 
-        helpTroubleshootingPopup:AddSeparatorText("Known Issues")
+        helpTroubleshootingPopup:AddSeparatorText(Ext.Loca.GetTranslatedString("hcb35f546c52546949cbd5bda88fe2af91656"))
         local uiNotShowingBT = helpTroubleshootingPopup:AddBulletText(
-            "UI not showing up: test both Vulkan and DirectX 11")
+            Ext.Loca.GetTranslatedString("h90617d43407c4d5d99fe26d08f47934abg89"))
         uiNotShowingBT:SetColor("Text", Color.HEXToRGBA("#FF2323"))
-        helpTroubleshootingPopup:AddBulletText("Keybindings: Unfocus MCM window before using keybinds")
 
-        helpTroubleshootingPopup:AddSeparatorText("More Information")
-        local text2 = helpTroubleshootingPopup:AddText("For more details, visit the MCM page on Nexus.")
+        helpTroubleshootingPopup:AddSeparatorText(Ext.Loca.GetTranslatedString("h1fe5d3876dd04389b53f1c4d808d2d02gfce"))
+        local text2 = helpTroubleshootingPopup:AddText(Ext.Loca.GetTranslatedString(
+            "h449f8e9c50fe497e8584a92dc227759a1d5d"))
         text2.TextWrapPos = 0
 
         return helpTroubleshootingPopup
     end
 
     local function CreateHelpUIPopup()
-        local helpPopupUI = MCM_WINDOW:AddPopup("UI Help")
-        helpPopupUI:AddSeparatorText("UI Help")
-        local text1 = helpPopupUI:AddText("With MCM, you can configure the settings of mods that use MCM.")
+        local helpPopupUI = MCM_WINDOW:AddPopup(Ext.Loca.GetTranslatedString("ha41e66cbd942447c808e6bd19f0ff635f69e"))
+        helpPopupUI:AddSeparatorText(Ext.Loca.GetTranslatedString("h504a5f8e7f544190b496bcde61c78dcb7ba6"))
+        local text1 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
+            "hfadac6e330134b9ba8e5e2f1a16cf77cd3bg"))
         text1.TextWrapPos = 0
-        local text2 = helpPopupUI:AddText("To get started, click a mod from the list on the left.")
+        local text2 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
+            "h54470141a99c47ba95e92f57da1100de5467"))
         text2.TextWrapPos = 0
-        helpPopupUI:AddSeparatorText("Navigating the settings")
-        local text3 = helpPopupUI:AddText("All settings are saved automatically as you make changes.")
+        helpPopupUI:AddSeparatorText(Ext.Loca.GetTranslatedString("h126fa009e82d48508463fd049554b08bb8a0"))
+        local text3 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
+            "hc9997429f80b488a91c26118fd7662a2ae73"))
         text3.TextWrapPos = 0
-        local text4 = helpPopupUI:AddText("To reset a setting, click the reset button next to it.")
+        local text4 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
+            "h28b119e5d1534fa581ad2c7011f8ce7f7577"))
         text4.TextWrapPos = 0
-        local text5 = helpPopupUI:AddText("You can control + click a slider to type in a specific value.")
+        local text5 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
+            "had9d11b7951441e3826b571a2a445cc14286"))
         text5.TextWrapPos = 0
         helpPopupUI:AddSeparator()
-        local text6 = helpPopupUI:AddText("MCM uses IMGUI, which is a library also used by ReShade and other mods.")
+        local text6 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
+            "he3146562f01e4896b2fbd158587a69d6b33b"))
         text6.TextWrapPos = 0
-        local text7 = helpPopupUI:AddText("For more information, visit the MCM page on Nexus.")
+        local text7 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
+            "he67fc60b9866404a83b49e151d88bf7dg39d"))
         text7.TextWrapPos = 0
         return helpPopupUI
     end
 
     local function CreateAboutGeneralPopup()
         -- New About popups
-        local aboutPopupGeneral = MCM_WINDOW:AddPopup("About MCM - General")
+        local aboutPopupGeneral = MCM_WINDOW:AddPopup(Ext.Loca.GetTranslatedString(
+            "hf2c6ba6f913344bf8ac81e2a4915213f702g"))
         aboutPopupGeneral:SetColor("PopupBg", Color.HEXToRGBA("#1E1E1E"))
         local MCMModInfo = Ext.Mod.GetMod(ModuleUUID).Info
         local modAuthor = MCMModInfo.Author
         local modVersion = table.concat(MCMModInfo.ModVersion, ".")
-        aboutPopupGeneral:AddSeparatorText("Mod Configuration Menu " .. modVersion .. " by " .. modAuthor)
+        aboutPopupGeneral:AddSeparatorText(Ext.Loca.GetTranslatedString("h4a0ed3db05bb46c59094f7d5be8e90fa09d2") ..
+            modVersion .. Ext.Loca.GetTranslatedString(" by ") .. modAuthor)
         -- local aboutPopupDescription = MCM_WINDOW:AddPopup("About MCM - Description")
         -- aboutPopupGeneral:AddSeparatorText("Description")
         aboutPopupGeneral:AddText(
-            "MCM is a centralized configuration menu for Baldur's Gate 3 mods, allowing easy management of mod settings."
+            Ext.Loca.GetTranslatedString(
+                "h03d35de7f7cf49fcb748f08dd7bd46fb5474")
         )
         aboutPopupGeneral:AddText(
-            "It is designed to be user-friendly and accessible, providing a consistent interface for mod configuration."
+            Ext.Loca.GetTranslatedString(
+                "hbefc18dccd3646c3bee89e1c8a773eee8c44")
         )
         aboutPopupGeneral:AddText(
-            "It was the culmination of months of work done by mostly a single developer.\nIf you find it useful, please consider endorsing it on Nexus Mods and dropping a donation.")
+            Ext.Loca.GetTranslatedString(
+                "ha3e6f6909b9744fcb28a1be741580718eebc"))
         return aboutPopupGeneral
     end
 
     local function CreateAboutLicensePopup()
-        local aboutPopupLicense = MCM_WINDOW:AddPopup("About MCM - License")
-        aboutPopupLicense:AddSeparatorText("License")
+        local aboutPopupLicense = MCM_WINDOW:AddPopup(Ext.Loca.GetTranslatedString(
+            "h5bce8e943b4f4effa9f3b5f44caf244360ea"))
+        aboutPopupLicense:AddSeparatorText(Ext.Loca.GetTranslatedString("h2c396610bbc24069bf3ee724d868fad5g2e7"))
         aboutPopupLicense:AddText(VCString:Wrap(
-            "BG3MCM's code is licensed under AGPLv3. For details, refer to the GitHub link in the mod description.", 100))
-        aboutPopupLicense:AddText(VCString:Wrap(
-            "BG3MCM incorporates code from the Compatibility Framework, BG3ModManager, and Volition Cabinet, all of which are licensed under the MIT License. Additionally, BG3SE is licensed under the MIT License with an added Commons Clause. Copies of these licenses are included in the appropriate sections of this mod's code.",
+            Ext.Loca.GetTranslatedString(
+                "h63f26391dd0c4953b167c927ce04240057c7"),
             100))
         aboutPopupLicense:AddText(VCString:Wrap(
-            "Mod authors and translators may enable donation points for any mods using this framework as a dependency, and may freely use examples provided to help build integration with this mod.",
+            Ext.Loca.GetTranslatedString(
+                "h9f85429a1ac84568b1c53940d5f28bc1a2e6"),
             100))
         aboutPopupLicense:AddText(VCString:Wrap(
-            "The licensing terms on Nexus complement these permissions. In cases of overlap, the stricter of the two licensing terms should apply.",
+            Ext.Loca.GetTranslatedString(
+                "hd006c103dba44c48bb3826b5dbbe3f6133b1"),
+            100))
+        aboutPopupLicense:AddText(VCString:Wrap(
+            Ext.Loca.GetTranslatedString(
+                "h445fe7fd555e480f9090a0203b1d0a0811g7"),
             100))
         aboutPopupLicense:AddSeparator()
         aboutPopupLicense:AddText(VCString:Wrap(
-            "I extend my gratitude to Norbyte, LaughingLeader, Focus and the CL team for making their code available under such open and permissive licenses, enabling seamless collaboration across the modding community!",
+            Ext.Loca.GetTranslatedString(
+                "h4fbe91cade4c4f2f904e55bf12b3ec22egfc"),
             100))
 
         return aboutPopupLicense

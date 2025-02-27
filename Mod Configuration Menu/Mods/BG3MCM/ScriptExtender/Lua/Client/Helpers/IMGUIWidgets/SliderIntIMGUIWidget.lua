@@ -30,7 +30,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Decrement button
     instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -1,
-        "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
+        VCString:InterpolateLocalizedMessage("h0dab893ad8cc4f1a93e417c7524addecggc4", setting:GetLocaName()))
 
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
@@ -41,7 +41,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Increment button
     instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", 1,
-        "Increase the '" .. setting:GetLocaName() .. "' value by 1")
+        VCString:InterpolateLocalizedMessage("heed976f6e50046c2a583040d9abb6ce6c8g1", setting:GetLocaName()))
     instance.NextButton.SameLine = true
 
     return instance

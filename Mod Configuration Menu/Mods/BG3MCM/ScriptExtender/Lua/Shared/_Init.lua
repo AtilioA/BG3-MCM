@@ -4,6 +4,7 @@ local function updateLoca()
         local contents = Ext.IO.LoadFile(fileName, "data")
 
         if not contents then
+            MCMWarn(1, "Failed to load loca file: " .. fileName)
             return
         end
 

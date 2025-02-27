@@ -70,7 +70,7 @@ local function handleMCMButtonPress(button, hasServer)
         if pressCount > pressLimit then
             MCMWarn(0,
                 "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-            updateButtonMessage("No MCM window? See troubleshooting steps in the mod page.",
+            updateButtonMessage(Ext.Loca.GetTranslatedString("h354808a337024c99b6149d5d1b11934bd36e"),
                 revertTime, isMessageUpdated)
             if hasServer then
                 Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,

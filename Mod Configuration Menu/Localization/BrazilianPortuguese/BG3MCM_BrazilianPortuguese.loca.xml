@@ -15,7 +15,7 @@
     <content contentuid="h1143226dbdd44d4aab3ce3010ffc589a073a" version="1">Usado para determinar quais mensagens devem ser impressas.&lt;br&gt;Útil para desenvolvedores ou debuggar problemas em geral.</content>
     <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Bem-vindo ao Menu de Configuração de Mods do Baldur's Gate 3!&lt;br&gt;Se você não vir nenhum mod aqui, talvez seja necessário carregar um save primeiro.&lt;br&gt;Se você ainda não vir nenhum mod, certifique-se de ter mods integrados/que usem o MCM.&lt;br&gt;&lt;br&gt;Por padrão, você pode pressionar Insert para alternar esta janela quando ele não estiver em foco.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Opacidade dinâmica</content>
-    <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Torna a janela do MCM ligeiramente transparente enquanto você interagir com elementso do jogo.</content>
+    <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Torna a janela do MCM ligeiramente transparente enquanto você interagir com elementos do jogo.</content>
     <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Aplicar estilo ao IMGUI para tentar replicar o esquema de cores do jogo.</content>
     <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicar esquema de cores do jogo</content>
     <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Modo somente host</content>
@@ -69,4 +69,65 @@
     <content contentuid="hdf197961585844d394b3e372417ac6fd66eg" version="1">Cancelar redefinição da lista</content>
     <content contentuid="h2e8476727f27406c813c00ae59dfd9d08543" version="1">Sugestões</content>
     <content contentuid="h132d4b2d4cd044c8a3956a77f7e3499d0737" version="1">Resete essa configuração para o padrão</content>
+    <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Criado por [1] | Versão [2]</content>
+    <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Não vê a janela do MCM? Veja os passos de resolução de problemas na página do mod.</content>
+    <content contentuid="h3091c7bc2ded42c8929b327a25c2872cb7a3" version="1">Clique para atribuir um novo botão de controle.</content>
+    <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Redefinir</content>
+    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Redefinir para a configuração padrão.</content>
+    <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">Conflito de atalho de tecla</content>
+    <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Pressione as teclas para atribuir [ESC para cancelar | BACKSPACE para remover]</content>
+    <content contentuid="h16ad7918855d487c8537e25a0a951b152bf2" version="1">Botão de controle não atribuído</content>
+    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Atalho de tecla de teclado vazia</content>
+    <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Pesquisar atalhos de teclas:</content>
+    <content contentuid="h7e9b6453340548c29a8f3add8a402bedbe8g" version="1">Nenhum atalho de tecla correspondente encontrado.</content>
+    <content contentuid="h037fe64fb38a45dfb6e3d27ad038f48028a3" version="1">Nome da Ação</content>
+    <content contentuid="h68057d690e2f44ae98c31cb07f8074fb7134" version="1">Entrada de Teclado/Mouse</content>
+    <content contentuid="h40271727516e42d2a921cc3059d313cfd792" version="1">Entrada de Controle</content>
+    <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Clique para atribuir uma nova tecla/botão do mouse.</content>
+    <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Ação: [1]</content>
+    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Conflito de atalho de tecla com a ação: [1]</content>
+    <content contentuid="hb20ef6573e4b42329222dcae8e6809c9ab0c" version="1">Atalhos</content>
+    <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Ajuda & Solução de Problemas</content>
+    <content contentuid="h361dd694cca74b30a87f02d035e35dcac0d4" version="1">Solução e Relato de Problemas</content>
+    <content contentuid="hafec095716ec4208b2319d24b3c230d969d4" version="1">A implementação do IMGUI do Script Extender (SE) ainda está em constante desenvolvimento. Se você estiver tendo problemas:</content>
+    <content contentuid="h11f519e028834967a79753cfe1e6cae28726" version="1">Desative sobreposições (Nvidia/AMD/Discord, etc);</content>
+    <content contentuid="h264b744397944591bbfbcd2c69f57d2b7150" version="1">Se crashar com Vulkan, teste sem outros mods que usam IMGUI (como o MCM)</content>
+    <content contentuid="h28faf9b0ffb34b109f4ad73eaed97833896g" version="1">Verifique se o problema persiste sem outros mods de DLL</content>
+    <content contentuid="h48cad338a0ab4c06bb9060d24a8a5e52e52e" version="1">Certifique-se de que você está usando a versão mais recente do BG3 e o canal Release do SE</content>
+    <content contentuid="h52b099d222d14e21a68cbc088314712856dc" version="1">Relatando Problemas</content>
+    <content contentuid="h2021eb6360bd4cce955f32816edc5b06abdg" version="1">Forneça logs do console do SE - você pode habilitar facilmente o console do SE através das preferências do BG3MM</content>
+    <content contentuid="h4d23bb6e90d2429aa85dea0d7bd5774a79ed" version="1">Inclua configurações do sistema (GPU, CPU, SO)</content>
+    <content contentuid="ha1dd54cb1e754f1099bbf9889210d19c6904" version="1">Descreva o comportamento sob DirectX 11 e Vulkan</content>
+    <content contentuid="hc417ce5922854d5dae5c51d7a3dae9b46f19" version="1">Envie relatórios de falhas se solicitado pelo SE</content>
+    <content contentuid="hcb35f546c52546949cbd5bda88fe2af91656" version="1">Problemas Conhecidos</content>
+    <content contentuid="h90617d43407c4d5d99fe26d08f47934abg89" version="1">UI não aparecendo: teste tanto Vulkan quanto DirectX 11</content>
+    <content contentuid="ha41e66cbd942447c808e6bd19f0ff635f69e" version="1">Ajuda da UI</content>
+    <content contentuid="h504a5f8e7f544190b496bcde61c78dcb7ba6" version="1">Ajuda da UI</content>
+    <content contentuid="hfadac6e330134b9ba8e5e2f1a16cf77cd3bg" version="1">Com o MCM, você pode definir as configurações dos mods que usam o MCM.</content>
+    <content contentuid="h54470141a99c47ba95e92f57da1100de5467" version="1">Para começar, clique em um mod na lista à esquerda.</content>
+    <content contentuid="h126fa009e82d48508463fd049554b08bb8a0" version="1">Navegando nas configurações</content>
+    <content contentuid="hc9997429f80b488a91c26118fd7662a2ae73" version="1">Todas as configurações são salvas automaticamente à medida que você faz alterações.</content>
+    <content contentuid="h28b119e5d1534fa581ad2c7011f8ce7f7577" version="1">Para redefinir uma configuração, clique no botão de redefinir ao lado dela.</content>
+    <content contentuid="had9d11b7951441e3826b571a2a445cc14286" version="1">Você pode usar CTRL + clique em um slider para digitar um valor específico.</content>
+    <content contentuid="he3146562f01e4896b2fbd158587a69d6b33b" version="1">O MCM usa IMGUI, que é uma biblioteca também usada pelo ReShade e outros mods.</content>
+    <content contentuid="he67fc60b9866404a83b49e151d88bf7dg39d" version="1">Para mais informações, visite a página do MCM no Nexus.</content>
+    <content contentuid="h03d35de7f7cf49fcb748f08dd7bd46fb5474" version="1">O MCM é um menu de configuração centralizado para mods de Baldur's Gate 3, permitindo fácil gerenciamento das configurações dos mods.</content>
+    <content contentuid="hbefc18dccd3646c3bee89e1c8a773eee8c44" version="1">Ele é projetado para ser amigável e acessível, proporcionando uma interface consistente para a configuração de mods.</content>
+    <content contentuid="h4a0ed3db05bb46c59094f7d5be8e90fa09d2" version="1">Menu de Configuração de Mods</content>
+    <content contentuid="hf2c6ba6f913344bf8ac81e2a4915213f702g" version="1">Sobre o MCM - Geral</content>
+    <content contentuid="ha3e6f6909b9744fcb28a1be741580718eebc" version="1">É a culminação de meses de trabalho feito principalmente por um único desenvolvedor. Se você achar útil, considere endossá-lo no Nexus Mods e fazer uma doação.</content>
+    <content contentuid="h5bce8e943b4f4effa9f3b5f44caf244360ea" version="1">Sobre o MCM - Licença</content>
+    <content contentuid="h2c396610bbc24069bf3ee724d868fad5g2e7" version="1">Licença</content>
+    <content contentuid="h63f26391dd0c4953b167c927ce04240057c7" version="1">O código do BG3MCM é licenciado sob AGPLv3. Para detalhes, consulte o link do GitHub na descrição do mod.</content>
+    <content contentuid="h9f85429a1ac84568b1c53940d5f28bc1a2e6" version="1">O BG3MCM incorpora código do Compatibility Framework, BG3ModManager e Volition Cabinet, todos licenciados sob a Licença MIT. Além disso, o BG3SE é licenciado sob a Licença MIT com uma Cláusula de Commons adicionada. Cópias dessas licenças estão incluídas nas seções apropriadas do código deste mod.</content>
+    <content contentuid="hd006c103dba44c48bb3826b5dbbe3f6133b1" version="1">Autores de mods e tradutores podem habilitar Donation Points para quaisquer mods que utilizem este framework como dependência e podem usar livremente exemplos fornecidos para ajudar a construir a integração com este mod.</content>
+    <content contentuid="h445fe7fd555e480f9090a0203b1d0a0811g7" version="1">Os termos de licenciamento no Nexus complementam essas permissões. Em casos de sobreposição, o mais rigoroso dos dois termos de licenciamento deve se aplicar.</content>
+    <content contentuid="h4fbe91cade4c4f2f904e55bf12b3ec22egfc" version="1">Agradeço a Norbyte, LaughingLeader, Focus e a equipe CL por disponibilizarem seu código sob licenças tão abertas e permissivas, permitindo uma colaboração contínua na comunidade de modding!</content>
+    <content contentuid="h1fe5d3876dd04389b53f1c4d808d2d02gfce" version="1">Mais Informações</content>
+    <content contentuid="h449f8e9c50fe497e8584a92dc227759a1d5d" version="1">Para mais detalhes, visite a página do MCM no Nexus.</content>
+    <content contentuid="h1574a7787caa4e5f933e2f03125a539c1139" version="1">Hotkeys</content>
+    <content contentuid="h9cc3f92986d24e3e8c1b86eb80023a2b015c" version="1">Aumentar o valor de [1] em 1</content>
+    <content contentuid="h0dab893ad8cc4f1a93e417c7524addecggc4" version="1">Diminuir o valor de [1] em 1</content>
+    <content contentuid="heed976f6e50046c2a583040d9abb6ce6c8g1" version="1">Aumentar o valor de [1] em 1</content>
+    <content contentuid="h9d240caa7bbe4ef482d21f1e691b0597a38g" version="1">Diminuir o valor de [1] em 1</content>
 </contentList>

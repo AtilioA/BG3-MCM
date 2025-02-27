@@ -387,7 +387,8 @@ function IMGUILayer:CreateModMenuFrame(modUUID)
         -- local modDescription = modInfo.Description
         -- local modName = modInfo.Name
 
-        local infoText = "Made by " .. modAuthor .. " | Version " .. modVersion
+        local infoText = VCString:InterpolateLocalizedMessage("h4c3c735aad0f47c8b13ffee7cc7fcc660338", modAuthor,
+            modVersion)
         local modInfoText = uiGroupMod:AddText(infoText)
         modInfoText.TextWrapPos = 0
         modInfoText:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.5))
@@ -605,8 +606,8 @@ function IMGUILayer:CreateKeybindingsPage()
     -- MCMDebug(0, "Creating keybindings page...")
 
     -- Create a dedicated "Hotkeys" menu section via FrameManager.
-    FrameManager:AddMenuSection("Keybindings")
-    FrameManager:CreateMenuButton(FrameManager.menuCell, "Hotkeys", hotkeysUUID)
+    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
+    FrameManager:CreateMenuButton(FrameManager.menuCell, Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
 
     local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
@@ -649,7 +650,7 @@ function IMGUILayer:AddTooltip(imguiObject, tooltipText, uuid)
     imguiObjectTooltip:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
     imguiObjectTooltip:SetStyle("WindowPadding", 15, 15)
     imguiObjectTooltip:SetStyle("PopupBorderSize", 2)
-    imguiObjectTooltip:SetColor("BorderShadow", {0,0,0,0.4})
+    imguiObjectTooltip:SetColor("BorderShadow", { 0, 0, 0, 0.4 })
 
     return imguiObjectTooltip
 end

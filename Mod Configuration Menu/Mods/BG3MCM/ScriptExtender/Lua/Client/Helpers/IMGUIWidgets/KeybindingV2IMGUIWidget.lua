@@ -3,10 +3,9 @@
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
 
-LISTENING_INPUT_STRING = "Press keys to assign [ESC to cancel | BACKSPACE to clear]"
-UNASSIGNED_CONTROLLER_BUTTON_STRING = "Unassigned controller button"
--- UNASSIGNED_KEYBOARD_MOUSE_STRING = "Unassigned KB or Mouse keybinding"
-UNASSIGNED_KEYBOARD_MOUSE_STRING = "Unassigned keyboard keybinding"
+LISTENING_INPUT_STRING = Ext.Loca.GetTranslatedString("h2ea690497b1a4ffea4b2ed480df3654c486f")
+UNASSIGNED_CONTROLLER_BUTTON_STRING = Ext.Loca.GetTranslatedString("h16ad7918855d487c8537e25a0a951b152bf2")
+UNASSIGNED_KEYBOARD_MOUSE_STRING = Ext.Loca.GetTranslatedString("h08c75c996813442bb40fa085f1ecec07f14e")
 
 function KeybindingV2IMGUIWidget:new(group)
     local instance = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
@@ -90,7 +89,7 @@ function KeybindingV2IMGUIWidget:RenderSearchBar()
     local group = self.Widget.Group
     if not self.Widget.DynamicElements.SearchInput then
         group:AddSpacing()
-        group:AddText("Search keybindings:")
+        group:AddText(Ext.Loca.GetTranslatedString("h2f1eda98ddb949d09792e1e1bc45ecddg446"))
         local searchInput = group:AddInputText("", self.Widget.SearchText)
         searchInput.IDContext = "SearchInput"
         searchInput.AutoSelectAll = true
@@ -109,7 +108,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
     self:RenderSearchBar()
 
     if #self.Widget.FilteredActions == 0 then
-        local noResultsText = group:AddText("No matching keybindings found.")
+        local noResultsText = group:AddText(Ext.Loca.GetTranslatedString("h7e9b6453340548c29a8f3add8a402bedbe8g"))
         self.Widget.DynamicElements.NoResultsText = noResultsText
         return
     end
@@ -131,43 +130,50 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     imguiTable.BordersInner = true
     imguiTable.RowBg = true
 
-    imguiTable:AddColumn("Action Name", "WidthFixed", 250)
-    imguiTable:AddColumn("Keyboard/Mouse Input", "WidthFixed", 550)
-    imguiTable:AddColumn("Controller Input", "WidthFixed", 400)
-    imguiTable:AddColumn("Reset", "WidthFixed", 100)
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 250)
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134"), "WidthFixed", 550)
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h40271727516e42d2a921cc3059d313cfd792"), "WidthFixed", 400)
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"), "WidthFixed", 100)
 
     for _, action in ipairs(mod.Actions) do
         local row = imguiTable:AddRow()
         local nameCell = row:AddCell()
         local nameText = nameCell:AddText(action.ActionName)
         nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
-        IMGUILayer:AddTooltip(nameText, "Action: " .. action.ActionName, mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
-        
+        IMGUILayer:AddTooltip(nameText,
+            VCString:InterpolateLocalizedMessage("hf1cfd5663fe044a38ea4747ceb768ff02206", action.ActionName),
+            mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
+
         local kbCell = row:AddCell()
-        local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING)
+        local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
+            UNASSIGNED_KEYBOARD_MOUSE_STRING)
         kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionId
         kbButton.OnClick = function()
             self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
         end
-        IMGUILayer:AddTooltip(kbButton, "Click to assign a new key/mouse button.", mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
-        
+        IMGUILayer:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
+            mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
+
         local ctrlCell = row:AddCell()
         local ctrlBinding = action.ControllerBinding
         if type(ctrlBinding) == "table" then ctrlBinding = ctrlBinding[1] end
-        local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(ctrlBinding) or UNASSIGNED_CONTROLLER_BUTTON_STRING)
+        local ctrlButton = ctrlCell:AddButton(KeyPresentationMapping:GetViewKey(ctrlBinding) or
+            UNASSIGNED_CONTROLLER_BUTTON_STRING)
         ctrlButton.IDContext = mod.ModName .. "_Controller_" .. action.ActionId
         ctrlButton.OnClick = function()
             self:StartListeningForInput(mod, action, "Controller", ctrlButton)
         end
-        IMGUILayer:AddTooltip(ctrlButton, "Click to assign a new controller button.", mod.ModName .. "_Controller_" .. action.ActionId .. "_TOOLTIP")
+        IMGUILayer:AddTooltip(ctrlButton, Ext.Loca.GetTranslatedString("h3091c7bc2ded42c8929b327a25c2872cb7a3"),
+            mod.ModName .. "_Controller_" .. action.ActionId .. "_TOOLTIP")
 
         local resetCell = row:AddCell()
-        local resetButton = resetCell:AddButton("Reset")
+        local resetButton = resetCell:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"))
         resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionId
         resetButton.OnClick = function()
             self:ResetBinding(mod.ModUUID, action.ActionId)
         end
-        IMGUILayer:AddTooltip(resetButton, "Reset to default binding.", mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
+        IMGUILayer:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h497bb04f93734d52a265956df140e77a7add"),
+            mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
         -- Check for conflicts and set text color to red in case of a conflict
         local conflictKB = self:CheckForConflicts(action.KeyboardMouseBinding, mod, action, "KeyboardMouse")
         if conflictKB then
@@ -311,8 +317,10 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     local conflictAction = self:CheckForConflicts(keybinding, modData, action,
         inputType)
     if conflictAction then
-        NotificationManager:CreateIMGUINotification("Keybinding_Conflict", 'warning', "Keybinding Conflict",
-            "Keybinding conflict with action: " .. conflictAction.ActionName, {}, ModuleUUID)
+        NotificationManager:CreateIMGUINotification("Keybinding_Conflict", 'warning',
+            Ext.Loca.GetTranslatedString("h3da76df520324473a863b03cc622ac65fbfd"),
+            VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee", conflictAction.ActionName), {},
+            ModuleUUID)
     end
 
     local registry = KeybindingsRegistry.GetRegistry()
