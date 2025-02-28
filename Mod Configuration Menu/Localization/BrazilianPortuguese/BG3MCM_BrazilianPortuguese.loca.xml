@@ -68,7 +68,7 @@
     <content contentuid="h8886849a4a674633a14df972d408cb71d012" version="1">Não</content>
     <content contentuid="hdf197961585844d394b3e372417ac6fd66eg" version="1">Cancelar redefinição da lista</content>
     <content contentuid="h2e8476727f27406c813c00ae59dfd9d08543" version="1">Sugestões</content>
-    <content contentuid="h132d4b2d4cd044c8a3956a77f7e3499d0737" version="1">Resete essa configuração para o padrão</content>
+    <content contentuid="h132d4b2d4cd044c8a3956a77f7e3499d0737" version="1">Reseta essa configuração para o padrão</content>
     <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Criado por [1] | Versão [2]</content>
     <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Não vê a janela do MCM? Veja os passos de resolução de problemas na página do mod.</content>
     <content contentuid="h3091c7bc2ded42c8929b327a25c2872cb7a3" version="1">Clique para atribuir um novo botão de controle.</content>
@@ -126,8 +126,10 @@
     <content contentuid="h1fe5d3876dd04389b53f1c4d808d2d02gfce" version="1">Mais Informações</content>
     <content contentuid="h449f8e9c50fe497e8584a92dc227759a1d5d" version="1">Para mais detalhes, visite a página do MCM no Nexus.</content>
     <content contentuid="h1574a7787caa4e5f933e2f03125a539c1139" version="1">Hotkeys</content>
-    <content contentuid="h9cc3f92986d24e3e8c1b86eb80023a2b015c" version="1">Aumentar o valor de [1] em 1</content>
-    <content contentuid="h0dab893ad8cc4f1a93e417c7524addecggc4" version="1">Diminuir o valor de [1] em 1</content>
-    <content contentuid="heed976f6e50046c2a583040d9abb6ce6c8g1" version="1">Aumentar o valor de [1] em 1</content>
-    <content contentuid="h9d240caa7bbe4ef482d21f1e691b0597a38g" version="1">Diminuir o valor de [1] em 1</content>
+    <content contentuid="h9cc3f92986d24e3e8c1b86eb80023a2b015c" version="1">Aumentar o valor de '[1]' em 1</content>
+    <content contentuid="h0dab893ad8cc4f1a93e417c7524addecggc4" version="1">Diminuir o valor de '[1]' em 1</content>
+    <content contentuid="heed976f6e50046c2a583040d9abb6ce6c8g1" version="1">Aumentar o valor de '[1]' em 1</content>
+    <content contentuid="h9d240caa7bbe4ef482d21f1e691b0597a38g" version="1">Diminuir o valor de '[1]' em 1</content>
+    <content contentuid="h3914d63b7ccb425f950cea47eca955ad9788" version="1">Min: [1].&lt;br&gt;Max: [2].</content>
+    <content contentuid="h0dfee4b6ba51423da77eaa53e1961ade059f" version="1">CTRL + clique para inserir o valor manualmente.</content>
 </contentList>

@@ -212,7 +212,7 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
     local updatedMessage = currentMessage
 
     -- Gather all dynamic content values passed as varargs.
-    local args = {...}
+    local args = { ... }
 
     -- Iterate over each argument and replace the corresponding placeholder.
     for i, value in ipairs(args) do
@@ -221,6 +221,8 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
     end
 
     -- Update the translated string with the new content during runtime.
-    Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
-    return Ext.Loca.GetTranslatedString(handle)
+    if args.updateHandle then
+        Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
+    end
+    return VCString:ReplaceBrWithNewlines(updatedMessage)
 end

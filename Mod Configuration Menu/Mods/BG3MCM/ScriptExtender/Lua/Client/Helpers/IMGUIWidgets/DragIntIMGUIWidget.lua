@@ -15,11 +15,16 @@ function DragIntIMGUIWidget:UpdateCurrentValue(value)
 end
 
 function DragIntIMGUIWidget:SetupTooltip(widget, setting)
-    local tt = IMGUILayer:AddTooltip(widget, string.format("Min: %.2f", setting.Options.Min), setting.Id .. "_TOOLTIP")
-    tt:AddText(string.format("Max: %.2f", setting.Options.Max))
+    local localizedText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
+        string.format("%s", setting.Options.Min), string.format("%s", setting.Options.Max))
+
+    local tooltipId = setting.Id .. "_TOOLTIP"
+    local tt = IMGUILayer:AddTooltip(widget, localizedText, tooltipId)
+
     if not table.isEmpty(tt.Children) then
         local tooltipSeparator = tt:AddSeparator()
         tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
     end
-    tt:AddText("CTRL + click to input value manually.")
+
+    tt:AddText(Ext.Loca.GetTranslatedString("h0dfee4b6ba51423da77eaa53e1961ade059f"))
 end

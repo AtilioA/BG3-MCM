@@ -607,7 +607,8 @@ function IMGUILayer:CreateKeybindingsPage()
 
     -- Create a dedicated "Hotkeys" menu section via FrameManager.
     FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
-    FrameManager:CreateMenuButton(FrameManager.menuCell, Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
+    FrameManager:CreateMenuButton(FrameManager.menuCell,
+    Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
 
     local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
@@ -642,7 +643,7 @@ end
 ---@param imguiObject ExtuiStyledRenderable
 ---@param tooltipText string
 ---@param uuid string
----@return nil
+---@return ExtuiStyledRenderable
 function IMGUILayer:AddTooltip(imguiObject, tooltipText, uuid)
     local imguiObjectTooltip = imguiObject:Tooltip()
     imguiObjectTooltip.IDContext = uuid .. "_TOOLTIP"

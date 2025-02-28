@@ -52,14 +52,16 @@ function SliderIntIMGUIWidget:UpdateCurrentValue(value)
 end
 
 function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
-    -- Call the base class method first
-    IMGUIWidget.SetupTooltip(self, widget, setting)
+    local localizedText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
+        string.format("%s", setting.Options.Min), string.format("%s", setting.Options.Max))
 
-    local tooltip = IMGUILayer:AddTooltip(widget, string.format("Min: %s", setting.Options.Min), setting.Id .. "_TOOLTIP")
-    tooltip:AddText(string.format("Max: %s", setting.Options.Max))
-    if not table.isEmpty(tooltip.Children) then
-        local tooltipSeparator = tooltip:AddSeparator()
+    local tooltipId = setting.Id .. "_TOOLTIP"
+    local tt = IMGUILayer:AddTooltip(widget, localizedText, tooltipId)
+
+    if not table.isEmpty(tt.Children) then
+        local tooltipSeparator = tt:AddSeparator()
         tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
     end
-    tooltip:AddText("CTRL + click it to input value manually.")
+
+    tt:AddText(Ext.Loca.GetTranslatedString("h0dfee4b6ba51423da77eaa53e1961ade059f"))
 end
