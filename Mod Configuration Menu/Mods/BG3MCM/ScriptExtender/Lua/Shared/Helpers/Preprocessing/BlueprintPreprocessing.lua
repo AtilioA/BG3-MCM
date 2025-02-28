@@ -417,11 +417,11 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         end
     elseif setting.Type == "keybinding_v2" then
         if type(setting.Default) ~= "table" or
-            not (type(setting.Default["Keyboard"]) == "table" and type(setting.Default["Controller"]) == "table") then
+            not (type(setting.Default["Keyboard"]) == "table") then
             MCMWarn(0,
                 "Default value for setting '" ..
                 setting.Id ..
-                "' must be a table containing 'Keyboard' and 'Controller' tables. Please contact " ..
+                "' must be a table containing a 'Keyboard' table. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
@@ -453,22 +453,6 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                         table.concat(SDLKeys.Modifiers, ", "))
                     return false
                 end
-            end
-        end
-
-        -- Validate Controller configuration
-        local controller = setting.Default["Controller"]
-        if not controller.Buttons or type(controller.Buttons) ~= "table" then
-            MCMWarn(0,
-                "Controller.Buttons must be a table. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-        for _, btn in ipairs(controller.Buttons) do
-            if type(btn) ~= "string" or not table.contains(Ext.Enums.SDLControllerButton, btn) then
-                MCMWarn(0,
-                    "Invalid button '" .. btn .. "' in Controller.Buttons for setting '" .. setting.Id .. "'.")
-                return false
             end
         end
     elseif setting.Type == "list_v2" then

@@ -21,9 +21,6 @@
                                 "Keyboard": {
                                     "Key": "INSERT",
                                     "ModifierKeys": []
-                                },
-                                "Controller": {
-                                    "Buttons": []
                                 }
                             },
                             "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",

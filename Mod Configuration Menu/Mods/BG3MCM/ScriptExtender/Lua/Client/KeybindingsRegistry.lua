@@ -26,18 +26,6 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     end
 end
 
-function KeybindingsRegistry.NormalizeControllerBinding(binding)
-    if type(binding) ~= "table" or not binding.Buttons then
-        print("Invalid controller binding, expected a table with a 'Buttons' field.")
-        return nil
-    end
-    local normalizedButtons = {}
-    for _, button in ipairs(binding.Buttons) do
-        table.insert(normalizedButtons, button:gsub("%s+", ""):upper())
-    end
-    return normalizedButtons
-end
-
 --- Registers keybindings for one or more mods.
 --- Expects an array of mod keybinding definitions.
 function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
@@ -50,9 +38,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
                 actionName = action.ActionName,
                 actionId = action.ActionId,
                 keyboardBinding = action.KeyboardMouseBinding,
-                controllerBinding = action.ControllerBinding,
                 defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
-                defaultControllerBinding = action.DefaultControllerBinding,
             }
         end
     end
@@ -69,8 +55,6 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, newBinding, inputT
 
     if inputType == "KeyboardMouse" then
         modTable[actionId].keyboardBinding = newBinding
-    elseif inputType == "Controller" then
-        modTable[actionId].controllerBinding = newBinding
     end
     keybindingsSubject:OnNext(registry)
     return true
@@ -86,8 +70,6 @@ function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, call
 
     if inputType == "KeyboardMouse" then
         modTable[actionId].keyboardCallback = callback
-    elseif inputType == "Controller" then
-        modTable[actionId].controllerCallback = callback
     end
     keybindingsSubject:OnNext(registry)
     return true
@@ -120,7 +102,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
                 duration = 10,
                 dontShowAgainButton = false
             }, ModuleUUID)
-            MCMClientState:ToggleMCMWindow(false)
+        MCMClientState:ToggleMCMWindow(false)
         if triggered[1].keyboardCallback then
             triggered[1].keyboardCallback(e)
         end
@@ -129,24 +111,6 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
             MCMPrint(1, "Dispatching keyboard binding for mod '" ..
                 triggered[1].modUUID .. "', action '" .. triggered[1].actionName .. "'.")
             triggered[1].keyboardCallback(e)
-        end
-    end
-end
-
---- Dispatch a controller event.
-function KeybindingsRegistry.DispatchControllerEvent(e)
-    if not e.Pressed then return end
-    local normalized = ("CONTROLLER" .. tostring(e.Button)):gsub("%s+", ""):upper()
-    for modUUID, actions in pairs(registry) do
-        for actionId, binding in pairs(actions) do
-            if binding.controllerBinding == normalized then
-                print(string.format(
-                    "[KeybindingsRegistry] Dispatching controller binding '%s' for mod '%s', action '%s'.",
-                    normalized, modUUID, actionId))
-                if binding.controllerCallback then
-                    binding.controllerCallback(e)
-                end
-            end
         end
     end
 end

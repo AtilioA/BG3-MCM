@@ -551,7 +551,6 @@ end
 ------------------------------------------------------------
 function IMGUILayer:GetAllKeybindings()
     local keybindings = {}
-    -- Iterate over each mod loaded
     for modUUID, modData in pairs(self.mods) do
         local blueprint = modData.blueprint
         if blueprint then
@@ -560,9 +559,7 @@ function IMGUILayer:GetAllKeybindings()
             for settingId, setting in pairs(allSettings) do
                 if setting:GetType() == "keybinding_v2" then
                     local currentBinding = modData.settingsValues[settingId]
-                    -- Use the saved binding if present; otherwise fallback to blueprint defaults.
                     local keyboardBinding = nil
-                    local controllerBinding = nil
                     if currentBinding and currentBinding.Keyboard then
                         keyboardBinding = currentBinding.Keyboard
                         MCMDebug(1, "Using saved keyboard binding for setting: " .. settingId)
@@ -571,32 +568,21 @@ function IMGUILayer:GetAllKeybindings()
                             { Key = "", ModifierKeys = { "NONE" } }
                         MCMDebug(1, "Falling back to default keyboard binding for setting: " .. settingId)
                     end
-                    if currentBinding and currentBinding.Controller then
-                        controllerBinding = currentBinding.Controller
-                        MCMDebug(1, "Using saved controller binding for setting: " .. settingId)
-                    else
-                        controllerBinding = setting.Default and setting.Default.Controller or ""
-                        MCMDebug(1, "Falling back to default controller binding for setting: " .. settingId)
-                    end
 
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
                         ActionName = setting.Name,
                         KeyboardMouseBinding = keyboardBinding,
-                        ControllerBinding = controllerBinding,
                         DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
                             { Key = "", ModifierKeys = { "NONE" } },
-                        DefaultControllerBinding = setting.Default and setting.Default.Controller or ""
                     })
                 end
             end
             if #modKeybindings.Actions > 0 then
-                -- MCMDebug(1, "Adding keybindings for mod: " .. modUUID)
                 table.insert(keybindings, modKeybindings)
             end
         end
     end
-    -- MCMDebug(1, "Total keybindings collected: " .. #keybindings)
     return keybindings
 end
 
@@ -608,7 +594,7 @@ function IMGUILayer:CreateKeybindingsPage()
     -- Create a dedicated "Hotkeys" menu section via FrameManager.
     FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
     FrameManager:CreateMenuButton(FrameManager.menuCell,
-    Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
+        Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
 
     local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup

@@ -11,9 +11,8 @@ function KeybindingV2Validator.Validate(config, value)
         return false
     end
 
-    -- At least one of Keyboard or Controller must be present.
-    if not value.Key and not value.Controller then
-        MCMWarn(0, "Validation failed: neither Keyboard nor Controller is present.")
+    if not value.Keyboard then
+        MCMWarn(0, "Validation failed: Keyboard key is not present.")
         return false
     end
 
@@ -42,32 +41,6 @@ function KeybindingV2Validator.Validate(config, value)
                 end
             end
         end
-    end
-
-    -- Validate Controller configuration if provided
-    if value.Controller then
-        if type(value.Controller) ~= "table" then
-            MCMWarn(0, "Validation failed: Controller configuration is not a table.")
-            return false
-        end
-
-        local buttons = value.Controller.Buttons
-        if type(buttons) ~= "table" then
-            MCMWarn(0, "Validation failed: Buttons table is invalid.")
-            return false
-        end
-        -- TODO: fix button validation
-        -- for _, btn in ipairs(buttons) do
-        --     _D(btn)
-        --     if type(btn) ~= "string" then
-        --         MCMWarn(0, "Validation failed: Button '" .. tostring(btn) .. "' is not a string.")
-        --         return false
-        --     end
-        --     if not table.contains(Ext.Enums.SDLControllerButton, btn) then
-        --         MCMWarn(0, "Validation failed: Invalid controller button '" .. tostring(btn) .. "'.")
-        --         return false
-        --     end
-        -- end
     end
 
     MCMDebug(1, "Validation succeeded for keybinding configuration.")

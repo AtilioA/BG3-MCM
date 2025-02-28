@@ -71,19 +71,16 @@
     <content contentuid="h132d4b2d4cd044c8a3956a77f7e3499d0737" version="1">Reseta essa configuração para o padrão</content>
     <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Criado por [1] | Versão [2]</content>
     <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Não vê a janela do MCM? Veja os passos de resolução de problemas na página do mod.</content>
-    <content contentuid="h3091c7bc2ded42c8929b327a25c2872cb7a3" version="1">Clique para atribuir um novo botão de controle.</content>
     <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Redefinir</content>
     <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Redefinir para a configuração padrão.</content>
     <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">Conflito de atalho de tecla</content>
     <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Pressione as teclas para atribuir [ESC para cancelar | BACKSPACE para remover]</content>
-    <content contentuid="h16ad7918855d487c8537e25a0a951b152bf2" version="1">Botão de controle não atribuído</content>
-    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Atalho de tecla de teclado vazia</content>
-    <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Pesquisar atalhos de teclas:</content>
+    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Atalho de teclado vazio</content>
+    <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Pesquisar atalhos de teclado:</content>
     <content contentuid="h7e9b6453340548c29a8f3add8a402bedbe8g" version="1">Nenhum atalho de tecla correspondente encontrado.</content>
     <content contentuid="h037fe64fb38a45dfb6e3d27ad038f48028a3" version="1">Nome da Ação</content>
     <content contentuid="h68057d690e2f44ae98c31cb07f8074fb7134" version="1">Entrada de Teclado/Mouse</content>
-    <content contentuid="h40271727516e42d2a921cc3059d313cfd792" version="1">Entrada de Controle</content>
-    <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Clique para atribuir uma nova tecla/botão do mouse.</content>
+    <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Clique para atribuir uma nova tecla.</content>
     <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Ação: [1]</content>
     <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Conflito de atalho de tecla com a ação: [1]</content>
     <content contentuid="hb20ef6573e4b42329222dcae8e6809c9ab0c" version="1">Atalhos</content>

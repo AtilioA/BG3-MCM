@@ -146,19 +146,6 @@ KeyPresentationMapping.Mapping = {
     KP_DIVIDE      = "Keypad /",
     KP_PERIOD      = "Keypad .",
     KP_EQUALS      = "Keypad =",
-
-    -- Controller mappings
-    DPadLeft       = "DPad Left",
-    DPadRight      = "DPad Right",
-    DPadUp         = "DPad Up",
-    DPadDown       = "DPad Down",
-    Back           = "Back",
-    Guide          = "Guide",
-    Start          = "Start",
-    LeftStick      = "Left Stick",
-    RightStick     = "Right Stick",
-    LeftShoulder   = "Left Shoulder",
-    RightShoulder  = "Right Shoulder",
 }
 
 --- Returns the presentation string for a given SDL key.

@@ -600,47 +600,6 @@
                                                     "Button"
                                                 ],
                                                 "additionalProperties": false
-                                            },
-                                            "Controller": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "Buttons": {
-                                                        "type": "array",
-                                                        "minItems": 1,
-                                                        "items": {
-                                                            "type": "string",
-                                                            "minLength": 1,
-                                                            "enum": [
-                                                                "A",
-                                                                "B",
-                                                                "Back",
-                                                                "DPadDown",
-                                                                "DPadLeft",
-                                                                "DPadRight",
-                                                                "DPadUp",
-                                                                "Guide",
-                                                                "LeftShoulder",
-                                                                "LeftStick",
-                                                                "Misc1",
-                                                                "Paddle1",
-                                                                "Paddle2",
-                                                                "Paddle3",
-                                                                "Paddle4",
-                                                                "RightShoulder",
-                                                                "RightStick",
-                                                                "Start",
-                                                                "Touchpad",
-                                                                "X",
-                                                                "Y"
-                                                            ]
-                                                        },
-                                                        "description": "Controller buttons for the controller binding."
-                                                    }
-                                                },
-                                                "required": [
-                                                    "Buttons"
-                                                ],
-                                                "additionalProperties": false
                                             }
                                         },
                                         "anyOf": [
@@ -656,11 +615,6 @@
                                                             "Mouse"
                                                         ]
                                                     }
-                                                ]
-                                            },
-                                            {
-                                                "required": [
-                                                    "Controller"
                                                 ]
                                             }
                                         ],
@@ -892,12 +846,6 @@
                         // NOTE: Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence.
                         "Mouse": {
                             "Button": "1"
-                        },
-                        "Controller": {
-                            "Buttons": [
-                                "LeftShoulder",
-                                "A"
-                            ]
                         }
                     },
                     "Tooltip": "This is a keybinding setting.",

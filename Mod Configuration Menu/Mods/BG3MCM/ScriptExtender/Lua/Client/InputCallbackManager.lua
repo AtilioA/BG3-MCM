@@ -7,7 +7,6 @@ InputCallbackManager = {}
 
 -- Create ReactiveX subjects to wrap input events.
 InputCallbackManager._KeyInputSubject = RX.Subject.Create()
-InputCallbackManager._ControllerInputSubject = RX.Subject.Create()
 
 -- Table to hold pending callback registrations.
 InputCallbackManager._PendingKeybindingCallbacks = {}
@@ -49,16 +48,10 @@ function InputCallbackManager.Initialize()
             InputCallbackManager._KeyInputSubject:OnNext(e)
         end
     end)
-    Ext.Events.ControllerButtonInput:Subscribe(function(e)
-        InputCallbackManager._ControllerInputSubject:OnNext(e)
-    end)
 
     -- Subscribe to local subjects so that input events are dispatched via the registry.
     InputCallbackManager._KeyInputSubject:Subscribe(function(e)
         KeybindingsRegistry.DispatchKeyboardEvent(e)
-    end)
-    InputCallbackManager._ControllerInputSubject:Subscribe(function(e)
-        KeybindingsRegistry.DispatchControllerEvent(e)
     end)
 end
 
@@ -70,29 +63,11 @@ function InputCallbackManager.RegisterKeybinding(modUUID, actionId, callback)
     return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "KeyboardMouse", callback)
 end
 
---- Registers a controller callback.
-function InputCallbackManager.RegisterControllerBinding(modUUID, actionId, controllerBinding, callback)
-    if not KeybindingsRegistry.UpdateBinding(modUUID, actionId, controllerBinding, "Controller") then
-        return false
-    end
-    return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "Controller", callback)
-end
-
 --- Unregisters the keyboard callback.
 function InputCallbackManager.UnregisterKeybinding(modUUID, actionId)
     local reg = KeybindingsRegistry.GetRegistry()
     if reg[modUUID] and reg[modUUID][actionId] then
         reg[modUUID][actionId].keyboardCallback = nil
-        return true
-    end
-    return false
-end
-
---- Unregisters the controller callback.
-function InputCallbackManager.UnregisterControllerBinding(modUUID, actionId)
-    local reg = KeybindingsRegistry.GetRegistry()
-    if reg[modUUID] and reg[modUUID][actionId] then
-        reg[modUUID][actionId].controllerCallback = nil
         return true
     end
     return false
