@@ -118,15 +118,14 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 end
 
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
-    local columns = 4
+    local columns = 3
     local imguiTable = modGroup:AddTable("", columns)
     imguiTable.BordersOuter = true
     imguiTable.BordersInner = true
     imguiTable.RowBg = true
 
     -- Define the columns: Action, Description, Keybinding, and Reset.
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 500)
-    imguiTable:AddColumn("Description", "WidthFixed", 500)
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 700)
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134"), "WidthFixed", 600)
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"), "WidthFixed", 200)
 
@@ -136,17 +135,15 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         -- Action Name cell.
         local nameCell = row:AddCell()
         local nameText = nameCell:AddText(action.ActionName)
+        nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
+        local descriptionText = nameCell:AddText(VCString:ReplaceBrWithNewlines(action.Description))
         nameText.TextWrapPos = 0
+        descriptionText.TextWrapPos = 0
         nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
+        descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
         IMGUILayer:AddTooltip(nameText,
             VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
             mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
-
-        -- Description cell with text wrap
-        local descCell = row:AddCell()
-        local descText = descCell:AddText(VCString:ReplaceBrWithNewlines(action.Description))
-        descText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
-        descText.TextWrapPos = 0
 
         -- Keybinding cell.
         local kbCell = row:AddCell()
