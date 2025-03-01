@@ -575,7 +575,7 @@ function IMGUILayer:GetAllKeybindings()
                     local tooltip = setting:GetTooltip()
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
-                        ActionName = setting.Name,
+                        ActionName = setting:GetLocaName(),
                         KeyboardMouseBinding = keyboardBinding,
                         DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
                             { Key = "", ModifierKeys = { "NONE" } },
