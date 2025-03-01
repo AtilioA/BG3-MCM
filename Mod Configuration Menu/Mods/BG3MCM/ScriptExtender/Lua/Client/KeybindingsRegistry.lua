@@ -42,6 +42,8 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
                 actionId = action.ActionId,
                 keyboardBinding = action.KeyboardMouseBinding,
                 defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
+                description = action.Description,
+                tooltip = action.Tooltip
             }
         end
     end

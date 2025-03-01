@@ -48,20 +48,21 @@ function KeybindingV2IMGUIWidget:FilterActions()
         local filteredActions = {}
         for actionId, binding in pairs(actions) do
             local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
-            local matchesActionName = VCString:FuzzyMatch(actions[actionId].actionName:upper(), searchText)
-            -- TODO: fix fuzzy search with keybindings
-            -- _D(binding.keyboardBinding)
+            local matchesActionName = VCString:FuzzyMatch(binding.actionName:upper(), searchText)
+            local matchesDescription = VCString:FuzzyMatch(binding.description:upper(), searchText)
+            local matchesTooltip = VCString:FuzzyMatch(binding.tooltip:upper(), searchText)
             local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
                 VCString:FuzzyMatch(binding.keyboardBinding.Key:upper(), searchText) and
-                binding.keyboardBinding.ModifierKeys --and
-            -- VCString:FuzzyMatch(binding.keyboardBinding.ModifierKeys:upper(), searchText)
-            if searchText == "" or matchesModName or matchesActionName or matchesKeyboard then
+                binding.keyboardBinding.ModifierKeys
+            if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesDescription or matchesTooltip then
                 table.insert(filteredActions, {
                     ModUUID = modUUID,
                     ActionName = binding.actionName,
                     ActionId = actionId,
                     KeyboardMouseBinding = binding.keyboardBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
+                    Description = binding.description,
+                    Tooltip = binding.tooltip
                 })
             end
         end
@@ -132,9 +133,13 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         local nameCell = row:AddCell()
         local nameText = nameCell:AddText(action.ActionName)
         nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
-        IMGUILayer:AddTooltip(nameText,
-            VCString:InterpolateLocalizedMessage("hf1cfd5663fe044a38ea4747ceb768ff02206", action.ActionName),
-            mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
+        -- Use the provided description or tooltip for the keybinding.
+        local tooltipText = action.Tooltip
+        if tooltipText == "" then
+            tooltipText = action.Description
+        end
+        IMGUILayer:AddTooltip(nameText, VCString:ReplaceBrWithNewlines(tooltipText),
+        mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
 
         local kbCell = row:AddCell()
         local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or

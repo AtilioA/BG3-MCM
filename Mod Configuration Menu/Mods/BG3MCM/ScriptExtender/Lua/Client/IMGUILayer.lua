@@ -569,12 +569,16 @@ function IMGUILayer:GetAllKeybindings()
                         MCMDebug(1, "Falling back to default keyboard binding for setting: " .. settingId)
                     end
 
+                    local description = setting:GetDescription()
+                    local tooltip = setting:GetTooltip()
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
                         ActionName = setting.Name,
                         KeyboardMouseBinding = keyboardBinding,
                         DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
                             { Key = "", ModifierKeys = { "NONE" } },
+                        Description = description,
+                        Tooltip = tooltip
                     })
                 end
             end

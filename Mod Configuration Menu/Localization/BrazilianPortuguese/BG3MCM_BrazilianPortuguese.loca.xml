@@ -129,6 +129,6 @@
     <content contentuid="h9d240caa7bbe4ef482d21f1e691b0597a38g" version="1">Diminuir o valor de '[1]' em 1</content>
     <content contentuid="h3914d63b7ccb425f950cea47eca955ad9788" version="1">Min: [1].&lt;br&gt;Max: [2].</content>
     <content contentuid="h0dfee4b6ba51423da77eaa53e1961ade059f" version="1">CTRL + clique para inserir o valor manualmente.</content>
-    <content contentuid="hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d" version="1">Reinicializa a máquina virtual Lua do servidor e do cliente.</content>
+    <content contentuid="hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d" version="1">Reinicia a máquina virtual Lua do servidor e do cliente.</content>
     <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua</content>
 </contentList>
