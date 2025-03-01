@@ -62,7 +62,7 @@ function IMGUIAPI:InsertListV2Suggestions(settingId, suggestions, modUUID)
     -- Step 1: Find the widget corresponding to the setting
     local widget = self:findWidgetForSetting(settingId, modUUID)
     if not widget then
-        MCMWarn("IMGUIAPI:InsertListV2Suggestions - Widget not found for settingId: " ..
+        MCMWarn(0, "IMGUIAPI:InsertListV2Suggestions - Widget not found for settingId: " ..
             settingId .. " and modUUID: " .. modUUID)
         return
     end
