@@ -19,11 +19,6 @@ local function handleKeyInput(e)
             return
         end
 
-        if e.Key == "R" then
-            Ext.Debug.Reset()
-            return
-        end
-
         return
     end
 end

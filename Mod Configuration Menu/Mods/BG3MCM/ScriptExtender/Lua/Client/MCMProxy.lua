@@ -107,5 +107,6 @@ end
 
 function MCMProxy:RegisterMCMKeybindings()
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_keybinding",
-    function() IMGUILayer:ToggleMCMWindow(true) end)
+        function() IMGUILayer:ToggleMCMWindow(true) end)
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_se", function() Ext.Debug.Reset() end)
 end

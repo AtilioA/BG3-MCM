@@ -118,6 +118,24 @@
                                 "NameHandle": "h676e89908a8543c18ca789ec673306febb93",
                                 "DescriptionHandle": "h8bc90105aaff4addaebee525051bde958a87"
                             }
+                        },
+                        {
+                            "Id": "reset_lua",
+                            "Name": "Reset Lua",
+                            "Type": "keybinding_v2",
+                            "Description": "Reinitializes the server and client Lua VM.",
+                            "Handles": {
+                                "NameHandle": "hf4378b0d0a444adf974ddb7c5316e111dfc3",
+                                "DescriptionHandle": "hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d"
+                            },
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "",
+                                    "ModifierKeys": [
+                                        ""
+                                    ]
+                                }
+                            }
                         }
                     ],
                     "Handles": {
