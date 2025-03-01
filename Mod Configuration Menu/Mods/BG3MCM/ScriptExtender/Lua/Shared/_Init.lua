@@ -1,7 +1,16 @@
 local function updateLoca()
     for _, file in ipairs({ "BG3MCM_English.loca" }) do
         local fileName = string.format("Localization/English/%s.xml", file)
-        local contents = Ext.IO.LoadFile(fileName, "data")
+        local contents
+
+        local success, err = pcall(function()
+            contents = Ext.IO.LoadFile(fileName, "data")
+        end)
+
+        if not success then
+            MCMWarn(2, "Error loading loca file: " .. err)
+            return
+        end
 
         if not contents then
             MCMWarn(1, "Failed to load loca file: " .. fileName)
@@ -22,7 +31,7 @@ local function updateLoca()
 end
 
 if Ext.Debug.IsDeveloperMode() then
-    -- updateLoca()
+    updateLoca()
 end
 
 ---Ext.Require files at the path
