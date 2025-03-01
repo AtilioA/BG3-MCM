@@ -97,28 +97,59 @@ function FrameManager:GetModTabBar(modUUID)
     return nil
 end
 
---- Insert a new tab for a mod in the MCM
----@param modUUID string The UUID of the mod
----@param tabName string The name of the tab to be inserted
----@param tabCallback function The callback function to create the tab
----@return nil
-function FrameManager:InsertModTab(modUUID, tabName, tabCallback)
+function FrameManager:CreateModTab(modUUID, tabName)
     if not MCM_WINDOW then
-        return
+        return nil
     end
-    local modTabBar = FrameManager:GetModTabBar(modUUID)
 
+    -- Get the mod tab bar
+    local modTabBar = self:GetModTabBar(modUUID)
     if not modTabBar then
         local modData = Ext.Mod.GetMod(modUUID)
-        MCMWarn(0, "'InsertModTab' called before any modTabBar created: " .. modData.Info.Name .. ". Please contact " ..
+        MCMWarn(0, "Tab creation called before any modTabBar created: " ..
+            modData.Info.Name .. ". Please contact " ..
             Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-        return
+        return nil
     end
 
+    -- Create the tab
     local newTab = modTabBar:AddTabItem(tabName)
     newTab.IDContext = modUUID .. "_" .. tabName
-
     newTab.UserData = newTab.UserData or {}
+
+    -- Set standard activation handler
+    newTab.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tabName)
+        ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
+            modUUID = modUUID,
+            tabName = tabName
+        })
+    end
+
+    return newTab
+end
+
+-- Create a tab with disclaimer text
+function FrameManager:CreateTabWithDisclaimer(modUUID, tabName, disclaimerLocaKey)
+    -- Reuse the common tab creation logic
+    local newTab = self:CreateModTab(modUUID, tabName)
+    if not newTab then return nil end
+
+    -- Add the disclaimer text
+    local tempTextDisclaimer = Ext.Loca.GetTranslatedString(disclaimerLocaKey)
+    local addTempText = newTab:AddText(tempTextDisclaimer)
+    addTempText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+    addTempText.TextWrapPos = 0
+
+    return newTab
+end
+
+-- Insert a tab with a callback
+function FrameManager:InsertModTab(modUUID, tabName, tabCallback)
+    local newTab = self:CreateModTab(modUUID, tabName)
+    if not newTab then return nil end
+
+    -- Apply the callback if provided
     if tabCallback and not newTab.UserData["Callback"] then
         newTab.UserData.Callback = tabCallback
         tabCallback(newTab)
@@ -126,14 +157,6 @@ function FrameManager:InsertModTab(modUUID, tabName, tabCallback)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
             tabName = tabName,
-        })
-    end
-
-    newTab.OnActivate = function()
-        MCMDebug(3, "Activating tab " .. tabName)
-        ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
-            modUUID = modUUID,
-            tabName = tabName
         })
     end
 
