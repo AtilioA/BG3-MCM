@@ -22,7 +22,7 @@ local function updateLoca()
 end
 
 if Ext.Debug.IsDeveloperMode() then
-    updateLoca()
+    -- updateLoca()
 end
 
 ---Ext.Require files at the path
