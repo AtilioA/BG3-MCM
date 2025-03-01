@@ -123,8 +123,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     imguiTable.BordersInner = true
     imguiTable.RowBg = true
 
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 600)
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134"), "WidthFixed", 700)
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 700)
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134"), "WidthFixed", 600)
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"), "WidthFixed", 200)
 
     for _, action in ipairs(mod.Actions) do
