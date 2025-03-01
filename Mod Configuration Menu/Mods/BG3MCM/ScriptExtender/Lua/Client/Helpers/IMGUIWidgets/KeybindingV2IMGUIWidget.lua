@@ -204,6 +204,9 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
     if not self.Widget.ListeningForInput then
         return
     end
+    e:PreventAction()
+    e:StopPropagation()
+
     self.PressedKeys = self.PressedKeys or {}
     self.AllPressedKeys = self.AllPressedKeys or {}
 
