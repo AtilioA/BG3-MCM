@@ -84,7 +84,7 @@
     <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Ação: [1]</content>
     <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Conflito de atalho de tecla com a ação: [1]</content>
     <content contentuid="hb20ef6573e4b42329222dcae8e6809c9ab0c" version="1">Atalhos de teclado</content>
-    <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Ajuda & solução de problemas</content>
+    <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Ajuda &amp; solução de problemas</content>
     <content contentuid="h361dd694cca74b30a87f02d035e35dcac0d4" version="1">Solução e relato de problemas</content>
     <content contentuid="hafec095716ec4208b2319d24b3c230d969d4" version="1">A implementação do IMGUI do Script Extender (SE) ainda está em constante desenvolvimento. Se você estiver tendo problemas:</content>
     <content contentuid="h11f519e028834967a79753cfe1e6cae28726" version="1">Desative sobreposições (Nvidia/AMD/Discord, etc);</content>
