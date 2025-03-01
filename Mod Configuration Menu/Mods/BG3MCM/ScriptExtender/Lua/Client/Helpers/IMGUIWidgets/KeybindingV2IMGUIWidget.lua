@@ -44,7 +44,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
     local registry = KeybindingsRegistry.GetRegistry()
 
     for modUUID, actions in pairs(registry) do
-        local modName = Ext.Mod.GetMod(modUUID).Info.Name
+        local modName = MCMClientState:GetModName(modUUID)
         local filteredActions = {}
         for actionId, binding in pairs(actions) do
             local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
@@ -109,7 +109,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 
     for _, mod in ipairs(self.Widget.FilteredActions) do
         -- TODO: fetch name elsewhere
-        local modHeader = group:AddCollapsingHeader(Ext.Mod.GetMod(mod.ModUUID).Info.Name)
+        local modHeader = group:AddCollapsingHeader(MCMClientState:GetModName(mod.ModUUID))
         modHeader.DefaultOpen = true
         modHeader.IDContext = mod.ModName .. "_CollapsingHeader"
         self:RenderKeybindingTable(modHeader, mod)
@@ -118,29 +118,37 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 end
 
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
-    local columns = 3
+    local columns = 4
     local imguiTable = modGroup:AddTable("", columns)
     imguiTable.BordersOuter = true
     imguiTable.BordersInner = true
     imguiTable.RowBg = true
 
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 700)
+    -- Define the columns: Action, Description, Keybinding, and Reset.
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 500)
+    imguiTable:AddColumn("Description", "WidthFixed", 500)
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134"), "WidthFixed", 600)
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"), "WidthFixed", 200)
 
     for _, action in ipairs(mod.Actions) do
         local row = imguiTable:AddRow()
+
+        -- Action Name cell.
         local nameCell = row:AddCell()
         local nameText = nameCell:AddText(action.ActionName)
+        nameText.TextWrapPos = 0
         nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
-        -- Use the provided description or tooltip for the keybinding.
-        local tooltipText = action.Tooltip
-        if tooltipText == "" then
-            tooltipText = action.Description
-        end
-        IMGUILayer:AddTooltip(nameText, VCString:ReplaceBrWithNewlines(tooltipText),
-        mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
+        IMGUILayer:AddTooltip(nameText,
+            VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
+            mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
 
+        -- Description cell with text wrap
+        local descCell = row:AddCell()
+        local descText = descCell:AddText(VCString:ReplaceBrWithNewlines(action.Description))
+        descText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
+        descText.TextWrapPos = 0
+
+        -- Keybinding cell.
         local kbCell = row:AddCell()
         local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
             UNASSIGNED_KEYBOARD_MOUSE_STRING)
@@ -151,6 +159,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         IMGUILayer:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
             mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
 
+        -- Reset button cell.
         local resetCell = row:AddCell()
         local resetButton = resetCell:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"))
         resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionId
@@ -159,7 +168,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         end
         IMGUILayer:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h497bb04f93734d52a265956df140e77a7add"),
             mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
-        -- Check for conflicts and set text color to red in case of a conflict
+
+        -- If there is a conflict, color the keybinding button red.
         local conflictKB = self:CheckForConflicts(action.KeyboardMouseBinding, mod, action, "KeyboardMouse")
         if conflictKB then
             kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))

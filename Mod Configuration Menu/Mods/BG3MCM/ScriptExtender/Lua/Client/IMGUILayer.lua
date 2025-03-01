@@ -156,6 +156,8 @@ function IMGUILayer:GetModName(modUUID)
     if self.mods[modUUID] and self.mods[modUUID].blueprint then
         return self.mods[modUUID].blueprint:GetModName()
     end
+
+    return nil
 end
 
 function IMGUILayer:GetClientStateValue(settingId, modUUID)
