@@ -79,8 +79,8 @@ function MainMenu.CreateMainMenu()
         local MCMModInfo = Ext.Mod.GetMod(ModuleUUID).Info
         local modAuthor = MCMModInfo.Author
         local modVersion = table.concat(MCMModInfo.ModVersion, ".")
-        aboutPopupGeneral:AddSeparatorText(Ext.Loca.GetTranslatedString("h4a0ed3db05bb46c59094f7d5be8e90fa09d2") ..
-            modVersion .. Ext.Loca.GetTranslatedString(" by ") .. modAuthor)
+        aboutPopupGeneral:AddSeparatorText(VCString:InterpolateLocalizedMessage("h4a0ed3db05bb46c59094f7d5be8e90fa09d2",
+        modVersion, modAuthor))
         -- local aboutPopupDescription = MCM_WINDOW:AddPopup("About MCM - Description")
         -- aboutPopupGeneral:AddSeparatorText("Description")
         aboutPopupGeneral:AddText(
