@@ -17,5 +17,6 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
         MCMDependencies:WarnAboutLoadOrderDependencies()
         MCMDependencies:WarnAboutNPAKM()
+        MCMConflicts:WarnAboutLoadOrderConflicts()
     end
 end)

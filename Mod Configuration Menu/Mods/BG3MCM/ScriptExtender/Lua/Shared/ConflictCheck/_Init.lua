@@ -1,0 +1,3 @@
+RequireFiles("Shared/ConflictCheck/", {
+    "ConflictCheck",
+})
