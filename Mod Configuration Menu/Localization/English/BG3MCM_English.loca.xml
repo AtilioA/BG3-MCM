@@ -72,6 +72,20 @@
     <content contentuid="h2e8476727f27406c813c00ae59dfd9d08543" version="1">Suggestions</content>
     <content contentuid="h132d4b2d4cd044c8a3956a77f7e3499d0737" version="1">Reset this setting to its default</content>
     <content contentuid="hb20ef6573e4b42329222dcae8e6809c9ab0c" version="1">Keybindings</content>
+    <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Created by [1] | Version [2]</content>
+    <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Don't see the MCM window? Check the troubleshooting steps on the mod page.</content>
+    <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Reset</content>
+    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Reset to default settings.</content>
+    <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">Keybinding conflict</content>
+    <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Press keys to assign [ESC to cancel | BACKSPACE to remove]</content>
+    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Empty keyboard shortcut</content>
+    <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Search keybindings:</content>
+    <content contentuid="h7e9b6453340548c29a8f3add8a402bedbe8g" version="1">No matching keyboard shortcut found.</content>
+    <content contentuid="h037fe64fb38a45dfb6e3d27ad038f48028a3" version="1">Action Name</content>
+    <content contentuid="h68057d690e2f44ae98c31cb07f8074fb7134" version="1">Keyboard input</content>
+    <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Click to assign a new key combination.</content>
+    <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Action: [1]</content>
+    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Keybinding conflict with action: [1]</content>
     <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Help &amp; Troubleshooting</content>
     <content contentuid="h361dd694cca74b30a87f02d035e35dcac0d4" version="1">Troubleshooting and Reporting</content>
     <content contentuid="hafec095716ec4208b2319d24b3c230d969d4" version="1">Script Extender's (SE) IMGUI implementation is in constant development. If you're having issues:</content>
