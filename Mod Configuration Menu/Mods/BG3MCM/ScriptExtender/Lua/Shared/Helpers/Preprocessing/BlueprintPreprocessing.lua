@@ -267,6 +267,10 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                 if not self:ValidateSliderSetting(setting) then
                     return false
                 end
+            elseif settingType == "keybinding_v2" then
+                if not self:ValidateKeybindingV2Setting(setting) then
+                    return false
+                end
             end
         end
     end
@@ -320,6 +324,16 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
         return false
     end
 
+    return true
+end
+
+function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
+    if setting.Options and setting.Options.AllowRepeating ~= nil and type(setting.Options.AllowRepeating) ~= "boolean" then
+        MCMWarn(0,
+            "Options.AllowRepeating for keybinding_v2 setting '" .. setting.Id .. "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
     return true
 end
 

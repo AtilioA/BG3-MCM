@@ -42,6 +42,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
                 actionId = action.ActionId,
                 keyboardBinding = action.KeyboardMouseBinding,
                 defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
+                allowRepeating = action.allowRepeating,
                 description = action.Description,
                 tooltip = action.Tooltip
             }
@@ -82,12 +83,15 @@ end
 
 --- Dispatch a keyboard event.
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
+    -- REVIEW: allow keydown or keyup selection?
     if e.Event ~= "KeyDown" then return end
+
     local triggered = {}
     -- Collect all bindings that match the key event.
-    for modUUID, actions in pairs(registry) do
-        for actionId, binding in pairs(actions) do
-            if binding.keyboardBinding and KeybindingManager and
+    for _modUUID, actions in pairs(registry) do
+        for _actionId, binding in pairs(actions) do
+            -- TODO: allow configurable repeat events (author-defined)
+            if binding.keyboardBinding and (not e.Repeat or binding.allowRepeating) and
                 KeybindingManager:IsKeybindingPressed(e, {
                     ScanCode = binding.keyboardBinding.Key,
                     Modifier = binding.keyboardBinding.ModifierKeys

@@ -43,10 +43,7 @@ end
 function InputCallbackManager.Initialize()
     -- Subscribe to Ext.Events and push events into local subjects.
     Ext.Events.KeyInput:Subscribe(function(e)
-        -- TODO: allow configurable repeat events (author-defined)
-        if e.Repeat == false then
-            InputCallbackManager._KeyInputSubject:OnNext(e)
-        end
+        InputCallbackManager._KeyInputSubject:OnNext(e)
     end)
 
     -- Subscribe to local subjects so that input events are dispatched via the registry.

@@ -577,10 +577,10 @@ function IMGUILayer:GetAllKeybindings()
                         ActionId = setting.Id,
                         ActionName = setting:GetLocaName(),
                         KeyboardMouseBinding = keyboardBinding,
-                        DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
-                            { Key = "", ModifierKeys = { "NONE" } },
+                        DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or { Key = "", ModifierKeys = { "NONE" } },
                         Description = description,
-                        Tooltip = tooltip
+                        Tooltip = tooltip,
+                        allowRepeating = (setting.Options and setting.Options.AllowRepeating) or false
                     })
                 end
             end
