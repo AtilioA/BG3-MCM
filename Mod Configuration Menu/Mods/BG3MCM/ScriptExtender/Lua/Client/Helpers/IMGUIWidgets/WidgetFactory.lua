@@ -11,11 +11,11 @@ local function warnDeprecation(deprecatedSettingType, modUUID, newType)
         if not modInfo then return MCMWarn(0, "Mod Info not found for mod UUID '" .. modUUID .. "'") end
         MCMDeprecation(0,
             "Mod '" .. modInfo.Name .. "' is using deprecated '" .. deprecatedSettingType .. "' setting type. " ..
-            "Please contact " .. modInfo.Author .. " to update to '" .. newType .. "'.")
+            "Please contact " .. modInfo.Author .. " to upgrade it to '" .. newType .. "'.")
     else
         MCMDeprecation(0,
             "Mod is using deprecated '" .. deprecatedSettingType .. "' setting type. " ..
-            "Please update usage to '" .. newType .. "'.")
+            "Please upgrade usage to '" .. newType .. "'.")
     end
 
     warnedDeprecation[key] = true
