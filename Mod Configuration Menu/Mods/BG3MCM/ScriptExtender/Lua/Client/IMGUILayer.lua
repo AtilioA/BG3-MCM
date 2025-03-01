@@ -580,7 +580,10 @@ function IMGUILayer:GetAllKeybindings()
                         DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or { Key = "", ModifierKeys = { "NONE" } },
                         Description = description,
                         Tooltip = tooltip,
-                        allowRepeating = (setting.Options and setting.Options.AllowRepeating) or false
+                        ShouldTriggerOnRepeat = (setting.Options and setting.Options.ShouldTriggerOnRepeat) or false,
+                        ShouldTriggerOnKeyUp = (setting.Options and setting.Options.ShouldTriggerOnKeyUp) or false,
+                        ShouldTriggerOnKeyDown = (setting.Options and setting.Options.ShouldTriggerOnKeyDown) or true
+
                     })
                 end
             end

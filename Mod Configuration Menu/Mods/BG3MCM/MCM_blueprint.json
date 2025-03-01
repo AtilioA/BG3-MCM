@@ -29,7 +29,9 @@
                                 "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
                             },
                             "Options": {
-                                "AllowRepeating": false
+                                "ShouldTriggerOnRepeat": false,
+                                "ShouldTriggerOnKeyUp": false,
+                                "ShouldTriggerOnKeyDown": true
                             }
                         },
                         {

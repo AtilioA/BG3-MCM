@@ -42,7 +42,9 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
                 actionId = action.ActionId,
                 keyboardBinding = action.KeyboardMouseBinding,
                 defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
-                allowRepeating = action.allowRepeating,
+                ShouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
+                ShouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
+                ShouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
                 description = action.Description,
                 tooltip = action.Tooltip
             }
@@ -81,45 +83,62 @@ function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, call
     return true
 end
 
+--- Evaluates if a binding should be triggered given the key event and the binding properties.
+local function shouldTriggerBinding(e, binding)
+    if e.Event == "KeyDown" and not binding.ShouldTriggerOnKeyDown then
+        return false
+    elseif e.Event == "KeyUp" and not binding.ShouldTriggerOnKeyUp then
+        return false
+    end
+
+    if not binding.keyboardBinding then
+        return false
+    end
+
+    if e.Repeat and not binding.ShouldTriggerOnRepeat then
+        return false
+    end
+
+    return KeybindingManager:IsKeybindingPressed(e, {
+        ScanCode = binding.keyboardBinding.Key,
+        Modifier = binding.keyboardBinding.ModifierKeys
+    })
+end
+
 --- Dispatch a keyboard event.
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
-    -- REVIEW: allow keydown or keyup selection?
-    if e.Event ~= "KeyDown" then return end
-
     local triggered = {}
+
     -- Collect all bindings that match the key event.
     for _modUUID, actions in pairs(registry) do
         for _actionId, binding in pairs(actions) do
-            -- TODO: allow configurable repeat events (author-defined)
-            if binding.keyboardBinding and (not e.Repeat or binding.allowRepeating) and
-                KeybindingManager:IsKeybindingPressed(e, {
-                    ScanCode = binding.keyboardBinding.Key,
-                    Modifier = binding.keyboardBinding.ModifierKeys
-                }) then
+            if shouldTriggerBinding(e, binding) then
                 table.insert(triggered, binding)
             end
         end
     end
+
     if #triggered > 1 then
-        local keybindingStr = KeyPresentationMapping:GetKBViewKey(triggered[1].keyboardBinding)
-        if not keybindingStr then
-            keybindingStr = ""
-        end
-        NotificationManager:CreateIMGUINotification("Keybinding_Conflict" .. Ext.Math.Random(), 'warning',
+        local binding = triggered[1]
+        local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
+        NotificationManager:CreateIMGUINotification(
+            "Keybinding_Conflict" .. Ext.Math.Random(),
+            'warning',
             "Keybinding conflict",
-            "Keybinding " .. keybindingStr .. " is bound to multiple actions.\nOpen MCM and rebind conflicting keys.", {
-                duration = 10,
-                dontShowAgainButton = false
-            }, ModuleUUID)
+            "Keybinding " .. keybindingStr .. " is bound to multiple actions.\nOpen MCM and rebind conflicting keys.",
+            { duration = 10, dontShowAgainButton = false },
+            ModuleUUID
+        )
         MCMClientState:ToggleMCMWindow(false)
-        if triggered[1].keyboardCallback then
-            triggered[1].keyboardCallback(e)
+        if binding.keyboardCallback then
+            binding.keyboardCallback(e)
         end
     elseif #triggered == 1 then
-        if triggered[1].keyboardCallback then
+        local binding = triggered[1]
+        if binding.keyboardCallback then
             MCMPrint(1, "Dispatching keyboard binding for mod '" ..
-                triggered[1].modUUID .. "', action '" .. triggered[1].actionName .. "'.")
-            triggered[1].keyboardCallback(e)
+                binding.modUUID .. "', action '" .. binding.actionName .. "'.")
+            binding.keyboardCallback(e)
         end
     end
 end

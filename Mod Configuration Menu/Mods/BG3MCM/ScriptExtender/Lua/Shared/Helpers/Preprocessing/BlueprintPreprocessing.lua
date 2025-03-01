@@ -328,9 +328,28 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
 end
 
 function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
-    if setting.Options and setting.Options.AllowRepeating ~= nil and type(setting.Options.AllowRepeating) ~= "boolean" then
+    if setting.Options and setting.Options.ShouldTriggerOnRepeat ~= nil and type(setting.Options.ShouldTriggerOnRepeat) ~= "boolean" then
         MCMWarn(0,
-            "Options.AllowRepeating for keybinding_v2 setting '" .. setting.Id .. "' must be a boolean. Please contact " ..
+            "Options.ShouldTriggerOnRepeat for keybinding_v2 setting '" ..
+            setting.Id .. "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if setting.Options and setting.Options.ShouldTriggerOnKeyUp ~= nil and type(setting.Options.ShouldTriggerOnKeyUp) ~= "boolean" then
+        MCMWarn(0,
+            "Options.ShouldTriggerOnKeyUp for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if setting.Options and setting.Options.ShouldTriggerOnKeyDown ~= nil and type(setting.Options.ShouldTriggerOnKeyDown) ~= "boolean" then
+        MCMWarn(0,
+            "Options.ShouldTriggerOnKeyDown for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
