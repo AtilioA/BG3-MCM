@@ -12,12 +12,15 @@ local keybindingsSubject = RX.BehaviorSubject.Create(registry)
 
 -- Utility functions for normalizing bindings.
 function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
+    if binding == nil or binding == "" then
+        return ""
+    end
     if type(binding) ~= "table" or not binding.Key then
         print("Invalid keyboard binding, expected a table with a 'Key' field.")
         return nil
     end
-    local mod = (binding.ModifierKeys and type(binding.ModifierKeys) == "table") and #binding.ModifierKeys > 0 and
-        table.concat(binding.ModifierKeys, "+"):upper() or "NONE"
+    local mod = (binding.ModifierKeys and type(binding.ModifierKeys) == "table" and #binding.ModifierKeys > 0)
+        and table.concat(binding.ModifierKeys, "+"):upper() or "NONE"
     local scan = binding.Key:upper()
     if mod ~= "NONE" then
         return mod .. "+" .. scan
