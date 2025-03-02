@@ -1,5 +1,10 @@
 -- TODO: decouple UI presentation from data handling (e.g. mod blueprint, settings values, keybinding gathering, etc)
 
+local RX = {
+    Subject = Ext.Require("Lib/reactivex/subjects/subject.lua"),
+    ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
+}
+
 ---@class ModSettings
 ---@field blueprint Blueprint The blueprint for the mod
 ---@field settingsValues table<string, any> A table of settings for the mod
@@ -25,6 +30,8 @@ IMGUILayer = _Class:Create("IMGUILayer", nil, {
 })
 
 MCMClientState = IMGUILayer:New()
+-- Coupled logic :gladge:
+MCMClientState.UIReady = RX.ReplaySubject.Create(1)
 
 function IMGUILayer:SetClientStateValue(settingId, value, modUUID)
     modUUID = modUUID or ModuleUUID
@@ -305,6 +312,8 @@ function IMGUILayer:CreateModMenu()
     self:CreateProfileManagementHeader()
     self:CreateKeybindingsPage()
     self:CreateMainTable()
+
+    MCMClientState.UIReady:OnNext(true)
 end
 
 --- Check if the menu should be populated
@@ -577,7 +586,8 @@ function IMGUILayer:GetAllKeybindings()
                         ActionId = setting.Id,
                         ActionName = setting:GetLocaName(),
                         KeyboardMouseBinding = keyboardBinding,
-                        DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or { Key = "", ModifierKeys = { "NONE" } },
+                        DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
+                            { Key = "", ModifierKeys = { "NONE" } },
                         Description = description,
                         Tooltip = tooltip,
                         ShouldTriggerOnRepeat = (setting.Options and setting.Options.ShouldTriggerOnRepeat) or false,

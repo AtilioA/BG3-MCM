@@ -37,23 +37,24 @@ function MCMProxy:LoadConfigs()
 end
 
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
-    if MCMProxy.IsMainMenu() or not
-    FrameManager:GetGroup(modUUID) then
-        -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
-        -- Janky timer to make sure the tab exists before trying to add the message. Not willing to properly handle this right now
-        Ext.Timer.WaitFor(3000, function()
+    if MCMProxy.IsMainMenu() then
+        MCMClientState.UIReady:Subscribe(function(ready)
+            if not ready then
+                return
+            end
+
+            -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
             local disclaimerTab = FrameManager:CreateTabWithDisclaimer(
                 modUUID,
                 tabName,
                 "h99e6c7f6eb9c43238ca27a89bb45b9690607"
             )
 
-            Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-                FrameManager:InsertModTab(modUUID, tabName, tabCallback)
-            end)
         end)
     else
-        FrameManager:InsertModTab(modUUID, tabName, tabCallback)
+        Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
+            FrameManager:InsertModTab(modUUID, tabName, tabCallback)
+        end)
     end
 end
 
