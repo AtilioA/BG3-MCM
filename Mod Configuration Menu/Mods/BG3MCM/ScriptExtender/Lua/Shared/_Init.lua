@@ -1,9 +1,19 @@
 local function updateLoca()
     for _, file in ipairs({ "BG3MCM_English.loca" }) do
         local fileName = string.format("Localization/English/%s.xml", file)
-        local contents = Ext.IO.LoadFile(fileName, "data")
+        local contents
+
+        local success, err = pcall(function()
+            contents = Ext.IO.LoadFile(fileName, "data")
+        end)
+
+        if not success then
+            -- MCMWarn(2, "Error loading loca file: " .. err)
+            return
+        end
 
         if not contents then
+            -- MCMWarn(1, "Failed to load loca file: " .. fileName)
             return
         end
 
@@ -38,6 +48,8 @@ RequireFiles("NotiFramework/", {
     "_Init"
 })
 
+RequireFiles("Lib/reactivex/", { "_init" })
+
 RequireFiles("Shared/", {
     "MetaClass",
     "DependencyCheck/_Init",
@@ -55,7 +67,9 @@ else
 
     local versionNumber = table.concat(MODVERSION, ".")
     local SEVersionNumber = Ext.Utils.Version()
-    MCMPrint(0, "Volitio's Baldur's Gate 3 Mod Configuration Menu version " .. versionNumber .. " loaded (SE version " .. SEVersionNumber .. ")")
+    MCMPrint(0,
+        "Volitio's Baldur's Gate 3 Mod Configuration Menu version " ..
+        versionNumber .. " loaded (SE version " .. SEVersionNumber .. ")")
 end
 
 MCMAPI = MCMAPI:New({}, "BG3MCM")

@@ -5,8 +5,12 @@ local BoxColor = Color.NormalizedRGBA(46, 38, 38, 0.78)
 local BoxHoverColor = Color.NormalizedRGBA(97, 66, 54, 0.78);
 local BoxActiveColor = Color.NormalizedRGBA(30.60, 204, 237.15, 0.33)
 
+UIStyle.UnofficialColors = {
+    ["TooltipBorder"] = Color.HEXToRGBA("#99724c"),
+}
+
 UIStyle.Colors = {
-    ["Border"] = Color.NormalizedRGBA(61, 38, 20, 0.0),
+    ["Border"] = Color.NormalizedRGBA(61, 38, 20, 0.2),
     ["BorderShadow"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
     ["Button"] = Color.NormalizedRGBA(117, 102, 74, 0.5),
     ["ButtonActive"] = Color.NormalizedRGBA(183, 122, 81, 0.7),

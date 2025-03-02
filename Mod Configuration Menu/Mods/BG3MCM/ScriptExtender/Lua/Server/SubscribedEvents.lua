@@ -40,6 +40,7 @@ netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE,
 netEventsRegistry:register(NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE,
     AuthorizedNetCommand:new(EHandlers.OnClientRequestDeleteProfile))
 
+
 local function registerNetListeners(registry)
     local function handleNetMessage(channel, payload, peerId)
         registry:execute(channel, payload, peerId)
@@ -62,7 +63,7 @@ function SubscribedEvents.SubscribeToEvents()
     -- Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
 
     -- When the game is started, load the MCM settings
-    Ext.Osiris.RegisterListener("LevelGameplayStarted", 2, "before", EHandlers.OnLevelGameplayStarted)
+    Ext.Osiris.RegisterListener("SavegameLoaded", 0, "before", EHandlers.SavegameLoaded)
 
     Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
         MCMDebug(1, "UserConnected: " .. userID .. " " .. userName .. " " .. userProfileID)

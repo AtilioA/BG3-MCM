@@ -8,11 +8,10 @@ local function initializeReverseLookupTable(lookupTable)
         local mod = Ext.Mod.GetMod(modUUID)
         local scriptExtenderConfigPath = string.format("Mods/%s/ScriptExtender/Config.json", mod.Info.Directory)
         local config = Ext.IO.LoadFile(scriptExtenderConfigPath, "data")
-        if config ~= nil then
+        if config then
             local modConfig = Ext.Json.Parse(config)
-            if modConfig ~= nil then
-                local modTable = modConfig.ModTable
-                lookupTable[mod.Info.ModuleUUID] = modTable
+            if modConfig then
+                lookupTable[mod.Info.ModuleUUID] = modConfig.ModTable
             end
         else
             MCMWarn(3, string.format("No config for %s at %s", mod.Info.Name, scriptExtenderConfigPath))
@@ -27,71 +26,106 @@ local function getModTableNameByUUID(modUUID)
     return ModUUIDToModTableName[modUUID]
 end
 
--- Function to inject MCM into the mod table
+-- Helper: Get and validate the mod table for a given modUUID.
+local function getModTableForUUID(modUUID)
+    local modTableName = getModTableNameByUUID(modUUID)
+    if not modTableName then
+        MCMWarn(1, "Unable to find ModTable name for modUUID: " .. modUUID)
+        return nil
+    end
+
+    local modTable = Mods[modTableName]
+    if not modTable then
+        MCMWarn(2, "Mod table not found for modTableName: " .. modTableName)
+        return nil
+    end
+    return modTable, modTableName
+end
+
+-- Helper: Ensure that the mod's MCM table exists and attach common functions.
+-- REFACTOR: extract functions to proper API file (MCMAPI/MCMServer)
+local function ensureModMCM(modTable, modUUID)
+    if not modTable.MCM or table.isEmpty(modTable.MCM) then
+        modTable.MCM = {}
+    end
+    local MCMInstance = modTable.MCM
+
+    -- Define common functions for mods
+    MCMInstance.Get = function(settingId)
+        return MCMAPI:GetSettingValue(settingId, modUUID)
+    end
+
+    MCMInstance.GetList = function(listSettingId)
+        local setting = MCMInstance.Get(listSettingId)
+        local enabledItems = {}
+        if setting and setting.enabled then
+            for _, element in ipairs(setting.elements) do
+                if element.enabled then
+                    enabledItems[element.name] = true
+                end
+            end
+        end
+        return enabledItems
+    end
+
+    MCMInstance.SetListElement = function(listSettingId, elementName, enabled)
+        local setting = MCMInstance.Get(listSettingId)
+        if setting and setting.elements then
+            local elementFound = false
+            for _, element in ipairs(setting.elements) do
+                if element.name == elementName then
+                    element.enabled = enabled
+                    elementFound = true
+                    break
+                end
+            end
+            if not elementFound then
+                table.insert(setting.elements, { name = elementName, enabled = enabled })
+            end
+        end
+        return MCMAPI:SetSettingValue(listSettingId, setting, modUUID)
+    end
+
+    MCMInstance.Set = function(settingId, value)
+        MCMAPI:SetSettingValue(settingId, value, modUUID)
+    end
+    MCMInstance.Reset = function(settingId)
+        MCMAPI:ResetSettingValue(settingId, modUUID)
+    end
+
+    return MCMInstance
+end
+
+-- Setup client-side MCM: only proceed if not on server.
+local function setupClientSideMCM(modUUID)
+    if Ext.IsServer() then return end
+
+    local modTable, _ = getModTableForUUID(modUUID)
+    if not modTable then return end
+
+    modTable.MCM['SetKeybindingCallback'] = function(settingId, callback)
+        InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
+    end
+end
+
+-- Main function to inject MCM into the mod table
 local function injectMCMToModTable(modUUID)
     if modUUID == ModuleUUID then return end
 
     MCMPrint(2, "Injecting MCM to mod table for modUUID: " .. modUUID)
 
-    -- Retrieve ModTable name using the reverse lookup table
-    local modTableName = getModTableNameByUUID(modUUID)
-    if not modTableName then
-        MCMWarn(2, "Unable to find ModTable name for modUUID: " .. modUUID)
-        return
-    end
+    local modTable, modTableName = getModTableForUUID(modUUID)
+    if not modTable then return end
 
     MCMPrint(1, "Mod table name: " .. modTableName)
-    local modTable = Mods[modTableName]
-    if not modTable then
-        MCMWarn(2, "Mod table not found for modTableName: " .. modTableName)
-        return
-    end
+    local MCMInstance = ensureModMCM(modTable, modUUID)
+    setupClientSideMCM(modUUID)
 
-    if modTable.MCM then
-        MCMPrint(1, "MCM already exists in mod table for modUUID: " .. modUUID .. ". Skipping metatable injection.")
-        return
-    end
-
-    local MCM = {}
-
-    -- Define useful functions for mods to use
-    MCM.Get = function(settingId)
-        -- MCMDebug(1, "Getting setting value for settingId: " .. settingId)
-        return MCMAPI:GetSettingValue(settingId, modUUID)
-    end
-
-    -- Return a list of enabled items from a list setting; empty table if list is disabled
-    MCM.GetList = function(listSettingId)
-        local setting = MCM.Get(listSettingId)
-
-        local enabledItems = {}
-        if not setting or not setting.enabled then return enabledItems end
-
-        for _, element in ipairs(setting.elements) do
-            if element.enabled then
-                enabledItems[element.name] = true
-            end
-        end
-
-        return enabledItems
-    end
-
-    MCM.Set = function(settingId, value)
-        -- MCMDebug(1, "Setting value for settingId: " .. settingId .. " to: " .. tostring(value))
-        MCMAPI:SetSettingValue(settingId, value, modUUID)
-    end
-
-    MCM.Reset = function(settingId)
-        -- MCMDebug(1, "Resetting setting value for settingId: " .. settingId)
-        MCMAPI:ResetSettingValue(settingId, modUUID)
-    end
-
-    modTable.MCM = MCM
-
+    modTable.MCM = MCMInstance
     MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. modUUID)
 end
 
--- Function to set up the metatable for the Mods table so that we can listen for new mods being added
+-- Set up the metatable for the Mods table so that we can listen for new mods being added
 local function setupModsMetatable()
     -- Define a custom __newindex function to listen for new entries in the Mods table
     local modsMetatable = {
@@ -109,16 +143,14 @@ local function setupModsMetatable()
                 MCMWarn(0, "Unexpected: mod '" .. tostring(key) .. "' does not have a ModuleUUID.")
             end
 
-            -- Add MCM to mods that have an MCM blueprint
+            -- Inject MCM if the mod has a corresponding blueprint, and always inject the NotificationManager.
             if ModConfig.mods[value.ModuleUUID] then
                 injectMCMToModTable(value.ModuleUUID)
             end
-            -- Add NotificationManager to all mods
             NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)
         end
     }
 
-    -- Set the metatable for the Mods table only once
     if not getmetatable(Mods) then
         setmetatable(Mods, modsMetatable)
         MCMPrint(1, "Metatable for Mods table has been set.")

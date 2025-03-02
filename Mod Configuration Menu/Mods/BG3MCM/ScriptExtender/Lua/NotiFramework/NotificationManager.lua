@@ -57,6 +57,11 @@ end
 function NotificationManager:new(id, severity, title, message, options, modUUID)
     -- Preprocess options for validity
     options = NotificationOptions:PreprocessOptions(options)
+    local dontShowAgainButton = options.dontShowAgainButton
+    if dontShowAgainButton == nil then
+        dontShowAgainButton = DEFAULT_DONT_SHOW_AGAIN_BUTTON
+    end
+
     local instance = _MetaClass.New(NotificationManager, {
         id = id,
         notificationSeverity = severity,
@@ -66,7 +71,7 @@ function NotificationManager:new(id, severity, title, message, options, modUUID)
         options = {
             duration = options.duration,
             -- This shouldn't even be needed, but this is Lua after all
-            dontShowAgainButton = options.dontShowAgainButton or DEFAULT_DONT_SHOW_AGAIN_BUTTON,
+            dontShowAgainButton = options.dontShowAgainButton,
             dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec or
                 DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
             displayOnceOnly = options.displayOnceOnly,
@@ -80,7 +85,7 @@ end
 --- Initializes the notification window and sets up its components
 ---@return nil
 function NotificationManager:InitializeNotificationWindow()
-    self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title)
+    self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title .. "##" .. math.floor(Ext.Math.Random() * 100000))
     self.IMGUIwindow.IDContext = self.modUUID .. self.id
     self:ConfigureWindowStyle()
     self:CreateMessageGroup()
@@ -237,13 +242,13 @@ end
 ---@param countdownTimeInSec number? Optional countdown time for the button
 ---@return nil
 function NotificationManager:CreateDontShowAgainButton(countdownTimeInSec)
-    if not self.options.dontShowAgainButton then
+    if self.options.dontShowAgainButton ~= true then
         return
     end
 
     self.IMGUIwindow:AddDummy(0, 10)
 
-    local countdown = (countdownTimeInSec or (self.options.dontShowAgainButtonCountdownInSec)) + 1
+    local countdown = (countdownTimeInSec or self.options.dontShowAgainButtonCountdownInSec) + 1
     local dontShowAgainButtonLocalizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
     local dontShowAgainButton = self:CreateIMGUIDontShowAgainButton(countdown, dontShowAgainButtonLocalizedLabel)
 

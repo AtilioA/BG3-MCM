@@ -23,16 +23,14 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
-            local buttonTooltip = button:Tooltip()
-            buttonTooltip.IDContext = "ButtonTooltip_" .. setting.Id
-            buttonTooltip:AddText(tooltip)
+            MCMRendering:AddTooltip(button, tooltip, "ButtonTooltip_" .. setting.Id)
         end
         return button
     end
 
     -- Decrement button
     instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -1,
-        "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
+        VCString:InterpolateLocalizedMessage("h0dab893ad8cc4f1a93e417c7524addecggc4", setting:GetLocaName()))
 
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
@@ -43,7 +41,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Increment button
     instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", 1,
-        "Increase the '" .. setting:GetLocaName() .. "' value by 1")
+        VCString:InterpolateLocalizedMessage("heed976f6e50046c2a583040d9abb6ce6c8g1", setting:GetLocaName()))
     instance.NextButton.SameLine = true
 
     return instance
@@ -54,15 +52,19 @@ function SliderIntIMGUIWidget:UpdateCurrentValue(value)
 end
 
 function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
-    -- Call the base class method first
-    IMGUIWidget.SetupTooltip(self, widget, setting)
+    local localizedText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
+        string.format("%s", setting.Options.Min), string.format("%s", setting.Options.Max))
 
-    local tooltip = widget:Tooltip()
-    tooltip:AddText(string.format("Min: %s", setting.Options.Min))
-    tooltip:AddText(string.format("Max: %s", setting.Options.Max))
-    if not table.isEmpty(tooltip.Children) then
-        local tooltipSeparator = tooltip:AddSeparator()
+    local tooltipId = setting.Id .. "_TOOLTIP"
+    local tt = MCMRendering:AddTooltip(widget, localizedText, tooltipId)
+    if not tt then
+        return
+    end
+
+    if not table.isEmpty(tt.Children) then
+        local tooltipSeparator = tt:AddSeparator()
         tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
     end
-    tooltip:AddText("CTRL + click it to input value manually.")
+
+    tt:AddText(Ext.Loca.GetTranslatedString("h0dfee4b6ba51423da77eaa53e1961ade059f"))
 end

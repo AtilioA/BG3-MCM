@@ -1,3 +1,5 @@
+--- TODO: add exception handling
+
 ---@class HelperBlueprintPreprocessing
 BlueprintPreprocessing = _Class:Create("HelperBlueprintPreprocessing", nil)
 -- The UUID of the mod being currently processed
@@ -265,6 +267,10 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                 if not self:ValidateSliderSetting(setting) then
                     return false
                 end
+            elseif settingType == "keybinding_v2" then
+                if not self:ValidateKeybindingV2Setting(setting) then
+                    return false
+                end
             end
         end
     end
@@ -318,6 +324,35 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
         return false
     end
 
+    return true
+end
+
+function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
+    if setting.Options and setting.Options.ShouldTriggerOnRepeat ~= nil and type(setting.Options.ShouldTriggerOnRepeat) ~= "boolean" then
+        MCMWarn(0,
+            "Options.ShouldTriggerOnRepeat for keybinding_v2 setting '" ..
+            setting.Id .. "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if setting.Options and setting.Options.ShouldTriggerOnKeyUp ~= nil and type(setting.Options.ShouldTriggerOnKeyUp) ~= "boolean" then
+        MCMWarn(0,
+            "Options.ShouldTriggerOnKeyUp for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if setting.Options and setting.Options.ShouldTriggerOnKeyDown ~= nil and type(setting.Options.ShouldTriggerOnKeyDown) ~= "boolean" then
+        MCMWarn(0,
+            "Options.ShouldTriggerOnKeyDown for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
     return true
 end
 
@@ -412,6 +447,76 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 "' must be a table of 4 numbers. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
+        end
+    elseif setting.Type == "keybinding_v2" then
+        if type(setting.Default) == "table" then
+            if not (type(setting.Default["Keyboard"]) == "table") then
+                MCMWarn(0,
+                    "Default value for setting '" ..
+                    setting.Id ..
+                    "' must be a table containing a 'Keyboard' table. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+
+            -- Validate Keyboard configuration
+            local keyboard = setting.Default["Keyboard"]
+            local key = keyboard.Key
+            if type(key) ~= "string" or (key ~= "" and not table.contains(SDLKeys.ScanCodes, key)) then
+                MCMWarn(0,
+                    "Invalid key '" ..
+                    key .. "' in Keyboard.Key for setting '" .. setting.Id .. "'. Valid keys are: " ..
+                    table.concat(SDLKeys.ScanCodes, ", "))
+                return false
+            end
+
+            -- Validate ModifierKeys if provided
+            if keyboard.ModifierKeys then
+                if type(keyboard.ModifierKeys) ~= "table" then
+                    MCMWarn(0,
+                        "Keyboard.ModifierKeys must be a table. Please contact " ..
+                        Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    return false
+                end
+                for _, mod in ipairs(keyboard.ModifierKeys) do
+                    if type(mod) ~= "string" or (mod ~= "" and not table.contains(SDLKeys.Modifiers, mod)) then
+                        MCMWarn(0,
+                            "Invalid modifier '" ..
+                            mod ..
+                            "' in Keyboard.ModifierKeys for setting '" .. setting.Id .. "'. Valid modifiers are: " ..
+                            table.concat(SDLKeys.Modifiers, ", "))
+                        return false
+                    end
+                end
+            end
+        end
+    elseif setting.Type == "list_v2" then
+        if type(setting.Default) ~= "table" or setting.Default.enabled == nil or type(setting.Default.elements) ~= "table" then
+            MCMWarn(0,
+                "Default value for setting '" ..
+                setting.Id ..
+                "' must be a table with 'enabled' and 'elements'. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        for _, element in ipairs(setting.Default.elements) do
+            if type(element) ~= "table" or not element.name or type(element.name) ~= "string" or element.name == "" then
+                MCMWarn(0,
+                    "Element " ..
+                    Ext.DumpExport(element) ..
+                    " for setting '" ..
+                    setting.Id .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+                return false
+            end
+            if element.enabled ~= nil and type(element.enabled) ~= "boolean" then
+                MCMWarn(0,
+                    "Element " ..
+                    Ext.DumpExport(element) ..
+                    " for setting '" ..
+                    setting.Id .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+                return false
+            end
         end
     end
 

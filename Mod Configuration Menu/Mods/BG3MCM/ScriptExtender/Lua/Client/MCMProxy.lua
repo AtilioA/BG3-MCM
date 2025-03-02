@@ -36,23 +36,24 @@ function MCMProxy:LoadConfigs()
     end
 end
 
--- TODO: add temporary message to inform users that custom MCM tabs are not available in the main menu
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
-    -- FrameManager:updateModDescriptionTooltip(modUUID, "Some functionality from this mod requires a save to be loaded first.")
+    if MCMProxy.IsMainMenu() then
+        MCMClientState.UIReady:Subscribe(function(ready)
+            if not ready then
+                return
+            end
 
-    if MCMProxy.IsMainMenu() or not
-        FrameManager:GetGroup(modUUID) then
-        -- local function addTempTextMainMenu(tabHeader)
-        --     local tempTextDisclaimer = Ext.Loca.GetTranslatedString("h99e6c7f6eb9c43238ca27a89bb45b9690607")
-        --     addTempText = tabHeader:AddText(tempTextDisclaimer)
-        --     addTempText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
-        -- end
-
+            -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
+            local disclaimerTab = FrameManager:CreateTabWithDisclaimer(
+                modUUID,
+                tabName,
+                "h99e6c7f6eb9c43238ca27a89bb45b9690607"
+            )
+        end)
+    else
         Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
             FrameManager:InsertModTab(modUUID, tabName, tabCallback)
         end)
-    else
-        FrameManager:InsertModTab(modUUID, tabName, tabCallback)
     end
 end
 
@@ -103,4 +104,10 @@ function MCMProxy:ResetSettingValue(settingId, modUUID)
             settingId = settingId
         }))
     end
+end
+
+function MCMProxy:RegisterMCMKeybindings()
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_keybinding",
+        function() MCMRendering:ToggleMCMWindow(true) end)
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua", function() Ext.Debug.Reset() end)
 end

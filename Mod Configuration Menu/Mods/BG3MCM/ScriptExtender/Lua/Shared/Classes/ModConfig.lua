@@ -222,7 +222,14 @@ local function shouldPreserveSettingGroup(key, value)
         return type(tbl) == "table" and tbl.elements ~= nil and tbl.enabled ~= nil
     end
 
-    if isListV2SettingGroup(value) or table.isArray(value) or KeybindingManager:IsKeybindingTable(value) then
+    local function isKeybindingV2SettingGroup(tbl)
+        return type(tbl) == "table" and tbl.Keyboard ~= nil
+    end
+
+    if isKeybindingV2SettingGroup(value)
+        or isListV2SettingGroup(value)
+        or table.isArray(value)
+        or KeybindingManager:IsKeybindingTable(value) then
         return true
     end
 end
@@ -324,13 +331,13 @@ function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
     local allSettings = blueprint:GetAllSettings()
     for _, setting in pairs(allSettings) do
         if settings[setting:GetId()] == nil then
-            MCMDebug(3, "Setting missing: " .. setting:GetId())
+            MCMDebug(1, "Setting missing: " .. setting:GetId())
             if settings[setting:GetOldId()] ~= nil then
                 settings[setting:GetId()] = settings[setting:GetOldId()]
                 MCMDebug(3, "Using old setting value for: " .. setting:GetId())
             else
                 settings[setting:GetId()] = setting:GetDefault()
-                MCMDebug(3, "Setting default value for: " .. setting:GetId())
+                MCMDebug(2, "Setting default value for: " .. setting:GetId())
             end
         end
     end

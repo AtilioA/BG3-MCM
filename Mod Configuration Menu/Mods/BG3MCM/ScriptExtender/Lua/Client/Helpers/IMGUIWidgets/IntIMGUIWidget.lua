@@ -20,16 +20,15 @@ function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
-            local buttonTooltip = button:Tooltip()
-            buttonTooltip.IDContext = modUUID .. "WidgetTooltip_" .. setting.Id
-            buttonTooltip:AddText(tooltip)
+            MCMRendering:AddTooltip(button, tooltip, modUUID .. "WidgetTooltip_" .. setting.Id)
         end
         return button
     end
 
     -- Decrement button
     instance.PreviousButton = createIncrementButton(" - ", "ico_min_d", -1,
-        "Decrease the '" .. setting:GetLocaName() .. "' value by 1")
+        VCString:InterpolateLocalizedMessage("h9d240caa7bbe4ef482d21f1e691b0597a38g",
+            setting:GetLocaName()))
 
     -- Actual int input widget
     instance.Widget = group:AddInputInt("", initialValue)
@@ -40,7 +39,8 @@ function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Increment button
     instance.NextButton = createIncrementButton(" + ", "ico_plus_d", 1,
-        "Increase the '" .. setting:GetLocaName() .. "' value by 1")
+        VCString:InterpolateLocalizedMessage("h9cc3f92986d24e3e8c1b86eb80023a2b015c",
+            setting:GetLocaName()))
     instance.NextButton.SameLine = true
 
     return instance

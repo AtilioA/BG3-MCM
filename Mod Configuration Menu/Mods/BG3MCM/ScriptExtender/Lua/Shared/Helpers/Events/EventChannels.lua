@@ -59,6 +59,9 @@ EventChannels.MCM_WINDOW_OPENED = "MCM_Window_Opened"
 --- @return boolean playSound Whether a sound should be played when the window closes.
 EventChannels.MCM_WINDOW_CLOSED = "MCM_Window_Closed"
 
+--- Fired when keybindings are loaded.
+EventChannels.MCM_KEYBINDINGS_LOADED = "MCM_Keybindings_Loaded"
+
 local function RegisterModEvents()
     local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
 
@@ -73,6 +76,7 @@ local function RegisterModEvents()
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_READY)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_OPENED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_CLOSED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_KEYBINDINGS_LOADED)
 end
 
 RegisterModEvents()

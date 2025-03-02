@@ -16,15 +16,22 @@
                         {
                             "Id": "toggle_mcm_keybinding",
                             "Name": "Toggle MCM window",
-                            "Type": "keybinding",
+                            "Type": "keybinding_v2",
                             "Default": {
-                                "ScanCode": "INSERT",
-                                "Modifier": ""
+                                "Keyboard": {
+                                    "Key": "INSERT",
+                                    "ModifierKeys": []
+                                }
                             },
                             "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",
                             "Handles": {
                                 "NameHandle": "hb2789893dcaf46fca8c40add9358e1f2ca93",
                                 "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
+                            },
+                            "Options": {
+                                "ShouldTriggerOnRepeat": false,
+                                "ShouldTriggerOnKeyUp": false,
+                                "ShouldTriggerOnKeyDown": true
                             }
                         },
                         {
@@ -115,6 +122,24 @@
                             "Handles": {
                                 "NameHandle": "h676e89908a8543c18ca789ec673306febb93",
                                 "DescriptionHandle": "h8bc90105aaff4addaebee525051bde958a87"
+                            }
+                        },
+                        {
+                            "Id": "reset_lua",
+                            "Name": "Reset Lua",
+                            "Type": "keybinding_v2",
+                            "Description": "Reinitializes the server and client Lua VM.",
+                            "Handles": {
+                                "NameHandle": "hf4378b0d0a444adf974ddb7c5316e111dfc3",
+                                "DescriptionHandle": "hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d"
+                            },
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "",
+                                    "ModifierKeys": [
+                                        ""
+                                    ]
+                                }
                             }
                         }
                     ],

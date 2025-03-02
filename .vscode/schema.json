@@ -224,11 +224,7 @@
                         },
                         {
                             "const": "list_v2",
-                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them."
-                        },
-                        {
-                            "const": "list",
-                            "description": "(WILL BE DEPRECATED). A list of items with a text input below to add new items.\nThe list is initialized with default values if provided."
+                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them. Replaces the deprecated 'list' type."
                         },
                         {
                             "const": "enum",
@@ -263,8 +259,8 @@
                             "description": "A color editor widget. Similar to a color picker, but with only the color fields displayed."
                         },
                         {
-                            "const": "keybinding",
-                            "description": "A keybinding input, consisting of an optional modifier and a key."
+                            "const": "keybinding_v2",
+                            "description": "A keybinding/hotkey input, consisting of optional modifiers and a key, and listed in the 'Hotkeys' section of MCM. Replaces the deprecated 'keybinding' type. Remember to inject the hotkey functionality in your mod via the MCM API, otherwise the hotkeys will not do anything."
                         }
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
@@ -309,7 +305,6 @@
                     "type": "object",
                     "properties": {},
                     "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
-                    // "additionalProperties": false
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -456,6 +451,362 @@
                                     }
                                 }
                             }
+                        },
+                        "else": {
+                            "if": {
+                                "properties": {
+                                    "Type": {
+                                        "const": "keybinding_v2"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "Default": {
+                                        "type": "object",
+                                        "properties": {
+                                            "Keyboard": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "ModifierKeys": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "LCtrl",
+                                                                "LShift",
+                                                                "LAlt",
+                                                                "Meta"
+                                                            ]
+                                                        },
+                                                        "description": "Modifier keys for the keyboard binding."
+                                                    },
+                                                    "Key": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "UNKNOWN",
+                                                            "A",
+                                                            "B",
+                                                            "C",
+                                                            "D",
+                                                            "E",
+                                                            "F",
+                                                            "G",
+                                                            "H",
+                                                            "I",
+                                                            "J",
+                                                            "K",
+                                                            "L",
+                                                            "M",
+                                                            "N",
+                                                            "O",
+                                                            "P",
+                                                            "Q",
+                                                            "R",
+                                                            "S",
+                                                            "T",
+                                                            "U",
+                                                            "V",
+                                                            "W",
+                                                            "X",
+                                                            "Y",
+                                                            "Z",
+                                                            "NUM_1",
+                                                            "NUM_2",
+                                                            "NUM_3",
+                                                            "NUM_4",
+                                                            "NUM_5",
+                                                            "NUM_6",
+                                                            "NUM_7",
+                                                            "NUM_8",
+                                                            "NUM_9",
+                                                            "NUM_0",
+                                                            "RETURN",
+                                                            "ESCAPE",
+                                                            "BACKSPACE",
+                                                            "TAB",
+                                                            "SPACE",
+                                                            "MINUS",
+                                                            "EQUALS",
+                                                            "LEFTBRACKET",
+                                                            "RIGHTBRACKET",
+                                                            "BACKSLASH",
+                                                            "NONUSHASH",
+                                                            "SEMICOLON",
+                                                            "APOSTROPHE",
+                                                            "GRAVE",
+                                                            "COMMA",
+                                                            "PERIOD",
+                                                            "SLASH",
+                                                            "CAPSLOCK",
+                                                            "F1",
+                                                            "F2",
+                                                            "F3",
+                                                            "F4",
+                                                            "F5",
+                                                            "F6",
+                                                            "F7",
+                                                            "F8",
+                                                            "F9",
+                                                            "F10",
+                                                            "F11",
+                                                            "F12",
+                                                            "PRINTSCREEN",
+                                                            "SCROLLLOCK",
+                                                            "PAUSE",
+                                                            "INSERT",
+                                                            "HOME",
+                                                            "PAGEUP",
+                                                            "DEL",
+                                                            "END",
+                                                            "PAGEDOWN",
+                                                            "RIGHT",
+                                                            "LEFT",
+                                                            "DOWN",
+                                                            "UP",
+                                                            "NUMLOCKCLEAR",
+                                                            "KP_DIVIDE",
+                                                            "KP_MULTIPLY",
+                                                            "KP_MINUS",
+                                                            "KP_PLUS",
+                                                            "KP_ENTER",
+                                                            "KP_1",
+                                                            "KP_2",
+                                                            "KP_3",
+                                                            "KP_4",
+                                                            "KP_5",
+                                                            "KP_6",
+                                                            "KP_7",
+                                                            "KP_8",
+                                                            "KP_9",
+                                                            "KP_0",
+                                                            "KP_PERIOD",
+                                                            "NONUSBACKSLASH",
+                                                            "APPLICATION",
+                                                            "POWER",
+                                                            "KP_EQUALS",
+                                                            "F13",
+                                                            "F14",
+                                                            "F15",
+                                                            "F16",
+                                                            "F17",
+                                                            "F18",
+                                                            "F19",
+                                                            "F20",
+                                                            "F21",
+                                                            "F22",
+                                                            "F23",
+                                                            "F24",
+                                                            "EXECUTE",
+                                                            "HELP",
+                                                            "MENU",
+                                                            "SELECT",
+                                                            "STOP",
+                                                            "AGAIN",
+                                                            "UNDO",
+                                                            "CUT",
+                                                            "COPY",
+                                                            "PASTE",
+                                                            "FIND",
+                                                            "MUTE",
+                                                            "VOLUMEUP",
+                                                            "VOLUMEDOWN",
+                                                            "KP_COMMA",
+                                                            "KP_EQUALSAS400",
+                                                            "INTERNATIONAL1",
+                                                            "INTERNATIONAL2",
+                                                            "INTERNATIONAL3",
+                                                            "INTERNATIONAL4",
+                                                            "INTERNATIONAL5",
+                                                            "INTERNATIONAL6",
+                                                            "INTERNATIONAL7",
+                                                            "INTERNATIONAL8",
+                                                            "INTERNATIONAL9",
+                                                            "LANG1",
+                                                            "LANG2",
+                                                            "LANG3",
+                                                            "LANG4",
+                                                            "LANG5",
+                                                            "LANG6",
+                                                            "LANG7",
+                                                            "LANG8",
+                                                            "LANG9",
+                                                            "ALTERASE",
+                                                            "SYSREQ",
+                                                            "CANCEL",
+                                                            "CLEAR",
+                                                            "PRIOR",
+                                                            "RETURN2",
+                                                            "SEPARATOR",
+                                                            "KEY_OUT",
+                                                            "OPER",
+                                                            "CLEARAGAIN",
+                                                            "CRSEL",
+                                                            "EXSEL",
+                                                            "KP_00",
+                                                            "KP_000",
+                                                            "THOUSANDSSEPARATOR",
+                                                            "DECIMALSEPARATOR",
+                                                            "CURRENCYUNIT",
+                                                            "CURRENCYSUBUNIT",
+                                                            "KP_LEFTPAREN",
+                                                            "KP_RIGHTPAREN",
+                                                            "KP_LEFTBRACE",
+                                                            "KP_RIGHTBRACE",
+                                                            "KP_TAB",
+                                                            "KP_BACKSPACE",
+                                                            "KP_A",
+                                                            "KP_B",
+                                                            "KP_C",
+                                                            "KP_D",
+                                                            "KP_E",
+                                                            "KP_F",
+                                                            "KP_XOR",
+                                                            "KP_POWER",
+                                                            "KP_PERCENT",
+                                                            "KP_LESS",
+                                                            "KP_GREATER",
+                                                            "KP_AMPERSAND",
+                                                            "KP_DBLAMPERSAND",
+                                                            "KP_VERTICALBAR",
+                                                            "KP_DBLVERTICALBAR",
+                                                            "KP_COLON",
+                                                            "KP_HASH",
+                                                            "KP_SPACE",
+                                                            "KP_AT",
+                                                            "KP_EXCLAM",
+                                                            "KP_MEMSTORE",
+                                                            "KP_MEMRECALL",
+                                                            "KP_MEMCLEAR",
+                                                            "KP_MEMADD",
+                                                            "KP_MEMSUBTRACT",
+                                                            "KP_MEMMULTIPLY",
+                                                            "KP_MEMDIVIDE",
+                                                            "KP_PLUSMINUS",
+                                                            "KP_CLEAR",
+                                                            "KP_CLEARENTRY",
+                                                            "KP_BINARY",
+                                                            "KP_OCTAL",
+                                                            "KP_DECIMAL",
+                                                            "KP_HEXADECIMAL",
+                                                            "LCTRL",
+                                                            "LSHIFT",
+                                                            "LALT",
+                                                            "LGUI",
+                                                            "RCTRL",
+                                                            "RSHIFT",
+                                                            "RALT",
+                                                            "RGUI",
+                                                            "MODE",
+                                                            "AUDIONEXT",
+                                                            "AUDIOPREV",
+                                                            "AUDIOSTOP",
+                                                            "AUDIOPLAY",
+                                                            "AUDIOMUTE",
+                                                            "MEDIASELECT",
+                                                            "WWW",
+                                                            "MAIL",
+                                                            "CALCULATOR",
+                                                            "COMPUTER",
+                                                            "AC_SEARCH",
+                                                            "AC_HOME",
+                                                            "AC_BACK",
+                                                            "AC_FORWARD",
+                                                            "AC_STOP",
+                                                            "AC_REFRESH",
+                                                            "AC_BOOKMARKS",
+                                                            "BRIGHTNESSDOWN",
+                                                            "BRIGHTNESSUP",
+                                                            "DISPLAYSWITCH",
+                                                            "KBDILLUMTOGGLE",
+                                                            "KBDILLUMDOWN",
+                                                            "KBDILLUMUP",
+                                                            "EJECT",
+                                                            "SLEEP",
+                                                            "APP1",
+                                                            "APP2",
+                                                            "AUDIOREWIND",
+                                                            "AUDIOFASTFORWARD",
+                                                            "SOFTLEFT",
+                                                            "SOFTRIGHT",
+                                                            "CALL",
+                                                            "ENDCALL"
+                                                        ],
+                                                        "description": "Primary key for the keyboard binding. Listed in the enum"
+                                                    }
+                                                },
+                                                "anyOf": [
+                                                    {
+                                                        "required": [
+                                                            "Key"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "required": [
+                                                            "ModifierKeys"
+                                                        ]
+                                                    }
+                                                ],
+                                                "additionalProperties": false
+                                            },
+                                            "Mouse": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "Button": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9]+$",
+                                                        "description": "Mouse button number for the mouse binding. NOT IMPLEMENTED."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "Button"
+                                                ],
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        "anyOf": [
+                                            {
+                                                "oneOf": [
+                                                    {
+                                                        "required": [
+                                                            "Keyboard"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "required": [
+                                                            "Mouse"
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "description": "Default keybinding configuration. Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence."
+                                    },
+                                    "Options": {
+                                        "type": "object",
+                                        "properties": {
+                                            "ShouldTriggerOnKeyDown": {
+                                                "type": "boolean",
+                                                "description": "Trigger the action when the key is pressed down. Default: true",
+                                                "default": true
+                                            },
+                                            "ShouldTriggerOnKeyUp": {
+                                                "type": "boolean",
+                                                "description": "Trigger the action when the key is released. Default: false",
+                                                "default": false
+                                            },
+                                            "ShouldTriggerOnRepeat": {
+                                                "type": "boolean",
+                                                "description": "Trigger the action repeatedly while the key is held down. Default: false",
+                                                "default": false
+                                            }
+                                        },
+                                        "additionalProperties": false,
+                                        "description": "Optional: Options for how the keybinding should behave."
+                                    }
+                                }
+                            },
+                            "else": {}
                         }
                     }
                 }
@@ -536,17 +887,6 @@
                             "element 2"
                         ]
                     }
-                },
-                {
-                    "Id": "ListSetting",
-                    "Name": "(DEPRECATED) List Setting",
-                    "Type": "list",
-                    "Default": [
-                        "Item 1",
-                        "Item 2"
-                    ],
-                    "Tooltip": "(DEPRECATED) This is a list setting.",
-                    "Description": "(DEPRECATED) This setting allows adding or removing items from a list."
                 },
                 {
                     "Id": "EnumSetting",
@@ -653,15 +993,29 @@
                     "Description": "This setting allows editing a color value directly."
                 },
                 {
-                    "Id": "KeybindingSetting",
+                    "Id": "KeybindingV2Setting",
                     "Name": "Keybinding Setting",
-                    "Type": "keybinding",
+                    "Type": "keybinding_v2",
                     "Default": {
-                        "Modifier": "Ctrl",
-                        "ScanCode": "K"
+                        "Keyboard": {
+                            "ModifierKeys": [
+                                "Ctrl",
+                                "Shift"
+                            ],
+                            "Key": "K"
+                        },
+                        // NOTE: Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence.
+                        "Mouse": {
+                            "Button": "1"
+                        }
                     },
                     "Tooltip": "This is a keybinding setting.",
-                    "Description": "This setting allows setting a keybinding with an optional modifier."
+                    "Description": "This setting allows setting a keybinding with an optional modifier.",
+                    "Options": {
+                        "ShouldTriggerOnKeyDown": true,
+                        "ShouldTriggerOnKeyUp": false,
+                        "ShouldTriggerOnRepeat": false
+                    }
                 }
             ]
         },
