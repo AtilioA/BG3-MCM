@@ -647,8 +647,21 @@ end
 ---@param imguiObject ExtuiStyledRenderable
 ---@param tooltipText string
 ---@param uuid string
----@return ExtuiStyledRenderable
+---@return ExtuiStyledRenderable | nil
 function MCMRendering:AddTooltip(imguiObject, tooltipText, uuid)
+    if not imguiObject then
+        MCMWarn(1, "Tried to add a tooltip to a nil object")
+        return nil
+    end
+    if not tooltipText then
+        tooltipText = ""
+        return nil
+    end
+    if not uuid then
+        MCMWarn(1, "Mod UUID not provided for tooltip")
+        return nil
+    end
+
     local imguiObjectTooltip = imguiObject:Tooltip()
     imguiObjectTooltip.IDContext = uuid .. "_TOOLTIP"
     imguiObjectTooltip:AddText(tooltipText)

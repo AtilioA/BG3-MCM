@@ -106,7 +106,7 @@ function FrameManager:CreateModTab(modUUID, tabName)
     local modTabBar = self:GetModTabBar(modUUID)
     if not modTabBar then
         local modData = Ext.Mod.GetMod(modUUID)
-        MCMWarn(0, "Tab creation called before any modTabBar created: " ..
+        MCMWarn(1, "Tab creation called before any modTabBar created: " ..
             modData.Info.Name .. ". Please contact " ..
             Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return nil

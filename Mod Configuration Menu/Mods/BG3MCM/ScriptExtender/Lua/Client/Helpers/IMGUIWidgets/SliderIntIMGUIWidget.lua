@@ -57,6 +57,9 @@ function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
 
     local tooltipId = setting.Id .. "_TOOLTIP"
     local tt = MCMRendering:AddTooltip(widget, localizedText, tooltipId)
+    if not tt then
+        return
+    end
 
     if not table.isEmpty(tt.Children) then
         local tooltipSeparator = tt:AddSeparator()
