@@ -16,7 +16,7 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
         return ""
     end
     if type(binding) ~= "table" or not binding.Key then
-        print("Invalid keyboard binding, expected a table with a 'Key' field.")
+        MCMWarn(0, "Invalid keyboard binding, expected a table with a 'Key' field.")
         return nil
     end
     local mod = (binding.ModifierKeys and type(binding.ModifierKeys) == "table" and #binding.ModifierKeys > 0)
@@ -57,7 +57,7 @@ end
 function KeybindingsRegistry.UpdateBinding(modUUID, actionId, newBinding, inputType)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
-        print(string.format("No binding found to update for mod '%s', action '%s'.", modUUID, actionId))
+        MCMWarn(0, string.format("No binding found to update for mod '%s', action '%s'.", modUUID, actionId))
         return false
     end
 
