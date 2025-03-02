@@ -363,16 +363,22 @@ function MCMRendering:CreateMainTable()
     for _, modUUID in ipairs(sortedModKeys) do
         self.visibilityTriggers[modUUID] = {}
 
-        local modName = self.mods[modUUID].blueprint:GetModName()
-        local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
-        FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
-        self.mods[modUUID].widgets = {}
+        local success, err = xpcall(function()
+            local modName = self.mods[modUUID].blueprint:GetModName()
+            local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
+            FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
+            self.mods[modUUID].widgets = {}
 
-        self:CreateModMenuFrame(modUUID)
+            self:CreateModMenuFrame(modUUID)
 
-        local modSettings = self.mods[modUUID].settingsValues
-        for settingId, _group in pairs(self.visibilityTriggers[modUUID]) do
-            self:UpdateVisibility(modUUID, settingId, modSettings[settingId])
+            local modSettings = self.mods[modUUID].settingsValues
+            for settingId, _group in pairs(self.visibilityTriggers[modUUID]) do
+                self:UpdateVisibility(modUUID, settingId, modSettings[settingId])
+            end
+        end, debug.traceback)
+
+        if not success then
+            MCMWarn(0, "Error processing mod " .. modUUID .. ": " .. err)
         end
     end
     FrameManager:setVisibleFrame(ModuleUUID)
@@ -659,6 +665,10 @@ function MCMRendering:AddTooltip(imguiObject, tooltipText, uuid)
     end
     if not uuid then
         MCMWarn(1, "Mod UUID not provided for tooltip")
+        return nil
+    end
+    if not imguiObject.Tooltip then
+        MCMWarn(1, "Tried to add a tooltip to an object with no tooltip support")
         return nil
     end
 
