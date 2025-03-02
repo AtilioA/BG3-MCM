@@ -52,7 +52,7 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
 
     local menuButton = self:CreateMenuButton(self.menuCell, modName, modUUID)
     if modDescription then
-        IMGUILayer:AddTooltip(menuButton, modDescription, modUUID)
+        MCMRendering:AddTooltip(menuButton, modDescription, modUUID)
     end
     local uiGroupMod = self.contentCell:AddGroup(modUUID)
 

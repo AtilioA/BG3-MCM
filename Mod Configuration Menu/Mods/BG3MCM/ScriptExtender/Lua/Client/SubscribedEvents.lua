@@ -144,7 +144,7 @@ ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
     local tabName = data.tabName
     local tabCallback = data.tabCallback
 
-    -- Update the IMGUILayer to include the new tab
+    -- Update the MCMRendering to include the new tab
     IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
 end)
 

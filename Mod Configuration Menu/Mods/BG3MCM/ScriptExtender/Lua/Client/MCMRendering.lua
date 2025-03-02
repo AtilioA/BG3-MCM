@@ -10,30 +10,30 @@ local RX = {
 ---@field settingsValues table<string, any> A table of settings for the mod
 ---@field widgets table<string, any> A table of widgets for the mod
 
---- A class representing an IMGUI layer responsible for providing a UI to manage mods and profiles.
+--- Class responsible for rendering the MCM UI to manage mods and profiles.
 --- A table of mod UUIDs, each associated with a table containing widgets and potentially other blueprints and settings.
--- The IMGUILayer class is responsible for creating and managing the IMGUI user interface for MCM.
+-- The MCMRendering class is responsible for creating and managing the IMGUI user interface for MCM.
 -- It acts as the bridge between MCM's core business logic and MCM's IMGUI window, handling the rendering and interaction of the mod configuration UI.
 -- It relies on settings and profiles managed by the MCM (API) class, and then translates this data into a user-friendly IMGUI interface.
--- IMGUILayer provides methods for:
+-- MCMRendering provides methods for:
 -- - Creating the main MCM menu, which contains a tab for each mod that has MCM settings
 -- - Creating new tabs and sections for each mod, based on the mod's blueprint
 -- - Creating IMGUI widgets for each setting in the mod's blueprint
 -- - Sending messages to the server to update setting values
----@class IMGUILayer: MetaClass
+---@class MCMRendering: MetaClass
 ---@field mods table<string, ModSettings>
 ---@field private profiles table<string, table>
 ---@field private visibilityTriggers table<string, table>
-IMGUILayer = _Class:Create("IMGUILayer", nil, {
+MCMRendering = _Class:Create("MCMRendering", nil, {
     mods = {},
     visibilityTriggers = {}
 })
 
-MCMClientState = IMGUILayer:New()
+MCMClientState = MCMRendering:New()
 -- Coupled logic :gladge:
 MCMClientState.UIReady = RX.ReplaySubject.Create(1)
 
-function IMGUILayer:SetClientStateValue(settingId, value, modUUID)
+function MCMRendering:SetClientStateValue(settingId, value, modUUID)
     modUUID = modUUID or ModuleUUID
     if not modUUID or not settingId then
         return
@@ -48,9 +48,8 @@ function IMGUILayer:SetClientStateValue(settingId, value, modUUID)
     self:UpdateSettingValue(mod, settingId, value, modUUID)
 end
 
-function IMGUILayer:UpdateSettingValue(mod, settingId, value, modUUID)
+function MCMRendering:UpdateSettingValue(mod, settingId, value, modUUID)
     -- Update client values for the setting
-    -- REFACTOR: this is not related to the IMGUI layer, should be moved to a more appropriate place
     mod.settingsValues[settingId] = value
     MCMAPI.mods[modUUID].settingsValues[settingId] = value
 
@@ -67,7 +66,7 @@ function IMGUILayer:UpdateSettingValue(mod, settingId, value, modUUID)
 end
 
 -- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
-function IMGUILayer:UpdateVisibility(modUUID, settingId, value)
+function MCMRendering:UpdateVisibility(modUUID, settingId, value)
     if not modUUID or not settingId or value == nil then
         return
     end
@@ -85,7 +84,7 @@ function IMGUILayer:UpdateVisibility(modUUID, settingId, value)
     self:ProcessTriggers(settingTriggers, value, modUUID)
 end
 
-function IMGUILayer:ProcessTriggers(settingTriggers, value, modUUID)
+function MCMRendering:ProcessTriggers(settingTriggers, value, modUUID)
     for group, operators in pairs(settingTriggers) do
         if not group or not operators then
             MCMWarn(0, "Invalid visibility trigger group for mod '" ..
@@ -101,7 +100,7 @@ function IMGUILayer:ProcessTriggers(settingTriggers, value, modUUID)
     end
 end
 
-function IMGUILayer:ProcessOperators(group, operators, value, modUUID)
+function MCMRendering:ProcessOperators(group, operators, value, modUUID)
     for operator, triggerValue in pairs(operators) do
         if not operator or triggerValue == nil then
             MCMWarn(0, "Invalid visibility trigger operator or value for mod '" ..
@@ -117,7 +116,7 @@ function IMGUILayer:ProcessOperators(group, operators, value, modUUID)
     end
 end
 
-function IMGUILayer:EvaluateCondition(operator, value, triggerValue, modUUID)
+function MCMRendering:EvaluateCondition(operator, value, triggerValue, modUUID)
     if operator == nil or value == nil or triggerValue == nil then
         MCMWarn(0,
             "Invalid comparison operator or values passed by mod '" ..
@@ -155,7 +154,7 @@ function IMGUILayer:EvaluateCondition(operator, value, triggerValue, modUUID)
     return false
 end
 
-function IMGUILayer:GetModName(modUUID)
+function MCMRendering:GetModName(modUUID)
     if not modUUID then
         return nil
     end
@@ -167,7 +166,7 @@ function IMGUILayer:GetModName(modUUID)
     return nil
 end
 
-function IMGUILayer:GetClientStateValue(settingId, modUUID)
+function MCMRendering:GetClientStateValue(settingId, modUUID)
     modUUID = modUUID or ModuleUUID
     if not modUUID or not settingId then
         return nil
@@ -200,7 +199,7 @@ function GetInitialMCMWindowSize()
 end
 
 --- Create the main IMGUI window for MCM
-function IMGUILayer:CreateMainIMGUIWindow()
+function MCMRendering:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
         MCMWarn(0, "IMGUI is not available, skipping MCM window creation.")
         return false
@@ -252,7 +251,7 @@ end
 
 --- Toggles the visibility of the MCM window.
 --- @param playSound boolean Whether to play a sound effect when toggling the window.
-function IMGUILayer:ToggleMCMWindow(playSound)
+function MCMRendering:ToggleMCMWindow(playSound)
     if not MCM_WINDOW then
         return
     end
@@ -273,7 +272,7 @@ function IMGUILayer:ToggleMCMWindow(playSound)
     end
 end
 
-function IMGUILayer:SetActiveWindowAlpha(bool)
+function MCMRendering:SetActiveWindowAlpha(bool)
     VCTimer:OnTime(100, function()
         if bool then
             MCM_WINDOW:SetStyle("Alpha", 1)
@@ -284,11 +283,11 @@ function IMGUILayer:SetActiveWindowAlpha(bool)
     end)
 end
 
-function IMGUILayer:NotifyMCMWindowReady()
+function MCMRendering:NotifyMCMWindowReady()
     ModEventManager:Emit(EventChannels.MCM_WINDOW_READY, {})
 end
 
-function IMGUILayer:LoadMods(mods)
+function MCMRendering:LoadMods(mods)
     self.mods = mods
 
     -- if MCM_WINDOW then MCM_WINDOW:Destroy() end
@@ -302,7 +301,7 @@ end
 
 --- Create the main MCM menu, which contains a tree view for each mod that has MCM settings
 ---@return nil
-function IMGUILayer:CreateModMenu()
+function MCMRendering:CreateModMenu()
     -- if not self:ShouldPopulateMenu() then
     --     return
     -- end
@@ -318,7 +317,7 @@ end
 
 --- Check if the menu should be populated
 ---@return boolean
-function IMGUILayer:ShouldPopulateMenu()
+function MCMRendering:ShouldPopulateMenu()
     -- If uiGroup exist for MCM, init done, we don't want to populate the menu again
     local uiGroup = FrameManager:GetGroup(ModuleUUID)
     if uiGroup ~= nil then
@@ -330,7 +329,7 @@ end
 
 --- Initialize menu settings and destroy welcome text if it exists
 ---@return nil
-function IMGUILayer:PrepareMenu()
+function MCMRendering:PrepareMenu()
     -- TODO: re-enable this after refactoring client-side code
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
 
@@ -340,7 +339,7 @@ end
 
 --- Convert the mod configs to use the Blueprint class
 ---@return nil
-function IMGUILayer:ConvertModTablesToBlueprints()
+function MCMRendering:ConvertModTablesToBlueprints()
     for _modUUID, config in pairs(self.mods) do
         config.blueprint = Blueprint:New(config.blueprint)
     end
@@ -348,7 +347,7 @@ end
 
 --- Create profile management header
 ---@return nil
-function IMGUILayer:CreateProfileManagementHeader()
+function MCMRendering:CreateProfileManagementHeader()
     if Ext.Net.IsHost() then
         UIProfileManager:CreateProfileContent()
     end
@@ -357,7 +356,7 @@ end
 
 --- Create the main table and populate it with mod trees
 ---@return nil
-function IMGUILayer:CreateMainTable()
+function MCMRendering:CreateMainTable()
     FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
 
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
@@ -382,7 +381,7 @@ end
 --- Create a new tab for a mod in the MCM
 ---@param modUUID string The UUID of the mod
 ---@return nil
-function IMGUILayer:CreateModMenuFrame(modUUID)
+function MCMRendering:CreateModMenuFrame(modUUID)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
     local modBlueprint = self.mods[modUUID].blueprint
     local modSettings = self.mods[modUUID].settingsValues
@@ -420,7 +419,7 @@ end
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modUUID string The UUID of the mod
 ---@return nil
-function IMGUILayer:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modUUID)
+function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modUUID)
     local tabName = blueprintTab:GetLocaName()
 
     local imguiTab = modTabs:AddTabItem(tabName)
@@ -454,7 +453,7 @@ end
 ---@param modUUID string
 ---@param elementInfo table
 ---@param uiElement ImguiHandle
-function IMGUILayer:manageVisibleIf(modUUID, elementInfo, uiElement)
+function MCMRendering:manageVisibleIf(modUUID, elementInfo, uiElement)
     if elementInfo.VisibleIf and elementInfo.VisibleIf.Conditions then
         for _, condition in ipairs(elementInfo.VisibleIf.Conditions) do
             local settingIdTriggering = condition.SettingId
@@ -477,7 +476,7 @@ end
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modUUID string The UUID of the mod
 ---@return nil
-function IMGUILayer:CreateModMenuSection(sectionIndex, modGroup, section, modSettings, modUUID)
+function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modSettings, modUUID)
     -- TODO: Set the style for the section header text somehow
     if sectionIndex > 1 then
         modGroup:AddDummy(0, 5)
@@ -535,7 +534,7 @@ end
 ---@param modUUID string The UUID of the mod
 ---@return nil
 ---@see InputWidgetFactory
-function IMGUILayer:CreateModMenuSetting(modGroup, setting, modSettings, modUUID)
+function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUUID)
     if setting:GetType() == "keybinding_v2" then
         return
     end
@@ -560,7 +559,7 @@ end
 ------------------------------------------------------------
 -- Helper: Extract all keybinding settings from loaded mods.
 ------------------------------------------------------------
-function IMGUILayer:GetAllKeybindings()
+function MCMRendering:GetAllKeybindings()
     local keybindings = {}
     for modUUID, modData in pairs(self.mods) do
         local blueprint = modData.blueprint
@@ -606,7 +605,7 @@ function IMGUILayer:GetAllKeybindings()
 end
 
 -- TODO: extract this to FrameManager
-function IMGUILayer:CreateKeybindingsPage()
+function MCMRendering:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
     -- MCMDebug(0, "Creating keybindings page...")
 
@@ -649,7 +648,7 @@ end
 ---@param tooltipText string
 ---@param uuid string
 ---@return ExtuiStyledRenderable
-function IMGUILayer:AddTooltip(imguiObject, tooltipText, uuid)
+function MCMRendering:AddTooltip(imguiObject, tooltipText, uuid)
     local imguiObjectTooltip = imguiObject:Tooltip()
     imguiObjectTooltip.IDContext = uuid .. "_TOOLTIP"
     imguiObjectTooltip:AddText(tooltipText)

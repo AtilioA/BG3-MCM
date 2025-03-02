@@ -19,7 +19,7 @@ function DragIntIMGUIWidget:SetupTooltip(widget, setting)
         string.format("%s", setting.Options.Min), string.format("%s", setting.Options.Max))
 
     local tooltipId = setting.Id .. "_TOOLTIP"
-    local tt = IMGUILayer:AddTooltip(widget, localizedText, tooltipId)
+    local tt = MCMRendering:AddTooltip(widget, localizedText, tooltipId)
 
     if not table.isEmpty(tt.Children) then
         local tooltipSeparator = tt:AddSeparator()

@@ -20,7 +20,7 @@ function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
-            IMGUILayer:AddTooltip(button, tooltip, modUUID .. "WidgetTooltip_" .. setting.Id)
+            MCMRendering:AddTooltip(button, tooltip, modUUID .. "WidgetTooltip_" .. setting.Id)
         end
         return button
     end

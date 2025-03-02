@@ -141,7 +141,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         descriptionText.TextWrapPos = 0
         nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
         descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
-        IMGUILayer:AddTooltip(nameText,
+        MCMRendering:AddTooltip(nameText,
             VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
             mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
 
@@ -153,7 +153,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         kbButton.OnClick = function()
             self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
         end
-        IMGUILayer:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
+        MCMRendering:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
             mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
 
         -- Reset button cell.
@@ -163,7 +163,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         resetButton.OnClick = function()
             self:ResetBinding(mod.ModUUID, action.ActionId)
         end
-        IMGUILayer:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h497bb04f93734d52a265956df140e77a7add"),
+        MCMRendering:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h497bb04f93734d52a265956df140e77a7add"),
             mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
 
         -- If there is a conflict, color the keybinding button red.

@@ -4,7 +4,7 @@ RequireFiles("Client/", {
     "MCMProxy",
     "Components/_Init",
     "Helpers/_Init",
-    "IMGUILayer",
+    "MCMRendering",
     "IMGUIAPI",
     "SubscribedEvents",
 })

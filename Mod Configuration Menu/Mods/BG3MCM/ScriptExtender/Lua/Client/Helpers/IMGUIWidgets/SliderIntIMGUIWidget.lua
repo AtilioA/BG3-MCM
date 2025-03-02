@@ -23,7 +23,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
-            IMGUILayer:AddTooltip(button, tooltip, "ButtonTooltip_" .. setting.Id)
+            MCMRendering:AddTooltip(button, tooltip, "ButtonTooltip_" .. setting.Id)
         end
         return button
     end
@@ -56,7 +56,7 @@ function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
         string.format("%s", setting.Options.Min), string.format("%s", setting.Options.Max))
 
     local tooltipId = setting.Id .. "_TOOLTIP"
-    local tt = IMGUILayer:AddTooltip(widget, localizedText, tooltipId)
+    local tt = MCMRendering:AddTooltip(widget, localizedText, tooltipId)
 
     if not table.isEmpty(tt.Children) then
         local tooltipSeparator = tt:AddSeparator()

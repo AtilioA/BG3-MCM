@@ -49,7 +49,6 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
                 tabName,
                 "h99e6c7f6eb9c43238ca27a89bb45b9690607"
             )
-
         end)
     else
         Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
@@ -109,6 +108,6 @@ end
 
 function MCMProxy:RegisterMCMKeybindings()
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_keybinding",
-        function() IMGUILayer:ToggleMCMWindow(true) end)
+        function() MCMRendering:ToggleMCMWindow(true) end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua", function() Ext.Debug.Reset() end)
 end

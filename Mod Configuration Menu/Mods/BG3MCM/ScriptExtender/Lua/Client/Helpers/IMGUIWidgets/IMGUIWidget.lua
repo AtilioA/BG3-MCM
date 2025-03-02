@@ -90,7 +90,7 @@ function IMGUIWidget:AddResetButton(group, setting, modUUID)
         resetButton = group:AddButton("[Reset]")
     end
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
-    IMGUILayer:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h132d4b2d4cd044c8a3956a77f7e3499d0737"),
+    MCMRendering:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h132d4b2d4cd044c8a3956a77f7e3499d0737"),
         modUUID .. "_" .. "ResetButton_" .. setting:GetId() .. "_TOOLTIP")
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
@@ -110,7 +110,7 @@ function IMGUIWidget:SetupTooltip(widget, setting)
     if translatedTooltip ~= nil and translatedTooltip ~= "" then
         tooltipText = translatedTooltip
     end
-    IMGUILayer:AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
+    MCMRendering:AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
 end
 
 --- Add a slightly faded description text below the widget
