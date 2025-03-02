@@ -8,12 +8,12 @@ local function updateLoca()
         end)
 
         if not success then
-            MCMWarn(2, "Error loading loca file: " .. err)
+            -- MCMWarn(2, "Error loading loca file: " .. err)
             return
         end
 
         if not contents then
-            MCMWarn(1, "Failed to load loca file: " .. fileName)
+            -- MCMWarn(1, "Failed to load loca file: " .. fileName)
             return
         end
 
