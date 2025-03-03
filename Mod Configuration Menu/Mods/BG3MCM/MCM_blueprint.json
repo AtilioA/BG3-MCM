@@ -136,10 +136,11 @@
                             "Default": {
                                 "Keyboard": {
                                     "Key": "",
-                                    "ModifierKeys": [
-                                        ""
-                                    ]
+                                    "ModifierKeys": []
                                 }
+                            },
+                            "Options": {
+                                "IsDeveloperOnly": true
                             }
                         }
                     ],

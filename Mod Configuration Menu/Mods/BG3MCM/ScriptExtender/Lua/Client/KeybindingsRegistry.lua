@@ -1,3 +1,5 @@
+---@alias ActionFilterOptions { includeDeveloper: boolean? }
+
 local RX = {
     BehaviorSubject = Ext.Require("Lib/reactivex/subjects/behaviorsubject.lua")
 }
@@ -29,25 +31,51 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     end
 end
 
+--- Determines if a developer-only action should be included based on the provided options.
+--- @param action table The action to evaluate for inclusion.
+--- @param options ActionFilterOptions|nil The options that may affect inclusion.
+function KeybindingsRegistry:ShouldIncludeDeveloperAction(action, options)
+    local includeDeveloper = options and options.includeDeveloper
+    return not (action.IsDeveloperOnly and not includeDeveloper)
+end
+
+--- Determines if an action should be included based on the provided options.
+--- 'options' can include { includeDeveloper = true/false }
+--- @param action table The action to evaluate for inclusion.
+--- @param options ActionFilterOptions|nil The options that may affect inclusion.
+--- @return boolean True if the action should be included, false otherwise.
+function KeybindingsRegistry:ShouldIncludeAction(action, options)
+    if not self:ShouldIncludeDeveloperAction(action, options) then
+        return false
+    end
+
+    return true
+end
+
 --- Registers keybindings for one or more mods.
---- Expects an array of mod keybinding definitions.
-function KeybindingsRegistry.RegisterModKeybindings(modKeybindings)
+--- Accepts an array of mod keybinding definitions and an optional options table.
+--- The options table can be used to parameterize filtering
+function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
+    -- Default behavior: include developer keybindings only if developer mode is enabled.
+    options = options or { includeDeveloper = Ext.Debug.IsDeveloperMode() }
+
     for _, mod in ipairs(modKeybindings) do
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
         for _, action in ipairs(mod.Actions) do
-            local keyboardNormalized = nil
-            registry[mod.ModUUID][action.ActionId] = {
-                modUUID = mod.ModUUID,
-                actionName = action.ActionName,
-                actionId = action.ActionId,
-                keyboardBinding = action.KeyboardMouseBinding,
-                defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
-                ShouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
-                ShouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
-                ShouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
-                description = action.Description,
-                tooltip = action.Tooltip
-            }
+            if KeybindingsRegistry:ShouldIncludeAction(action, options) then
+                registry[mod.ModUUID][action.ActionId] = {
+                    modUUID = mod.ModUUID,
+                    actionName = action.ActionName,
+                    actionId = action.ActionId,
+                    keyboardBinding = action.KeyboardMouseBinding,
+                    defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
+                    ShouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
+                    ShouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
+                    ShouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
+                    description = action.Description,
+                    tooltip = action.Tooltip
+                }
+            end
         end
     end
     keybindingsSubject:OnNext(registry)
@@ -96,6 +124,10 @@ local function shouldTriggerBinding(e, binding)
     end
 
     if e.Repeat and not binding.ShouldTriggerOnRepeat then
+        return false
+    end
+
+    if binding.Options and binding.Options.IsDeveloperOnly and not Ext.Debug.IsDeveloperMode() then
         return false
     end
 

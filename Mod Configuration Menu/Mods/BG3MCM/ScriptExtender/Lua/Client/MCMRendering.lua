@@ -597,7 +597,8 @@ function MCMRendering:GetAllKeybindings()
                         Tooltip = tooltip,
                         ShouldTriggerOnRepeat = (setting.Options and setting.Options.ShouldTriggerOnRepeat) or false,
                         ShouldTriggerOnKeyUp = (setting.Options and setting.Options.ShouldTriggerOnKeyUp) or false,
-                        ShouldTriggerOnKeyDown = (setting.Options and setting.Options.ShouldTriggerOnKeyDown) or true
+                        ShouldTriggerOnKeyDown = (setting.Options and setting.Options.ShouldTriggerOnKeyDown) or true,
+                        IsDeveloperOnly = (setting.Options and setting.Options.IsDeveloperOnly) or false
 
                     })
                 end
@@ -624,8 +625,7 @@ function MCMRendering:CreateKeybindingsPage()
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
-    local keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
-    self.KeybindingWidget = keybindingWidget
+    local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
     -- MCMDebug(0, "Keybinding widget created.")
 
     -- Load keybindings from the mod settings

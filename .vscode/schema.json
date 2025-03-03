@@ -479,11 +479,13 @@
                                                                 "Meta"
                                                             ]
                                                         },
-                                                        "description": "Modifier keys for the keyboard binding."
+                                                        "description": "Modifier keys for the keyboard binding.",
+                                                        "minItems": 0
                                                     },
                                                     "Key": {
                                                         "type": "string",
                                                         "enum": [
+                                                            "",
                                                             "UNKNOWN",
                                                             "A",
                                                             "B",
@@ -798,6 +800,11 @@
                                             "ShouldTriggerOnRepeat": {
                                                 "type": "boolean",
                                                 "description": "Trigger the action repeatedly while the key is held down. Default: false",
+                                                "default": false
+                                            },
+                                            "IsDeveloperOnly": {
+                                                "type": "boolean",
+                                                "description": "Make this keybinding only visible if developer mode is enabled. Default: false",
                                                 "default": false
                                             }
                                         },

@@ -54,7 +54,9 @@ function KeybindingV2IMGUIWidget:FilterActions()
             local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
                 VCString:FuzzyMatch(binding.keyboardBinding.Key:upper(), searchText) and
                 binding.keyboardBinding.ModifierKeys
-            if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesDescription or matchesTooltip then
+            local matchesPresentationKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
+                VCString:FuzzyMatch(KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding):upper(), searchText)
+            if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesPresentationKeyboard or matchesDescription or matchesTooltip then
                 table.insert(filteredActions, {
                     ModUUID = modUUID,
                     ActionName = binding.actionName,
