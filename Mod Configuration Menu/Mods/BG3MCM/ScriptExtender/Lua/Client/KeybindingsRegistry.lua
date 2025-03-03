@@ -118,6 +118,12 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         end
     end
 
+    if #triggered ~= 0 then
+        if e.PreventAction then
+            e:PreventAction()
+        end
+    end
+
     if #triggered > 1 then
         local binding = triggered[1]
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
