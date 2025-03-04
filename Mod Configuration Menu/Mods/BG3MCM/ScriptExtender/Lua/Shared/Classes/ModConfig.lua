@@ -219,7 +219,8 @@ end
 local function shouldPreserveSettingGroup(key, value)
     -- Function to determine if a table is a setting group
     local function isListV2SettingGroup(tbl)
-        return type(tbl) == "table" and tbl.elements ~= nil and tbl.enabled ~= nil
+        return type(tbl) == "table" and (tbl.elements ~= nil or tbl.Elements ~= nil) and
+        (tbl.enabled ~= nil or tbl.Enabled ~= nil)
     end
 
     local function isKeybindingV2SettingGroup(tbl)
@@ -270,13 +271,13 @@ function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
     end
 
     settings[setting:GetId()] = {
-        elements = {},
-        enabled = true
+        Elements = {},
+        Enabled = true
     }
 
     for _, element in ipairs(oldSetting) do
         -- MCMDebug(1, "Migrating element: " .. element .. " for setting: " .. setting:GetId())
-        table.insert(settings[setting:GetId()].elements, {
+        table.insert(settings[setting:GetId()].Elements, {
             name = element,
             enabled = true
         })

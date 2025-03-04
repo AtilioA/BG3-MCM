@@ -11,8 +11,8 @@
 ---@field indexInElements number
 
 ---@class ListV2SettingValue
----@field enabled boolean
----@field elements ElementTable[]
+---@field Enabled boolean
+---@field Elements ElementTable[]
 
 ---@class ListV2IMGUIWidget: IMGUIWidget
 ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
@@ -51,8 +51,8 @@ function ListV2IMGUIWidget:new(group, setting, initialValue, ModUUID)
     instance.Widget.Setting = setting
 
     initialValue = initialValue or {}
-    instance.Widget.Enabled = initialValue.enabled ~= false
-    instance.Widget.Elements = initialValue.elements or {}
+    instance.Widget.Enabled = initialValue.Enabled ~= false
+    instance.Widget.Elements = initialValue.Elements or {}
 
     instance.Widget.PageSize = math.min((setting:GetOptions() and setting:GetOptions().PageSize) or 5, 20)
     if instance.Widget.PageSize < 5 then instance.Widget.PageSize = 5 end
@@ -550,8 +550,8 @@ end
 ---@return nil
 function ListV2IMGUIWidget:UpdateSettings()
     local settingValue = {
-        enabled = self.Widget.Enabled,
-        elements = self.Widget.Elements
+        Enabled = self.Widget.Enabled,
+        Elements = self.Widget.Elements
     }
     IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.ModUUID)
 end
@@ -958,8 +958,8 @@ end
 ---@param value ListV2SettingValue The new value to set
 ---@return nil
 function ListV2IMGUIWidget:UpdateCurrentValue(value)
-    self.Widget.Enabled = value.enabled ~= false
-    self.Widget.Elements = value.elements or {}
+    self.Widget.Enabled = value.Enabled ~= false
+    self.Widget.Elements = value.Elements or {}
     self:FilterElements()
     self:Refresh()
 end
@@ -1036,8 +1036,8 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
         IMGUIAPI:ResetSettingValue(setting:GetId(), ModUUID)
 
         self:UpdateCurrentValue({
-            enabled = setting:GetDefault().enabled,
-            elements = setting:GetDefault().elements
+            Enabled = setting:GetDefault().enabled,
+            Elements = setting:GetDefault().elements
         })
 
         self.Widget.ResetConfirmationPopup:Destroy()
