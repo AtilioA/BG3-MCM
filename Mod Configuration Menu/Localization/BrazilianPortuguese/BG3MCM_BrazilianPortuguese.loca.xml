@@ -73,7 +73,7 @@
     <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Não vê a janela do MCM? Veja os passos de resolução de problemas na página do mod.</content>
     <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Redefinir</content>
     <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Redefinir para a configuração padrão.</content>
-    <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">Conflito de atalho de tecla</content>
+    <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">AÇÃO NECESSÁRIA: Conflito de atalho de tecla</content>
     <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Pressione as teclas para atribuir [ESC para cancelar | BACKSPACE para remover]</content>
     <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Atalho de teclado vazio</content>
     <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Pesquisar atalhos de teclado:</content>
@@ -131,4 +131,5 @@
     <content contentuid="h0dfee4b6ba51423da77eaa53e1961ade059f" version="1">CTRL + clique para inserir o valor manualmente.</content>
     <content contentuid="hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d" version="1">Reinicia a máquina virtual Lua do servidor e do cliente.</content>
     <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua</content>
+    <content contentuid="hd4e656a649c14e638ab1cb4380ad714746ea" version="1">O atalho [1] está vinculado a mais de uma ação.&lt;br&gt;Abra o MCM e redefina as teclas em conflito.</content>
 </contentList>

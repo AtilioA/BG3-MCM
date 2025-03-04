@@ -159,11 +159,12 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     if #triggered > 1 then
         local binding = triggered[1]
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
+        local conflictStr = VCString:InterpolateLocalizedMessage("hd4e656a649c14e638ab1cb4380ad714746ea", keybindingStr)
         NotificationManager:CreateIMGUINotification(
             "Keybinding_Conflict" .. Ext.Math.Random(),
             'warning',
             "Keybinding conflict",
-            "Keybinding " .. keybindingStr .. " is bound to multiple actions.\nOpen MCM and rebind conflicting keys.",
+            conflictStr,
             { duration = 10, dontShowAgainButton = false },
             ModuleUUID
         )
