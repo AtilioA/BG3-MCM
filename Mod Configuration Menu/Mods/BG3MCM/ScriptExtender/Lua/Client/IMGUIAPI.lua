@@ -99,6 +99,44 @@ function IMGUIAPI:ResetSettingValue(settingId, modUUID)
     MCMProxy:ResetSettingValue(settingId, modUUID)
 end
 
+--- Opens the MCM window.
+--- @param playSound boolean Whether to play a sound effect when opening the window.
+function IMGUIAPI:OpenMCMWindow(playSound)
+    if not MCM_WINDOW then
+        return
+    end
+
+    MCM_WINDOW.Visible = true
+    MCM_WINDOW.Open = true
+    ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
+        playSound = playSound
+    })
+end
+
+--- Closes the MCM window.
+--- @param playSound boolean Whether to play a sound effect when closing the window.
+function IMGUIAPI:CloseMCMWindow(playSound)
+    if not MCM_WINDOW then
+        return
+    end
+
+    MCM_WINDOW.Visible = false
+    MCM_WINDOW.Open = false
+    ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {
+        playSound = playSound
+    })
+end
+
+--- Toggles the visibility of the MCM window.
+--- @param playSound boolean Whether to play a sound effect when toggling the window.
+function IMGUIAPI:ToggleMCMWindow(playSound)
+    if MCM_WINDOW.Open == true then
+        self:CloseMCMWindow(playSound)
+    else
+        self:OpenMCMWindow(playSound)
+    end
+end
+
 -- --- Send a message to the server to set a profile
 -- ---@param profileName string The name of the profile to set
 -- ---@return nil

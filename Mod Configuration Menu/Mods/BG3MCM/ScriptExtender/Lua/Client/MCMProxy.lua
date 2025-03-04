@@ -108,6 +108,8 @@ end
 
 function MCMProxy:RegisterMCMKeybindings()
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_keybinding",
-        function() MCMRendering:ToggleMCMWindow(true) end)
+        function() IMGUIAPI:ToggleMCMWindow(true) end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua", function() Ext.Debug.Reset() end)
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "close_mcm_keybinding",
+        function() IMGUIAPI:CloseMCMWindow(true) end)
 end

@@ -249,29 +249,6 @@ function MCMRendering:CreateMainIMGUIWindow()
     return true
 end
 
---- Toggles the visibility of the MCM window.
---- @param playSound boolean Whether to play a sound effect when toggling the window.
-function MCMRendering:ToggleMCMWindow(playSound)
-    if not MCM_WINDOW then
-        return
-    end
-
-    if MCM_WINDOW.Open == true then
-        MCM_WINDOW.Visible = false
-        MCM_WINDOW.Open = false
-        -- TODO: re-enable this sfx logic after refactoring client-side code
-        ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {
-            playSound = playSound
-        })
-    else
-        MCM_WINDOW.Visible = true
-        MCM_WINDOW.Open = true
-        ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
-            playSound = playSound
-        })
-    end
-end
-
 function MCMRendering:SetActiveWindowAlpha(bool)
     VCTimer:OnTime(100, function()
         if bool then
@@ -587,7 +564,8 @@ function MCMRendering:GetAllKeybindings()
 
                     local description = setting:GetDescription()
                     local tooltip = setting:GetTooltip()
-                    local enabled = modData.settingsValues[settingId] and modData.settingsValues[settingId].Enabled
+                    local enabled = modData.settingsValues[settingId] and
+                        modData.settingsValues[settingId].Enabled ~= false
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
                         ActionName = setting:GetLocaName(),
@@ -676,7 +654,8 @@ function MCMRendering:AddTooltip(imguiObject, tooltipText, uuid)
 
     local imguiObjectTooltip = imguiObject:Tooltip()
     imguiObjectTooltip.IDContext = uuid .. "_TOOLTIP"
-    imguiObjectTooltip:AddText(tooltipText)
+    local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods(tooltipText))
+    imguiObjectTooltip:AddText(preprocessedTooltip)
     imguiObjectTooltip:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
     imguiObjectTooltip:SetStyle("WindowPadding", 15, 15)
     imguiObjectTooltip:SetStyle("PopupBorderSize", 2)

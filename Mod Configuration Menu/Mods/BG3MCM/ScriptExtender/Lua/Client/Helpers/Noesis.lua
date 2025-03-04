@@ -83,7 +83,7 @@ local function handleMCMButtonPress(button, hasServer)
         end
         MCMPrint(1,
             "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-        MCMClientState:ToggleMCMWindow(false)
+            IMGUIAPI:ToggleMCMWindow(false)
     end)
 end
 

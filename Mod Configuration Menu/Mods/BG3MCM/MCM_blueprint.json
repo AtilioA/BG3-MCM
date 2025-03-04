@@ -35,6 +35,23 @@
                             }
                         },
                         {
+                            "Id": "close_mcm_keybinding",
+                            "Name": "Close MCM window",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "ESCAPE",
+                                    "ModifierKeys": []
+                                },
+                                "Enabled": false
+                            },
+                            "Description": "Set the keybinding for closing MCM's window.",
+                            "Handles": {
+                                "NameHandle": "hb2513599ba7a4b689fc3984a9ad9ae1c3d31",
+                                "DescriptionHandle": "heb5490e38fcf43099f6e7d3cd50e57e3adde"
+                            }
+                        },
+                        {
                             "Id": "host-only_mode",
                             "Name": "Host-only mode",
                             "Type": "checkbox",

@@ -133,6 +133,6 @@
     <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua</content>
     <content contentuid="hd4e656a649c14e638ab1cb4380ad714746ea" version="1">O atalho [1] está vinculado a mais de uma ação.&lt;br&gt;Abra o MCM e redefina as teclas em conflito.</content>
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Esse atalho deve ser habilitado?&lt;br&gt;Desabilitá-lo irá impedir que ele seja acionado se a combinação de teclas for pressionada.</content>
-    <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Set the keybinding for closing MCM's window.</content>
-    <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Close MCM window</content>
+    <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Defina o atalho para fechar a janela do MCM.</content>
+    <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Fechar janela do MCM</content>
 </contentList>
