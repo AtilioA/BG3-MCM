@@ -106,6 +106,14 @@ local function setupClientSideMCM(modUUID)
     modTable.MCM['SetKeybindingCallback'] = function(settingId, callback)
         InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
     end
+
+    modTable.MCM['OpenMCMWindow'] = function()
+        IMGUIAPI:OpenMCMWindow(modUUID)
+    end
+
+    modTable.MCM['CloseMCMWindow'] = function()
+        IMGUIAPI:CloseMCMWindow(modUUID)
+    end
 end
 
 -- Main function to inject MCM into the mod table
