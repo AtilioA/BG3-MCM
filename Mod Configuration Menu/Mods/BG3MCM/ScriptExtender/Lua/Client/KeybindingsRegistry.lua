@@ -67,11 +67,12 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                     modUUID = mod.ModUUID,
                     actionName = action.ActionName,
                     actionId = action.ActionId,
+                    enabled = action.Enabled,
                     keyboardBinding = action.KeyboardMouseBinding,
                     defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
-                    ShouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
-                    ShouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
-                    ShouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
+                    shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
+                    shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
+                    shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
                     description = action.Description,
                     tooltip = action.Tooltip
                 }
@@ -82,16 +83,26 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
 end
 
 --- Updates a binding for a given mod/action.
-function KeybindingsRegistry.UpdateBinding(modUUID, actionId, newBinding, inputType)
+--- Accepts a table of updates that can include fields like 'Keyboard' and 'Enabled'.
+function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
         MCMWarn(0, string.format("No binding found to update for mod '%s', action '%s'.", modUUID, actionId))
         return false
     end
 
-    if inputType == "KeyboardMouse" then
-        modTable[actionId].keyboardBinding = newBinding
+    local bindingEntry = modTable[actionId]
+
+    -- Update keyboard binding if provided
+    if updates.Keyboard ~= nil then
+        bindingEntry.keyboardBinding = updates.Keyboard
     end
+
+    -- Update enabled state if provided
+    if updates.Enabled ~= nil then
+        bindingEntry.enabled = updates.Enabled
+    end
+
     keybindingsSubject:OnNext(registry)
     return true
 end
@@ -113,9 +124,9 @@ end
 
 --- Evaluates if a binding should be triggered given the key event and the binding properties.
 local function shouldTriggerBinding(e, binding)
-    if e.Event == "KeyDown" and not binding.ShouldTriggerOnKeyDown then
+    if e.Event == "KeyDown" and not binding.shouldTriggerOnKeyDown then
         return false
-    elseif e.Event == "KeyUp" and not binding.ShouldTriggerOnKeyUp then
+    elseif e.Event == "KeyUp" and not binding.shouldTriggerOnKeyUp then
         return false
     end
 
@@ -123,11 +134,15 @@ local function shouldTriggerBinding(e, binding)
         return false
     end
 
-    if e.Repeat and not binding.ShouldTriggerOnRepeat then
+    if e.Repeat and not binding.shouldTriggerOnRepeat then
         return false
     end
 
     if binding.Options and binding.Options.IsDeveloperOnly and not Ext.Debug.IsDeveloperMode() then
+        return false
+    end
+
+    if binding.enabled == false then
         return false
     end
 

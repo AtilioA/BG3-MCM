@@ -134,4 +134,7 @@
     <content contentuid="hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d" version="1">Reinitializes the server and client Lua VM.</content>
     <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reset Lua</content>
     <content contentuid="hd4e656a649c14e638ab1cb4380ad714746ea" version="1">Keybinding [1] is bound to multiple actions.&lt;br&gt;Open MCM and rebind conflicting keys.</content>
+    <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Should this keybinding be enabled?&lt;br&gt;Disabling it will prevent it from firing if the keybinding is pressed.</content>
+    <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Set the keybinding for closing MCM's window.</content>
+    <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Close MCM window</content>
 </contentList>

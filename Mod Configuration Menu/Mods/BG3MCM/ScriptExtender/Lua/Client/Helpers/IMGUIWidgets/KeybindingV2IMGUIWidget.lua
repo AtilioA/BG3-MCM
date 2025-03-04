@@ -37,6 +37,18 @@ function KeybindingV2IMGUIWidget:new(group)
     return instance
 end
 
+function KeybindingV2IMGUIWidget:StoreKeybinding(modData, action, payload)
+    local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, payload)
+    if success then
+        MCMAPI:SetSettingValue(action.ActionId, payload, modData.ModUUID)
+    else
+        MCMWarn(0,
+            "Failed to update binding in registry for mod '" ..
+            modData.ModName .. "', action '" .. action.ActionId .. "'.")
+    end
+    return success
+end
+
 -- Filters actions using the centralized registry.
 function KeybindingV2IMGUIWidget:FilterActions()
     local filteredMods = {}
@@ -61,6 +73,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
                     ModUUID = modUUID,
                     ActionName = binding.actionName,
                     ActionId = actionId,
+                    Enabled = binding.enabled,
                     KeyboardMouseBinding = binding.keyboardBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
                     Description = binding.description,
@@ -120,19 +133,40 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 end
 
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
-    local columns = 3
+    local columns = 4 -- Changed from 3 to 5 to add the enabled column.
     local imguiTable = modGroup:AddTable("", columns)
     imguiTable.BordersOuter = true
     imguiTable.BordersInner = true
     imguiTable.RowBg = true
 
-    -- Define the columns: Action, Description, Keybinding, and Reset.
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3"), "WidthFixed", 700)
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134"), "WidthFixed", 600)
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"), "WidthFixed", 200)
+    -- Define the columns: Enabled, Action, Description, Keybinding, and Reset.
+    imguiTable:AddColumn("Enabled", "WidthFixed", 100)
+    imguiTable:AddColumn("Action", "WidthFixed", 700)
+    imguiTable:AddColumn("Keybinding", "WidthFixed", 600)
+    imguiTable:AddColumn("Reset", "WidthFixed", 100)
 
     for _, action in ipairs(mod.Actions) do
         local row = imguiTable:AddRow()
+
+        -- Enabled checkbox cell.
+        local enabledCell = row:AddCell()
+        local enabledCheckbox = enabledCell:AddCheckbox("")
+        MCMRendering:AddTooltip(enabledCheckbox,
+            Ext.Loca.GetTranslatedString(
+                "h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09"),
+            mod.ModName .. "_Enabled_" .. action.ActionId .. "_TOOLTIP")
+        enabledCheckbox.Checked = action.Enabled ~= false
+        enabledCheckbox.IDContext = mod.ModName .. "_Enabled_" .. action.ActionId
+        enabledCheckbox.OnChange = function(checkbox)
+            action.Enabled = checkbox.Checked
+            -- TODO: refactor back-end to allow partial updates
+            self:StoreKeybinding(mod, action, {
+                Keyboard =
+                    action.KeyboardMouseBinding,
+                Enabled = checkbox.Checked
+            })
+            self:RefreshUI()
+        end
 
         -- Action Name cell.
         local nameCell = row:AddCell()
@@ -146,6 +180,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         MCMRendering:AddTooltip(nameText,
             VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
             mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
+
 
         -- Keybinding cell.
         local kbCell = row:AddCell()
@@ -227,9 +262,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             self.Widget.CurrentListeningAction = nil
             self:UnregisterInputEvents()
 
-            if inputType == "KeyboardMouse" then
-                KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, "", "KeyboardMouse")
-            end
+            KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, { Keyboard = "" })
             return
         end
 
@@ -289,38 +322,42 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
 
     local conflictAction = self:CheckForConflicts(keybinding, modData, action, inputType)
     if conflictAction then
-        NotificationManager:CreateIMGUINotification("Keybinding_Conflict", 'warning',
-            Ext.Loca.GetTranslatedString("h3da76df520324473a863b03cc622ac65fbfd"),
-            VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee", conflictAction.ActionName), {},
-            ModuleUUID)
+        local keybindingStr = KeyPresentationMapping:GetKBViewKey(keybinding) or ""
+        NotificationManager:CreateIMGUINotification(
+            "Keybinding_Conflict" .. Ext.Math.Random(),
+            'warning',
+            "Keybinding conflict",
+            "Keybinding " .. keybindingStr .. " is bound to multiple actions.\nOpen MCM and rebind conflicting keys.",
+            { duration = 10, dontShowAgainButton = false },
+            ModuleUUID
+        )
     end
 
     local registry = KeybindingsRegistry.GetRegistry()
-    local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
+    local _currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
     local newPayload = {}
     if inputType == "KeyboardMouse" then
+        -- TODO: refactor back-end to allow partial updates
         newPayload.Keyboard = {
             Key = keybinding.Key or keybinding,
-            ModifierKeys = keybinding.ModifierKeys or {}
+            ModifierKeys = keybinding.ModifierKeys or {},
         }
-    end
-
-    local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, keybinding, inputType)
-    if success then
-        MCMAPI:SetSettingValue(action.ActionId, newPayload, modData.ModUUID)
-    else
-        MCMWarn(0, "Failed to update binding in registry for mod '" ..
-            modData.ModName .. "', action '" .. action.ActionId .. "'.")
+        newPayload.Enabled = _currentBinding.Enabled
     end
 
     xpcall(function()
+        if self:StoreKeybinding(modData, action, newPayload) then
         if inputType == "KeyboardMouse" and type(keybinding) == "table" and buttonElement then
             buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING
         else
             buttonElement.Label = UNASSIGNED_KEYBOARD_MOUSE_STRING
         end
         buttonElement.Disabled = false
+        else
+            MCMError(0, "Failed to update binding in registry for mod '" ..
+                modData.ModName .. "', action '" .. action.ActionId .. "'.")
+        end
     end, function(err)
     end)
 end
@@ -345,7 +382,7 @@ end
 
 function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, currentAction, inputType)
     local registry = KeybindingsRegistry.GetRegistry()
-    local currentModUUID = currentMod.ModUUID
+    local _currentModUUID = currentMod.ModUUID
     local currentActionId = currentAction.ActionId
     local isKeyboardMouse = (inputType == "KeyboardMouse")
     local normalizedNewBinding
@@ -379,7 +416,7 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     local registry = KeybindingsRegistry.GetRegistry()
     if registry[modUUID] and registry[modUUID][actionId] then
         local binding = registry[modUUID][actionId]
-        KeybindingsRegistry.UpdateBinding(modUUID, actionId, binding.defaultKeyboardBinding, "KeyboardMouse")
+        KeybindingsRegistry.UpdateBinding(modUUID, actionId, { Keyboard = binding.defaultKeyboardBinding })
         self:RefreshUI()
     end
 end

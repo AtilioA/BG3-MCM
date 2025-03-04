@@ -465,6 +465,10 @@
                                     "Default": {
                                         "type": "object",
                                         "properties": {
+                                            "Enabled": {
+                                                "type": "boolean",
+                                                "description": "Indicates if the keybinding is enabled."
+                                            },
                                             "Keyboard": {
                                                 "type": "object",
                                                 "properties": {
@@ -858,8 +862,8 @@
                     "Type": "list_v2",
                     "Description": "This is a list v2 setting",
                     "Default": {
-                        "enabled": true,
-                        "elements": [
+                        "Enabled": true,
+                        "Elements": [
                             {
                                 "name": "a",
                                 "enabled": true
