@@ -323,14 +323,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     local conflictAction = self:CheckForConflicts(keybinding, modData, action, inputType)
     if conflictAction then
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(keybinding) or ""
-        NotificationManager:CreateIMGUINotification(
-            "Keybinding_Conflict" .. Ext.Math.Random(),
-            'warning',
-            "Keybinding conflict",
-            "Keybinding " .. keybindingStr .. " is bound to multiple actions.\nOpen MCM and rebind conflicting keys.",
-            { duration = 10, dontShowAgainButton = false },
-            ModuleUUID
-        )
+        KeybindingsRegistry.NotifyConflict(keybindingStr)
     end
 
     local registry = KeybindingsRegistry.GetRegistry()
@@ -348,12 +341,12 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
 
     xpcall(function()
         if self:StoreKeybinding(modData, action, newPayload) then
-        if inputType == "KeyboardMouse" and type(keybinding) == "table" and buttonElement then
-            buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING
-        else
-            buttonElement.Label = UNASSIGNED_KEYBOARD_MOUSE_STRING
-        end
-        buttonElement.Disabled = false
+            if inputType == "KeyboardMouse" and type(keybinding) == "table" and buttonElement then
+                buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING
+            else
+                buttonElement.Label = UNASSIGNED_KEYBOARD_MOUSE_STRING
+            end
+            buttonElement.Disabled = false
         else
             MCMError(0, "Failed to update binding in registry for mod '" ..
                 modData.ModName .. "', action '" .. action.ActionId .. "'.")

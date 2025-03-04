@@ -152,6 +152,19 @@ local function shouldTriggerBinding(e, binding)
     })
 end
 
+function KeybindingsRegistry.NotifyConflict(keybindingStr)
+    local conflictStr = VCString:InterpolateLocalizedMessage("hd4e656a649c14e638ab1cb4380ad714746ea", keybindingStr)
+    NotificationManager:CreateIMGUINotification(
+        "Keybinding_Conflict" .. Ext.Math.Random(),
+        'warning',
+        "Keybinding conflict",
+        conflictStr,
+        { duration = 10, dontShowAgainButton = false },
+        ModuleUUID
+    )
+    IMGUIAPI:ToggleMCMWindow(false)
+end
+
 --- Dispatch a keyboard event.
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
     local triggered = {}
@@ -174,16 +187,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     if #triggered > 1 then
         local binding = triggered[1]
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
-        local conflictStr = VCString:InterpolateLocalizedMessage("hd4e656a649c14e638ab1cb4380ad714746ea", keybindingStr)
-        NotificationManager:CreateIMGUINotification(
-            "Keybinding_Conflict" .. Ext.Math.Random(),
-            'warning',
-            "Keybinding conflict",
-            conflictStr,
-            { duration = 10, dontShowAgainButton = false },
-            ModuleUUID
-        )
-        MCMClientState:ToggleMCMWindow(false)
+        KeybindingsRegistry.NotifyConflict(keybindingStr)
         if binding.keyboardCallback then
             binding.keyboardCallback(e)
         end
