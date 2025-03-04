@@ -212,6 +212,8 @@ function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow.Closeable = false
     self.IMGUIwindow.Visible = true
     self.IMGUIwindow.Open = true
+    self.IMGUIwindow.NoCollapse = true
+
 
     self.IMGUIwindow:SetColor("TitleBg", NotificationStyles:GetStyleTitleBg(self.notificationSeverity))
     self.IMGUIwindow:SetColor("TitleBgActive", NotificationStyles:GetStyleTitleBg(self.notificationSeverity))
