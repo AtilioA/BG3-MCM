@@ -14,6 +14,18 @@ local allowedActiveModifiers = {
     RALT   = true,
 }
 
+function KeybindingManager:ShouldPreventAction(e)
+    if e.PreventAction == nil then
+        return false
+    end
+
+    if e.Key == "ESCAPE" then
+        return false
+    end
+
+    return true
+end
+
 -- Checks if a table is a keybinding table
 function KeybindingManager:IsKeybindingTable(value)
     return type(value) == "table" and value.ScanCode ~= nil and value.Modifier ~= nil

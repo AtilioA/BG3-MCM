@@ -179,8 +179,9 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     end
 
     if #triggered ~= 0 then
-        if e.PreventAction then
+        if KeybindingManager:ShouldPreventAction(e) then
             e:PreventAction()
+            e:StopPropagation()
         end
     end
 
