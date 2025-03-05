@@ -189,9 +189,9 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         local binding = triggered[1]
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
         KeybindingsRegistry.NotifyConflict(keybindingStr)
-        if binding.keyboardCallback then
-            binding.keyboardCallback(e)
-        end
+        -- if binding.keyboardCallback then
+        --     binding.keyboardCallback(e)
+        -- end
     elseif #triggered == 1 then
         local binding = triggered[1]
         if binding.keyboardCallback then
