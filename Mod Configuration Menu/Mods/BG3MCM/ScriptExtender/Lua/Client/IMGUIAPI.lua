@@ -130,7 +130,7 @@ end
 --- Toggles the visibility of the MCM window.
 --- @param playSound boolean Whether to play a sound effect when toggling the window.
 function IMGUIAPI:ToggleMCMWindow(playSound)
-    if MCM_WINDOW.Open == true then
+    if MCM_WINDOW.Open == true or MCM_WINDOW.Visible == true then
         self:CloseMCMWindow(playSound)
     else
         self:OpenMCMWindow(playSound)
