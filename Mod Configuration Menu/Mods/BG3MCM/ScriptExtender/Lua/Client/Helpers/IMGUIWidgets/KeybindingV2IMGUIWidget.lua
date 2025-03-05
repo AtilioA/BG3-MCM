@@ -61,14 +61,14 @@ function KeybindingV2IMGUIWidget:FilterActions()
         for actionId, binding in pairs(actions) do
             local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
             local matchesActionName = VCString:FuzzyMatch(binding.actionName:upper(), searchText)
-            local matchesDescription = VCString:FuzzyMatch(binding.description:upper(), searchText)
+            -- local matchesDescription = VCString:FuzzyMatch(binding.description:upper(), searchText)
             local matchesTooltip = VCString:FuzzyMatch(binding.tooltip:upper(), searchText)
             local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
                 VCString:FuzzyMatch(binding.keyboardBinding.Key:upper(), searchText) and
                 binding.keyboardBinding.ModifierKeys
             local matchesPresentationKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
                 VCString:FuzzyMatch(KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding):upper(), searchText)
-            if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesPresentationKeyboard or matchesDescription or matchesTooltip then
+            if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesPresentationKeyboard or matchesTooltip then
                 table.insert(filteredActions, {
                     ModUUID = modUUID,
                     ActionName = binding.actionName,
