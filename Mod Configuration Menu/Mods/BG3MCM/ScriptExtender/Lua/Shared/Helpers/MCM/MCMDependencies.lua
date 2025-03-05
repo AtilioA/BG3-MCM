@@ -45,7 +45,9 @@ function MCMDependencies:WarnAboutLoadOrderDependencies()
     for _, issue in ipairs(issues) do
         local dependencyIssueTitle = "Dependency issue detected: " ..
             issue.modName .. " depends on " .. issue.dependencyName
-        NotificationManager:CreateIMGUINotification(issue.id, issue.severity, dependencyIssueTitle, issue.resultMessage, {},
+        NotificationManager:CreateIMGUINotification(issue.id, issue.severity, dependencyIssueTitle, issue.resultMessage, {
+            dontShowAgainButton = true
+        },
             ModuleUUID)
 
         MCMWarn(0, issue.resultMessage)
@@ -102,6 +104,7 @@ function MCMDependencies:CreateNotificationForEachLevel()
     local errorId = "MCM_Dependency_Error"
     local errorOptions = {
         duration = math.random(2, 10),
+        dontShowAgainButton = true,
         dontShowAgainButtonCountdownInSec = math.random(2, 7),
         buttons = {
             ["Retry"] = function()

@@ -71,7 +71,7 @@ function NotificationManager:new(id, severity, title, message, options, modUUID)
         options = {
             duration = options.duration,
             -- This shouldn't even be needed, but this is Lua after all
-            dontShowAgainButton = options.dontShowAgainButton,
+            dontShowAgainButton = dontShowAgainButton,
             dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec or
                 DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
             displayOnceOnly = options.displayOnceOnly,
