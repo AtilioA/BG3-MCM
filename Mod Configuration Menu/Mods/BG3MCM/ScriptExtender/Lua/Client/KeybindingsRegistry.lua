@@ -162,7 +162,7 @@ function KeybindingsRegistry.NotifyConflict(keybindingStr)
         { duration = 10, dontShowAgainButton = false },
         ModuleUUID
     )
-    IMGUIAPI:ToggleMCMWindow(false)
+    -- IMGUIAPI:OpenMCMWindow(true)
 end
 
 --- Dispatch a keyboard event.
@@ -181,7 +181,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     if #triggered ~= 0 then
         if KeybindingManager:ShouldPreventAction(e) then
             e:PreventAction()
-            e:StopPropagation()
+            -- e:StopPropagation()
         end
     end
 
