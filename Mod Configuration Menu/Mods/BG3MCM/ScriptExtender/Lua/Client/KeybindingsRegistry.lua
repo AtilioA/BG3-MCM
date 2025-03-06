@@ -31,6 +31,16 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     end
 end
 
+function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled)
+    return {
+        Keyboard = {
+            Key = binding.Key or binding,
+            ModifierKeys = binding.ModifierKeys or {}
+        },
+        Enabled = currentEnabled
+    }
+end
+
 --- Determines if a developer-only action should be included based on the provided options.
 --- @param action table The action to evaluate for inclusion.
 --- @param options ActionFilterOptions|nil The options that may affect inclusion.
@@ -67,9 +77,10 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                     modUUID = mod.ModUUID,
                     actionName = action.ActionName,
                     actionId = action.ActionId,
-                    enabled = action.Enabled,
                     keyboardBinding = action.KeyboardMouseBinding,
+                    enabled = action.Enabled,
                     defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
+                    defaultEnabled = action.DefaultEnabled,
                     shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
                     shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
                     shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
@@ -102,6 +113,9 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates)
     if updates.Enabled ~= nil then
         bindingEntry.enabled = updates.Enabled
     end
+
+    -- Persist the updated binding
+    MCMAPI:SetSettingValue(actionId, updates, modUUID)
 
     keybindingsSubject:OnNext(registry)
     return true

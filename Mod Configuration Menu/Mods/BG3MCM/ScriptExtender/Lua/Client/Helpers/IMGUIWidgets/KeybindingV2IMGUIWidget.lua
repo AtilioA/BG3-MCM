@@ -39,12 +39,11 @@ end
 
 function KeybindingV2IMGUIWidget:StoreKeybinding(modData, action, payload)
     local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, payload)
-    if success then
-        MCMAPI:SetSettingValue(action.ActionId, payload, modData.ModUUID)
-    else
+    if not success then
         MCMWarn(0,
             "Failed to update binding in registry for mod '" ..
-            modData.ModName .. "', action '" .. action.ActionId .. "'.")
+            modData.ModName .. "', action '" .. action.ActionId .. ". Please contact " ..
+            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     end
     return success
 end
@@ -74,6 +73,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
                     ActionName = binding.actionName,
                     ActionId = actionId,
                     Enabled = binding.enabled,
+                    DefaultEnabled = binding.defaultEnabled,
                     KeyboardMouseBinding = binding.keyboardBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
                     Description = binding.description,
@@ -330,17 +330,9 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     end
 
     local registry = KeybindingsRegistry.GetRegistry()
-    local _currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
+    local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
-    local newPayload = {}
-    if inputType == "KeyboardMouse" then
-        -- TODO: refactor back-end to allow partial updates
-        newPayload.Keyboard = {
-            Key = keybinding.Key or keybinding,
-            ModifierKeys = keybinding.ModifierKeys or {},
-        }
-        newPayload.Enabled = _currentBinding.Enabled
-    end
+    local newPayload = KeybindingsRegistry.BuildKeyboardPayload(keybinding, currentBinding.Enabled)
 
     xpcall(function()
         if self:StoreKeybinding(modData, action, newPayload) then
@@ -410,10 +402,17 @@ end
 
 function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     local registry = KeybindingsRegistry.GetRegistry()
-    if registry[modUUID] and registry[modUUID][actionId] then
-        local binding = registry[modUUID][actionId]
-        KeybindingsRegistry.UpdateBinding(modUUID, actionId, { Keyboard = binding.defaultKeyboardBinding })
-        self:RefreshUI()
+    local binding = registry[modUUID] and registry[modUUID][actionId]
+    if binding then
+        local resetKeybinding = binding.defaultKeyboardBinding
+        local resetPayload = KeybindingsRegistry.BuildKeyboardPayload(resetKeybinding, binding.defaultEnabled)
+        local success = KeybindingsRegistry.UpdateBinding(modUUID, actionId, resetPayload)
+        if not success then
+            MCMError(0,
+                "Failed to reset binding for mod '" .. modUUID .. "', action '" .. actionId .. "'. Please contact " ..
+                Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+            self:RefreshUI()
+        end
     end
 end
 

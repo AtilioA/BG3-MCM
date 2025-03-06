@@ -566,10 +566,12 @@ function MCMRendering:GetAllKeybindings()
                     local tooltip = setting:GetTooltip()
                     local enabled = modData.settingsValues[settingId] and
                         modData.settingsValues[settingId].Enabled ~= false
+                    local defaultEnabled = setting.Default and setting.Default.Enabled
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
                         ActionName = setting:GetLocaName(),
                         KeyboardMouseBinding = keyboardBinding,
+                        DefaultEnabled = defaultEnabled,
                         Enabled = enabled,
                         DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
                             { Key = "", ModifierKeys = { "NONE" } },
