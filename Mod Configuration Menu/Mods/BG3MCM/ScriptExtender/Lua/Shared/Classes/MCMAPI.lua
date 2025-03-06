@@ -222,8 +222,8 @@ end
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
 ---@param modUUID GUIDSTRING The UUID of the mod
----@param emitEvent? boolean Whether to emit an event
-function MCMAPI:SetSettingValue(settingId, value, modUUID, emitEvent)
+---@param shouldEmitEvent? boolean Whether to emit an event
+function MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
     if not settingId then
         MCMWarn(0, "settingId is nil. Value will not be saved.")
         return
@@ -258,7 +258,7 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID, emitEvent)
         value = value
     }))
 
-    if Ext.IsServer() and not emitEvent then return end
+    if Ext.IsServer() and not shouldEmitEvent then return end
 
     ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
         modUUID = modUUID,
