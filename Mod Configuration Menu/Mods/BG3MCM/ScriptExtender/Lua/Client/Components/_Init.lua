@@ -1,5 +1,6 @@
 RequireFiles("Client/Components/", {
     "MainMenu",
     "FrameManager",
-    "UIProfileManager"
+    "UIProfileManager",
+    "PaneController"
 })
