@@ -86,11 +86,11 @@ local function ensureModMCM(modTable, modUUID)
         return MCMAPI:SetSettingValue(listSettingId, setting, modUUID)
     end
 
-    MCMInstance.Set = function(settingId, value)
-        MCMAPI:SetSettingValue(settingId, value, modUUID)
+    MCMInstance.Set = function(settingId, value, emitEvent)
+        MCMAPI:SetSettingValue(settingId, value, modUUID, emitEvent)
     end
-    MCMInstance.Reset = function(settingId)
-        MCMAPI:ResetSettingValue(settingId, modUUID)
+    MCMInstance.Reset = function(settingId, emitEvent)
+        MCMAPI:ResetSettingValue(settingId, modUUID, emitEvent)
     end
 
     return MCMInstance

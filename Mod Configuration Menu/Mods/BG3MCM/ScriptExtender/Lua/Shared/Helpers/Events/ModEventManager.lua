@@ -22,9 +22,7 @@ local deprecatedEventNameMap = {
 --- @param eventData table The data to pass with the event
 --- @param bothContexts? boolean Whether to emit the event in both contexts. Default is true.
 local function emitModEvent(eventName, eventData, bothContexts)
-    local function relayModEventEmissionToOtherContext(eventName, eventData, bothContexts)
-        if bothContexts == false then return end
-
+    local function relayModEventEmissionToOtherContext(eventName, eventData)
         xpcall(function()
             if Ext.IsServer() then
                 Ext.Net.BroadcastMessage(NetChannels.MCM_EMIT_ON_CLIENTS,
@@ -51,7 +49,10 @@ local function emitModEvent(eventName, eventData, bothContexts)
     end)
 
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
-    relayModEventEmissionToOtherContext(eventName, eventData, bothContexts)
+
+    if bothContexts == true then
+        relayModEventEmissionToOtherContext(eventName, eventData)
+    end
 end
 
 local function broadcastDeprecatedNetMessage(eventName, eventData)

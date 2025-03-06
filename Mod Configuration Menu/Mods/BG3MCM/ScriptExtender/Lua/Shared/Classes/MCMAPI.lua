@@ -222,7 +222,8 @@ end
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
 ---@param modUUID GUIDSTRING The UUID of the mod
-function MCMAPI:SetSettingValue(settingId, value, modUUID)
+---@param emitEvent? boolean Whether to emit an event
+function MCMAPI:SetSettingValue(settingId, value, modUUID, emitEvent)
     if not settingId then
         MCMWarn(0, "settingId is nil. Value will not be saved.")
         return
@@ -251,12 +252,20 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID)
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
+    Ext.Net.BroadcastMessage(NetChannels.MCM_INTERNAL_SETTING_SAVED, Ext.Json.Stringify({
+        modUUID = modUUID,
+        settingId = settingId,
+        value = value
+    }))
+
+    if Ext.IsServer() and not emitEvent then return end
+
     ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
         modUUID = modUUID,
         settingId = settingId,
         value = value,
         oldValue = oldValue
-    })
+    }, true)
 end
 
 ---@param settingId string The id of the setting to reset
@@ -264,6 +273,10 @@ end
 ---@param clientRequest? boolean (deprecated) Whether the request came from the client
 function MCMAPI:ResetSettingValue(settingId, modUUID, clientRequest)
     modUUID = modUUID or ModuleUUID
+    local shouldEmitEvent = true
+    if clientRequest == true then
+        shouldEmitEvent = false
+    end
 
     local blueprint = self:GetModBlueprint(modUUID)
     if not blueprint then
@@ -277,7 +290,7 @@ function MCMAPI:ResetSettingValue(settingId, modUUID, clientRequest)
             "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modUUID .. "'. Please contact " ..
             Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
     else
-        self:SetSettingValue(settingId, defaultValue, modUUID, clientRequest)
+        self:SetSettingValue(settingId, defaultValue, modUUID, not shouldEmitEvent)
         -- Ext.Net.BroadcastMessage(EventChannels.MCM_SETTING_RESET, Ext.Json.Stringify({
         --     modUUID = modUUID,
         --     settingId = settingId,

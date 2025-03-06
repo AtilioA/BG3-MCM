@@ -7,6 +7,8 @@ NetChannels.MCM_RELAY_TO_CLIENTS = "MCM_Relay_To_Clients"
 NetChannels.MCM_EMIT_ON_SERVER = "MCM_Emit_On_Server"
 NetChannels.MCM_EMIT_ON_CLIENTS = "MCM_Emit_On_Clients"
 
+NetChannels.MCM_INTERNAL_SETTING_SAVED = "MCM_Internal_Setting_Saved"
+
 NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT = "MCM_Server_Send_Configs_To_Client"
 
 NetChannels.MCM_CLIENT_REQUEST_CONFIGS = "MCM_Client_Request_Configs"
