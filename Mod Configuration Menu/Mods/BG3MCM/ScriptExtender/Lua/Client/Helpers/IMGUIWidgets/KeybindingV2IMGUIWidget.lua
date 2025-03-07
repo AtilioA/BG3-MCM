@@ -133,82 +133,91 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 end
 
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
-    local columns = 4 -- Changed from 3 to 5 to add the enabled column.
-    local imguiTable = modGroup:AddTable("", columns)
-    imguiTable.BordersOuter = true
-    imguiTable.BordersInner = true
-    imguiTable.RowBg = true
+    xpcall(function()
+        local columns = 4 -- Changed from 3 to 5 to add the enabled column.
+        local imguiTable = modGroup:AddTable("", columns)
+        imguiTable.BordersOuter = true
+        imguiTable.BordersInner = true
+        imguiTable.RowBg = true
 
-    -- Define the columns: Enabled, Action, Description, Keybinding, and Reset.
-    imguiTable:AddColumn("Enabled", "WidthFixed", 100)
-    imguiTable:AddColumn("Action", "WidthFixed", 700)
-    imguiTable:AddColumn("Keybinding", "WidthFixed", 600)
-    imguiTable:AddColumn("Reset", "WidthFixed", 100)
+        -- Define the columns: Enabled, Action, Description, Keybinding, and Reset.
+        imguiTable:AddColumn("Enabled", "WidthFixed", 100)
+        imguiTable:AddColumn("Action", "WidthFixed", 700)
+        imguiTable:AddColumn("Keybinding", "WidthFixed", 600)
+        imguiTable:AddColumn("Reset", "WidthFixed", 100)
 
-    for _, action in ipairs(mod.Actions) do
-        local row = imguiTable:AddRow()
+        for _, action in ipairs(mod.Actions) do
+            local row = imguiTable:AddRow()
 
-        -- Enabled checkbox cell.
-        local enabledCell = row:AddCell()
-        local enabledCheckbox = enabledCell:AddCheckbox("")
-        MCMRendering:AddTooltip(enabledCheckbox,
-            Ext.Loca.GetTranslatedString(
-                "h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09"),
-            mod.ModName .. "_Enabled_" .. action.ActionId .. "_TOOLTIP")
-        enabledCheckbox.Checked = action.Enabled ~= false
-        enabledCheckbox.IDContext = mod.ModName .. "_Enabled_" .. action.ActionId
-        enabledCheckbox.OnChange = function(checkbox)
-            action.Enabled = checkbox.Checked
-            -- TODO: refactor back-end to allow partial updates
-            self:StoreKeybinding(mod, action, {
-                Keyboard =
-                    action.KeyboardMouseBinding,
-                Enabled = checkbox.Checked
-            })
-            self:RefreshUI()
+            -- Enabled checkbox cell.
+            local enabledCell = row:AddCell()
+            local enabledCheckbox = enabledCell:AddCheckbox("")
+            MCMRendering:AddTooltip(enabledCheckbox,
+                Ext.Loca.GetTranslatedString(
+                    "h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09"),
+                mod.ModName .. "_Enabled_" .. action.ActionId .. "_TOOLTIP")
+            enabledCheckbox.Checked = action.Enabled ~= false
+            enabledCheckbox.IDContext = mod.ModName .. "_Enabled_" .. action.ActionId
+            enabledCheckbox.OnChange = function(checkbox)
+                action.Enabled = checkbox.Checked
+                -- TODO: refactor back-end to allow partial updates
+                self:StoreKeybinding(mod, action, {
+                    Keyboard =
+                        action.KeyboardMouseBinding,
+                    Enabled = checkbox.Checked
+                })
+                self:RefreshUI()
+            end
+
+            -- Action Name cell.
+            local nameCell = row:AddCell()
+            local nameText = nameCell:AddText(action.ActionName)
+            nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
+            local descriptionText = nameCell:AddText(VCString:ReplaceBrWithNewlines(action.Description))
+            nameText.TextWrapPos = 0
+            descriptionText.TextWrapPos = 0
+            nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
+            descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
+            MCMRendering:AddTooltip(nameText,
+                VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
+                mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
+
+
+            -- Keybinding cell.
+            local kbCell = row:AddCell()
+            local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
+                UNASSIGNED_KEYBOARD_MOUSE_STRING)
+            kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionId
+            kbButton.OnClick = function()
+                self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
+            end
+            MCMRendering:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
+                mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
+
+            -- Reset button cell.
+            local resetCell = row:AddCell()
+            local resetButton = resetCell:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"))
+            resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionId
+            resetButton.OnClick = function()
+                self:ResetBinding(mod.ModUUID, action.ActionId)
+            end
+            MCMRendering:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h497bb04f93734d52a265956df140e77a7add"),
+                mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
+
+            -- If there is a conflict, color the keybinding button red.
+            local conflictKB = self:CheckForConflicts(action.KeyboardMouseBinding, mod, action, "KeyboardMouse")
+            if conflictKB then
+                kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+            end
         end
+    end, function(err)
+        if not modGroup or not err then return end
 
-        -- Action Name cell.
-        local nameCell = row:AddCell()
-        local nameText = nameCell:AddText(action.ActionName)
-        nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
-        local descriptionText = nameCell:AddText(VCString:ReplaceBrWithNewlines(action.Description))
-        nameText.TextWrapPos = 0
-        descriptionText.TextWrapPos = 0
-        nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
-        descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
-        MCMRendering:AddTooltip(nameText,
-            VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
-            mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
+        MCMError(0, "Error in RenderKeybindingTable: " .. tostring(err))
 
-
-        -- Keybinding cell.
-        local kbCell = row:AddCell()
-        local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
-            UNASSIGNED_KEYBOARD_MOUSE_STRING)
-        kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionId
-        kbButton.OnClick = function()
-            self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
-        end
-        MCMRendering:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
-            mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
-
-        -- Reset button cell.
-        local resetCell = row:AddCell()
-        local resetButton = resetCell:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"))
-        resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionId
-        resetButton.OnClick = function()
-            self:ResetBinding(mod.ModUUID, action.ActionId)
-        end
-        MCMRendering:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h497bb04f93734d52a265956df140e77a7add"),
-            mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
-
-        -- If there is a conflict, color the keybinding button red.
-        local conflictKB = self:CheckForConflicts(action.KeyboardMouseBinding, mod, action, "KeyboardMouse")
-        if conflictKB then
-            kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
-        end
-    end
+        local errorText = modGroup:AddText("Error in RenderKeybindingTable: " .. tostring(err))
+        errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+    end)
 end
 
 function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, button)
