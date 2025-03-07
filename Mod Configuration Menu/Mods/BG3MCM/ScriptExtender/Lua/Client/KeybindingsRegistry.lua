@@ -132,7 +132,9 @@ function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, call
     if inputType == "KeyboardMouse" then
         modTable[actionId].keyboardCallback = callback
     end
-    keybindingsSubject:OnNext(registry)
+
+    -- It is not necessary to update the registry when registering a callback
+    -- keybindingsSubject:OnNext(registry)
     return true
 end
 
