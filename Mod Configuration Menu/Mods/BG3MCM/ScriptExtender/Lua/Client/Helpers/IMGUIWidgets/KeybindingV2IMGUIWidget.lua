@@ -52,7 +52,7 @@ end
 function KeybindingV2IMGUIWidget:FilterActions()
     local filteredMods = {}
     local searchText = self.Widget.SearchText:upper()
-    local registry = KeybindingsRegistry.GetRegistry()
+    local registry = KeybindingsRegistry.GetFilteredRegistry()
 
     for modUUID, actions in pairs(registry) do
         local modName = MCMClientState:GetModName(modUUID)
@@ -338,7 +338,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
         KeybindingsRegistry.NotifyConflict(keybindingStr)
     end
 
-    local registry = KeybindingsRegistry.GetRegistry()
+    local registry = KeybindingsRegistry.GetFilteredRegistry()
     local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
     local newPayload = KeybindingsRegistry.BuildKeyboardPayload(keybinding, currentBinding.Enabled)
@@ -378,7 +378,7 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
 end
 
 function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, currentAction, inputType)
-    local registry = KeybindingsRegistry.GetRegistry()
+    local registry = KeybindingsRegistry.GetFilteredRegistry()
     local _currentModUUID = currentMod.ModUUID
     local currentActionId = currentAction.ActionId
     local isKeyboardMouse = (inputType == "KeyboardMouse")
@@ -410,7 +410,7 @@ function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, curre
 end
 
 function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
-    local registry = KeybindingsRegistry.GetRegistry()
+    local registry = KeybindingsRegistry.GetFilteredRegistry()
     local binding = registry[modUUID] and registry[modUUID][actionId]
     if binding then
         local resetKeybinding = binding.defaultKeyboardBinding
