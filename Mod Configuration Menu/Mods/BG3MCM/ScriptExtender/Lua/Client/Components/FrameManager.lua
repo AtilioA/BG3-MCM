@@ -20,6 +20,10 @@ function FrameManager:initFrameLayout(parent)
     local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
+
+    -- Create scrollable child windows
+    self.menuScrollWindow = self.menuCell:AddChildWindow("MenuScroll")
+    self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScroll")
 end
 
 ---@param uuidToShow string
@@ -35,7 +39,7 @@ end
 function FrameManager:AddMenuSection(text)
     -- local modsListIcon = self.menuCell:AddImage("ico_identity_d", {40, 40})
     -- modsListIcon.SameLine = true
-    self.menuCell:AddSeparatorText(text)
+    self.menuScrollWindow:AddSeparatorText(text)
 end
 
 ---@param modName string
@@ -54,7 +58,7 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
     if modDescription then
         MCMRendering:AddTooltip(menuButton, modDescription, modUUID)
     end
-    local uiGroupMod = self.contentCell:AddGroup(modUUID)
+    local uiGroupMod = self.contentScrollWindow:AddGroup(modUUID)
 
     uiGroupMod:AddSeparatorText(modName)
     if modDescription then
@@ -168,12 +172,12 @@ end
 ---@param uuid string
 ---@return any
 function FrameManager:CreateMenuButton(menuCell, text, uuid)
-    local button = menuCell:AddButton(text)
+    local button = self.menuScrollWindow:AddButton(text)
     button.IDContext = "MenuButton_" .. text .. "_" .. uuid
     button.OnClick = function()
         self:setVisibleFrame(uuid)
         MCMDebug(2, "Set mod Visible : " .. button.IDContext)
-        for _, c in ipairs(menuCell.Children) do
+        for _, c in ipairs(self.menuScrollWindow.Children) do
             if c == button then
                 c:SetColor("Button", UIStyle.Colors["ButtonActive"])
             else

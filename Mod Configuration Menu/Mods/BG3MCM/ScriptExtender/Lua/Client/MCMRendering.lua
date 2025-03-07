@@ -239,7 +239,7 @@ function MCMRendering:CreateMainIMGUIWindow()
 
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
-
+    MCM_WINDOW.NoScrollbar = true
 
     if table.isEmpty(self.mods) then
         self.welcomeText = MCM_WINDOW:AddText(
@@ -613,7 +613,7 @@ function MCMRendering:CreateKeybindingsPage()
     FrameManager:CreateMenuButton(FrameManager.menuCell,
         Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
 
-    local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
+    local hotkeysGroup = FrameManager.contentScrollWindow:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
