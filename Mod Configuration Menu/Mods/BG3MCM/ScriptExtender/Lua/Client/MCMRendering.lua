@@ -573,7 +573,10 @@ function MCMRendering:GetAllKeybindings()
                     local tooltip = setting:GetTooltip()
                     local enabled = modData.settingsValues[settingId] and
                         modData.settingsValues[settingId].Enabled ~= false
-                    local defaultEnabled = setting.Default and setting.Default.Enabled
+                    local defaultEnabled = true
+                    if setting.Default and setting.Default.Enabled ~= nil then
+                        defaultEnabled = setting.Default.Enabled
+                    end
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
                         ActionName = setting:GetLocaName(),

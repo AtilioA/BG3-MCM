@@ -194,7 +194,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- Reset button cell.
             local resetCell = row:AddCell()
             local resetButton = resetCell:AddImageButton(
-            Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"), ClientGlobals.RESET_SETTING_BUTTON_ICON,
+                Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"),
+                ClientGlobals.RESET_SETTING_BUTTON_ICON,
                 IMGUIWidget:GetIconSizes())
             resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionId
             resetButton.OnClick = function()
