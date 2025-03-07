@@ -18,7 +18,10 @@ function FrameManager:initFrameLayout(parent)
     end
 
     local layoutTable = parent:AddTable("MenuAndContent", 2)
-    layoutTable:AddColumn("Menu", "WidthFixed", 300)
+    local function GetMenuColumnWidth()
+        return Ext.IMGUI.GetViewportSize()[2] / 4.8
+    end
+    layoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     layoutTable:AddColumn("Frame", "WidthStretch")
     local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
