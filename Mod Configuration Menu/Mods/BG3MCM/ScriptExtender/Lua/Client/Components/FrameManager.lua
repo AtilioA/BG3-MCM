@@ -5,8 +5,11 @@
 FrameManager = _Class:Create("FrameManager", nil, {
     menuCell = nil,
     contentCell = nil,
+    menuScrollWindow = nil,
+    contentScrollWindow = nil,
     contentGroups = {}
 })
+
 
 function FrameManager:initFrameLayout(parent)
     if not parent then
@@ -15,15 +18,14 @@ function FrameManager:initFrameLayout(parent)
     end
 
     local layoutTable = parent:AddTable("MenuAndContent", 2)
-    layoutTable:AddColumn("Menu", "WidthFixed")
+    layoutTable:AddColumn("Menu", "WidthFixed", 300)
     layoutTable:AddColumn("Frame", "WidthStretch")
     local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
 
-    -- Create scrollable child windows
-    self.menuScrollWindow = self.menuCell:AddChildWindow("MenuScroll")
-    self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScroll")
+    self.menuScrollWindow = self.menuCell:AddChildWindow("MenuChildWindow")
+    self.contentScrollWindow = self.contentCell:AddChildWindow("ContentChildWindow")
 end
 
 ---@param uuidToShow string
@@ -43,7 +45,7 @@ function FrameManager:AddMenuSection(text)
 end
 
 ---@param modName string
----@param modDescription string
+---@param modDescription string|nil
 ---@param modUUID string
 ---@return any the group to add Content associated to the button
 function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
@@ -54,7 +56,7 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
 
     modName = VCString:Wrap(modName, 33)
 
-    local menuButton = self:CreateMenuButton(self.menuCell, modName, modUUID)
+    local menuButton = self:CreateMenuButton(modName, modUUID)
     if modDescription then
         MCMRendering:AddTooltip(menuButton, modDescription, modUUID)
     end
@@ -167,11 +169,10 @@ function FrameManager:InsertModTab(modUUID, tabName, tabCallback)
     return newTab
 end
 
----@param menuCell any
 ---@param text string
 ---@param uuid string
 ---@return any
-function FrameManager:CreateMenuButton(menuCell, text, uuid)
+function FrameManager:CreateMenuButton(text, uuid)
     local button = self.menuScrollWindow:AddButton(text)
     button.IDContext = "MenuButton_" .. text .. "_" .. uuid
     button.OnClick = function()
