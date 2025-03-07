@@ -116,11 +116,10 @@ Ext.RegisterNetListener(NetChannels.MCM_EMIT_ON_CLIENTS, function(_, payload)
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 end)
 
-Ext.RegisterNetListener(NetChannels.MCM_INTERNAL_SETTING_SAVED, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local modUUID = data.modUUID
-    local settingId = data.settingId
-    local value = data.value
+ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)
+    local modUUID = payload.modUUID
+    local settingId = payload.settingId
+    local value = payload.value
 
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
 

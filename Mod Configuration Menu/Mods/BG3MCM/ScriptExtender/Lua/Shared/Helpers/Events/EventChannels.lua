@@ -8,6 +8,7 @@ EventChannels = {}
 EventChannels.MCM_SETTING_SAVED = "MCM_Setting_Saved"
 -- REMOVED: Use MCM_SETTING_SAVED instead
 -- EventChannels.MCM_SETTING_UPDATED = "MCM_Setting_Updated"
+EventChannels.MCM_INTERNAL_SETTING_SAVED = "MCM_Internal_Setting_Saved"
 
 --- Fired when a setting is reset to its default value.
 --- @return string modUUID The UUID of the mod
