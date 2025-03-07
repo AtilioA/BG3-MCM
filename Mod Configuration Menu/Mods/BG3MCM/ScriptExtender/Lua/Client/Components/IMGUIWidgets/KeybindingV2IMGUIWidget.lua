@@ -117,9 +117,6 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
     self:RenderSearchBar()
 
     if #self.Widget.FilteredActions == 0 then
-        local noResultsText = group:AddText(Ext.Loca.GetTranslatedString("h7e9b6453340548c29a8f3add8a402bedbe8g"))
-        self.Widget.DynamicElements.NoResultsText = noResultsText
-        return
     end
 
     for _, mod in ipairs(self.Widget.FilteredActions) do
@@ -144,7 +141,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         imguiTable:AddColumn("Enabled", "WidthFixed", 100)
         imguiTable:AddColumn("Action", "WidthFixed", 700)
         imguiTable:AddColumn("Keybinding", "WidthFixed", 600)
-        imguiTable:AddColumn("Reset", "WidthFixed", 100)
+        imguiTable:AddColumn("Reset", "WidthFixed", 50)
 
         for _, action in ipairs(mod.Actions) do
             local row = imguiTable:AddRow()
@@ -196,7 +193,9 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
             -- Reset button cell.
             local resetCell = row:AddCell()
-            local resetButton = resetCell:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"))
+            local resetButton = resetCell:AddImageButton(
+            Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"), "ico_randomize_d",
+                IMGUIWidget:GetIconSizes())
             resetButton.IDContext = mod.ModName .. "_Reset_" .. action.ActionId
             resetButton.OnClick = function()
                 self:ResetBinding(mod.ModUUID, action.ActionId)

@@ -1,9 +1,7 @@
 RequireFiles("Client/", {
-    "KeybindingsRegistry",
-    "InputCallbackManager",
     "MCMProxy",
-    "Components/_Init",
     "Helpers/_Init",
+    "Components/_Init",
     "MCMRendering",
     "IMGUIAPI",
     "SubscribedEvents",
