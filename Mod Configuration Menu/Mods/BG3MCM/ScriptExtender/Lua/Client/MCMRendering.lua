@@ -217,6 +217,7 @@ function MCMRendering:CreateMainIMGUIWindow()
 
     ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
+    UIStyle:ApplyDefaultStylesToIMGUIElement(MCM_WINDOW)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
 
     local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
@@ -232,7 +233,6 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
 
-    UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
 
     if table.isEmpty(self.mods) then
         self.welcomeText = MCM_WINDOW:AddText(
