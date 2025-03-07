@@ -198,6 +198,11 @@ function GetInitialMCMWindowSize()
     return { width, height }
 end
 
+function MCMRendering:GetMCMWindowSizeConstraints()
+    local viewportSize = Ext.IMGUI.GetViewportSize()
+    return { viewportSize[1] / 3, viewportSize[2] / 3 }
+end
+
 --- Create the main IMGUI window for MCM
 function MCMRendering:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
@@ -218,6 +223,8 @@ function MCMRendering:CreateMainIMGUIWindow()
     ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
     UIStyle:ApplyDefaultStylesToIMGUIElement(MCM_WINDOW)
+    local minWidth, minHeight = table.unpack(self:GetMCMWindowSizeConstraints())
+    MCM_WINDOW:SetStyle("WindowMinSize", minWidth, minHeight)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
 
     local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
