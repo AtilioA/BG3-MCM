@@ -252,20 +252,22 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
-    Ext.Net.BroadcastMessage(NetChannels.MCM_INTERNAL_SETTING_SAVED, Ext.Json.Stringify({
-        modUUID = modUUID,
-        settingId = settingId,
-        value = value
-    }))
+    if Ext.IsServer() then
+        Ext.Net.BroadcastMessage(NetChannels.MCM_INTERNAL_SETTING_SAVED, Ext.Json.Stringify({
+            modUUID = modUUID,
+            settingId = settingId,
+            value = value
+        }))
+    end
 
-    if Ext.IsServer() and not shouldEmitEvent then return end
-
-    ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
-        modUUID = modUUID,
-        settingId = settingId,
-        value = value,
-        oldValue = oldValue
-    }, true)
+    if shouldEmitEvent then
+        ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
+            modUUID = modUUID,
+            settingId = settingId,
+            value = value,
+            oldValue = oldValue
+        }, true)
+    end
 end
 
 ---@param settingId string The id of the setting to reset
