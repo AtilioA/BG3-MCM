@@ -31,6 +31,16 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     end
 end
 
+function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled)
+    return {
+        Keyboard = {
+            Key = binding.Key or binding,
+            ModifierKeys = binding.ModifierKeys or {}
+        },
+        Enabled = currentEnabled
+    }
+end
+
 --- Determines if a developer-only action should be included based on the provided options.
 --- @param action table The action to evaluate for inclusion.
 --- @param options ActionFilterOptions|nil The options that may affect inclusion.
@@ -43,18 +53,19 @@ end
 --- 'options' can include { includeDeveloper = true/false }
 --- @param action table The action to evaluate for inclusion.
 --- @param options ActionFilterOptions|nil The options that may affect inclusion.
---- @return boolean True if the action should be included, false otherwise.
+--- @return boolean True if the action should be included (visible in the UI), false otherwise.
 function KeybindingsRegistry:ShouldIncludeAction(action, options)
     if not self:ShouldIncludeDeveloperAction(action, options) then
         return false
     end
-
     return true
 end
 
 --- Registers keybindings for one or more mods.
 --- Accepts an array of mod keybinding definitions and an optional options table.
---- The options table can be used to parameterize filtering
+--- The options table can be used to parameterize filtering.
+--- This function always registers the actions (so that callbacks can be attached),
+--- but marks each action with a 'visible' flag for listing purposes.
 function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
     -- Default behavior: include developer keybindings only if developer mode is enabled.
     options = options or { includeDeveloper = Ext.Debug.IsDeveloperMode() }
@@ -62,24 +73,42 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
     for _, mod in ipairs(modKeybindings) do
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
         for _, action in ipairs(mod.Actions) do
-            if KeybindingsRegistry:ShouldIncludeAction(action, options) then
                 registry[mod.ModUUID][action.ActionId] = {
                     modUUID = mod.ModUUID,
                     actionName = action.ActionName,
                     actionId = action.ActionId,
-                    enabled = action.Enabled,
                     keyboardBinding = action.KeyboardMouseBinding,
+                    enabled = action.Enabled,
                     defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
+                    defaultEnabled = action.DefaultEnabled,
                     shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
                     shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
                     shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
                     description = action.Description,
-                    tooltip = action.Tooltip
+                tooltip = action.Tooltip,
+                -- Compute the visibility flag (for UI listing)
+                visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
                 }
-            end
         end
     end
     keybindingsSubject:OnNext(registry)
+end
+
+--- Returns a filtered view of the registry (for listing in the UI) based on the provided options.
+--- Actions that are registered but not visible (for example, developer-only actions when not in developer mode)
+--- are omitted from this view.
+function KeybindingsRegistry.GetFilteredRegistry(options)
+    options = options or { includeDeveloper = Ext.Debug.IsDeveloperMode() }
+    local filtered = {}
+    for modUUID, actions in pairs(registry) do
+        for actionId, binding in pairs(actions) do
+            if binding.visible then
+                filtered[modUUID] = filtered[modUUID] or {}
+                filtered[modUUID][actionId] = binding
+            end
+        end
+    end
+    return filtered
 end
 
 --- Updates a binding for a given mod/action.
@@ -93,32 +122,39 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates)
 
     local bindingEntry = modTable[actionId]
 
-    -- Update keyboard binding if provided
+    -- Update keyboard binding if provided.
     if updates.Keyboard ~= nil then
         bindingEntry.keyboardBinding = updates.Keyboard
     end
 
-    -- Update enabled state if provided
+    -- Update enabled state if provided.
     if updates.Enabled ~= nil then
         bindingEntry.enabled = updates.Enabled
     end
+
+    -- Persist the updated binding.
+    MCMAPI:SetSettingValue(actionId, updates, modUUID)
 
     keybindingsSubject:OnNext(registry)
     return true
 end
 
 --- Registers a callback for a given binding.
+--- Note that this uses the full registry (not the filtered view) so that callbacks
+--- can be attached even for actions that are invisible in the UI.
 function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, callback)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
-        MCMWarn(0, string.format("No binding found for mod '%s', action '%s'.", modUUID, actionId))
+        MCMWarn(0, string.format("No binding found to register callback for mod '%s', action '%s'.", modUUID, actionId))
         return false
     end
 
     if inputType == "KeyboardMouse" then
         modTable[actionId].keyboardCallback = callback
     end
-    keybindingsSubject:OnNext(registry)
+
+    -- It is not necessary to update the registry when registering a callback
+    -- keybindingsSubject:OnNext(registry)
     return true
 end
 
@@ -162,7 +198,6 @@ function KeybindingsRegistry.NotifyConflict(keybindingStr)
         { duration = 10, dontShowAgainButton = false },
         ModuleUUID
     )
-    -- IMGUIAPI:OpenMCMWindow(true)
 end
 
 --- Dispatch a keyboard event.
@@ -178,20 +213,14 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         end
     end
 
-    if #triggered ~= 0 then
-        if KeybindingManager:ShouldPreventAction(e) then
+    if #triggered ~= 0 and KeybindingManager:ShouldPreventAction(e) then
             e:PreventAction()
-            -- e:StopPropagation()
-        end
     end
 
     if #triggered > 1 then
         local binding = triggered[1]
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
         KeybindingsRegistry.NotifyConflict(keybindingStr)
-        -- if binding.keyboardCallback then
-        --     binding.keyboardCallback(e)
-        -- end
     elseif #triggered == 1 then
         local binding = triggered[1]
         if binding.keyboardCallback then

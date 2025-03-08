@@ -5,8 +5,11 @@
 FrameManager = _Class:Create("FrameManager", nil, {
     menuCell = nil,
     contentCell = nil,
+    menuScrollWindow = nil,
+    contentScrollWindow = nil,
     contentGroups = {}
 })
+
 
 function FrameManager:initFrameLayout(parent)
     if not parent then
@@ -15,11 +18,20 @@ function FrameManager:initFrameLayout(parent)
     end
 
     local layoutTable = parent:AddTable("MenuAndContent", 2)
-    layoutTable:AddColumn("Menu", "WidthFixed")
-    layoutTable:AddColumn("Frame", "WidthStretch")
+    local function GetMenuColumnWidth()
+        return Ext.IMGUI.GetViewportSize()[2] / 4.8
+    end
+    local function GetContentColumnWidth()
+        return Ext.IMGUI.GetViewportSize()[1]
+    end
+    layoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
+    layoutTable:AddColumn("Frame", "WidthFixed", GetContentColumnWidth())
     local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
+
+    self.menuScrollWindow = self.menuCell:AddChildWindow("MenuChildWindow")
+    self.contentScrollWindow = self.contentCell:AddChildWindow("ContentChildWindow")
 end
 
 ---@param uuidToShow string
@@ -35,11 +47,11 @@ end
 function FrameManager:AddMenuSection(text)
     -- local modsListIcon = self.menuCell:AddImage("ico_identity_d", {40, 40})
     -- modsListIcon.SameLine = true
-    self.menuCell:AddSeparatorText(text)
+    self.menuScrollWindow:AddSeparatorText(text)
 end
 
 ---@param modName string
----@param modDescription string
+---@param modDescription string|nil
 ---@param modUUID string
 ---@return any the group to add Content associated to the button
 function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
@@ -50,11 +62,11 @@ function FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
 
     modName = VCString:Wrap(modName, 33)
 
-    local menuButton = self:CreateMenuButton(self.menuCell, modName, modUUID)
+    local menuButton = self:CreateMenuButton(modName, modUUID)
     if modDescription then
         MCMRendering:AddTooltip(menuButton, modDescription, modUUID)
     end
-    local uiGroupMod = self.contentCell:AddGroup(modUUID)
+    local uiGroupMod = self.contentScrollWindow:AddGroup(modUUID)
 
     uiGroupMod:AddSeparatorText(modName)
     if modDescription then
@@ -163,17 +175,16 @@ function FrameManager:InsertModTab(modUUID, tabName, tabCallback)
     return newTab
 end
 
----@param menuCell any
 ---@param text string
 ---@param uuid string
 ---@return any
-function FrameManager:CreateMenuButton(menuCell, text, uuid)
-    local button = menuCell:AddButton(text)
+function FrameManager:CreateMenuButton(text, uuid)
+    local button = self.menuScrollWindow:AddButton(text)
     button.IDContext = "MenuButton_" .. text .. "_" .. uuid
     button.OnClick = function()
         self:setVisibleFrame(uuid)
         MCMDebug(2, "Set mod Visible : " .. button.IDContext)
-        for _, c in ipairs(menuCell.Children) do
+        for _, c in ipairs(self.menuScrollWindow.Children) do
             if c == button then
                 c:SetColor("Button", UIStyle.Colors["ButtonActive"])
             else

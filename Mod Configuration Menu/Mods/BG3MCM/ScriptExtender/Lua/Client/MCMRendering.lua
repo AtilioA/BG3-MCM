@@ -198,6 +198,11 @@ function GetInitialMCMWindowSize()
     return { width, height }
 end
 
+function MCMRendering:GetMCMWindowSizeConstraints()
+    local viewportSize = Ext.IMGUI.GetViewportSize()
+    return { viewportSize[1] / 3, viewportSize[2] / 3 }
+end
+
 --- Create the main IMGUI window for MCM
 function MCMRendering:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
@@ -217,6 +222,9 @@ function MCMRendering:CreateMainIMGUIWindow()
 
     ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
+    UIStyle:ApplyDefaultStylesToIMGUIElement(MCM_WINDOW)
+    local minWidth, minHeight = table.unpack(self:GetMCMWindowSizeConstraints())
+    MCM_WINDOW:SetStyle("WindowMinSize", minWidth, minHeight)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
 
     local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
@@ -231,8 +239,7 @@ function MCMRendering:CreateMainIMGUIWindow()
 
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
-
-    UIStyle:ApplyStyleToIMGUIElement(MCM_WINDOW)
+    MCM_WINDOW.NoScrollbar = true
 
     if table.isEmpty(self.mods) then
         self.welcomeText = MCM_WINDOW:AddText(
@@ -566,10 +573,15 @@ function MCMRendering:GetAllKeybindings()
                     local tooltip = setting:GetTooltip()
                     local enabled = modData.settingsValues[settingId] and
                         modData.settingsValues[settingId].Enabled ~= false
+                    local defaultEnabled = true
+                    if setting.Default and setting.Default.Enabled ~= nil then
+                        defaultEnabled = setting.Default.Enabled
+                    end
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
                         ActionName = setting:GetLocaName(),
                         KeyboardMouseBinding = keyboardBinding,
+                        DefaultEnabled = defaultEnabled,
                         Enabled = enabled,
                         DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
                             { Key = "", ModifierKeys = { "NONE" } },
@@ -598,10 +610,9 @@ function MCMRendering:CreateKeybindingsPage()
 
     -- Create a dedicated "Hotkeys" menu section via FrameManager.
     FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
-    FrameManager:CreateMenuButton(FrameManager.menuCell,
-        Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
+    FrameManager:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
 
-    local hotkeysGroup = FrameManager.contentCell:AddGroup(hotkeysUUID)
+    local hotkeysGroup = FrameManager.contentScrollWindow:AddGroup(hotkeysUUID)
     FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)

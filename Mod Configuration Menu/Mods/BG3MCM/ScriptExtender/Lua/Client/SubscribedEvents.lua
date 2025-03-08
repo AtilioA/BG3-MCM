@@ -116,6 +116,18 @@ Ext.RegisterNetListener(NetChannels.MCM_EMIT_ON_CLIENTS, function(_, payload)
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 end)
 
+ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)
+    local modUUID = payload.modUUID
+    local settingId = payload.settingId
+    local value = payload.value
+
+    MCMClientState:SetClientStateValue(settingId, value, modUUID)
+
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
+
+    IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
+end)
+
 --- SECTION: Mod events
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     local modUUID = data.modUUID
@@ -129,10 +141,12 @@ end)
 
 -- FIXME: not working for some reason
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
-    MCMDebug(1, "Firing MCM_SETTING_UPDATED on client")
+    MCMDebug(1, "Firing MCM_SETTING_SAVED on client")
     local modUUID = data.modUUID
     local settingId = data.settingId
     local value = data.value
+
+    IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
 

@@ -200,6 +200,8 @@ end
 
 --- Replace <br> tags with newlines in a string
 function VCString:ReplaceBrWithNewlines(description)
+    if not description or description == "" then return "" end
+
     return string.gsub(description, "<br>", "\n")
 end
 

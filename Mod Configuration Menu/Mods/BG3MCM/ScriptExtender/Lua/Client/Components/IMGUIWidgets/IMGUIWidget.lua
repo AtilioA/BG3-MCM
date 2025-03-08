@@ -84,7 +84,8 @@ end
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modUUID)
-    local resetButton = group:AddImageButton("[Reset]", "ico_reset_d", IMGUIWidget:GetIconSizes())
+    local resetButton = group:AddImageButton("[Reset]", ClientGlobals.RESET_SETTING_BUTTON_ICON,
+    IMGUIWidget:GetIconSizes())
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()
         resetButton = group:AddButton("[Reset]")
