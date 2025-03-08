@@ -1,52 +1,162 @@
 --------------------------------------------
--- CONSTANTS & CONFIGURATION
+-- DualPaneController:
+-- This module manages a dual-pane interface within the MCM window.
+-- It provides functionalities to initialize and layout a two-column pane structure with collapsible and expandable behavior,
+-- allowing for dynamic adjustments based on user interactions.
+-- It supports adding mod-specific content and menu sections, facilitating a structured presentation of mod configurations.
 --------------------------------------------
-local ICON_TOGGLE_COLLAPSE = "panner_left_d"
-local ICON_TOGGLE_EXPAND = "ico_menu_h"
-local ICON_DOC = "ico_secret_h"
--- Stub mod documentation text
-local DOC_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-
-local TARGET_WIDTH_EXPANDED = 450
-local TARGET_WIDTH_COLLAPSED = 10
-local STEP_DELAY = 1 / 60
--- 10% adjustment per step
-local STEP_FACTOR = 0.1
-
--- Stub config: If true, clicking a mod item will auto-collapse the dualpane.
-local AUTO_COLLAPSE_ON_MOD_CLICK = true
-
--- Stub mod content text
-local MOD_CONTENT_TEXTS = {
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-}
-
---------------------------------------------
--- DUALPANE CONTROLLER DEFINITION
---------------------------------------------
-local DualPaneController = {}
+DualPaneController = {}
 DualPaneController.__index = DualPaneController
 
-function DualPaneController:new(mainLayoutTable, leftCellGroup, dualpaneExpandBtn, dualpaneCollapseBtn)
+-- Constants for dual-pane expand/collapse
+local ICON_TOGGLE_COLLAPSE = "panner_left_d"
+local ICON_TOGGLE_EXPAND = "ico_menu_h"
+local STEP_DELAY = 1 / 60
+local TARGET_WIDTH_EXPANDED = 500
+local TARGET_WIDTH_COLLAPSED = 10
+local STEP_FACTOR = 0.1
+
+-- Initialize DualPaneController using an existing window.
+function DualPaneController:InitWithWindow(window)
     local self = setmetatable({}, DualPaneController)
-    self.mainLayoutTable = mainLayoutTable
-    self.leftCellGroup = leftCellGroup
-    self.dualpaneExpandBtn = dualpaneExpandBtn
-    self.dualpaneCollapseBtn = dualpaneCollapseBtn
-    -- false means expanded, true means collapsed
+    self.window = window
+    self.contentGroups = {} -- groups for each mod's content
+    self:initLayout()
     self.isCollapsed = false
     return self
 end
 
+-- Build the dual-pane layout (menu pane and content pane)
+function DualPaneController:initLayout()
+    self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
+    local function GetMenuColumnWidth()
+        return Ext.IMGUI.GetViewportSize()[2] / 4.8
+    end
+    local function GetContentColumnWidth()
+        return Ext.IMGUI.GetViewportSize()[1]
+    end
+    self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
+    self.mainLayoutTable:AddColumn("Content", "WidthFixed", GetContentColumnWidth())
+    local row                        = self.mainLayoutTable:AddRow()
+    self.menuCell                    = row:AddCell()
+    self.contentCell                 = row:AddCell()
+
+    -- Add dual pane buttons to the content cell (these can later trigger collapse/expand)
+    self.dualpaneCollapseBtn         = self:createImageButton(self.contentCell, "Toggle", ICON_TOGGLE_COLLAPSE,
+        "Hide the sidebar")
+    self.dualpaneExpandBtn           = self:createImageButton(self.contentCell, "Toggle", ICON_TOGGLE_EXPAND,
+        "Expand the sidebar containing keybindings, mods, etc")
+    self.dualpaneCollapseBtn.Visible = true
+    self.dualpaneExpandBtn.Visible   = false
+
+    self.dualpaneCollapseBtn.OnClick = function() self:Toggle() end
+    self.dualpaneExpandBtn.OnClick   = function() self:Toggle() end
+
+    -- Create scroll windows for menu and content areas
+    self.menuScrollWindow            = self.menuCell:AddChildWindow("MenuScrollWindow")
+    -- self.menuScrollWindow.ResizeX = true
+    -- self.menuScrollWindow.AlwaysUseWindowPadding = true
+    -- self.menuScrollWindow.ChildAlwaysAutoResize = true
+    self.contentScrollWindow         = self.contentCell:AddChildWindow("ContentScrollWindow")
+end
+
+function DualPaneController:createImageButton(parent, text, icon, tooltip)
+    local button = parent:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(1.25))
+    MCMRendering:AddTooltip(button, tooltip, "DualPaneButton_" .. text)
+    return button
+end
+
+-- API: Add a menu section header in the menu pane.
+function DualPaneController:AddMenuSection(text)
+    self.menuScrollWindow:AddSeparatorText(text)
+end
+
+-- API: Create a menu button (with tooltip) in the menu pane.
+function DualPaneController:CreateMenuButton(text, uuid)
+    local button = self.menuScrollWindow:AddButton(text)
+    button.IDContext = "MenuButton_" .. text .. "_" .. uuid
+    button.OnClick = function()
+        self:setVisibleFrame(uuid)
+        for _, c in ipairs(self.menuScrollWindow.Children) do
+            if c == button then
+                c:SetColor("Button", UIStyle.Colors["ButtonActive"])
+            else
+                c:SetColor("Button", UIStyle.Colors["Button"])
+            end
+        end
+        if not MCMProxy.IsMainMenu() then
+            ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = uuid })
+        end
+        -- TODO: Optionally collapse the menu pane after a selection.
+        self:Collapse()
+    end
+    button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+    return button
+end
+
+-- API: Create a mod entry in the menu and return its tab bar for content.
+function DualPaneController:addButtonAndGetModTabBar(modName, modDescription, modUUID)
+    if not modName or not modUUID then
+        MCMWarn(0, "addButtonAndGetModTabBar called with invalid parameters")
+        return
+    end
+
+    modName = VCString:Wrap(modName, 33)
+    local menuButton = self:CreateMenuButton(modName, modUUID)
+    if modDescription then
+        MCMRendering:AddTooltip(menuButton, modDescription, modUUID)
+    end
+
+    local uiGroupMod = self.contentScrollWindow:AddGroup(modUUID)
+    uiGroupMod:AddSeparatorText(modName)
+    if modDescription then
+        local modDescriptionText = VCString:AddFullStop(modDescription)
+        local descriptionTextObject = uiGroupMod:AddText(modDescriptionText)
+        descriptionTextObject.TextWrapPos = 0
+        uiGroupMod:AddDummy(0, 5)
+    end
+
+    self.contentGroups[modUUID] = uiGroupMod
+    local modTabs = uiGroupMod:AddTabBar(modUUID .. "_TABS")
+    modTabs.IDContext = modUUID .. "_TABS"
+    return modTabs
+end
+
+-- API: Return the content group for a given mod UUID.
+function DualPaneController:GetGroup(modUUID)
+    return self.contentGroups[modUUID]
+end
+
+-- API: Return the tab bar for a given mod UUID.
+function DualPaneController:GetModTabBar(modUUID)
+    if not self.contentGroups or not self.contentGroups[modUUID] then return nil end
+    if table.isEmpty(self.contentGroups[modUUID].Children) then return nil end
+    for _, child in ipairs(self.contentGroups[modUUID].Children) do
+        if child.IDContext and child.IDContext:sub(-5) == "_TABS" then
+            return child
+        end
+    end
+    return nil
+end
+
+-- API: Set which mod's content is visible.
+function DualPaneController:setVisibleFrame(uuidToShow)
+    for uuid, group in pairs(self.contentGroups) do
+        if group then
+            group.Visible = (uuidToShow == uuid)
+        end
+    end
+end
+
+--------------------------------------------
+-- Expand/Collapse Functionality
+--------------------------------------------
 function DualPaneController:Expand()
     if self.dualpaneExpandBtn then self.dualpaneExpandBtn.Visible = false end
     if self.dualpaneCollapseBtn then self.dualpaneCollapseBtn.Visible = true end
 
-    -- Reset alpha to 0 before starting the expansion
-    self.leftCellGroup:SetStyle("Alpha", 0)
-    self.leftCellGroup.Visible = true
+    self.menuScrollWindow:SetStyle("Alpha", 0)
+    self.menuScrollWindow.Visible = true
 
     local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
 
@@ -54,8 +164,8 @@ function DualPaneController:Expand()
         if cWidth < TARGET_WIDTH_EXPANDED then
             cWidth = math.min(TARGET_WIDTH_EXPANDED, cWidth + (TARGET_WIDTH_EXPANDED * STEP_FACTOR))
             self.mainLayoutTable.ColumnDefs[1].Width = cWidth
-            local newAlpha = math.min(1, (self.leftCellGroup:GetStyle("Alpha") or 0) + STEP_FACTOR)
-            self.leftCellGroup:SetStyle("Alpha", newAlpha)
+            local newAlpha = math.min(1, (self.menuScrollWindow:GetStyle("Alpha") or 0) + STEP_FACTOR)
+            self.menuScrollWindow:SetStyle("Alpha", newAlpha)
             Ext.Timer.WaitFor(STEP_DELAY, stepExpand)
         else
             self.isCollapsed = false
@@ -65,7 +175,6 @@ function DualPaneController:Expand()
 end
 
 function DualPaneController:Collapse()
-    -- If already collapsed, exit early.
     if self.isCollapsed then return end
 
     if self.dualpaneExpandBtn then self.dualpaneExpandBtn.Visible = true end
@@ -77,10 +186,11 @@ function DualPaneController:Collapse()
         if cWidth > TARGET_WIDTH_COLLAPSED then
             cWidth = math.max(TARGET_WIDTH_COLLAPSED, cWidth - (cWidth * STEP_FACTOR))
             self.mainLayoutTable.ColumnDefs[1].Width = cWidth
-            self.leftCellGroup:SetStyle("Alpha", math.max(0, (self.leftCellGroup:GetStyle("Alpha") or 1) - STEP_DELAY))
+            self.menuScrollWindow:SetStyle("Alpha",
+                math.max(0, (self.menuScrollWindow:GetStyle("Alpha") or 1) - STEP_DELAY))
             Ext.Timer.WaitFor(STEP_DELAY, stepCollapse)
         else
-            self.leftCellGroup.Visible = false
+            self.menuScrollWindow.Visible = false
             self.isCollapsed = true
         end
     end
@@ -95,59 +205,59 @@ function DualPaneController:Toggle()
     end
 end
 
---------------------------------------------
--- UI CREATION
---------------------------------------------
-local demoWindow = Ext.IMGUI.NewWindow("Demo 3")
-local minSize = Ext.IMGUI.GetViewportSize()
-demoWindow:SetStyle("WindowMinSize", minSize[1] / 3, minSize[2] / 3)
+function DualPaneController:CreateModTab(modUUID, tabName)
+    if not MCM_WINDOW then return nil end
 
-local mainLayoutTable = demoWindow:AddTable("demo", 2)
-mainLayoutTable:AddColumn("LeftPane", "WidthFixed", TARGET_WIDTH_EXPANDED)
-mainLayoutTable:AddColumn("RightPane", "WidthStretch")
-local layoutRow = mainLayoutTable:AddRow()
-
--- LEFT CELL: Contains hotkeys and mod list
-local leftCell = layoutRow:AddCell()
-local leftCellGroup = leftCell:AddGroup("leftCellGroup")
-
--- leftCellGroup.OnHoverEnter = function() _D("leftCellGroup.OnHoverEnter") end
-
--- RIGHT CELL: Contains dualpane buttons and mod content
-local rightCell = layoutRow:AddCell()
-local rightCellGroup = rightCell:AddGroup("rightCellGroup")
-
--- Placeholders for UI elements (will be assigned in creation functions)
-local modNameLabel = nil
-local dualpaneCollapseBtn = nil
-local dualpaneExpandBtn = nil
-local dualpaneController = nil
-
--- Create left pane contents: hotkeys and mod list
-local function createLeftCellContents(cellGroup)
-    cellGroup:AddButton("Hotkeys")
-    local leftWindow = cellGroup:AddChildWindow("leftWindow")
-    for i = 1, 50 do
-        local btn = leftWindow:AddButton("Mod Entry " .. i)
-        btn.OnClick = function()
-            if modNameLabel then
-                modNameLabel.Label = btn.Label
-            end
-            -- Auto-collapse if the config is enabled
-            if AUTO_COLLAPSE_ON_MOD_CLICK and dualpaneController then
-                dualpaneController:Collapse()
-            end
-        end
+    local modTabBar = self:GetModTabBar(modUUID)
+    if not modTabBar then
+        local modData = Ext.Mod.GetMod(modUUID)
+        MCMWarn(1, "Tab creation called before any modTabBar created: " ..
+            modData.Info.Name .. ". Please contact " ..
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+        return nil
     end
+
+    local newTab = modTabBar:AddTabItem(tabName)
+    newTab.IDContext = modUUID .. "_" .. tabName
+    newTab.UserData = newTab.UserData or {}
+    newTab.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tabName)
+        ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
+            modUUID = modUUID,
+            tabName = tabName
+        })
+    end
+    return newTab
 end
 
--- Create right pane contents: dualpane toggle buttons, documentation, detach mod, and mod content area
-local function createRightCellContents(cellGroup)
-    dualpaneCollapseBtn = cellGroup:AddImageButton("Toggle", ICON_TOGGLE_COLLAPSE, { 40, 40 })
-    dualpaneExpandBtn = cellGroup:AddImageButton("Toggle", ICON_TOGGLE_EXPAND, { 40, 40 })
-    dualpaneCollapseBtn.Visible = true
-    dualpaneExpandBtn.Visible = false
+function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimerLocaKey)
+    local newTab = self:CreateModTab(modUUID, tabName)
+    if not newTab then return nil end
+    local tempTextDisclaimer = Ext.Loca.GetTranslatedString(disclaimerLocaKey)
+    local addTempText = newTab:AddText(tempTextDisclaimer)
+    addTempText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+    addTempText.TextWrapPos = 0
+    return newTab
+end
 
+-- Insert a tab with a callback
+function DualPaneController:InsertModTab(modUUID, tabName, tabCallback)
+    local newTab = self:CreateModTab(modUUID, tabName)
+    if not newTab then return nil end
+
+    -- Apply the callback if provided
+    if tabCallback and not newTab.UserData["Callback"] then
+        newTab.UserData.Callback = tabCallback
+        tabCallback(newTab)
+        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
+            modUUID = modUUID,
+            tabName = tabName,
+        })
+    end
+    return newTab
+end
+
+--[[
     -- Documentation button
     local docButton = cellGroup:AddImageButton("Documentation", ICON_DOC, { 40, 40 })
     docButton.SameLine = true
@@ -161,29 +271,4 @@ local function createRightCellContents(cellGroup)
     -- Detach mod button
     local detachMod = cellGroup:AddButton("Detach mod")
     detachMod.SameLine = true
-
-    -- Mod content area
-    local modContentGroup = cellGroup:AddGroup("modContentGroup")
-    local modContentChildWindow = modContentGroup:AddChildWindow("modContentChildWindow")
-    modNameLabel = modContentChildWindow:AddSeparatorText("<Mod Name>")
-
-    for _i = 1, 10 do
-        for _, text in ipairs(MOD_CONTENT_TEXTS) do
-            modContentChildWindow:AddText(text)
-        end
-    end
-    -- (Toggle events will be bound after controller instantiation)
-end
-
--- Create UI elements for left and right cells.
-createLeftCellContents(leftCellGroup)
-createRightCellContents(rightCellGroup)
-
---------------------------------------------
--- DUALPANE CONTROLLER INITIALIZATION & BINDING
---------------------------------------------
-dualpaneController = DualPaneController:new(mainLayoutTable, leftCellGroup, dualpaneExpandBtn, dualpaneCollapseBtn)
-
--- Bind toggle events using the controller.
-dualpaneExpandBtn.OnClick = function() dualpaneController:Toggle() end
-dualpaneCollapseBtn.OnClick = function() dualpaneController:Toggle() end
+--]]

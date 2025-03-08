@@ -21,10 +21,12 @@ end
 
 --- Get the icon sizes for the widget
 --- This is used to set the size of the icon for the widget
+--- @param multiplier? number The multiplier to apply to the icon size
 ---@return vec2 - A table containing the icon sizes, e.g. { 32, 32 }
-function IMGUIWidget:GetIconSizes()
+function IMGUIWidget:GetIconSizes(multiplier)
+    multiplier = multiplier or 1
     local viewportSize = Ext.IMGUI.GetViewportSize()
-    local iconSize = self:EstimateIconSize(viewportSize[2])
+    local iconSize = self:EstimateIconSize(viewportSize[2]) * multiplier
     return { iconSize, iconSize }
 end
 
@@ -85,7 +87,7 @@ end
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modUUID)
     local resetButton = group:AddImageButton("[Reset]", ClientGlobals.RESET_SETTING_BUTTON_ICON,
-    IMGUIWidget:GetIconSizes())
+        IMGUIWidget:GetIconSizes())
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()
         resetButton = group:AddButton("[Reset]")

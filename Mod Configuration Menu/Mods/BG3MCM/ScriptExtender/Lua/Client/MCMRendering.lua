@@ -32,6 +32,7 @@ MCMRendering = _Class:Create("MCMRendering", nil, {
 MCMClientState = MCMRendering:New()
 -- Coupled logic :gladge:
 MCMClientState.UIReady = RX.ReplaySubject.Create(1)
+DualPane = nil
 
 function MCMRendering:SetClientStateValue(settingId, value, modUUID)
     modUUID = modUUID or ModuleUUID
@@ -240,6 +241,8 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
     MCM_WINDOW.NoScrollbar = true
+    MCM_WINDOW.NoScrollWithMouse = true
+    MCM_WINDOW:SetScroll({ 0, 0 })
 
     if table.isEmpty(self.mods) then
         self.welcomeText = MCM_WINDOW:AddText(
@@ -252,6 +255,8 @@ function MCMRendering:CreateMainIMGUIWindow()
     end
 
     MainMenu.CreateMainMenu()
+
+    DualPane = DualPaneController:InitWithWindow(MCM_WINDOW)
 
     return true
 end
@@ -303,7 +308,7 @@ end
 ---@return boolean
 function MCMRendering:ShouldPopulateMenu()
     -- If uiGroup exist for MCM, init done, we don't want to populate the menu again
-    local uiGroup = FrameManager:GetGroup(ModuleUUID)
+    local uiGroup = DualPane:GetGroup(ModuleUUID)
     if uiGroup ~= nil then
         MCMWarn(0, "UI group for MCM already exists, skipping window creation.")
         return false
@@ -316,9 +321,6 @@ end
 function MCMRendering:PrepareMenu()
     -- TODO: re-enable this after refactoring client-side code
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
-
-    -- Table Layout
-    FrameManager:initFrameLayout(MCM_WINDOW)
 end
 
 --- Convert the mod configs to use the Blueprint class
@@ -341,7 +343,7 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function MCMRendering:CreateMainTable()
-    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
+    DualPane:AddMenuSection(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
 
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modUUID in ipairs(sortedModKeys) do
@@ -350,7 +352,7 @@ function MCMRendering:CreateMainTable()
         local success, err = xpcall(function()
             local modName = self.mods[modUUID].blueprint:GetModName()
             local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
-            FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
+            DualPane:addButtonAndGetModTabBar(modName, modDescription, modUUID)
             self.mods[modUUID].widgets = {}
 
             self:CreateModMenuFrame(modUUID)
@@ -365,7 +367,7 @@ function MCMRendering:CreateMainTable()
             MCMWarn(0, "Error processing mod " .. modUUID .. ": " .. err)
         end
     end
-    FrameManager:setVisibleFrame(ModuleUUID)
+    DualPane:setVisibleFrame(ModuleUUID)
 end
 
 --- Create a new tab for a mod in the MCM
@@ -375,8 +377,8 @@ function MCMRendering:CreateModMenuFrame(modUUID)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
     local modBlueprint = self.mods[modUUID].blueprint
     local modSettings = self.mods[modUUID].settingsValues
-    local uiGroupMod = FrameManager:GetGroup(modUUID)
-    local modTabBar = FrameManager:GetModTabBar(modUUID)
+    local uiGroupMod = DualPane:GetGroup(modUUID)
+    local modTabBar = DualPane:GetModTabBar(modUUID)
 
     -- Footer-like text with mod information
     local function createModTabFooter()
@@ -603,17 +605,17 @@ function MCMRendering:GetAllKeybindings()
     return keybindings
 end
 
--- TODO: extract this to FrameManager
+-- TODO: extract this to DualPane
 function MCMRendering:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
     -- MCMDebug(0, "Creating keybindings page...")
 
-    -- Create a dedicated "Hotkeys" menu section via FrameManager.
-    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
-    FrameManager:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
+    -- Create a dedicated "Hotkeys" menu section via DualPane.
+    DualPane:AddMenuSection(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
+    DualPane:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
 
-    local hotkeysGroup = FrameManager.contentScrollWindow:AddGroup(hotkeysUUID)
-    FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
+    local hotkeysGroup = DualPane.contentScrollWindow:AddGroup(hotkeysUUID)
+    DualPane.contentGroups[hotkeysUUID] = hotkeysGroup
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
     local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
