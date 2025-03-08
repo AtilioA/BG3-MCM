@@ -21,8 +21,11 @@ function FrameManager:initFrameLayout(parent)
     local function GetMenuColumnWidth()
         return Ext.IMGUI.GetViewportSize()[2] / 4.8
     end
+    local function GetContentColumnWidth()
+        return Ext.IMGUI.GetViewportSize()[1]
+    end
     layoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
-    layoutTable:AddColumn("Frame", "WidthStretch")
+    layoutTable:AddColumn("Frame", "WidthFixed", GetContentColumnWidth())
     local row = layoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
