@@ -7,7 +7,7 @@ ModMenu.__index = ModMenu
 
 function ModMenu:New(parent)
     local self = setmetatable({}, ModMenu)
-    self.parent = parent  -- Typically the menuScrollWindow
+    self.parent = parent -- Typically the menuScrollWindow
     return self
 end
 
@@ -21,7 +21,7 @@ function ModMenu:CreateMenuButton(text, description, uuid)
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     button.OnClick = function()
         DualPane:SwitchVisibleContent(button, uuid)
-        if AUTO_COLLAPSE_ON_MOD_CLICK then
+        if MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID) then
             DualPane:ToggleSidebar()
         end
     end
