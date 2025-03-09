@@ -22,17 +22,18 @@ local RX = {
 -- - Sending messages to the server to update setting values
 ---@class MCMRendering: MetaClass
 ---@field mods table<string, ModSettings>
+---@field UIReady ReplaySubject
 ---@field private profiles table<string, table>
 MCMRendering = _Class:Create("MCMRendering", nil, {
     mods = {},
+    UIReady = RX.Subject.Create(1)
 })
 
-MCMClientState = MCMRendering:New()
 -- Coupled logic :gladge:
-MCMClientState.UIReady = RX.ReplaySubject.Create(1)
+MCMClientState = MCMRendering:New()
+
 ---@type DualPaneController|nil
 DualPane = nil -- will be assigned in CreateMainIMGUIWindow
-
 
 function MCMRendering:SetClientStateValue(settingId, value, modUUID)
     modUUID = modUUID or ModuleUUID
@@ -40,7 +41,6 @@ function MCMRendering:SetClientStateValue(settingId, value, modUUID)
     local mod = MCMClientState.mods[modUUID]
     if not mod or not mod.settingsValues then return end
 
-    VisibilityManager:update(modUUID, settingId, value)
     self:UpdateSettingValue(mod, settingId, value, modUUID)
 end
 
@@ -59,76 +59,6 @@ function MCMRendering:UpdateSettingValue(mod, settingId, value, modUUID)
 
     -- Update the displayed value for non-text settings
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
-end
-
-function MCMRendering:ProcessTriggers(settingTriggers, value, modUUID)
-    for group, operators in pairs(settingTriggers) do
-        if not group or not operators then
-            MCMWarn(0, "Invalid visibility trigger group for mod '" ..
-                Ext.Mod.GetMod(modUUID).Info.Name ..
-                "'. Please contact " ..
-                Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-            goto continue
-        end
-
-        self:ProcessOperators(group, operators, value, modUUID)
-
-        ::continue::
-    end
-end
-
-function MCMRendering:ProcessOperators(group, operators, value, modUUID)
-    for operator, triggerValue in pairs(operators) do
-        if not operator or triggerValue == nil then
-            MCMWarn(0, "Invalid visibility trigger operator or value for mod '" ..
-                Ext.Mod.GetMod(modUUID).Info.Name ..
-                "'. Please contact " ..
-                Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-            goto continue
-        end
-
-        group.Visible = self:EvaluateCondition(operator, value, triggerValue, modUUID)
-
-        ::continue::
-    end
-end
-
-function MCMRendering:EvaluateCondition(operator, value, triggerValue, modUUID)
-    if operator == nil or value == nil or triggerValue == nil then
-        MCMWarn(0,
-            "Invalid comparison operator or values passed by mod '" ..
-            Ext.Mod.GetMod(modUUID).Info.Name ..
-            "' for visibility condition. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    local strValue, strTrigger = tostring(value), tostring(triggerValue)
-    local numValue, numTrigger = tonumber(value), tonumber(triggerValue)
-
-    local operators = {
-        ["=="] = function(a, b) return a == b end,
-        ["!="] = function(a, b) return a ~= b end,
-        ["<="] = function(a, b) return a <= b end,
-        [">="] = function(a, b) return a >= b end,
-        ["<"] = function(a, b) return a < b end,
-        [">"] = function(a, b) return a > b end
-    }
-
-    if operators[operator] then
-        if operator == "==" or operator == "!=" then
-            return operators[operator](strValue, strTrigger)
-        elseif numValue ~= nil and numTrigger ~= nil then
-            return operators[operator](numValue, numTrigger)
-        end
-        return false
-    end
-
-    MCMWarn(0, "Unknown comparison operator: " .. operator .. " for mod '" ..
-        Ext.Mod.GetMod(modUUID).Info.Name ..
-        "'. Please contact " ..
-        Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-    return false
 end
 
 function MCMRendering:GetModName(modUUID)
@@ -316,10 +246,6 @@ function MCMRendering:CreateMainTable()
             DualPane.leftPane:CreateMenuButton(modName, modDescription, modUUID)
             self.mods[modUUID].widgets = {}
             self:RenderMenuPageContent(modUUID)
-            local modSettings = self.mods[modUUID].settingsValues
-            for settingId, _ in pairs(modSettings) do
-                VisibilityManager:update(modUUID, settingId, modSettings[settingId])
-            end
         end, debug.traceback)
         if not success then
             MCMWarn(0, "Error processing mod " .. modUUID .. ": " .. err)
@@ -367,12 +293,16 @@ function MCMRendering:RenderMenuPageContent(modUUID)
 end
 
 --- Create a new tab for a mod in the MCM
----@param modTabs ExtuiTabBar The main tab for the mod
+---@param modTabs ExtuiTabBar|nil The main tab for the mod
 ---@param blueprintTab BlueprintTab The tab to create a tab for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modUUID string The UUID of the mod
 ---@return nil
 function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modUUID)
+    if not modTabs then
+        MCMError(0, "No tab bar found for mod " .. modUUID)
+        return
+    end
     local tabName = blueprintTab:GetLocaName()
     local imguiTab = modTabs:AddTabItem(tabName)
     imguiTab.IDContext = DualPaneController:GenerateTabId(modUUID, blueprintTab:GetTabName())
@@ -390,8 +320,8 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
     end
 
     local blueprintVisibleIf = blueprintTab:GetVisibleIf()
-    if blueprintVisibleIf and blueprintVisibleIf.Conditions then
-        VisibilityManager:registerCondition(modUUID, imguiTab, blueprintVisibleIf.Conditions)
+    if blueprintVisibleIf then
+        VisibilityManager.registerCondition(modUUID, imguiTab, blueprintVisibleIf)
     end
 
     local tabSections = blueprintTab:GetSections()
@@ -427,7 +357,7 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
     sectionGroup.IDContext = modUUID .. "_" .. sectionId .. "_Group"
 
     if section:GetVisibleIf() and section:GetVisibleIf().Conditions then
-        VisibilityManager:registerCondition(modUUID, sectionGroup, section:GetVisibleIf().Conditions)
+        VisibilityManager.registerCondition(modUUID, sectionGroup, section:GetVisibleIf())
     end
 
     local sectionContentElement = sectionGroup
@@ -482,8 +412,8 @@ function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUU
         local widgetGroup = modGroup:AddGroup(setting:GetId())
         widgetGroup.IDContext = modUUID .. "_" .. setting:GetId() .. "_Group"
         local widget = createWidget(widgetGroup, setting, settingValue, modUUID)
-        VisibilityManager:registerCondition(modUUID, widgetGroup,
-            setting.VisibleIf and setting.VisibleIf.Conditions or {})
+        VisibilityManager.registerCondition(modUUID, widgetGroup,
+            setting:GetVisibleIf())
         self.mods[modUUID].widgets[setting:GetId()] = widget
     end
 end
