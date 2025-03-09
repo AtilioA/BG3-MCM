@@ -144,6 +144,15 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
     end
 end
 
+function IMGUIAPI:OpenModPage(tabName, modUUID)
+    if not DualPane or not DualPane.modMenu then
+        MCMError(0, "Tried to open mod page, but DualPane doesn't exist")
+        return
+    end
+
+    DualPane:OpenModPage(tabName, modUUID)
+end
+
 -- --- Send a message to the server to set a profile
 -- ---@param profileName string The name of the profile to set
 -- ---@return nil

@@ -30,7 +30,7 @@ MCMRendering = _Class:Create("MCMRendering", nil, {
 MCMClientState = MCMRendering:New()
 -- Coupled logic :gladge:
 MCMClientState.UIReady = RX.ReplaySubject.Create(1)
---- @type DualPaneController
+---@type DualPaneController|nil
 DualPane = nil -- will be assigned in CreateMainIMGUIWindow
 
 
