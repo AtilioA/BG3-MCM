@@ -98,7 +98,8 @@ end
 -- Gradually fade the menuScrollWindow's alpha to a target value over a given duration (in seconds)
 function DualPaneController:FadeSidebarOutAlpha(durationInS)
     local targetAlpha = 0.33
-    local startAlpha = self.menuScrollWindow:GetStyle("Alpha") or 1
+    self.menuScrollWindow:SetStyle("Alpha", 0.9)
+    local startAlpha = self.menuScrollWindow:GetStyle("Alpha")
     local steps = durationInS / STEP_DELAY
     local alphaStep = (startAlpha - targetAlpha) / steps
 
