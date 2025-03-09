@@ -15,16 +15,12 @@ ICON_TOGGLE_COLLAPSE = "panner_left_d"
 ICON_TOGGLE_EXPAND = "ico_menu_h"
 ICON_DOCS = "ico_secret_h"
 ICON_DETACH = "ico_popup_d"
-STEP_DELAY = 1 / 60
-TARGET_WIDTH_EXPANDED = 500
-TARGET_WIDTH_COLLAPSED = 5
-STEP_FACTOR = 0.1
-AUTO_COLLAPSE_ON_MOD_CLICK = true
 
--- Options from blueprint settings (defaults)
-DISABLE_HOVER = false
-DISABLE_AUTO_COLLAPSE = false
-HOVER_DELAY = 3000
+TARGET_WIDTH_EXPANDED = 450
+TARGET_WIDTH_COLLAPSED = 5
+STEP_DELAY = 1 / 60
+STEP_FACTOR = 0.1
+HOVER_DELAY_MS = 5000
 
 local RX = {
     TimerScheduler = Ext.Require("Lib/reactivex/schedulers/timerscheduler.lua")
@@ -38,6 +34,7 @@ function DualPaneController:InitWithWindow(window)
     self.modContent = ModContent:New(self.contentScrollWindow)
     self.isCollapsed = false
     self.isHovered = false
+    self.userHasInteracted = false
     self.hoverSubscription = nil
     -- Attach hover listeners initially (menu is expanded by default)
     self:AttachHoverListeners()
@@ -61,25 +58,32 @@ function DualPaneController:initLayout()
     self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScrollWindow")
 end
 
--- Attach hover listeners to either the menuScrollWindow (if visible) or the expand button (if collapsed)
+-- Attach hover listeners to either the menuScrollWindow (if expanded/visible) or the expand button (if collapsed)
+
 function DualPaneController:AttachHoverListeners()
-    if DISABLE_HOVER then
+    local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
+    if not enabledHover then
         return
     end
     if self.menuScrollWindow.Visible then
         self.menuScrollWindow.OnHoverEnter = function()
             self.isHovered = true
+            self.userHasInteracted = true
+
             self:CancelAutoCollapse()
+            self.menuScrollWindow:SetStyle("Alpha", 1)
         end
         self.menuScrollWindow.OnHoverLeave = function()
             self.isHovered = false
+
             self:ScheduleAutoCollapse()
+            self:FadeSidebarOutAlpha(HOVER_DELAY_MS / 1000)
         end
     else
-        -- When collapsed, attach hover to the expand button
         if self.modContent and self.modContent.headerActions and self.modContent.headerActions.expandBtn then
             self.modContent.headerActions.expandBtn.OnHoverEnter = function()
                 self.isHovered = true
+                self.userHasInteracted = true
                 self:CancelAutoCollapse()
                 self:Expand()
             end
@@ -87,23 +91,55 @@ function DualPaneController:AttachHoverListeners()
     end
 end
 
--- TODO: cancel any pending auto-collapse timer?
-function DualPaneController:CancelAutoCollapse()
-    self.hoverSubscription = nil
+-- Gradually fade the menuScrollWindow's alpha to a target value over a given duration (in seconds)
+function DualPaneController:FadeSidebarOutAlpha(durationInS)
+    local targetAlpha = 0.33
+    local startAlpha = self.menuScrollWindow:GetStyle("Alpha") or 1
+    local steps = durationInS / STEP_DELAY
+    local alphaStep = (startAlpha - targetAlpha) / steps
+
+    local function stepFade()
+        -- If the user re-enters before fade-out completes, cancel further fade steps.
+        if self.isHovered then
+            return
+        end
+
+        local currentAlpha = self.menuScrollWindow:GetStyle("Alpha") or startAlpha
+        if currentAlpha > targetAlpha then
+            local newAlpha = math.max(targetAlpha, currentAlpha - alphaStep)
+            self.menuScrollWindow:SetStyle("Alpha", newAlpha)
+            if newAlpha > targetAlpha then
+                Ext.Timer.WaitFor(STEP_DELAY, stepFade)
+            end
+        end
+    end
+
+    stepFade()
 end
 
--- Schedule auto-collapse after a few seconds if not hovered
+function DualPaneController:CancelAutoCollapse()
+    if self.hoverSubscription then
+        -- REVIEW: Is this how you unsubscribe?
+        self.hoverSubscription:_unsubscribe()
+        self.hoverSubscription = nil
+    end
+end
+
+-- Schedule auto-collapse after HOVER_DELAY_MS if not hovered and if the user has already interacted
 function DualPaneController:ScheduleAutoCollapse()
-    if DISABLE_AUTO_COLLAPSE then
+    local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+    if not enabledAutoCollapse or (not self.userHasInteracted) then
         return
     end
+
     self:CancelAutoCollapse()
+
     local scheduler = RX.TimerScheduler.Create()
     self.hoverSubscription = scheduler:Schedule(function()
         if not self.isHovered then
             self:Collapse()
         end
-    end, HOVER_DELAY)
+    end, HOVER_DELAY_MS)
 end
 
 -- Internal method to update header toggle icons
@@ -169,6 +205,7 @@ end
 
 -- Toggle the sidebar
 function DualPaneController:ToggleSidebar()
+    self.userHasInteracted = true
     if self.isCollapsed then
         self:Expand()
     else
