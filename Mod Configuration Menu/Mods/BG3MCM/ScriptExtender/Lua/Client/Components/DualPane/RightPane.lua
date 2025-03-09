@@ -153,7 +153,8 @@ function RightPane:DetachModGroup(modUUID)
         MCMError(0, "Mod group " .. modUUID .. " is already detached.")
         return
     end
-    local newWindow = createDetachedWindow("Detached view for mod: " .. Ext.Mod.GetMod(modUUID).Info.Name)
+    local newWindow = createDetachedWindow(VCString:InterpolateLocalizedMessage("hb341a515eea64380ad0ccfe6c1ff115d1310",
+        Ext.Mod.GetMod(modUUID).Info.Name))
     local parent = group.ParentElement
     parent:DetachChild(group)
     newWindow:AttachChild(group)
