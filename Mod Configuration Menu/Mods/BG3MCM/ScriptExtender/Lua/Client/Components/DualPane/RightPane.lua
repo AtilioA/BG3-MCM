@@ -61,16 +61,23 @@ function RightPane:CreateTab(modUUID, tabName)
     local group = self:GetModGroup(modUUID)
     local modTabBar = self:GetModTabBar(modUUID)
     if not group or not modTabBar then return nil end
+
     local tab = modTabBar:AddTabItem(tabName)
-    tab.IDContext = modUUID .. "_" .. tabName .. "_TAB"
+
+    local tabId = DualPaneController:GenerateTabId(modUUID, tabName)
+    tab.IDContext = DualPaneController:GenerateTabId(modUUID, tabName)
     tab.UserData = tab.UserData or {}
+    tab.UserData.tabId = tabId
+    tab.UserData.tabName = tabName
+
     tab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
         ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
             modUUID = modUUID,
             tabName = tabName
-        })
+        }, true)
     end
+
     return tab
 end
 

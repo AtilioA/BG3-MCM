@@ -51,18 +51,26 @@ function DualPaneController:initLayout()
 
     self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
-    self.mainLayoutTable:AddColumn("Content", "WidthFixed", GetContentColumnWidth())
+    self.mainLayoutTable:AddColumn("Content", "WidthStretch")
     local row = self.mainLayoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
 
     self.menuScrollWindow = self.menuCell:AddChildWindow("MenuScrollWindow")
+    self.menuScrollWindow.AutoResizeY = true
+    self.menuScrollWindow.ChildAlwaysAutoResize = true
 
     -- Create header actions before creating the content scroll window.
     -- HeaderActionsInstance is used by RightPane later.
     HeaderActionsInstance = HeaderActions:New(self.contentCell)
 
     self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScrollWindow")
+    self.contentScrollWindow.AutoResizeY = true
+    self.contentScrollWindow.ChildAlwaysAutoResize = true
+end
+
+function DualPaneController:GenerateTabId(modUUID, tabName)
+    return "runtime_" .. modUUID .. "_" .. string.lower(tabName:gsub(" ", "_"))
 end
 
 -- Attach hover listeners to either the menuScrollWindow (if expanded/visible) or the expand button (if collapsed)
@@ -260,33 +268,32 @@ end
 -- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
 ---@param modUUID string The UUID of the mod to open
 ---@param tabName? string The name of the tab to open
-function DualPaneController:OpenModPage(tabName, modUUID)
-    IMGUIAPI:OpenMCMWindow(true)
-
+function DualPaneController:OpenModPage(identifier, modUUID)
+    -- IMGUIAPI:OpenMCMWindow(true)
     self:SetVisibleFrame(modUUID)
 
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
-        MCMError(0, "No page found for mod " .. modUUID)
+        MCMError("No tab bar found for mod " .. modUUID)
         return
     end
 
-    local tabFound = false
+    local targetTab = nil
     for _, tab in ipairs(modTabBar.Children) do
-        if tab.IDContext and tab.IDContext:find(tabName) then
-            tab.SetSelected = true
-            tabFound = true
-        else
-            tab.SetSelected = false
+        local idContext = tab.IDContext or ""
+        local storedId = tab.UserData and tab.UserData.tabId or ""
+        local storedName = tab.UserData and tab.UserData.tabName or ""
+        if idContext:find(identifier) or storedId == identifier or storedName == identifier then
+            targetTab = tab
+            break
         end
     end
 
-    if not tabFound then
-        MCMWarn(0,
-            "Tab provided " ..
-            tabName ..
-            " was not found for mod " ..
-            modUUID ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+    if targetTab then
+        targetTab.SetSelected = true
+        IMGUIAPI:OpenMCMWindow(true)
+    else
+        MCMWarn("Tab not found for identifier: " .. identifier)
     end
 
     -- Collapse the sidebar when opening the specific page.
