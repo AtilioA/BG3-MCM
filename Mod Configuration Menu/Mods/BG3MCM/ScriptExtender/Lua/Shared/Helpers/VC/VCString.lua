@@ -106,6 +106,14 @@ end
 
 -- Adds full stop to the end of the string if it doesn't already have one
 function VCString:AddFullStop(str)
+    if str == nil then
+        return ""
+    end
+
+    if str == "" then
+        return str
+    end
+
     if string.sub(str, -1) ~= "." then
         return str .. "."
     end
