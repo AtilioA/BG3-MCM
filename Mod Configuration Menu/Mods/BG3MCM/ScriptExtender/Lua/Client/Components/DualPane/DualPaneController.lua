@@ -217,7 +217,9 @@ end
 
 -- Open a specific page and optionally a subtab.
 -- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
-function DualPaneController:OpenPage(modUUID, tabName)
+---@param modUUID string The UUID of the mod to open
+---@param tabName? string The name of the tab to open
+function DualPaneController:OpenModPage(modUUID, tabName)
     IMGUIAPI:OpenMCMWindow(true)
 
     self:SetVisibleFrame(modUUID)
@@ -227,7 +229,8 @@ function DualPaneController:OpenPage(modUUID, tabName)
             for _, tab in ipairs(modTabBar.Children) do
                 if tab.IDContext and tab.IDContext:find(tabName) then
                     tab.SetSelected = true
-                    break
+                else
+                    tab.SetSelected = false
                 end
             end
         end
