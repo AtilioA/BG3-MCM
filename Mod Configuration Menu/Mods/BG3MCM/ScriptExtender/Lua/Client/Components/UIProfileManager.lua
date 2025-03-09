@@ -28,15 +28,12 @@ function UIProfileManager:CreateProfileContent()
     local currentProfile = MCMAPI:GetCurrentProfile()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile) - 1
 
-    DualPane.modMenu:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"), nil,
-        "MCM_profiles")
+    DualPane.modMenu:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"), nil, "MCM_profiles")
     DualPane.modMenu:CreateMenuButton(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil, "MCM_profiles")
-    local contentGroup = DualPane.modContent:createModGroup("MCM_profiles",
-    Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
+    local contentGroup = DualPane.modContent:CreateModGroup("MCM_profiles", Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
 
     if not contentGroup then
-        return
-            MCMError(0, "Failed to create profile content group.")
+        return MCMError(0, "Failed to create profile content group.")
     end
 
     local profileCombo = contentGroup:AddCombo("")

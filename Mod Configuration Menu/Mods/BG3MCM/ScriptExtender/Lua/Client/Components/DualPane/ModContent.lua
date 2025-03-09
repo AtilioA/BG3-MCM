@@ -14,9 +14,9 @@ function ModContent:new(parent)
     self.headerActions = {}
     self.headerActions.group = self.parent:AddGroup("HeaderActions")
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
-    self.headerActions.expandBtn = self:createActionButton("Toggle", ICON_TOGGLE_EXPAND, "Hide the sidebar", 1.25)
+    self.headerActions.expandBtn = self:CreateActionButton("Toggle", ICON_TOGGLE_EXPAND, "Hide the sidebar", 1.25)
     self.headerActions.expandBtn.SameLine = true
-    self.headerActions.collapseBtn = self:createActionButton("Collapse", ICON_TOGGLE_COLLAPSE, "Expand the sidebar", 1.25)
+    self.headerActions.collapseBtn = self:CreateActionButton("Collapse", ICON_TOGGLE_COLLAPSE, "Expand the sidebar", 1.25)
     self.headerActions.collapseBtn.SameLine = true
     self.headerActions.expandBtn.OnClick = function() DualPane:ToggleSidebar() end
     self.headerActions.collapseBtn.OnClick = function() DualPane:ToggleSidebar() end
@@ -30,14 +30,14 @@ function ModContent:new(parent)
     end
     local dummy = self.parent:AddDummy(10, 0)
     dummy.SameLine = true
-    self.headerActions.docBtn = self:createActionButton("Documentation", ICON_DOCS, "Show mod documentation", 1)
+    self.headerActions.docBtn = self:CreateActionButton("Documentation", ICON_DOCS, "Show mod documentation", 1)
     self.headerActions.docBtn.SameLine = true
-    self.headerActions.detachBtn = self:createActionButton("Detach mod page to a new window", ICON_DETACH, "Detach mod", 1)
+    self.headerActions.detachBtn = self:CreateActionButton("Detach mod page to a new window", ICON_DETACH, "Detach mod", 1)
     self.headerActions.detachBtn.SameLine = true
     return self
 end
 
-function ModContent:createActionButton(text, icon, tooltip, multiplier)
+function ModContent:CreateActionButton(text, icon, tooltip, multiplier)
     local button = self.parent:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(multiplier))
     button.IDContext = "HeaderAction_" .. text .. "_BUTTON"
     MCMRendering:AddTooltip(button, tooltip, "HeaderAction_" .. text)
@@ -45,7 +45,7 @@ function ModContent:createActionButton(text, icon, tooltip, multiplier)
 end
 
 -- Create a new group for a mod’s content, including a tab bar.
-function ModContent:createModGroup(modUUID, modName, modDescription)
+function ModContent:CreateModGroup(modUUID, modName, modDescription)
     local group = self.parent:AddGroup(modUUID)
     group:AddSeparatorText(modName)
     if modDescription then
@@ -79,12 +79,12 @@ function ModContent:GetModTabBar(modUUID)
     return nil
 end
 
-function ModContent:getModGroup(modUUID)
+function ModContent:GetModGroup(modUUID)
     return self.contentGroups[modUUID]
 end
 
-function ModContent:createTab(modUUID, tabName)
-    local group = self:getModGroup(modUUID)
+function ModContent:CreateTab(modUUID, tabName)
+    local group = self:GetModGroup(modUUID)
     local modTabBar = self:GetModTabBar(modUUID)
     if not group or not modTabBar then return nil end
     local tab = modTabBar:AddTabItem(tabName)
@@ -100,8 +100,8 @@ function ModContent:createTab(modUUID, tabName)
     return tab
 end
 
-function ModContent:insertTab(modUUID, tabName, callback)
-    local tab = self:createTab(modUUID, tabName)
+function ModContent:InsertTab(modUUID, tabName, callback)
+    local tab = self:CreateTab(modUUID, tabName)
     if tab and callback then
         tab.UserData.Callback = callback
         xpcall(function()
@@ -120,7 +120,7 @@ function ModContent:insertTab(modUUID, tabName, callback)
     return tab
 end
 
-function ModContent:setVisibleGroup(modUUID)
+function ModContent:SetVisibleGroup(modUUID)
     for uuid, group in pairs(self.contentGroups) do
         group.Visible = (uuid == modUUID)
     end

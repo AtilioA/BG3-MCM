@@ -325,7 +325,7 @@ function MCMRendering:CreateMainTable()
             MCMWarn(0, "Error processing mod " .. modUUID .. ": " .. err)
         end
     end
-    DualPane:setVisibleFrame(ModuleUUID)
+    DualPane:SetVisibleFrame(ModuleUUID)
 end
 
 --- Create a new tab for a mod in the MCM
@@ -335,9 +335,9 @@ function MCMRendering:RenderMenuPageContent(modUUID)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
     local modBlueprint = self.mods[modUUID].blueprint
     local modSettings = self.mods[modUUID].settingsValues
-    local uiGroupMod = DualPane.modContent:getModGroup(modUUID)
+    local uiGroupMod = DualPane.modContent:GetModGroup(modUUID)
     if not uiGroupMod then
-        uiGroupMod = DualPane.modContent:createModGroup(modUUID, modBlueprint:GetModName(),
+        uiGroupMod = DualPane.modContent:CreateModGroup(modUUID, modBlueprint:GetModName(),
             modBlueprint:GetModDescription())
     end
 

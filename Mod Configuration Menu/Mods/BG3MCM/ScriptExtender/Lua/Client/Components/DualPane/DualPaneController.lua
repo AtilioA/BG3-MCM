@@ -25,8 +25,8 @@ function DualPaneController:InitWithWindow(window)
     local self = setmetatable({}, DualPaneController)
     self.window = window
     self:initLayout()
-    self.modMenu = ModMenu:new(self.menuScrollWindow)
-    self.modContent = ModContent:new(self.contentScrollWindow)
+    self.modMenu = ModMenu:New(self.menuScrollWindow)
+    self.modContent = ModContent:New(self.contentScrollWindow)
     self.isCollapsed = false
     return self
 end
@@ -119,7 +119,7 @@ end
 
 -- Tab management API; delegates to ModContent.
 function DualPaneController:CreateModTab(modUUID, tabName)
-    return self.modContent:createTab(modUUID, tabName)
+    return self.modContent:CreateTab(modUUID, tabName)
 end
 
 function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimerLocaKey)
@@ -134,16 +134,16 @@ function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimer
 end
 
 function DualPaneController:InsertModTab(modUUID, tabName, callback)
-    return self.modContent:insertTab(modUUID, tabName, callback)
+    return self.modContent:InsertTab(modUUID, tabName, callback)
 end
 
-function DualPaneController:setVisibleFrame(modUUID)
-    self.modContent:setVisibleGroup(modUUID)
+function DualPaneController:SetVisibleFrame(modUUID)
+    self.modContent:SetVisibleGroup(modUUID)
 end
 
 -- Helper called from ModMenu buttons.
 function DualPaneController:SwitchVisibleContent(button, uuid)
-    self:setVisibleFrame(uuid)
+    self:SetVisibleFrame(uuid)
     for _, c in ipairs(self.menuScrollWindow.Children) do
         if c == button then
             c:SetColor("Button", UIStyle.Colors["ButtonActive"])
