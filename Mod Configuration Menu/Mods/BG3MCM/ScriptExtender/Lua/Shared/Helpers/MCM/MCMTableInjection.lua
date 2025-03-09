@@ -125,7 +125,7 @@ local function setupClientSideMCM(originalModUUID)
 
     modTable.MCM['OpenModPage'] = function(tabName, modUUID)
         if not modUUID then modUUID = originalModUUID end
-        IMGUIAPI:OpenModPage(tabName, originalModUUID)
+        IMGUIAPI:OpenModPage(tabName, modUUID)
     end
 end
 
