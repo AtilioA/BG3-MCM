@@ -155,16 +155,24 @@ function ModContent:InsertTab(modUUID, tabName, callback)
     return tab
 end
 
--- Set visible groups only for attached mod groups.
+-- Set visible groups and update header detach/reattach buttons based on the current mod.
 function ModContent:SetVisibleGroup(modUUID)
     for uuid, group in pairs(self.contentGroups) do
-        -- Only update visibility for groups that are attached to parent.
+        -- Only update groups that are attached (i.e. not detached)
         if not self.detachedWindows[group.Handle] then
             group.Visible = (uuid == modUUID)
         end
     end
     if self.contentGroups[modUUID] then
         self.currentMod = { group = self.contentGroups[modUUID], modUUID = modUUID }
+        local group = self.currentMod.group
+        if self.detachedWindows[group.Handle] then
+            self.headerActions.detachBtn.Visible = false
+            self.headerActions.reattachBtn.Visible = true
+        else
+            self.headerActions.detachBtn.Visible = true
+            self.headerActions.reattachBtn.Visible = false
+        end
     end
 end
 
@@ -194,23 +202,21 @@ function ModContent:DetachModGroup(modUUID)
     newWindow:AttachChild(group)
     self.detachedWindows[handle] = newWindow
     newWindow.Closeable = true
-    newWindow.OnClose = function()
-        self:ReattachModGroup(modUUID)
-    end
+    newWindow.OnClose = function() self:ReattachModGroup(modUUID) end
 
-    -- Add a temporary message and store it in the detached window
-    local tempText = parent:AddText("This mod's content is detached. Click the reattach button to reattach.")
-    tempText.TextWrapPos = 0
-    tempText:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1))
-    newWindow.UserData = {
-        tempText = tempText
-    }
-    -- Update header: show reattach button, hide detach button.
+    -- Optionally add a temporary message inside the detached window (if desired)
+    -- local tempText = parent:AddText("This mod's content is detached. Click the reattach button to reattach.")
+    -- tempText.TextWrapPos = 0
+    -- tempText:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1))
+    -- newWindow.UserData = {
+    --     tempText = tempText
+    -- }
+
     self.headerActions.detachBtn.Visible = false
     self.headerActions.reattachBtn.Visible = true
 end
 
--- Reattach the mod group from its detached window back to the parent.
+-- Reattach the mod content group from its detached window back to the parent.
 function ModContent:ReattachModGroup(modUUID)
     local group = self.contentGroups[modUUID]
     if not group then
@@ -242,4 +248,15 @@ function ModContent:ReattachModGroup(modUUID)
     -- Update header: show detach button, hide reattach button.
     self.headerActions.detachBtn.Visible = true
     self.headerActions.reattachBtn.Visible = false
+end
+
+-- Toggle detach/reattach based on current state.
+function ModContent:ToggleDetach(modUUID)
+    local group = self.contentGroups[modUUID]
+    if not group then return end
+    if self.detachedWindows[group.Handle] then
+        self:ReattachModGroup(modUUID)
+    else
+        self:DetachModGroup(modUUID)
+    end
 end
