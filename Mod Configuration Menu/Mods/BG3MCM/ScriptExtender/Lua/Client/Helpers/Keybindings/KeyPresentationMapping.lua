@@ -166,14 +166,15 @@ function KeyPresentationMapping:GetKBViewKey(keybinding)
 
     local keyStr = ""
     if keybinding.Key then
-        keyStr = "[" .. (self.Mapping[keybinding.Key] or keybinding.Key) .. "]"
+        keyStr = "[" .. (self.Mapping[keybinding.Key:upper()] or keybinding.Key) .. "]"
     end
 
     local modifiers = {}
     if keybinding.ModifierKeys then
         for _, modifier in ipairs(keybinding.ModifierKeys) do
             if modifier and modifier ~= "" then
-                table.insert(modifiers, "[" .. (self.Mapping[modifier] or modifier) .. "]")
+                _D(modifier)
+                table.insert(modifiers, "[" .. (self.Mapping[modifier:upper()] or modifier) .. "]")
             end
         end
     end
