@@ -2,7 +2,7 @@
 ---@field private SectionName string
 ---@field private SectionId string
 ---@field private SectionDescription string
----@field private VisibleIf string
+---@field private VisibleIf table<string, string>
 ---@field private Options table
 ---@field private Settings BlueprintSetting[]
 ---@field private Handles? table
