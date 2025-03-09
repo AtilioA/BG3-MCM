@@ -166,6 +166,46 @@
                     }
                 }
             ]
+        },
+        {
+            "TabId": "sidebar_behavior",
+            "TabName": "Sidebar behavior",
+            "Handles": {
+                "NameHandle": "Sidebar behavior"
+            },
+            "Sections": [
+                {
+                    "SectionId": "sidebar_settings",
+                    "SectionName": "Sidebar settings",
+                    "Settings": [
+                        {
+                            "Id": "enable_hover",
+                            "Name": "Enable expansion on hover",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Enable hover-based expansion of the sidebar.",
+                            "Handles": {
+                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be921",
+                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6f"
+                            }
+                        },
+                        {
+                            "Id": "enable_auto_collapse",
+                            "Name": "Enable sidebar auto collapse",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Enable automatic collapse of the sidebar. When enabled, the sidebar may collapse based on inactivity or other collapse triggers.",
+                            "Handles": {
+                                "NameHandle": "h0636d5bc17f6464f99c1da18831bb38f1561",
+                                "DescriptionHandle": "h3f6a4e8a570d41c2bf60d673a3bfa1ef3472"
+                            }
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h3eea24a3dff74849a38e04f0fc43b4b54963"
+                    }
+                }
+            ]
         }
     ]
 }
