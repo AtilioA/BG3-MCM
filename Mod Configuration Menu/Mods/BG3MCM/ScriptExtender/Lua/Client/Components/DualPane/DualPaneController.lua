@@ -258,10 +258,10 @@ function DualPaneController:SwitchVisibleContent(button, uuid)
 end
 
 -- Open a specific page and optionally a subtab.
--- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
+-- If tabId is provided, it activates that tab (by setting its SetSelected property to true).
 ---@param modUUID string The UUID of the mod to open
----@param tabName? string The name of the tab to open
-function DualPaneController:OpenModPage(modUUID, tabName)
+---@param tabId? string The name of the tab to open
+function DualPaneController:OpenModPage(modUUID, tabId)
     IMGUIAPI:OpenMCMWindow(true)
 
     self:SetVisibleFrame(modUUID)
@@ -274,7 +274,7 @@ function DualPaneController:OpenModPage(modUUID, tabName)
 
     local tabFound = false
     for _, tab in ipairs(modTabBar.Children) do
-        if tab.IDContext and tab.IDContext:find(tabName) then
+        if tab.IDContext and tab.IDContext:find(tabId) then
             tab.SetSelected = true
             tabFound = true
         else
@@ -285,7 +285,7 @@ function DualPaneController:OpenModPage(modUUID, tabName)
     if not tabFound then
         MCMWarn(0,
             "Tab provided " ..
-            tabName ..
+            tabId ..
             " was not found for mod " ..
             modUUID ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
     end
