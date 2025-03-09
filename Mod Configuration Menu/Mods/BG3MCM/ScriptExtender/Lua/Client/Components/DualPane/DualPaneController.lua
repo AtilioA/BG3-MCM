@@ -274,7 +274,7 @@ function DualPaneController:OpenModPage(identifier, modUUID)
 
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
-        MCMError("No tab bar found for mod " .. modUUID)
+        MCMError(0, "No tab bar found for mod " .. modUUID)
         return
     end
 
@@ -293,9 +293,14 @@ function DualPaneController:OpenModPage(identifier, modUUID)
         targetTab.SetSelected = true
         IMGUIAPI:OpenMCMWindow(true)
     else
-        MCMWarn("Tab not found for identifier: " .. identifier)
+        MCMWarn(0, "Tab not found for identifier: " .. identifier)
     end
 
     -- Collapse the sidebar when opening the specific page.
     self:Collapse()
+
+    -- Avoid select lockdown by unselecting the tab after a few ticks
+    Ext.Timer.WaitFor(100, function()
+        targetTab.SetSelected = false
+    end)
 end
