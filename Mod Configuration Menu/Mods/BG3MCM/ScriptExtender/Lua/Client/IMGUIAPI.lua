@@ -111,7 +111,7 @@ function IMGUIAPI:OpenMCMWindow(playSound)
     MCM_WINDOW.Open = true
     ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
         playSound = playSound
-    })
+    }, true)
 end
 
 --- Closes the MCM window.
@@ -126,7 +126,7 @@ function IMGUIAPI:CloseMCMWindow(playSound)
     MCM_WINDOW.Open = false
     ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {
         playSound = playSound
-    })
+    }, true)
 end
 
 --- Toggles the visibility of the MCM window.
