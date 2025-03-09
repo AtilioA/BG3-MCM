@@ -223,18 +223,31 @@ function DualPaneController:OpenModPage(modUUID, tabName)
     IMGUIAPI:OpenMCMWindow(true)
 
     self:SetVisibleFrame(modUUID)
-    if tabName then
-        local modTabBar = self.modContent:GetModTabBar(modUUID)
-        if modTabBar then
-            for _, tab in ipairs(modTabBar.Children) do
-                if tab.IDContext and tab.IDContext:find(tabName) then
-                    tab.SetSelected = true
-                else
-                    tab.SetSelected = false
-                end
-            end
+
+    local modTabBar = self.modContent:GetModTabBar(modUUID)
+    if not modTabBar then
+        MCMError(0, "No page found for mod " .. modUUID)
+        return
+    end
+
+    local tabFound = false
+    for _, tab in ipairs(modTabBar.Children) do
+        if tab.IDContext and tab.IDContext:find(tabName) then
+            tab.SetSelected = true
+            tabFound = true
+        else
+            tab.SetSelected = false
         end
     end
-    -- Collapse the sidebar when opening a specific page.
+
+    if not tabFound then
+        MCMWarn(0,
+            "Tab provided " ..
+            tabName ..
+            " was not found for mod " ..
+            modUUID ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+    end
+
+    -- Collapse the sidebar when opening the specific page.
     self:Collapse()
 end
