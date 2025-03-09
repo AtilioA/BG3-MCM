@@ -245,13 +245,7 @@ end
 -- Helper called from ModMenu buttons.
 function DualPaneController:SwitchVisibleContent(button, uuid)
     self:SetVisibleFrame(uuid)
-    for _, c in ipairs(self.menuScrollWindow.Children) do
-        if c == button then
-            c:SetColor("Button", UIStyle.Colors["ButtonActive"])
-        else
-            c:SetColor("Button", UIStyle.Colors["Button"])
-        end
-    end
+    self.modMenu:SetActiveItem(uuid)
     if not MCMProxy.IsMainMenu() then
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = uuid })
     end
