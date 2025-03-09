@@ -145,7 +145,7 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
 end
 
 function IMGUIAPI:OpenModPage(tabName, modUUID)
-    if not DualPane or not DualPane.modMenu then
+    if not DualPane or not DualPane.leftPane then
         MCMError(0, "Tried to open mod page, but DualPane doesn't exist")
         return
     end

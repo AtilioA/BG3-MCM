@@ -1,7 +1,7 @@
 --------------------------------------------
 -- DualPaneController (Facade):
 -- This module manages a dual-pane interface within the MCM window.
--- It wires together the ModMenu and ModContent components.
+-- It wires together the LeftPane and RightPane components.
 -- It provides functionalities to initialize and layout a two-column pane structure with collapsible and expandable behavior,
 -- allowing for dynamic adjustments based on user interactions.
 -- It supports adding mod-specific content and menu sections, facilitating a structured presentation of mod configurations.
@@ -30,8 +30,8 @@ function DualPaneController:InitWithWindow(window)
     local self = setmetatable({}, DualPaneController)
     self.window = window
     self:initLayout()
-    self.modMenu = ModMenu:New(self.menuScrollWindow)
-    self.modContent = ModContent:New(self.contentScrollWindow)
+    self.leftPane = LeftPane:New(self.menuScrollWindow)
+    self.rightPane = RightPane:New(self.contentScrollWindow)
     self.isCollapsed = false
     self.isHovered = false
     self.userHasInteracted = false
@@ -81,8 +81,8 @@ function DualPaneController:AttachHoverListeners()
             self:FadeSidebarOutAlpha(HOVER_DELAY_MS / 1000)
         end
     else
-        if self.modContent and self.modContent.headerActions and self.modContent.headerActions.expandBtn then
-            self.modContent.headerActions.expandBtn.OnHoverEnter = function()
+        if self.rightPane and self.rightPane.headerActions and self.rightPane.headerActions.expandBtn then
+            self.rightPane.headerActions.expandBtn.OnHoverEnter = function()
                 local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
                 if not enabledHover then return end
 
@@ -152,15 +152,15 @@ end
 function DualPaneController:UpdateToggleButtons(ignoreCollapsed)
     if not ignoreCollapsed then
         if self.isCollapsed then
-            self.modContent.headerActions.expandBtn.Visible = true
-            self.modContent.headerActions.collapseBtn.Visible = false
+            self.rightPane.headerActions.expandBtn.Visible = true
+            self.rightPane.headerActions.collapseBtn.Visible = false
         else
-            self.modContent.headerActions.expandBtn.Visible = false
-            self.modContent.headerActions.collapseBtn.Visible = true
+            self.rightPane.headerActions.expandBtn.Visible = false
+            self.rightPane.headerActions.collapseBtn.Visible = true
         end
     else
-        self.modContent.headerActions.expandBtn.Visible = not self.modContent.headerActions.expandBtn.Visible
-        self.modContent.headerActions.collapseBtn.Visible = not self.modContent.headerActions.collapseBtn.Visible
+        self.rightPane.headerActions.expandBtn.Visible = not self.rightPane.headerActions.expandBtn.Visible
+        self.rightPane.headerActions.collapseBtn.Visible = not self.rightPane.headerActions.collapseBtn.Visible
     end
 end
 
@@ -218,9 +218,9 @@ function DualPaneController:ToggleSidebar()
     end
 end
 
--- Tab management API; delegates to ModContent.
+-- Tab management API; delegates to RightPane.
 function DualPaneController:CreateModTab(modUUID, tabName)
-    return self.modContent:CreateTab(modUUID, tabName)
+    return self.rightPane:CreateTab(modUUID, tabName)
 end
 
 function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimerLocaKey)
@@ -235,17 +235,17 @@ function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimer
 end
 
 function DualPaneController:InsertModTab(modUUID, tabName, callback)
-    return self.modContent:InsertTab(modUUID, tabName, callback)
+    return self.rightPane:InsertTab(modUUID, tabName, callback)
 end
 
 function DualPaneController:SetVisibleFrame(modUUID)
-    self.modContent:SetVisibleGroup(modUUID)
+    self.rightPane:SetVisibleGroup(modUUID)
 end
 
--- Helper called from ModMenu buttons.
+-- Helper called from LeftPane buttons.
 function DualPaneController:SwitchVisibleContent(button, uuid)
     self:SetVisibleFrame(uuid)
-    self.modMenu:SetActiveItem(uuid)
+    self.leftPane:SetActiveItem(uuid)
     if not MCMProxy.IsMainMenu() then
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = uuid })
     end
@@ -260,7 +260,7 @@ function DualPaneController:OpenModPage(modUUID, tabId)
 
     self:SetVisibleFrame(modUUID)
 
-    local modTabBar = self.modContent:GetModTabBar(modUUID)
+    local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
         MCMError(0, "No page found for mod " .. modUUID)
         return

@@ -1,21 +1,21 @@
 ------------------------------------------------------------
--- ModMenu Component
+-- LeftPane Component
 -- Manages the left pane (menu) of the dual-pane layout.
 ------------------------------------------------------------
-ModMenu = {}
-ModMenu.__index = ModMenu
+LeftPane = {}
+LeftPane.__index = LeftPane
 
-function ModMenu:New(parent)
-    local self = setmetatable({}, ModMenu)
+function LeftPane:New(parent)
+    local self = setmetatable({}, LeftPane)
     self.parent = parent -- Typically the menuScrollWindow
     return self
 end
 
-function ModMenu:AddMenuSeparator(text)
+function LeftPane:AddMenuSeparator(text)
     self.parent:AddSeparatorText(text)
 end
 
-function ModMenu:CreateMenuButton(text, description, uuid)
+function LeftPane:CreateMenuButton(text, description, uuid)
     local button = self.parent:AddButton(text)
     button.IDContext = "MenuButton_" .. text .. "_" .. uuid
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
@@ -29,7 +29,7 @@ function ModMenu:CreateMenuButton(text, description, uuid)
     return button
 end
 
-function ModMenu:SetActiveItem(uuid)
+function LeftPane:SetActiveItem(uuid)
     for _, child in ipairs(self.parent.Children) do
         if child.IDContext and child.IDContext:find(uuid) then
             child:SetColor("Button", UIStyle.Colors["ButtonActive"])

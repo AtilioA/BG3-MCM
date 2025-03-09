@@ -1,13 +1,13 @@
 ------------------------------------------------------------
--- ModContent Component
+-- RightPane Component
 -- Manages the right pane (content area) including header actions and
 -- mod-specific content groups (with tab containers).
 ------------------------------------------------------------
-ModContent = {}
-ModContent.__index = ModContent
+RightPane = {}
+RightPane.__index = RightPane
 
-function ModContent:New(parent)
-    local self = setmetatable({}, ModContent)
+function RightPane:New(parent)
+    local self = setmetatable({}, RightPane)
     -- Should:tm: be the contentScrollWindow
     self.parent = parent
     self.contentGroups = {}
@@ -71,7 +71,7 @@ function ModContent:New(parent)
     return self
 end
 
-function ModContent:CreateActionButton(text, icon, tooltip, multiplier)
+function RightPane:CreateActionButton(text, icon, tooltip, multiplier)
     local button = self.parent:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(multiplier))
     button.IDContext = "HeaderAction_" .. text .. "_BUTTON"
     MCMRendering:AddTooltip(button, tooltip, "HeaderAction_" .. text)
@@ -79,7 +79,7 @@ function ModContent:CreateActionButton(text, icon, tooltip, multiplier)
 end
 
 -- Create a new content group for a mod, including a tab bar.
-function ModContent:CreateModGroup(modUUID, modName, modDescription)
+function RightPane:CreateModGroup(modUUID, modName, modDescription)
     local group = self.parent:AddGroup(modUUID)
     group:AddSeparatorText(modName)
     if modDescription then
@@ -97,7 +97,7 @@ function ModContent:CreateModGroup(modUUID, modName, modDescription)
     return group
 end
 
-function ModContent:GetModTabBar(modUUID)
+function RightPane:GetModTabBar(modUUID)
     if not self.contentGroups or not self.contentGroups[modUUID] then
         return nil
     end
@@ -114,11 +114,11 @@ function ModContent:GetModTabBar(modUUID)
     return nil
 end
 
-function ModContent:GetModGroup(modUUID)
+function RightPane:GetModGroup(modUUID)
     return self.contentGroups[modUUID]
 end
 
-function ModContent:CreateTab(modUUID, tabName)
+function RightPane:CreateTab(modUUID, tabName)
     local group = self:GetModGroup(modUUID)
     local modTabBar = self:GetModTabBar(modUUID)
     if not group or not modTabBar then return nil end
@@ -135,7 +135,7 @@ function ModContent:CreateTab(modUUID, tabName)
     return tab
 end
 
-function ModContent:InsertTab(modUUID, tabName, callback)
+function RightPane:InsertTab(modUUID, tabName, callback)
     local tab = self:CreateTab(modUUID, tabName)
     if tab and callback then
         tab.UserData.Callback = callback
@@ -156,7 +156,7 @@ function ModContent:InsertTab(modUUID, tabName, callback)
 end
 
 -- Set visible groups and update header detach/reattach buttons based on the current mod.
-function ModContent:SetVisibleGroup(modUUID)
+function RightPane:SetVisibleGroup(modUUID)
     for uuid, group in pairs(self.contentGroups) do
         -- Only update groups that are attached (i.e. not detached)
         if not self.detachedWindows[group.Handle] then
@@ -185,7 +185,7 @@ end
 
 -- Detach the mod content group into its own window.
 -- When detached, the group is removed from the contentScrollWindow and attached to a new window.
-function ModContent:DetachModGroup(modUUID)
+function RightPane:DetachModGroup(modUUID)
     local group = self.contentGroups[modUUID]
     if not group then
         MCMError(0, "Tried to detach non-existent mod group for " .. modUUID)
@@ -217,7 +217,7 @@ function ModContent:DetachModGroup(modUUID)
 end
 
 -- Reattach the mod content group from its detached window back to the parent.
-function ModContent:ReattachModGroup(modUUID)
+function RightPane:ReattachModGroup(modUUID)
     local group = self.contentGroups[modUUID]
     if not group then
         MCMError(0, "Tried to reattach non-existent mod group for " .. modUUID)
@@ -251,7 +251,7 @@ function ModContent:ReattachModGroup(modUUID)
 end
 
 -- Toggle detach/reattach based on current state.
-function ModContent:ToggleDetach(modUUID)
+function RightPane:ToggleDetach(modUUID)
     local group = self.contentGroups[modUUID]
     if not group then return end
     if self.detachedWindows[group.Handle] then

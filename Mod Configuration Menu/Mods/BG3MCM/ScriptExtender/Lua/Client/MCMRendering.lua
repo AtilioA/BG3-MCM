@@ -307,13 +307,13 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function MCMRendering:CreateMainTable()
-    DualPane.modMenu:AddMenuSeparator(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
+    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modUUID in ipairs(sortedModKeys) do
         local success, err = xpcall(function()
             local modName = self.mods[modUUID].blueprint:GetModName()
             local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
-            DualPane.modMenu:CreateMenuButton(modName, modDescription, modUUID)
+            DualPane.leftPane:CreateMenuButton(modName, modDescription, modUUID)
             self.mods[modUUID].widgets = {}
             self:RenderMenuPageContent(modUUID)
             local modSettings = self.mods[modUUID].settingsValues
@@ -335,9 +335,9 @@ function MCMRendering:RenderMenuPageContent(modUUID)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
     local modBlueprint = self.mods[modUUID].blueprint
     local modSettings = self.mods[modUUID].settingsValues
-    local uiGroupMod = DualPane.modContent:GetModGroup(modUUID)
+    local uiGroupMod = DualPane.rightPane:GetModGroup(modUUID)
     if not uiGroupMod then
-        uiGroupMod = DualPane.modContent:CreateModGroup(modUUID, modBlueprint:GetModName(),
+        uiGroupMod = DualPane.rightPane:CreateModGroup(modUUID, modBlueprint:GetModName(),
             modBlueprint:GetModDescription())
     end
 
@@ -360,7 +360,7 @@ function MCMRendering:RenderMenuPageContent(modUUID)
 
     -- Iterate over each tab in the mod blueprint to create a subtab for each
     for _, tabInfo in ipairs(modBlueprint:GetTabs()) do
-        self:CreateModMenuSubTab(DualPane.modContent:GetModTabBar(modUUID), tabInfo, modSettings, modUUID)
+        self:CreateModMenuSubTab(DualPane.rightPane:GetModTabBar(modUUID), tabInfo, modSettings, modUUID)
     end
 
     createModTabFooter()
@@ -539,12 +539,12 @@ function MCMRendering:CreateKeybindingsPage()
     -- MCMDebug(0, "Creating keybindings page...")
 
     -- Create a dedicated "Hotkeys" menu section via DualPane.
-    DualPane.modMenu:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
-    DualPane.modMenu:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), nil,
+    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
+    DualPane.leftPane:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), nil,
         hotkeysUUID)
 
     local hotkeysGroup = DualPane.contentScrollWindow:AddGroup(hotkeysUUID)
-    DualPane.modContent.contentGroups[hotkeysUUID] = hotkeysGroup
+    DualPane.rightPane.contentGroups[hotkeysUUID] = hotkeysGroup
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
     local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
