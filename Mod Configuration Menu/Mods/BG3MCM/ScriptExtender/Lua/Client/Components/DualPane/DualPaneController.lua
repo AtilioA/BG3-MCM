@@ -1,9 +1,7 @@
 --------------------------------------------
--- DualPaneController (Facade):
--- This module manages a dual-pane interface within the MCM window.
--- It wires together the LeftPane and RightPane components.
--- It provides functionalities to initialize and layout a two-column pane structure with collapsible and expandable behavior,
--- allowing for dynamic adjustments based on user interactions.
+-- DualPaneController (Facade)
+-- Manages the dual-pane interface and wires together the left
+-- and right panes.
 -- It supports adding mod-specific content and menu sections, facilitating a structured presentation of mod configurations.
 --------------------------------------------
 
@@ -21,6 +19,8 @@ TARGET_WIDTH_COLLAPSED = 5
 STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
 HOVER_DELAY_MS = 5000
+
+HeaderActionsInstance = nil
 
 local RX = {
     TimerScheduler = Ext.Require("Lib/reactivex/schedulers/timerscheduler.lua")
@@ -42,24 +42,30 @@ function DualPaneController:InitWithWindow(window)
 end
 
 function DualPaneController:initLayout()
-    self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     local function GetMenuColumnWidth()
         return Ext.IMGUI.GetViewportSize()[2] / 4.8
     end
     local function GetContentColumnWidth()
         return Ext.IMGUI.GetViewportSize()[1]
     end
+
+    self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     self.mainLayoutTable:AddColumn("Content", "WidthFixed", GetContentColumnWidth())
     local row = self.mainLayoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
+
     self.menuScrollWindow = self.menuCell:AddChildWindow("MenuScrollWindow")
+
+    -- Create header actions before creating the content scroll window.
+    -- HeaderActionsInstance is used by RightPane later.
+    HeaderActionsInstance = HeaderActions:New(self.contentCell)
+
     self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScrollWindow")
 end
 
 -- Attach hover listeners to either the menuScrollWindow (if expanded/visible) or the expand button (if collapsed)
-
 function DualPaneController:AttachHoverListeners()
     local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
     if not enabledHover then return end
@@ -81,8 +87,8 @@ function DualPaneController:AttachHoverListeners()
             self:FadeSidebarOutAlpha(HOVER_DELAY_MS / 1000)
         end
     else
-        if self.rightPane and self.rightPane.headerActions and self.rightPane.headerActions.expandBtn then
-            self.rightPane.headerActions.expandBtn.OnHoverEnter = function()
+        if HeaderActionsInstance.expandBtn then
+            HeaderActionsInstance.expandBtn.OnHoverEnter = function()
                 local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
                 if not enabledHover then return end
 
@@ -98,7 +104,7 @@ end
 -- Gradually fade the menuScrollWindow's alpha to a target value over a given duration (in seconds)
 function DualPaneController:FadeSidebarOutAlpha(durationInS)
     local targetAlpha = 0.33
-    self.menuScrollWindow:SetStyle("Alpha", 0.9)
+    self.menuScrollWindow:SetStyle("Alpha", 0.8)
     local startAlpha = self.menuScrollWindow:GetStyle("Alpha")
     local steps = durationInS / STEP_DELAY
     local alphaStep = (startAlpha - targetAlpha) / steps
@@ -152,15 +158,15 @@ end
 function DualPaneController:UpdateToggleButtons(ignoreCollapsed)
     if not ignoreCollapsed then
         if self.isCollapsed then
-            self.rightPane.headerActions.expandBtn.Visible = true
-            self.rightPane.headerActions.collapseBtn.Visible = false
+            HeaderActionsInstance.expandBtn.Visible = true
+            HeaderActionsInstance.collapseBtn.Visible = false
         else
-            self.rightPane.headerActions.expandBtn.Visible = false
-            self.rightPane.headerActions.collapseBtn.Visible = true
+            HeaderActionsInstance.expandBtn.Visible = false
+            HeaderActionsInstance.collapseBtn.Visible = true
         end
     else
-        self.rightPane.headerActions.expandBtn.Visible = not self.rightPane.headerActions.expandBtn.Visible
-        self.rightPane.headerActions.collapseBtn.Visible = not self.rightPane.headerActions.collapseBtn.Visible
+        HeaderActionsInstance.expandBtn.Visible = not HeaderActionsInstance.expandBtn.Visible
+        HeaderActionsInstance.collapseBtn.Visible = not HeaderActionsInstance.collapseBtn.Visible
     end
 end
 
@@ -168,7 +174,7 @@ end
 function DualPaneController:Expand()
     local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
     local selfRef = self
-    selfRef:UpdateToggleButtons(true)
+    HeaderActionsInstance:UpdateToggleButtons(false) -- show collapse button when expanded
     local function stepExpand()
         if cWidth < TARGET_WIDTH_EXPANDED then
             cWidth = math.min(TARGET_WIDTH_EXPANDED, cWidth + (TARGET_WIDTH_EXPANDED * STEP_FACTOR))
@@ -179,18 +185,17 @@ function DualPaneController:Expand()
         else
             selfRef.isCollapsed = false
             selfRef.menuScrollWindow.Visible = true
-            selfRef:UpdateToggleButtons()
+            HeaderActionsInstance:UpdateToggleButtons(selfRef.isCollapsed)
             selfRef:AttachHoverListeners()
         end
     end
     stepExpand()
 end
 
--- Collapse the sidebar 'asynchronously'
 function DualPaneController:Collapse()
     local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
     local selfRef = self
-    selfRef:UpdateToggleButtons(true)
+    HeaderActionsInstance:UpdateToggleButtons(true) -- show expand button when collapsed
     local function stepCollapse()
         if cWidth > TARGET_WIDTH_COLLAPSED then
             cWidth = math.max(TARGET_WIDTH_COLLAPSED, cWidth - (cWidth * STEP_FACTOR))
@@ -201,7 +206,7 @@ function DualPaneController:Collapse()
         else
             selfRef.menuScrollWindow.Visible = false
             selfRef.isCollapsed = true
-            selfRef:UpdateToggleButtons()
+            HeaderActionsInstance:UpdateToggleButtons(selfRef.isCollapsed)
             selfRef:AttachHoverListeners()
         end
     end
@@ -252,10 +257,10 @@ function DualPaneController:SwitchVisibleContent(button, uuid)
 end
 
 -- Open a specific page and optionally a subtab.
--- If tabId is provided, it activates that tab (by setting its SetSelected property to true).
+-- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
 ---@param modUUID string The UUID of the mod to open
----@param tabId? string The name of the tab to open
-function DualPaneController:OpenModPage(modUUID, tabId)
+---@param tabName? string The name of the tab to open
+function DualPaneController:OpenModPage(tabName, modUUID)
     IMGUIAPI:OpenMCMWindow(true)
 
     self:SetVisibleFrame(modUUID)
@@ -268,7 +273,7 @@ function DualPaneController:OpenModPage(modUUID, tabId)
 
     local tabFound = false
     for _, tab in ipairs(modTabBar.Children) do
-        if tab.IDContext and tab.IDContext:find(tabId) then
+        if tab.IDContext and tab.IDContext:find(tabName) then
             tab.SetSelected = true
             tabFound = true
         else
@@ -279,7 +284,7 @@ function DualPaneController:OpenModPage(modUUID, tabId)
     if not tabFound then
         MCMWarn(0,
             "Tab provided " ..
-            tabId ..
+            tabName ..
             " was not found for mod " ..
             modUUID ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
     end

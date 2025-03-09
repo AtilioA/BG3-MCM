@@ -375,7 +375,8 @@ end
 function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modUUID)
     local tabName = blueprintTab:GetLocaName()
     local imguiTab = modTabs:AddTabItem(tabName)
-    imguiTab.IDContext = modUUID .. "_" .. blueprintTab:GetId()
+    imguiTab.IDContext = modUUID .. "_" .. blueprintTab:GetTabName() .. "_TAB"
+    imguiTab.UserData = imguiTab.UserData or { tabId = blueprintTab:GetId() }
 
     local blueprintVisibleIf = blueprintTab:GetVisibleIf()
     if blueprintVisibleIf and blueprintVisibleIf.Conditions then
