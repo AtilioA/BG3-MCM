@@ -148,11 +148,13 @@ function RightPane:DetachModGroup(modUUID)
         MCMError(0, "Tried to detach non-existent mod group for " .. modUUID)
         return
     end
+
     local handle = group.Handle
     if self.detachedWindows[handle] then
         MCMError(0, "Mod group " .. modUUID .. " is already detached.")
         return
     end
+
     local newWindow = createDetachedWindow(VCString:InterpolateLocalizedMessage("hb341a515eea64380ad0ccfe6c1ff115d1310",
         Ext.Mod.GetMod(modUUID).Info.Name))
     local parent = group.ParentElement
@@ -170,8 +172,8 @@ function RightPane:DetachModGroup(modUUID)
     --     tempText = tempText
     -- }
 
-    HeaderActionsInstance.detachBtn.Visible = false
-    HeaderActionsInstance.reattachBtn.Visible = true
+    self:UpdateDetachButtons()
+    DualPane:Expand()
 end
 
 -- Reattach the mod content group from its detached window back to the parent.
@@ -202,18 +204,12 @@ function RightPane:ReattachModGroup(modUUID)
     if #group.Children > 0 then
         group:RemoveChild(group.Children[#group.Children])
     end
-    -- Update header: show detach button, hide reattach button.
-    HeaderActionsInstance.detachBtn.Visible = true
-    HeaderActionsInstance.reattachBtn.Visible = false
+
+    self:UpdateDetachButtons()
 end
 
--- Toggle detach/reattach based on current state.
-function RightPane:ToggleDetach(modUUID)
-    local group = self.contentGroups[modUUID]
-    if not group then return end
-    if self.detachedWindows[group.Handle] then
-        self:ReattachModGroup(modUUID)
-    else
-        self:DetachModGroup(modUUID)
-    end
+-- Update header buttons visibility based on detachment state
+function RightPane:UpdateDetachButtons()
+    HeaderActionsInstance.detachBtn.Visible = not HeaderActionsInstance.detachBtn.Visible
+    HeaderActionsInstance.reattachBtn.Visible = not HeaderActionsInstance.reattachBtn.Visible
 end
