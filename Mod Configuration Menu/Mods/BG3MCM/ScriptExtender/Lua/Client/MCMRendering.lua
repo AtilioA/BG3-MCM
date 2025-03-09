@@ -377,6 +377,14 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
     local imguiTab = modTabs:AddTabItem(tabName)
     imguiTab.IDContext = DualPaneController:GenerateTabId(modUUID, blueprintTab:GetTabName())
 
+    imguiTab.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tabName)
+        ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
+            modUUID = modUUID,
+            tabName = tabName
+        }, true)
+    end
+
     local blueprintVisibleIf = blueprintTab:GetVisibleIf()
     if blueprintVisibleIf and blueprintVisibleIf.Conditions then
         VisibilityManager:registerCondition(modUUID, imguiTab, blueprintVisibleIf.Conditions)
