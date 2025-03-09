@@ -5,7 +5,27 @@
 -- It supports adding mod-specific content and menu sections, facilitating a structured presentation of mod configurations.
 --------------------------------------------
 
-DualPaneController = {}
+---@class DualPaneController
+---@field window any
+---@field leftPane LeftPane
+---@field rightPane RightPane
+---@field isCollapsed boolean
+---@field isHovered boolean
+---@field userHasInteracted boolean
+---@field hoverSubscription any
+DualPaneController = _Class:Create("DualPaneController", nil, {
+    window = nil,
+    leftPane = nil,
+    rightPane = nil,
+    isCollapsed = false,
+    isHovered = false,
+    userHasInteracted = false,
+    menuScrollWindow = nil,
+    contentScrollWindow = nil,
+    mainLayoutTable = nil,
+    menuCell = nil,
+    contentCell = nil,
+})
 DualPaneController.__index = DualPaneController
 
 -- Constants

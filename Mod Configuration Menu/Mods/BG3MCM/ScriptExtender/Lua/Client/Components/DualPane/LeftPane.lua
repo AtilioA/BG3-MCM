@@ -2,7 +2,11 @@
 -- LeftPane Component
 -- Manages the left pane (menu) of the dual-pane layout.
 ------------------------------------------------------------
-LeftPane = {}
+---@class LeftPane
+---@field parent ExtuiStyledRenderable
+LeftPane = _Class:Create("LeftPane", nil, {
+    parent = nil,
+})
 LeftPane.__index = LeftPane
 
 function LeftPane:New(parent)

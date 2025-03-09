@@ -3,7 +3,17 @@
 -- Manages the mod-specific content area (tabs, groups, etc.)
 --------------------------------------------
 
-RightPane = {}
+---@class RightPane
+---@field parent ExtuiStyledRenderable
+---@field contentGroups table
+---@field detachedWindows table
+---@field currentMod table<string, any>
+RightPane = _Class:Create("RightPane", nil, {
+    parent = nil,
+    contentGroups = nil,
+    detachedWindows = nil,
+    currentMod = nil,
+})
 RightPane.__index = RightPane
 
 function RightPane:New(parent)
@@ -36,6 +46,9 @@ function RightPane:CreateModGroup(modUUID, modName, modDescription)
     return group
 end
 
+--- Get the TabBar for the specified modUUID
+--- @param modUUID any
+--- @return nil|ExtuiTabBar
 function RightPane:GetModTabBar(modUUID)
     if not self.contentGroups or not self.contentGroups[modUUID] then
         return nil
