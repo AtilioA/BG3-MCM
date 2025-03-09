@@ -6,7 +6,7 @@
 ModContent = {}
 ModContent.__index = ModContent
 
-function ModContent:new(parent)
+function ModContent:New(parent)
     local self = setmetatable({}, ModContent)
     self.parent = parent -- Should be the contentScrollWindow
     self.contentGroups = {}
@@ -14,7 +14,7 @@ function ModContent:new(parent)
     self.headerActions = {}
     self.headerActions.group = self.parent:AddGroup("HeaderActions")
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
-    self.headerActions.expandBtn = self:CreateActionButton("Toggle", ICON_TOGGLE_EXPAND, "Hide the sidebar", 1.25)
+    self.headerActions.expandBtn = self:CreateActionButton("Toggle", ICON_TOGGLE_EXPAND, "Hide the sidebar", 1.5)
     self.headerActions.expandBtn.SameLine = true
     self.headerActions.collapseBtn = self:CreateActionButton("Collapse", ICON_TOGGLE_COLLAPSE, "Expand the sidebar", 1.25)
     self.headerActions.collapseBtn.SameLine = true
@@ -30,8 +30,8 @@ function ModContent:new(parent)
     end
     local dummy = self.parent:AddDummy(10, 0)
     dummy.SameLine = true
-    self.headerActions.docBtn = self:CreateActionButton("Documentation", ICON_DOCS, "Show mod documentation", 1)
-    self.headerActions.docBtn.SameLine = true
+    -- self.headerActions.docBtn = self:CreateActionButton("Documentation", ICON_DOCS, "Show mod documentation", 1)
+    -- self.headerActions.docBtn.SameLine = true
     self.headerActions.detachBtn = self:CreateActionButton("Detach mod page to a new window", ICON_DETACH, "Detach mod", 1)
     self.headerActions.detachBtn.SameLine = true
     return self

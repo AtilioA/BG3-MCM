@@ -5,7 +5,7 @@
 ModMenu = {}
 ModMenu.__index = ModMenu
 
-function ModMenu:new(parent)
+function ModMenu:New(parent)
     local self = setmetatable({}, ModMenu)
     self.parent = parent  -- Typically the menuScrollWindow
     return self
