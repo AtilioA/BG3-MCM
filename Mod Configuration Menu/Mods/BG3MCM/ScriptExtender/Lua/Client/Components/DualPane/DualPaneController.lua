@@ -69,8 +69,23 @@ function DualPaneController:initLayout()
     self.contentScrollWindow.ChildAlwaysAutoResize = true
 end
 
+local function normalizeString(str)
+    return string.lower(str:gsub(" ", "_"))
+end
+
+local function isMatchingTab(modUUID, identifier, tab)
+    local storedId = tab.UserData and tab.UserData.tabId or ""
+    local normalizedIdentifier = normalizeString(identifier)
+    local normalizedTabIdSuffix = storedId:sub(#modUUID + 2)
+    local normalizedStoredName = normalizeString(tab.UserData and tab.UserData.tabName or "")
+
+    return normalizedTabIdSuffix == normalizedIdentifier
+        or normalizedStoredName == normalizedIdentifier
+        or storedId:find(normalizedIdentifier)
+end
+
 function DualPaneController:GenerateTabId(modUUID, tabName)
-    return "runtime_" .. modUUID .. "_" .. string.lower(tabName:gsub(" ", "_"))
+    return modUUID .. "_" .. normalizeString(tabName)
 end
 
 -- Attach hover listeners to either the menuScrollWindow (if expanded/visible) or the expand button (if collapsed)
@@ -279,11 +294,9 @@ function DualPaneController:OpenModPage(identifier, modUUID)
     end
 
     local targetTab = nil
+
     for _, tab in ipairs(modTabBar.Children) do
-        local idContext = tab.IDContext or ""
-        local storedId = tab.UserData and tab.UserData.tabId or ""
-        local storedName = tab.UserData and tab.UserData.tabName or ""
-        if idContext:find(identifier) or storedId == identifier or storedName == identifier then
+        if isMatchingTab(modUUID, identifier, tab) then
             targetTab = tab
             break
         end
@@ -301,6 +314,7 @@ function DualPaneController:OpenModPage(identifier, modUUID)
 
     -- Avoid select lockdown by unselecting the tab after a few ticks
     Ext.Timer.WaitFor(100, function()
+        if not targetTab then return end
         targetTab.SetSelected = false
     end)
 end
