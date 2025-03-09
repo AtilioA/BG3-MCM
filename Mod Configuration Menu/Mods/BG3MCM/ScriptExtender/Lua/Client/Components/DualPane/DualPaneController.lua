@@ -62,9 +62,7 @@ end
 
 function DualPaneController:AttachHoverListeners()
     local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
-    if not enabledHover then
-        return
-    end
+    if not enabledHover then return end
     if self.menuScrollWindow.Visible then
         self.menuScrollWindow.OnHoverEnter = function()
             self.isHovered = true
@@ -74,6 +72,9 @@ function DualPaneController:AttachHoverListeners()
             self.menuScrollWindow:SetStyle("Alpha", 1)
         end
         self.menuScrollWindow.OnHoverLeave = function()
+            local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+            if not enabledAutoCollapse then return end
+
             self.isHovered = false
 
             self:ScheduleAutoCollapse()
@@ -82,6 +83,9 @@ function DualPaneController:AttachHoverListeners()
     else
         if self.modContent and self.modContent.headerActions and self.modContent.headerActions.expandBtn then
             self.modContent.headerActions.expandBtn.OnHoverEnter = function()
+                local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
+                if not enabledHover then return end
+
                 self.isHovered = true
                 self.userHasInteracted = true
                 self:CancelAutoCollapse()
