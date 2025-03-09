@@ -103,6 +103,7 @@ end
 --- @param playSound boolean Whether to play a sound effect when opening the window.
 function IMGUIAPI:OpenMCMWindow(playSound)
     if not MCM_WINDOW then
+        MCMWarn(0, "Tried to open MCM window, but it doesn't exist")
         return
     end
 
@@ -117,6 +118,7 @@ end
 --- @param playSound boolean Whether to play a sound effect when closing the window.
 function IMGUIAPI:CloseMCMWindow(playSound)
     if not MCM_WINDOW then
+        MCMWarn(0, "Tried to close MCM window, but it doesn't exist")
         return
     end
 
@@ -130,6 +132,11 @@ end
 --- Toggles the visibility of the MCM window.
 --- @param playSound boolean Whether to play a sound effect when toggling the window.
 function IMGUIAPI:ToggleMCMWindow(playSound)
+    if not MCM_WINDOW then
+        MCMWarn(0, "Tried to toggle MCM window, but it doesn't exist")
+        return
+    end
+
     if MCM_WINDOW.Open == true or MCM_WINDOW.Visible == true then
         self:CloseMCMWindow(playSound)
     else
