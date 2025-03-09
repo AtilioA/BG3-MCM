@@ -21,6 +21,15 @@ TARGET_WIDTH_COLLAPSED = 5
 STEP_FACTOR = 0.1
 AUTO_COLLAPSE_ON_MOD_CLICK = true
 
+-- Options from blueprint settings (defaults)
+DISABLE_HOVER = false
+DISABLE_AUTO_COLLAPSE = false
+HOVER_DELAY = 3000
+
+local RX = {
+    TimerScheduler = Ext.Require("Lib/reactivex/schedulers/timerscheduler.lua")
+}
+
 function DualPaneController:InitWithWindow(window)
     local self = setmetatable({}, DualPaneController)
     self.window = window
@@ -28,6 +37,10 @@ function DualPaneController:InitWithWindow(window)
     self.modMenu = ModMenu:New(self.menuScrollWindow)
     self.modContent = ModContent:New(self.contentScrollWindow)
     self.isCollapsed = false
+    self.isHovered = false
+    self.hoverSubscription = nil
+    -- Attach hover listeners initially (menu is expanded by default)
+    self:AttachHoverListeners()
     return self
 end
 
@@ -44,9 +57,53 @@ function DualPaneController:initLayout()
     local row = self.mainLayoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
-
     self.menuScrollWindow = self.menuCell:AddChildWindow("MenuScrollWindow")
     self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScrollWindow")
+end
+
+-- Attach hover listeners to either the menuScrollWindow (if visible) or the expand button (if collapsed)
+function DualPaneController:AttachHoverListeners()
+    if DISABLE_HOVER then
+        return
+    end
+    if self.menuScrollWindow.Visible then
+        self.menuScrollWindow.OnHoverEnter = function()
+            self.isHovered = true
+            self:CancelAutoCollapse()
+        end
+        self.menuScrollWindow.OnHoverLeave = function()
+            self.isHovered = false
+            self:ScheduleAutoCollapse()
+        end
+    else
+        -- When collapsed, attach hover to the expand button
+        if self.modContent and self.modContent.headerActions and self.modContent.headerActions.expandBtn then
+            self.modContent.headerActions.expandBtn.OnHoverEnter = function()
+                self.isHovered = true
+                self:CancelAutoCollapse()
+                self:Expand()
+            end
+        end
+    end
+end
+
+-- TODO: cancel any pending auto-collapse timer?
+function DualPaneController:CancelAutoCollapse()
+    self.hoverSubscription = nil
+end
+
+-- Schedule auto-collapse after a few seconds if not hovered
+function DualPaneController:ScheduleAutoCollapse()
+    if DISABLE_AUTO_COLLAPSE then
+        return
+    end
+    self:CancelAutoCollapse()
+    local scheduler = RX.TimerScheduler.Create()
+    self.hoverSubscription = scheduler:Schedule(function()
+        if not self.isHovered then
+            self:Collapse()
+        end
+    end, HOVER_DELAY)
 end
 
 -- Internal method to update header toggle icons
@@ -66,12 +123,11 @@ function DualPaneController:UpdateToggleButtons(ignoreCollapsed)
     end
 end
 
--- Expand/Collapse logic for the left (menu) pane.
+-- Expand the sidebar (menu pane) 'asynchronously'
 function DualPaneController:Expand()
     local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
     local selfRef = self
     selfRef:UpdateToggleButtons(true)
-
     local function stepExpand()
         if cWidth < TARGET_WIDTH_EXPANDED then
             cWidth = math.min(TARGET_WIDTH_EXPANDED, cWidth + (TARGET_WIDTH_EXPANDED * STEP_FACTOR))
@@ -82,17 +138,18 @@ function DualPaneController:Expand()
         else
             selfRef.isCollapsed = false
             selfRef.menuScrollWindow.Visible = true
+            selfRef:UpdateToggleButtons()
+            selfRef:AttachHoverListeners()
         end
     end
     stepExpand()
 end
 
--- 'Asynchronously' collapse the sidebar (menu pane)
+-- Collapse the sidebar 'asynchronously'
 function DualPaneController:Collapse()
     local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
     local selfRef = self
     selfRef:UpdateToggleButtons(true)
-
     local function stepCollapse()
         if cWidth > TARGET_WIDTH_COLLAPSED then
             cWidth = math.max(TARGET_WIDTH_COLLAPSED, cWidth - (cWidth * STEP_FACTOR))
@@ -103,12 +160,14 @@ function DualPaneController:Collapse()
         else
             selfRef.menuScrollWindow.Visible = false
             selfRef.isCollapsed = true
+            selfRef:UpdateToggleButtons()
+            selfRef:AttachHoverListeners()
         end
     end
     stepCollapse()
 end
 
--- Toggle the sidebar and update header icons.
+-- Toggle the sidebar
 function DualPaneController:ToggleSidebar()
     if self.isCollapsed then
         self:Expand()
@@ -156,18 +215,23 @@ function DualPaneController:SwitchVisibleContent(button, uuid)
     end
 end
 
---[[
-    -- Documentation button
-    local docButton = cellGroup:AddImageButton("Documentation", ICON_DOC, { 40, 40 })
-    docButton.SameLine = true
-    docButton.OnClick = function()
-        local docWindow = Ext.IMGUI.NewWindow("docWindow")
-        docWindow.AlwaysAutoResize = true
-        docWindow.Closeable = true
-        docWindow:AddText(DOC_TEXT)
-    end
+-- Open a specific page and optionally a subtab.
+-- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
+function DualPaneController:OpenPage(modUUID, tabName)
+    IMGUIAPI:OpenMCMWindow(true)
 
-    -- Detach mod button
-    local detachMod = cellGroup:AddButton("Detach mod")
-    detachMod.SameLine = true
---]]
+    self:SetVisibleFrame(modUUID)
+    if tabName then
+        local modTabBar = self.modContent:GetModTabBar(modUUID)
+        if modTabBar then
+            for _, tab in ipairs(modTabBar.Children) do
+                if tab.IDContext and tab.IDContext:find(tabName) then
+                    tab.SetSelected = true
+                    break
+                end
+            end
+        end
+    end
+    -- Collapse the sidebar when opening a specific page.
+    self:Collapse()
+end
