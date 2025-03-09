@@ -267,6 +267,8 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         if e.Key == "ESCAPE" then
             -- Cancel listening without updating the binding.
             self:CancelKeybinding()
+            e:PreventAction()
+            e:StopPropagation()
             return
         elseif e.Key == "BACKSPACE" then
             -- Remove/clear the binding.
