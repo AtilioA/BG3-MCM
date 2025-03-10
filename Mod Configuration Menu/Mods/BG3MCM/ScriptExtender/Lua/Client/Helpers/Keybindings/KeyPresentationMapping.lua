@@ -173,7 +173,6 @@ function KeyPresentationMapping:GetKBViewKey(keybinding)
     if keybinding.ModifierKeys then
         for _, modifier in ipairs(keybinding.ModifierKeys) do
             if modifier and modifier ~= "" then
-                _D(modifier)
                 table.insert(modifiers, "[" .. (self.Mapping[modifier:upper()] or modifier) .. "]")
             end
         end
