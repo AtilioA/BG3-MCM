@@ -220,7 +220,7 @@ local function shouldPreserveSettingGroup(key, value)
     -- Function to determine if a table is a setting group
     local function isListV2SettingGroup(tbl)
         return type(tbl) == "table" and (tbl.elements ~= nil or tbl.Elements ~= nil) and
-        (tbl.enabled ~= nil or tbl.Enabled ~= nil)
+            (tbl.enabled ~= nil or tbl.Enabled ~= nil)
     end
 
     local function isKeybindingV2SettingGroup(tbl)
@@ -265,8 +265,18 @@ function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
     end
 
     local oldSetting = settings[setting:GetId()]
-    if not oldSetting or type(oldSetting) ~= "table" or oldSetting.elements ~= nil then
+    if not oldSetting or type(oldSetting) ~= "table" then
         MCMDebug(3, "Old setting for " .. setting:GetId() .. " does not exist or is not valid. Skipping migration.")
+        return
+    end
+
+    if not oldSetting.elements or type(oldSetting.elements) ~= "table" then
+        MCMDebug(3, "Old setting for " .. setting:GetId() .. " does not have elements. Skipping migration.")
+        return
+    end
+
+    if oldSetting.enabled or oldSetting.Enabled then
+        MCMDebug(3, "Old setting for " .. setting:GetId() .. " has an enabled field. Skipping migration.")
         return
     end
 

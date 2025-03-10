@@ -509,7 +509,12 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             end
         end
     elseif setting.Type == "list_v2" then
-        if type(setting.Default) ~= "table" or (setting.Default["enabled"] == nil and setting.Default["Enabled"] == nil) or (type(setting.Default.elements) ~= "table" and type(setting.Default.Elements) ~= "table") then
+        local elementsKey = setting.Default.elements ~= nil and "elements" or "Elements"
+        local enabledKey = setting.Default["enabled"] ~= nil and "enabled" or "Enabled"
+
+        if type(setting.Default) ~= "table" or
+            (setting.Default[enabledKey] == nil) or
+            (type(setting.Default[elementsKey]) ~= "table") then
             MCMWarn(0,
                 "Default value for setting '" ..
                 setting.Id ..
@@ -518,7 +523,8 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             return false
         end
 
-        for _, element in ipairs(setting.Default.elements) do
+
+        for _, element in ipairs(setting.Default[elementsKey]) do
             if type(element) ~= "table" or not element.name or type(element.name) ~= "string" or element.name == "" then
                 MCMWarn(0,
                     "Element " ..
