@@ -44,7 +44,7 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
             end
 
             -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
-            local disclaimerTab = FrameManager:CreateTabWithDisclaimer(
+            local disclaimerTab = DualPane:CreateTabWithDisclaimer(
                 modUUID,
                 tabName,
                 "h99e6c7f6eb9c43238ca27a89bb45b9690607"
@@ -52,7 +52,7 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
         end)
     else
         Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-            FrameManager:InsertModTab(modUUID, tabName, tabCallback)
+            DualPane:InsertModTab(modUUID, tabName, tabCallback)
         end)
     end
 end

@@ -184,6 +184,10 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             local kbCell = row:AddCell()
             local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
                 UNASSIGNED_KEYBOARD_MOUSE_STRING)
+            kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 0.8))
+            kbButton:SetColor("ButtonActive", Color.NormalizedRGBA(18, 18, 18, 1))
+            kbButton:SetColor("ButtonHovered", Color.NormalizedRGBA(18, 18, 18, 0.5))
+
             kbButton.IDContext = mod.ModName .. "_KBMouse_" .. action.ActionId
             kbButton.OnClick = function()
                 self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
@@ -263,6 +267,8 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         if e.Key == "ESCAPE" then
             -- Cancel listening without updating the binding.
             self:CancelKeybinding()
+            e:PreventAction()
+            e:StopPropagation()
             return
         elseif e.Key == "BACKSPACE" then
             -- Remove/clear the binding.

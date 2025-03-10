@@ -103,6 +103,7 @@ end
 --- @param playSound boolean Whether to play a sound effect when opening the window.
 function IMGUIAPI:OpenMCMWindow(playSound)
     if not MCM_WINDOW then
+        MCMWarn(0, "Tried to open MCM window, but it doesn't exist")
         return
     end
 
@@ -110,13 +111,14 @@ function IMGUIAPI:OpenMCMWindow(playSound)
     MCM_WINDOW.Open = true
     ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
         playSound = playSound
-    })
+    }, true)
 end
 
 --- Closes the MCM window.
 --- @param playSound boolean Whether to play a sound effect when closing the window.
 function IMGUIAPI:CloseMCMWindow(playSound)
     if not MCM_WINDOW then
+        MCMWarn(0, "Tried to close MCM window, but it doesn't exist")
         return
     end
 
@@ -124,17 +126,31 @@ function IMGUIAPI:CloseMCMWindow(playSound)
     MCM_WINDOW.Open = false
     ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {
         playSound = playSound
-    })
+    }, true)
 end
 
 --- Toggles the visibility of the MCM window.
 --- @param playSound boolean Whether to play a sound effect when toggling the window.
 function IMGUIAPI:ToggleMCMWindow(playSound)
+    if not MCM_WINDOW then
+        MCMWarn(0, "Tried to toggle MCM window, but it doesn't exist")
+        return
+    end
+
     if MCM_WINDOW.Open == true or MCM_WINDOW.Visible == true then
         self:CloseMCMWindow(playSound)
     else
         self:OpenMCMWindow(playSound)
     end
+end
+
+function IMGUIAPI:OpenModPage(tabName, modUUID)
+    if not DualPane or not DualPane.leftPane then
+        MCMError(0, "Tried to open mod page, but DualPane doesn't exist")
+        return
+    end
+
+    DualPane:OpenModPage(tabName, modUUID)
 end
 
 -- --- Send a message to the server to set a profile

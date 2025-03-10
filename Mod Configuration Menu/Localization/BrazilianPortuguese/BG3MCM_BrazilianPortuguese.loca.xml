@@ -135,4 +135,10 @@
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Esse atalho deve ser habilitado?&lt;br&gt;Desabilitá-lo irá impedir que ele seja acionado se a combinação de teclas for pressionada.</content>
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Defina o atalho para fechar a janela do MCM.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Fechar janela do MCM</content>
+    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Barra lateral</content>
+    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">Ativar colapso automático da barra lateral.&lt;br&gt;Quando ativado, a barra lateral será colapsada com base na inatividade ou em outros gatilhos de colapso.</content>
+    <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Ativar colapso automático da barra lateral</content>
+    <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Ativar expansão ao passar o mouse</content>
+    <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Ativar expansão da barra lateral ao passar o mouse.</content>
+    <content contentuid="hb341a515eea64380ad0ccfe6c1ff115d1310" version="1">Visualização destacada para o mod '[1]'</content>
 </contentList>

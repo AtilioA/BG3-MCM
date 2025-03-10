@@ -137,4 +137,10 @@
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Should this keybinding be enabled?&lt;br&gt;Disabling it will prevent it from firing if the keybinding is pressed.</content>
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Set the keybinding for closing MCM's window.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Close MCM window</content>
+    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Sidebar settings</content>
+    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">Enable automatic collapse of the sidebar.&lt;br&gt;When enabled, the sidebar will collapse based on inactivity or other collapse triggers.</content>
+    <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Enable sidebar auto collapse</content>
+    <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Enable expansion on hover</content>
+    <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Enable hover-based expansion of the sidebar.</content>
+    <content contentuid="hb341a515eea64380ad0ccfe6c1ff115d1310" version="1">Detached view for mod '[1]'</content>
 </contentList>

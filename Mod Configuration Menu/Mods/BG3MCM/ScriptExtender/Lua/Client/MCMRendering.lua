@@ -22,29 +22,25 @@ local RX = {
 -- - Sending messages to the server to update setting values
 ---@class MCMRendering: MetaClass
 ---@field mods table<string, ModSettings>
+---@field UIReady ReplaySubject
 ---@field private profiles table<string, table>
----@field private visibilityTriggers table<string, table>
 MCMRendering = _Class:Create("MCMRendering", nil, {
     mods = {},
-    visibilityTriggers = {}
+    UIReady = RX.Subject.Create(1)
 })
 
-MCMClientState = MCMRendering:New()
 -- Coupled logic :gladge:
-MCMClientState.UIReady = RX.ReplaySubject.Create(1)
+MCMClientState = MCMRendering:New()
+
+---@type DualPaneController|nil
+DualPane = nil -- will be assigned in CreateMainIMGUIWindow
 
 function MCMRendering:SetClientStateValue(settingId, value, modUUID)
     modUUID = modUUID or ModuleUUID
-    if not modUUID or not settingId then
-        return
-    end
-
+    if not modUUID or not settingId then return end
     local mod = MCMClientState.mods[modUUID]
-    if not mod or not mod.settingsValues then
-        return
-    end
+    if not mod or not mod.settingsValues then return end
 
-    self:UpdateVisibility(modUUID, settingId, value)
     self:UpdateSettingValue(mod, settingId, value, modUUID)
 end
 
@@ -63,95 +59,6 @@ function MCMRendering:UpdateSettingValue(mod, settingId, value, modUUID)
 
     -- Update the displayed value for non-text settings
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
-end
-
--- TODO: this should be refactored to use OOP or at least be more modular, however I've wasted too much time on this already with Lua's nonsense, so I'm stashing and leaving it as is
-function MCMRendering:UpdateVisibility(modUUID, settingId, value)
-    if not modUUID or not settingId or value == nil then
-        return
-    end
-
-    local visibilityTriggers = self.visibilityTriggers[modUUID]
-    if not visibilityTriggers then
-        return
-    end
-
-    local settingTriggers = visibilityTriggers[settingId]
-    if not settingTriggers then
-        return
-    end
-
-    self:ProcessTriggers(settingTriggers, value, modUUID)
-end
-
-function MCMRendering:ProcessTriggers(settingTriggers, value, modUUID)
-    for group, operators in pairs(settingTriggers) do
-        if not group or not operators then
-            MCMWarn(0, "Invalid visibility trigger group for mod '" ..
-                Ext.Mod.GetMod(modUUID).Info.Name ..
-                "'. Please contact " ..
-                Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-            goto continue
-        end
-
-        self:ProcessOperators(group, operators, value, modUUID)
-
-        ::continue::
-    end
-end
-
-function MCMRendering:ProcessOperators(group, operators, value, modUUID)
-    for operator, triggerValue in pairs(operators) do
-        if not operator or triggerValue == nil then
-            MCMWarn(0, "Invalid visibility trigger operator or value for mod '" ..
-                Ext.Mod.GetMod(modUUID).Info.Name ..
-                "'. Please contact " ..
-                Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-            goto continue
-        end
-
-        group.Visible = self:EvaluateCondition(operator, value, triggerValue, modUUID)
-
-        ::continue::
-    end
-end
-
-function MCMRendering:EvaluateCondition(operator, value, triggerValue, modUUID)
-    if operator == nil or value == nil or triggerValue == nil then
-        MCMWarn(0,
-            "Invalid comparison operator or values passed by mod '" ..
-            Ext.Mod.GetMod(modUUID).Info.Name ..
-            "' for visibility condition. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    local strValue, strTrigger = tostring(value), tostring(triggerValue)
-    local numValue, numTrigger = tonumber(value), tonumber(triggerValue)
-
-    local operators = {
-        ["=="] = function(a, b) return a == b end,
-        ["!="] = function(a, b) return a ~= b end,
-        ["<="] = function(a, b) return a <= b end,
-        [">="] = function(a, b) return a >= b end,
-        ["<"] = function(a, b) return a < b end,
-        [">"] = function(a, b) return a > b end
-    }
-
-    if operators[operator] then
-        if operator == "==" or operator == "!=" then
-            return operators[operator](strValue, strTrigger)
-        elseif numValue ~= nil and numTrigger ~= nil then
-            return operators[operator](numValue, numTrigger)
-        end
-        return false
-    end
-
-    MCMWarn(0, "Unknown comparison operator: " .. operator .. " for mod '" ..
-        Ext.Mod.GetMod(modUUID).Info.Name ..
-        "'. Please contact " ..
-        Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
-    return false
 end
 
 function MCMRendering:GetModName(modUUID)
@@ -240,6 +147,8 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW.AlwaysAutoResize = true
     MCM_WINDOW.Closeable = true
     MCM_WINDOW.NoScrollbar = true
+    MCM_WINDOW.NoScrollWithMouse = true
+    MCM_WINDOW:SetScroll({ 0, 0 })
 
     if table.isEmpty(self.mods) then
         self.welcomeText = MCM_WINDOW:AddText(
@@ -252,6 +161,8 @@ function MCMRendering:CreateMainIMGUIWindow()
     end
 
     MainMenu.CreateMainMenu()
+
+    DualPane = DualPaneController:InitWithWindow(MCM_WINDOW)
 
     return true
 end
@@ -299,26 +210,11 @@ function MCMRendering:CreateModMenu()
     MCMClientState.UIReady:OnNext(true)
 end
 
---- Check if the menu should be populated
----@return boolean
-function MCMRendering:ShouldPopulateMenu()
-    -- If uiGroup exist for MCM, init done, we don't want to populate the menu again
-    local uiGroup = FrameManager:GetGroup(ModuleUUID)
-    if uiGroup ~= nil then
-        MCMWarn(0, "UI group for MCM already exists, skipping window creation.")
-        return false
-    end
-    return true
-end
-
 --- Initialize menu settings and destroy welcome text if it exists
 ---@return nil
 function MCMRendering:PrepareMenu()
     -- TODO: re-enable this after refactoring client-side code
     MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
-
-    -- Table Layout
-    FrameManager:initFrameLayout(MCM_WINDOW)
 end
 
 --- Convert the mod configs to use the Blueprint class
@@ -341,42 +237,35 @@ end
 --- Create the main table and populate it with mod trees
 ---@return nil
 function MCMRendering:CreateMainTable()
-    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
-
+    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
     local sortedModKeys = MCMUtils.SortModsByName(self.mods)
     for _, modUUID in ipairs(sortedModKeys) do
-        self.visibilityTriggers[modUUID] = {}
-
         local success, err = xpcall(function()
             local modName = self.mods[modUUID].blueprint:GetModName()
             local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
-            FrameManager:addButtonAndGetModTabBar(modName, modDescription, modUUID)
+            DualPane.leftPane:CreateMenuButton(modName, modDescription, modUUID)
             self.mods[modUUID].widgets = {}
-
-            self:CreateModMenuFrame(modUUID)
-
-            local modSettings = self.mods[modUUID].settingsValues
-            for settingId, _group in pairs(self.visibilityTriggers[modUUID]) do
-                self:UpdateVisibility(modUUID, settingId, modSettings[settingId])
-            end
+            self:RenderMenuPageContent(modUUID)
         end, debug.traceback)
-
         if not success then
             MCMWarn(0, "Error processing mod " .. modUUID .. ": " .. err)
         end
     end
-    FrameManager:setVisibleFrame(ModuleUUID)
+    DualPane:SetVisibleFrame(ModuleUUID)
 end
 
 --- Create a new tab for a mod in the MCM
 ---@param modUUID string The UUID of the mod
 ---@return nil
-function MCMRendering:CreateModMenuFrame(modUUID)
+function MCMRendering:RenderMenuPageContent(modUUID)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
     local modBlueprint = self.mods[modUUID].blueprint
     local modSettings = self.mods[modUUID].settingsValues
-    local uiGroupMod = FrameManager:GetGroup(modUUID)
-    local modTabBar = FrameManager:GetModTabBar(modUUID)
+    local uiGroupMod = DualPane.rightPane:GetModGroup(modUUID)
+    if not uiGroupMod then
+        uiGroupMod = DualPane.rightPane:CreateModGroup(modUUID, modBlueprint:GetModName(),
+            modBlueprint:GetModDescription())
+    end
 
     -- Footer-like text with mod information
     local function createModTabFooter()
@@ -397,38 +286,46 @@ function MCMRendering:CreateModMenuFrame(modUUID)
 
     -- Iterate over each tab in the mod blueprint to create a subtab for each
     for _, tabInfo in ipairs(modBlueprint:GetTabs()) do
-        self:CreateModMenuSubTab(modTabBar, tabInfo, modSettings, modUUID)
+        self:CreateModMenuSubTab(DualPane.rightPane:GetModTabBar(modUUID), tabInfo, modSettings, modUUID)
     end
 
     createModTabFooter()
 end
 
 --- Create a new tab for a mod in the MCM
----@param modTabs ExtuiTabBar The main tab for the mod
+---@param modTabs ExtuiTabBar|nil The main tab for the mod
 ---@param blueprintTab BlueprintTab The tab to create a tab for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modUUID string The UUID of the mod
 ---@return nil
 function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modUUID)
+    if not modTabs then
+        MCMError(0, "No tab bar found for mod " .. modUUID)
+        return
+    end
     local tabName = blueprintTab:GetLocaName()
-
     local imguiTab = modTabs:AddTabItem(tabName)
-    imguiTab.IDContext = modUUID .. "_" .. blueprintTab:GetTabName()
-    -- TODO: re-enable this after refactoring client-side code
-    -- imguiTab.OnActivate = function()
-    --     MCMDebug(3, "Activating imguiTab " .. blueprintTab:GetTabName())
-    --     Ext.Net.PostMessageToServer(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, Ext.Json.Stringify({
-    --         modUUID = modUUID,
-    --         tabName = blueprintTab:GetTabName()
-    --     }))
-    -- end
+    imguiTab.IDContext = DualPaneController:GenerateTabId(modUUID, blueprintTab:GetTabName())
+    imguiTab.UserData = {
+        tabId = blueprintTab:GetId(),
+        tabName = blueprintTab:GetTabName()
+    }
 
-    -- TODO: as always, this should be abstracted away somehow but ehh (this will be needed for nested tabs etc)
+    imguiTab.OnActivate = function()
+        MCMDebug(3, "Activating tab " .. tabName)
+        ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
+            modUUID = modUUID,
+            tabName = tabName
+        }, true)
+    end
+
+    local blueprintVisibleIf = blueprintTab:GetVisibleIf()
+    if blueprintVisibleIf then
+        VisibilityManager.registerCondition(modUUID, imguiTab, blueprintVisibleIf)
+    end
+
     local tabSections = blueprintTab:GetSections()
     local tabSettings = blueprintTab:GetSettings()
-
-    self:manageVisibleIf(modUUID, blueprintTab, imguiTab)
-
     if #tabSections > 0 then
         for sectionIndex, section in ipairs(blueprintTab:GetSections()) do
             self:CreateModMenuSection(sectionIndex, imguiTab, section, modSettings, modUUID)
@@ -436,25 +333,6 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
     elseif #tabSettings > 0 then
         for _, setting in ipairs(tabSettings) do
             self:CreateModMenuSetting(imguiTab, setting, modSettings, modUUID)
-        end
-    end
-end
-
----@param modUUID string
----@param elementInfo table
----@param uiElement ImguiHandle
-function MCMRendering:manageVisibleIf(modUUID, elementInfo, uiElement)
-    if elementInfo.VisibleIf and elementInfo.VisibleIf.Conditions then
-        for _, condition in ipairs(elementInfo.VisibleIf.Conditions) do
-            local settingIdTriggering = condition.SettingId
-            local operator = condition.Operator
-            local value = condition.ExpectedValue
-            self.visibilityTriggers[modUUID] = self.visibilityTriggers[modUUID] or {}
-            self.visibilityTriggers[modUUID][settingIdTriggering] = self.visibilityTriggers[modUUID]
-                [settingIdTriggering] or {}
-            self.visibilityTriggers[modUUID][settingIdTriggering][uiElement] = self.visibilityTriggers[modUUID]
-                [settingIdTriggering][uiElement] or {}
-            self.visibilityTriggers[modUUID][settingIdTriggering][uiElement][operator] = value
         end
     end
 end
@@ -467,7 +345,6 @@ end
 ---@param modUUID string The UUID of the mod
 ---@return nil
 function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modSettings, modUUID)
-    -- TODO: Set the style for the section header text somehow
     if sectionIndex > 1 then
         modGroup:AddDummy(0, 5)
     end
@@ -479,9 +356,10 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
     local sectionGroup = modGroup:AddGroup(sectionId)
     sectionGroup.IDContext = modUUID .. "_" .. sectionId .. "_Group"
 
-    self:manageVisibleIf(modUUID, section, sectionGroup)
+    if section:GetVisibleIf() and section:GetVisibleIf().Conditions then
+        VisibilityManager.registerCondition(modUUID, sectionGroup, section:GetVisibleIf())
+    end
 
-    -- Add main section separator, or collapsible header if the section is collapsible
     local sectionContentElement = sectionGroup
     if sectionOptions.IsCollapsible then
         local sectionCollapsingHeader = sectionGroup:AddCollapsingHeader(sectionName)
@@ -493,12 +371,10 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
         sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
     end
 
-    -- Add section description
     if sectionDescription and sectionDescription ~= "" then
-        -- TODO: add abstraction to get any localizable text
         local sectionDescriptionText = sectionDescription
         local translatedDescription = Ext.Loca.GetTranslatedString(section:GetHandles().DescriptionHandle)
-        if translatedDescription ~= nil and translatedDescription ~= "" then
+        if translatedDescription and translatedDescription ~= "" then
             sectionDescriptionText = VCString:ReplaceBrWithNewlines(translatedDescription)
         end
 
@@ -508,7 +384,7 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
         addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
         sectionContentElement:AddDummy(0, 2)
     end
-    -- Iterate over each setting in the section to create a widget for each
+
     for i, setting in pairs(section:GetSettings()) do
         self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
         if i ~= #section:GetSettings() then
@@ -525,23 +401,19 @@ end
 ---@return nil
 ---@see InputWidgetFactory
 function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUUID)
-    if setting:GetType() == "keybinding_v2" then
-        return
-    end
+    if setting:GetType() == "keybinding_v2" then return end
 
     local settingValue = modSettings[setting:GetId()]
     local createWidget = InputWidgetFactory[setting:GetType()]
-    if createWidget == nil then
-        MCMWarn(0, "No widget factory found for setting type '" ..
-            setting:GetType() ..
-            "'. Please contact " .. Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+    if not createWidget then
+        MCMWarn(0, "No widget factory found for setting type '" .. setting:GetType() .. "'. Please contact " ..
+            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
     else
         local widgetGroup = modGroup:AddGroup(setting:GetId())
         widgetGroup.IDContext = modUUID .. "_" .. setting:GetId() .. "_Group"
         local widget = createWidget(widgetGroup, setting, settingValue, modUUID)
-
-        self:manageVisibleIf(modUUID, setting, widgetGroup)
-
+        VisibilityManager.registerCondition(modUUID, widgetGroup,
+            setting:GetVisibleIf())
         self.mods[modUUID].widgets[setting:GetId()] = widget
     end
 end
@@ -603,17 +475,18 @@ function MCMRendering:GetAllKeybindings()
     return keybindings
 end
 
--- TODO: extract this to FrameManager
+-- TODO: extract this to DualPane
 function MCMRendering:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
     -- MCMDebug(0, "Creating keybindings page...")
 
-    -- Create a dedicated "Hotkeys" menu section via FrameManager.
-    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
-    FrameManager:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), hotkeysUUID)
+    -- Create a dedicated "Hotkeys" menu section via DualPane.
+    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
+    DualPane.leftPane:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), nil,
+        hotkeysUUID)
 
-    local hotkeysGroup = FrameManager.contentScrollWindow:AddGroup(hotkeysUUID)
-    FrameManager.contentGroups[hotkeysUUID] = hotkeysGroup
+    local hotkeysGroup = DualPane.contentScrollWindow:AddGroup(hotkeysUUID)
+    DualPane.rightPane.contentGroups[hotkeysUUID] = hotkeysGroup
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
     local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)

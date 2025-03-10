@@ -2,7 +2,7 @@
 ---@field private TabId string
 ---@field private TabName string
 ---@field private TabDescription string
----@field private VisibleIf string
+---@field private VisibleIf table<string, string>
 ---@field private Tabs? BlueprintTab[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Settings? BlueprintSetting[]
@@ -75,7 +75,7 @@ function BlueprintTab:GetLocaName()
             return translatedName
         end
     end
-    
+
     return self.TabName
 end
 
