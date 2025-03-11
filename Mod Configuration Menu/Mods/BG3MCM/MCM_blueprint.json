@@ -201,7 +201,7 @@
                             }
                         },
                         {
-                            "Id": "KeybindingV2Setting",
+                            "Id": "toggle_mcm_sidebar_keybinding",
                             "Name": "Toggle sidebar (collapse/expand)",
                             "Type": "keybinding_v2",
                             "Default": {
