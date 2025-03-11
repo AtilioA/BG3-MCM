@@ -77,16 +77,12 @@ function DualPaneController:initLayout()
     self.contentCell = row:AddCell()
 
     self.menuScrollWindow = self.menuCell:AddChildWindow("MenuScrollWindow")
-    self.menuScrollWindow.AutoResizeY = true
-    self.menuScrollWindow.ChildAlwaysAutoResize = true
 
     -- Create header actions before creating the content scroll window.
     -- HeaderActionsInstance is used by RightPane later.
     HeaderActionsInstance = HeaderActions:New(self.contentCell)
 
     self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScrollWindow")
-    self.contentScrollWindow.AutoResizeY = true
-    self.contentScrollWindow.ChildAlwaysAutoResize = true
 end
 
 local function normalizeString(str)
