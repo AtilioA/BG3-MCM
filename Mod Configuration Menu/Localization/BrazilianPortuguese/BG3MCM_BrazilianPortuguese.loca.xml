@@ -38,7 +38,7 @@
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Printar avisos de descontinuação para mods com código desatualizado.&lt;br&gt;Eles ainda serão exibidos se o modo desenvolvedor estiver ativado.</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Printar avisos de descontinuação</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Depuração</content>
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">MCM está 'inativo' na sua load order, talvez devido a mods com UUIDs inválidos.&#x0a;Certifique-se de que MCM está ativo no seu gerenciador de mods.&#x0a;Esta mensagem desaparece se o MCM estiver ativo.</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;O MCM está 'inativo' na sua load order.&#x0a;Problemas podem surgir ao usar o gerenciador de mods do jogo ou mods com UUIDs inválidos.&#x0a;Tente carregar o jogo apenas com o MCM para identificar mods problemáticos. Esta mensagem desaparecerá se o MCM estiver ativo.&#x0a;</content>
     <content contentuid="h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f" version="1">Não mostrar novamente</content>
     <content contentuid="h9b0d0bba0bf64006a6dd8ed86a4d5353a3d8" version="1">Pesquisar por nome:</content>
     <content contentuid="h17e2c93763d54f3f9b5da8722d09cf90fab9" version="1">Marque para habilitar a lista, desmarque para desabilitá-la, sem remover/desabilitar nenhum elemento.</content>
@@ -141,4 +141,12 @@
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Ativar expansão ao passar o mouse</content>
     <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Ativar expansão da barra lateral ao passar o mouse.</content>
     <content contentuid="hb341a515eea64380ad0ccfe6c1ff115d1310" version="1">Visualização destacada para o mod '[1]'</content>
+    <content contentuid="h0967f545c53f4796bd25d550fe05e234c1ga" version="1">Versão errada do No Press Any Key Menu</content>
+    <content contentuid="h41e2dbf1773848eca2001fde456cca4d0156" version="1">Você está usando 'No Press Any Key Menu' sem o patch de compatibilidade do MCM.&lt;br&gt;Seu menu principal pode não exibir o botão do MCM corretamente.&lt;br&gt;&lt;br&gt;Por favor, substitua pela versão corrigida da página do mod de Caites.</content>
+    <content contentuid="he1d69e96b7e44957b6d9373635ef69100180" version="1">Problema de dependência detectado: [1] depende de [2]</content>
+    <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">O mod '[1]' tem um UUID inválido ([2]).&lt;br&gt;Este mod impedirá que sua load order funcione corretamente.&lt;br&gt;Por favor, exclua o arquivo pak deste mod ou procure uma atualização.&lt;br&gt;Você pode reverter para o Patch 6 e usar o Mod Uninstaller para tentar remover este mod se não conseguir carregar um save sem este mod.</content>
+    <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Sua load order tem um mod com um UUID inválido ([1] [2])</content>
+    <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Não é possível verificar a dependência '[1]' para o mod '[2]' porque não possui informações de versão.&lt;br&gt;Isso não impacta a funcionalidade, mas por favor, entre em contato com [3] para atualizar o arquivo meta.lsx para '[4]'.&lt;br&gt;O node de versão pode ter um ID desatualizado (deve ser Version64).</content>
+    <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">O mod '[1]' requer '[2]' versão [3] ou superior, mas a versão carregada é [4].&lt;br&gt;Por favor, atualize [2].</content>
+    <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">O mod '[1]' requer a dependência '[2]', que não está carregada.&lt;br&gt;Por favor, instale [2].</content>
 </contentList>

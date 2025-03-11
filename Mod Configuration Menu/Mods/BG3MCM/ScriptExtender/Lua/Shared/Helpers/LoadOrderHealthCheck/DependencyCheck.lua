@@ -60,8 +60,8 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             mod.Info.ModuleUUID,
             dependency.ModuleUUIDString
         )
-        local resultMessage = string.format(
-            "Can't check dependency '%s' for mod '%s' because it has no version information.\nThis doesn't impact functionality, but please contact %s to update the meta.lsx file for '%s'.\nThe version node might have an outdated ID (it should be Version64).",
+        local resultMessage = VCString:InterpolateLocalizedMessage(
+            "h5ab91d6d4bd04b9696355aa0c34b5be63740",
             dependencyInfo.Name, mod.Info.Name, dependencyInfo.Author, dependencyInfo.Name)
 
         table.insert(issues, {
@@ -99,13 +99,11 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
             loadedDependencyVersion[1] ..
             "." .. loadedDependencyVersion[2] .. "." .. loadedDependencyVersion[3] .. "." .. loadedDependencyVersion[4]
         )
-        local resultMessage = string.format(
-            "Mod '%s' requires '%s' version %d.%d.%d.%d or higher, but loaded version is %d.%d.%d.%d\nPlease update %s.",
-            mod.Info.Name, dependency.Name,
-            requiredVersion[1], requiredVersion[2], requiredVersion[3], requiredVersion[4],
-            loadedDependencyVersion[1], loadedDependencyVersion[2], loadedDependencyVersion[3],
-            loadedDependencyVersion[4], dependency.Name
-        )
+        local requiredVersionStr = table.concat(requiredVersion, ".")
+        local loadedVersionStr = table.concat(loadedDependencyVersion, ".")
+        local resultMessage = VCString:InterpolateLocalizedMessage(
+            "h1c39894da62148389dbf1bddaf761a4bf56f",
+            mod.Info.Name, dependency.Name, requiredVersionStr, loadedVersionStr)
         table.insert(issues, {
             id = issueID,
             modName = mod.Info.Name,
@@ -125,9 +123,8 @@ local function recordMissingDependency(mod, dependency, issues)
         mod.Info.ModuleUUID,
         dependency.ModuleUUIDString
     )
-    local resultMessage = string.format("Mod '%s' requires dependency '%s', which is not loaded.\nPlease install %s.",
-        mod.Info.Name,
-        dependency.Name, dependency.Name)
+    local resultMessage = VCString:InterpolateLocalizedMessage(
+        "h81ddeda4ecc14ac3a2c27dbaaea487be2ge7", mod.Info.Name, dependency.Name)
     MCMWarn(1, "Missing dependency recorded: " .. resultMessage)
     table.insert(issues, {
         id = issueID,

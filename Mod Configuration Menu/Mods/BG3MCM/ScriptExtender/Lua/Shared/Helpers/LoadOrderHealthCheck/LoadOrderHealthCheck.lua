@@ -27,10 +27,9 @@ function LoadOrderHealthCheck:CreateNPAKMIMGUIWarning()
         NotificationManager:CreateIMGUINotification(
             id,
             'error',
-            "Wrong No Press Any Key Menu version",
-            "You're using 'No Press Any Key Menu' without the MCM compatibility patch.\n" ..
-            "Your main menu may not display the MCM button correctly.\n\n" ..
-            "Please replace it with the patched version from Caites' mod page.",
+            VCString:InterpolateLocalizedMessage("h0967f545c53f4796bd25d550fe05e234c1ga"),
+            VCString:InterpolateLocalizedMessage(
+                "h41e2dbf1773848eca2001fde456cca4d0156"),
             {},
             ModuleUUID
         )
@@ -53,9 +52,8 @@ end
 function LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
     local issues = DependencyCheck:EvaluateLoadOrderDependencies()
     for _, issue in ipairs(issues) do
-        local dependencyIssueTitle = "Dependency issue detected: " ..
-            issue.modName .. " depends on " .. issue.dependencyName
-
+        local dependencyIssueTitle = VCString:InterpolateLocalizedMessage(
+            "he1d69e96b7e44957b6d9373635ef69100180", issue.modName, issue.dependencyName)
         NotificationManager:CreateIMGUINotification(
             issue.id,
             issue.severity,
@@ -64,7 +62,7 @@ function LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
             { dontShowAgainButton = true },
             ModuleUUID
         )
-
+        
         MCMWarn(0, issue.resultMessage)
     end
 end
@@ -77,13 +75,11 @@ function LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
     for _, mod in ipairs(invalidMods) do
         local invalidModVersion = table.concat(mod.Info.ModVersion, ".")
         local modName           = mod.Info.Name or "Unknown"
-        local title             = string.format("Your load order has a mod with an invalid UUID (%s %s)", modName,
-            invalidModVersion)
-        local message           = string.format(
-            "Mod '%s' has an invalid UUID (%s).\nThis mod will prevent your load order from loading properly.\nPlease delete the pak file for this mod or look for an update.\nYou may downgrade to Patch 6 and use Mod Uninstaller to try to remove this mod if you can't load a save without this mod.",
-            modName,
-            mod.Info.ModuleUUID or mod.Info.ModuleUUIDString
-        )
+        local title             = VCString:InterpolateLocalizedMessage(
+            "h5a5567961e334edab3671aaf24c2cabfafef", modName, invalidModVersion)
+        local message           = VCString:InterpolateLocalizedMessage(
+            "h7b007dd3e4cb4a978d05af7938aa3a5bf14g",
+            modName, mod.Info.ModuleUUID or mod.Info.ModuleUUIDString)
 
         NotificationManager:CreateIMGUINotification(
             "InvalidUUID_" .. modName,
@@ -94,7 +90,7 @@ function LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
             ModuleUUID
         )
 
-        MCMWarn(0, message)
+        MCMWarn(0, VCString:InterpolateLocalizedMessage(message))
     end
 end
 
