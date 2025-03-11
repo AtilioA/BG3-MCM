@@ -73,23 +73,23 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
     for _, mod in ipairs(modKeybindings) do
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
         for _, action in ipairs(mod.Actions) do
-                registry[mod.ModUUID][action.ActionId] = {
-                    modUUID = mod.ModUUID,
-                    actionName = action.ActionName,
-                    actionId = action.ActionId,
-                    keyboardBinding = action.KeyboardMouseBinding,
-                    enabled = action.Enabled,
-                    defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
-                    defaultEnabled = action.DefaultEnabled,
-                    shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
-                    shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
-                    shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
-                    description = action.Description,
-                    isDeveloperOnly = action.IsDeveloperOnly,
+            registry[mod.ModUUID][action.ActionId] = {
+                modUUID = mod.ModUUID,
+                actionName = action.ActionName,
+                actionId = action.ActionId,
+                keyboardBinding = action.KeyboardMouseBinding,
+                enabled = action.Enabled,
+                defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
+                defaultEnabled = action.DefaultEnabled,
+                shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
+                shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
+                shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
+                description = action.Description,
+                isDeveloperOnly = action.IsDeveloperOnly,
                 tooltip = action.Tooltip,
                 -- Compute the visibility flag (for UI listing)
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
-                }
+            }
         end
     end
     keybindingsSubject:OnNext(registry)
@@ -215,19 +215,24 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     end
 
     if #triggered ~= 0 and KeybindingManager:ShouldPreventAction(e) then
-            e:PreventAction()
+        e:PreventAction()
     end
 
     if #triggered > 1 then
         local binding = triggered[1]
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
+        MCMWarn(0, "Keybinding conflict detected for: " .. keybindingStr)
         KeybindingsRegistry.NotifyConflict(keybindingStr)
     elseif #triggered == 1 then
         local binding = triggered[1]
         if binding.keyboardCallback then
-            MCMPrint(1, "Dispatching keyboard binding for mod '" ..
+            MCMPrint(1,
+                "Dispatching keyboard callback for mod '" ..
                 binding.modUUID .. "', action '" .. binding.actionName .. "'.")
             binding.keyboardCallback(e)
+        else
+            MCMWarn(0,
+                "No keyboard callback found for mod '" .. binding.modUUID .. "', action '" .. binding.actionName .. "'.")
         end
     end
 end
