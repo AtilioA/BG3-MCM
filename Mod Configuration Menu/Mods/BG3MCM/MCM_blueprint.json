@@ -74,19 +74,6 @@
                             }
                         },
                         {
-                            "Id": "auto_resize_mcm_window",
-                            "Name": "Automatically resize window",
-                            "Type": "checkbox",
-                            "Default": false,
-                            "Description": "Dynamically resize the MCM window to fit settings.",
-                            "Tooltip": "If disabled, the window might require scrolling.\nYou'll be able to resize the window manually by dragging the bottom-right corner.",
-                            "Handles": {
-                                "NameHandle": "hc4abe0365af046e6abac1b4432abc3f7g4g3",
-                                "DescriptionHandle": "h2c525b9161344f509bb4dcad8e49010bb9ce",
-                                "TooltipHandle": "ha94c42869802455dba878884efdbcbee3fea"
-                            }
-                        },
-                        {
                             "Id": "dynamic_opacity",
                             "Name": "Dynamic opacity",
                             "Type": "checkbox",
@@ -95,6 +82,19 @@
                             "Handles": {
                                 "NameHandle": "h9abda7ddcd564ba69433278a82884c535566",
                                 "DescriptionHandle": "h204a4196566b44eb8070bc8b5d36edde1c1d"
+                            }
+                        },
+                        {
+                            "Id": "auto_resize_mcm_window",
+                            "Name": "(DEPRECATED) Automatically resize window",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "(DEPRECATED) Dynamically resize the MCM window to fit settings.",
+                            "Tooltip": "If disabled, the window might require scrolling.\nYou'll be able to resize the window manually by dragging the bottom-right corner.",
+                            "Handles": {
+                                "NameHandle": "hc4abe0365af046e6abac1b4432abc3f7g4g3",
+                                "DescriptionHandle": "h2c525b9161344f509bb4dcad8e49010bb9ce",
+                                "TooltipHandle": "ha94c42869802455dba878884efdbcbee3fea"
                             }
                         }
                     ],
