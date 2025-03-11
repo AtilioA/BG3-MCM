@@ -1,5 +1,5 @@
 ------------------------------------------------------------
--- Optimized VisibilityManager Module
+-- VisibilityManager module
 -- Handles UI element visibility using VisibleIf definitions from blueprints.
 ------------------------------------------------------------
 

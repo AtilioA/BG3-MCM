@@ -199,6 +199,17 @@
                                 "NameHandle": "h0636d5bc17f6464f99c1da18831bb38f1561",
                                 "DescriptionHandle": "h3f6a4e8a570d41c2bf60d673a3bfa1ef3472"
                             }
+                        },
+                        {
+                            "Id": "KeybindingV2Setting",
+                            "Name": "Toggle sidebar (collapse/expand)",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "CAPSLOCK"
+                                }
+                            },
+                            "Description": "Toggles the sidebar between collapsed and expanded."
                         }
                     ],
                     "Handles": {

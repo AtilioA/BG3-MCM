@@ -206,3 +206,19 @@ function IMGUIAPI:GetModWidgets(modUUID)
 
     return MCMClientState.mods[modUUID].widgets
 end
+
+function IMGUIAPI:ToggleMCMSidebar()
+    if not MCM_WINDOW then
+        MCMError(0, "Tried to toggle MCM sidebar, but it doesn't exist")
+        return
+    end
+
+    if not DualPane then
+        MCMError(0, "Tried to toggle MCM sidebar, but DualPane doesn't exist")
+        return
+    end
+
+    if MCM_WINDOW.Visible or MCM_WINDOW.Open then
+        DualPane:ToggleSidebar()
+    end
+end

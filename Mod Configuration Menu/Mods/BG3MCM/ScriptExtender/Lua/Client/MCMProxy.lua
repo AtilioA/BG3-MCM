@@ -112,4 +112,6 @@ function MCMProxy:RegisterMCMKeybindings()
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua", function() Ext.Debug.Reset() end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "close_mcm_keybinding",
         function() IMGUIAPI:CloseMCMWindow(true) end)
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_sidebar_keybinding",
+        function() IMGUIAPI:ToggleMCMSidebar() end)
 end
