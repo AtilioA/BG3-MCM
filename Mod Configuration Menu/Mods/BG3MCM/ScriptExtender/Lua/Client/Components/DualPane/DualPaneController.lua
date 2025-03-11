@@ -22,7 +22,7 @@ DualPaneController = _Class:Create("DualPaneController", nil, {
     isHovered = false,
     userHasInteracted = false,
     hoverSubscription = nil,
-    currentAnimationState = nil,
+    currentAnimation = nil,
     menuScrollWindow = nil,
     contentScrollWindow = nil,
     mainLayoutTable = nil,
@@ -49,6 +49,44 @@ HeaderActionsInstance = nil
 local RX = {
     TimerScheduler = Ext.Require("Lib/reactivex/schedulers/timerscheduler.lua")
 }
+
+-- Helper: Generic animation for sidebar transitions
+-- This function animates both the width (of the column) and the alpha (of the menuScrollWindow)
+-- It stops if the current animation state no longer matches the expected state.
+function DualPaneController:animateSidebar(targetWidth, targetAlpha, expectedState, onComplete)
+    local colDef = self.mainLayoutTable.ColumnDefs[1]
+    local currentWidth = colDef.Width
+    local currentAlpha = self.menuScrollWindow:GetStyle("Alpha") or 0
+
+    local function step()
+        if self.currentAnimation ~= expectedState then
+            return
+        end
+
+        local widthDelta = math.abs(currentWidth - targetWidth)
+        local alphaDelta = math.abs(currentAlpha - targetAlpha)
+        if widthDelta > 0.5 or alphaDelta > 0.01 then
+            currentWidth = currentWidth + (targetWidth - currentWidth) * STEP_FACTOR
+            colDef.Width = currentWidth
+
+            currentAlpha = currentAlpha + (targetAlpha - currentAlpha) * STEP_FACTOR
+            self.menuScrollWindow:SetStyle("Alpha", currentAlpha)
+
+            Ext.Timer.WaitFor(STEP_DELAY, step)
+        else
+            colDef.Width = targetWidth
+            self.menuScrollWindow:SetStyle("Alpha", targetAlpha)
+            if onComplete then onComplete() end
+        end
+    end
+    step()
+end
+
+-- Setup hover event handlers
+function DualPaneController:setupHoverHandlers(targetWindow, onEnter, onLeave)
+    targetWindow.OnHoverEnter = onEnter
+    targetWindow.OnHoverLeave = onLeave
+end
 
 function DualPaneController:InitWithWindow(window)
     local self = setmetatable({}, DualPaneController)
@@ -113,34 +151,38 @@ end
 function DualPaneController:AttachHoverListeners()
     local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
     if not enabledHover then return end
+
     if self.menuScrollWindow.Visible then
-        self.menuScrollWindow.OnHoverEnter = function()
-            self.isHovered = true
-            self.userHasInteracted = true
-
-            self:CancelAutoCollapse()
-            self.menuScrollWindow:SetStyle("Alpha", 1)
-        end
-        self.menuScrollWindow.OnHoverLeave = function()
-            local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
-            if not enabledAutoCollapse then return end
-
-            self.isHovered = false
-
-            self:ScheduleAutoCollapse()
-            self:FadeSidebarOutAlpha(HOVER_DELAY_MS / 1000)
-        end
-    else
-        if HeaderActionsInstance.expandBtn then
-            HeaderActionsInstance.expandBtn.OnHoverEnter = function()
-                local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
-                if not enabledHover then return end
-
+        self:setupHoverHandlers(
+            self.menuScrollWindow,
+            function()
                 self.isHovered = true
                 self.userHasInteracted = true
                 self:CancelAutoCollapse()
-                self:Expand()
+                self.menuScrollWindow:SetStyle("Alpha", 1)
+            end,
+            function()
+                local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+                if not enabledAutoCollapse then return end
+                self.isHovered = false
+                self:ScheduleAutoCollapse()
+                self:FadeSidebarOutAlpha(HOVER_DELAY_MS / 1000)
             end
+        )
+    else
+        if HeaderActionsInstance.expandBtn then
+            self:setupHoverHandlers(
+                HeaderActionsInstance.expandBtn,
+                function()
+                    local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
+                    if not enabledHover then return end
+                    self.isHovered = true
+                    self.userHasInteracted = true
+                    self:CancelAutoCollapse()
+                    self:Expand()
+                end,
+                nil
+            )
         end
     end
 end
@@ -174,7 +216,6 @@ end
 
 function DualPaneController:CancelAutoCollapse()
     if self.hoverSubscription then
-        -- REVIEW: Is this how you unsubscribe?
         self.hoverSubscription:_unsubscribe()
         self.hoverSubscription = nil
     end
@@ -218,55 +259,31 @@ end
 function DualPaneController:Expand()
     -- Set the current animation to "expand". This cancels any ongoing collapse animation.
     self.currentAnimation = "expand"
-    local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
-    HeaderActionsInstance:UpdateToggleButtons(false) -- show collapse button when expanded
-    local function stepExpand()
-        if self.currentAnimation ~= "expand" then return end
+    HeaderActionsInstance:UpdateToggleButtons(false)
+    self.menuScrollWindow.Visible = true
 
-        self.menuScrollWindow.Visible = true
-
-        if cWidth < TARGET_WIDTH_EXPANDED then
-            cWidth = math.min(TARGET_WIDTH_EXPANDED, cWidth + (TARGET_WIDTH_EXPANDED * STEP_FACTOR))
-            self.mainLayoutTable.ColumnDefs[1].Width = cWidth
-            local newAlpha = math.min(1, (self.menuScrollWindow:GetStyle("Alpha") or 0) + STEP_FACTOR)
-            self.menuScrollWindow:SetStyle("Alpha", newAlpha)
-            Ext.Timer.WaitFor(STEP_DELAY, stepExpand)
-        else
-            self.isCollapsed = false
-            HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
-            self:AttachHoverListeners()
-            self.currentAnimation = nil
-        end
-    end
-    stepExpand()
+    self:animateSidebar(TARGET_WIDTH_EXPANDED, 1, "expand", function()
+        self.isCollapsed = false
+        HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
+        self:AttachHoverListeners()
+        self.currentAnimation = nil
+    end)
 end
 
 function DualPaneController:Collapse()
     self.currentAnimation = "collapse"
-    local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
-    HeaderActionsInstance:UpdateToggleButtons(true) -- show expand button when collapsed
-    local function stepCollapse()
-        if self.currentAnimation ~= "collapse" then return end
+    HeaderActionsInstance:UpdateToggleButtons(true) 
 
-        if cWidth > TARGET_WIDTH_COLLAPSED then
-            cWidth = math.max(TARGET_WIDTH_COLLAPSED, cWidth - (cWidth * STEP_FACTOR))
-            self.mainLayoutTable.ColumnDefs[1].Width = cWidth
-            self.menuScrollWindow:SetStyle("Alpha",
-                math.max(0, (self.menuScrollWindow:GetStyle("Alpha") or 1) - STEP_DELAY))
-            Ext.Timer.WaitFor(STEP_DELAY, stepCollapse)
-        else
-            self.menuScrollWindow.Visible = false
-            self.isCollapsed = true
-            HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
-            self:AttachHoverListeners()
-            self.currentAnimation = nil
-        end
-    end
-    stepCollapse()
+    self:animateSidebar(TARGET_WIDTH_COLLAPSED, 0, "collapse", function()
+        self.menuScrollWindow.Visible = false
+        self.isCollapsed = true
+        HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
+        self:AttachHoverListeners()
+        self.currentAnimation = nil
+    end)
 end
 
--- Toggle the sidebar.
--- If an animation is currently in progress, this call will cancel it and start the opposite animation.
+-- Toggle the sidebar, canceling any in-progress animation if needed.
 function DualPaneController:ToggleSidebar()
     self.userHasInteracted = true
 
@@ -348,7 +365,7 @@ function DualPaneController:OpenModPage(identifier, modUUID)
         MCMWarn(0, "Tab not found for identifier: " .. identifier)
     end
 
-    -- Collapse the sidebar when opening the specific page.
+    -- Collapse the sidebar when opening the page.
     self:Collapse()
 
     -- Avoid select lockdown by unselecting the tab after a few ticks
