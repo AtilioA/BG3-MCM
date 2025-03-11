@@ -74,7 +74,7 @@
                             }
                         },
                         {
-                            "Id": "auto_resize_window",
+                            "Id": "auto_resize_mcm_window",
                             "Name": "Automatically resize window",
                             "Type": "checkbox",
                             "Default": false,

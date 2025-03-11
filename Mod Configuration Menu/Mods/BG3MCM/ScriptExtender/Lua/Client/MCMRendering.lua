@@ -214,7 +214,7 @@ end
 ---@return nil
 function MCMRendering:PrepareMenu()
     -- TODO: re-enable this after refactoring client-side code
-    MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_window", ModuleUUID)
+    MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_mcm_window", ModuleUUID)
 end
 
 --- Convert the mod configs to use the Blueprint class

@@ -16,7 +16,7 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
         return
     end
 
-    if settingId == "auto_resize_window" then
+    if settingId == "auto_resize_mcm_window" then
         MCM_WINDOW.AlwaysAutoResize = value
     end
 
