@@ -34,7 +34,8 @@ ICON_TOGGLE_EXPAND = "ico_menu_h"
 ICON_DOCS = "ico_secret_h"
 ICON_DETACH = "ico_popup_d"
 
-TARGET_WIDTH_EXPANDED = 450
+-- Get proportion of screen size based on working number for 4K
+TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[1] / (3840 / 450)
 TARGET_WIDTH_COLLAPSED = 5
 STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
