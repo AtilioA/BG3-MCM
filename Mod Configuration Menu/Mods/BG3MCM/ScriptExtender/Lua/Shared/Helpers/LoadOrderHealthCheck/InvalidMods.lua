@@ -2,6 +2,10 @@ InvalidMods = {}
 
 local NULL_UUID = "00000000-0000-0000-0000-000000000000"
 
+function InvalidMods:IsModInvalid(modUUID)
+    return modUUID == NULL_UUID
+end
+
 --- Returns a list of mods that have a null UUID (00000000-0000-0000-0000-000000000000)
 ---@return table invalidMods
 function InvalidMods:GetInvalidMods()
@@ -12,11 +16,11 @@ function InvalidMods:GetInvalidMods()
     end
 
     local availableMods = modManager.AvailableMods or {}
-    
+
     for _, mod in ipairs(availableMods) do
         if mod
             and mod.Info
-            and (mod.Info.ModuleUUID == NULL_UUID or mod.Info.ModuleUUIDString == NULL_UUID)
+            and (self:IsModInvalid(mod.Info.ModuleUUID) or self:IsModInvalid(mod.Info.ModuleUUIDString))
         then
             table.insert(invalidMods, mod)
         end

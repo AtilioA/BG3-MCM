@@ -62,7 +62,7 @@ function LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
             { dontShowAgainButton = true },
             ModuleUUID
         )
-        
+
         MCMWarn(0, issue.resultMessage)
     end
 end
@@ -90,7 +90,7 @@ function LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
             ModuleUUID
         )
 
-        MCMWarn(0, VCString:InterpolateLocalizedMessage(message))
+        MCMWarn(0, message)
     end
 end
 
