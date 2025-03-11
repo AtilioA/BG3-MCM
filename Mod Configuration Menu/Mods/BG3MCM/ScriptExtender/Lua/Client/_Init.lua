@@ -13,7 +13,8 @@ Ext.Loca.UpdateTranslatedString(disabledMCMDefaultLabelHandle, MCMActualLabel)
 
 Ext.Events.GameStateChanged:Subscribe(function(e)
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
-        MCMDependencies:WarnAboutLoadOrderDependencies()
-        MCMDependencies:WarnAboutNPAKM()
+        LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
+        LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
+        LoadOrderHealthCheck:WarnAboutNPAKM()
     end
 end)
