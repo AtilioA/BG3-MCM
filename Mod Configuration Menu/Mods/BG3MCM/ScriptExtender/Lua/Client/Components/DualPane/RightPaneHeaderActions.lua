@@ -13,10 +13,10 @@ function HeaderActions:New(parent)
 
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
     self.expandBtn = self:CreateActionButton("Toggle", ICON_TOGGLE_EXPAND,
-        "Expand the sidebar containing keybindings, mods, etc", 1.5)
+        Ext.Loca.GetTranslatedString("hbb483085e7f04700beb8cc5bf94a98b4g6ac"), 1.5)
     self.expandBtn.SameLine = true
     self.collapseBtn = self:CreateActionButton("Collapse", ICON_TOGGLE_COLLAPSE,
-        "Hide the sidebar", 1.5)
+        Ext.Loca.GetTranslatedString("h4e0e208daa6a439ca5ba95a668a7ac36d882"), 1.5)
     self.collapseBtn.SameLine = true
     self.expandBtn.OnClick = function() DualPane:ToggleSidebar() end
     self.collapseBtn.OnClick = function() DualPane:ToggleSidebar() end
@@ -33,7 +33,7 @@ function HeaderActions:New(parent)
     dummy.SameLine = true
 
     self.detachBtn = self:CreateActionButton("[Detach]", ICON_DETACH,
-        "Detach mod content to a separate window", 1)
+        Ext.Loca.GetTranslatedString("h5270f62d04b243b6b9ea0473bd610aa72b0e"), 1)
     self.detachBtn.SameLine = true
     self.detachBtn.OnClick = function()
         if DualPane.rightPane and DualPane.rightPane.currentMod and
