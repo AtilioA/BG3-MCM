@@ -111,16 +111,43 @@ function KeybindingV2IMGUIWidget:RenderSearchBar()
     end
 end
 
+function KeybindingV2IMGUIWidget:SortFilteredActions()
+    -- Sort mods: MCM comes first, then alphabetically by mod name.
+    table.sort(self.Widget.FilteredActions, function(a, b)
+        if a.ModUUID == ModuleUUID then
+            return true
+        elseif b.ModUUID == ModuleUUID then
+            return false
+        else
+            local modAName = MCMClientState:GetModName(a.ModUUID) or ""
+            local modBName = MCMClientState:GetModName(b.ModUUID) or ""
+            return modAName < modBName
+        end
+    end)
+
+    -- For each mod, sort its actions by ActionName.
+    for _, mod in ipairs(self.Widget.FilteredActions) do
+        table.sort(mod.Actions, function(a, b)
+            return a.ActionName < b.ActionName
+        end)
+    end
+end
+
+--- Renders the keybinding tables for all filtered mods.
 function KeybindingV2IMGUIWidget:RenderKeybindingTables()
     local group = self.Widget.Group
     self:ClearDynamicElements()
     self:RenderSearchBar()
 
     if #self.Widget.FilteredActions == 0 then
+        -- FIXME: display a "No results" message
+        -- local noResultsText = group:AddText(Ext.Loca.GetTranslatedString("hd3bbec3b1be2455986b5da92492f445d4296"))
+        -- noResultsText.TextWrapPos = 0
     end
 
+    self:SortFilteredActions()
+
     for _, mod in ipairs(self.Widget.FilteredActions) do
-        -- TODO: fetch name elsewhere
         local modHeader = group:AddCollapsingHeader(MCMClientState:GetModName(mod.ModUUID))
         modHeader.DefaultOpen = true
         modHeader.IDContext = mod.ModName .. "_CollapsingHeader"
