@@ -258,11 +258,11 @@ function DualPaneController:Collapse()
     HeaderActionsInstance:UpdateToggleButtons(true)
 
     self:animateSidebar(TARGET_WIDTH_COLLAPSED, 0, "collapse", function()
+        self.menuScrollWindow.Visible = false
         self.isCollapsed = true
         HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
         self:AttachHoverListeners()
         self.currentAnimation = nil
-        self.menuScrollWindow.Visible = false
     end)
 end
 
@@ -271,7 +271,15 @@ function DualPaneController:ToggleSidebar()
     self.userHasInteracted = true
 
     -- If we are collapsing (:skull:), cancel and start expanding, vice versa
-    if self.currentAnimation == "collapse" or self.isCollapsed then
+    if self.currentAnimation == "collapse" then
+        self:Expand()
+        return
+    elseif self.currentAnimation == "expand" then
+        self:Collapse()
+        return
+    end
+
+    if self.isCollapsed then
         self:Expand()
     else
         self:Collapse()
