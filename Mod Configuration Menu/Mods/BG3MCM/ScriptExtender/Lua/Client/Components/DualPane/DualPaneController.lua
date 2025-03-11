@@ -238,23 +238,6 @@ function DualPaneController:ScheduleAutoCollapse()
     end, HOVER_DELAY_MS)
 end
 
--- Internal method to update header toggle icons
----@param ignoreCollapsed? boolean Optional parameter to ignore the collapse state
-function DualPaneController:UpdateToggleButtons(ignoreCollapsed)
-    if not ignoreCollapsed then
-        if self.isCollapsed then
-            HeaderActionsInstance.expandBtn.Visible = true
-            HeaderActionsInstance.collapseBtn.Visible = false
-        else
-            HeaderActionsInstance.expandBtn.Visible = false
-            HeaderActionsInstance.collapseBtn.Visible = true
-        end
-    else
-        HeaderActionsInstance.expandBtn.Visible = not HeaderActionsInstance.expandBtn.Visible
-        HeaderActionsInstance.collapseBtn.Visible = not HeaderActionsInstance.collapseBtn.Visible
-    end
-end
-
 -- Expand the sidebar (menu pane) 'asynchronously'
 function DualPaneController:Expand()
     -- Set the current animation to "expand". This cancels any ongoing collapse animation.
@@ -272,14 +255,14 @@ end
 
 function DualPaneController:Collapse()
     self.currentAnimation = "collapse"
-    HeaderActionsInstance:UpdateToggleButtons(true) 
+    HeaderActionsInstance:UpdateToggleButtons(true)
 
     self:animateSidebar(TARGET_WIDTH_COLLAPSED, 0, "collapse", function()
-        self.menuScrollWindow.Visible = false
         self.isCollapsed = true
         HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
         self:AttachHoverListeners()
         self.currentAnimation = nil
+        self.menuScrollWindow.Visible = false
     end)
 end
 
@@ -288,15 +271,7 @@ function DualPaneController:ToggleSidebar()
     self.userHasInteracted = true
 
     -- If we are collapsing (:skull:), cancel and start expanding, vice versa
-    if self.currentAnimation == "collapse" then
-        self:Expand()
-        return
-    elseif self.currentAnimation == "expand" then
-        self:Collapse()
-        return
-    end
-
-    if self.isCollapsed then
+    if self.currentAnimation == "collapse" or self.isCollapsed then
         self:Expand()
     else
         self:Collapse()
