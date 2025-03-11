@@ -13,6 +13,7 @@
 ---@field isHovered boolean
 ---@field userHasInteracted boolean
 ---@field hoverSubscription any
+---@field currentAnimationState string|nil
 DualPaneController = _Class:Create("DualPaneController", nil, {
     window = nil,
     leftPane = nil,
@@ -20,6 +21,8 @@ DualPaneController = _Class:Create("DualPaneController", nil, {
     isCollapsed = false,
     isHovered = false,
     userHasInteracted = false,
+    hoverSubscription = nil,
+    currentAnimationState = nil,
     menuScrollWindow = nil,
     contentScrollWindow = nil,
     mainLayoutTable = nil,
@@ -57,6 +60,7 @@ function DualPaneController:InitWithWindow(window)
     self.isHovered = false
     self.userHasInteracted = false
     self.hoverSubscription = nil
+    self.currentAnimation = nil
     -- Attach hover listeners initially (menu is expanded by default)
     self:AttachHoverListeners()
     return self
@@ -212,50 +216,69 @@ end
 
 -- Expand the sidebar (menu pane) 'asynchronously'
 function DualPaneController:Expand()
+    -- Set the current animation to "expand". This cancels any ongoing collapse animation.
+    self.currentAnimation = "expand"
     local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
-    local selfRef = self
     HeaderActionsInstance:UpdateToggleButtons(false) -- show collapse button when expanded
     local function stepExpand()
+        if self.currentAnimation ~= "expand" then return end
+
+        self.menuScrollWindow.Visible = true
+
         if cWidth < TARGET_WIDTH_EXPANDED then
             cWidth = math.min(TARGET_WIDTH_EXPANDED, cWidth + (TARGET_WIDTH_EXPANDED * STEP_FACTOR))
-            selfRef.mainLayoutTable.ColumnDefs[1].Width = cWidth
-            local newAlpha = math.min(1, (selfRef.menuScrollWindow:GetStyle("Alpha") or 0) + STEP_FACTOR)
-            selfRef.menuScrollWindow:SetStyle("Alpha", newAlpha)
+            self.mainLayoutTable.ColumnDefs[1].Width = cWidth
+            local newAlpha = math.min(1, (self.menuScrollWindow:GetStyle("Alpha") or 0) + STEP_FACTOR)
+            self.menuScrollWindow:SetStyle("Alpha", newAlpha)
             Ext.Timer.WaitFor(STEP_DELAY, stepExpand)
         else
-            selfRef.isCollapsed = false
-            selfRef.menuScrollWindow.Visible = true
-            HeaderActionsInstance:UpdateToggleButtons(selfRef.isCollapsed)
-            selfRef:AttachHoverListeners()
+            self.isCollapsed = false
+            HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
+            self:AttachHoverListeners()
+            self.currentAnimation = nil
         end
     end
     stepExpand()
 end
 
 function DualPaneController:Collapse()
+    self.currentAnimation = "collapse"
     local cWidth = self.mainLayoutTable.ColumnDefs[1].Width
-    local selfRef = self
     HeaderActionsInstance:UpdateToggleButtons(true) -- show expand button when collapsed
     local function stepCollapse()
+        if self.currentAnimation ~= "collapse" then return end
+
         if cWidth > TARGET_WIDTH_COLLAPSED then
             cWidth = math.max(TARGET_WIDTH_COLLAPSED, cWidth - (cWidth * STEP_FACTOR))
-            selfRef.mainLayoutTable.ColumnDefs[1].Width = cWidth
-            selfRef.menuScrollWindow:SetStyle("Alpha",
-                math.max(0, (selfRef.menuScrollWindow:GetStyle("Alpha") or 1) - STEP_DELAY))
+            self.mainLayoutTable.ColumnDefs[1].Width = cWidth
+            self.menuScrollWindow:SetStyle("Alpha",
+                math.max(0, (self.menuScrollWindow:GetStyle("Alpha") or 1) - STEP_DELAY))
             Ext.Timer.WaitFor(STEP_DELAY, stepCollapse)
         else
-            selfRef.menuScrollWindow.Visible = false
-            selfRef.isCollapsed = true
-            HeaderActionsInstance:UpdateToggleButtons(selfRef.isCollapsed)
-            selfRef:AttachHoverListeners()
+            self.menuScrollWindow.Visible = false
+            self.isCollapsed = true
+            HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
+            self:AttachHoverListeners()
+            self.currentAnimation = nil
         end
     end
     stepCollapse()
 end
 
--- Toggle the sidebar
+-- Toggle the sidebar.
+-- If an animation is currently in progress, this call will cancel it and start the opposite animation.
 function DualPaneController:ToggleSidebar()
     self.userHasInteracted = true
+
+    -- If we are collapsing (:skull:), cancel and start expanding, vice versa
+    if self.currentAnimation == "collapse" then
+        self:Expand()
+        return
+    elseif self.currentAnimation == "expand" then
+        self:Collapse()
+        return
+    end
+
     if self.isCollapsed then
         self:Expand()
     else
@@ -301,7 +324,6 @@ end
 ---@param modUUID string The UUID of the mod to open
 ---@param tabName? string The name of the tab to open
 function DualPaneController:OpenModPage(identifier, modUUID)
-    -- IMGUIAPI:OpenMCMWindow(true)
     self:SetVisibleFrame(modUUID)
 
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
