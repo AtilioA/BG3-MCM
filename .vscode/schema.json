@@ -1010,14 +1010,10 @@
                     "Default": {
                         "Keyboard": {
                             "ModifierKeys": [
-                                "Ctrl",
-                                "Shift"
+                                "LCtrl",
+                                "LShift"
                             ],
                             "Key": "K"
-                        },
-                        // NOTE: Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence.
-                        "Mouse": {
-                            "Button": "1"
                         }
                     },
                     "Tooltip": "This is a keybinding setting.",
