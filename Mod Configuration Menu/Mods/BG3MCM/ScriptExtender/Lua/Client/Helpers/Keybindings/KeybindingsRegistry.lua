@@ -85,6 +85,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                     shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
                     shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
                     description = action.Description,
+                    isDeveloperOnly = action.IsDeveloperOnly,
                 tooltip = action.Tooltip,
                 -- Compute the visibility flag (for UI listing)
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
@@ -174,7 +175,7 @@ local function shouldTriggerBinding(e, binding)
         return false
     end
 
-    if binding.Options and binding.Options.IsDeveloperOnly and not Ext.Debug.IsDeveloperMode() then
+    if binding.isDeveloperOnly and not Ext.Debug.IsDeveloperMode() then
         return false
     end
 
