@@ -127,8 +127,9 @@ function MCMRendering:CreateMainIMGUIWindow()
         modMenuTitle = "Mod Configuration Menu"
     end
 
+    local modVersion = MCMUtils.FormatModVersion(ModuleUUID)
     ---@class ExtuiWindow
-    MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle)
+    MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     UIStyle:ApplyDefaultStylesToIMGUIElement(MCM_WINDOW)
     local minWidth, minHeight = table.unpack(self:GetMCMWindowSizeConstraints())
     MCM_WINDOW:SetStyle("WindowMinSize", minWidth, minHeight)
