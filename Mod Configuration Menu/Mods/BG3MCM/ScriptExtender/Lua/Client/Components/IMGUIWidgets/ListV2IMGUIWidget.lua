@@ -478,16 +478,16 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     if currentPage <= totalPages - 2 or currentPage >= 3 then
         local pageInput = paginationGroup:AddInputText("", tostring(currentPage))
         pageInput.IDContext = self.Widget.ModUUID .. "_PageInput_" .. self.Widget.Setting.Id
-        pageInput.Text = '...'
-        pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1], 0 }
+        pageInput.Text = tostring(currentPage or "...")
+        pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1] * 1.5, 0 }
         pageInput:Tooltip():AddText(Ext.Loca.GetTranslatedString("hb22eb0c6c4ed41b28966287ab5b20c7b35a3"))
         pageInput.AutoSelectAll = true
+        pageInput.EnterReturnsTrue = true
         pageInput.OnChange = function(input)
-            local pageNumber = tonumber(input.Text:match('%d+'))
+            local pageNumber = tonumber(input.Text)
             if not pageNumber then return end
             pageNumber = math.min(pageNumber, totalPages)
             pageNumber = math.max(pageNumber, 1)
-
             self.Widget.CurrentPage = pageNumber
             self:Refresh()
         end
