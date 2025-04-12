@@ -137,7 +137,7 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
         return
     end
 
-    if MCM_WINDOW.Open == true or MCM_WINDOW.Visible == true then
+    if MCM_WINDOW.Open == true then
         self:CloseMCMWindow(playSound)
     else
         self:OpenMCMWindow(playSound)
