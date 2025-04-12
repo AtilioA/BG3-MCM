@@ -1,7 +1,7 @@
 UIStyle = {}
 -- Thanks Aahz for the original code
 
-local BoxColor = Color.NormalizedRGBA(46, 38, 38, 0.78)
+local BoxColor = Color.NormalizedRGBA(46, 38, 38, 1)
 local BoxHoverColor = Color.NormalizedRGBA(97, 66, 54, 0.78);
 local BoxActiveColor = Color.NormalizedRGBA(30.60, 204, 237.15, 0.33)
 
