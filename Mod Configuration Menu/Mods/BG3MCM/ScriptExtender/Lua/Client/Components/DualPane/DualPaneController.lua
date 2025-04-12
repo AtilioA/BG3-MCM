@@ -308,15 +308,15 @@ end
 
 function DualPaneController:SetVisibleFrame(modUUID)
     self.rightPane:SetVisibleGroup(modUUID)
+    if not MCMProxy.IsMainMenu() then
+        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = uuid })
+    end
 end
 
 -- Helper called from LeftPane buttons.
 function DualPaneController:SwitchVisibleContent(button, uuid)
     self:SetVisibleFrame(uuid)
     self.leftPane:SetActiveItem(uuid)
-    if not MCMProxy.IsMainMenu() then
-        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = uuid })
-    end
 end
 
 -- Open a specific page and optionally a subtab.
