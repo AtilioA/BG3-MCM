@@ -23,9 +23,9 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     local modUUID = self.Widget.ModUUID
 
     -- Create a container for the button with proper styling
-    local buttonContainer = group:AddGroup()
+    local buttonContainer = group:AddGroup("EventButtonGroup_" .. setting:GetId())
     buttonContainer.IDContext = modUUID .. "_" .. setting:GetId() .. "_EventButtonContainer"
-    buttonContainer.Sameline = true
+    buttonContainer.SameLine = false
 
     -- Get button options from setting
     local options = setting:GetOptions() or {}
@@ -117,7 +117,6 @@ function EventButtonIMGUIWidget:TriggerCallback()
     ModEventManager:Emit(EventChannels.MCM_EVENT_BUTTON_CLICKED, {
         modUUID = modUUID,
         settingId = settingId,
-        timestamp = os.time()
     })
 
     -- Check if a callback has been registered
