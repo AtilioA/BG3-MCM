@@ -227,7 +227,7 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
     -- Iterate over each argument and replace the corresponding placeholder.
     for i, value in ipairs(args) do
         -- The pattern dynamically matches [i]. The %[] escapes the brackets.
-        updatedMessage = string.gsub(updatedMessage, "%[" .. i .. "%]", value)
+        updatedMessage = string.gsub(updatedMessage, "%[" .. i .. "%]", tostring(value))
     end
 
     -- Update the translated string with the new content during runtime.
