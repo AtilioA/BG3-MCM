@@ -8,15 +8,11 @@ local RX = Ext.Require("Lib/reactivex/_init.lua")
 ---@field Widget any The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
 ---@field _currentValue any The current value of the widget (for internal use)
 ---@field _defaultValue any The default value of the widget (for internal use)
----@field _settingId string The ID of the setting associated with this widget (for internal use)
----@field _modUUID string The UUID of the mod that owns this widget (for internal use)
 ---@field _resetButton any The reset button IMGUI object (for internal use)
 IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
     Widget = nil,
     _currentValue = nil,
     _defaultValue = nil,
-    _settingId = nil,
-    _modUUID = nil,
     _resetButton = nil
 })
 
@@ -70,8 +66,6 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     -- Store essential information for reset functionality
     widget._currentValue = initialValue
     widget._defaultValue = setting:GetDefault()
-    widget._settingId = setting:GetId()
-    widget._modUUID = modUUID
 
     -- First, intercept the original UpdateCurrentValue method
     if not widget._originalUpdateCurrentValue then
@@ -240,7 +234,10 @@ function IMGUIWidget:AddResetButton(group, setting, modUUID)
     end
 
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
-    MCMRendering:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h132d4b2d4cd044c8a3956a77f7e3499d0737"),
+
+    local tooltipText = VCString:InterpolateLocalizedMessage("h132d4b2d4cd044c8a3956a77f7e3499d0737", self._defaultValue)
+
+    MCMRendering:AddTooltip(resetButton, tooltipText,
         modUUID .. "_" .. "ResetButton_" .. setting:GetId() .. "_TOOLTIP")
 
     -- Override the OnClick handler to update internal values after reset
