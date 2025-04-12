@@ -3,16 +3,15 @@
 ---@class MCMProxy
 ---@field GameState string The current game state. Might be used to determine if the game is in the main menu.
 MCMProxy = _Class:Create("MCMProxy", nil, {
-    GameState = 'Menu'
+    GameState = nil
 })
 
 function MCMProxy.IsMainMenu()
-    if Ext.Net.IsHost then
+    local gameState = MCMProxy.GameState
+
+    if not gameState and Ext.Net.IsHost then
         return not Ext.Net.IsHost()
     end
-
-    -- Old fallback since it's already here
-    local gameState = MCMProxy.GameState
 
     if gameState == 'Menu' then
         return true
