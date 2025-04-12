@@ -1,10 +1,23 @@
 -- This became a factory of sorts cause OOP in Lua is a mess
 -- TODO: ADD modUUID TO ALL IDCONTEXTS SINCE THEY MIGHT NOT BE UNIQUE ACROSS DIFFERENT MODS
 
+-- Import ReactiveX modules
+local RX = Ext.Require("Lib/reactivex/_init.lua")
+
 ---@class IMGUIWidget
 ---@field Widget any The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
+---@field _currentValue any The current value of the widget (for internal use)
+---@field _defaultValue any The default value of the widget (for internal use)
+---@field _settingId string The ID of the setting associated with this widget (for internal use)
+---@field _modUUID string The UUID of the mod that owns this widget (for internal use)
+---@field _resetButton any The reset button IMGUI object (for internal use)
 IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
-    Widget = nil
+    Widget = nil,
+    _currentValue = nil,
+    _defaultValue = nil,
+    _settingId = nil,
+    _modUUID = nil,
+    _resetButton = nil
 })
 
 -- Function to estimate icon size based on viewport size
@@ -54,6 +67,31 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
 
+    -- Store essential information for reset functionality
+    widget._currentValue = initialValue
+    widget._defaultValue = setting:GetDefault()
+    widget._settingId = setting:GetId()
+    widget._modUUID = modUUID
+
+    -- First, intercept the original UpdateCurrentValue method
+    if not widget._originalUpdateCurrentValue then
+        widget._originalUpdateCurrentValue = widget.UpdateCurrentValue
+        widget.UpdateCurrentValue = function(self, value)
+            -- Update internal value tracking
+            self._currentValue = value
+
+            -- Call the original method
+            self:_originalUpdateCurrentValue(value)
+
+            -- Update reset button visibility
+            self:UpdateResetButtonVisibility()
+        end
+    end
+
+    -- Store a reference to handle OnChange interception after widget is fully created
+    widget._needsOnChangeIntercept = true
+
+    -- Add reset button after we've set up the widget
     if widget.AddResetButton then
         widget:AddResetButton(group, setting, modUUID)
     else
@@ -62,11 +100,118 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
 
     self:InitializeWidget(widget, group, setting)
 
+    -- Now intercept OnChange handlers if needed
+    -- We do this after initialization because some widgets might set up their OnChange handlers during initialization
+    if widget._needsOnChangeIntercept and widget.Widget then
+        local originalOnChange = widget.Widget.OnChange
+        if originalOnChange then
+            widget.Widget.OnChange = function(value)
+                -- Update internal tracking before executing original handler
+                local actualValue = self:ExtractValueFromWidgetEvent(widget, value)
+                widget._currentValue = actualValue
+
+                -- Call original handler
+                originalOnChange(value)
+
+                -- Update visibility after value change
+                widget:UpdateResetButtonVisibility()
+            end
+        end
+        widget._needsOnChangeIntercept = nil
+    end
+
+    -- Apply initial visibility
+    widget:UpdateResetButtonVisibility()
+
     return widget
 end
 
 function IMGUIWidget:UpdateCurrentValue(value)
     error("IMGUIWidget:UpdateCurrentValue must be overridden in a derived class")
+end
+
+--- Extract the actual value from a widget event
+--- Different widget types have different event structures, so this attempts to get the value in a generic way
+--- @param widget any The widget instance
+--- @param eventValue any The value from the OnChange event
+--- @return any The extracted value
+function IMGUIWidget:ExtractValueFromWidgetEvent(widget, eventValue)
+    -- Handle different event structures based on widget type pattern recognition
+    local success, result = xpcall(function()
+        -- Try to access the value
+        if eventValue.Checked ~= nil then
+            return eventValue.Checked
+        elseif eventValue.Value and type(eventValue.Value) == "table" and #eventValue.Value > 0 then
+            return eventValue.Value[1]
+        elseif eventValue.Text ~= nil then
+            return eventValue.Text
+        elseif eventValue.Value ~= nil then
+            return eventValue.Value
+        elseif eventValue.Selected ~= nil then
+            return eventValue.Selected
+        end
+
+        -- Fallback to returning the entire event value
+        return eventValue
+    end, debug.traceback)
+
+    if not success then
+        -- If access failed, return nil
+        return nil
+    end
+
+    return result
+end
+
+--- Updates the visibility of the reset button based on whether current value equals default value
+--- This method doesn't require any parameters as it uses the widget's internal state
+function IMGUIWidget:UpdateResetButtonVisibility()
+    if not self._resetButton then return end
+
+    -- Compare current value with default value
+    local isAtDefaultValue = self:IsValueEqualToDefault(self._currentValue, self._defaultValue)
+
+    -- Update visibility
+    self._resetButton.Visible = not isAtDefaultValue
+end
+
+--- Compares two values to check if they are equal, handling different types appropriately
+---@param currentValue any The current value
+---@param defaultValue any The default value
+---@return boolean True if the values are equal
+function IMGUIWidget:IsValueEqualToDefault(currentValue, defaultValue)
+    if currentValue == nil or defaultValue == nil then
+        return currentValue == defaultValue
+    end
+
+    -- Handle different types
+    local valueType = type(currentValue)
+
+    if valueType == "table" then
+        -- For tables, compare all values
+        if type(defaultValue) ~= "table" then
+            return false
+        end
+
+        -- Check if all table keys/values match
+        for k, v in pairs(currentValue) do
+            if defaultValue[k] == nil or not self:IsValueEqualToDefault(v, defaultValue[k]) then
+                return false
+            end
+        end
+
+        -- Check for extra keys in defaultValue
+        for k, _ in pairs(defaultValue) do
+            if currentValue[k] == nil then
+                return false
+            end
+        end
+
+        return true
+    else
+        -- For simple types, just compare directly
+        return currentValue == defaultValue
+    end
 end
 
 function IMGUIWidget:InitializeWidget(widget, group, setting)
@@ -86,19 +231,40 @@ end
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modUUID)
+    -- Create the reset button
     local resetButton = group:AddImageButton("[Reset]", ClientGlobals.RESET_SETTING_BUTTON_ICON,
         IMGUIWidget:GetIconSizes())
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()
         resetButton = group:AddButton("[Reset]")
     end
+
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
     MCMRendering:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h132d4b2d4cd044c8a3956a77f7e3499d0737"),
         modUUID .. "_" .. "ResetButton_" .. setting:GetId() .. "_TOOLTIP")
+
+    -- Override the OnClick handler to update internal values after reset
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
+
+        -- It's a reset button, so we'll soon have default == current
+        -- Let's hook into the event system to update our tracking when the reset completes
+        ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
+            if data.modUUID == modUUID and data.settingId == setting:GetId() then
+                -- Update our internal value tracking
+                self._currentValue = data.value
+
+                -- Update visibility
+                self:UpdateResetButtonVisibility()
+            end
+        end)
     end
     resetButton.SameLine = true
+
+    -- Store the reset button reference
+    self._resetButton = resetButton
+
+    -- Initial visibility will be set by the caller in Create()
 end
 
 function IMGUIWidget:SetupTooltip(widget, setting)
