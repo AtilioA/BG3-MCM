@@ -387,8 +387,8 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
     end
 
     for i, setting in pairs(section:GetSettings()) do
-        self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
-        if i ~= #section:GetSettings() then
+        local renderedSetting = self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
+        if renderedSetting and i ~= #section:GetSettings() then
             sectionContentElement:AddDummy(0, 10)
         end
     end
@@ -402,13 +402,14 @@ end
 ---@return nil
 ---@see InputWidgetFactory
 function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUUID)
-    if setting:GetType() == "keybinding_v2" then return end
+    if setting:GetType() == "keybinding_v2" then return nil end
 
     local settingValue = modSettings[setting:GetId()]
     local createWidget = InputWidgetFactory[setting:GetType()]
     if not createWidget then
         MCMWarn(0, "No widget factory found for setting type '" .. setting:GetType() .. "'. Please contact " ..
             Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+        return nil
     else
         local widgetGroup = modGroup:AddGroup(setting:GetId())
         widgetGroup.IDContext = modUUID .. "_" .. setting:GetId() .. "_Group"
@@ -417,6 +418,8 @@ function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUU
             setting:GetVisibleIf())
         self.mods[modUUID].widgets[setting:GetId()] = widget
     end
+
+    return true
 end
 
 ------------------------------------------------------------
