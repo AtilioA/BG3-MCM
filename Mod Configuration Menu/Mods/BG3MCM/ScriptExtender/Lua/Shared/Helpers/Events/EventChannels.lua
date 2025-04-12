@@ -66,7 +66,6 @@ EventChannels.MCM_KEYBINDINGS_LOADED = "MCM_Keybindings_Loaded"
 --- Fired when an event_button is clicked.
 --- @return string modUUID The UUID of the mod
 --- @return string settingId The ID of the event button setting
---- @return number timestamp The timestamp when the button was clicked
 EventChannels.MCM_EVENT_BUTTON_CLICKED = "MCM_Event_Button_Clicked"
 
 local function RegisterModEvents()

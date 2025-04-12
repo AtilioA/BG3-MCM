@@ -115,6 +115,22 @@ local function setupClientSideMCM(originalModUUID)
         InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
     end
 
+    -- Function to register callbacks for event_button widgets
+    modTable.MCM['SetEventButtonCallback'] = function(settingId, callback, modUUID)
+        if not modUUID then modUUID = originalModUUID end
+
+        -- Use MCMAPI to register the callback
+        local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
+
+        if not success then
+            MCMWarn(0, string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
+        else
+            MCMDebug(1, string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId, modUUID))
+        end
+
+        return success
+    end
+
     modTable.MCM['OpenMCMWindow'] = function()
         IMGUIAPI:OpenMCMWindow(true)
     end

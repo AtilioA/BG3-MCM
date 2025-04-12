@@ -314,6 +314,41 @@ function MCMAPI:LoadAndSendSettings()
     self:LoadConfigs()
 end
 
+--- Registers a callback for an event button
+---@param modUUID string The UUID of the mod
+---@param settingId string The ID of the event button setting
+---@param callback function The callback function to be executed when the event button is clicked
+---@return boolean success Whether the callback was successfully registered
+function MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot register event button callback.")
+        return false
+    end
+
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot register event button callback.")
+        return false
+    end
+
+    if not callback then
+        MCMWarn(0, "callback must be a function. Cannot register event button callback.")
+        return false
+    end
+
+    -- Verify that the mod and setting exist
+    local modSettingsTable = self:GetAllModSettings(modUUID)
+    if not modSettingsTable then
+        MCMWarn(0, "Mod settings table not found for UUID: " .. modUUID)
+        return false
+    end
+
+    -- Register the callback using the InputCallbackManager
+    InputCallbackManager.SetCallback(modUUID, settingId, callback, InputCallbackManager.CallbackTypes.EVENT_BUTTON)
+
+    MCMDebug(1, "Registered event button callback for mod '" .. modUUID .. "', setting '" .. settingId .. "'")
+    return true
+end
+
 -- UNUSED since profile management currently calls shared code
 -- --- Message handler for when the (IMGUI) client requests a new profile to be created
 -- Ext.RegisterNetListener("MCM_Client_Request_Create_Profile", function(_, payload)
