@@ -1,6 +1,7 @@
 RequireFiles("Shared/Helpers/Validators/", {
     "CheckboxValidator",
     "EnumValidator",
+    "EventButtonValidator",
     "FloatValidator",
     "IntValidator",
     "RadioValidator",
@@ -65,6 +66,9 @@ SettingValidators = {
     end,
     ["keybinding_v2"] = function(setting, value)
         return KeybindingV2Validator.Validate(setting, value)
+    end,
+    ["event_button"] = function(setting, value)
+        return EventButtonValidator.Validate(setting, value)
     end,
 }
 

@@ -271,6 +271,10 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                 if not self:ValidateKeybindingV2Setting(setting) then
                     return false
                 end
+            elseif settingType == "event_button" then
+                if not self:ValidateEventButtonSetting(setting) then
+                    return false
+                end
             end
         end
     end
@@ -365,7 +369,59 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     return true
 end
 
+--- Validates settings of type event_button
+---@param setting table The setting to validate
+---@return boolean Whether the setting is valid
+function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    -- Validate Options.Icon if present
+    if setting.Options and setting.Options.Icon ~= nil and type(setting.Options.Icon) ~= "string" then
+        MCMWarn(0,
+            "Options.Icon for event_button setting '" ..
+            setting.Id ..
+            "' must be a string. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate Options.ConfirmDialog if present
+    if setting.Options and setting.Options.ConfirmDialog ~= nil then
+        if type(setting.Options.ConfirmDialog) ~= "table" then
+            MCMWarn(0,
+                "Options.ConfirmDialog for event_button setting '" ..
+                setting.Id ..
+                "' must be a table. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        if setting.Options.ConfirmDialog.Title ~= nil and type(setting.Options.ConfirmDialog.Title) ~= "string" and setting.Options.ConfirmDialog.Title == "" then
+            MCMWarn(0,
+                "Options.ConfirmDialog.Title for event_button setting '" ..
+                setting.Id ..
+                "' must be a non-empty string. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        if setting.Options.ConfirmDialog.Message ~= nil and type(setting.Options.ConfirmDialog.Message) ~= "string" and setting.Options.ConfirmDialog.Message == "" then
+            MCMWarn(0,
+                "Options.ConfirmDialog.Message for event_button setting '" ..
+                setting.Id ..
+                "' must be a non-empty string. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+    end
+
+    return true
+end
+
 function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
+    -- Skip Default validation for event_button type
+    if setting.Type == "event_button" then
+        return true
+    end
+
     if setting.Default == nil then
         MCMWarn(0,
             "Setting '" ..
