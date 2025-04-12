@@ -10,7 +10,7 @@ MessageBoxMode = {
 ---@field Title string The title of the message box
 ---@field Message string The message to display
 ---@field Mode MessageBoxMode The mode of the message box (determines which buttons are shown)
----@field PopupGroup any The IMGUI popup group
+---@field PopupDialog any The IMGUI popup group
 ---@field OkCallback function|nil Callback function for the OK button
 ---@field CancelCallback function|nil Callback function for the Cancel button
 ---@field YesCallback function|nil Callback function for the Yes button
@@ -39,7 +39,7 @@ function MessageBox:Create(title, message, mode, modUUID, contextId)
         ModUUID = modUUID or ModuleUUID,
         ContextId = contextId or "MessageBox_" .. tostring(math.random(1000000)),
     }
-    
+
     setmetatable(instance, { __index = self })
     return instance
 end
@@ -78,36 +78,42 @@ end
 
 ---Shows the message box
 ---@param parentGroup any|nil The parent IMGUI group to attach the popup to
----@return MessageBox
+---@return MessageBox|nil
 function MessageBox:Show(parentGroup)
-    -- If a popup is already shown, destroy it first
-    if self.PopupGroup then
-        xpcall(function()
-            self.PopupGroup:Destroy()
-        end, function(err) end)
-    end
-    
+    -- FIXME: If a popup is already shown, destroy it first (not working)
+    xpcall(function()
+        if self.PopupDialog then
+            self.PopupDialog:Destroy()
+        end
+    end, function(err) end)
+
     -- Create the popup group - either attached to a parent or as a standalone popup
-    local group = parentGroup or Ext.IMGUI.GetRootFrame()
-    self.PopupGroup = group:AddPopup(self.ContextId .. "_Popup")
-    self.PopupGroup.IDContext = self.ModUUID .. "_" .. self.ContextId
-    
+    local group = parentGroup
+    if not group then
+        MCMError(0, "No parent group provided for MessageBox.")
+        return nil
+    end
+
+    self.PopupDialog = group:AddPopup(self.ContextId .. "_Popup")
+    self.PopupDialog:SetSizeConstraints({600,600})
+    self.PopupDialog.IDContext = self.ModUUID .. "_" .. self.ContextId
+
     -- Add title text
-    local titleText = self.PopupGroup:AddText(self.Title)
+    local titleText = self.PopupDialog:AddText(self.Title)
     titleText:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     titleText.TextWrapPos = 0
-    
+
     -- Add separator
-    self.PopupGroup:AddSeparator()
-    self.PopupGroup:AddDummy(0, 5)
-    
+    self.PopupDialog:AddSeparator()
+    self.PopupDialog:AddDummy(0, 5)
+
     -- Add message text
-    local messageText = self.PopupGroup:AddText(self.Message)
+    local messageText = self.PopupDialog:AddText(self.Message)
     messageText:SetColor("Text", Color.NormalizedRGBA(200, 200, 200, 0.9))
     messageText.TextWrapPos = 0
-    
-    self.PopupGroup:AddDummy(0, 10)
-    
+
+    self.PopupDialog:AddDummy(0, 10)
+
     -- Add buttons based on mode
     if self.Mode == MessageBoxMode.Ok then
         self:AddOkButton()
@@ -122,17 +128,17 @@ function MessageBox:Show(parentGroup)
         self:AddNoButton(true)
         self:AddCancelButton(true)
     end
-    
+
     -- Open the popup
-    self.PopupGroup:Open()
-    
+    self.PopupDialog:Open()
+
     return self
 end
 
 ---Adds an OK button to the popup
 ---@return any The button object
 function MessageBox:AddOkButton()
-    local button = self.PopupGroup:AddButton(Ext.Loca.GetTranslatedString("OK") or "OK")
+    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("OK") or "OK")
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_OkButton"
     button.OnClick = function()
         if self.OkCallback then
@@ -147,7 +153,7 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddCancelButton(sameLine)
-    local button = self.PopupGroup:AddButton(Ext.Loca.GetTranslatedString("Cancel") or "Cancel")
+    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("Cancel") or "Cancel")
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_CancelButton"
     if sameLine then
         button.SameLine = true
@@ -164,7 +170,7 @@ end
 ---Adds a Yes button to the popup
 ---@return any The button object
 function MessageBox:AddYesButton()
-    local button = self.PopupGroup:AddButton(Ext.Loca.GetTranslatedString("Yes") or "Yes")
+    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("Yes") or "Yes")
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_YesButton"
     button.OnClick = function()
         if self.YesCallback then
@@ -179,7 +185,7 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddNoButton(sameLine)
-    local button = self.PopupGroup:AddButton(Ext.Loca.GetTranslatedString("No") or "No")
+    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("No") or "No")
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_NoButton"
     if sameLine then
         button.SameLine = true
@@ -195,10 +201,10 @@ end
 
 ---Closes the message box
 function MessageBox:Close()
-    if self.PopupGroup then
+    if self.PopupDialog then
         xpcall(function()
-            self.PopupGroup:Destroy()
-            self.PopupGroup = nil
+            self.PopupDialog:Destroy()
+            self.PopupDialog = nil
         end, function(err) end)
     end
 end
