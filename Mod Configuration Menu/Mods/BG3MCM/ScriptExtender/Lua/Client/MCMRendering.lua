@@ -202,20 +202,12 @@ function MCMRendering:CreateModMenu()
     --     return
     -- end
 
-    self:PrepareMenu()
     self:ConvertModTablesToBlueprints()
     self:CreateProfileManagementHeader()
     self:CreateKeybindingsPage()
     self:CreateMainTable()
 
     MCMClientState.UIReady:OnNext(true)
-end
-
---- Initialize menu settings and destroy welcome text if it exists
----@return nil
-function MCMRendering:PrepareMenu()
-    -- TODO: re-enable this after refactoring client-side code
-    MCM_WINDOW.AlwaysAutoResize = MCMAPI:GetSettingValue("auto_resize_mcm_window", ModuleUUID)
 end
 
 --- Convert the mod configs to use the Blueprint class
