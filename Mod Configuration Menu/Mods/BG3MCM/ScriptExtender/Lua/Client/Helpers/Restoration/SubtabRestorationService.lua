@@ -96,8 +96,9 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     end
 
     -- Use the existing DualPane:OpenModPage method to open the subtab without emitting events to prevent loops
+    -- Also keep the sidebar state unchanged during subtab restoration
     MCMDebug(1, "SubtabRestorationService: Restoring subtab '" .. lastUsedSubtab .. "' for mod: " .. modUUID)
-    DualPane:OpenModPage(lastUsedSubtab, modUUID, false)
+    DualPane:OpenModPage(lastUsedSubtab, modUUID, false, true)
 end
 
 -- Update the last used subtab for a mod page
