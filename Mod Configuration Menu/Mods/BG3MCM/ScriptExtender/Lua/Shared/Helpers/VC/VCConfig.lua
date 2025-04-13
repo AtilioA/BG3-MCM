@@ -99,7 +99,7 @@ function VCConfig:UpdateConfig(existingConfig, defaultConfig)
     if self:AddMissingKeys(existingConfig, defaultConfig) then updated = true end
     if self:UpdateTypesAndValues(existingConfig, defaultConfig) then updated = true end
     if self:RecursiveUpdateForNestedTables(existingConfig, defaultConfig) then updated = true end
-    if self:RemoveDeprecatedKeys(existingConfig, defaultConfig) then updated = true end
+    -- if self:RemoveDeprecatedKeys(existingConfig, defaultConfig) then updated = true end
 
     return updated
 end
@@ -157,7 +157,7 @@ end
 function VCConfig:RemoveDeprecatedKeys(existingConfig, defaultConfig)
     local updated = false
     for key, _ in pairs(existingConfig) do
-        if defaultConfig[key] == nil then
+        if defaultConfig[key] == nil and type(defaultConfig[key]) ~= "table" then
             existingConfig[key] = nil
             updated = true
             VCPrint(0, "Removed deprecated config option: " .. tostring(key) .. " (" .. self.configFilePath .. ")")

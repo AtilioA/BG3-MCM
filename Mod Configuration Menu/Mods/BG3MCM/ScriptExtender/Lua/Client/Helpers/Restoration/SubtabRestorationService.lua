@@ -86,8 +86,8 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
 
     -- Get the last used subtabs from config
     local config = Config:getCfg()
-    local lastUsedModSubTab = config.lastUsedModSubTab or {}
-    local lastUsedSubtab = lastUsedModSubTab[modUUID] or ""
+    local lastUsedModSubTabs = config.lastUsedModSubTabs or {}
+    local lastUsedSubtab = lastUsedModSubTabs[modUUID] or ""
 
     -- Check if we have a stored subtab for this mod
     if lastUsedSubtab == "" then
@@ -114,13 +114,13 @@ function SubtabRestorationService:UpdateLastUsedSubtab(modUUID, subtabName)
         return
     end
 
-    -- Get the config and ensure lastUsedModSubTab exists
+    -- Get the config and ensure lastUsedModSubTabs exists
     local config = Config:getCfg()
-    config.lastUsedModSubTab = config.lastUsedModSubTab or {}
+    config.lastUsedModSubTabs = config.lastUsedModSubTabs or {}
 
     -- Only update if it's a different subtab
-    if config.lastUsedModSubTab[modUUID] ~= subtabName then
-        config.lastUsedModSubTab[modUUID] = subtabName
+    if config.lastUsedModSubTabs[modUUID] ~= subtabName then
+        config.lastUsedModSubTabs[modUUID] = subtabName
 
         -- Also update the last used page
         config.lastUsedPage = modUUID

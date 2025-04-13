@@ -73,7 +73,7 @@ function PageRestorationService:RestoreLastModPage()
 
     -- No action if subtab restoration is enabled; let it handle the restoration
     local restoreLastSubtabEnabled = MCMAPI:GetSettingValue("restore_last_subtab", ModuleUUID)
-    if restoreLastSubtabEnabled == true and config.lastUsedModSubTab and config.lastUsedModSubTab[ModuleUUID] ~= "" then
+    if restoreLastSubtabEnabled == true and config.lastUsedModSubTabs and config.lastUsedModSubTabs[ModuleUUID] ~= "" then
         MCMDebug(1, "PageRestorationService: Subtab restoration enabled in settings")
         return
     end
