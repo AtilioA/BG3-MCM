@@ -129,6 +129,10 @@ function DualPaneController:initLayout()
 end
 
 local function normalizeString(str)
+    if not str or str == "" then
+        return ""
+    end
+
     return string.lower(str:gsub(" ", "_"))
 end
 
@@ -309,7 +313,7 @@ end
 function DualPaneController:SetVisibleFrame(modUUID)
     self.rightPane:SetVisibleGroup(modUUID)
     if not MCMProxy.IsMainMenu() then
-        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = uuid })
+        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = modUUID }, true)
     end
 end
 
