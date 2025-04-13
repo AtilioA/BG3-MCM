@@ -6,7 +6,7 @@
 
 ---@class SubtabRestorationService
 ---@field isInitialized boolean Whether the service has been initialized
----@field manager StateRestorationManager Reference to the state restoration manager
+---@field manager StateRestorationManager|nil Reference to the state restoration manager
 SubtabRestorationService = {
     isInitialized = false,
     manager = nil

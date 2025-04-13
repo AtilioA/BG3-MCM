@@ -123,9 +123,12 @@ local function setupClientSideMCM(originalModUUID)
         local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
 
         if not success then
-            MCMWarn(0, string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
+            MCMWarn(0,
+                string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
         else
-            MCMDebug(1, string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId, modUUID))
+            MCMDebug(1,
+                string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
+                    modUUID))
         end
 
         return success
@@ -139,9 +142,9 @@ local function setupClientSideMCM(originalModUUID)
         IMGUIAPI:CloseMCMWindow(true)
     end
 
-    modTable.MCM['OpenModPage'] = function(tabName, modUUID)
+    modTable.MCM['OpenModPage'] = function(tabName, modUUID, shouldEmitEvent)
         if not modUUID then modUUID = originalModUUID end
-        IMGUIAPI:OpenModPage(tabName, modUUID)
+        IMGUIAPI:OpenModPage(tabName, modUUID, shouldEmitEvent)
     end
 
     modTable.MCM['InsertModMenuTab'] = function(tabName, tabCallback, modUUID)
