@@ -149,7 +149,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW.Visible = shouldOpenOnStart
     MCM_WINDOW.Open = shouldOpenOnStart
 
-    MCM_WINDOW.AlwaysAutoResize = true
+    MCM_WINDOW.AlwaysAutoResize = false
     MCM_WINDOW.Closeable = true
     MCM_WINDOW.NoScrollbar = true
     MCM_WINDOW.NoScrollWithMouse = true
