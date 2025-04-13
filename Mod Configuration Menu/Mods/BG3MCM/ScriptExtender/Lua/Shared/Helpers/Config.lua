@@ -7,7 +7,8 @@ Config = VCConfig:New({
         DEBUG = {
             level = 0,           -- 0 = no debug, 1 = minimal, 2 = verbose debug logs
         },
-        onConfigReloaded = {}
+        onConfigReloaded = {},
+        lastUsedPage = ""
     }
 })
 

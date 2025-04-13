@@ -74,6 +74,17 @@
                             }
                         },
                         {
+                            "Id": "restore_last_page",
+                            "Name": "Restore last used page",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When opening MCM, automatically restore the last used mod page.",
+                            "Handles": {
+                                "NameHandle": "Restore last used page",
+                                "DescriptionHandle": "When opening MCM, automatically restore the last used mod page."
+                            }
+                        },
+                        {
                             "Id": "dynamic_opacity",
                             "Name": "Dynamic opacity",
                             "Type": "checkbox",
