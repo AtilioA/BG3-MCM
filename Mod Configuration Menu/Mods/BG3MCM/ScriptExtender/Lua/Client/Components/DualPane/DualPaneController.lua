@@ -323,15 +323,20 @@ function DualPaneController:SwitchVisibleContent(button, uuid)
     self.leftPane:SetActiveItem(uuid)
 end
 
+function DualPaneController:DoesModPageExist(ID)
+    local modTabBar = self.rightPane:GetModTabBar(ID)
+    return modTabBar ~= nil
+end
+
 -- Open a specific page and optionally a subtab.
 -- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
 ---@param modUUID string The UUID of the mod to open
 ---@param tabName? string The name of the tab to open
+-- FIXME: does not work with hotkeys and other non-mod pages because they are not registered in the right pane correctly
 function DualPaneController:OpenModPage(identifier, modUUID)
     self:SetVisibleFrame(modUUID)
 
-    local modTabBar = self.rightPane:GetModTabBar(modUUID)
-    if not modTabBar then
+    if not self:DoesModPageExist(modUUID) then
         MCMError(0, "No tab bar found for mod " .. modUUID)
         return
     end
@@ -339,6 +344,7 @@ function DualPaneController:OpenModPage(identifier, modUUID)
     local targetTab = nil
 
     for _, tab in ipairs(modTabBar.Children) do
+        _DS(tab.UserData)
         if isMatchingTab(modUUID, identifier, tab) then
             targetTab = tab
             break

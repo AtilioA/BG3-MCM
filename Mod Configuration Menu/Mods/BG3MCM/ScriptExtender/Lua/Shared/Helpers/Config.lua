@@ -8,7 +8,8 @@ Config = VCConfig:New({
             level = 0,           -- 0 = no debug, 1 = minimal, 2 = verbose debug logs
         },
         onConfigReloaded = {},
-        lastUsedPage = ""
+        lastUsedPage = "",
+        lastUsedSubtab = ""
     }
 })
 

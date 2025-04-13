@@ -4,5 +4,5 @@ RequireFiles("Client/Helpers/", {
     "ClientGlobals",
     "UIStyle",
     "Noesis",
-    "PageRestorationService",
+    "Restoration/_Init",
 })

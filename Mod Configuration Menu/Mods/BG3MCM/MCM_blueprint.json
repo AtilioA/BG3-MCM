@@ -85,6 +85,26 @@
                             }
                         },
                         {
+                            "Id": "restore_last_subtab",
+                            "Name": "Restore last used subtab",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When a mod page is opened, automatically restore the last used subtab for that mod.",
+                            "Handles": {
+                                "NameHandle": "Restore last used subtab",
+                                "DescriptionHandle": "When a mod page is opened, automatically restore the last used subtab for that mod."
+                            },
+                            "VisibleIf": {
+                                "Conditions": [
+                                    {
+                                        "SettingId": "restore_last_page",
+                                        "ExpectedValue": true,
+                                        "Operator": "=="
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "Id": "dynamic_opacity",
                             "Name": "Dynamic opacity",
                             "Type": "checkbox",
