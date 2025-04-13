@@ -310,9 +310,16 @@ function DualPaneController:InsertModTab(modUUID, tabName, callback)
     return self.rightPane:InsertTab(modUUID, tabName, callback)
 end
 
-function DualPaneController:SetVisibleFrame(modUUID)
+-- Sets the visible frame for a mod UUID
+---@param modUUID string The UUID of the mod to show
+---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
+function DualPaneController:SetVisibleFrame(modUUID, shouldEmitEvent)
     self.rightPane:SetVisibleGroup(modUUID)
-    if not MCMProxy.IsMainMenu() then
+    
+    -- Default to true if not specified
+    if shouldEmitEvent == nil then shouldEmitEvent = true end
+    
+    if shouldEmitEvent and not MCMProxy.IsMainMenu() then
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = modUUID }, true)
     end
 end
@@ -330,11 +337,12 @@ end
 
 -- Open a specific page and optionally a subtab.
 -- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
+---@param identifier string|nil The name of the tab to open
 ---@param modUUID string The UUID of the mod to open
----@param tabName? string The name of the tab to open
+---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
 -- FIXME: does not work with hotkeys and other non-mod pages because they are not registered in the right pane correctly
-function DualPaneController:OpenModPage(identifier, modUUID)
-    self:SetVisibleFrame(modUUID)
+function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent)
+    self:SetVisibleFrame(modUUID, shouldEmitEvent)
 
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then

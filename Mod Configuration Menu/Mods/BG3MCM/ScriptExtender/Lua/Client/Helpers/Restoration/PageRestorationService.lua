@@ -78,10 +78,10 @@ function PageRestorationService:RestoreLastModPage()
         return
     end
 
-    -- Restore the mod page using DualPaneController
+    -- Restore the mod page using DualPaneController without emitting events to prevent loops
     MCMDebug(1, "PageRestorationService: Restoring last used mod page: " .. lastModUUID)
 
-    DualPane:OpenModPage(nil, lastModUUID)
+    DualPane:OpenModPage(nil, lastModUUID, false)
 end
 
 -- Update the last used mod page in the config
