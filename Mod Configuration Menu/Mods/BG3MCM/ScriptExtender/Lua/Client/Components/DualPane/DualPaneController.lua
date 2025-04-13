@@ -336,7 +336,8 @@ end
 function DualPaneController:OpenModPage(identifier, modUUID)
     self:SetVisibleFrame(modUUID)
 
-    if not self:DoesModPageExist(modUUID) then
+    local modTabBar = self.rightPane:GetModTabBar(modUUID)
+    if not modTabBar then
         MCMError(0, "No tab bar found for mod " .. modUUID)
         return
     end
@@ -344,7 +345,6 @@ function DualPaneController:OpenModPage(identifier, modUUID)
     local targetTab = nil
 
     for _, tab in ipairs(modTabBar.Children) do
-        _DS(tab.UserData)
         if isMatchingTab(modUUID, identifier, tab) then
             targetTab = tab
             break

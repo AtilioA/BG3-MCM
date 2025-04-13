@@ -19,8 +19,12 @@ function StateRestorationManager:CheckModExists(modUUID)
         return false
     end
 
-    if not DualPane:DoesModPageExist(modUUID) then
-        return false
+    -- if not DualPane:DoesModPageExist(modUUID) then
+    --     return false
+    -- end
+
+    if MCMClientState and MCMClientState.mods and MCMClientState.mods[modUUID] then
+        return true
     end
 
     return false
