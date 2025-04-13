@@ -314,11 +314,12 @@ end
 ---@param modUUID string The UUID of the mod to show
 ---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
 function DualPaneController:SetVisibleFrame(modUUID, shouldEmitEvent)
+    -- Set the visible group in the right pane
     self.rightPane:SetVisibleGroup(modUUID)
-    
+
     -- Default to true if not specified
     if shouldEmitEvent == nil then shouldEmitEvent = true end
-    
+
     if shouldEmitEvent and not MCMProxy.IsMainMenu() then
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = modUUID }, true)
     end
