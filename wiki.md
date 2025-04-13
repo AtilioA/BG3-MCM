@@ -295,20 +295,13 @@ MCM also provides additional options to control how a keybinding behaves. These 
 
 Available `Options`:
 
-- `ShouldTriggerOnKeyDown` (default: `true`)
-  - Triggers the keybinding callback when the key is pressed down. This is the default behavior.
-
-- `ShouldTriggerOnKeyUp` (default: `false`)
-  - Triggers the callback when the key is released.
-
-- `ShouldTriggerOnRepeat` (default: `false`)
-  - Continuously triggers the callback while the key is held down.
-
-- `IsDeveloperOnly` (default: `false`)
- 	- Whether to hide this keybinding if developer mode is disabled.
-
-- `BlockIfLevelNotStarted` (default: `false`)
-  - Prevents the keybinding from triggering when the game level has not started yet. This is useful for actions that should only be available in-game, not in the main menu.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `ShouldTriggerOnKeyDown` | `true` | Triggers the keybinding callback when the key is pressed down. This is the default behavior. |
+| `ShouldTriggerOnKeyUp` | `false` | Triggers the callback when the key is released. |
+| `ShouldTriggerOnRepeat` | `false` | Continuously triggers the callback while the key is held down. |
+| `IsDeveloperOnly` | `false` | Whether to hide this keybinding if developer mode is disabled. |
+| `BlockIfLevelNotStarted` | `false` | Prevents the keybinding from triggering when the game level has not started yet. This is useful for actions that should only be available in-game, not in the main menu. |
 
 These options are not mutually exclusive, meaning authors can use any combination of them. For example, setting `ShouldTriggerOnRepeat` to `true` allows an action to repeat continuously while the key is held, which may be useful for certain keybindings. Note that the `Options` object is entirely optional and may be omitted if the default behavior is sufficient for the keybinding's needs.
 
