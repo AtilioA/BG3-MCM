@@ -170,81 +170,8 @@
             "required": [
                 "Id",
                 "Name",
-                "Type"
-            ],
-            "allOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "Type": {
-                                "const": "event_button"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "Default": {
-                                "anyOf": [
-                                    {
-                                        "type": "null"
-                                    },
-                                    {
-                                        "type": "integer"
-                                    },
-                                    {
-                                        "type": "number"
-                                    },
-                                    {
-                                        "type": "boolean"
-                                    },
-                                    {
-                                        "type": "string"
-                                    },
-                                    {
-                                        "type": "object"
-                                    },
-                                    {
-                                        "type": "array"
-                                    }
-                                ],
-                                "description": "The default value is optional for event_button. It will not be required when the setting is an event_button."
-                            }
-                        }
-                    },
-                    "else": {
-                        "required": [
-                            "Default"
-                        ],
-                        "properties": {
-                            "Default": {
-                                "anyOf": [
-                                    {
-                                        "type": "integer"
-                                    },
-                                    {
-                                        "type": "number"
-                                    },
-                                    {
-                                        "type": "boolean"
-                                    },
-                                    {
-                                        "type": "string"
-                                    },
-                                    {
-                                        "type": "object"
-                                    },
-                                    {
-                                        "type": "null"
-                                    },
-                                    {
-                                        "type": "array"
-                                    }
-                                ],
-                                "description": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid."
-                            }
-                        }
-                    }
-                }
+                "Type",
+                "Default"
             ],
             "anyOf": [
                 {
@@ -334,10 +261,6 @@
                         {
                             "const": "keybinding_v2",
                             "description": "A keybinding/hotkey input, consisting of optional modifiers and a key, and listed in the 'Hotkeys' section of MCM. Replaces the deprecated 'keybinding' type. Remember to inject the hotkey functionality in your mod via the MCM API, otherwise the hotkeys will not do anything."
-                        },
-                        {
-                            "const": "event_button",
-                            "description": "A button that executes a Lua function when clicked. The callback must be defined in the mod's code during runtime."
                         }
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
@@ -894,516 +817,464 @@
                                     }
                                 }
                             },
-                            "else": {
-                                "if": {
-                                    "properties": {
-                                        "Type": {
-                                            "const": "event_button"
-                                        }
-                                    }
-                                },
-                                "then": {
-                                    "properties": {
-                                        "Options": {
-                                            "type": "object",
-                                            "properties": {
-                                                "ConfirmDialog": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "Title": {
-                                                            "type": "string",
-                                                            "description": "The title of the confirmation dialog."
-                                                        },
-                                                        "Message": {
-                                                            "type": "string",
-                                                            "description": "The message to display in the confirmation dialog."
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "Title",
-                                                        "Message"
-                                                    ],
-                                                    "additionalProperties": false
-                                                },
-                                                "Icon": {
-                                                    "$ref": "#/definitions/Icon",
-                                                    "description": "Atlas icon to be displayed as the button (as an ImageButton). If not provided, no icon will be displayed."
-                                                }
-                                            },
-                                            "additionalProperties": false,
-                                            "description": "Optional: Options for the event button."
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "A single setting in the MCM menu, which can be of various types for different input methods.",
-                        "examples": [
-                            {
-                                "Id": "IntSetting",
-                                "Name": "Integer Setting",
-                                "Type": "int",
-                                "Default": 10,
-                                "Tooltip": "This is an integer setting.",
-                                "Description": "This setting accepts integer values."
-                            },
-                            {
-                                "Id": "FloatSetting",
-                                "Name": "Float Setting",
-                                "Type": "float",
-                                "Default": 0.5,
-                                "Tooltip": "This is a float setting.",
-                                "Description": "This setting accepts floating-point values."
-                            },
-                            {
-                                "Id": "CheckboxSetting",
-                                "Name": "Checkbox Setting",
-                                "Type": "checkbox",
-                                "Default": true,
-                                "Tooltip": "This is a checkbox setting.",
-                                "Description": "This setting can be toggled on or off."
-                            },
-                            {
-                                "Id": "TextSetting",
-                                "Name": "Text Setting",
-                                "Type": "text",
-                                "Default": "default text",
-                                "Tooltip": "This is a text setting.",
-                                "Description": "This setting accepts string values."
-                            },
-                            {
-                                "Id": "ListV2Setting",
-                                "Name": "List V2 Setting",
-                                "Type": "list_v2",
-                                "Description": "This is a list v2 setting",
-                                "Default": {
-                                    "Enabled": true,
-                                    "Elements": [
-                                        {
-                                            "name": "a",
-                                            "enabled": true
-                                        },
-                                        {
-                                            "name": "b",
-                                            "enabled": true
-                                        },
-                                        {
-                                            "name": "c",
-                                            "enabled": true
-                                        },
-                                        {
-                                            "name": "d",
-                                            "enabled": false
-                                        },
-                                        {
-                                            "name": "e",
-                                            "enabled": false
-                                        },
-                                        {
-                                            "name": "f",
-                                            "enabled": false
-                                        }
-                                    ]
-                                },
-                                "Options": {
-                                    "PageSize": 5,
-                                    "ShowSearchBar": true,
-                                    "Suggestions": [
-                                        "element 1",
-                                        "element 2"
-                                    ]
-                                }
-                            },
-                            {
-                                "Id": "EnumSetting",
-                                "Name": "Enum Setting",
-                                "Type": "enum",
-                                "Default": "Option1",
-                                "Options": {
-                                    "Choices": [
-                                        "Option1",
-                                        "Option2",
-                                        "Option3"
-                                    ]
-                                },
-                                "Tooltip": "This is an enum setting.",
-                                "Description": "This setting allows selecting one option from a predefined list."
-                            },
-                            {
-                                "Id": "SliderIntSetting",
-                                "Name": "Slider Int Setting",
-                                "Type": "slider_int",
-                                "Default": 5,
-                                "Options": {
-                                    "Min": 0,
-                                    "Max": 10
-                                },
-                                "Tooltip": "This is an integer slider setting.",
-                                "Description": "This setting allows selecting an integer value within a range."
-                            },
-                            {
-                                "Id": "SliderFloatSetting",
-                                "Name": "Slider Float Setting",
-                                "Type": "slider_float",
-                                "Default": 0.75,
-                                "Options": {
-                                    "Min": 0.0,
-                                    "Max": 1.0
-                                },
-                                "Tooltip": "This is a float slider setting.",
-                                "Description": "This setting allows selecting a floating-point value within a range."
-                            },
-                            {
-                                "Id": "DragIntSetting",
-                                "Name": "Drag Int Setting",
-                                "Type": "drag_int",
-                                "Default": 3,
-                                "Options": {
-                                    "Min": 0,
-                                    "Max": 3
-                                },
-                                "Tooltip": "This is an integer drag setting.",
-                                "Description": "This setting allows dragging to select an integer value."
-                            },
-                            {
-                                "Id": "DragFloatSetting",
-                                "Name": "Drag Float Setting",
-                                "Type": "drag_float",
-                                "Default": 0.25,
-                                "Options": {
-                                    "Min": 0.0,
-                                    "Max": 1.0
-                                },
-                                "Tooltip": "This is a float drag setting.",
-                                "Description": "This setting allows dragging to select a floating-point value."
-                            },
-                            {
-                                "Id": "RadioSetting",
-                                "Name": "Radio Setting",
-                                "Type": "radio",
-                                "Default": "Choice1",
-                                "Options": {
-                                    "Choices": [
-                                        "Choice1",
-                                        "Choice2",
-                                        "Choice3"
-                                    ]
-                                },
-                                "Tooltip": "This is a radio setting.",
-                                "Description": "This setting allows selecting one option from a set of radio buttons."
-                            },
-                            {
-                                "Id": "ColorPickerSetting",
-                                "Name": "Color Picker Setting",
-                                "Type": "color_picker",
-                                "Default": [
-                                    0.0,
-                                    1.0,
-                                    0.5,
-                                    1.0
-                                ],
-                                "Tooltip": "This is a color picker setting.",
-                                "Description": "This setting allows selecting a color using a color picker."
-                            },
-                            {
-                                "Id": "ColorEditSetting",
-                                "Name": "Color Edit Setting",
-                                "Type": "color_edit",
-                                "Default": [
-                                    0.0,
-                                    1.0,
-                                    0.5,
-                                    1.0
-                                ],
-                                "Tooltip": "This is a color edit setting.",
-                                "Description": "This setting allows editing a color value directly."
-                            },
-                            {
-                                "Id": "KeybindingV2Setting",
-                                "Name": "Keybinding Setting",
-                                "Type": "keybinding_v2",
-                                "Default": {
-                                    "Keyboard": {
-                                        "ModifierKeys": [
-                                            "LCtrl",
-                                            "LShift"
-                                        ],
-                                        "Key": "K"
-                                    }
-                                },
-                                "Tooltip": "This is a keybinding setting.",
-                                "Description": "This setting allows setting a keybinding with an optional modifier.",
-                                "Options": {
-                                    "ShouldTriggerOnKeyDown": true,
-                                    "ShouldTriggerOnKeyUp": false,
-                                    "ShouldTriggerOnRepeat": false
-                                }
-                            },
-                            {
-                                "Id": "EventButton",
-                                "Name": "Event Button",
-                                "Type": "event_button",
-                                "Tooltip": "This is an event button input type.",
-                                "Description": "This button allows a callback function to be executed when the button is clicked.",
-                                "Options": {
-                                    "ConfirmDialog": {
-                                        "Title": "Confirm",
-                                        "Message": "Are you sure you want to do this?"
-                                    },
-                                    "Icon": null
-                                }
-                            }
-                        ]
-                    },
-                    "Section": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "SectionId": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The unique identifier for the section. This value should be unique across all sections in the blueprint."
-                            },
-                            "SectionName": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
-                            },
-                            "SectionDescription": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The description of the section that will be displayed as a description in the MCM menu. Will be localized if a handle is provided."
-                            },
-                            "Tabs": {
-                                "type": "array",
-                                "minItems": 1,
-                                "items": {
-                                    "$ref": "#/definitions/Tab"
-                                },
-                                "description": "The tabs that will be displayed within the section. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
-                            },
-                            "Settings": {
-                                "type": "array",
-                                "minItems": 1,
-                                "uniqueItems": true,
-                                "items": {
-                                    "$ref": "#/definitions/Setting"
-                                },
-                                "description": "The settings that will be displayed within the section."
-                            },
-                            "Handles": {
-                                "$ref": "#/definitions/SectionHandles",
-                                "description": "Handles to localize the section's strings."
-                            },
-                            "VisibleIf": {
-                                "$ref": "#/definitions/VisibilityCondition",
-                                "description": "Array of Conditions that determine the visibility of this section. Condition is an object with SettingId, Operator, and ExpectedValue."
-                            },
-                            "Options": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "properties": {
-                                    "IsCollapsible": {
-                                        "type": "boolean",
-                                        "description": "Whether the section is collapsible or not.",
-                                        "default": true
-                                    }
-                                }
-                            }
-                        },
-                        "required": [
-                            "SectionName",
-                            "SectionId"
-                        ],
-                        "anyOf": [
-                            {
-                                "required": [
-                                    "Settings"
-                                ]
-                            },
-                            {
-                                "required": [
-                                    "Tabs"
-                                ]
-                            }
-                        ],
-                        "description": "A section within a tab in the MCM menu."
-                    },
-                    "TabHandles": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "NameHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the name of the tab."
-                            },
-                            "DescriptionHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the description of the tab."
-                            }
-                        },
-                        "required": [
-                            "NameHandle"
-                        ],
-                        "description": "Handles that can be used to localize tab strings."
-                    },
-                    "TopLevelHandles": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "NameHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the name of the mod."
-                            },
-                            "DescriptionHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the description of the mod."
-                            }
-                        },
-                        "required": [
-                            "NameHandle"
-                        ],
-                        "description": "Handles that can be used to localize the top-level mod strings."
-                    },
-                    "SectionHandles": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "NameHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the name of the section."
-                            },
-                            "DescriptionHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the description of the section."
-                            }
-                        },
-                        "required": [
-                            "NameHandle"
-                        ],
-                        "description": "A list of handles that can be used to localize a section."
-                    },
-                    "SettingHandles": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "NameHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the name of the setting."
-                            },
-                            "DescriptionHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the description of the setting."
-                            },
-                            "TooltipHandle": {
-                                "type": "string",
-                                "minLength": 1,
-                                "description": "The handle to be used to localize the tooltip of the setting."
-                            },
-                            "ChoicesHandles": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "minLength": 1
-                                },
-                                "description": "Handles to be used to localize choices for enums/radios."
-                            }
-                        },
-                        "required": [
-                            "NameHandle"
-                        ],
-                        "description": "Handles that can be used to localize a setting."
-                    },
-                    "VisibilityCondition": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "minItems": 1,
-                        "uniqueItems": true,
-                        "properties": {
-                            "LogicalOperator": {
-                                "type": "string",
-                                "enum": [
-                                    "and",
-                                    "or"
-                                ],
-                                "description": "The logical operator to use between the conditions. Defaults to 'and'."
-                            },
-                            "Conditions": {
-                                "type": "array",
-                                "minItems": 1,
-                                "items": {
-                                    "$ref": "#/definitions/Condition"
-                                }
-                            }
-                        },
-                        "required": [
-                            "Conditions"
-                        ],
-                        "description": "A boolean expression that determines the visibility of this element."
-                    },
-                    "Condition": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "SettingId": {
-                                "type": "string",
-                                "description": "The ID of the setting used for the comparison."
-                            },
-                            "Operator": {
-                                "type": "string",
-                                "oneOf": [
-                                    {
-                                        "const": "==",
-                                        "description": "Check if value of SettingId is equal to ExpectedValue"
-                                    },
-                                    {
-                                        "const": "!=",
-                                        "description": "Check if value of SettingId is not equal to ExpectedValue"
-                                    },
-                                    {
-                                        "const": ">",
-                                        "description": "Check if value of SettingId is greater than ExpectedValue"
-                                    },
-                                    {
-                                        "const": "<",
-                                        "description": "Check if value of SettingId is less than ExpectedValue"
-                                    },
-                                    {
-                                        "const": ">=",
-                                        "description": "Check if value of SettingId is greater than or equal to ExpectedValue"
-                                    },
-                                    {
-                                        "const": "<=",
-                                        "description": "Check if value of SettingId is less than or equal to ExpectedValue"
-                                    }
-                                ],
-                                "description": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
-                            },
-                            "ExpectedValue": {
-                                "anyOf": [
-                                    {
-                                        "type": "string"
-                                    },
-                                    {
-                                        "type": "boolean"
-                                    }
-                                ],
-                                "description": "The expected value of the setting specified by SettingId for this element to be visible."
-                            }
-                        },
-                        "required": [
-                            "SettingId",
-                            "Operator",
-                            "ExpectedValue"
-                        ]
+                            "else": {}
+                        }
                     }
                 }
-            }
+            },
+            "description": "A single setting in the MCM menu, which can be of various types for different input methods.",
+            "examples": [
+                {
+                    "Id": "IntSetting",
+                    "Name": "Integer Setting",
+                    "Type": "int",
+                    "Default": 10,
+                    "Tooltip": "This is an integer setting.",
+                    "Description": "This setting accepts integer values."
+                },
+                {
+                    "Id": "FloatSetting",
+                    "Name": "Float Setting",
+                    "Type": "float",
+                    "Default": 0.5,
+                    "Tooltip": "This is a float setting.",
+                    "Description": "This setting accepts floating-point values."
+                },
+                {
+                    "Id": "CheckboxSetting",
+                    "Name": "Checkbox Setting",
+                    "Type": "checkbox",
+                    "Default": true,
+                    "Tooltip": "This is a checkbox setting.",
+                    "Description": "This setting can be toggled on or off."
+                },
+                {
+                    "Id": "TextSetting",
+                    "Name": "Text Setting",
+                    "Type": "text",
+                    "Default": "default text",
+                    "Tooltip": "This is a text setting.",
+                    "Description": "This setting accepts string values."
+                },
+                {
+                    "Id": "ListV2Setting",
+                    "Name": "List V2 Setting",
+                    "Type": "list_v2",
+                    "Description": "This is a list v2 setting",
+                    "Default": {
+                        "Enabled": true,
+                        "Elements": [
+                            {
+                                "name": "a",
+                                "enabled": true
+                            },
+                            {
+                                "name": "b",
+                                "enabled": true
+                            },
+                            {
+                                "name": "c",
+                                "enabled": true
+                            },
+                            {
+                                "name": "d",
+                                "enabled": false
+                            },
+                            {
+                                "name": "e",
+                                "enabled": false
+                            },
+                            {
+                                "name": "f",
+                                "enabled": false
+                            }
+                        ]
+                    },
+                    "Options": {
+                        "PageSize": 5,
+                        "ShowSearchBar": true,
+                        "Suggestions": [
+                            "element 1",
+                            "element 2"
+                        ]
+                    }
+                },
+                {
+                    "Id": "EnumSetting",
+                    "Name": "Enum Setting",
+                    "Type": "enum",
+                    "Default": "Option1",
+                    "Options": {
+                        "Choices": [
+                            "Option1",
+                            "Option2",
+                            "Option3"
+                        ]
+                    },
+                    "Tooltip": "This is an enum setting.",
+                    "Description": "This setting allows selecting one option from a predefined list."
+                },
+                {
+                    "Id": "SliderIntSetting",
+                    "Name": "Slider Int Setting",
+                    "Type": "slider_int",
+                    "Default": 5,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 10
+                    },
+                    "Tooltip": "This is an integer slider setting.",
+                    "Description": "This setting allows selecting an integer value within a range."
+                },
+                {
+                    "Id": "SliderFloatSetting",
+                    "Name": "Slider Float Setting",
+                    "Type": "slider_float",
+                    "Default": 0.75,
+                    "Options": {
+                        "Min": 0.0,
+                        "Max": 1.0
+                    },
+                    "Tooltip": "This is a float slider setting.",
+                    "Description": "This setting allows selecting a floating-point value within a range."
+                },
+                {
+                    "Id": "DragIntSetting",
+                    "Name": "Drag Int Setting",
+                    "Type": "drag_int",
+                    "Default": 3,
+                    "Options": {
+                        "Min": 0,
+                        "Max": 3
+                    },
+                    "Tooltip": "This is an integer drag setting.",
+                    "Description": "This setting allows dragging to select an integer value."
+                },
+                {
+                    "Id": "DragFloatSetting",
+                    "Name": "Drag Float Setting",
+                    "Type": "drag_float",
+                    "Default": 0.25,
+                    "Options": {
+                        "Min": 0.0,
+                        "Max": 1.0
+                    },
+                    "Tooltip": "This is a float drag setting.",
+                    "Description": "This setting allows dragging to select a floating-point value."
+                },
+                {
+                    "Id": "RadioSetting",
+                    "Name": "Radio Setting",
+                    "Type": "radio",
+                    "Default": "Choice1",
+                    "Options": {
+                        "Choices": [
+                            "Choice1",
+                            "Choice2",
+                            "Choice3"
+                        ]
+                    },
+                    "Tooltip": "This is a radio setting.",
+                    "Description": "This setting allows selecting one option from a set of radio buttons."
+                },
+                {
+                    "Id": "ColorPickerSetting",
+                    "Name": "Color Picker Setting",
+                    "Type": "color_picker",
+                    "Default": [
+                        0.0,
+                        1.0,
+                        0.5,
+                        1.0
+                    ],
+                    "Tooltip": "This is a color picker setting.",
+                    "Description": "This setting allows selecting a color using a color picker."
+                },
+                {
+                    "Id": "ColorEditSetting",
+                    "Name": "Color Edit Setting",
+                    "Type": "color_edit",
+                    "Default": [
+                        0.0,
+                        1.0,
+                        0.5,
+                        1.0
+                    ],
+                    "Tooltip": "This is a color edit setting.",
+                    "Description": "This setting allows editing a color value directly."
+                },
+                {
+                    "Id": "KeybindingV2Setting",
+                    "Name": "Keybinding Setting",
+                    "Type": "keybinding_v2",
+                    "Default": {
+                        "Keyboard": {
+                            "ModifierKeys": [
+                                "LCtrl",
+                                "LShift"
+                            ],
+                            "Key": "K"
+                        }
+                    },
+                    "Tooltip": "This is a keybinding setting.",
+                    "Description": "This setting allows setting a keybinding with an optional modifier.",
+                    "Options": {
+                        "ShouldTriggerOnKeyDown": true,
+                        "ShouldTriggerOnKeyUp": false,
+                        "ShouldTriggerOnRepeat": false
+                    }
+                }
+            ]
+        },
+        "Section": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SectionId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The unique identifier for the section. This value should be unique across all sections in the blueprint."
+                },
+                "SectionName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
+                },
+                "SectionDescription": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The description of the section that will be displayed as a description in the MCM menu. Will be localized if a handle is provided."
+                },
+                "Tabs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/Tab"
+                    },
+                    "description": "The tabs that will be displayed within the section. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
+                },
+                "Settings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/definitions/Setting"
+                    },
+                    "description": "The settings that will be displayed within the section."
+                },
+                "Handles": {
+                    "$ref": "#/definitions/SectionHandles",
+                    "description": "Handles to localize the section's strings."
+                },
+                "VisibleIf": {
+                    "$ref": "#/definitions/VisibilityCondition",
+                    "description": "Array of Conditions that determine the visibility of this section. Condition is an object with SettingId, Operator, and ExpectedValue."
+                },
+                "Options": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "IsCollapsible": {
+                            "type": "boolean",
+                            "description": "Whether the section is collapsible or not.",
+                            "default": true
+                        }
+                    }
+                }
+            },
+            "required": [
+                "SectionName",
+                "SectionId"
+            ],
+            "anyOf": [
+                {
+                    "required": [
+                        "Settings"
+                    ]
+                },
+                {
+                    "required": [
+                        "Tabs"
+                    ]
+                }
+            ],
+            "description": "A section within a tab in the MCM menu."
+        },
+        "TabHandles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the tab."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the tab."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "Handles that can be used to localize tab strings."
+        },
+        "TopLevelHandles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the mod."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the mod."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "Handles that can be used to localize the top-level mod strings."
+        },
+        "SectionHandles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the section."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the section."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "A list of handles that can be used to localize a section."
+        },
+        "SettingHandles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "NameHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the name of the setting."
+                },
+                "DescriptionHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the description of the setting."
+                },
+                "TooltipHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The handle to be used to localize the tooltip of the setting."
+                },
+                "ChoicesHandles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "description": "Handles to be used to localize choices for enums/radios."
+                }
+            },
+            "required": [
+                "NameHandle"
+            ],
+            "description": "Handles that can be used to localize a setting."
+        },
+        "VisibilityCondition": {
+            "type": "object",
+            "additionalProperties": false,
+            "minItems": 1,
+            "uniqueItems": true,
+            "properties": {
+                "LogicalOperator": {
+                    "type": "string",
+                    "enum": [
+                        "and",
+                        "or"
+                    ],
+                    "description": "The logical operator to use between the conditions. Defaults to 'and'."
+                },
+                "Conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/Condition"
+                    }
+                }
+            },
+            "required": [
+                "Conditions"
+            ],
+            "description": "A boolean expression that determines the visibility of this element."
+        },
+        "Condition": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SettingId": {
+                    "type": "string",
+                    "description": "The ID of the setting used for the comparison."
+                },
+                "Operator": {
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "const": "==",
+                            "description": "Check if value of SettingId is equal to ExpectedValue"
+                        },
+                        {
+                            "const": "!=",
+                            "description": "Check if value of SettingId is not equal to ExpectedValue"
+                        },
+                        {
+                            "const": ">",
+                            "description": "Check if value of SettingId is greater than ExpectedValue"
+                        },
+                        {
+                            "const": "<",
+                            "description": "Check if value of SettingId is less than ExpectedValue"
+                        },
+                        {
+                            "const": ">=",
+                            "description": "Check if value of SettingId is greater than or equal to ExpectedValue"
+                        },
+                        {
+                            "const": "<=",
+                            "description": "Check if value of SettingId is less than or equal to ExpectedValue"
+                        }
+                    ],
+                    "description": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
+                },
+                "ExpectedValue": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "boolean"
+                        }
+                    ],
+                    "description": "The expected value of the setting specified by SettingId for this element to be visible."
+                }
+            },
+            "required": [
+                "SettingId",
+                "Operator",
+                "ExpectedValue"
+            ]
+        }
+    }
+}
