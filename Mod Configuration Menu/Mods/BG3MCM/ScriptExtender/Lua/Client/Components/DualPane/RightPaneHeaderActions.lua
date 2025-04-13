@@ -38,7 +38,9 @@ function HeaderActions:New(parent)
     self.detachBtn.OnClick = function()
         if DualPane.rightPane and DualPane.rightPane.currentMod and
             DualPane.rightPane.currentMod.group and DualPane.rightPane.currentMod.modUUID then
-            DualPane.rightPane:DetachModGroup(DualPane.rightPane.currentMod.modUUID)
+            local modUUID = DualPane.rightPane.currentMod.modUUID
+            DualPane.rightPane:DetachModGroup(modUUID)
+            self:UpdateDetachButtons(modUUID)
         end
     end
 
@@ -49,7 +51,9 @@ function HeaderActions:New(parent)
     self.reattachBtn.OnClick = function()
         if DualPane.rightPane and DualPane.rightPane.currentMod and
             DualPane.rightPane.currentMod.group and DualPane.rightPane.currentMod.modUUID then
-            DualPane.rightPane:ReattachModGroup(DualPane.rightPane.currentMod.modUUID)
+            local modUUID = DualPane.rightPane.currentMod.modUUID
+            DualPane.rightPane:ReattachModGroup(modUUID)
+            self:UpdateDetachButtons(modUUID)
         end
     end
 
@@ -73,4 +77,26 @@ function HeaderActions:UpdateToggleButtons(isCollapsed)
         self.expandBtn.Visible = false
         self.collapseBtn.Visible = true
     end
+end
+
+-- Update the detach/reattach buttons based on the current mod's detachment state
+-- This function should be called whenever switching mods or changing detachment state
+function HeaderActions:UpdateDetachButtons(modUUID)
+    if not DualPane or not DualPane.rightPane then return end
+
+    -- If no modUUID is provided, use the current mod
+    if not modUUID and DualPane.rightPane.currentMod then
+        modUUID = DualPane.rightPane.currentMod.modUUID
+    end
+
+    if not modUUID then return end
+
+    -- Check if the mod is detached
+    local isDetached = DualPane.rightPane.detachedWindows and DualPane.rightPane.detachedWindows[modUUID] ~= nil
+
+    -- Update button visibility
+    self.detachBtn.Visible = not isDetached
+    self.reattachBtn.Visible = isDetached
+
+    MCMDebug(2, "Updated detach buttons for mod " .. modUUID .. ", isDetached: " .. tostring(isDetached))
 end

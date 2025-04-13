@@ -130,20 +130,16 @@ function RightPane:SetVisibleGroup(modUUID)
         end
     end
 
-    -- Update current mod reference and header buttons
+    -- Update current mod reference
     if self.contentGroups[modUUID] then
         self.currentMod = {
             group = self.contentGroups[modUUID],
             modUUID = modUUID
         }
-
-        -- Update detach/reattach buttons based on whether the current mod is detached
-        if self.detachedWindows[modUUID] then
-            HeaderActionsInstance.detachBtn.Visible = false
-            HeaderActionsInstance.reattachBtn.Visible = true
-        else
-            HeaderActionsInstance.detachBtn.Visible = true
-            HeaderActionsInstance.reattachBtn.Visible = false
+        
+        -- Use HeaderActions to update detach/reattach buttons based on current mod
+        if HeaderActionsInstance then
+            HeaderActionsInstance:UpdateDetachButtons(modUUID)
         end
     end
 end
@@ -185,7 +181,11 @@ function RightPane:DetachModGroup(modUUID)
     newWindow.Closeable = true
     newWindow.OnClose = function() self:ReattachModGroup(modUUID) end
 
-    self:UpdateDetachButtons()
+    -- Update button visibility through HeaderActions
+    if HeaderActionsInstance then
+        HeaderActionsInstance:UpdateDetachButtons(modUUID)
+    end
+    
     DualPane:Expand()
 end
 
@@ -239,12 +239,18 @@ function RightPane:ReattachModGroup(modUUID)
     detachedWin:Destroy()
     self.detachedWindows[modUUID] = nil
 
-    -- Update the buttons
-    self:UpdateDetachButtons()
+    -- Update button visibility through HeaderActions
+    if HeaderActionsInstance then
+        HeaderActionsInstance:UpdateDetachButtons(modUUID)
+    end
 end
 
 -- Update header buttons visibility based on detachment state
+-- Legacy function, use HeaderActions:UpdateDetachButtons instead
 function RightPane:UpdateDetachButtons()
-    HeaderActionsInstance.detachBtn.Visible = not HeaderActionsInstance.detachBtn.Visible
-    HeaderActionsInstance.reattachBtn.Visible = not HeaderActionsInstance.reattachBtn.Visible
+    if HeaderActionsInstance then
+        if self.currentMod and self.currentMod.modUUID then
+            HeaderActionsInstance:UpdateDetachButtons(self.currentMod.modUUID)
+        end
+    end
 end
