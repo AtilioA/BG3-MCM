@@ -1,5 +1,6 @@
 --------------------------------------------
 -- Handles restoration of the last used subtab for each mod page
+-- Manages a mapping of mod UUIDs to their last used subtab names
 -- Managed by StateRestorationManager
 --------------------------------------------
 
@@ -40,49 +41,63 @@ function SubtabRestorationService:RegisterEventListeners()
             self:UpdateLastUsedSubtab(payload.modUUID, payload.tabName)
         end
     end)
+
+    -- Listen for page activation to select the stored subtab for that page
+    ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ACTIVATED, function(payload)
+        if payload and payload.modUUID then
+            self:RestoreLastUsedSubtab(payload.modUUID)
+        end
+    end)
 end
 
 -- Restore the last used subtab for a mod page
-function SubtabRestorationService:RestoreLastUsedSubtab()
+---@param modUUID string The UUID of the mod
+function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     -- Check if the feature is enabled
     local restoreLastPageEnabled = MCMAPI:GetSettingValue("restore_last_page", ModuleUUID)
     if restoreLastPageEnabled ~= true then
-        MCMDebug(0, "SubtabRestorationService: Page restoration disabled in settings")
+        MCMDebug(2, "SubtabRestorationService: Page restoration disabled in settings")
         return
     end
 
     local restoreLastSubtabEnabled = MCMAPI:GetSettingValue("restore_last_subtab", ModuleUUID)
     if restoreLastSubtabEnabled ~= true then
-        MCMDebug(0, "SubtabRestorationService: Subtab restoration disabled in settings")
+        MCMDebug(2, "SubtabRestorationService: Subtab restoration disabled in settings")
+        return
+    end
+
+    -- If no mod UUID provided, use the last used page
+    if not modUUID or modUUID == "" then
+        local config = Config:getCfg()
+        modUUID = config.lastUsedPage or ""
+
+        if modUUID == "" then
+            MCMDebug(2, "SubtabRestorationService: No mod UUID provided and no last used page found")
+            return
+        end
+    end
+
+    -- Check if the mod still exists using the manager's helper
+    local modExists = self.manager:CheckModExists(modUUID)
+    if not modExists then
+        MCMWarn(1, "SubtabRestorationService: Cannot restore subtab for non-existent mod: " .. modUUID)
         return
     end
 
     -- Get the last used subtabs from config
     local config = Config:getCfg()
-    local lastUsedPage = config.lastUsedPage or ""
-    local lastUsedSubtab = config.lastUsedSubtab or ""
-
-    if lastUsedPage == "" then
-        MCMWarn(0, "SubtabRestorationService: No previous page to restore")
-        return
-    end
+    local lastUsedModSubTab = config.lastUsedModSubTab or {}
+    local lastUsedSubtab = lastUsedModSubTab[modUUID] or ""
 
     -- Check if we have a stored subtab for this mod
     if lastUsedSubtab == "" then
-        MCMDebug(0, "SubtabRestorationService: No previous subtab to restore for mod: " .. lastUsedPage)
-        return
-    end
-
-    -- Check if the mod still exists using the manager's helper
-    local modExists = self.manager:CheckModExists(lastUsedPage)
-    if not modExists then
-        MCMWarn(1, "SubtabRestorationService: Cannot restore subtab for non-existent mod: " .. lastUsedPage)
+        MCMDebug(2, "SubtabRestorationService: No previous subtab to restore for mod: " .. modUUID)
         return
     end
 
     -- Use the existing DualPane:OpenModPage method to open the subtab
-    MCMDebug(0, "SubtabRestorationService: Restoring subtab '" .. lastUsedSubtab .. "' for mod: " .. lastUsedPage)
-    DualPane:OpenModPage(lastUsedSubtab, lastUsedPage)
+    MCMDebug(1, "SubtabRestorationService: Restoring subtab '" .. lastUsedSubtab .. "' for mod: " .. modUUID)
+    DualPane:OpenModPage(lastUsedSubtab, modUUID)
 end
 
 -- Update the last used subtab for a mod page
@@ -99,25 +114,19 @@ function SubtabRestorationService:UpdateLastUsedSubtab(modUUID, subtabName)
         return
     end
 
-    -- Update the config with the new subtab
+    -- Get the config and ensure lastUsedModSubTab exists
     local config = Config:getCfg()
-    local lastUsedSubtab = config.lastUsedSubtab or ""
-    local lastUsedPage = config.lastUsedPage or ""
+    config.lastUsedModSubTab = config.lastUsedModSubTab or {}
 
     -- Only update if it's a different subtab
-    if lastUsedSubtab ~= subtabName then
-        lastUsedSubtab = subtabName
-        config.lastUsedSubtab = lastUsedSubtab
+    if config.lastUsedModSubTab[modUUID] ~= subtabName then
+        config.lastUsedModSubTab[modUUID] = subtabName
+
+        -- Also update the last used page
+        config.lastUsedPage = modUUID
+
         Config:SaveCurrentConfig()
         MCMDebug(2, "SubtabRestorationService: Updated last used subtab for mod " .. modUUID .. ": " .. subtabName)
-    end
-
-    -- Update the last used page if it's different
-    if lastUsedPage ~= modUUID then
-        lastUsedPage = modUUID
-        config.lastUsedPage = lastUsedPage
-        Config:SaveCurrentConfig()
-        MCMDebug(2, "SubtabRestorationService: Updated last used page for mod " .. modUUID .. ": " .. modUUID)
     end
 end
 

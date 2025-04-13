@@ -9,7 +9,7 @@ Config = VCConfig:New({
         },
         onConfigReloaded = {},
         lastUsedPage = "",
-        lastUsedSubtab = ""
+        lastUsedModSubTab = {}
     }
 })
 

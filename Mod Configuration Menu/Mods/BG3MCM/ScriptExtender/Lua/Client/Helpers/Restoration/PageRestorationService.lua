@@ -52,15 +52,9 @@ function PageRestorationService:RestoreLastModPage()
         return
     end
 
-    -- No action if subtab restoration is enabled; let it handle the restoration
-    local restoreLastSubtabEnabled = MCMAPI:GetSettingValue("restore_last_subtab", ModuleUUID)
-    if restoreLastSubtabEnabled == true and Config:getCfg().lastUsedSubtab ~= "" then
-        MCMDebug(1, "PageRestorationService: Subtab restoration enabled in settings")
-        return
-    end
-
     -- Get the last mod UUID from config
-    local lastModUUID = Config:getCfg().lastUsedPage
+    local config = Config:getCfg()
+    local lastModUUID = config.lastUsedPage
 
     -- Check if the lastModUUID is empty or nil (e.g.: was never set)
     if not lastModUUID or lastModUUID == "" then
@@ -74,6 +68,13 @@ function PageRestorationService:RestoreLastModPage()
         MCMWarn(1,
         "PageRestorationService: Stored mod page no longer exists or is invalid (UUID: " ..
             lastModUUID .. "). Falling back to main page.")
+        return
+    end
+
+    -- No action if subtab restoration is enabled; let it handle the restoration
+    local restoreLastSubtabEnabled = MCMAPI:GetSettingValue("restore_last_subtab", ModuleUUID)
+    if restoreLastSubtabEnabled == true and config.lastUsedModSubTab and config.lastUsedModSubTab[ModuleUUID] ~= "" then
+        MCMDebug(1, "PageRestorationService: Subtab restoration enabled in settings")
         return
     end
 
@@ -101,7 +102,6 @@ function PageRestorationService:UpdateLastModPage(modUUID)
     -- Only update if it's a different mod UUID
     if config.lastUsedPage ~= modUUID then
         config.lastUsedPage = modUUID
-        config.lastUsedSubtab = ""
         Config:SaveCurrentConfig()
         MCMDebug(1, "PageRestorationService: Updated last used mod page: " .. modUUID)
     end
