@@ -810,6 +810,11 @@
                                                 "type": "boolean",
                                                 "description": "Make this keybinding only visible if developer mode is enabled. Default: false",
                                                 "default": false
+                                            },
+                                            "BlockIfLevelNotStarted": {
+                                                "type": "boolean",
+                                                "description": "Prevent the keybinding from triggering when the game level has not started yet. Useful for actions that should only work in-game, not in the main menu. Default: false",
+                                                "default": false
                                             }
                                         },
                                         "additionalProperties": false,
