@@ -67,7 +67,7 @@
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",
                             "Default": true,
-                            "Description": "Open the MCM menu when the game starts.",
+                            "Description": "Open the MCM window when the game starts.",
                             "Handles": {
                                 "NameHandle": "h76a89ee330464e30b1b9a01de85cbd0042a6",
                                 "DescriptionHandle": "h0d8762f0ceb645608a64b684e581f7a72d67"

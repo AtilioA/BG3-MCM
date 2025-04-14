@@ -10,7 +10,7 @@
     <content contentuid="hb2789893dcaf46fca8c40add9358e1f2ca93" version="1">Toggle MCM window</content>
     <content contentuid="h76a89ee330464e30b1b9a01de85cbd0042a6" version="1">Open MCM window on start</content>
     <content contentuid="h2c525b9161344f509bb4dcad8e49010bb9ce" version="1">(DEPRECATED) Dynamically resize the MCM window to fit settings. Not recommended for MCM 1.23+</content>
-    <content contentuid="h0d8762f0ceb645608a64b684e581f7a72d67" version="1">Open the MCM menu when the game starts.</content>
+    <content contentuid="h0d8762f0ceb645608a64b684e581f7a72d67" version="1">Open the MCM window when the game starts.</content>
     <content contentuid="h7728653cb8de46388719316b95f3a4110e7c" version="1">The keybinding for toggling MCM's window.&lt;br&gt;Alternatively, use the MCM button in the ESC menu.</content>
     <content contentuid="h6db631a023d0425ca0a62566ab1bec41797f" version="1">General settings</content>
     <content contentuid="h67357ed078184370901b1d572062b7ba26a5" version="1">Debug settings</content>
