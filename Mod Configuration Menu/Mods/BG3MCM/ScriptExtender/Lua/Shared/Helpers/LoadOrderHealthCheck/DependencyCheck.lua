@@ -183,14 +183,14 @@ function DependencyCheck:EvaluateLoadOrderDependencies()
     success, issues = xpcall(function()
         local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
 
-        MCMDebug(1, "Evaluating load order dependencies for available mods.")
+        MCMPrint(1, "Evaluating load order dependencies for available mods.")
         for _, mod in ipairs(availableMods) do
             if isValidMod(mod) then
                 checkModDependencies(mod, mod.Dependencies, issues)
             end
         end
 
-        MCMDebug(1, "Dependency evaluation complete. Issues found: " .. #issues)
+        MCMPrint(1, "Dependency evaluation complete. Issues found: " .. #issues)
         return issues
     end, function(e)
         MCMError(0, "Error evaluating load order dependencies: " .. e)
