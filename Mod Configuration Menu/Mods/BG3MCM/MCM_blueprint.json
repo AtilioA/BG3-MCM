@@ -78,10 +78,10 @@
                             "Name": "Restore last used page",
                             "Type": "checkbox",
                             "Default": true,
-                            "Description": "When opening MCM, automatically restore the last used mod page.",
+                            "Description": "When opening MCM (after loading a save), automatically restore the last used mod page.",
                             "Handles": {
-                                "NameHandle": "Restore last used page",
-                                "DescriptionHandle": "When opening MCM, automatically restore the last used mod page."
+                                "NameHandle": "h77422890f2f5433486d6e9990a950c91g061",
+                                "DescriptionHandle": "hff55f0470579497788e9e048f207f1097809"
                             }
                         },
                         {
@@ -91,8 +91,8 @@
                             "Default": true,
                             "Description": "When a mod page is opened, automatically restore the last used subtab for that mod.",
                             "Handles": {
-                                "NameHandle": "Restore last used subtab",
-                                "DescriptionHandle": "When a mod page is opened, automatically restore the last used subtab for that mod."
+                                "NameHandle": "h508b792738634a4f88639bd379f12e601e96",
+                                "DescriptionHandle": "h90ef12cdf9314d539f9712e41fe2f4bb8afd"
                             }
                         },
                         {

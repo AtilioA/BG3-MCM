@@ -153,4 +153,8 @@
     <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expandir a barra lateral contendo atalhos, mods, etc.</content>
     <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Desanexar o conteúdo do mod para uma janela separada</content>
     <content contentuid="hd3bbec3b1be2455986b5da92492f445d4296" version="1">Nenhum atalho encontrado.</content>
+    <content contentuid="h508b792738634a4f88639bd379f12e601e96" version="1">Restaurar a última página usada</content>
+    <content contentuid="hff55f0470579497788e9e048f207f1097809" version="1">Quando o MCM é aberto (após carregar um save), automaticamente restaura a última página de mod usada.</content>
+    <content contentuid="h77422890f2f5433486d6e9990a950c91g061" version="1">Restaurar a última página usada</content>
+    <content contentuid="h90ef12cdf9314d539f9712e41fe2f4bb8afd" version="1">Quando uma página de mod é aberta, automaticamente restaura a última aba usada para esse mod.</content>
 </contentList>
