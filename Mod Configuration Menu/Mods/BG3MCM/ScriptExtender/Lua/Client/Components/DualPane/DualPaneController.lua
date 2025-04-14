@@ -342,8 +342,9 @@ end
 ---@param modUUID string The UUID of the mod to open
 ---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
 ---@param keepSidebarState boolean|nil If true, won't modify the sidebar state (expanded/collapsed). Default is false (will collapse)
+---@param shouldOpenWindow boolean|nil If true, will open the MCM window. Default is true.
 -- FIXME: does not work with hotkeys and other non-mod pages because they are not registered in the right pane correctly
-function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, keepSidebarState)
+function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, keepSidebarState, shouldOpenWindow)
     self:SetVisibleFrame(modUUID, shouldEmitEvent)
 
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
@@ -363,14 +364,22 @@ function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, ke
 
     if targetTab then
         targetTab.SetSelected = true
-        IMGUIAPI:OpenMCMWindow(true)
+        -- Only open window if explicitly requested (default true)
+        if shouldOpenWindow ~= false then
+            IMGUIAPI:OpenMCMWindow(true)
+        end
     else
         MCMWarn(0, "Tab not found for identifier: " .. identifier)
     end
 
-    -- Collapse the sidebar when opening the page, unless keepSidebarState is true
-    if not keepSidebarState then
-        self:Collapse()
+    -- Handle sidebar state based on settings unless explicitly told to keep current state
+    if keepSidebarState ~= true then
+        local enableAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+        if enableAutoCollapse then
+            self:Collapse()
+        else
+            self:Expand()
+        end
     end
 
     -- Avoid select lockdown by unselecting the tab after a few ticks

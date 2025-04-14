@@ -95,10 +95,12 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
         return
     end
 
-    -- Use the existing DualPane:OpenModPage method to open the subtab without emitting events to prevent loops
-    -- Also keep the sidebar state unchanged during subtab restoration
+    -- During initialization, respect open_on_start setting
+    local shouldOpenWindow = not self.isInitialized or MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
     MCMDebug(1, "SubtabRestorationService: Restoring subtab '" .. lastUsedSubtab .. "' for mod: " .. modUUID)
-    DualPane:OpenModPage(lastUsedSubtab, modUUID, false, true)
+
+    -- Let DualPaneController handle sidebar state based on settings
+    DualPane:OpenModPage(lastUsedSubtab, modUUID, false, nil, shouldOpenWindow)
 end
 
 -- Update the last used subtab for a mod page
