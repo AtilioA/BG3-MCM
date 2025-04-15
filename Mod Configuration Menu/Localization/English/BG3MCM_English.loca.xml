@@ -10,7 +10,7 @@
     <content contentuid="hb2789893dcaf46fca8c40add9358e1f2ca93" version="1">Toggle MCM window</content>
     <content contentuid="h76a89ee330464e30b1b9a01de85cbd0042a6" version="1">Open MCM window on start</content>
     <content contentuid="h2c525b9161344f509bb4dcad8e49010bb9ce" version="1">(DEPRECATED) Dynamically resize the MCM window to fit settings. Not recommended for MCM 1.23+</content>
-    <content contentuid="h0d8762f0ceb645608a64b684e581f7a72d67" version="1">Open the MCM menu when the game starts.</content>
+    <content contentuid="h0d8762f0ceb645608a64b684e581f7a72d67" version="1">Open the MCM window when the game starts.</content>
     <content contentuid="h7728653cb8de46388719316b95f3a4110e7c" version="1">The keybinding for toggling MCM's window.&lt;br&gt;Alternatively, use the MCM button in the ESC menu.</content>
     <content contentuid="h6db631a023d0425ca0a62566ab1bec41797f" version="1">General settings</content>
     <content contentuid="h67357ed078184370901b1d572062b7ba26a5" version="1">Debug settings</content>
@@ -22,7 +22,7 @@
     <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Apply IMGUI styling to try to replicate the game's color scheme.</content>
     <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicate game color scheme</content>
     <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Host-only mode</content>
-    <content contentuid="h48d5ce6ebd8144649e72da14b64214a9b57f" version="1">Only the host can change MCM settings in multiplayer games.</content>
+    <content contentuid="h48d5ce6ebd8144649e72da14b64214a9b57f" version="1">Allow only the host to change settings in multiplayer games.</content>
     <content contentuid="hb7ee77283bd94bd5b9d3fe696b45e85ae804" version="1">Profile management</content>
     <content contentuid="h2082b6b6954741ef970486be3bb77ad53782" version="1">Select a profile</content>
     <content contentuid="h5788159872f84825b184d42c1fbd6a216541" version="1">Create a new profile</content>
@@ -155,4 +155,8 @@
     <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expand the sidebar containing keybindings, mods, etc</content>
     <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Detach mod content to a separate window</content>
     <content contentuid="hd3bbec3b1be2455986b5da92492f445d4296" version="1">No keybindings found.</content>
+    <content contentuid="h508b792738634a4f88639bd379f12e601e96" version="1">Restore last used subtab</content>
+    <content contentuid="hff55f0470579497788e9e048f207f1097809" version="1">When opening MCM (after loading a save), automatically restore the last used mod page.</content>
+    <content contentuid="h77422890f2f5433486d6e9990a950c91g061" version="1">Restore last used page</content>
+    <content contentuid="h90ef12cdf9314d539f9712e41fe2f4bb8afd" version="1">When a mod page is opened, automatically restore the last used subtab for that mod.</content>
 </contentList>

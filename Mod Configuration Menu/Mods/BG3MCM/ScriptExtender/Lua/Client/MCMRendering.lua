@@ -130,7 +130,11 @@ function MCMRendering:CreateMainIMGUIWindow()
     local modVersion = MCMUtils.FormatModVersion(ModuleUUID)
     ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
+
+    MCM_WINDOW.AlwaysAutoResize = false
+
     UIStyle:ApplyDefaultStylesToIMGUIElement(MCM_WINDOW)
+
     local minWidth, minHeight = table.unpack(self:GetMCMWindowSizeConstraints())
     MCM_WINDOW:SetStyle("WindowMinSize", minWidth, minHeight)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
@@ -458,6 +462,7 @@ function MCMRendering:GetAllKeybindings()
                         ShouldTriggerOnRepeat = (setting.Options and setting.Options.ShouldTriggerOnRepeat) or false,
                         ShouldTriggerOnKeyUp = (setting.Options and setting.Options.ShouldTriggerOnKeyUp) or false,
                         ShouldTriggerOnKeyDown = (setting.Options and setting.Options.ShouldTriggerOnKeyDown) or true,
+                        BlockIfLevelNotStarted = (setting.Options and setting.Options.BlockIfLevelNotStarted) or false,
                         IsDeveloperOnly = (setting.Options and setting.Options.IsDeveloperOnly) or false
                     })
                 end

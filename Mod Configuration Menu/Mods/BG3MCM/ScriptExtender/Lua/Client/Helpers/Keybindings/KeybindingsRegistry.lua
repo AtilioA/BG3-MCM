@@ -84,6 +84,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
                 shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
                 shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
+                blockIfLevelNotStarted = action.BlockIfLevelNotStarted,
                 description = action.Description,
                 isDeveloperOnly = action.IsDeveloperOnly,
                 tooltip = action.Tooltip,
@@ -183,6 +184,12 @@ local function shouldTriggerBinding(e, binding)
         return false
     end
 
+    -- Check if we should block the keybinding when level is not started
+    if binding.blockIfLevelNotStarted and MCMProxy.GameState == 'Menu' then
+        MCMPrint(1, "Keybinding blocked because level not started: " .. binding.actionName)
+        return false
+    end
+
     return KeybindingManager:IsKeybindingPressed(e, {
         ScanCode = binding.keyboardBinding.Key,
         Modifier = binding.keyboardBinding.ModifierKeys
@@ -237,7 +244,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     end
 end
 
---- Exposes the registry’s BehaviorSubject so others can subscribe.
+--- Exposes the registry's BehaviorSubject so others can subscribe.
 function KeybindingsRegistry.GetSubject()
     return keybindingsSubject
 end

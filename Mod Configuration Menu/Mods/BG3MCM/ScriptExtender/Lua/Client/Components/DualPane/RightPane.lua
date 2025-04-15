@@ -21,7 +21,7 @@ function RightPane:New(parent)
     -- Should:tm: be the contentScrollWindow
     self.parent = parent
     self.contentGroups = {}
-    -- Table to track detached windows keyed by mod group handle
+    -- Table to track detached windows keyed by mod UUID (not by handle)
     self.detachedWindows = {}
     -- Will hold the currently active mod group info
     self.currentMod = { group = nil, modUUID = nil }
@@ -116,21 +116,30 @@ end
 
 -- Set visible groups and update header detach/reattach buttons based on the current mod.
 function RightPane:SetVisibleGroup(modUUID)
+    -- Update visibility for all content groups
     for uuid, group in pairs(self.contentGroups) do
-        -- Only update groups that are attached (i.e. not detached)
-        if not self.detachedWindows[group.Handle] then
+        -- Skip visibility update for detached groups
+        if not self.detachedWindows[uuid] then
+            -- Only make the requested mod visible
             group.Visible = (uuid == modUUID)
+
+            -- Debug info
+            MCMDebug(3, "Setting visibility for mod " .. uuid .. " to " .. tostring(group.Visible))
+        else
+            MCMDebug(3, "Skipping visibility update for detached mod " .. uuid)
         end
     end
+
+    -- Update current mod reference
     if self.contentGroups[modUUID] then
-        self.currentMod = { group = self.contentGroups[modUUID], modUUID = modUUID }
-        local group = self.currentMod.group
-        if self.detachedWindows[group.Handle] then
-            HeaderActionsInstance.detachBtn.Visible = false
-            HeaderActionsInstance.reattachBtn.Visible = true
-        else
-            HeaderActionsInstance.detachBtn.Visible = true
-            HeaderActionsInstance.reattachBtn.Visible = false
+        self.currentMod = {
+            group = self.contentGroups[modUUID],
+            modUUID = modUUID
+        }
+        
+        -- Use HeaderActions to update detach/reattach buttons based on current mod
+        if HeaderActionsInstance then
+            HeaderActionsInstance:UpdateDetachButtons(modUUID)
         end
     end
 end
@@ -149,8 +158,7 @@ function RightPane:DetachModGroup(modUUID)
         return
     end
 
-    local handle = group.Handle
-    if self.detachedWindows[handle] then
+    if self.detachedWindows[modUUID] then
         MCMError(0, "Mod group " .. modUUID .. " is already detached.")
         return
     end
@@ -158,21 +166,26 @@ function RightPane:DetachModGroup(modUUID)
     local newWindow = createDetachedWindow(VCString:InterpolateLocalizedMessage("hb341a515eea64380ad0ccfe6c1ff115d1310",
         Ext.Mod.GetMod(modUUID).Info.Name))
     local parent = group.ParentElement
+
+    -- Store parent reference and mod UUID in the window's UserData for proper reattachment
+    newWindow.UserData = {
+        originalParent = parent,
+        modUUID = modUUID,
+        originalHandle = group.Handle -- Store the original handle for verification
+    }
+
+    MCMDebug(1, "Detaching mod group " .. modUUID .. " with handle " .. tostring(group.Handle))
     parent:DetachChild(group)
     newWindow:AttachChild(group)
-    self.detachedWindows[handle] = newWindow
+    self.detachedWindows[modUUID] = newWindow
     newWindow.Closeable = true
     newWindow.OnClose = function() self:ReattachModGroup(modUUID) end
 
-    -- Optionally add a temporary message inside the detached window (if desired)
-    -- local tempText = parent:AddText("This mod's content is detached. Click the reattach button to reattach.")
-    -- tempText.TextWrapPos = 0
-    -- tempText:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1))
-    -- newWindow.UserData = {
-    --     tempText = tempText
-    -- }
-
-    self:UpdateDetachButtons()
+    -- Update button visibility through HeaderActions
+    if HeaderActionsInstance then
+        HeaderActionsInstance:UpdateDetachButtons(modUUID)
+    end
+    
     DualPane:Expand()
 end
 
@@ -184,32 +197,60 @@ function RightPane:ReattachModGroup(modUUID)
         return
     end
 
-    local handle = group.Handle
-    if not self.detachedWindows[handle] then
+    if not self.detachedWindows[modUUID] then
         MCMWarn(0, "Mod group " .. modUUID .. " is not detached.")
         return
     end
 
-    local detachedWin = self.detachedWindows[handle]
-    detachedWin:DetachChild(group)
-    self.parent:AttachChild(group)
+    local detachedWin = self.detachedWindows[modUUID]
+    local tabBar = nil
 
-    -- Remove the temporary text from the parent if needed (added to UserData for convenience)
-    if detachedWin.UserData and detachedWin.UserData.tempText then
-        detachedWin.UserData.tempText:Destroy()
-    end
-
-    detachedWin:Destroy()
-    self.detachedWindows[handle] = nil
+    -- Find the tab bar before detachment to preserve reference
     if #group.Children > 0 then
-        group:RemoveChild(group.Children[#group.Children])
+        for _, child in ipairs(group.Children) do
+            if child.IDContext and child.IDContext:sub(-5) == "_TABS" then
+                tabBar = child
+                break
+            end
+        end
     end
 
-    self:UpdateDetachButtons()
+    MCMDebug(1, "Reattaching mod group " .. modUUID .. " with handle " .. tostring(group.Handle))
+
+    -- Get the correct parent to reattach to
+    local targetParent = detachedWin.UserData and detachedWin.UserData.originalParent or self.parent
+
+    -- Store children count before detaching
+    local childrenBefore = #group.Children
+    MCMDebug(1, "Children before detach: " .. childrenBefore .. ", tabBar: " .. tostring(tabBar ~= nil))
+
+    -- Detach from window and reattach to original parent
+    detachedWin:DetachChild(group)
+    targetParent:AttachChild(group)
+
+    -- Check if children were preserved
+    local childrenAfter = #group.Children
+    MCMDebug(1, "Children after reattach: " .. childrenAfter)
+
+    -- Make sure the group visibility is set correctly based on current mod
+    group.Visible = (modUUID == self.currentMod.modUUID)
+
+    -- Destroy the detached window and clean up references
+    detachedWin:Destroy()
+    self.detachedWindows[modUUID] = nil
+
+    -- Update button visibility through HeaderActions
+    if HeaderActionsInstance then
+        HeaderActionsInstance:UpdateDetachButtons(modUUID)
+    end
 end
 
 -- Update header buttons visibility based on detachment state
+-- Legacy function, use HeaderActions:UpdateDetachButtons instead
 function RightPane:UpdateDetachButtons()
-    HeaderActionsInstance.detachBtn.Visible = not HeaderActionsInstance.detachBtn.Visible
-    HeaderActionsInstance.reattachBtn.Visible = not HeaderActionsInstance.reattachBtn.Visible
+    if HeaderActionsInstance then
+        if self.currentMod and self.currentMod.modUUID then
+            HeaderActionsInstance:UpdateDetachButtons(self.currentMod.modUUID)
+        end
+    end
 end

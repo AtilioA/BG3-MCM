@@ -38,7 +38,7 @@ ICON_DOCS = "ico_secret_h"
 ICON_DETACH = "ico_popup_d"
 
 -- Get proportion of screen size based on working number for 4K
-TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[1] / (3840 / 450)
+TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[1] / (3840 / 500)
 TARGET_WIDTH_COLLAPSED = 5
 STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
@@ -129,6 +129,10 @@ function DualPaneController:initLayout()
 end
 
 local function normalizeString(str)
+    if not str or str == "" then
+        return ""
+    end
+
     return string.lower(str:gsub(" ", "_"))
 end
 
@@ -306,25 +310,42 @@ function DualPaneController:InsertModTab(modUUID, tabName, callback)
     return self.rightPane:InsertTab(modUUID, tabName, callback)
 end
 
-function DualPaneController:SetVisibleFrame(modUUID)
+-- Sets the visible frame for a mod UUID
+---@param modUUID string The UUID of the mod to show
+---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
+function DualPaneController:SetVisibleFrame(modUUID, shouldEmitEvent)
+    -- Set the visible group in the right pane
     self.rightPane:SetVisibleGroup(modUUID)
+
+    -- Default to true if not specified
+    if shouldEmitEvent == nil then shouldEmitEvent = true end
+
+    if shouldEmitEvent and not MCMProxy.IsMainMenu() then
+        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = modUUID }, true)
+    end
 end
 
 -- Helper called from LeftPane buttons.
 function DualPaneController:SwitchVisibleContent(button, uuid)
     self:SetVisibleFrame(uuid)
     self.leftPane:SetActiveItem(uuid)
-    if not MCMProxy.IsMainMenu() then
-        ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = uuid })
-    end
+end
+
+function DualPaneController:DoesModPageExist(ID)
+    local modTabBar = self.rightPane:GetModTabBar(ID)
+    return modTabBar ~= nil
 end
 
 -- Open a specific page and optionally a subtab.
 -- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
+---@param identifier string|nil The name of the tab to open
 ---@param modUUID string The UUID of the mod to open
----@param tabName? string The name of the tab to open
-function DualPaneController:OpenModPage(identifier, modUUID)
-    self:SetVisibleFrame(modUUID)
+---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
+---@param keepSidebarState boolean|nil If true, won't modify the sidebar state (expanded/collapsed). Default is false (will collapse)
+---@param shouldOpenWindow boolean|nil If true, will open the MCM window. Default is true.
+-- FIXME: does not work with hotkeys and other non-mod pages because they are not registered in the right pane correctly
+function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, keepSidebarState, shouldOpenWindow)
+    self:SetVisibleFrame(modUUID, shouldEmitEvent)
 
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
@@ -343,13 +364,23 @@ function DualPaneController:OpenModPage(identifier, modUUID)
 
     if targetTab then
         targetTab.SetSelected = true
-        IMGUIAPI:OpenMCMWindow(true)
+        -- Only open window if explicitly requested (default true)
+        if shouldOpenWindow ~= false then
+            IMGUIAPI:OpenMCMWindow(true)
+        end
     else
         MCMWarn(0, "Tab not found for identifier: " .. identifier)
     end
 
-    -- Collapse the sidebar when opening the page.
-    self:Collapse()
+    -- Handle sidebar state based on settings unless explicitly told to keep current state
+    if keepSidebarState ~= true then
+        local enableAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+        if enableAutoCollapse then
+            self:Collapse()
+        else
+            self:Expand()
+        end
+    end
 
     -- Avoid select lockdown by unselecting the tab after a few ticks
     Ext.Timer.WaitFor(100, function()

@@ -67,10 +67,32 @@
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",
                             "Default": true,
-                            "Description": "Open the MCM menu when the game starts.",
+                            "Description": "Open the MCM window when the game starts.",
                             "Handles": {
                                 "NameHandle": "h76a89ee330464e30b1b9a01de85cbd0042a6",
                                 "DescriptionHandle": "h0d8762f0ceb645608a64b684e581f7a72d67"
+                            }
+                        },
+                        {
+                            "Id": "restore_last_page",
+                            "Name": "Restore last used page",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When opening MCM (after loading a save), automatically restore the last used mod page.",
+                            "Handles": {
+                                "NameHandle": "h77422890f2f5433486d6e9990a950c91g061",
+                                "DescriptionHandle": "hff55f0470579497788e9e048f207f1097809"
+                            }
+                        },
+                        {
+                            "Id": "restore_last_subtab",
+                            "Name": "Restore last used subtab",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When a mod page is opened, automatically restore the last used subtab for that mod.",
+                            "Handles": {
+                                "NameHandle": "h508b792738634a4f88639bd379f12e601e96",
+                                "DescriptionHandle": "h90ef12cdf9314d539f9712e41fe2f4bb8afd"
                             }
                         },
                         {
