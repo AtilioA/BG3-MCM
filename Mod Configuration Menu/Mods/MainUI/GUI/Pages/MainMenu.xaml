@@ -214,7 +214,7 @@
 
                         <ls:LSButton x:Name="ContinueButton"  Style="{StaticResource BigBlueButtonStyle}"
                                  Content="{Binding Source='h45db0d8cg465fg4c1dg8c21gc894286fa41e', Converter={StaticResource TranslatedStringConverter}}"
-                                 Command="{Binding SkipModValidationAndLoadGameCommand}"
+                                 Command="{Binding ContinueGameCommand}"
                                  Visibility="{Binding HasSaveGames, Converter={StaticResource BoolToVisibleConverter}}"
                                  IsEnabled="{Binding SelectedSave, Converter={StaticResource NullToBoolFalseConverter}}">
                             <b:Interaction.Triggers>
