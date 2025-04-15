@@ -12,10 +12,15 @@
 
     <ls:UIWidget.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Core;component/Library/CrossplayHelpers.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
             <Thickness x:Key="MainButtonSpacing">0,12,0,0</Thickness>
             <Thickness x:Key="MainButtonLargeSpacing">0,40,0,0</Thickness>
             <BitmapImage x:Key="GameLogo" UriSource="pack://application:,,,/Core;component/Assets/MainMenu/menu_logo_2.png"/>
+            <BitmapImage x:Key="WarningIconBG" UriSource="pack://application:,,,/Core;component/Assets/MainMenu/background_btnWarning.png"/>
+            <BitmapImage x:Key="HasModsImage" UriSource="/Core;component/Assets/SaveLoad/ico_modio.png"/>
 
             <Style TargetType="TextBlock">
                 <Setter  Property="Foreground" Value="{StaticResource LS_tint100}"/>
@@ -55,34 +60,88 @@
                 </ControlTemplate.Triggers>
             </ControlTemplate>
 
-            <ControlTemplate x:Key="SignInControlTemplate" TargetType="Control">
-                <Border BorderThickness="4" BorderBrush="Gray" Background="White" CornerRadius="20" Padding="40,60">
-                    <Grid>
-                        <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding Source='h62e03fabg3723g4829ga5d7g3b6ee65dd176', Converter={StaticResource TranslatedStringConverter}}" DockPanel.Dock="Top" Margin="0,20" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                            <ls:LSButton Content="{Binding Source='h77709a13g3b85g45b3g91b5g79becd19c06a', Converter={StaticResource TranslatedStringConverter}}" Template="{StaticResource MinimalButtonTemplate}" Width="400" DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding CustomEvent}" CommandParameter="OpenSignUp"/>
-                        </DockPanel>
-                    </Grid>
-                </Border>
-            </ControlTemplate>
-
-            <ControlTemplate x:Key="SignedInControlTemplate" TargetType="Control">
-                <Border BorderThickness="4" BorderBrush="Gray" Background="White" CornerRadius="20" Padding="40,30">
-                    <Grid>
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding Source='hde1777b6gbf04g4ab8gb577g01e7a239a84a', Converter={StaticResource TranslatedStringConverter}}" Margin="0,8" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding LarianNetUserName}" Margin="0,8" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </ControlTemplate>
-
-            <Style x:Key="SignInControlStyle" TargetType="Control">
-                <Setter Property="Template" Value="{StaticResource SignInControlTemplate}"/>
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding Data.LarianNetIsConnected}" Value="True">
-                        <Setter Property="Template" Value="{StaticResource SignedInControlTemplate}"/>
+            <ControlTemplate x:Key="SignInButtonTemplate" TargetType="Control">
+                <ls:LSNineSliceImage x:Name="NotificationBG" Style="{StaticResource SideTutorialsBackgroundKBMStyle}" Padding="100,40,120,26">
+                    <StackPanel>
+                        <TextBlock x:Name="LogInTxt" Text="{Binding Source='h224af12cg943dg40ebg9298g0166926b2f82', Converter={StaticResource TranslatedStringConverter}}" TextAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource LS_tint60}" Margin="0,24,0,0"/>
+                        <ls:LSButton x:Name="LarianAccountBtn"
+                                     Content="{Binding Source='hc019bff0g8d60g4131gb9dag0c716bfaf7f6', Converter={StaticResource TranslatedStringConverter}}"
+                                     Style="{StaticResource BigBlueButtonStyle}"
+                                     Margin="0,24,0,26"
+                                     Command="{Binding CustomEvent}"
+                                     CommandParameter="OpenSignUp"/>
+                        <TextBlock x:Name="CreateAccountTxt" Text="{Binding Source='he342ac51g448dg4ecfg9900g0f2138170e8a', Converter={StaticResource TranslatedStringConverter}}" Margin="0,0,0,46" TextAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource LS_baseTxtColor}" FontSize="{StaticResource ScaledSmallFontSize}"/>
+                    </StackPanel>
+                </ls:LSNineSliceImage>
+                <ControlTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Data.DefineCrossplayEnabled}" Value="False">
+                        <Setter Property="Visibility" Value="Collapsed"/>
                     </DataTrigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+
+            <ControlTemplate x:Key="SignedInButtonTemplate" TargetType="Control">
+                <ls:LSButton x:Name="AccountManagementBtn"
+                             Command="{Binding CustomEvent}"
+                             CommandParameter="OpenAccountManagement">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <StackPanel Orientation="Vertical" Background="Transparent" VerticalAlignment="Center">
+                            <TextBlock x:Name="accountStateLabel" ls:TextBlockFormatter.SourceText="{Binding Source=h6feb7ebag3cceg4f10gaa40g6c62f49b27cc, Converter={StaticResource TranslatedStringConverter}}"
+                                                       Foreground="{StaticResource LS_baseTxtColor}" FontSize="{StaticResource ScaledSmallishFontSize}" TextWrapping="Wrap" TextAlignment="Right" Margin="0,0,12,-4"/>
+                            <TextBlock x:Name="accountName" Text="{Binding Data.LarianNetUserName}" Foreground="{StaticResource LS_specialTxtColor}" HorizontalAlignment="Right" Margin="0,0,12,0" TextAlignment="Right"/>
+                        </StackPanel>
+
+                        <Grid x:Name="avatar" Background="Transparent" VerticalAlignment="Center" Margin="5,0,0,0">
+                            <Image x:Name="avatarFrame" Source="{StaticResource accountFrameDefault}" Stretch="None"/>
+                            <Rectangle x:Name="avatarIcon" Width="{StaticResource avatarIconSize}" Height="{StaticResource avatarIconSize}" Fill="{Binding CurrentPlayer.CommunityIcon}"/>
+                            <Image x:Name="defaultIcon" Width="{StaticResource avatarIconSize}" Height="{StaticResource avatarIconSize}" Stretch="Fill" Source="{StaticResource accountUnknownPortrait}" Visibility="Collapsed"/>
+                            <ls:LSButton Style="{StaticResource CrossplayBreadcrumbsStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-12,-12,0">
+                                <ls:AttachedProperties.Number>
+                                    <MultiBinding Converter="{StaticResource AddMultipleConverter}">
+                                        <Binding Path="Data.CrossplayFriendRequests.Count"/>
+                                        <Binding Path="Data.CrossplayInvites.Count"/>
+                                    </MultiBinding>
+                                </ls:AttachedProperties.Number>
+                            </ls:LSButton>
+                        </Grid>
+                    </StackPanel>
+                </ls:LSButton>
+
+                <ControlTemplate.Triggers>
+                    <Trigger SourceName="AccountManagementBtn" Property="IsMouseOver" Value="True">
+                        <Setter TargetName="avatarFrame" Property="Source" Value="{StaticResource accountFrameHighlight}"/>
+                        <Setter TargetName="accountName" Property="Foreground" Value="{StaticResource LS_extraspecialTxtColor}"/>
+                    </Trigger>
+                    <DataTrigger Binding="{Binding Data.ModAccountState}" Value="Offline">
+                        <Setter TargetName="accountStateLabel" Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source=h9f4ad432g31dfg43e5gad49gffbf79873345, Converter={StaticResource TranslatedStringConverter}}"/>
+                        <Setter TargetName="accountName" Property="Visibility" Value="Collapsed"/>
+                        <Setter TargetName="avatarIcon" Property="Visibility" Value="Collapsed"/>
+                        <Setter TargetName="defaultIcon" Property="Visibility" Value="Visible"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Data.ModAccountState}" Value="OnlineNoAccountConnected">
+                        <Setter TargetName="accountName" Property="Visibility" Value="Collapsed"/>
+                        <Setter TargetName="avatarIcon" Property="Visibility" Value="Collapsed"/>
+                        <Setter TargetName="defaultIcon" Property="Visibility" Value="Visible"/>
+                    </DataTrigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+
+            <Style x:Key="SignInButtonStyle" TargetType="Control">
+                <Setter Property="Template" Value="{StaticResource SignInButtonTemplate}"/>
+
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Data.DefineCrossplayEnabled}" Value="False">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Setter Property="IsEnabled" Value="False"/>
+                    </DataTrigger>
+
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Data.LarianNetIsConnected}" Value="True"/>
+                            <Condition Binding="{Binding Data.DefineCrossplayEnabled}" Value="True"/>
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Template" Value="{StaticResource SignedInButtonTemplate}"/>
+                    </MultiDataTrigger>
                 </Style.Triggers>
             </Style>
 
@@ -137,26 +196,28 @@
                         </Grid>
                     </ls:LSNineSliceImage>
 
-                    <Grid>
+                    <Grid x:Name="ContinueButtonContainer" Opacity="0">
+                        <Grid.RenderTransform>
+                            <TranslateTransform/>
+                        </Grid.RenderTransform>
+
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="Loaded">
+                                <b:ChangePropertyAction TargetName="ContinueButtonContainer" PropertyName="Opacity" Value="1" />
+                                <b:ControlStoryboardAction ControlStoryboardOption="Play">
+                                    <b:ControlStoryboardAction.Storyboard>
+                                        <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
+                                    </b:ControlStoryboardAction.Storyboard>
+                                </b:ControlStoryboardAction>
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+
                         <ls:LSButton x:Name="ContinueButton"  Style="{StaticResource BigBlueButtonStyle}"
                                  Content="{Binding Source='h45db0d8cg465fg4c1dg8c21gc894286fa41e', Converter={StaticResource TranslatedStringConverter}}"
                                  Command="{Binding SkipModValidationAndLoadGameCommand}"
-                                 Visibility="{Binding SelectedSave, Converter={StaticResource NullToCollapsedConverter}}"
-                                 SoundID="UI_HUD_MainMenu_Continue" Opacity="0" IsEnabled="True">
-                            <Button.RenderTransform>
-                                <TranslateTransform/>
-                            </Button.RenderTransform>
-
+                                 Visibility="{Binding HasSaveGames, Converter={StaticResource BoolToVisibleConverter}}"
+                                 IsEnabled="{Binding SelectedSave, Converter={StaticResource NullToBoolFalseConverter}}">
                             <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="Loaded">
-                                    <b:ChangePropertyAction TargetName="ContinueButton" PropertyName="Opacity" Value="1" />
-                                    <b:ControlStoryboardAction ControlStoryboardOption="Play">
-                                        <b:ControlStoryboardAction.Storyboard>
-                                            <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
-                                        </b:ControlStoryboardAction.Storyboard>
-                                    </b:ControlStoryboardAction>
-                                </b:EventTrigger>
-
                                 <b:EventTrigger EventName="MouseEnter">
                                     <ls:LSPlaySound Sound="UI_Shared_Hover"/>
                                     <b:ChangePropertyAction TargetName="CurrentGameInfo" PropertyName="Visibility" Value="Visible"/>
@@ -167,46 +228,60 @@
                             </b:Interaction.Triggers>
                         </ls:LSButton>
 
-                        <Image x:Name="SavegameHasUnofficialModWarningImage" Source="{StaticResource IconWarningSoft}"
-                               VerticalAlignment="Center" HorizontalAlignment="Right"
-                               Margin="0,0,-50,0"
-                               Stretch="None" Visibility="Hidden">
-                            <Image.ToolTip>
-                                <ls:LSTooltip Content="{Binding Source='h029dfdc1g3df7g4498g866dg3178b961dc5e', Converter={StaticResource TranslatedStringConverter}}"/>
-                            </Image.ToolTip>
-                        </Image>
+                        <Grid x:Name="SavegameHasUnofficialModWarning" Width="112" Height="84" Margin="460,0,0,0" Visibility="Hidden">
+                            <Image x:Name="SavegameUnofficialModWarningBG" Source="{StaticResource WarningIconBG}" Stretch="Fill"/>
+                            <Image x:Name="SavegameHasUnofficialModWarningImage" Source="{StaticResource HasModsImage}"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"
+                                   Margin="0,0,28,0"
+                                   Stretch="None"
+                                   Visibility="Hidden"
+                                   ToolTipService.Placement="Right" ToolTipService.VerticalOffset="-36" ToolTipService.HorizontalOffset="20">
+                                <Image.ToolTip>
+                                    <ls:LSTooltip>
+                                        <TextBlock Text="{Binding Source='h61df9aeag7c90g43cbgaac8g1c3d458ebcee', Converter={StaticResource TranslatedStringConverter}}" Foreground="{StaticResource LS_baseTxtColor}"/>
+                                    </ls:LSTooltip>
+                                </Image.ToolTip>
+                            </Image>
+                        </Grid>
                     </Grid>
 
-                    <Grid>
+                    <Grid x:Name="NewGameButtonContainer" Opacity="0">
+                        <Grid.RenderTransform>
+                            <TranslateTransform/>
+                        </Grid.RenderTransform>
+
+                        <b:Interaction.Triggers>
+                            <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="100" TotalTicks="1">
+                                <b:ChangePropertyAction TargetName="NewGameButtonContainer" PropertyName="Opacity" Value="1" />
+                                <b:ControlStoryboardAction ControlStoryboardOption="Play">
+                                    <b:ControlStoryboardAction.Storyboard>
+                                        <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
+                                    </b:ControlStoryboardAction.Storyboard>
+                                </b:ControlStoryboardAction>
+                            </b:TimerTrigger>
+                        </b:Interaction.Triggers>
+
                         <ls:LSButton x:Name="NewGameButton" Style="{StaticResource BigBrownButtonStyle}"
-                                 Content="{Binding Source='h158af72dg233bg4f07gb46ag384440c5da95', Converter={StaticResource TranslatedStringConverter}}"
-                                 Command="{Binding StartGameCommand}"
-                                 Opacity="0" SoundID="UI_HUD_MainMenu_NewGame" Margin="{StaticResource MainButtonLargeSpacing}">
+                                     Content="{Binding Source='h158af72dg233bg4f07gb46ag384440c5da95', Converter={StaticResource TranslatedStringConverter}}"
+                                     Command="{Binding StartGameCommand}"
+                                     SoundID="UI_HUD_MainMenu_NewGame" Margin="{StaticResource MainButtonLargeSpacing}"/>
 
-                            <Button.RenderTransform>
-                                <TranslateTransform/>
-                            </Button.RenderTransform>
+                        <Grid x:Name="SettingsHaveUnofficialModWarning" Width="112" Height="84" Margin="460,48,0,0" Visibility="Hidden">
+                            <Image x:Name="SettingsUnofficialModWarningBG" Source="{StaticResource WarningIconBG}" Stretch="Fill" />
+                            <Image x:Name="SettingsHaveUnofficialModWarningImage" Source="{StaticResource HasModsImage}"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"
+                                   Margin="0,0,28,0"
+                                   Stretch="None"
+                                   Visibility="Hidden"
+                                   ToolTipService.Placement="Right" ToolTipService.VerticalOffset="-36">
+                                <Image.ToolTip>
+                                    <ls:LSTooltip>
+                                        <TextBlock Text="{Binding Source='h61df9aeag7c90g43cbgaac8g1c3d458ebcee', Converter={StaticResource TranslatedStringConverter}}" Foreground="{StaticResource LS_baseTxtColor}"/>
+                                    </ls:LSTooltip>
+                                </Image.ToolTip>
+                            </Image>
+                        </Grid>
 
-                            <b:Interaction.Triggers>
-                                <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="100" TotalTicks="1">
-                                    <b:ChangePropertyAction TargetName="NewGameButton" PropertyName="Opacity" Value="1" />
-                                    <b:ControlStoryboardAction ControlStoryboardOption="Play">
-                                        <b:ControlStoryboardAction.Storyboard>
-                                            <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
-                                        </b:ControlStoryboardAction.Storyboard>
-                                    </b:ControlStoryboardAction>
-                                </b:TimerTrigger>
-                            </b:Interaction.Triggers>
-                        </ls:LSButton>
-
-                        <Image x:Name="SettingsHaveUnofficialModWarningImage" Source="{StaticResource IconWarningSoft}"
-                               VerticalAlignment="Center" HorizontalAlignment="Right"
-                               Margin="0,50,-50,0"
-                               Stretch="None" Visibility="Hidden">
-                            <Image.ToolTip>
-                                <ls:LSTooltip Content="{Binding Source='h029dfdc1g3df7g4498g866dg3178b961dc5e', Converter={StaticResource TranslatedStringConverter}}"/>
-                            </Image.ToolTip>
-                        </Image>
                     </Grid>
 
                     <ls:LSButton x:Name="LoadGameButton" Style="{StaticResource BigBrownButtonStyle}"
@@ -271,7 +346,7 @@
                         </b:Interaction.Triggers>
                     </ls:LSButton>
 
-                    <ls:LSButton x:Name="MCMMainMenuButton" Style="{StaticResource BigBrownButtonStyle}"
+                <ls:LSButton x:Name="MCMMainMenuButton" Style="{StaticResource BigBrownButtonStyle}"
                     Content="{Binding Source='h6e8c611890eb4a589f1777131bebe79a2fcd', Converter={StaticResource TranslatedStringConverter}}"
                     Command="{Binding CustomEvent}" CommandParameter="OpenMCMOptions"
                     SoundID="UI_HUD_MainMenu_Options" Opacity="0" Margin="{StaticResource MainButtonSpacing}">
@@ -353,13 +428,13 @@
                 </StackPanel>
 
                 <ControlTemplate.Triggers>
-                    <DataTrigger Binding="{Binding SettingsHaveUnofficialmods}" Value="True">
-                        <Setter TargetName="SettingsHaveUnofficialModWarningImage" Property="Visibility" Value="Hidden"/>
-                        <Setter TargetName="SavegameHasUnofficialModWarningImage" Property="Visibility" Value="Hidden"/>
+
+                    <DataTrigger Binding="{Binding SettingsHaveMods}" Value="True">
+                        <Setter TargetName="SettingsHaveUnofficialModWarning" Property="Visibility" Value="Hidden"/>
                     </DataTrigger>
 
-                    <DataTrigger Binding="{Binding SelectedSave.HasUnofficialMods}" Value="True">
-                        <Setter TargetName="SavegameHasUnofficialModWarningImage" Property="Visibility" Value="Hidden"/>
+                    <DataTrigger Binding="{Binding SelectedSave.HasMods}" Value="True">
+                        <Setter TargetName="SavegameHasUnofficialModWarning" Property="Visibility" Value="Hidden"/>
                     </DataTrigger>
 
                     <DataTrigger Binding="{Binding IsSyncingSaves}" Value="True">
@@ -373,6 +448,7 @@
                     <DataTrigger Binding="{Binding ShowQuitButton}" Value="False">
                         <Setter TargetName="QuitGameButton" Property="Visibility" Value="Collapsed"/>
                     </DataTrigger>
+
                     <!-- Honour Mode -->
                     <DataTrigger Binding="{Binding SelectedSave.IsHonourMode}" Value="True">
                         <Setter TargetName="Difficulty" Property="Text" Value="{Binding Source='hb80200a7g8e69g4f66gbc18g4155d70f0dcc', Converter={StaticResource TranslatedStringConverter}}"/>
@@ -504,192 +580,146 @@
             </Control.Style>
         </Control>
 
-        <!-- Development/Testing Menu Items (Enable by setting Visibility to "Visible") -->
-        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0, 0, 0, 120" Orientation="Horizontal">
-            <!--SIGN IN WIDGET COMMENTED TEMPORARILY FOR RELEASE-->
-            <!--<Control Style="{StaticResource SignInControlStyle}" Margin="0,0,80,0" Height="400" Width="900" VerticalAlignment="Bottom"/>-->
-            <StackPanel>
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Setter Property="Visibility" Value="{Binding Data.IsGold, Converter={StaticResource BoolToCollapsedConverter}}"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding MainMenuStep}" Value="NoProfile">
-                                <Setter Property="Visibility" Value="Hidden"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
-                <TextBlock Text="Debug" Style="{StaticResource MainMenuTextStyle}" />
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,120">
+            <Control x:Name="CrossPlayWidget" Style="{StaticResource SignInButtonStyle}" Margin="0,0,50,0" VerticalAlignment="Bottom"/>
 
-                <TextBlock Style="{StaticResource MainMenuTextStyle}" Visibility="{Binding Data.IsGold, Converter={StaticResource BoolToCollapsedConverter}}">
+            <!-- Development/Testing Menu Items (Enable by setting Visibility to "Visible") -->
+            <StackPanel x:Name="DebugPanel" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0, 0, 10, 0" Orientation="Horizontal">
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="{Binding Data.IsGold, Converter={StaticResource BoolToCollapsedConverter}}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MainMenuStep}" Value="NoProfile">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="Debug" Style="{StaticResource MainMenuTextStyle}" />
+
+                    <TextBlock Style="{StaticResource MainMenuTextStyle}" Visibility="{Binding Data.IsGold, Converter={StaticResource BoolToCollapsedConverter}}">
                     <Run Text="Current Profile:"/>
                     <Run Text="{Binding CurrentPlayer.ProfileName}" Foreground="{StaticResource LS_alertTxtColor}"/>
-                </TextBlock>
+                    </TextBlock>
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock  Text="Current Main Mod:" Style="{StaticResource MainMenuTextStyle}" />
-                    <TextBlock Text="{Binding Data.DebugData.MainModName}" >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock  Text="Current Main Mod:" Style="{StaticResource MainMenuTextStyle}" />
+                        <TextBlock Text="{Binding Data.DebugData.MainModName}" >
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MainMenuTextStyle}">
+                                    <Setter Property="Foreground" Value="{StaticResource LS_alertTxtColor}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Data.DebugData.MainModName}" Value="Gustav">
+                                            <Setter Property="Foreground" Value="{StaticResource LS_PrimaryColor}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <TextBlock Text="This will be used on New Game!!" >
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource MainMenuTextStyle}">
-                                <Setter Property="Foreground" Value="{StaticResource LS_alertTxtColor}"/>
+                                <Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Data.DebugData.MainModName}" Value="Gustav">
-                                        <Setter Property="Foreground" Value="{StaticResource LS_PrimaryColor}"/>
+                                        <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                </StackPanel>
 
-                <TextBlock Text="This will be used on New Game!!" >
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource MainMenuTextStyle}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Data.DebugData.MainModName}" Value="Gustav">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-
-                <ls:LSButton Content="Reset Main Mod" Command="{Binding LoadModCommand}" Margin="0,12">
-                    <ls:LSButton.CommandParameter>
-                        <MultiBinding Converter="{StaticResource PassThroughConverter}">
-                        <Binding Source="Gustav"/>
-                        <Binding Source="991c9c7a-fb80-40cb-8f0d-b92d4e80e9b1"/>
-                        </MultiBinding>
-                    </ls:LSButton.CommandParameter>
-                    <ls:LSButton.Style>
-                        <Style TargetType="ls:LSButton" BasedOn="{StaticResource BigBrownButtonStyle}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                            <DataTrigger Binding="{Binding Data.DebugData.MainModName}" Value="Gustav">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ls:LSButton.Style>
-                </ls:LSButton>
-
-                <StackPanel Orientation="Vertical">
-
-                <ls:LSButton x:Name="ActiveDevModButton" Content="Activate Dev Mod" Command="{Binding LoadModCommand}" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
-                    <ls:LSButton.CommandParameter>
-                        <MultiBinding Converter="{StaticResource PassThroughConverter}">
-                            <Binding Source="GustavDev"/>
-                            <Binding Source="28ac9ce2-2aba-8cda-b3b5-6e922f71b6b8"/>
-                        </MultiBinding>
-                    </ls:LSButton.CommandParameter>
-                    <Button.RenderTransform>
-                        <TranslateTransform/>
-                    </Button.RenderTransform>
-
-                    <b:Interaction.Triggers>
-                        <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
-                            <b:ChangePropertyAction TargetName="ActiveDevModButton" PropertyName="Opacity" Value="1" />
-                            <b:ControlStoryboardAction ControlStoryboardOption="Play">
-                                <b:ControlStoryboardAction.Storyboard>
-                                    <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
-                                </b:ControlStoryboardAction.Storyboard>
-                            </b:ControlStoryboardAction>
-                        </b:TimerTrigger>
-                    </b:Interaction.Triggers>
-                </ls:LSButton>
-
-                    <ls:LSButton x:Name="ActiveExperimentalModButton" Content="Activate Experimental Mod" Command="{Binding LoadModCommand}" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
-                        <ls:LSButton.CommandParameter>
-                            <MultiBinding Converter="{StaticResource PassThroughConverter}">
-                                <Binding Source="Experimental"/>
-                                <Binding Source="6708b176-85f3-2333-c7cf-3503be52a598"/>
-                            </MultiBinding>
-                        </ls:LSButton.CommandParameter>
-                        <Button.RenderTransform>
-                            <TranslateTransform/>
-                        </Button.RenderTransform>
-
-                        <b:Interaction.Triggers>
-                            <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
-                                <b:ChangePropertyAction TargetName="ActiveExperimentalModButton" PropertyName="Opacity" Value="1" />
-                                <b:ControlStoryboardAction ControlStoryboardOption="Play">
-                                    <b:ControlStoryboardAction.Storyboard>
-                                        <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
-                                    </b:ControlStoryboardAction.Storyboard>
-                                </b:ControlStoryboardAction>
-                            </b:TimerTrigger>
-                        </b:Interaction.Triggers>
-                    </ls:LSButton>
-
-                    <ls:LSButton x:Name="ActivateXModButton" Content="Activate X Mod" Command="{Binding LoadModCommand}" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
+                    <ls:LSButton Content="Reset Main Mod" Command="{Binding LoadModCommand}" Margin="0,12">
                         <ls:LSButton.CommandParameter>
                             <MultiBinding Converter="{StaticResource PassThroughConverter}">
                                 <Binding Source="GustavX"/>
                                 <Binding Source="cb555efe-2d9e-131f-8195-a89329d218ea"/>
                             </MultiBinding>
                         </ls:LSButton.CommandParameter>
-                        <Button.RenderTransform>
-                            <TranslateTransform/>
-                        </Button.RenderTransform>
-
-                        <b:Interaction.Triggers>
-                            <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
-                                <b:ChangePropertyAction TargetName="ActivateXModButton" PropertyName="Opacity" Value="1" />
-                                <b:ControlStoryboardAction ControlStoryboardOption="Play">
-                                    <b:ControlStoryboardAction.Storyboard>
-                                        <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
-                                    </b:ControlStoryboardAction.Storyboard>
-                                </b:ControlStoryboardAction>
-                            </b:TimerTrigger>
-                        </b:Interaction.Triggers>
+                        <ls:LSButton.Style>
+                            <Style TargetType="ls:LSButton" BasedOn="{StaticResource BigBrownButtonStyle}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Data.DebugData.MainModName}" Value="GustavX">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ls:LSButton.Style>
                     </ls:LSButton>
 
-                    <ls:LSButton x:Name="StartTestLevelButton" Content="START TEST LEVEL" Command="{Binding StartTestLevelCommand}" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
-                        <Button.RenderTransform>
-                            <TranslateTransform/>
-                        </Button.RenderTransform>
+                    <StackPanel Orientation="Vertical">
 
-                        <b:Interaction.Triggers>
-                            <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
-                                <b:ChangePropertyAction TargetName="StartTestLevelButton" PropertyName="Opacity" Value="1" />
-                                <b:ControlStoryboardAction ControlStoryboardOption="Play">
-                                    <b:ControlStoryboardAction.Storyboard>
-                                        <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
-                                    </b:ControlStoryboardAction.Storyboard>
-                                </b:ControlStoryboardAction>
-                            </b:TimerTrigger>
-                        </b:Interaction.Triggers>
-                    </ls:LSButton>
+                        <ls:LSButton x:Name="ActiveExperimentalModButton" Content="Activate Experimental Mod" Command="{Binding LoadModCommand}" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
+                            <ls:LSButton.CommandParameter>
+                                <MultiBinding Converter="{StaticResource PassThroughConverter}">
+                                    <Binding Source="Experimental"/>
+                                    <Binding Source="6708b176-85f3-2333-c7cf-3503be52a598"/>
+                                </MultiBinding>
+                            </ls:LSButton.CommandParameter>
+                            <Button.RenderTransform>
+                                <TranslateTransform/>
+                            </Button.RenderTransform>
 
-                    <ls:LSButton x:Name="StartNoCCButton" Content="START GAME no cc" Command="{Binding StartGameCommand}" CommandParameter="NoCC" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
-                        <Button.RenderTransform>
-                            <TranslateTransform/>
-                        </Button.RenderTransform>
+                            <b:Interaction.Triggers>
+                                <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
+                                    <b:ChangePropertyAction TargetName="ActiveExperimentalModButton" PropertyName="Opacity" Value="1" />
+                                    <b:ControlStoryboardAction ControlStoryboardOption="Play">
+                                        <b:ControlStoryboardAction.Storyboard>
+                                            <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
+                                        </b:ControlStoryboardAction.Storyboard>
+                                    </b:ControlStoryboardAction>
+                                </b:TimerTrigger>
+                            </b:Interaction.Triggers>
+                        </ls:LSButton>
 
-                        <b:Interaction.Triggers>
-                            <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
-                                <b:ChangePropertyAction TargetName="StartNoCCButton" PropertyName="Opacity" Value="1" />
-                                <b:ControlStoryboardAction ControlStoryboardOption="Play">
-                                    <b:ControlStoryboardAction.Storyboard>
-                                        <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
-                                    </b:ControlStoryboardAction.Storyboard>
-                                </b:ControlStoryboardAction>
-                            </b:TimerTrigger>
-                        </b:Interaction.Triggers>
-                    </ls:LSButton>
+                        <ls:LSButton x:Name="StartTestLevelButton" Content="START TEST LEVEL" Command="{Binding StartTestLevelCommand}" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
+                            <Button.RenderTransform>
+                                <TranslateTransform/>
+                            </Button.RenderTransform>
 
+                            <b:Interaction.Triggers>
+                                <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
+                                    <b:ChangePropertyAction TargetName="StartTestLevelButton" PropertyName="Opacity" Value="1" />
+                                    <b:ControlStoryboardAction ControlStoryboardOption="Play">
+                                        <b:ControlStoryboardAction.Storyboard>
+                                            <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
+                                        </b:ControlStoryboardAction.Storyboard>
+                                    </b:ControlStoryboardAction>
+                                </b:TimerTrigger>
+                            </b:Interaction.Triggers>
+                        </ls:LSButton>
+
+                        <ls:LSButton x:Name="StartNoCCButton" Content="START GAME no cc" Command="{Binding StartGameCommand}" CommandParameter="NoCC" Style="{StaticResource BigBrownButtonStyle}" Opacity="0" Margin="0,12">
+                            <Button.RenderTransform>
+                                <TranslateTransform/>
+                            </Button.RenderTransform>
+
+                            <b:Interaction.Triggers>
+                                <b:TimerTrigger EventName="Loaded" MillisecondsPerTick="150" TotalTicks="1">
+                                    <b:ChangePropertyAction TargetName="StartNoCCButton" PropertyName="Opacity" Value="1" />
+                                    <b:ControlStoryboardAction ControlStoryboardOption="Play">
+                                        <b:ControlStoryboardAction.Storyboard>
+                                            <Storyboard Children="{StaticResource SimpleMoveAndFadeIn}"/>
+                                        </b:ControlStoryboardAction.Storyboard>
+                                    </b:ControlStoryboardAction>
+                                </b:TimerTrigger>
+                            </b:Interaction.Triggers>
+                        </ls:LSButton>
+
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </StackPanel>
+
         <DockPanel x:Name="LegalTextGroup" VerticalAlignment="Bottom" Margin="64,36">
             <TextBlock x:Name="LegalLine" DockPanel.Dock="Left" Text="{Binding LegalLine}" Style="{StaticResource MainMenuTextStyle}"/>
             <TextBlock x:Name="VersionString" DockPanel.Dock="Right" Text="{Binding Data.VersionString}" Style="{StaticResource MainMenuTextStyle}" />
             <TextBlock x:Name="UserFeedback" Text="{Binding UserFeedback}" TextWrapping="Wrap" Style="{StaticResource MainMenuTextStyle}" MaxWidth="1400"/>
         </DockPanel>
-
-        <Control x:Name="ModVerificationWarning" Template="{StaticResource ModVerificationWindowTemplate}"/>
-
     </Grid>
 
     <b:Interaction.Triggers>
