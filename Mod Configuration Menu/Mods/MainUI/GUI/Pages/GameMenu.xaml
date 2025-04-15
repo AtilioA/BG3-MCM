@@ -113,8 +113,8 @@
                                  SoundID="UI_HUD_GameMenu_Options" Margin="{StaticResource MainButtonSpacing}">
                     </ls:LSButton>
 
-                                        <!-- CUSTOM MCM BUTTON -->
-                    <ls:LSButton x:Name="MCMButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='h6e8c611890eb4a589f1777131bebe79a2fcd', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="OpenModMenuConfig" SoundID="UI_HUD_GameMenu_Options" Margin="{StaticResource MainButtonSpacing}">
+                    <!-- CUSTOM MCM BUTTON -->
+                    <ls:LSButton x:Name="MCMButton" Style="{StaticResource BigBrownButtonStyle}" Content="{Binding Source='h8e2c39a3f3c040aebfb9ad10339dd4ff89f7', Converter={StaticResource TranslatedStringConverter}}" Command="{Binding CustomEvent}" CommandParameter="OpenModMenuConfig" SoundID="UI_HUD_GameMenu_Options" Margin="{StaticResource MainButtonSpacing}">
                     </ls:LSButton>
 
                     <ls:LSButton x:Name="CurrentGameSettingsButton" Style="{StaticResource BigBrownButtonStyle}"
