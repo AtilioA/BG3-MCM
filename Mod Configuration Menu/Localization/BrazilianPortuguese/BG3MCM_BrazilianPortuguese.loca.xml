@@ -157,4 +157,5 @@
     <content contentuid="hff55f0470579497788e9e048f207f1097809" version="1">Quando o MCM é aberto (após carregar um save), automaticamente restaura a última página de mod usada.</content>
     <content contentuid="h77422890f2f5433486d6e9990a950c91g061" version="1">Restaurar a última página usada</content>
     <content contentuid="h90ef12cdf9314d539f9712e41fe2f4bb8afd" version="1">Quando uma página de mod é aberta, automaticamente restaura a última aba usada para esse mod.</content>
+    <content contentuid="h62488e121c3345bf81777731789205cd2154" version="1">Se você não vir a janela do MCM, consulte o guia na página do MCM na Nexus para obter ajuda.&lt;br&gt;Isso geralmente é causado por overlays de terceiros ou por dar alt-tab antes de chegar no menu principal.&lt;br&gt;Você também pode tentar excluir o arquivo imgui.ini dentro da pasta do jogo.</content>
 </contentList>

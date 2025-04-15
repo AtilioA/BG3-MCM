@@ -101,8 +101,7 @@ end
 
 local function showTroubleshootingNotification(userCharacter)
     -- TODO: use loca
-    Osi.OpenMessageBox(userCharacter,
-        "If you don't see the MCM window, please see the mod page for troubleshooting steps.\nThis is usually caused by third-party overlays or by alt-tabbing before reaching the main menu.")
+    Osi.OpenMessageBox(userCharacter, Ext.Loca.GetTranslatedString("h62488e121c3345bf81777731789205cd2154"))
 end
 
 local function updateNotificationStatus(userId, MCMModVars)

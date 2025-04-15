@@ -159,4 +159,5 @@
     <content contentuid="hff55f0470579497788e9e048f207f1097809" version="1">When opening MCM (after loading a save), automatically restore the last used mod page.</content>
     <content contentuid="h77422890f2f5433486d6e9990a950c91g061" version="1">Restore last used page</content>
     <content contentuid="h90ef12cdf9314d539f9712e41fe2f4bb8afd" version="1">When a mod page is opened, automatically restore the last used subtab for that mod.</content>
+    <content contentuid="h62488e121c3345bf81777731789205cd2154" version="1">If you don't see the MCM window, please see the mod page for troubleshooting steps.&lt;br&gt;This is usually caused by third-party overlays or by alt-tabbing before reaching the main menu.&lt;br&gt;You may also try deleting imgui.ini inside the game's folder.</content>
 </contentList>
