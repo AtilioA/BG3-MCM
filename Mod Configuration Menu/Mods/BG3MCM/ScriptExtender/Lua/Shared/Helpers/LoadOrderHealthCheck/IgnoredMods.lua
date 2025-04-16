@@ -128,6 +128,20 @@ IgnoredModDependencies = {
             Description = "",
             Reason = "Vanilla pak file"
         },
+        ["cb555efe-2d9e-131f-8195-a89329d218ea"] = {
+            Name = "GustavX",
+            UUID = "cb555efe-2d9e-131f-8195-a89329d218ea",
+            Author = "Larian Studios",
+            Description = "",
+            Reason = "Vanilla pak file"
+        },
+        ["767d0062-d82c-279c-e16b-dfee7fe94cdd"] = {
+            Name = "HonourX",
+            UUID = "767d0062-d82c-279c-e16b-dfee7fe94cdd",
+            Author = "Larian Studios",
+            Description = "",
+            Reason = "Vanilla pak file"
+        },
         -- ["4cb0fd40-7212-4fe9-8733-9a8dbc6637ae"] = {
         --     Name = "unique_tav",
         --     UUID = "4cb0fd40-7212-4fe9-8733-9a8dbc6637ae",
