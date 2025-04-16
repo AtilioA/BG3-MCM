@@ -124,37 +124,33 @@ function IMGUIWidget:UpdateCurrentValue(value)
     error("IMGUIWidget:UpdateCurrentValue must be overridden in a derived class")
 end
 
+--- Extract the value from the widget's OnChange event
+--- This must be implemented by each widget subclass to properly handle its specific event structure
+--- @param value any The value from the OnChange event
+--- @return any The extracted value
+function IMGUIWidget:GetOnChangeValue(value)
+    error("IMGUIWidget:GetOnChangeValue must be overridden in a derived class")
+end
+
 --- Extract the actual value from a widget event
 --- Different widget types have different event structures, so this attempts to get the value in a generic way
 --- @param widget any The widget instance
 --- @param eventValue any The value from the OnChange event
 --- @return any The extracted value
 function IMGUIWidget:ExtractValueFromWidgetEvent(widget, eventValue)
-    -- Handle different event structures based on widget type pattern recognition
-    local success, result = xpcall(function()
-        -- Try to access the value
-        if eventValue.Checked ~= nil then
-            return eventValue.Checked
-        elseif eventValue.Value and type(eventValue.Value) == "table" and #eventValue.Value > 0 then
-            return eventValue.Value[1]
-        elseif eventValue.Text ~= nil then
-            return eventValue.Text
-        elseif eventValue.Value ~= nil then
-            return eventValue.Value
-        elseif eventValue.Selected ~= nil then
-            return eventValue.Selected
+    -- Use the widget's specific GetOnChangeValue if available
+    if widget.GetOnChangeValue then
+        local success, result = xpcall(function()
+            return widget:GetOnChangeValue(eventValue)
+        end, debug.traceback)
+
+        if success then
+            return result
         end
-
-        -- Fallback to returning the entire event value
-        return eventValue
-    end, debug.traceback)
-
-    if not success then
-        -- If access failed, return nil
-        return nil
     end
 
-    return result
+    -- Fallback to returning the entire event value if the specific method failed or doesn't exist
+    return eventValue
 end
 
 --- Updates the visibility of the reset button based on whether current value equals default value

@@ -14,6 +14,10 @@ function DragIntIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
 end
 
+function DragIntIMGUIWidget:GetOnChangeValue(value)
+    return value.Value[1]
+end
+
 function DragIntIMGUIWidget:SetupTooltip(widget, setting)
     local localizedText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
         string.format("%s", setting.Options.Min), string.format("%s", setting.Options.Max))

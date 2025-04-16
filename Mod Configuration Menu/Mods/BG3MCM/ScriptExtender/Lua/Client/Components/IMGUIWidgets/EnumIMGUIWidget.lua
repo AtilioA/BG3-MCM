@@ -67,3 +67,7 @@ function EnumIMGUIWidget:UpdateCurrentValue(value)
         end
     end
 end
+
+function EnumIMGUIWidget:GetOnChangeValue(value)
+    return self.Widget.UserData.OptionsLookup[value.Options[value.SelectedIndex + 1]]
+end

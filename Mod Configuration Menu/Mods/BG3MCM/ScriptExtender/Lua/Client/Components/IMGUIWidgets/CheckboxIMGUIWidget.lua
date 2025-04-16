@@ -14,3 +14,7 @@ end
 function CheckboxIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Checked = value
 end
+
+function CheckboxIMGUIWidget:GetOnChangeValue(value)
+    return value.Checked
+end

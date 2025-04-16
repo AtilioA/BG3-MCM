@@ -49,3 +49,7 @@ end
 function IntIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
 end
+
+function IntIMGUIWidget:GetOnChangeValue(value)
+    return value.Value[1]
+end

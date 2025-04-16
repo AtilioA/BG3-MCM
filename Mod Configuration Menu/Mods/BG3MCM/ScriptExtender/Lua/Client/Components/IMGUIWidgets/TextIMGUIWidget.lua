@@ -21,3 +21,7 @@ end
 function TextIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Text = value
 end
+
+function TextIMGUIWidget:GetOnChangeValue(value)
+    return value.Text
+end

@@ -13,3 +13,7 @@ end
 function FloatIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
 end
+
+function FloatIMGUIWidget:GetOnChangeValue(value)
+    return value.Value[1]
+end

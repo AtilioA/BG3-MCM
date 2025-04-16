@@ -14,6 +14,10 @@ function SliderFloatIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
 end
 
+function SliderFloatIMGUIWidget:GetOnChangeValue(value)
+    return value.Value[1]
+end
+
 function SliderFloatIMGUIWidget:SetupTooltip(widget, setting)
     local localizedText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
         string.format("%.2f", setting.Options.Min), string.format("%.2f", setting.Options.Max))

@@ -15,3 +15,7 @@ end
 function ColorEditIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Color = value
 end
+
+function ColorEditIMGUIWidget:GetOnChangeValue(value)
+    return value.Color
+end

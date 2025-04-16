@@ -68,3 +68,7 @@ function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
 
     tt:AddText(Ext.Loca.GetTranslatedString("h0dfee4b6ba51423da77eaa53e1961ade059f"))
 end
+
+function SliderIntIMGUIWidget:GetOnChangeValue(value)
+    return value.Value[1]
+end

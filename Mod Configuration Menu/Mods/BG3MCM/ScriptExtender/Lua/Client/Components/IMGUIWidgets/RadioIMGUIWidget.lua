@@ -60,3 +60,7 @@ function RadioIMGUIWidget:UpdateCurrentValue(value)
         button.Active = button.Label == value
     end
 end
+
+function RadioIMGUIWidget:GetOnChangeValue(value)
+    return value.Label
+end
