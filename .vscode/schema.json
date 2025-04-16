@@ -815,6 +815,11 @@
                                                 "type": "boolean",
                                                 "description": "Prevent the keybinding from triggering when the game level has not started yet. Useful for actions that should only work in-game, not in the main menu. Default: false",
                                                 "default": false
+                                            },
+                                            "PreventAction": {
+                                                "type": "boolean",
+                                                "description": "When true (default), the keybinding will prevent the original game action. When false, allows the original action to occur (i.e. they keybinding will fall through).",
+                                                "default": true
                                             }
                                         },
                                         "additionalProperties": false,

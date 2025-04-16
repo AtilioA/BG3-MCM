@@ -14,18 +14,6 @@ local allowedActiveModifiers = {
     RALT   = true,
 }
 
-function KeybindingManager:ShouldPreventAction(e)
-    if e.PreventAction == nil then
-        return false
-    end
-
-    if e.Key == "ESCAPE" then
-        return false
-    end
-
-    return true
-end
-
 -- Checks if a table is a keybinding table
 function KeybindingManager:IsKeybindingTable(value)
     return type(value) == "table" and value.ScanCode ~= nil and value.Modifier ~= nil
@@ -37,7 +25,6 @@ function KeybindingManager:IsActiveModifier(key)
     local isActive = allowedActiveModifiers[normalizedKey] or false
     return isActive
 end
-
 
 function KeybindingManager:IsModifierNull(modifier)
     return modifier == nil or modifier == "" or modifier == "NONE"

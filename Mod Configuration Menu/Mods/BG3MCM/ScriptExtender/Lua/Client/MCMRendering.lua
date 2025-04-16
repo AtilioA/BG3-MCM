@@ -463,6 +463,7 @@ function MCMRendering:GetAllKeybindings()
                         ShouldTriggerOnKeyUp = (setting.Options and setting.Options.ShouldTriggerOnKeyUp) or false,
                         ShouldTriggerOnKeyDown = (setting.Options and setting.Options.ShouldTriggerOnKeyDown) or true,
                         BlockIfLevelNotStarted = (setting.Options and setting.Options.BlockIfLevelNotStarted) or false,
+                        PreventAction = (setting.Options and setting.Options.PreventAction) or false,
                         IsDeveloperOnly = (setting.Options and setting.Options.IsDeveloperOnly) or false
                     })
                 end
