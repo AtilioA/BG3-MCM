@@ -77,17 +77,18 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 modUUID = mod.ModUUID,
                 actionName = action.ActionName,
                 actionId = action.ActionId,
-                keyboardBinding = action.KeyboardMouseBinding,
-                enabled = action.Enabled,
-                defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
-                defaultEnabled = action.DefaultEnabled,
-                shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
-                shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
-                shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
-                blockIfLevelNotStarted = action.BlockIfLevelNotStarted,
-                preventAction = (action.Options and action.Options.PreventAction ~= false) or true, -- Default to true if not specified
+                keyboardBinding = Fallback.Value(action.KeyboardMouseBinding, { Key = "", ModifierKeys = { "NONE" } }),
+                enabled = Fallback.Value(action.Enabled, true),
+                defaultKeyboardBinding = Fallback.Value(action.DefaultKeyboardMouseBinding,
+                    { Key = "", ModifierKeys = { "NONE" } }),
+                defaultEnabled = Fallback.Value(action.DefaultEnabled, true),
+                shouldTriggerOnRepeat = Fallback.Value(action.ShouldTriggerOnRepeat, false),
+                shouldTriggerOnKeyUp = Fallback.Value(action.ShouldTriggerOnKeyUp, false),
+                shouldTriggerOnKeyDown = Fallback.Value(action.ShouldTriggerOnKeyDown, true),
+                blockIfLevelNotStarted = Fallback.Value(action.BlockIfLevelNotStarted, false),
+                preventAction = Fallback.Value(action.PreventAction, true),
                 description = action.Description,
-                isDeveloperOnly = action.IsDeveloperOnly,
+                isDeveloperOnly = Fallback.Value(action.IsDeveloperOnly, false),
                 tooltip = action.Tooltip,
                 -- Compute the visibility flag (for UI listing)
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
@@ -256,6 +257,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         end
     end
 
+    _D(triggered)
     if #triggered > 0 and KeybindingsRegistry.ShouldPreventAction(e, triggered) then
         e:PreventAction()
     end
