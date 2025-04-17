@@ -2,8 +2,9 @@ Noesis = {}
 
 MCM_BUTTON_HANDLE_ORIGINAL_CONTENT = Ext.Loca.GetTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7")
 
---- Thanks Norbyte for this!
-function Noesis:findNoesisElementByName(element, name)
+
+--- Thanks Norbyte for these!
+local function findNoesisElementByName(element, name)
     if not element then
         return nil
     end
@@ -13,7 +14,7 @@ function Noesis:findNoesisElementByName(element, name)
     end
 
     for i = 1, element.VisualChildrenCount do
-        local foundElement = self:findNoesisElementByName(element:VisualChild(i), name)
+        local foundElement = findNoesisElementByName(element:VisualChild(i), name)
         if foundElement then
             return foundElement
         end
@@ -22,8 +23,35 @@ function Noesis:findNoesisElementByName(element, name)
     return nil
 end
 
+function Noesis:FindWidgetChild(widgetName, name)
+    local root = Ext.UI.GetRoot():Find("ContentRoot")
+    if not root then
+        MCMError(0, "ContentRoot not found")
+        return nil
+    end
+
+    local ok, result = xpcall(function()
+        for i = 1, root.ChildrenCount do
+            local widget = root:Child(i)
+            if widget.Name == widgetName then
+                return findNoesisElementByName(widget, name)
+            end
+        end
+        return nil
+    end, function(err)
+        MCMError(0, "Error finding widget: " .. tostring(err))
+        return nil
+    end)
+
+    if ok then
+        return result
+    else
+        return nil
+    end
+end
+
 function Noesis:FindMCMGameMenuButton()
-    local target = self:findNoesisElementByName(Ext.UI.GetRoot(), "MCMButton")
+    local target = Noesis:FindWidgetChild("GameMenu", "MCMButton")
     if target then
         MCMDebug(3, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
         return target
@@ -33,7 +61,7 @@ function Noesis:FindMCMGameMenuButton()
 end
 
 function Noesis:FindMCMainMenuButton()
-    local target = self:findNoesisElementByName(Ext.UI.GetRoot(), "MCMMainMenuButton")
+    local target = Noesis:FindWidgetChild("MainMenu", "MCMMainMenuButton")
     if target then
         MCMDebug(1, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
         return target
@@ -83,7 +111,7 @@ local function handleMCMButtonPress(button, hasServer)
         end
         MCMPrint(1,
             "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-            IMGUIAPI:ToggleMCMWindow(false)
+        IMGUIAPI:ToggleMCMWindow(false)
     end)
 end
 
