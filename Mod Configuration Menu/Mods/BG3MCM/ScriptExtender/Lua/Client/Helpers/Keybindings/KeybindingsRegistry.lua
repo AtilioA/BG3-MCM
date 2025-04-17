@@ -257,7 +257,6 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         end
     end
 
-    _D(triggered)
     if #triggered > 0 and KeybindingsRegistry.ShouldPreventAction(e, triggered) then
         e:PreventAction()
     end
