@@ -1,5 +1,5 @@
----@class FloatUtils
-local FloatUtils = {}
+---@class FloatUtils: Validator
+FloatUtils = _Class:Create("FloatUtils", Validator)
 
 -- TODO: make this configurable in a setting-by-setting basis, since some settings may be more sensitive than others
 -- This should be a good start for now
@@ -17,5 +17,3 @@ function FloatUtils.isWithinEpsilon(value, min, max, epsilon)
     end
     return true
 end
-
-return FloatUtils
