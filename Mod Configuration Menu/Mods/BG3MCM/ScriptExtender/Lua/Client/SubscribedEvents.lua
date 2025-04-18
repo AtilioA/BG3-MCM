@@ -124,8 +124,6 @@ ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(pay
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
 
     IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
-
-    IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 end)
 
 --- SECTION: Mod events
