@@ -282,7 +282,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         return
     end
 
-    if KeybindingManager:ShouldPreventAction(e) then
+    if KeybindingsRegistry.ShouldPreventAction(e) then
         e:PreventAction()
         e:StopPropagation()
     end

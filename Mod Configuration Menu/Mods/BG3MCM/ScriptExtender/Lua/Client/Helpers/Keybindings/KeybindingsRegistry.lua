@@ -77,16 +77,18 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 modUUID = mod.ModUUID,
                 actionName = action.ActionName,
                 actionId = action.ActionId,
-                keyboardBinding = action.KeyboardMouseBinding,
-                enabled = action.Enabled,
-                defaultKeyboardBinding = action.DefaultKeyboardMouseBinding,
-                defaultEnabled = action.DefaultEnabled,
-                shouldTriggerOnRepeat = action.ShouldTriggerOnRepeat,
-                shouldTriggerOnKeyUp = action.ShouldTriggerOnKeyUp,
-                shouldTriggerOnKeyDown = action.ShouldTriggerOnKeyDown,
-                blockIfLevelNotStarted = action.BlockIfLevelNotStarted,
+                keyboardBinding = Fallback.Value(action.KeyboardMouseBinding, { Key = "", ModifierKeys = { "NONE" } }),
+                enabled = Fallback.Value(action.Enabled, true),
+                defaultKeyboardBinding = Fallback.Value(action.DefaultKeyboardMouseBinding,
+                    { Key = "", ModifierKeys = { "NONE" } }),
+                defaultEnabled = Fallback.Value(action.DefaultEnabled, true),
+                shouldTriggerOnRepeat = Fallback.Value(action.ShouldTriggerOnRepeat, false),
+                shouldTriggerOnKeyUp = Fallback.Value(action.ShouldTriggerOnKeyUp, false),
+                shouldTriggerOnKeyDown = Fallback.Value(action.ShouldTriggerOnKeyDown, true),
+                blockIfLevelNotStarted = Fallback.Value(action.BlockIfLevelNotStarted, false),
+                preventAction = Fallback.Value(action.PreventAction, true),
                 description = action.Description,
-                isDeveloperOnly = action.IsDeveloperOnly,
+                isDeveloperOnly = Fallback.Value(action.IsDeveloperOnly, false),
                 tooltip = action.Tooltip,
                 -- Compute the visibility flag (for UI listing)
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
@@ -208,6 +210,40 @@ function KeybindingsRegistry.NotifyConflict(keybindingStr)
     )
 end
 
+--- Determines if an action should be prevented based on the triggered bindings
+--- @param e table The keyboard event
+--- @param triggeredBindings table[]|nil Optional array of triggered bindings
+--- @return boolean True if the action should be prevented, false otherwise
+function KeybindingsRegistry.ShouldPreventAction(e, triggeredBindings)
+    if e.PreventAction == nil then
+        return false
+    end
+
+    if e.Key == "ESCAPE" then
+        return false
+    end
+
+    -- Only check bindings if they were provided
+    if triggeredBindings then
+        -- If no bindings were triggered, don't prevent the action
+        if #triggeredBindings == 0 then
+            return false
+        end
+
+        -- Check if any triggered binding has PreventAction set to false
+        -- If any binding has PreventAction = false, we don't prevent the action
+        -- This will probably cause false positives, but it's better than preventing all actions or preventing none.
+        for _, binding in ipairs(triggeredBindings) do
+            if binding.preventAction == false then
+                return false
+            end
+        end
+    end
+
+    -- By default, prevent the action
+    return true
+end
+
 --- Dispatch a keyboard event.
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
     local triggered = {}
@@ -221,7 +257,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         end
     end
 
-    if #triggered ~= 0 and KeybindingManager:ShouldPreventAction(e) then
+    if #triggered > 0 and KeybindingsRegistry.ShouldPreventAction(e, triggered) then
         e:PreventAction()
     end
 

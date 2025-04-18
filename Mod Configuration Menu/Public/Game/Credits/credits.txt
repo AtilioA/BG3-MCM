@@ -1,0 +1,3846 @@
+<font size='42'>Larian Studios tm</font>
+<br><br>
+In loving memory of our friend and colleague<br>Jim Southworth<br>Cinematic Animation Lead<br><br><br>
+Directed by     SWEN VINCKE
+<br><br>
+Produced by     DAVID WALGRAVE
+<br><br>
+Animation Director     THIERRY VAN GYSEGHEM
+Art Director     JOACHIM VLEMINCKX
+Audio Director     STEFAN RANDELSHOFER
+Cinematic Director     JASON LATINO
+Composer / Music Director     BORISLAV SLAVOV
+PR & Communications Director     MOLLY CARROLL
+PR & Communications Director     LUKE KARMALI
+Performance Director     GREG LIDSTONE
+Publishing Director     MICHAEL DOUSE
+QA Director     OCTAAF FIEREMANS
+Scripting Director     BERT STEVENS
+Technical Animation Director     RICARDO AYASTA
+Technical Art Director     KOEN VAN MIERLO
+Technical Director     BERT VAN SEMMERTIER
+Technical Director     BLAKE MALTBY
+UI/UX Design Director     IMRE FULOP
+VFX Director     MICHA NOORDEGRAAF
+Voice and Casting Director     TOM PALLAI
+World Building Director     FARHANG NAMDAR
+<br><br><br>
+ANIMATION
+<br><br>
+GAMEPLAY ANIMATION
+Lead Animator     ALEX VAN OOTEGHEM
+Lead Animator     DOMINIC WALDING
+Associate Lead Animator     JO ANNE TAN
+Animation Producer     RYAN CLARK
+Associate Animation Producer     HAYLEY KONG
+Senior Animator     ANG WEI JUN
+Senior Animator     BRYAN NOTER
+Senior Animator     JOHNNY LING YIK FEI
+Senior Animator     JONAS BORGEMEISTER
+Senior Animator     MARIE-ÉMILIE FRÉCHETTE
+Senior Animator     NICOLAS DORVAL
+Animator     ARTHUR TAN HWA MENG
+Animator     DAVID GOUGEON
+Animator     ELEONORE DAMBRE
+Animator     ERIC KIM
+Animator     GABRIEL JOHNSON
+Animator     LORE DE JONGHE
+Animator     MEREL BEERS
+Animator     OLYA RI
+Animator     PIETER GLORIE
+Animator     ZOE JUHR-DEBENEDETTI
+Junior Animator     LIDIYA AZHAR
+Junior Animator     NATALIA SHESTAKOVA
+<br><br>
+TECH ANIMATION
+Associate Lead Rigging     DAVID KRAAIJKAMP
+Associate Lead Tech Animator     BRIAN CHAMBAERE
+Senior Rigger     SOHAM ARVIND PARMAR
+Senior Rigger     STIJN VALKENBORG
+Senior Rigger     TOMMY FORTIN
+Senior Tech Animator     JÉRÔME DRESE
+Senior Tech Animator     LIBERO MASINI
+Rigger     AN-SOFIE TRATSAERT
+Rigger     PATRICE PAQUIN COUTU
+Tech Animator     ARJO MUNNIK
+Tech Animator     GUY WOLFUS
+Tech Animator     ÉMILIEN CÔTÉ
+Junior Rigger     ALEXIS HAMMOND
+Junior Rigger     ELKE TRUMMER
+<br><br>
+ART
+<br><br>
+Art Producer     LERA VOROBYEVA
+<br><br>
+CHARACTER ART
+Lead Character Artist     ALENA DUBROVINA
+Senior Character Artist     ARTEM SHAPIRO
+Senior Character Artist     GINO LUKA KOLLING
+Senior Character Artist     JEAN-PIERRE ROY
+Senior Character Artist     MAXIME PONSLET
+Senior Character Artist     MYKYTA SVIECHNIKOV
+Senior Character Artist     NIKOLAI CHUGUNOV
+Senior Character Artist     REZA ABEDI
+Senior Character Artist     STEPHANIE CHAFE
+Senior Character Artist     VALERY KLISHEVICH
+Senior Character Artist     WAI YEH LEUNG
+Senior Character Artist     WAYNE CHU
+Character Artist     BERT VANHENGEL
+Character Artist     ELLIE PORFYRIDOU
+Character Artist     FRANÇOIS DEBRABANDERE
+Character Artist     LEVINNA ANGELITA
+Character Artist     LUNA DE GROOTE
+Character Artist     LUNA WULLAERT
+Character Artist     NARATH BORIBOONHIRANTHANA
+Character Artist     WIKTORIA KUBIEN
+<br><br>
+CONCEPT ART
+Senior Concept Artist     CLIFF LAUREYS
+Senior Concept Artist     JANE KATSUBO
+Senior Concept Artist     JEROEN DEVRIENDT
+Senior Concept Artist     KONSTANTIN PORUBOV
+Senior Concept Artist     RICHARD WHITTERS
+Senior Concept Artist     TANIA BUREAU-CIVIL
+Concept Artist     CARL BERTHELIUS
+Concept Artist     DAN IORGULESCU
+Concept Artist     NGUYEN THI HOAI CHAU
+Junior Concept Artist     AMANDA HO
+Junior Concept Artist     ANDREW MALCOLM
+<br><br>
+ENVIRONMENT ART
+Lead Environment Artist     GERT-JAN VAN DE PUT
+Associate Lead Environment Artist     RICK VAN DEN BERG
+Senior Environment Artist     ELISE VERHAGEN
+Senior Environment Artist     FREDERICK SENESAEL
+Senior Environment Artist     KONSTANTIN MELNIK
+Senior Environment Artist     MAXIM BOLOTIN
+Environment Artist     ALEKSANDRA FEDUN
+Environment Artist     EDWARD VANDERGHOTE
+Environment Artist     JEAN-CHRISTOPHE BOUFFARD
+Environment Artist     JEF SIMONS
+Environment Artist     MARTIJN PETERSEN
+Environment Artist     MAUDE BLONDEAU
+Environment Artist     OLIVIER BOUCHER
+Environment Artist     PAVEL VOZCHIKOV
+Environment Artist     STIMONA MILANOVA
+Environment Artist     TIM CODDENS
+Environment Artist     TIM WILMSEN
+Environment Artist     YUJIN SEOL
+Junior Environment Artist     BRODIE KEALL
+Junior Environment Artist     CINDY TANGUAY
+Junior Environment Artist     DANIIL SHASHENKOV
+Junior Environment Artist     SELENA TOBIN
+<br><br>
+LEVEL ART
+Senior Level Artist     ELISE ROCHEFORT
+Senior Level Artist     EMMANUEL MÉTIVIER
+Senior Level Artist     OLIVIER MIR
+<br><br>
+TECH ART
+Senior Tech Artist     JOYKA DE REYST
+Senior Tech Artist     VINCENT CALLEBAUT
+Tech Artist     BENJAMIN GHYS
+Tech Artist     CHRISTINA FEKKES
+Tech Artist     MILAN WILLEMS
+<br><br>
+VISUAL EFFECTS
+Lead VFX     GUILLAUME PIETTE
+Associate Lead VFX     STANISLAV VALOV
+Senior VFX Artist     SIMON HALL
+Senior VFX Artist     TIPHAINE FRANCHOMME
+VFX Artist     ALEXANDRE VONG
+VFX Artist     ALEXEY PUGIN
+VFX Artist     JESSICA LECOURS
+VFX Artist     JULIUSZ BIEŃKOWSKI
+VFX Artist     KUMIKO NAKASHIMA
+VFX Artist     OLIVIER HASSELLE
+VFX Artist     SARAH MENAGER
+<br><br>
+AUDIO
+Lead Sound     CHRISTIAN PACAUD
+Lead Sound     GIORGIO VEZZINI
+Associate VFX/SFX/DevOps Producer     PAULINE BROECKAERT
+Senior Sound Designer     GLENN GULLSKJEGG GOA
+Senior Sound Designer     KYLE WEBB
+Senior Sound Designer     VICTOR DOUCHIN
+Midi Orchestration and Additional Scoring     HRISTO HRISTOV
+Sound Designer     FRANK MUNRO
+Sound Designer     ROBIN SEYRAL
+Sound Programmer     MATTHEW ROSEN
+Tech Sound Designer     DANI KOGAN
+Tech Sound Designer     MATHEUS VILANO
+Tech Sound Designer     SEAN SORAGHAN
+Junior Sound Designer     DIARMUID NOLAN
+Junior Tech Sound Designer     ANDREA ABBRUZZESE
+<br><br>
+CINEMATICS
+<br><br>
+CINEMATIC ANIMATION
+Lead Cinematic Animator     JIM SOUTHWORTH
+Associate Lead Cinematic Animator     CHAD DAVIS
+Associate Lead Cinematic Animator     LILI TAN LAI YAN
+Cinematic Animation Producer     LEAH CALDWELL
+Associate Cinematic Producer     CINDY ARIAWATY DHARMAPALA
+Senior Cinematic Animator     AARON CLEMENT
+Senior Cinematic Animator     AMÉLIE LOYER
+Senior Cinematic Animator     BEAU MELO-ROBINSON
+Senior Cinematic Animator     CODY MITCHELL
+Senior Cinematic Animator     DAN ARMSTRONG
+Senior Cinematic Animator     GERRY JACOBS
+Senior Cinematic Animator     PAUL NOVOROL
+Senior Cinematic Animator     TARIK SRHIR
+Cinematic Animator     ADAM B SMITH
+Cinematic Animator     CHOICELYN TAN SIAW YING
+Cinematic Animator     CHRIS WOODS
+Cinematic Animator     CHRISTIAN DHARMAWAN
+Cinematic Animator     KAYLEIGH DE HAAN
+Cinematic Animator     LEE TZE GWEN
+Cinematic Animator     LOGAN PROVÉ
+Cinematic Animator     OLIVER SATTERLEY
+Junior Cinematic Animator     MARCO BARREDO
+Junior Cinematic Animator     MATHIAS VEKONY
+Junior Cinematic Animator     SIREETHON SRINUALLAONG
+Mocap Technician     CHRISI MITCHELL
+Mocap Technician     MATTHEW STEVENS
+<br><br>
+CINEMATIC ART
+Lead Cinematic Artist     FARIDZ RIDZUAN
+Lead Cinematic Artist     GRAHAM ROSS
+Lead Narrative Technology/Programming     KEVIN VAN NERUM
+Associate Lead Cinematic Artist     AZIMAH MOHD NOOR
+Associate Lead Cinematic Artist     ELLEN GRANT
+Associate Lead Cinematic Artist     KEALAN CUDLIPP
+Cinematic Producer     CHRISTIAN BANK ENEVOLDSEN
+Pipeline Producer     SRIRANJANI PARTHASARATHY
+VO Producer     SINÉAD BRADY
+Associate Cinematic Producer     ALEK SHARMA
+Senior Cinematic Artist     ELODIE CESELLI
+Senior Cinematic Artist     FELIX PEDULLA
+Senior Cinematic Artist     SIMON GAUTHIER
+Cinematic Artist     AIDI KHALID
+Cinematic Artist     JACK O'FLYNN
+Cinematic Artist     JASON CHOO KAM WHYE
+Cinematic Artist     KRIS BONGO
+Cinematic Artist     LEONG SHI PEI
+Cinematic Artist     MARTIN KELLY
+Cinematic Artist     MATTHEW DAVIS
+Cinematic Artist     RIVER STAS
+Cinematic Artist     TOM KLEINENBERG
+Cinematic Artist     WILSON LEE ZHI XIAN
+Cinematic Artist     WISNU IRAWAN
+Cinematic Storyboard Artist     DAVE STOKES
+Junior Cinematic Artist     AARON HOULIHAN
+Junior Cinematic Artist     DANIEL PORTER
+Junior Cinematic Artist     HARITH AIMAN
+Junior Cinematic Artist     HUSNIYAH AMRY
+Junior Cinematic Artist     JOSHUA KHOO ALAN
+Junior Cinematic Artist     KELLY MCCARVILL
+Junior Cinematic Artist     KILIAN DUFFY
+Junior Cinematic Artist     KRIZSHA PEROCHO
+Junior Cinematic Artist     MURAT ONDER
+Junior Cinematic Artist     PATRICIA SUM NAM KAO
+Junior Cinematic Artist     SEAN LOW ZHENG SHAN
+Junior Cinematic Artist     SIVANESH A/L M V SUKUMAR
+<br><br>
+LIGHTING
+Associate Lead Lighting Artist     JOANNIE LEBLANC
+<br><br>
+CODE
+<br><br>
+CONSOLE PROGRAMMING
+Lead Console Programmer     MIGUEL ÁNGEL HORNA
+Senior Console Programmer     ALFONSO COMÍN RODRÍGUEZ
+Console Programmer     JOSEP LLISTOSELLA RODRÍGUEZ
+Junior Console Programmer     DANIEL GÓMEZ I SAÑÉ
+<br><br>
+DEVOPS
+Lead DevOps     JOKE VAN OIJEN
+Senior DevOps Programmer     GABRIEL BOURGEOIS
+Senior DevOps Programmer     MISHA AKSENOV
+Senior DevOps Programmer     SEAN LEGG
+DevOps Programmer     DOMINICK CLEARY
+DevOps Programmer     HUGO BRANDÃO
+DevOps Programmer     RYAN BISSETT
+Junior DevOps Programmer     FELIPE HERNANDEZ ECHEVERRY
+<br><br>
+ENGINE PROGRAMMING
+Lead Engine Programmer     MIKLAS HOET
+Code Producer     TONY CABELLO
+Senior Engine Programmer     BASTIAN DAMMAN
+Senior Engine Programmer     CÉSAR SÁNCHEZ MARTÍN
+Senior Engine Programmer     DAAN NIJS
+Senior Engine Programmer     DANIEL FLOWER
+Senior Engine Programmer     GUILLERMO NWDD
+Senior Engine Programmer     JEAN-MICHEL GILBERT
+Senior Engine Programmer     LUCA DELTODESCO
+Senior Engine Programmer     LUKASZ ZARNOWIECKI
+Senior Engine Programmer     MICHAEL BRAITHWAITE
+Senior Engine Programmer     MIKHAIL KOROLEV
+Senior Engine Programmer     PETR POLEZHAEV
+Senior Engine Programmer     SERGEY EGOROV
+Senior Engine Programmer     SERGEY KORMISHIN
+Senior Engine Programmer     WANNES VANDERSTAPPEN
+Engine Programmer     ALEXANDER GRITSENKO
+Engine Programmer     ALEXEY KUZNETSOV
+Engine Programmer     ALEXEY TITOV
+Engine Programmer     BARTŁOMIEJ DYBISZ
+Engine Programmer     GILLES STEYT
+Engine Programmer     JUANJO GARRIDO
+Engine Programmer     JULIO RODRIGO MAGRANER
+Engine Programmer     MARC A. VECIANA
+Engine Programmer     MICHAŁ WITANOWSKI
+Engine Programmer     MICKY PASCUAL
+Engine Programmer     NADIA BALAGHI
+Junior Engine Programmer     ARNAU FARRÀS LLOBET
+Junior Engine Programmer     MICAEL LEVESQUE
+Junior Engine Programmer     TEENATHAYAALA VAIYANAN KANNAN
+<br><br>
+GAMEPLAY PROGRAMMING
+Lead Gameplay Programmer     ARTEM TITOV
+Code Producer     APOSTOL DADACHEV
+Senior Gameplay Programmer     ALEKSEI DREVIN
+Senior Gameplay Programmer     BRUCE SHTELMAKHER
+Senior Gameplay Programmer     DANIEL ARGUEDAS
+Senior Gameplay Programmer     DAVE FOOKS
+Senior Gameplay Programmer     MARTIN PAPANEK
+Senior Gameplay Programmer     NICHOLAS ZAHARIAS
+Senior Gameplay Programmer     RICK VAN MEER
+Senior Gameplay Programmer     STIJN DOYEN
+Gameplay Programmer     ALESSIO GIUSEPPE CALÌ
+Gameplay Programmer     DAWID SCZENDZINA
+Gameplay Programmer     JAVIER CAMPO
+Gameplay Programmer     MARIA BUKHARINA
+Gameplay Programmer     NIKITA ILIN
+Gameplay Programmer     OSCAR SERRANO GUASCH
+Gameplay Programmer     ROMAN MEITA
+Gameplay Programmer     YAROSLAV DUBITSKIY
+Gameplay Programmer     ZINO VANDERSTAPPEN
+Junior Gameplay Programmer     JOE SANSEVERINO VALVERDE
+Junior Gameplay Programmer     NICO FORTEZA OCAÑA
+<br><br>
+ML PROGRAMMING
+Lead Machine Learning Engineer     GABRIEL BOSQUE
+Machine Learning Engineer     JACK GODFREY
+Machine Learning Engineer     JAMES VAN DER POL
+<br><br>
+TOOLS PROGRAMMING
+Lead Tools Programmer     SEBASTIAAN SPRENGERS
+Associate Tools Producer     ANNA KRASOVA
+Senior Tools Programmer     ALEXANDER BORUP
+Senior Tools Programmer     DAWID NORAS
+Senior Tools Programmer     JANNIK BOTTERAM
+Senior Tools Programmer     JASON WEILER
+Senior Tools Programmer     MARJOLEIN GELDOF
+Senior Tools Programmer     TERRENCE ANDERSON
+Senior Tools Programmer     TOMASZ MORAWSKI
+Senior Tools Programmer     VADIM FORMANYUK
+Senior Tools Programmer     VIKTOR VAKHLAKOV
+Tools Programmer     DMITRY STEPANOV
+Tools Programmer     JORGE FERNÁNDEZ HERRERO
+Tools Programmer     VITALY CHERNYSHEV
+Tools Programmer     WILLIAM LAFRENIÈRE
+Junior Tools Programmer     CATHAL HILLS
+<br><br>
+UI PROGRAMMING
+Senior UI Programmer     KEN LEROY
+Senior UI Programmer     SERGI DÍAZ PUY
+Senior UI Programmer     SIMON MOORE
+UI Programmer     ALEXANDER LAPKO
+UI Programmer     JAVIER MOYA NÁJERA
+UI Programmer     MICHEL BUELENS
+Junior UI Programmer     NIKOS VANDEN BROEK
+Junior UI Programmer     VICTOR HUGO RIVERO MANGHIETR
+<br><br>
+DESIGN
+<br><br>
+COMBAT DESIGN
+Lead Combat Designer     EDOUARD IMBERT
+Design Producer Level / Systems / Combat     MARTIN KATZENMEIER
+Senior Combat Designer     MATT HOLLAND
+Combat Designer     ABIGAIL FLORES
+Combat Designer     MARTÍN MARTELLETTI
+Combat Designer     POL JANDULA ALEGRE
+<br><br>
+LEVEL DESIGN
+Senior Level Designer     DARKO IGNJATOVIC
+Senior Level Designer     JOHANNES THÉ
+Senior Level Designer     TOM MOONEY
+Level Designer     WARD D'HEER
+<br><br>
+RPG DESIGN
+Region Producer     ANNA PREIN
+Region Producer     JOHN O'BRIEN
+Associate Region Producer     JULIEN BRUN
+Senior RPG Designer     ANNA GUXENS CHAPARRO
+Senior RPG Designer     VIACHESLAV KOZIKHIN
+RPG Designer     THOMAS DE MOT
+Junior RPG Designer     ALEXANDRE CHOQUET
+<br><br>
+SYSTEMS DESIGN
+Lead Systems Designer     NICK PECHENIN
+Senior Systems Designer     MARTIN STRAPKO
+Senior Systems Designer     ROSS STEPHENS
+Data Analyst     EGOR YUZHAKOV
+Systems Designer     ANDREY STOLIAROV
+Systems Designer     HALEY VALENCIA
+Systems Designer     PANDU JATIKUSUMO
+<br><br>
+UI/UX DESIGN
+UI/UX Design Producer     STEPH FAWCETT
+Senior UI Designer     ROBERT KERR
+Senior UI/UX Designer     RYAN JOHN
+Senior UI/UX Designer     THOMAS POTTIE
+UI/UX Designer     BENOÎT BOYER-MAGONI
+UI/UX Designer     MARCUS CONNOR
+UI/UX Designer     ÉMILIE LAFLEUR
+Junior UI/UX Designer     SÁRA BENEDETTA HIRST
+<br><br>
+QA
+<br><br>
+GAME ENGINE QA
+Lead Game Engine QA     DMITRII NISKOROMNYKH
+Senior Game Engine QA     LYRA STOBO
+Game Engine QA     ADRIÁN CASTILLO LÓPEZ
+Game Engine QA     BRIAN CONNER
+Game Engine QA     ILYA ZHUKOV
+Game Engine QA     NIKITA ABRAMOV
+Game Engine QA     PAVEL ANDREEV
+Game Engine QA     ROMAN PARAMONOV
+Junior Game Engine QA     JASON ACCARDO
+Junior Game Engine QA     KEVIN ST-JEAN
+Junior Game Engine QA     MARCO MORO
+<br><br>
+GAMEPLAY AUTOMATION QA
+Associate Lead Automation QA     MEGAT DENNEY
+Automation QA     ANTHONY TJOKRO HARTONO
+Automation QA     JASON AORON ANAK ANCHUM
+Automation QA     JUSTIN NG WEI SHUNG
+Automation QA     TAN JIM SON
+Automation QA     WAN AIMAN SHAUQI BIN WAN MOHD SOPI
+<br><br>
+GAMEPLAY QA
+Lead Gameplay QA     KONSTANTIN FEOFANOV
+Lead Gameplay QA     PETRO GORNOSTAYEV
+Associate Lead Cinematic QA     ALEXANDRE BARRETTE
+Associate Lead Gameplay QA     AMERZ CHEK HONG-JIAN
+Associate Lead Gameplay QA     MOHD AMIR BIN AZMI
+Associate Lead Gameplay QA     SOFIA BEKETOVA
+QA Producer     ALEXANDER VASILOV
+Associate QA Producer     SAMANTHA LAW PING LIN
+Expert Gameplay QA     VASILY GANIN
+Senior Gameplay QA     ALEXANDER YAGODNIKOV
+Senior Gameplay QA     ALINA ZAGVOZDINA
+Senior Gameplay QA     ANTON SEMAKIN
+Senior Gameplay QA     AUDREY-ANN DESROSIERS DRAINVILLE
+Senior Gameplay QA     LOREAN VANMEERHAEGHE
+Senior Gameplay QA     OLIVIER SÉVIGNY
+Senior Gameplay QA     VASILY SMAGIN
+Senior Gameplay QA     VOLONG TRAN
+Gameplay QA     ABEL TEY XIAN YI
+Gameplay QA     ANNE MÉTHOT
+Gameplay QA     ANTON FEDECHKIN
+Gameplay QA     ARTUR KEVORKOV
+Gameplay QA     KYLAR CHENG KAI YAO
+Gameplay QA     KYLE 'STRALEN' GAN
+Gameplay QA     MAXIME BEDARD
+Gameplay QA     MAXIME HENRY
+Gameplay QA     MICKAËL SCHRECK
+Gameplay QA     MUHAMMAD AMIR MASAKI BIN TAUFIQ KOJI @ KOJI TSUBONO
+Gameplay QA     ONG TZE KIANG
+Gameplay QA     SERGEY TANIA
+Gameplay QA     TATIANA OCHNEVA
+Support QA     REINAERT DEPOURCQ
+Junior Cinematic QA     JEREMY QUAH IAN HUI
+Junior Cinematic QA     KAREN ST-PIERRE
+Junior Cinematic QA     SHANNON LYNCH
+Junior Gameplay QA     ALVIN VARGHESE
+Junior Gameplay QA     FRÉDÉRIK FILION
+Junior Gameplay QA     JIVAN RAM PILLAY
+Junior Gameplay QA     KHAIRIL ANUAR ABDUL GHANI
+Junior Gameplay QA     KIMBERLEY LEWIS
+Junior Gameplay QA     MAUD-ÉMILIE BOULIANNE
+Junior Gameplay QA     PUTRI ELISSA DENNEY
+Junior Gameplay QA     RYAN KINGMA
+Junior Gameplay QA     STEVEN KASTELEC
+Junior Gameplay QA     TEOH EU VIN
+Junior Gameplay QA     ZACHARY TRISTAN QUAH
+Junior Support QA     CHEW BEE YEN
+<br><br>
+PLAYTESTING QA
+Playtesting Coordinator     ADRIÀ SERRANO LÓPEZ
+Playtesting Coordinator     ALEJANDRO PALLAS DONCEL
+Playtesting Coordinator     DAVID HIRST
+Playtesting Coordinator     GONZALO MARCOS VAQUERO
+Playtesting Coordinator     HELENA MESTDAG
+Playtesting Coordinator     LORI GARENC
+Playtesting Coordinator     MATT GRESSWELL
+Playtesting Coordinator     NIAMH GERMAINE
+Playtesting Coordinator     NICK CHONG KENG FATT
+Playtesting Coordinator     PAUL COOKE
+<br><br>
+SUPPORT TEAM
+Lead Support     KAYLA DOUGLAS
+Support     JULIAN AVELSGAARD
+Support     LEONARD RAZE MACDONALD
+<br><br>
+SCRIPTING
+Associate Lead Scripter     AZNAN FALZI IBRAHIM BAJUNID
+Associate Lead Scripter     ETHAN DAY-JONES
+Associate Lead Scripter     JAN SMEJKAL
+Associate Lead Scripter     LEANNE GAVIGAN
+Associate Lead Scripter     VLADIMIR GAIDENKO
+Region and Scripting Producer     ELENA STATSENKO
+Expert Scripter     MATHIEU VANHOVE
+Senior Scripter     ILYA VOULIS
+Senior Scripter     JONAS MAEBE
+Senior Scripter     NIKITA KUKANOV
+Senior Scripter     PAVEL MOSKALEVICH
+Scripter     ANDREY FOMIN
+Scripter     ANDRÁS BALIGA
+Scripter     ASAF KAZACHINSKY
+Scripter     BORJA VILLARINO GARCÍA
+Scripter     CHRIS SCHALK
+Scripter     DMITRII GRUZDEV
+Scripter     EBEN SCHUMANN
+Scripter     JORDI VARGAS-BERTRAND
+Scripter     MARIKO AYOTTE
+Scripter     MAXENCE DEMERS
+Scripter     MICHAEL GOOCH
+Scripter     MIHAIL KOSTOV
+Scripter     NICHOLAS JENNINGS
+Scripter     NIKITA RADOSTEV
+Scripter     TÉIDE TULLY
+Junior Scripter     BORIS MARTENS
+Junior Scripter     EKATERINA AIVAZYAN
+Junior Scripter     KYLE HUNT
+Junior Scripter     LUKE ELLIS
+Junior Scripter     MIQUEL SANS CORNET
+Junior Scripter     ROLDÁN GARCÍA-PÁRRAGA
+Junior Scripter     THOMAS REIFFER
+Junior Scripter     TOM RYCKEBOER
+<br><br>
+WRITING
+Lead Writer     ADAM SMITH
+Associate Lead Writer     CHRYSTAL DING
+Associate Writing Producer     KRISTINA WEBB
+Principal Narrative Designer     LAWRENCE SCHICK
+Principal Writer     JAN VAN DOSSELAER
+Principal Writer     SARAH BAYLUS
+Senior Narrative Designer     BAUDELAIRE WELCH
+Senior Writer     ADRIENNE LAW
+Senior Writer     GAVIN JURGENS-FYHRIE
+Senior Writer     JOHN CORCORAN
+Senior Writer     KEVIN VANORD
+Senior Writer     STEPHEN ROONEY
+Copy Editor     MONICA BOYAJIEV
+Writer     DIANA CHAUDRON
+Writer     RACHEL QUIRKE
+Writer     RUAIRÍ MOORE
+Technical Writer     INE VAN HAMME
+Junior Technical Writer     JACK BROPHY
+Junior Writer     ELLA MCCONNELL
+Junior Writer     MARTIN DOCHERTY
+<br><br>
+POST RELEASE TEAM
+ANIMATION
+<br><br>
+GAMEPLAY ANIMATION
+Junior Animator     CHRISTELLE BITTAR
+<br><br>
+ART
+<br><br>
+CHARACTER ART
+Junior Character Artist     RUBEN SMIT
+Junior Character Artist     ZUZANA REMENAROVA
+<br><br>
+VISUAL EFFECTS
+Junior VFX Artist     BRANDON DES-COTES
+<br><br>
+CODE
+<br><br>
+ENGINE PROGRAMMING
+Junior Engine Programmer     JEF BELMANS
+Junior Engine Programmer     ROBBE MAHIEU
+<br><br>
+GAMEPLAY PROGRAMMING
+Gameplay Programmer     ALEX BATISTA
+<br><br>
+TOOLS PROGRAMMING
+Senior Tools Programmer     MIROSLAV GAVRILOV
+Tools Programmer     CAMILLE MESTDAGH
+Junior Tools Programmer     JACOB PAULS
+Junior Tools Programmer     MARKO LONGO
+Junior Tools Programmer     MICHALINA MIZURA
+<br><br>
+PRODUCTION
+Senior Engine Producer     BLAZE DOMANSKI
+Art Producer     SIMÃO ARAÚJO
+<br><br>
+QA
+<br><br>
+GAME ENGINE QA
+Junior Game Engine QA     SALVIO CALVILLO MATAS
+<br><br>
+PLAYTESTING QA
+Junior Gameplay QA     GONZALO MARCOS VAQUERO
+Junior Gameplay QA     HELENA MESTDAG
+Junior Gameplay QA     LORI GARENC
+Junior Gameplay QA     MICHELLE GOH
+<br><br>
+CAST
+Narrator     AMELIA TYLER
+Astarion     NEIL NEWBON
+Shadowheart     JENNIFER ENGLISH
+Lae’zel     DEVORA WILDE
+Wyll / Bernard / Scared Boar...     THEO SOLOMON
+Gale     TIM DOWNIE
+Karlach     SAMANTHA BÉART
+Minsc     MATTHEW MERCER
+Jaheira     TRACY WILES
+Halsin / Ghoul / Goblin Warrior...     DAVE JONES
+Nightwarden Minthara / Booyahg Shekt / Buthir...     EMMA GREGORY
+Tadpoled Adventurer     JOSH WICHARD
+Tadpoled Adventurer     EMERALD O'HANRAHAN
+Tadpoled Adventurer     KEN NWOSU
+Tadpoled Adventurer     TINA BARNES
+Tadpoled Adventurer     LYNSEY MURRELL
+Tadpoled Adventurer / Steel Watcher     PIETER LAWMAN
+Tadpoled Adventurer     NEIL ROBERTS
+Tadpoled Adventurer     MUKI ZUBIS
+Ketheric Thorm     J.K. SIMMONS
+Lord Enver Gortash     JASON ISAACS
+Orin     MAGGIE ROBERTSON
+Alfira / Aurelia / Ayo Armbrust...     REBECCA HANSSEN
+Volo / Ancient Servant / Barth...     STEPHEN HOGAN
+The Emperor / Balduran / Cook Kameros...     SCOTT JOSEPH
+Bhaal     DOUG COCKLE
+Mystra     JANE PERRY
+The Absolute     CISSY JONES
+Vlaakith / Cashguard Helenia / Goblin Booyahg...     BETHAN DIXON BATE
+Cazador Szarr / Beldron / Gnome Combat Vocals...     GRAHAM HOADLY
+Sarevok Anchev     REDD PEPPER
+Isobel / Captain Goldwake / Cashguard Yonni...     MIA FOO
+Kith'rak Voss / Human Combat Vocals / Distracted Tailor...     RICHARD COTTON
+Raphael / Cashguard Basher Brammels / Dead Flaming Fist...     ANDREW WINCOTT
+Sceleritas Fel / Immortal Eternal Debtor / Sir Gorran Penghyst     BRIAN BOWLES
+Duke Ulder Ravengard / Belron Strongstep / Black Gauntlet Borri Paver...     CHRIS JARMAN
+Nightsong     HELEN KEELEY
+Withers / Dravo Flymm / Goblin Tracker...     STEPHEN BOXER
+Viconia DeVir / Familiar Voice / Inquirer of Grief     JESS NESLING
+Kagha / Us / Adept Nola...     CLARE CORBETT
+Mizora / Civilian / Elf Combat Vocals...     TAMARYN PAYNE
+Dream Visitor     DIANA BERMUDEZ
+Dream Visitor     ETHAN REID
+Naaber     BEN 'COHHCARNAGE' CASSELL
+Aradin / Acolyte Iogar / Andrick...     ASH RIZI
+Nettie     CHARLENE MCKENNA
+Mattis / Mask of Servitude / Queelia Arvis...     CHARLOTTE WAKEFIELD
+Barcus Wroot / Astoundo the Lesser / Bug Bludgeon...     DARIO COATES
+Mayrina / Apikusis / Brynna...     ELLIE HEYDON
+Rolan / Booyahg Piddle / Dead Drow Raider...     GEORGE TAYLOR
+Zevlor / Alexander Rainforest / Battrick Degronce...     GLEN MCCREADY
+Mol / Ardent Jhe'rezath / Bag of Holding...     HARRIET KERSHAW
+Kar'niss / Blaise Hhune / Don't-Call-Me-Runt...     JOSHUA SKLAR
+Counsellor Florrick / Fist Aggralix / Lady Eshvelt Guthmere...     KAREN BRYSON
+Wulbren Bongle / Black Gauntlet Ignur / Dead Caravan Agent     NICK AARON
+Tara the Tressym / Auntie Ethel / Vol     RENA VALEH
+Balthazar / Bertram Kostaka / Blarson Throaks...     ROGER RINGROSE
+Orpheus / Ardent Lin'a'an / Brother Clements...     TOMMY SIM'AAN
+<br><br>
+ADDITIONAL CAST
+Nocturne     ABIGAIL THORN
+Sebastian / Splatters Doolug / Klorrvank...     ADAM BURTON
+Dror Ragzlin / Thisobald Thorm / Tracker Grikka...     ADAM DIGGLE
+Torturer Spike / He Who Was / Guex...     ADAM RHYS DEE
+Leon / Reaper of Bhaal Hiila / Healer Sylbert...     ADRIAN RICHARDS
+Jatlo / Sharran Novice Garrigan / Fist of Bane Frode...     AFOLABI ALLI
+Hope     AISLING GROVES-MCKEOWN
+Harper Darragh / Stylin' Horst / Invoker of Bhaal Grimlark...     AKBAR KURTHA
+Losiir / Ben Golewits / Chef Roveer...     ALAN TURKINGTON
+Helsik / Roah Moonglow / Ide...     ALEX TREGEAR
+News Hawker Luan / Fig / Thrastle Muria...     AMI OKUMURA JONES
+Sadar Illanov / Surixana / Rilia...     AMINA KOROMA
+Fist Recruit Ephren / Jhessem / Dwarf Combat Vocals...     AMY MCALLISTER
+Hari Nodles / Dave Hosmo / Mohan...     ANDREW FUTAISHI
+Lann Tarv / Phasm / Blighted Barman...     ANDREW JAMES SPOONER
+Art Cullagh / Saer Grotpoll / Big Huido...     ANDREW WHEILDON-DENNIS
+Emmeline Hallowleaf / Seawind Star Stolitti / Absrasive Courtesan     ANGELA DIXON
+Mirie / Fist Jagic / Fist of Bane Zana Hade...     ANNA DEMETRIOU
+Fist Clover / Bosun Sharley / Apprentice Neeme...     ANNA LEONG BROPHY
+Ansur / Tomboldt the Pallid / Ancient Servant      ANTON BROWNE
+Myrkul / Uktar / Tarhun Mnemonis...     ARTHUR LEE
+Harper Essius / Corpse / Horus Crysst...     ATILLA AKINCI
+Human Combat Vocals     AYOOLA SMART
+Eldaernth / Bleeri / Bitter Labourer...     AZAAN SYMES
+Throat Singer for Quil Grootslang     BEN ARNOLD
+Tusgront / Golbraith / Dez Kanshaw...     BEN CROWE
+Bigmouth' Thimsen / Buntter / Lord Delwaer Jeth...     BEN DEERY
+Akabi / Qudenos / That Which Guards...     BEN ONWUKWE
+Inwe / Child Combat Vocals / Errant Soul...     BETH PARK
+Stimk / Goblin Tracker / Tracker Torrack...     BRIAN CASPE
+Kressa Bonedaughter     BRONWEN PRICE
+Lump the Enlightened / Bao'ek'nuk / Gith Combat Vocals     BRYAN LARKIN
+Nine-Fingers Keene / Estra Stir / Justiciar Crusader Nightmist...     BRYONY CORRIGAN
+Kith'rak Therezzyn / Slick Inatra / Bust...     CARLA MENDONCA
+Brother Bill / Chamberlain Mercer / Dimples Backster...     CHARLES ARMSTRONG
+Harper Skywin / Jeorna / Steelclaw...     CHARLOTTE LUCAS
+Adrielle / Fist Griff / Slatey Marven...     CHARLOTTE MELIA
+Arabella / Nimble / Dolly Dolly Dolly...     CHARLOTTE SPAREY
+Krolla     CHETNA PANDYA
+Fist Madigan / Fist Recruit Ito / Connor Vinderblad...     CHRIS KAYE
+Innkeeper Alan Alyth / Cairos / Franc Peartree...     CHRISTOPHER YORK
+Cora Highberry / Blaze Liara Portyr / Sister Rose the Penitent...     CLAIRE LACEY
+Solras / Untaken Zastreya / Fist Wizard Hartlebury...     CLAUDIA CADETTE
+Human Combat Vocals / Kuo-Toa Hunter / Redcap Blood Sage     COLM GLEESON
+Cashguard Gurira / Bert 'The Weasel' Adams /  Errant Soul...     COREY MONTAGUE-SHOLAY
+Weary Traveller / Infernal Mason / Ember Gish'ra M'i'hayk...     CRISPIN REDMAN
+Efrin / Dwarf Combat Vocals     DAMIEN HASSON
+Stonemason Kith / Johl / Alchemist Argram...     DAN BOTTOMLEY
+Lucretious     DANIEL JACOB
+Spatula Farggo / Impatient Chamberlain / Tribunal Ghost...     DANIEL NORFORD
+Alice Althea / Cashguard Basher Karol / Gondian Lilly Tilly...     DANIELA NORMAN
+Warrior Vu'un / Hasmet Hudd / Pilgrim Sul...     DANNY RAHIM
+Burzenberg / Human Combat Vocals / Goblin Boss...     DAVID ALWYN
+Ward Magmar / Harper Karrow /  Viss...     DAVID MONTEITH
+Bane     DAVID RINTOUL
+Rugan / Ulkov Sully / Doppelganger...     DEAN WILLIAMSON
+Okta / Brawler Birka / Zena...     DEBBIE CHAZEN
+Abdirak / Fezzerk / Skickpit...     DECLAN PERRING
+Zealot Krizt / Dark Breaker Gira / Fist Rockbothem...     DIANA CROFT
+Harper Manus / Ontur / Pumler Grejit...     DURASSIE KIANGANGU
+Gnome Combat Vocals / Drenn / Errant Soul...     EILIDH BEATON
+Kled / Harper Geraldus / Byldrath...     ELLIOT FRANCIS
+Well-Preserved Corpse     ELSIE LOVELOCK
+Mystic Carrion / Tut Thistlebog / Oliver Quarlic...     ENZO SQUILLINO JR
+Hidden Voice     ESMERALDA BRAMLEY-WEEDEN
+Gondian Zanner Toobin     FAAIZ MBELIZI
+Sister Geanne / Glynda Oltower / Halfling...     FELICITY DUNCAN
+Questioner Jasin / Gauntlet Yeva / Human Combat Vocals...     FENELLA FUDGE
+Remira / Kaldani / Doni...     FFION JOLLY
+Lorna Esthelian / Vrindula Mardassus / Slow-Butt...     FIONA SHEEHAN
+Dammon / Anders / Kansif...     FRAZER BLAXLAND
+Black Gauntlet Tamia Holzt / Falael / Fist Arrinye...     GABRIELLE NELLIS-PAIN
+Baelen Bonecloak / Gyldro Angleiron the Smith / Dead Myconid Sprout...     GARY LILBURN
+Brawler Rot / Arron / Olly...     GEORGE NAYLOR
+Meli / Vanra / Child Combat Vocals...     GEORGINA SCOTT
+Gnome Combat Vocals     GILLIAN HAY
+Ulma / Death's Head of Bhaal Fustian / Hucinda     GINA MURRAY
+Danzo Arkwright / Dorrich Manne / Garri Orne...     GORDON COOPER
+Ch'r'ai Har'rak / Phoenix Lubbins / Sharran Fidelian Lamona...     GRACE HAYDN
+Araj Oblodra / Naoise Nallinto / Acolyte Daine...     HANAKO FOOTMAN
+The Warden / Warrior Vez / Harper Lymn...     HARA YANNAS
+Shar / Adept Keris / Youth Rheg'zel...     HARRIETT HARE
+Sentinel Olak / Bugbear Combat Vocals / Goblin Combat Vocals...     HARRY MYERS
+Corinna / Xeph     ALIONA BARANOVA
+Sazza / Eight / Manip Edenosa...     HOLLY-MARIE MICHAEL
+Goblin Combat Vocals / Orthon's Bed / Pigeon...     HORATIO BASKERVILLE
+Harper Grenywald / Raider Ra'gur     HUW PARMETER
+Doppelganger / Gauntlet Silena     JACEY SALLES
+Benji / Fist Reynash     JACK AYRES
+Elf Combat Vocals / Shadow     JACK HAWKINS
+Fist Murphy / Gowlan / Dead Zealot of the Absolute...     JACK MADDISON
+Lady Jannath / Harper Meygan / Fist J'ehlar...     JACQUI BARDELANG
+Blades Bakstir / Blunder Bob / Chatty Bureaucrat Gherkins...     JAMES ALEXANDER
+Nickels / Manip Bakshi / Blighted Actor...     JAMES BRADWELL
+Ch'r'ai W'wargaz / Cordrane the Recent / Sharlz Molar...     JAMES HOWARD
+Grand Comedian Harvard Willoughby / Umbrenne / Bastian d'Zinn...     JAMES MACNAUGHTON
+Archivist     JAMIE NEWALL
+Mamzell Amira / Clovia Throaks / Gauntlet Thunderclap...     JANE SLAVIN
+Augur Harxkellan / Bliggerillo     JASON NWOGA
+Locke / Varsh Ko'kuu / Lorin...     JAY TAYLOR
+Lia / Tahan / Madeline Spirit...     JENNIE DELANEY
+Stone Door     JENNY FUNNELL
+Disciple Z'rell / Apprentice Laridda / Displacer Beast...     JESSICA CARROLL
+Zethino / Cashguard Captain Faril / Tilly...     JESSICA REGAN
+Quil Grootslang / Sarth Baretha / Blinded Elf...     JODIE STEELE
+Pale Petras / Sharran Novice Greymask / Fist Saunder...     JOE JAMESON
+Arnell Hallowleaf     JOHN HOPKINS
+Gekh Coal / Arfur Gregorio / Sentient Amulet...     JOHN O'MAHONY
+Tiernan Wont / Lester Farrower / Ploughman Zakk     JONATHAN LIVINGSTONE
+Nere / Elf Combat Vocals  / Goblin Tracker...     JOSEPH CAPP
+Listelia Dryselis / Goblin Brawler / Lady Durinbold's Bodyguard...     JOSIE TAYLOR
+Hyena / Kuo-Toa     KARL QUEENSBOROUGH
+Derryth Bonecloak / Ramona Flintsplitter / Gipkins Jared      KATE O'ROURKE
+True Soul Gut / Sally Flymm / Valmorba...     KATY BRITTAIN
+Raider G'r'ath / Cappa Delourese / Fist Oriona     KERRI MCLEAN
+Redhammer the Deviser / Blabbing Vagrant Caitriono / Elliot...     KIT ESURUOSO
+Fytz the Firecracker / Nisvan     KRISSI BOHN
+Sovereign Spaw / Bosk / Reaper of Bhaal Dhoria...     KRISTIAN PHILIPS
+Gish Far'aag / Reagan Splint / Frothilda...     LARA SAWALHA
+Sa'varsh Kethk / Damays / Sharp-Eye Breg...     LEEMORE MARRETT JR
+Sharp-Eye Mirg / Warrior Trinzas / Farlin...     LIANE ROSE BUNCE
+Rion / Tugelnhorn / Lady Ague...     LIZZIE WOFFORD
+Cerys / Cordula Eltan / Gauntlet Dain...     LUCY PATERSON
+Adept Mola / Bruha Oakhide / Chessa...     LUISA GUERREIRO
+Mask of Regret / Obelia Toobin / Harper Elifer...     LUYANDA LEWIS-NYAWO
+Phyria Gollus / Sula Ghevora / Saer Drana Hoyte...     MADELEINE AKUA
+Cashguard Basher Nickelow / Dark Breaker Ohara Ohira / Reaper of Bhaal Eglantine...     MARA ALLEN
+Havkelaag     MARCELL MCCALLA
+Asharak / Crusher / Elder Brithvar...     MARK NOBLE
+Meztli / Wrint Sprigley / Placer Verryn...     MARK TAKESHI OTA
+Sovereign Glut / Murmath / Petrified Drow...     MATT ADDIS
+Mind Flayer / Fist Ghainemeir / Rox Flunter...     MATT WHITCHURCH
+Memnos / Beorn Wunterbrood / Toron...     MATTHEW BIDDULPH
+Scribe Goosequill     MAXINE FRANKLIN
+Head Clerk Meadhoney / Thrumbo / Hakeem...     MICHAEL GUKAS
+Sergeant Thrinn / Korrilla / Dwarf Combat Vocals...     MICHELE MORAN
+Ghustil Stornugoss     MICHELLE ARCHER
+Kuo-Toa Hunter     MITRA DJALILI
+Sister Yannis / Linsella / Cheeky Nora...     NANDI BHEBHE
+Izzy / Sylvie Summerworth / Servant Naiske...     NATASHA ATHERTON
+Cal / Youth Varrl / Strange Beggar Lumbar...     NATHAN COLLINS
+A'jak'nir Jeera / Novice Bramble / Lord Jannath's Bodyguard     NENDA NEURERER
+Bruno Indomicus / Fist Jerbold / Lurgan...     NIALL GAFFNEY
+Arka / Nym Orlith / Addled Frog...     NNEKA OKOYE
+Rath / Zealot Arden / Warrior Qen...     OKEZIE MORRO
+Death's Head of Bhaal Eni / Fortuno Dibbs / Youth Tra'an...     OLIVER CUDBILL
+Haarlep / Wynn Freshwater / Doora Thumbfoot...     OLIVIA CHAPPELL
+Drar / Mind Master Kettel     PAMELA JIKIEMI
+Tolna Tome-Monger / Fist Aguta / Dominica Arsetz     PAMELA NOMVETE
+Gerringothe Thorm / Umi / Tracker Kirz...     PENELOPE RAWLINS
+Kirgrath / Yafeu / Hungry Ox...     PETER HANNAH
+Vilhelm / Snapbone / Phelgro Dorph...     PHILLIPE BOSHER
+Lady Esther / Mig / Seawind Flan Hawser     RACHEL ATKINS
+Angry Mar'hyah / Nosy Patriar Wrilda / Asumi...     RAE LIM
+Reaper of Bhaal Liya / Nesha Leesha / Trinoda...     RAI ENDAH
+Breva Brightmoon / Robyn / Iza Blouin...     REANNE FARLEY
+Dribbles the Clown / Benryn / Petrified Drow...     RICHARD BOOTH
+Jord / Whispering Statue / Clerk Chervis...     RISHI MANUEL
+BOOOAL / Filro the Forgotten / Redcap...     ROBERT G SLADE
+Valeria / Eagle / Oyster Boy Dringo...     ROLY BOTHA
+Figaro 'Facemaker' Pennygood / Invoker of Bhaal Hivune / Gondian Grindo Biggs...     ROMAYNE ANDREWS
+Komira     ROSALIND STEELE
+Bex / Silfy / Owlbear Cub...     ROSIE JONES
+Mortarch Gracie Scyre / Arkleia Oloril / Squire...     SARAH LAM
+Malus Thorm / Grub / Giant Rat     SEAN BAKER
+Gandrel / Mind Flayer / Lord Sarken Eomane...     SELVA RASALINGHAM
+Blaze Elin / Irenya / Sharran Novice Bluenail...     SERENA MANTEGHI
+Gauntlet Devella Fountainhead / Exxvikyap / Flaerith...     SHALA NYX
+Scratch / Lunkbug / Ptaris...     SHAUN MENDUM
+Salazon     SIMON POTHECARY
+Godey     SIMON THORP
+Merony / Carys / Guard Vlomina     SIOBHAN HEWLETT
+Dalyria / Whispering Statue / Skull Lasher Ironfinger...     SOFIA ZERVUDACH
+Captain Grisly / Fist Edwynna     SOPHIA NOMVETE
+Strange Beggar Sacrum / Elias Fischer / Winged Horror...     STEFAN CHANYAEM
+Aelis Siryasius / Bosun Gannet / Brother Donnick...     STEVE CHUSAK
+Yurgir / Chop / Turnip Bubbs...     STEWART SCUDAMORE
+Lakrissa / Thulla / News Hawker Chalara...     SYDNEY CRAVEN
+Brigid / Carmen Pennygood / Cashguard Artillerist Smathers...     TARIYE PETERSIDE
+Adept Bel / Justiciar Soulhunter / Zealot Nadi     TARRICK BENHAM
+Bernard / Tingmiaq / Medrash...     THEO SOLOMON
+Zenovia Dawg / Gossipy Attorney Oohna / Youth Astyl...     TILLY STEELE
+Klaus     TOM MITCHELLS
+Warrior Khunaruth / Acolyte Klen / Brilgor...     VANGELIS CHRISTODOULOU
+Anita Fischer / Radija / Manip Seyama...     VICTORIA EKANOYE
+Grease Mephit / Cashguard Basher Edvidge / Night Blade Phylle...     VINCENT MOISY
+Gondian Lowa / Reaper of Bhaal Velki / Fevrokis...     VINEETA RISHI
+Flood Tide Allandra Grey / Boss Friol / Lady Oberon's Bodyguard...     VIVIENNE ROCHESTER
+Bhaal Cultist Bloodmopper / Theologist Eternal Debtor / Ogro Nettles...     WAJ ALI
+News Hawker Jason / Molly the Orphan / Siggy...     YASMIN MWANZA
+Zarys / Philomeen / Tracker Tak...     ZOE MILLS
+ONOs     ALEX JORDAN
+ONOs     CLARE LOUISE CONNOLLY
+ONOs     GREG JONES
+ONOs     RACHEL ATKINS
+<br><br>
+MOTION CAPTURE PERFORMERS
+Cinematic Motion Capture Performer     ALICKY HESS
+Cinematic Motion Capture Performer     ALIONA BARANOVA
+Cinematic Motion Capture Performer     ANTOINE PARÉ-POIRIER
+Cinematic Motion Capture Performer     AOIFE SPRATT
+Cinematic Motion Capture Performer     BARRY KINSELLA
+Motion Capture Performer and Gameplay Choreographer     BERNARD LEONG WAI MIN
+Cinematic Motion Capture Performer     DANIEL MONAGHAN
+Cinematic Motion Capture Performer     DMITRY VINOKUROV
+Cinematic Motion Capture Performer     ED GAMESTER
+Cinematic Choreography & Dance Instructor     FAYE MAUGHAN
+Cinematic Motion Capture Performer     FRANCES CROWE
+Cinematic Motion Capture Performer     GAVAN DUFFY
+Motion Capture Performer     GIORGIO COSTA
+Cinematic Motion Capture Performer     IAN THIBAULT
+Cinematic Motion Capture Performer     JESSICA DANNER
+Cinematic Motion Capture Performer     JET FEI
+Cinematic Motion Capture Performer     JOHN DORAN
+Cinematic Motion Capture Performer     JOSHUA WICHARD
+Cinematic Motion Capture Performer     KATRINA DURDEN
+Cinematic Motion Capture Performer     LUCAS BUTTERFIELD
+Cinematic Motion Capture Performer     LUCIA KICKHAM
+Cinematic Motion Capture Performer     MAUREEN ROBERGE
+Motion Capture Performer and Gameplay Choreographer     MICHAEL LI
+Motion Capture Performer and Gameplay Choreographer     MUSTAPHA EL BACHIRI
+Cinematic Motion Capture Performer     MYRIAM LENFESTY
+Cinematic and Gameplay Motion Capture Performer      NEIL NEWBON
+Motion Capture Performer     NICOLAS TRUNG CHANH LEROY
+Cinematic Motion Capture Performer     PALOMA DE MUYLDER
+Cinematic Motion Capture Performer     SAMUEL LA ROCHELLE
+Cinematic and Gameplay Motion Capture Performer     SASKIA ALLEN
+Motion Capture Performer     STIJN KEULEERS
+Motion Capture Performer and Gameplay Choreographer     TAMARA ARRUTI
+Cinematic Motion Capture Performer     THOMAS SCURR
+Cinematic Motion Capture Performer     TOM DUFFY
+Cinematic Motion Capture Performer     VIVIAN WONG
+<br><br>
+PUBLISHING TEAM
+Trailer Producer     DECLAN DOWLING
+Video Producer / Capture Artist     FRANÇOIS FABRE
+Senior Graphic Designer     KAROL KOSC
+Brand & e-Commerce Manager     DOMINIK WARKIEWICZ
+Capture Artist     ALINA ONYX
+Community Manager     SALOMÉ MOREIRA GARCIA
+Community Moderator     CHRISTINE MUNRO (VOMETIA)
+Community Moderator     LAUGHING LEADER
+Community Moderator     NORBERT ATTILA 'NORBYTE' BENKOCS
+Community Moderator     SEAN KEOUGH
+Community Moderator     TOMMY 'THE COMPOSER' GUNDERSEN
+Community Moderator     ZOË 'THE RED QUEEN' PAYNE
+Creative Content Manager     BEN MALTZ-JONES
+Event & Trade Manager     EMILY JENNINGS
+PR Manager     ANNIKA BARTELS
+Product Manager     EMILY GERA
+Product Manager     TOM BUTLER
+Publishing Coordinator     KIERON KELLY
+Social Media Wizard     JESSICA AVELSGAARD
+<br><br>
+PUBLISHING TEAM POST RELEASE
+Senior Communications Developer     AOIFE WILSON
+Senior Community Strategist     WOMBATMEDIC
+Community Moderator     BRIMSTONE
+Community Moderator     CHRONOS
+Community Moderator     D R E W D R E W
+Community Moderator     JDED EGREGORE
+Community Moderator     KAY
+Community Moderator     LOSTSOUL
+Community Moderator     NAUZHROR
+Community Moderator     ORANGE
+Community Moderator     PEACHYYYKEEN
+Community Moderator     PURITI
+Community Moderator     SABE
+Community Moderator     SENSHA
+Community Moderator     VAL OTÁHAL
+Community Moderator     FLOOTER
+Junior PR and Community Manager     FŪNK-É JOSEPH
+<br><br>
+MANAGEMENT TEAM
+Head of Legal     ANTHONY VERHEGGEN
+Finance Director     JORIS MENDONCK
+Director of Operations     KATHLEEN DE COCK
+Facility Manager     KATIE COBURN
+Office Manager     MATHILDE BERTRAND-BEAUDOIN
+Director Business Development and Special Projects     SPENCER LOW
+Director     VALÉRIE COESSENS
+IT Director     WESLEY SMEKENS
+<br><br>
+BARCELONA STUDIO
+Studio Head     JORGE CABEZAS GARCÍA
+Office Manager     GERALDINE ABULIAK
+Senior System Administrator     MARC VILARDELL BRUGALADA
+Junior System Administrator     ALEJANDRO ANDREU POMARES
+Junior System Administrator     EDUARDO ROLDÁN SOLANO
+<br><br>
+DUBLIN STUDIO
+Studio Head     CHRIS VOSSEN
+Office Manager     NATALIE MURPHY
+Senior HR Generalist     ISIBÉAL SWEENEY
+Lead Recruiter     CHRIS JENNINGS
+Recruiter     BRIAN NORDON
+Recruiter     KAI CABRERA
+Recruiter     RONAN FLEMING
+Recruitment Coordinator     JACK MORIARTY
+Legal Counsel     RONAN COGAN
+Accountant     SINÉAD DEVEREUX
+Accountant     TIM CROWLEY
+IT Project Manager     IAN O'BRIEN
+Linux System Engineer     ROMAN KHRAMOV
+System Administrator     KRISTIJAN LUJANOVIC
+<br><br>
+GHENT STUDIO
+Studio Head     JAN SWAELENS
+Office Manager     LYNN VANBESIEN
+HR Employee Development     INESSA BAK
+Legal Counsel     VASILENA DADACHEVA
+Accountant     CEDERIC HAUTERMAN
+Accountant     EVELINE JONCKHEERE
+Accountant     TIFFANY DIERICKX
+Finance Manager     FRANCIS MAREEN
+Financial Controller     CHRISTOPHE DE MEYER
+Junior Controller     JONAH WYMEELS
+Senior System Administrator     WILLEM GOETHALS
+Network and Security Engineer     BORIS BAERT
+System Administrator     HANS DE FLEURQUIN
+<br><br>
+GUILDFORD STUDIO
+Studio Head     ARTHUR MOSTOVOY
+Studio Head     JAMES AUSTIN
+Office Manager     AMY LO BIANCO
+Office Manager     NIKI AUSTIN
+Office Manager     STEPH HORROCKS
+System Administrator     DANIEL GARDNER
+<br><br>
+KUALA LUMPUR STUDIO
+Studio Head     PAUL DYLAN LIM
+Studio Head     TOMOKO CHOO
+Administrative Assistant     TAN CHIN YOONG
+Office Manager     VENEXIA UNG GAIK SUAN
+Recruiter     ILIA EREMENKO
+System Administrator     JAY SON KUAN
+System Administrator     SUDIRMAN AHMAD
+<br><br>
+QUEBEC STUDIO
+Studio Head     EDGARD DE SMET
+Studio Head     NATHAN PINARD
+Office Manager     DOMINIQUE JODRY-LAPOINTE
+Office Manager     LAURIE FRANCIS-PLANTE
+HR Administrator     JEAN-PHILIP GUY
+Talent Attraction Manager     NICOLAS FILLION-ROY
+System Administrator     CHRISTIAN MÉNARD
+IT Technician     ALEXANDRE DUBEAU
+<br><br>
+WARSAW STUDIO
+Studio Head     URSZULA JACH-JAKI
+<br><br>
+LOCALIZATION
+Associate Localization Producer     NILTON SOARES
+
+PTW CANADA SOLUTIONS. INC.
+LQA Director     MAXIM MIZIN
+LQA Project Manager     LISA BOLLER
+LQA Project Manager     ALEXANDER SOLESA
+LQA Project Coordinator     STEPHANIE TRAVASSOS
+LQA Project Coordinator     DENISE OLIVEIRA
+Project Support     SASHA OLYNYK
+Project Support     MYLINE DEZIEL
+<br><br>
+BRAZILIAN PORTUGUESE LOCALIZATION
+ALTAGRAM GROUP
+CEO     MARIE AMIGUES
+COO     BALINT ACSAY
+CCO     KAROLINA DRAPALA
+Head of Localization     NICOLAS PARENTI
+Project Manager Team Lead     JONATHAN APLIN
+Project Manager Team Lead     YASMIN BABB
+Linguistic Team Lead     DYLAN L. MARTIN
+Senior Localization Project Manager     SEBASTIAN BEGEMANN
+PTbr Editor and Team Coordinator     TIAGO C. LAZZARI
+Senior Localization Engineer     WOLFGANG HOFFMANN-SCHOENBORN
+Senior Terminology Advisor     BRUNO DIAS
+Terminology Advisor     JORGE GUEDES
+Translator     CAIO ULIANA
+Translator     DIEGO PEREZ
+Translator     GABRIEL NINÔ
+Translator     JULIANA MORAES
+Translator     MARCELO ALMEIDA
+Translator     MARIANA REZENDE PINTO
+Translator     MURILO MARTINS
+Translator     REGIANE WINARSKI
+Translator     TAÍS MONTEIRO
+Translator     THIERRY CARVALHO BANHETE
+Additional Translator     ALEXANDRE GRECCO PAVENELLI
+Additional Translator     AMANDA DO PRADO
+Additional Translator     BÁRBARA COELHO
+Additional Translator     CAMILA MENDES
+Additional Translator     CAROLINA RODRIGUES
+Additional Translator     CLÁUDIA MELLO
+Additional Translator     EDUARDO VIANNA
+Additional Translator     EGON LESSA
+Additional Translator     FELIPE GETIRANA
+Additional Translator     JANILSON TORRES JUNIOR
+Additional Translator     LEILA IBARRA
+Additional Translator     LEONARDO ORLOSKI
+Additional Translator     LUCIAN KLIPPEL
+Additional Translator     LUÍS LABRES
+Additional Translator     MARIA COSTA
+Additional Translator     MARLON JACOBI
+Additional Translator     PALOMA FONTES
+Additional Translator     PEDRO FORTUNATO
+Additional Translator     ROBERTA LEOPOLDINO
+Additional Translator     STEFANI BANHETE
+Additional Translator     VIVIANE DINIS
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     ANA PANEK
+LQA Tester     MARCUS XAVIER
+LQA Tester     KAREN MASSUCO
+LQA Tester     VICTOR BARCELAR CAMPELO
+LQA Tester     LUCAS LAMEIRA
+<br><br>
+FRENCH LOCALIZATION
+RIOTLOC LTD.
+Localization Coordinator     VLADIMIR KONOPLITSKY
+Localization Coordinator     ANNA KISELEVA
+Localization Coordinator     MARIA YUNGER
+Additional Localization Coordination     ALEXANDER BOLOTIN
+Team Lead     ERIC HOLWECK
+Editor     BERANGERE HOLWECK
+Translator     ERIC HOLWECK
+Translator     SAMANTHA GERMANEAU
+Translator     PIERRE QUELQUEJEU
+Translator     JONATHAN PIERRE
+Additional Translation     KÉVIN BERNIER
+Additional Translation     GUILLAUME DE CASABAN
+Additional Translation     NADÈGE GAYON-DEBONNET
+Additional Translation     GUILLAUME PELLETIER
+Additional Translation     ANAÏS GERBER
+Additional Translation     PHILIPPE TESSIER
+Additional Translation     STÉPHANE TRANQUILLE
+Additional Translation     VIOLAINE SAUZE
+Additional Translation     SYLVAIN LABORIE
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     HEMMY COTE
+LQA Tester     ANNABELLE GIRARD
+LQA Tester     ELIOTT PATTYN
+<br><br>
+GERMAN LOCALIZATION
+RIOTLOC LTD.
+Localization Coordinator     VLADIMIR KONOPLITSKY
+Localization Coordinator     ANNA KISELEVA
+Localization Coordinator     MARIA YUNGER
+Additional Localization Coordination     ALEXANDER BOLOTIN
+Team Lead     ROLAND AUSTINAT
+Editor     ROLAND AUSTINAT
+Translator     MAREICA HAUCK
+Translator     JOHANNES IRMER
+Translator     SONJA KÖPPEN
+Translator     HEINRICH LENHARDT
+Translator     ULRICH ONKEN
+Translator     GESINE PREUSSER
+Translator     ISABEL STERNER
+Translator     CONSTANZE VOGL
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     DEVIN REMARTINI
+LQA Tester     BJOERN EICHMANN
+LQA Tester     IDRISS NELKE
+<br><br>
+ITALIAN LOCALIZATION
+ASMODEE ITALIA
+Manager     MASSIMO BIANCHINI
+Manager     LUCA CATTINI
+Project Manager     LORENZO FANELLI
+Editor     LORENZO FANELLI
+Translator     FIORENZO DELLE RUPI
+Translator     LORENZO FANELLI
+Translator     GERARDO FRANCO
+Translator     BERTRAND FURCAS
+Translator     MARTA GAI
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     AREN DOLBAKIAN
+LQA Tester     FRANCESCO DE VITIS
+LQA Tester     CARMINA FRANCO
+LQA Tester     MARTYNA KANDER
+<br><br>
+JAPANESE LOCALIZATION
+SPIKE CHUNSOFT CO. LTD.
+Translator     YASU IIZUKA
+Translator     YUSUKE KATAGATA
+Translator     MITSURU OGATA
+<br><br>
+PTW JAPAN CO. LTD - ENTALIZE
+Translation Coordinator     YOSHIYUKI HAYASHI
+Translation Coordinator     SEBASTIEN TOURDES
+Translation Coordinator     SHIORI YOSHIKAWA
+Translator     CHIKAKO BOWER
+Translator     HANAKO SAEKI
+Translator     KANJI IZUMI
+Translator     KEI SUZUKI
+Translator     KEI ENOKIDA
+Translator     KOSUKE NOGUCHI
+LQA Test Leader     NORIHIKO HASEGAWA
+LQA Tester     AIMI MOMOSE
+LQA Tester     AKIRA KONISHI
+LQA Tester     DAISUKE YAMASHITA
+LQA Tester     HAZUKI NEMOTO
+LQA Tester     HIROKI SATO
+LQA Tester     KIICHI YOSHIDA
+LQA Tester     MARIKA KOBAYASHI
+LQA Tester     MIKI SAWADA
+LQA Tester     NAOYUKI SONODA
+LQA Tester     NAOYA OIZUMI
+LQA Tester     RIKIYA FUKUDA
+LQA Tester     SAKI TSUBOTA
+LQA Tester     SERA OSHIMA
+LQA Tester     SHUHEI KAWATANI
+LQA Tester     TOMOHIRO SAKURAI
+LQA Tester     YAMADA KATUTOSI
+LQA Tester     YOKO HOSHI
+<br><br>
+POLE TO WIN CANADA INC.
+LQA Tester     AYA HARISAWA
+LQA Tester     IKUE TEODOROVICI
+<br><br>
+KOREAN LOCALIZATION
+MUSAI STUDIO
+Project Manager     JAEWOON YU
+Lead Linguist     INHO CHOE
+Reviewer     DOOYOUNG KIM
+Reviewer     JONGHYUN YEOM
+Reviewer     SEONGPIL HYUN
+Reviewer     HYUNWOO PARK
+Reviewer     NAYOUNG HWANG
+Reviewer     MINJIN KIM
+Translator     SIA HAN
+Translator     SEONGJIN YOON
+Translator     JAEHYUNG OH
+Translator     WOOJIN JEONG
+Translator     THOMAS OH
+Translator     HARRIET KIM
+Translator     DEREK KIM
+Translator     KIM DONG WOO
+Translator     MOON JAE HUN
+<br><br>
+PTW KOREA
+LQA Lead     KAY KIM
+LQA Tester     SEUNGBEOM LEE
+LQA Tester     SEOK HEE JEON
+<br><br>
+LATIN SPANISH LOCALIZATION
+RIOTLOC LTD.
+Localization Coordinator     VLADIMIR KONOPLITSKY
+Localization Coordinator     ANNA KISELEVA
+Localization Coordinator     MARIA YUNGER
+Additional Localization Coordination     ALEXANDER BOLOTIN
+Editor     DIANA NOVOA
+Editor     JUAN IGNACIO LUQUE
+<br><br>
+POLISH LOCALIZATION
+GAMELOC SP. Z O.O.
+Team Lead     PAWEŁ PIEKARCZYK
+Editor     JOLANTA PIEKARCZYK
+Translator     KLEMENTYNA DEC
+Translator     MACIEJ JAKUB JABŁOŃSKI
+Translator     PIOTR PAJERSKI
+Translator     JAKUB PIĘCIŃSKI
+Translator     AGATA TRZCIŃSKA-HILDEBRANDT
+Translator     ANDRZEJ HILDEBRANDT
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     KATARZYNA WOLOSZYN
+LQA Tester     HANNA MILLER
+LQA Tester     ZOJA BARYLKO
+LQA Tester     MARTYNA SLOMIANOWSKA
+<br><br>
+RUSSIAN LOCALIZATION
+RIOTLOC LTD.
+Localization Coordinator     VLADIMIR KONOPLITSKY
+Localization Coordinator     ANNA KISELEVA
+Localization Coordinator     MARIA YUNGER
+Additional Localization Coordination     ALEXANDER BOLOTIN
+Team Lead     ANNA KISELEVA
+Editor     ANNA KISELEVA
+Editor     MARIA YUNGER
+Translator     NATALIA BAULINA
+Translator     VLADIMIR EMYSHEV
+Translator     MARIE SELISSKY
+Translator     ALEXANDER STRAKHOV
+Translator     MARGARITA TASHCHIAN
+Additional Translation     MARIA GAVRILOVA
+Additional Translation     MIKHAIL KALINCHENKOV
+Additional Translation     NIKITA SEMENOV
+Additional Translation     DARIA SHAPIRO
+Additional Translation     ALEXANDER SUKHANOV
+Additional Translation     KATERINA FLORINSKAYA
+Additional Translation     YEKATERINA YUNGER
+Poetry Transcreation     MARIE SELISSKY
+Poetry Transcreation     YEKATERINA YUNGER
+Poetry Transcreation     ALEX LUBART
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Senior Tester     OLGA BAUDOUIN
+LQA Tester     ANASTASIA GITNIK
+LQA Tester     KARA IGNATENKO
+LQA Tester     YEVGENIY VOROBYOV
+<br><br>
+SIMPLIFIED CHINESE LOCALIZATION
+LARIAN
+Editor     YING DI
+Editor     REN YI
+Editor     OUYANG KELE
+<br><br>
+WHISPERGAMES
+CEO     JIANG XUAN
+CTO     LI XIANZHE
+Project Lead     LI XIANZHE
+Project Coordinator     DING YUE
+Translator     YE ZIQING
+Translator     LI YA
+Translator     FU YANGLANG
+Translator     YINGHUA
+Translator     QIU PEILIN
+Proofreader     YE ZIQING
+Proofreader     LI YA
+Proofreader     SONG MENGYANG
+Localization QA     LIANG XIAOTING
+Localization QA     LI JINWEI
+Localization QA     ZHANG DONG
+Localization QA     ZHANG SIYANG
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Senior Tester     NAN ZHANG
+LQA Tester     SIQI LI
+<br><br>
+SPANISH LOCALIZATION
+RIOTLOC LTD.
+Localization Coordinator     VLADIMIR KONOPLITSKY
+Localization Coordinator     ANNA KISELEVA
+Localization Coordinator     MARIA YUNGER
+Additional Localization Coordination     ALEXANDER BOLOTIN
+Team Lead     RAMON MENDEZ
+Editor     ALBA CALVO
+Editor     CURRI BARCELO
+Translator     JUAN PEDRO BETANZOS
+Translator     DAVID MARTÍNEZ
+Translator     FRANCISCO MOLINA
+Translator     FERNANDO MOREIRAS
+Translator     DAVID TEJERA EXPÓSITO
+Translator     JUDIT TUR
+Translator     ALEX VALERO 'DANDA'
+Translator     JUAN RAMÓN ACEDO
+<br><br>
+SPANISH (LATIN AMERICA) LOCALIZATION
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     DIANA OBREGON
+LQA Tester     PABLO BUENO
+LQA Tester     FRANCISCO GARCIA
+LQA Tester     NATALIA DUQUE
+<br><br>
+SPANISH (SPAIN) LOCALIZATION
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     JAIME ALEJANDRO GONZALEZ RODRIGUEZ
+LQA Tester     ANDREE ORLANDO RAMIREZ ARREDONDO
+<br><br>
+TRADITIONAL CHINESE LOCALIZATION
+LARIAN
+Editor     YING DI
+Editor     REN YI
+Editor     OUYANG KELE
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     TIANYI HU
+LQA Tester     TONG WANG
+<br><br>
+TURKISH LOCALIZATION
+AIBELL GAME LOCALIZATION
+Founder and Manager     AYBARS SAPAN
+Project Manager     ANIL CAN ÇETINKAYA
+Lead Localization Specialist     SENCER COŞKUN
+Localization Specialist     MUHAMMET TOPCU
+Localization Specialist     IŞIL MERVE GÜRSOY
+Localization Specialist     H.ATUĞ AKYÜZ
+Localization Specialist     HANDE ÖNCÜ
+Localization Specialist     HÜSEYIN SERDAR CALLA
+Localization Specialist     FURKAN AKKAYA
+Localization Specialist     EROKAY ANDAÇ YURDAER
+QA Tester     ÖZAY ŞEN
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     MELIS AYSEGUL KARAYUSUF
+LQA Tester     BASAK TOZLU
+LQA Tester     ALI HAYDAR YILDIRIM
+<br><br>
+UKRAINIAN LOCALIZATION
+SBT LOCALIZATION
+Team Lead     YURA 'DRAGON' PAVLIUK
+Localization Project Manager     TETIANA CHEREDNYCHOK
+Editor     OLIA SUSHYTSKA
+Editor     IRYNA ANDRIEIEVA
+Translator     YURII BISYK
+Translator     PAVLO KULIAMIN
+Translator     TARAS KORZHYK
+Translator     PAVLO DONCHENKO
+Translator     OLEKSANDR VLASIUK
+Translator     BOHDANA VOZNIUK
+Translator     ANNA CHYRVA
+Translator     ANNA TSVIRA
+Translator     TETIANA KHVASTOVA
+Translator     MARIIA POLISHCHUK
+Translator     OLENA ANDROSIUK
+Translator     OLIA KHMELNYTSKA
+Translator     IRYNA MAKOVSKA
+Translator     IRYNA ANDRIEIEVA
+Translator     ROSTYSLAV FEDORKO
+Translator     DMYTRO HOLOVCHENKO
+Translator     ANASTASIIA RANTIUK
+Translator     YEVHENIIA BABCHYNETSKA
+Translator     OLEKSANDR LUKIANOV
+Translator     ANDRII YATSECHKO
+Translator     VLADYSLAV KRAVCHENKO
+Translator     MARIA IHNATIEVA
+Translator     IEVGEN TKACH
+Translator     NATALIA KOMPANIIETS
+Technical Support     OLEKSANDR MAMONOV
+<br><br>
+PTW CANADA SOLUTIONS. INC.
+LQA Tester     OLEKSANDR KORZH
+LQA Tester     VALERIIA ZINCHENKO
+<br><br>
+CONTRIBUTORS
+<br><br>
+3LB GAMES
+Narrative Design     COLIN MCCOMB
+<br><br>
+ABSTRACTION
+CEO     RALPH EGAS
+CTO     ERIK BASTIANEN
+Head of Development     JOHN DAY
+Senior Lead Engine Programmer     BALÁZS TÖRÖK
+Senior Engine Programmer     WOUTER VAN DONGEN
+Senior Engine Programmer     BASTIEN SCHATT
+Engine Programmer     MICAEL DIAS
+Engine Programmer     ŁUKASZ KADEJ
+Engine Programmer     JACEK MIĄSKIEWICZ
+Engine Programmer     MAIK SEMDER
+Engine Programmer     ERIC TROOST
+DevOps Programmer     MARC SMIDS
+Producer     FARAH NASRI
+Producer     DANIELE PALERMO
+<br><br>
+AIRSHIP INTERACTIVE
+Groom Artist     JULIANA AVARA-EGGEL
+Groom Artist     WARREN BOONZAAIER
+Groom Artist     MANUEL CAPITANI
+Groom Artist     LUIS CARDENAS
+Groom Artist     EVAN CLARK
+Groom Artist     HYWEL EVANS
+Groom Artist     ALI GLEN
+Groom Artist     SANNA KEMPE
+Groom Artist     ANNA PERON
+Groom Artist     MIGUEL PESCADOR
+Groom Artist     DOMINIC PUGH
+Groom Artist     NICOLAS RAJOHNSON
+Groom Artist     ANDREEA SCUBLI
+Groom Artist     JOSH WILLIAMS
+Lighting Artist     MARINA BELLI
+Lighting Artist     MELNIKOV DMITRII
+Lighting Artist     KATERINA SUMOVA
+Lead Environment Artist     LAURA DILLOWAY
+Producer     DAN BROWNE
+Head of Production     MICHAEL RUSHTON
+Client Relationship Manager     JESSICA CHAPMAN-KILLICK
+Chief Commercial Officer     TIM HORTON
+Chief Operating Officer     DECLAN PAUL
+Chief Executive Officer     JOSEPH HARFORD
+<br><br>
+ANSHAR STUDIOS
+Head of Studio     ŁUKASZ HACURA
+Gameplay Programmer     KRZYSZTOF ROSIŃSKI
+UI Programmer     ANNA ŁABĘCKA
+UI Programmer     DOMINIK MAŁACHOWSKI
+<br><br>
+BGEEK.EU
+Founder / CEO / Consigliere     MICHAIL PAPADOPOULOS AKA BLACK MIKE
+<br><br>
+BEVERLY BOY PRODUCTIONS
+Senior Producer     THOMAS DAHNE
+<br><br>
+BRAIN ZOO STUDIOS
+Exec Producer / Creative Director     MO DAVOUDIAN
+Director     ALI DONOVAN
+Producer     TAMMY HOLGUIN
+Animation Supervisor     HARRY WALTON
+Lead Technical Director     FRANCIS CO
+CG Artist     DANIEL HERRERA
+CG Artist     HYON KIM
+CG Artist     DAVE HICKEY
+CG Artist     CORINNA LEFORT
+CG Artist     DOMINIC VALENTINO
+CG Artist     DESI COREY
+CG Artist     VENITIA ELLIS
+CG Artist     JD SMITH
+CG Artist     HUNTER HOLGUIN
+CG Artist     DAVID GROSS
+<br><br>
+CHEEKBONE LTD
+Video Production     MAX CURTIS
+<br><br>
+CORBAX STUDIO
+CEO     MIKE VASILEV
+CVO     YULIYA DIKUN
+COO     KONSTANTIN ILYIN
+3D Artist     DENIS KORISTIN
+3D Artist     OLEKSANDR SHEVCHUK
+3D Artist     OZHERELIEV MIKHAIL
+3D Artist     MIROSLAV KOZIREV
+3D Artist     ILIYA ZHURAVLEV
+<br><br>
+DARK BURN CREATIVE
+Founder - Executive Creative Director     CHASE BOYAJIAN
+Founder - Executive Producer     TANNER BOYAJIAN
+Director of Operations     SKY LABROT
+Sr. Creative Director     JAY TRUMBULL
+Sr. Creative Producer     RYAN DAVIS
+Jr. Producer     NIKKI NOTTHOFF
+Art Director     ALEX MISKEI
+Video Editor     JAMES SKINNER
+Lead Capture Director     MIKE LAUDANO
+Associate Capture Director     CANDACE NELSON
+Director of Technology     CHRIS HARRIS
+Lead Build Tech     CHRISTOPHER ROCKRIVER
+Build Tech     JESSICA RILEY SPINKS
+<br><br>
+DEAD GOOD MEDIA
+BONNIE ADAMS
+JAKE KULKOWSKI
+MATTHEW PELLETT
+STU TAYLOR
+<br><br>
+DIVERZE (ON BEHALF OF DREAMTEK)
+Broadcast Audio Lead     WIM ZWARTS
+Sound assistant     NIC VERHELST
+Sound assistant     BART FIERENS
+Sound assistant     VINCENT VAN GOOL
+Sound assistant     STAN ADRIAENS
+Sub-Zero video recordist     ANTOON RAES
+<br><br>
+DREAMTEK
+Head of Video     TOM BLADES
+Video Production Lead     MAT SPARK
+Video Production Assistant     EVIE JONES
+Senior Video Engineer     KASHAAN BUTT
+<br><br>
+ELVERILS
+General director     STANISLAV TIHOHOD
+Graphics evangelist     ROSTISLAV MIKHEEV
+Mac port and Metal graphics lead     EUGENE GRIGORCHUK
+Build systems and platform specific     ANDREY MOZHAROVSKI
+Tools and graphics support     ANDREY KITS
+Graphics programming     NIKITA SHIPOVALOV
+Mac build systems     VASILIY LOGACHEV
+Mac Developer     PLATON FOMICHEV
+<br><br>
+FABRIQUE DE MONSTRES
+President / Additional Voice Direction / Vocal Stunt Performer     SÉBASTIEN CROTEAU
+Vocal Stunt Performer     CORINNE CARDINAL
+Vocal Stunt Performer     MAUDE THÉBERGE
+Vocal Stunt Performer     ROXANA BL
+Vocal Stunt Performer     DAVID ALEXANDRE BRAULT-PILON
+Vocal Stunt Performer     MIKAIL STANDJOFSKI-FIGOLS
+<br><br>
+FIRE WITHOUT SMOKE
+Studio Head     RICHARD PARNES
+Client Director     ADINA SURDU
+Creative Director     SAM PASSMORE
+Creative Engineer     BEN DE LA RIVA
+Art Director     ELIOT ALBON
+Producer     LEILA TOULMIN
+<br><br>
+FIREWALKER PRODUCTIONS LTD
+Senior Tech Artist     MIKE BEST
+<br><br>
+FOOL'S THEORY
+Producer     JAKUB ROKOSZ
+Gameplay Programmer     ŁUKASZ ŻARNOWIECKI
+Gameplay Programmer     DAWID SCZENDZINA
+<br><br>
+GAME ON CREATIVE INC
+CEO     SAM GIRARDIN
+Executive Producer     SABRINA JACQUES
+Director of Finance     DAVID LAVERGNE
+Account Manager     ARNAUD BARENNE
+Senior Producer     NIK SCHMIDT
+Production Coordinator     AMANDINE CHABANNE
+Audio Team Lead / Sound Designer     NICOLAS BÉDARD
+Audio Engineer / Sound Designer     GABRIEL DUBOC
+Sound Designer     DEAN KONTOS
+Sound Designer     FREDERIC BOILY
+Sound Designer     JULES MONTREUIL
+Sound Designer     LAETITIA BATUT
+Sound Designer     MORGAN HAMEL
+Cast     KWASI SONGUI
+Cast     WYATT BOWEN
+<br><br>
+GLOW PRODUCTION SDN BHD
+Producer Cinematic Animation/Artist     ANGEL LIM SHI TEEN
+Lead Cinematic Animator     JACOB LIM YI EN
+Senior Cinematic Animator     CHONG JIA WEI
+Cinematic Animator     ADRIAN PHANG PUI LYE
+Cinematic Animator     JOHN KHENG YONG GUAN
+Cinematic Animator     LIM SHENG CHUAN
+Cinematic Animator     PHILIP OH MING HUI
+Cinematic Animator     ROXAS WONG WAI HON
+Junior Cinematic Animator     HOW HAN LOON
+Junior Cinematic Animator     LU POH NING
+Lead Cinematic Artist     LAI KOK FAI
+Cinematic Artist     CHUA YI YANG
+Cinematic Artist     KHOO CHONG LEY
+Junior Cinematic Artist     ANDROS TAN ZHI SHEN
+Junior Cinematic Artist     DANIEL CHAN JIA HAO
+Junior Cinematic Artist     LEE JIA SENG
+Senior Cinematic Lighter     TAN ZI XIAN
+Senior Cinematic Lighter     LEONG YIE YIN
+Senior Cinematic Lighter     YAP JIAN LENG
+Senior Cinematic Lighter     SHIO SOON YOU
+Junior Cinematic Lighter     FARAH BINTI AZHAR
+Junior Cinematic Lighter     GABY GAN ENG LAM
+Producer Cinematic Lighting     CAMILLE KOH JIN NI
+<br><br>
+GOBLINZ ENTERPRISES
+Management     ANNA KUZNETSOVA
+VFX artist     URAZOVSKII ROMAN
+VFX artist     RUSOV ROMAN
+General drinking with Spencer     DIMMIE AZU
+<br><br>
+HIDE AND SEEDS
+Executive Producer     CHEW KIN LEK
+Project Coordinator     AINI AZMAN
+Animator     ABDUL HAKIM ZULKAFLI
+Animator     AARON YEOW
+Animator     CHAN POR MAN
+Animator     ANNE CHEE
+Technical Artist     TAN SHENG KHAI
+<br><br>
+HUNGARIAN STUDIO ORCHESTRA
+Concert Maister     BALÁZS BUJTOR
+Conductor     PETER PEJTSIK
+Conductor     PETER ILLÉNYI
+Conductor     DANIEL DINYÉS
+<br><br>
+ICO PARTNERS
+Marketing Manager     DAVID ALMODÓVAR
+Communications Manager     JAMES BARTHOLOMEOU
+CEO     THOMAS BIDAUX
+Publishing Consultant     PATRICK BUECHNER
+Senior Communications Manager     LEWIS BURNELL
+Brand Manager     HYUNAH CHUN
+Communications Manager     LISA ELIASSON
+Senior Communications Manager     ENRIQUE GARCIA
+Communications Manager     JENNIFER GRABOWSKI
+Creative Director     AARON HINCHION
+Communications Manager     MARIA KHODAEVA
+Senior Communications Manager     LISA KNEIDL
+Lead Consultant     DIANE LAGRANGE
+Communications Manager     FANNY MOREAUX
+Marketing Manager     JAMES O'LEARY
+COO     DAVID ORTIZ
+Senior Communications Manager     JESSICA RICHARD
+<br><br>
+ILLUSIONIST ANIMATION STUDIO
+Director     LIM YING JIE
+Producer     LEE YAN TING
+Project Coordinator     TAN KIM FOONG (TAKI)
+Lead Animator     ONG IAN
+Cinematic Artist (Senior Animator)     ALDO PAULDY
+Cinematic Artist (Senior Animator)     YAP CHOON PEI (ISA)
+Cinematic Artist (Senior Animator)     YEE ZHAO FOONG (ERIC)
+Cinematic Artist (Intermediate Animator)     SIM SONG WEN (NORMAN)
+Cinematic Artist (Intermediate Animator)     CHARVIA LIESERA
+<br><br>
+KEOS MASONS
+Art Director and Producer     MARCO PLOUFFE
+Team Manager     KEVIN OCHOA
+Character Artist     MAXIM PITELIN
+Character Artist     MELAN BARBA
+Character Artist     EUGENE PAVLOVICH
+<br><br>
+KEYWORDS STUDIOS KATOWICE
+FQA Regional Director - Eurasia     CHRIS BEWICK
+FQA Manager     LUKASZ SZEWCZYK
+FQA Manager     LUKASZ BLASZCZAK
+Technical Project Manager     KRZYSZTOF FUDRO
+TQA Lead     PIOTR KUKLA
+TQA Associate Lead     PAWEL TANCZYK
+TQA Senior Tester     ANDRZEJ KONDAS
+TQA Tester     SEBASTIAN SKORUPA
+TQA Tester     PATRYK WOJCIK
+TQA Tester     ALEKSANDER RUDZKI
+TQA Tester     KATARZYNA NIZIOLEK
+TQA Tester     LUKASZ NOWAK
+TQA Tester     BARTLOMIEJ KAWECKI
+TQA Tester     DAWID KOLODZIEJCZYK
+TQA Tester     PATRYK NIESPOREK
+TQA Tester     MARCIN KABASINSKI
+<br><br>
+LAKSHYA DIGITAL PVT. LTD.
+CEO     MANVENDRA SHUKUL
+Studio Director     ROB OLSON
+Production Head     ANANDO BANERJEE
+Studio Project Director     MANISH BHANDARI
+Studio Art Director     ANUPAM THAPLIYAL 
+Studio Director - Bangalore     RAJU PATIL
+Studio Head - Pune     MAYANK RAJPOOT
+Director Business Development     ARJUN AGNIHOTRI
+Director Customer Relations     MUKUND VASISHTA
+Associate Project Director     UDAY JOSHI
+Project Manager     RAMESH MANCHANDA
+Project Manager     DAPINDERPAL KHAIR
+Art Director     KARAN VERMA
+Art Lead     MANISH MALIK
+Animator     SHUBHAM VERMA
+Animator     UDAY THAKUR
+Animator     AKANSH SALUJA
+Animator     NARENDER SHARMA
+Animator     SUKHDEV SINGH
+Animator     GAGANDEEP SINGH
+Animator     NAUSHAD ALI
+Animator     SIMRAN
+QC lead     JAGPREET SINGH
+QC lead     AJIT SINGH BHANDARI
+QC Artist     MOHIT BISHT
+QC Artist     MD. IQRAR ALAM
+QC Artist     JOHN SAMEER TOPPO
+<br><br>
+LEITMO.TV
+Creative director     HANS BUYSE
+Camera operator     JORRIT EGGERMONT
+Camera operator     MAXIME VANRENTERGHEM
+<br><br>
+LITTLE RED ZOMBIES STUDIOS PVT LTD
+Artist     TUSHAR DOBRIYAL
+<br><br>
+MSM.DIGITAL
+NIKOLAS ANGERSTEIN
+ADIL KAAN KANAL
+ANJA VÖLKER
+<br><br>
+MAD MARKER STUDIOS
+Animator/Studio Head     BOBBY DUNCANSON
+VP Operations     DAVID HEALY
+Senior Animator     KELLY SCOTT
+Senior Animator     NICK TAYLOR
+Mid Animator     IAN STEAGALL
+Mid Animator     BEMIN JACKSON
+Mid Animator     TOM ODELL
+Senior Animator     CHRIS OVERCASH
+Senior Animator     ELLIOT HWANG
+Junior Animator     PATRICK ARMARIO
+Junior Animator     CHRISTIAN VILLAMIL
+<br><br>
+METRICMINDS GMBH & CO.KG
+Junior Project Manager     SONJA KOECK
+Cinematic Artist     SIMON FORMANSKI
+Senior Animator     JOEL FISHER
+Animator     FRANCESCO GIORGI
+Senior Animator     DANIEL LANGE
+Animator     ALISSA KALLASS
+Animator     ALEXANDER ROTTER
+Animator     ALEX ESPIGARES
+Junior Animator     ALBAN GAMAY
+Managing Director     PHILIP WEISS
+Executive Producer     GEON CHO
+Operations Manager     KONNI AMIC
+Project Controller     DANIELA WEISS
+Senior System Administrator     CHRISTIAN DREHER
+Business Development Manager     SASA GAJIC
+<br><br>
+MOLINARE TV & FILM LIMITED
+Creative Lead / Dialogue Mastering Engineer / Additional Foley     GLEN GATHARD
+Dialogue Mastering Engineer / Additional Foley     LUKE DUFFIN
+Dialogue Mastering Engineer     DOMINIC ROOCROFT
+Dialogue Mastering Engineer     LUKE ELLIOT
+Cinematics Sound Designer     WILLIAM CHOO
+Dialogue Mastering Engineer     LEIGH OSAER
+Dialogue Mastering Engineer     JED MILTON
+Dialogue Mastering Engineer     KYEL ALLEN
+Lead Cinematics Sound Designer     EMILIYAN ARNAUDOV
+Cinematics Sound Designer     FEDERICO MODANESE
+Cinematics Sound Designer     ROSS MCGREGOR
+Assistant Sound Designer     ZACHARY WHELAN
+Additional Foley     ZOE FREED
+Dialogue Recording Engineer     BRUNO VILHAR
+Interactive Lead Producer     SASHA JAMES
+Re-recording Mix Support     TRISTAN POWELL
+<br><br>
+MOVING BODY ARTS
+Intimacy Coordinator     ENRIC ORTUNO
+<br><br>
+NAVAJA POST
+Sound Designer      ARRON AMO-TRAVERS
+<br><br>
+NEEMU STUDIO
+VFX artist     DIANA SIMONYAN
+VFX artist     HAYK GRIGORYAN
+VFX artist     ANANIA HARUTYUNYAN
+VFX artist     MARIANA SARGSYAN
+VFX Team Lead     GAYANE MURADYAN
+<br><br>
+ONE INC.
+ZEKE OLAND
+ROBERTA DRAKE
+<br><br>
+ORIGINAL FORCE
+Cinematic Animator     CHENG XIAOBING
+Cinematic Animator     ZHANG XU
+Cinematic Animator     LI ZHANPENG
+Cinematic Animator     HAN YUYANG
+Cinematic Animator     HU RUIXIANG
+Cinematic Animator     MA GUANGTONG
+Cinematic Animator     MA JIANHUA
+Cinematic Animator     LUO CHONGSHAN
+Cinematic Animator     REN RUOYANG
+Cinematic Animator     ZHU HAOYU
+Cinematic Animator     YIN HUAYU
+Cinematic Animator     JIANG ZEQUN
+Cinematic Animator     YUAN CHENG
+Cinematic Animator     JIANG XIAOBAO
+Cinematic Animator     WANG ZHEN
+Cinematic Animator     NI PENG
+Cinematic Animator     ZHANG HENGYAN
+Cinematic Animator     GU XINLONG
+Cinematic Animator     WU ZHAO
+Cinematic Animator     YANG HUAN
+Cinematic Animator     YU YUE
+Cinematic Animator     LIU ZHIQIANG
+Cinematic Animator     REN JING
+Cinematic Animator     CHEN CHEN
+Cinematic Animator     WU XUAN
+Cinematic Animator     ZHU XINLEI
+Cinematic Animator     WANG XINRAN
+Cinematic Animator     NIU WEIFAN
+Cinematic Animator     CHENG FEIJUN
+Cinematic Animator     ZHANG CHAOJIE
+Cinematic Animator     LEI YUHANG
+Cinematic Animator     CUI DEXIN
+Gameplay Animator     YANG LU
+Gameplay Animator     GE ZHIQUN
+Gameplay Animator     XU XIAOYUN
+Gameplay Animator     WU GUANDIE
+Gameplay Animator     WANG CHANGHAN
+Gameplay Animator     CHEN YISHAN
+Gameplay Animator     LI HUIYA
+Gameplay Animator     WAN YOUWEN
+Gameplay Animator     ZHENG HONGYU
+Gameplay Animator     GAO ZHAN
+Producer     CAMBRIAN XU
+Project Manager     WEBBER CHEN
+Animation Director     ZHENG QIAN
+Project Lead     DU NING
+QA     JIANG WEN
+QA     WEI MINMIN
+<br><br>
+PERFORMANCE CAPTURED LTD
+Director & Consultant     NEIL NEWBON
+Producer & Consultant     SALETA LOSADA
+<br><br>
+PITSTOP PRODUCTIONS
+PitStop Managing Director     JOHN SANDERSON
+Head of Voiceover     HELEN BOWER
+Head of Operations     CHARLOTTE FREEMAN
+Head of Production     DAN THOMPSON
+Project Manager     STEPHEN TRAFFORD
+Lead Voice and Casting Director     JOSH WEEDEN
+Senior Voice and Casting Director     BETH PARK
+Studio Operations Manager     HANNAH AMY SMITH
+Post Production Lead     CALLAN EVANS
+Lead Dialogue Engineer     JAKE MCCORMACK
+Lead Motion Capture Engineer     ROGAN SHELTON
+Studio Operations Assistant     DANIEL BAINBRIDGE
+Voiceover Production Coordinator     DAN PERRY
+Voiceover Production Assistant     JAKE GOODE
+Senior Dialogue Engineer     TATSUJIRO OTO
+Motion Capture Engineer     MICHAEL WEST
+Motion Capture Engineer     BEN ARNOLD
+Motion Capture Engineer     INDIA KIM HORTON
+Post Production Coordinator     LISHA HIRST
+Voiceover Post Production Technical Coordinator     LENNY BEDFORD
+Project Manager (Sound Design)     THOMAS WHITEHEAD
+Sound Designer     GEORGE LLOYD-BURMAN
+Sound Designer     MORGAN JONES
+Sound Designer     CHRIS DELANEY
+Sound Designer     DIOGO CLEMENTE
+Sound Designer     LIAM DODD
+Sound Designer     VIRAJ RAMSHARAN
+Sound Designer     FINLAY MCCORMACK
+PA & Office Manager     JOY JACKSON
+Office Coordinator     SID WATSON
+Support Voiceover Production Coordinator     LEIGH-ANN WITHERS
+Support  Voiceover Production Assistant     KAT WILLIAMS
+Support Voiceover Production Assistant     HARRY COLE
+Project Manager     JACQUI BARDELANG
+Pre-Production Support     KIRSTEN TROY
+Dialogue Engineer     STEVE THOMAS
+Lead Motion Capture Engineer     VRITIKA AMARNANI
+Studio Production Assistant / Studio Runner     GEORGE JONES
+Audio Engineer     LLOYD JUKES
+Audio Engineer     JULIÁN BLANCO
+Audio Engineer     SEB MALETKA-CATALA
+Audio Engineer     ANDREAS BILDT
+Audio Engineer     ELIJAH VINCENT
+Audio Engineer     ANDREW LITTLETON
+Audio Engineer     JOSH BAILEY
+Audio Engineer     SAM WALSH
+Motion Capture Engineer/ Runner     MAXINE FRANKLIN
+Motion Capture Engineer/ Runner     ABBY MCGREAVEY
+Motion Capture Engineer/ Runner     PANDUKA RAJAPAKSE
+Motion Capture Engineer/ Runner     JESSICA HUNT
+Motion Capture Engineer/ Runner     JOSHUA NATHAN HAMMOND
+Motion Capture Engineer/ Runner     ETHAN CHIMES
+Motion Capture Engineer/ Runner     SAMUEL BIRMINGHAM
+Motion Capture Engineer/ Runner     IRVING THAIRO
+Motion Capture Runner     KATIE CORR
+Motion Capture Runner     ADRIÁN GÓNGORA LÓPEZ
+Studio Runner     FRED MUNN
+Studio Runner     JAMES LORD
+Voice Director     ADRIAN TOWNSEND
+Voice Director and Additional Casting Director     KIRSTY GILLMORE
+Voice Director     THOMAS MITCHELLS
+Voice Director     TILLY STEELE
+Voice Director     JENNIFER ENGLISH
+Voice Director     NATALIE WINTER
+Voice Director     NEIL NEWBON
+Voice Director     JANE MORIARTY
+Voice Director     BRONYA DEUTSCH
+Voice Director     KEITH HIGINBOTHAM
+Voice Director     JACQUI BARDELANG
+Voice Director     FRAZER BLAXLAND
+Voice Director     ALICIA GRACE TURRELL
+Voice Director     ALEXANDRA MORRIS
+Voice Director     SAM H FREEMAN
+Voice Director     DANIEL BAINBRIDGE
+Voice Director     JAKE MCCORMACK
+Voice Director     JOSHUA JACK HINDS
+Voice Director     CHRIS TOLLEY
+Performance Director     GH ZONANA
+Performance Director     ALIONA BARANOVA
+Performance Director     ASHA JENNINGS-GRANT
+Performance Director     HOLLY REDDAWAY
+Performance Director     CHARLES DOUGLAS
+Performance Director     BRONYA DEUTSCH
+Performance Director     SACHA PLAIGE
+Performance Director     FRAZER BLAXLAND
+Performance Director     KEITH HIGINBOTHAM
+Performance Director     CONOR NEAVES
+Performance Director     NICOLETTA BONANNI
+Performance Director     IOLI FILIPPAKOPOULOU
+Performance Director     JOSH WICHARD
+Intimacy Co-ordinator     ASHA JENNINGS-GRANT
+Dialogue Editor     CAM WHITE
+Dialogue Editor     SAM ASHLEY
+Dialogue Editor     LUKE WILLIS
+Dialogue Editor     JOE MOTT
+Dialogue Editor     ALISTAIR EDMOND
+Dialogue Editor     JOSH TAYLOR
+Dialogue Editor     MICHAEL JUKES
+Dialogue Editor     JOSH POLHILL
+Dialogue Editor     CASSIE WHITE
+Dialogue Editor     THOMAS EDWARD MOFFAT
+Dialogue Editor     JOSHUA WHITMORE-LYONS
+Dialogue Editor     OLIVER MATTHEW COOK
+Dialogue Editor     JOSHUA FOERS
+Dialogue Editor     CALLUM JONES
+Dialogue Editor     TOM O'ROURKE
+Dialogue Editor     JOHN CHURLISH
+Dialogue Editor     ALEX BURNS
+Dialogue Editor     JOSE ARTURO AMAYA PORTOCARRERO
+Dialogue Editor     LAURA SANDERS
+Dialogue Editor     MATTHEW HEALE
+Supporting Dialogue Editor     CHRIS KOLEV
+Supporting Dialogue Editor     ADAM BROWN
+Supporting Dialogue Editor     GIOVANNI D'AMBROSIO
+Supporting Dialogue Editor     JASON MCKENZIE
+Supporting Dialogue Editor     MARY FOTHERGILL
+Supporting Dialogue Editor     REANNE WEAVILL
+Supporting Dialogue Editor     KAT WILLIAMS
+Supporting Dialogue Editor     JACK HALL
+Supporting Dialogue Editor     TOM CONWAY
+Supporting Dialogue Editor     LIAM KENRICK
+Supporting Dialogue Editor     ALEX HARLEY
+Supporting Dialogue Editor     SARAH SHERLOCK
+Studio Support Animals     BAILEY
+Studio Support Animals     BODHI
+Post Production Support Animals     NUNA
+PitStop Productions Baby     ESMERALDA BRAMLEY-WEEDEN
+PitStop Productions Baby     REY ROBINSON-TOWNSEND
+<br><br>
+PLAYER ONE TRAILERS
+Director / Capture Artist / Editor / Cinematographer     GAGE ALLEN
+<br><br>
+PRODUCTION SOLUTIONS (ON BEHALF OF DREAMTEK)
+Broadcast Director & Technical Lead     TOBIN TAYLOR
+Broadcast Production Assistant     BERT ENEMAN
+<br><br>
+QUANTIC LAB
+CEO & Founder     STEFAN SEICARESCU
+Head of Business Development     MARIUS POPA
+Business Development Associate     DENISA CAMELIA BEJEREA
+Technical Director     SZILVESZTER PAP
+IT Infrastructure Managers     AURELIAN IONEL RAU
+IT Infrastructure Managers     LEVENTE SZABO
+QA Manager     PAUL CRISTIAN COLCERIU
+Compatibility & Performance Tester     DRAGOS CRISTIAN PACURARIU
+Compatibility & Performance Tester     MARIUS IOAN MICLOS
+Compatibility & Performance Tester     RAZVAN IONUT COVACI
+<br><br>
+REBORN CREATIVE LAB
+KAMIL ZGÓDKA
+JAKUB MAZUR
+PAWEŁ LEŃ
+HELENA KACZMAREK
+MICHAŁ TOMAKA
+KRZYSZTOF ŁOSIAK
+<br><br>
+RESET PR
+PR     VICTOR PEREZ
+PR     ALIDA LOMBARDI
+PR     MÉLISSA GAZZIERO
+PR     ANAÏS RAVONINJATOVO
+<br><br>
+SPIKE CHUNSOFT CO. LTD.
+Sales     KOJI YUKITA
+Sales     KAYO IKEDA
+Sales     YUICHIRO KISHII
+Sales     HIBIKI MAHO
+Sales     MAKI ENDO
+Sales     TOMOHIRO ISHIKAWA
+Sales     SARA KUO
+Sales     JIIN KIJIMA
+Sales     TAKASHI IWAMA
+Sales     TORU YOSHIDA
+Sales     KATSUYA EBATO
+Marketing     YOICHIRO FURUSAWA
+Marketing     SHUNSUKE KOUSAKA
+Marketing     NAOYA TAKEUCHI
+Marketing     AKIKO OBA
+Marketing     SHOTA AOYAGI
+Marketing     IKUNO KATSUMATA
+Marketing     HIROKI TAKATSU
+Marketing     RYO OHKAWA
+Marketing     KOKI CHIMURA
+Legal     KIYOTA ISHIWATA
+Legal     AI TAGUCHI
+Legal     AYA HAMANO
+Legal     MIKI OKAJIMA
+Legal     SHIZUKA MIZUNO
+Legal     IMU KOU
+Legal     RYUKI SAKATA
+<br><br>
+SANDBOX STRATEGIES
+Press Relations     TONY RIVERA
+Press Relations     VALERIE NORTON
+Press Relations     TYLER GARDNER
+Press Relations     ELENA CHRISTENSEN
+Communications     TIMOTHY AGIUS
+Operations     JOHN MAK
+Influencer Relations     SANTOS ECHEVARRIA
+Influencer Relations     MARISA SHURMAN
+Influencer Relations     AKINOLA VERISSIMO
+Influencer Relations     SAM STEPHENSON
+Influencer Relations     JOE RAYSINGER
+<br><br>
+STORM VIDEOS
+Camera Operator     MATT WORTHINGTON
+Camera Operator     JAMIE SMITH
+Camera Operator     JIMMY CHENG
+<br><br>
+STREAMING TOOLSMITH
+Twitch Integration Developer     THOMAS TUTS
+<br><br>
+STRETCHSENSE
+Partner Manager     PATRICK GILLIS
+Mocap Support Specialist     CHRISTOPHER MAXWELL
+Mocap Support Specialist     IGOR REZENDE
+Mocap Support Specialist     ADAM KERR
+Chief Operating Officer     CHRIS KOMATAS
+Business Development Manager     ANDER BERGSTROM
+Chief Operating Officer     BEN O'BRIAN
+<br><br>
+TRACE STUDIO
+CEO     ALEXANDER SUTIEV
+CBDO     ARTEM POLYAKOV
+HR     POLINA KANEVA
+Project Manager     GEORGII LIUBIMOV
+Lead Environment Artist     GALINA KUZNETSOV
+Environment Artist     VADIM KUDRIN
+Environment Artist     MIKHAIL PETAYKIN
+Environment Artist     MIKHAIL FOMENKO
+Environment Artist     VALERIY MAKARYUK
+Lead Character Artist     SERGEI GEREEV
+Character Artist     ANTON GRIGORIEV
+<br><br>
+TAKE OFF LTD.
+Director     ALISTER COLLINS
+Lead Creative     GARY NICHOLSON
+Creative     NATHAN REYNOLDS
+Creative     TONY BOKOYN
+Creative Producer     SILVIA CHINTOIU
+Creative     LAURA BONFARDECI
+<br><br>
+TEN TEN STUDIO MALAYSIA
+Studio Leadership     JAROLD SNG KOON SHAN
+Studio Leadership     JSON PUA CHENG SIM
+Art Director     CLOUD KHOO HAO QIAN
+Lead Artist     TEH JIA YI
+Lead Artist     TOBY TEE TOU YI
+Concept Artist     YONG JIE YIN
+Concept Artist     VALERIE TEOH WAN NI
+Concept Artist     AKI LIM PUI LING
+Concept Artist     QUAH YU QIN
+Concept Artist     KAM QI NAN
+Concept Artist     VINCENTIUS MATTHEW DJAYA
+Concept Artist     DAWSON LOO WENG HONG
+Concept Artist     JERRY LOH ZHENG YUE
+Concept Artist     PATRICK CH’NG QIAN LIN
+Concept Artist     LIM CHIN YANG
+Rigger     CHIA KIA LIAM
+Rigger     CHIA WEE JUN
+Project Manager     STEVIE CHONG DEE WEI
+Project Manager     TEH LY-ANN
+<br><br>
+TEN24 MEDIA LTD
+Director / Scanning / 3D Artist     JAMES BUSBY
+Director / Scanning / 3D Artist     CHRIS RAWLINSON
+<br><br>
+THREE INC.
+CLAUD ONEILL
+MAY IBRAH
+NINO GONG
+<br><br>
+TOM-TOM STUDIO BUDAPEST
+Orchestra recording and mixing engineer     TAMAS KURINA
+<br><br>
+TRIPTYQUE AUDIO
+External Sound Designer     JASON LETOURNEAU
+External Sound Designer     LOUIS-ETIENNE PAYER
+External Sound Designer     JEAN-PHILIPPE CÔTÉ
+<br><br>
+TWO INC.
+ISLA SOLOMON
+<br><br>
+UNIT IMAGE
+Intro cinematic director     LÉON BÉRELLE
+Intro cinematic director     DOMINIQUE BOIDIN
+Intro cinematic director     RÉMI KOZYRA
+Intro cinematic director     MAXIME LUÈRE
+Head of Production     CÉLIA DIGARD
+Production Manager     CLÉMENT PERES
+Production Assistant     LI JINGYAO
+Storyboard     GOMEZ IVAN
+Concept Supervisor     PIERRE LOYVET
+Technical Director     THÉO GARRIGUE
+Character Supervisor / Rigging Supervisor / Character FX Supervisor     JEREMIE MONCOMBLE
+Character Supervisor     HARRY BARDAK
+Character Artists     DUPORT FLORENT
+Character Artists     ROMAIN GARCIA
+Character Artists     TIMOTHÉ HEK
+Character Artists     ROBERT PASHAYAN
+Character Artists     FLORIAN MALCHOW
+Character Artists     BASTIEN-TRISTAN MACHET
+Character Artists     JULIEN PARIS
+Character Artists     FANNY CABEZAS
+Character Artists     ROLAND CARON
+Character Artists     LAURA COSTA GUERREIRO
+Character Artists     NICOLAS POLYTE
+Character Artists     JORDAN WEISGERBER
+Character Artists     PHILIPPE NGUYEN DUC
+Rigging Artists     ZOÉ PELEGRIN BOMEL
+Rigging Artists     CAMILLE ROUBINOWITZ
+Rigging Artists     MARIE JULLIETTY
+Layout Supervisor     GUILLAUME MARQUES
+Layout Artists     LÉO LEFÈBVRE
+Layout Artists / Rendering Artist     ROBIN ALENO
+Layout Artists     JOAN PONS
+Animation Supervisor     LAURENT HELMLINGER
+Animation Supervisor     FRANCOIS CAO
+Animator     AMIRAULT VALERE
+Animator     ASENSIO SÉBASTIEN
+Animator     BERNATEAU ELISE
+Animator     DEUNF YOHANN INT
+Animator     MAHU ALARIC
+Animator     MOITY BENJAMIN
+Animator     OBRECHT THOMAS
+Animator     SAMAMA AVI
+Animator     ZEGHLACHE TARIQ
+Animator     ZIDANE FAWZI
+Animator     DORANLO CLÉMENT
+Animator     BENOIT GAGNIER
+Character FX Supervisor     TOMMY TOUSSAINT
+Character FX Supervisor     ACHRAF AYADI
+Character FX Artist     LASZLO TRACHSEL
+Character FX Artist     MATHIEU NEGREL
+Character FX Artist     CHARLES GUERTON
+Character FX Artist     LAURA COSTA GUERREIRO
+Character FX Artist     FLORIAN PUCHOIS
+FX Supervisor     ACHRAF AYADI
+FX Artist     HANOA JÉRÉMIE
+FX Artist     MATTHIEU KORNACKI
+FX Artist     ARTHUR LOISEAU
+FX Artist     PAUL PARNEIX
+FX Artist     FARID ZIDANE
+FX Artist     TOM O'BREADY
+Rendering Supervisor     JEREMY AGERON
+Rendering Supervisor     TONY DUGARD
+Rendering Artist     SIMON ARNAUD
+Rendering Artist     JULIEN ARNAUDET
+Rendering Artist     THOMAS BARATTE
+Rendering Artist     MARIE CYRKLEWSKI
+Rendering Artist     GEOFFREY LEBRETON
+Rendering Artist     HADRIEN OTTEVAERE
+Rendering Artist     XAVIER POTHRON
+Rendering Artist     KIM TAILHADES
+Chief Information Officer     MAXIM DOUCET
+Tools & Pipeline     PAUL CHARMOILLE
+Tools & Pipeline     ROBIN VAGNER
+Tools & Pipeline     ANTOINE BOELLINGER
+Information Technology     LOUP KREIDL
+Information Technology     JONATHAN YANG
+Office & Administration     ELSA CHEVALLIER
+Office & Administration     JOHANNE BEAUPIED
+Office & Administration     JUSTINE ZAHRA
+Office & Administration     MARLÈNE WALE
+Office & Administration     MATHILDE LEROY
+<br><br>
+VERITE ENTERTAINMENT
+Additional Casting Director     RENÉ VEILLEUX
+<br><br>
+VIBE AVENUE
+Studio Director     MATHIEU LAVOIE
+Studio Director     FX DUPAS
+Studio Manager     KAVEN PICARD
+Sound Engineer     PAUL DUBREUIL
+<br><br>
+VICON
+MoCap Consultant     JAMES COOPER
+VFX Product Manager     DAVID EDWARDS
+Support Manager     BOB DIMMOCK
+Business Development Manager     ALYNA CIACIUCH
+UK & Ireland Sales Manager     DAMI PHILLIPS
+Senior VFX Applications Engineer     JUAN NADER
+<br><br>
+WINDMILL LANE PICTURES
+Cinematic Sound Designer     SOL O'CARROLL
+Cinematic Sound Designer     RYAN QUINN
+Cinematic Sound Designer     FIONAN HIGGINS
+Audio Producer     RENATA FITZPATRICK
+Head of Production     DEBORAH DOHERTY
+<br><br>
+XSENS
+Account Executive Entertainment     CHRISTIAN JOHNSTON
+Business Development Manager / 3D Character Animation     KAREN CHAN
+Senior Product Specialist     KATIE JO TURK
+<br><br>
+YELLOW CAB STUDIOS
+Supervising Sound Editor & Foley Mixer     OLIVIER RANQUET
+Foley Artist     GREGORY VINCENT
+Sound Editor     VINCENT MAUDUIT
+Studio Assistant     VINCENT VAN DRIESTEN
+<br><br>
+AS AGENCY
+<br><br>
+AS CASTING
+<br><br>
+ALIENWARE
+<br><br>
+AVOTHEA
+<br><br>
+BABELIAN
+<br><br>
+CASTING COLLECTIVE
+<br><br>
+LEMON SKY ANIMATION
+<br><br>
+LOGIC LOCKS
+<br><br>
+PETER PROPS
+<br><br>
+TEAM SHK
+<br><br>
+UNLOCKED.GG
+<br><br>
+VIVID DREAMING PRODUCTIONS
+<br><br>
+WUSHU STUDIOS
+<br><br>
+DE HUIZENIER
+<br><br>
+Motion Capture Engineer/ Runner     ADAM JONES
+Artist     AHMED WAFDY
+Face Capture Actor     ALEX RANAHAN
+Artist     ALEXANDER CHERNENKOV
+Actress     ALEXANDRA PIC
+Artist     ANDRZEJ MARSZALEK
+Harp player     ANGELA MADJAROVA
+Artist     ARTHUR VARENEV
+Artist     ARTUR PAVLOV
+Customer Support     ASIA LARKIN
+Localization Tester     AYBALA CARLAK
+Face Capture Actor     BAILEY SHAW
+Artist     BINQI CHEN LEO
+Performance Actor     CHARLOTTE DE METSENAERE
+Cine Voice Designer     CHIARA HAURAND
+Cinematic Sound Designer     CONALL O'BRIEN
+Vocalist     DARINA DZAMBAZOVA
+Artist     DARIUSZ DROBNICA
+Cello player     DIMITAR TENCHEV
+Accordion & clarinet player     DIMITAR TISHEV
+Character Artist     DMITRIY SACHIYANTS
+Face Capture Actor     ERASMUS CAULEY-YU
+ Lead Cine Sound Designer     FELIX MARINGER
+Additional  violin recordings     FLORENCE ST-CYR
+Chief Counselor on Laws of the Realm     FREDERICK U. FIERST
+Orchestrator and additional arrangements     GEORGI ANDREEV ANDREEV
+Screenshot Creator     GUILLAUME PERONNIN
+Actor     HENRY DOUTHWAITE
+Artist     IGOR GOLOVKOV
+Lead vocalist     ILONA IVANOVA
+Artist     INKA SIPOLA
+Violin player     IVAN PENCHEV
+Featured musician and stringed instruments player     IVAYLO PETROV
+Localization tester     JAN NIKLAS BERSENKOWITSCH
+Cine Sound Designer     JOHANNES WAGNER
+Artist     JONATHAN DUFRESNE
+Performance Actor     JUSTIN VANCHO
+Performance Actor     KELLY AGATHOS
+Artist     KIM JUNHA
+Sign Language Interpreter     KQEFIANI AMIRA BT ABD JALIL
+Storyboard Artist     KYLE LATINO
+Customer Support     LEWIS WILSON
+Additional vocals     LILIANA KARDZHIEVA
+Performance Actor     MANZI DE YOUNG
+Concept Artist     MARC MOUREAU
+Freelance Character Artist     MARIA PUCHKOVA
+Artist     MARIE DEVINE
+Lead vocalist     MARIYA ANASTASOVA
+Vocalist     MARYA DIMITROVA
+Performance Actor     MIKE PAPE
+Artist     MIKHAIL PALAMARCHUK
+Character Artist     MOHAMED ABDELFATAH
+3D Artist      NIKITA KUZMICHEV
+Vocalist     NIKOLA ANTONOV
+Concept Artist     NIKOLA MATKOVIC
+Motion Capture Engineer/ Runner     OMAR DICKINSON
+Violin player     ORLIN TSVETANOV
+Character Artist     PATRICK JAHR
+Character Artist     PAVEL PROTASOV
+Stringed instruments player     PETAR MILANOV
+Percussions player     PETAR TODOROV
+Face Capture Actor     RENNI PILGREM
+IT Support      SAMUEL TOO
+Artist     SAURABH JETHANI
+Customer Support     SEAN BIBBY
+Junior Engine Programmer      SELWYN DARRYL KESSLER
+Featured musician and mastering engineer     SILDAR BORISOV
+Additional harp recordings     SONIA JOANNETTE
+Concept Artist     STEPAN ALEKSEEV
+Face Capture Actor     STEVEN BROAD
+Violin player     SVETLANA STANCHEVA
+Vocalist     SVETOSLAV TZANKOV
+Viola player     TATYANA TODOROVA
+Video Producer     THOMAS MUYLLE
+Artist     TIM BARTON
+Customer Support     TOMMY GUNDERSEN
+Woodwinds player     TSVETELINA BELEVA
+Arranger and additional music     VICTOR STOYANOV
+Event Support Service     WHITNEY BANKS
+Vocalist     YOANNA BOZHKOVA
+Vocalist     YULIAN PERIKLIEV
+<br><br>
+ADDITIONAL CONTRIBUTIONS BY
+Lead Artist     SERGEY CHESNOKOV
+Publishing Producer     SAM FAULKNER
+Senior Animator     MAXIME PILON
+Senior Animator     SWAN-ALEX TURCOTTE
+Senior Character Artist     ALEKSANDR CHUDAKOV
+Senior Community Manager     LÉNAÏC RIÉDINGER
+Senior Console Programmer     DANIEL LANCHA
+Senior Engine Programmer     ALEXANDER SAKHAROV
+Senior Engine Programmer     ANTON NOVOSELOV
+Senior Engine Programmer     JESÚS SERRANO
+Senior Environment Artist     GEORGII NOMEROVSKII
+Administrative Assistant     MELISSA BERTIN
+Animator     MAUDE FORGUES
+DevOps Programmer     ADAM HETHERINGTON
+Environment Artist     NASTYA ERMAKOVA
+Environment Artist     VITA ZEMTSEVA
+Facility Manager     CYNTHIA CÔTÉ
+Gameplay Programmer     MAKSIM VINNIKOV
+Narrative Designer     CHARLENE PUTNEY
+Office Manager     JENIFFER JANIAL
+PR Manager     MICHAËL WETZEL
+PR Manager     TATIANA KUZMINYKH
+Recruiter     TATIANA GAINUTDINOVA
+Recruiting Assistant     AVA SUTCLIFFE
+Scripter     VALERIYA KARABATYROVA
+Studio Head     TRACY ANNE YAP
+UI Programmer     MAIK SEMDER
+UI Programmer     MICAEL DIAS
+VFX Artist     GREGORY TERENTIEV
+Junior Character Artist     LAURA SCHREURS
+Junior Cinematic Artist     CHRISTINA MONG
+Junior DevOps Programmer     SANDER CASTANHEIRA MACHADO
+Junior Game Engine QA     ALEXEY LEBEDEV
+Junior Game Engine QA     ILYA KRAVCHENKO
+Junior Tech Animator     GABRIEL PHILIBERT
+Junior Tools Programmer     MATTHIAS SEYS
+Junior Writer     ZACHERY SANFORD
+<br><br>
+INTERNS
+Character Art Intern     DEALAN LIPKA
+Character Art Intern     ERIC RICHARDSON
+Character Art Intern     FLO SCHOLLAERT
+Character Art Intern     JANIE BEAUDOIN
+Character Art Intern     SONYA BELGACEM
+Character Art Intern     TIM VAN WASSENHOVE
+Cinematic Art Intern     ALEXANDRA COYNE
+Cinematic Art Intern     ARÍEL JÓHANN ÁRNASON
+Cinematic Art Intern     JOSHUA BROWN
+Concept Art Intern     ALEX MOLDOVAN
+Concept Art Intern     ANA POPESCU
+Environment Art Intern     ALLAN DE PAEPE
+Environment Art Intern     JEROEN TOMA
+Environment Art Intern     MATHIAS LAUWERS
+Environment Art Intern     ROBBE VLAEMINCK
+Environment Art Intern     THIBAULT MOITEL
+Environment Art Intern     BULENT CAMDERE
+Environment Art Intern     CARLO DOBBE
+Environment Art Intern     IAN VAN DER MIJN
+Environment Art Intern     JASMIJN DECUYPER
+Environment Art Intern     SAKIBE VAN SOEST
+Environment Art Intern     THI THU MO PHAM
+Gameplay Animation Intern     MAXINE DESMET
+Gameplay Animation Intern     MYRIAM TREMBLAY
+Gameplay Animation Intern     NOA PLINKE
+Gameplay Animation Intern     PHILIP MILANOV
+Gameplay Animation Intern     TAMARA DE SCHEPPER
+Gameplay Animation Intern     TRISTAN FAIRCLOUGH
+Gameplay Animation Intern     YANIV NEMET
+Gameplay Animation Intern     YORAN FORY
+Gameplay Animation Intern     YUXING WANG
+Gameplay Programming Intern     HUGO BARBACHANO
+Gameplay Programming Intern     ÖMER KOCAR
+Gameplay QA Intern     ADRIANA MATIC
+Gameplay QA Intern     ETHAN DAVIS
+Gameplay QA Intern     IVY ZHAO
+Gameplay QA Intern     JENSEN VERLAAN
+Gameplay QA Intern     PATRICK SAKAMOTO
+Level Design Intern     MELKER BERGENKULL
+Production Intern     DAN MACDUFF
+Production Intern     JACK SURMAN
+Scripting Intern     SYLVAIN LEGAY
+Systems Design Intern     GEOFFREY TICHADELLE
+Systems Design Intern     ISABELL HUANG
+Systems Design Intern     WOUT GRYSEELS
+Tech Animation Intern     WOLF SCHEVELENBOS
+Tools Programming Intern     AARON ALLUYN
+Tools Programming Intern     ALEXANDRE LAVAL
+Tools Programming Intern     KEVIN LODDEWYKX
+Tools Programming Intern     MATTHIAS VAN ENIS
+<br><br>
+INTERNS POST RELEASE
+Character Art Intern     FRANCIS LAMOUREUX
+Character Art Intern     MATEJ BAKSI
+Concept Art Intern     MARI GALLET
+Engine Programming Intern     JAAN SOULIER
+Gameplay Animation Intern     YARO COPIJN
+Gameplay QA Intern     CHLOE CAVIS-HAIE
+Gameplay QA Intern     SAMANTHA KHAN
+Tech Animation Intern     AMY NIJPELS
+Tools Programming Intern     KEVIN JUNYANG CUI
+<br><br>
+PLAYTESTERS CHOSEN BY THE ABSOLUTE
+ALEX KAM MEW YEN
+ALEXANDRA BOISJOLY-SEGUEL
+AMIRUL ARIFIN BIN IBRAHIM
+ARTHUR ELIOT
+ASHLEY KEEP
+CAS PIESSENS
+CÉLIA MEDVESCIG
+CHRISTOPHE DEBRULLE
+CIARA CUNNANE
+DAYRON DESMET
+DEAN WILKES-RIOS
+DORIAN WAWZYNIAK
+ESTHER FERNÁNDEZ PALOU
+FAYLIA TREMBLAY
+FERRAN PÉREZ PALLEJA
+FINTAN O'DWYER
+GUILLEM ROMAN BESORA
+GUSTAVO VITULLI GONZALEZ
+HANNES BLOCKX
+HELENA VAN DE VEIRE
+JARNO DESMET
+JORIS VERHELST
+KATRI-SARA KORTE-MCGRATH
+KOO MIN JERN
+KYE TAMM
+KYLE TIMS
+LUKE MAYNARD
+MABEL KUAN PEI WERN
+MAPLE FREYA RUDOLPH
+MARC ARIZA ALBORNI
+MICHELLE GOH SUE ANN
+MILÁN SPITZER
+MOLLY MCCOY
+NATHAN CAMPBELL
+NICOLE MCCABE CHU
+NIKOLA NIKOLAEV HRISTOZOV
+PETER SZOKOLAI
+PHILIPPE DUSABLON
+REBECCA JANE BARTON
+SAMUEL LEAHY
+SANDRA PEÑA RODRÍGUEZ
+SEAN O'DALAIGH-PULFORD
+ŠARŪNAS STAIŠIŪNAS
+VLADIMIR GUAY
+XAVIER YAGÜES SAGALÉS
+<br><br>
+PLAYTESTERS
+AARON BROWN
+AARON GUERRERO CRUZ
+ADAM CLARKE
+ADAM PEARCE
+ADRIÁN FONT ROMERO
+ADRIÁN MIRABEL MARTÍNEZ
+ADRIEN FORET
+AHMAD ASNAWI BIN AMAN
+AISLING O'CONNELL
+ALBERT POU PUERTAS
+ALEJANDRO PALLÁS
+ALEKSANDRA KOLEVA
+ALEX GESTI FERNÉNDEZ
+ALEX HART
+ALEX OPSTAELE
+ALEXANDER AZLAN BIN MUHAMAD BERNARD
+ALEXANDER PURVIS
+ALEXANDRE BEAUDET
+ALEXANDRE DUBEAU
+ALEXANDRE GARRIGA BALLARÍN
+ALEXANDRE ROY
+ALFIE WALDING
+AMY LIM PEI SAN
+ANDREI STARIKOVICH
+ANDREW ORMSBY
+ANG WEI JUN
+ANGÉLIQUE COLEY
+ANIOL BARNADA TINTÓ
+ANNABELLE LORD-PARÉ
+ANTHONY DOUCET
+ANTOINE CHARLAND-SIMARD
+ANTONIO CARMONA
+ARICIA PROULX
+ARIFF FIRHAD
+ARNAU GARCÍA SANTAMARÍA
+ARNAU SERRANO PEDREROL
+ARNAU SORRIBES BERLOSO
+ARNE JANSSENS
+ARNE VLAEMINCK
+AROA OCHOA BARDET
+ASHISH BALAGOPAL
+AURORA PATERA
+ÁNGEL MICHAEL MIRANDA MOSQUERA
+BEE PIRLOT
+BEN VANHAELST
+BENJAMIN DROLET
+BENJAMIN VAN BRUSSEL
+BETHANY LOVELLA DORE
+BILAL KHENDAF
+BORIS VAN HIEL
+BRAM BOONE
+BRANDON LEE HOR QIN
+BRAYDEN EVERETT
+BRECHT DHOOGE
+BREGT POMPEN
+BRIAN SENSKE
+CAI EDWARDS
+CALEB SMITH
+CALLUM KOTSAPAS
+CAMILA CASTILLO
+CAMILLE GAGNÉ
+CARL VACHON
+CARL VAILLANCOURT BOUCHARD
+CARLOS ALBERTO ALVARADO CANO
+CARLOS SALVADOR CANO
+CARYNN LAI E-JIN
+CELENE TEOH CHENG SIM
+CHAN JI HENG
+CHANG JIN REN
+CHANG YIUN YEE
+CHARLES-ALEXANDRE BAZIN
+CHONG FANG XUAN
+CHRISTIAN LEVESQUE
+CHRISTINA PIGEON
+CHRISTINE HARRIS
+CHRISTOPHE VAN DEN EEDE
+CHRISTOPHER BIRMINGHAM
+CHRISTOPHER MCGAHON
+CHRISTOPHER QUINTAL
+CIAN CUSACK
+CLAIRE SARGENT
+CLARA DUMONT POULIN
+DAAN ROOBROUCK
+DANIEL CUTILLAS OLMOS
+DANIEL GENDRON
+DANIEL INIESTA GONZÁLEZ
+DANIEL PAINE
+DARAGH O'CONNELL
+DAVID BINETTE
+DAVID GARCEAU
+DAVID LAURENT
+DAVID RANKINE
+DEBBIE CHOW SHY YEN
+DER LUN OOI
+DIANA PAINE
+DIMITRI GILLIS
+DIMITRI LAFORCE
+DIMITRI VAN AALST
+DÍDAC SEGARRA SÁEZ
+DREW LYNCH-KITCHIN
+DRIES WAMBACQ
+DUGNE ANTOINE
+EDURRAH JANI
+EDWARD LAMBDEN
+EEFJE GOOSSEN
+EMANUEL UYTERHAEGHEN
+EMIEL TAYART DE BORMS
+ENRIC LLONCH TEGIDO
+ENZO GENOVESIO
+EOIN O'LOINSIGH
+EUAN OOI ZHANYUAN
+EVANS BOLDUC
+ÉTIENNE HOVINGTON
+FABRICE HEYNS
+FARAH ATIQA BINTI MUHAMMAD FAISAL
+FARAH ATIQA BINTI MUHAMMAD FAISAL
+FELIPE DEAKIN
+FELIX GUINDON
+FERNANDO MARTÍNEZ BURGOS
+FERRAN ROGER BASART BOSCH
+FÉLIX GAGNÉ CLICHE
+FILIP CARKIC
+FRANCIS MAURICE LEE
+FRANCIS SIMARD
+FRANÇOIS DIONNE
+FRANÇOIS PERREAULT
+FREDERIC LANGLOIS
+FRÉDÉRIC LAVERDIÈRE
+GABRIEL ESTRELLA GUILIANI
+GARRY KELLY-MCKENNA
+GAVIN HARCOURT
+GENEVIEVE GAUTHIER
+GERALD DUFF
+GERD ENGELEN
+GUILLAUME JALLON
+GUILLEM CASTILLO BARRIERAS
+GUUS MARTENS
+GUY WALKER
+HENRY ELLENGER
+HUGO ROY
+IAN BROWNING
+IAN DANISH IMAN BIN KAM KASTURIE
+IBEN VROMAN
+IGNASI PARDO CARBÓ
+ILYA BLOCK
+IRFAN KALEEL BIN RIDZUAN
+IRINA SKURATOVA
+ISABELLE BOUCHARD
+JADE KING
+JAKOB VAN DER VENNET
+JAMAL AGGOUN
+JAMES MCGRATH
+JAMES WALDRON
+JAMIE DARLING
+JAMILYN TAYLOR
+JAN TAKACZ
+JARICH BOCKSTAEL
+JASON HALL
+JASON O'ROURKE
+JASON VOET
+JASON WITHERS
+JAVIER ALCALDE MARCHENA
+JAVIER MOLPECERES COLL
+JAYME LECLERC
+JEAN BOISSONNEAULT
+JEAN LEVESQUE
+JEAN-CHRISTOPHE ROOD
+JEAN-GABRIEL ROCHER
+JEFFERY DENEUMOUSTIER
+JEROEN DESMET
+JEROEN HOSTYN
+JEROEN VAN DEN BOSSCHE
+JERRY KENNINGTON
+JOE POON EN
+JONATHAN BONIN
+JONATHAN CHOO KAM KITT
+JORDAN REEFER
+JORDI LÓPEZ BUSQUETS
+JORGE MARTÍN ARAMBURU SAINZ
+JORGEN DE BRUYCKER
+JOSEBA SIERRA MONTES
+JOSÉ LUIS REDONDO TELLO
+JOSSE VAN STEENKISTE
+JOSU ARZA SANTAS
+JOY MORA
+JUAN DANIEL ROMERO AGUILAR
+JUAN JOSÉ MARTÍNEZ CALDERÓN
+JUDE-ELLIOT LAUZON
+JULIEN CORRIVEAU
+JULIEN DE MELO
+JUSTIN OUELLET DU BERGER
+JUSTIN QUAH IAN WEI
+KARAN SAMTANI
+KELVIN GANESAN
+KENNY CORNELIUS YAP SZE
+KEVEN ARSENAULT
+KEVIN BURKE
+KEVIN FERAPONTOV SÁNCHEZ
+KEVIN VICKERS
+KIERAN PHILPOTT
+KIRIL TCHANGOV
+KJELL DE HASELEER
+KOEN VAN RUYSSEVELT
+KORNÉL TAKÁCS
+KRISTOF VAN SEVER
+LAIA RODRÍGUEZ RAMOS
+LARS BRESKI-THOMPSON
+LAUREN DE SALVO
+LAURENTS VAN CAUWENBERGHE
+LEANDRO NICOLÁS GERARDO FRAQUELLI
+LEE PING XIN
+LEXI MILLINGTON
+LÉANDRE CHAMBERLAND
+LÉONARD TREMBLAY
+LIAM VAN DIJCK
+LODE DESPLANCKE
+LOK CHYI MING
+LOLA MARTÍ ORVIZ
+LOUIS DE MAN
+LOUIS-ÉTIENNE PAYER
+LUC GIROUARD
+LUCAS DE SOETE
+LUCAS DENISSEN
+LUCAS FERNANDEZ ALGARRA
+LUCAS TEONG KAI SHENG
+LUKE HASLEEN
+LYE YIT YEE
+MAARTEN DE KOSTER
+MAARTEN DE PUE
+MAARTEN MERCHIER
+MAGDALENA GOIKE
+MAJA PRZEŹDZIECKA
+MALAKI BOULANGER
+MANON BLETARD
+MARIANA MONTOYA
+MARIELLA GORDON
+MARINA CRUANYES
+MARIO BELANGER
+MARÍA CALLE GALÁN
+MARTA BONIAKOWSKA
+MARTA SANZ LLOPART
+MARTIJN VAN ACOLEYEN
+MARTÍ PARDO VILAPLANA
+MATHIEU DHANI
+MATHIEU DOYON
+MATHIEU MCINTYRE
+MATHIEU ROBITAILLE
+MATHIEU SAINT-ARNAUD
+MATTHEW ANDERSON
+MATTHIAS SMET
+MATTHIEU SURGOT
+MATUSHEVICH KLAVDIIA
+MAXIM EYLENBOSCH
+MAXIME POIRIER
+MAXIME VACHER
+MAYA REYES GARRIDO
+MICHAEL BICHENO
+MICHAEL SIMARD
+MICHAËL GUILLEMETTE
+MICHAËL LESSARD
+MICKAEL PERRON
+MIGUEL GARCÍA VALENZUELA
+MIKA RIVARD
+MIKAEL HÉBERT
+MIRANDA LEY
+MIRKO KRECAR
+MOHAMAD IQBAL
+MONICA SANCHEZ PETRILLO
+MUHAMAD FARUQ BIN FAIDZIL
+MUHAMMAD AIMAN MORTADZA
+MUHAMMAD IKRAMUDDIN BIN ZAINAL ABIDIN
+MUIZZ IMANUDDIN BIN SHAHARUDINT
+NATALIA LEWKOWICZ
+NATHAN GREENE
+NEIL DEFEVERE
+NELE HENDRICKX
+NICHOLAS ZOMENIS
+NICK FIEU
+NICOLAS LAMBERT-SIROIS
+NIGEL TAN SHI DONG
+NIL MOHAMED TIÓ
+NUR DAYANA SYAFIQAH BINTI SHAHARUDDIN
+OCTAVIAN ZARA
+OLLIE EDWARDS
+ONG LIWENG
+ORIOL MANRIQUE ROYO
+OSCAR LARIOS LITE
+PABLO FUENTES BERNAL
+PABLO LUQUE SANCHEZ
+PASCALE ROBILLARD
+PATRICK MURPHY
+PAU LÓPEZ MÉNDEZ
+PHILIP DOYLE
+PHILIP LALONDE
+PHILIPPE BOIVIN
+PHILIPPE BRUN
+PHILIPPE EMMANUEL DESLAURIERS
+PIERRE-YVES AUSTIN
+PIETER TEMMERMAN
+POL SALA CARPI
+QUIM FONTANET ESTEBAN
+RAFA LÓPEZ MARTÍNEZ
+RAFAEL MONTÓN
+RAMERSWAREN NERAYANAN
+RAPHAEL THIBAULT
+RAPHAËL ADAMANTIOU
+RAPHAËL LÉONARD
+RAZZMAN KHALIFF KAMARUDZAMAN
+REBECCA ROSE
+RENE FEKKES
+RIEN HUYGHE
+ROBBE DE BAERDEMAEKER
+ROBBE DE BAERDEMAEKER
+ROBBE DE VYLDER
+ROBERT BLAND
+ROBERT CLEGG
+ROBIN RYSTRAND
+ROELAND VAN SICHEM DE COMBE
+ROGER PERALES MARES
+ROSIE COLLYNS
+SADMAN RAFID
+SAFYA DEVAUTOUR
+SAM ZHI HAO
+SAMANTHA NELLIS
+SAMUEL DUFOUR
+SAMUEL GAGNON DUONG
+SAMUEL LIEFHOOGE
+SAMY GALLIENNE
+SANDRA ANGINETTE SIMON
+SARAH RICHFORD
+SASCHA BAERT
+SEAN GUERIN
+SEAN HOEDLMOSER
+SEAN WIEDEMANN
+SEBASTIAN PETIT
+SERENA MANASSERO
+SERGI BORRÀS LLAURADÓ
+SHAWN WITHERS
+SHUN MASTROMAURO
+SIDNEY SALMERÓN BORRELL
+SIGURD JOOSTENS
+SILKE PAPPAERT
+SIMON ANDRE
+SIMON D'HOEST
+SIMON MERCILLE
+SIMON SMET
+SKYLA RENAUD
+SOFEA AMIZI
+SOPHIE CHAVES VILELA
+STEVE DIERICKX
+STEVEN BARLOW
+STIJN SEGERS
+STIJN VAN RIET
+STIJN VERDOODT
+SVEN BOURRE
+SYAZWANI MD ZIN
+TAN KAI JIEN
+TAUTVYDAS KULIESIUS
+THOMAS ADAMANTIOU
+THOMAS BOONE
+THOMAS JOCKER
+THOMAS SMEETS
+THOMAS VANHILLE
+TIM LEJEUNE
+TIMOTHY CHONG YOON SHEN
+TIMOTHY DETOURBE
+TOM VAN HAMME
+TORBEN WAUTERS
+VALERIA TSIMMERMAN
+VANESSA DROLET
+VERONICA NG YU YENG
+VIACHESLAV DIACHOK
+VICKY VERA
+VICTOR DENISSEN
+VÍCTOR DEL PINO EGEA
+WEI LIANG TEO
+WILLIAM VAN HERZELE
+WILLIAM YONG
+WIM BAUWENS
+WONG JOON JOE
+WOUTER DEPAEPE
+XAVIER RIBAS LATORRE
+YEVGENIYA ANASHEVA
+YORAN SCHOLIERS
+YVES BARRY
+ZAKARI BIN ZULKIFLI
+<br><br>
+MOD AUTHOR PLAYTESTERS
+AEEHYEHSSREEPER
+AKOPIAN ELVIRA - AKELKA
+ALANA
+ALITHEA ANCUNÍN
+ALOIJA
+AMNILARCH
+AMY HOFLACK
+ANEC
+ANXIETYTHEORK
+ARCTICWAFFLE
+ARIEFEL
+ARIEFEL
+ARMANDO MENDEZ (NACHOPANGO)
+BG3ADDICTEDGAL
+BAALEOS
+BABBO
+BAELFEIR
+BELINN
+BLUEHUMAN123
+C.
+CAITES
+CELES
+CH4NKYY
+CHARIS
+CLAIRE VAIL
+CLAY
+CODEXA
+COVEN ELF
+CUROTAR
+DJMR
+DUFRESNE
+DUNGEONS & SOULS
+ELORA THE BARD
+ELVASAT
+ERALYNE
+ERIC PURSLEY (INSCYGHT)
+ERSH
+EZECHI
+FADE
+FALLENSTAR
+FENRULES
+FLUFFYSPIDER
+GAMMAWZ
+GENTLEMAN
+GUFERY
+HEADBANGINGDEAD
+JENYA
+JON
+JUNO
+JUUM
+KALIVOS
+KATLIX
+KAY 'PERSEIDIPITY'
+KAZ
+KICKINGWRITER
+KILLI
+KRISTOF 'GLADOFFELLP' SCHRIEBER
+LEICARNA
+LEKS COLMAN
+LUNE
+LUNISOLE
+LYDIA
+LYKON
+MANGOPUNCH
+MATTIA BALDI
+MAVERICK
+MAX GRUNDSTRÖM
+MECHONION
+MIAHTRT
+MITHRAS
+MOXI
+MYRIAD
+NATHYIEL
+NATTERN
+NELLSRELO
+NICOLAS GNYRA
+NIKJIMA
+NOÏRA
+NORBYTE
+NOXIS
+OLIVIA FINEMORE
+OMEN CORSAIR
+ONYXEAGLE
+OPHELIIIIA
+OREO
+PADME4000
+PIXELLBYTES
+RANDOLPH STOW
+RED
+SAMSON
+SATAN
+SILENT NOTE
+SKIZ
+SORIYUMI
+STEPH
+SWISSFRED57
+SYD MEIER
+TANNA
+TECHROOT
+TEPKUNSET
+TET42
+TITAN
+TOARIE
+TRISS'LIN
+UNDEFINEDSCRIBBLE
+VESSNELLE
+VOLITIO (just kidding)
+VOLNO
+WARMHEALERR
+WOLFE
+WUFFYCERULEI
+WUMBA
+XHEVO
+YOESPH
+ZEHTUKA
+ZEYSIR
+ASTRALITIES
+ASTRALSPROUT
+BERRAKO
+CEPHELOS
+COMMANDERSTRAWBERRY
+DARKCHARL
+DREADOVERLORD
+ELLIE
+GHOSTBOATS
+IMASCARED
+JATO
+JERINSKI
+KALIDOR
+KHBSD
+KLEMENTINE
+KRYPTOHACK
+KYLIN3
+LABOTOR
+LIGHTNINGLARRYL
+LOKELANI
+MARBILDE
+METALGHOST
+NE0NBUTCHERY
+OIML
+REMOTELYSANE
+SURŌ
+WEAVEBITCH
+WESSLEN
+WILHELM
+<br><br>
+SPECIAL THANKS
+Abrial Da Costa
+Adam Lee
+Adelin Tan
+Alan Rogers
+Alec Gottberg
+Alex Boca
+Alexis Courtois
+Alison Lührs
+Amir Azlan Sapuan
+Anthony Winston
+Areil Cai
+Artem Gansior
+Ash Jamieson
+Barry Dorf
+Ben Andac
+Ben Petrisor
+Benny Leven
+Bert Kloeck
+Bobby Hitoshi Wertheim
+Brian Perry
+Cheng Qi
+Chris Cocks
+Chris Perkins
+Christian Svensson
+Christopher Heck
+Connor Malone
+Craig Albeck
+Damien Mauric
+Damon Baker
+Dan Barrett
+Dan Brody
+Doris Tioko Mangwa
+Eddie Chan
+Edson Belo De Oliveira Junior
+Emma Morris
+Etsushi Iizuka
+Eugene Evans
+Eugene Letov
+Frederick Middleton
+Glenn Gregory
+Graeme Ankers
+Greg Tito
+Guy Richards
+Haoyu Chen
+Hemaraj Tangavelu
+Historische Huizen Gent (Sint-Pietersabdij and Gravensteen)
+Ho Un Jung
+Hunter (Best metal band in the world)
+Immi Beresford-Bone
+James Lenell
+James Mitchell
+Jared Mosqueda
+Jasni Zain
+Jeff Huang
+Jeremy Crawford
+Jerome Lalin
+Jialun Wang
+Jide Alabi
+Jimmy Laureys
+Jing Zhao
+Jo Van Hulle
+Joanna Buganik
+John Vega
+Joke Desaever
+Joon Oh Shin
+Julien Bares
+Jurgen Post
+Karen Dai
+Kasim Rehman
+Kat Kruger
+Kat Osman
+Katerina Kraeva
+Keith Pullin
+Kelly Agathon
+Krzysztof Sazon
+Kye Connolly
+Li Ma
+Linda Low
+Lindsey Quintana
+Lisa Liang
+Liz Mercuri
+Lorenzo Grimaldi
+Mandy Paez
+Marcin Paczynski
+Marco Caputo
+Mark Maslowicz
+Marta Adamska
+Matt Nickerson
+Matthieu Cheynut
+Mazhar Iqbal
+Mike Laidlaw
+Mike Mearls
+Mitsu Sakurai
+Mohan Low
+Mohummad Mia
+Myles Donald
+Nathan Stewart
+Neil Holmes
+Ning Fei
+Olga Timofeeva
+Peline Liberty Kilinc
+Philippe Angely
+Przemyslaw Włodarski
+Rafael Fernandez
+Richard Brest
+Rocco Scandizzo
+Rodrigo Malek Veidovsky
+Rui Casais
+Sam D'Elia
+Shahid Ahmad
+Shigenori Kawashima
+Star 'Fireball' Tabaxi
+Steve Spiller
+Steven Ma
+Tad Swift
+Tameem Antoniades
+Tim Heaton
+Tinnenpot vzw
+Tom Sargent
+Tomasz 'Mankej_' Kowalewski
+Ulysse Richert-Botte
+Victoria Durand
+Victoria Klementyeva
+Vince Cooper
+Vitaly Gontariuk
+Wizards of the Coast
+WolfheartFPS
+Xiaowen Ted Cao
+Yama Orce
+Yinyan Wu
+Yusuke Katagata
+Everyone at Bioware who worked on Baldur's Gate 1 & 2
+<br><br>
+WORDS FROM THE TEAM
+Val for everything. Lars, Mattis, Lara and Alexandra for everything. My parents for everything. Gustav for ... being Gustav.
+<br><br>
+Kush Westwood, for all of their support, love and TikTok ideas.
+<br><br>
+Ilona and Nobu, two survivors who made me stronger every day
+<br><br>
+Masha, Kasya & Ubi
+<br><br>
+Thanks to my friends, family and my other QA Teammates for making this dream possible !
+<br><br>
+Bekky for your patience and being a wonderful star, and for Fluffy Sunny for being the best boy!
+<br><br>
+Special thanks to my son Edward for his patience and love!
+<br><br>
+To my fur-babies Winston & Willow, I work hard to support your tuna dreams
+<br><br>
+My wife Rachel
+<br><br>
+My lovely BotLightM
+<br><br>
+Thank you Anna for your patience.
+<br><br>
+My friends, family and board game group for their encouragement and support. Wouldn't be here without it.
+<br><br>
+Luis Alberto y Maria Isabel, thank you for making my dreams come true
+<br><br>
+Laia, for being the best life companion I could ever have, and Tanit, for existing and making both our lives even better.
+<br><br>
+To my family, my friends, my partner, and my dragon Fleur, along my TTRPG groups, where it was a blast to play Ixiel, Belkro, Talon, Thurkear and Nesvalyn as they helped and inspired me during this incredible journey. (#TeamBadger)
+<br><br>
+To Ana Rosa, my ever-loving wife, for your love, support, and our wonderful children.<br>To my friend Carl, for simply being awesome.
+<br><br>
+Thanks to my mother Nieves and my brothers Carla and Jose, they have always believed in me and have supported me in this adventure.
+<br><br>
+Thank you to my dog muses Zoltan, Wolfgang, and Mingus
+<br><br>
+Thanks to my partner Paula, and my cats Galo and Mochi, for supporting me every day!
+<br><br>
+To Tamara Brackman: more than words, thank you for the love and support. Lucas and Xander, my best friends! Oscar for being happy to see me come home every day!
+<br><br>
+A big thank you to my husband Juyoung and my son Seung-Jun for their indeflective support Saringhae
+<br><br>
+Thank you Mam, for letting me ignore school and skip sleep to play video games.<br>Thank you Kellie, for wanting a guy that only wants to play video games, blame the above.<br>Thank you Dad for leaving early enough in life that I got away with it.
+<br><br>
+Marjolaine St-Yves, thanks for being in my life, keeping me alive and everything else!<br>Arnaud Coutu, Antonin Coutu, Théo Coutu, Christian Paquin Coutu, Stéphanie Cormier, Bernard Coutu and Lise Paquin, Thanks for being such a great geek family!
+<br><br>
+My Mom, my Sister, my Family and my Son
+<br><br>
+To my beloved ones: my wife Julia, mom Elena, dad Viacheslav
+<br><br>
+Thanks Helen for supporting me, friends back in MB, and Jesselyn for being a pony!
+<br><br>
+My loveliest Sarah, my wonderful family and our fantastic Dublin team! Thank you for being so supportive throughout the years! You guys are the best!
+<br><br>
+Yuumi, my cat, for the company during work from home period. My family, Christina for introducing me to Larian, and most importantly Vincent, merci.
+<br><br>
+Elke and Jack for putting up with my hours and providing a home to return to. My  mom and dad for supporting all my weird ass decisions. Petra for taking care of mom and dad. And before it gets too serious, Nyarlathotep for services rendered.
+<br><br>
+Luís, for your love, patience, humor, and even the damn saxophone you are my hero.<br>Sam, who bought me my first copy of BG3 in Early Access the adventure's in your hands now.
+<br><br>
+To Ellie and our fur babies Fitzchivalry and Beloved
+<br><br>
+My mom Cristina and my sister Xenia who made it possible for me to get here<br>My loved wife Katia for accepting me as I am and being always by my side
+<br><br>
+To Vica for her endless support, love and understanding.
+<br><br>
+Thank you Debbie de Boer for being the love of my life! My never ending inspiration, my little brain scientist and my drive to always be a better person!<br>Thank you to my dad Mohammad Ali Namdar for always pushing me to the limits and for always accepting me for who I am!<br>Thank you to my mom Souroor Eftekharzadeh for believing in me and supporting me in my game career, I hope you are in a better place now.<br> Thank you to my friends Wessel Mansveld, Marleen Mansveld, Felix Pearson, Mehrzad Karami, and all you other crazy people for supporting me in the difficult times and reminding me of who I am and where I come from.<br>Thank you Axel Cleeremans for believing in my little brain scientist and supporting her!
+<br><br>
+To my mom, who supported me over the years and encouraged me to continue working with something I love. Love you, mom.
+<br><br>
+Thank you mom for your support, and thank you Mordisquitos for dancing this life with me!
+<br><br>
+Thanks to my parents , friends , and family back home for all their support and sacrifice.<br>To Laurie , Justine , Léa , and Ari , whose love and friendship has changed my life.<br>To my little kitty sons , Roméo and Graygoire.
+<br><br>
+To my wife Claudia and my kids Daniel and Ivan who traveled with me across the world to make this possible.
+<br><br>
+Franka, for putting up with my ass needing an intravascular coffee shot at 2 in the morning
+<br><br>
+My beloved wife, Pernilla Soares, and to my children, Amelia and Lucas Soares.
+<br><br>
+Thanks to Bibi, my parrotlet, for animating my scrums during WFH
+<br><br>
+To my wife, Alexandra, for her patience and care.
+<br><br>
+Myself for being awesome
+<br><br>
+Alex, Coop, Bean and Juniper
+<br><br>
+Emmy, for being supportive and understanding. Couldn't have done this without you.
+<br><br>
+Mary, you shine like the stars
+<br><br>
+Shoutout to my parents, my wonderful partner Amy, all my friends and pets, and last but not least, the QA team!
+<br><br>
+To my parents and friends!
+<br><br>
+Thank you Mum and Dad, it was trouble but here we are! <br>Thank you to the Aurelmir Adventurers. I quite literally wouldn't be here without our games together, cheers to you all!
+<br><br>
+To Bubu & my SPB Frens for some of the best years we had together!
+<br><br>
+Lucy, Mum & Dad for Helping me achieve my dreams!
+<br><br>
+I'd like to thank my wife Marjan and kids Alicia and Emily for their support during the busy times. I love you girls.
+<br><br>
+Jan, An, Blaffie, Rani & Cami
+<br><br>
+To Estrella, Gabriel, Aina, José, Orias & Ico
+<br><br>
+To Mats, Spira & Kira and my brother Damian, love you guys.
+<br><br>
+Stefanie, my wonderful wife and Elizabeth & Hannah, my fantastic children.
+<br><br>
+My wife, Inge Lindemann, for all her loving support.<br>My son, Alexander De Smet, for understanding daddy has to work to buy more video games.
+<br><br>
+Special thanks to Ea and Ringo for being the best office companions ever! <br>Thanks to the Camfam and Wondelgang for their continued support and feedback!
+<br><br>
+Thanks Mom and Dad for being so supportive.<br>Nicole, love you always. Thanks for always pushing me to pursue my goals. You deserve to be here too <br>Shouts out Ded Boiz.
+<br><br>
+my boy Wilhem "INK" Begin
+<br><br>
+Thank you to my wife, Karolina, for supporting our life changing move so I can work at this company and on this dream project.
+<br><br>
+Simon, this one is for you minou!
+<br><br>
+Choo Fambam Represent!
+<br><br>
+Huge thanks to my beloved wife Kristina, who was helping me during these hard times.<br>Mom and dad, love ya!
+<br><br>
+To my dawn and flower.
+<br><br>
+Mark Scanlon, I wouldn't be where I am without you.
+<br><br>
+To Pandereta, Zambomba and my partner: thanks for keeping me sane.
+<br><br>
+To my mum, Susanna and Zevran the Cat
+<br><br>
+Огромная благодарность моей жене, Юлиане, за поддержку как в жизни, так и в кооперативе DOS II
+<br><br>
+To my wonderful wife, Francesca, and best girl, Ginnie.
+<br><br>
+Krossy, Sira, Uki, Greyt, Paully Dee, and many other friends from around the world.
+<br><br>
+My wife and kids, Erika, Tess and Lars. For seeing less of me and keeping up with it.
+<br><br>
+To my amazing and supportive wife Emmeline without whom I would never have been able to embark on this journey
+<br><br>
+Our art floor doggos Ea and Ringo<br>The Camfam
+<br><br>
+Massive thank you to my family for getting me here & their support (hi mum!)<br>Misha & George!<br>Bambi, Creamy, Dessy, Nar & Ed! (Big Jobs!)
+<br><br>
+Victor, for being my gaming brother (with or without a parachute!)
+<br><br>
+Thank you Miquel and Esther for giving me everything to work doing what I love.<br>Thanks to Chibi Lord Anna for supporting me no matter what.
+<br><br>
+My Mom & Dad, for continuously believing in my endeavors and granting me everlasting support and love.<br>My siblings, for constantly pushing me to aim for the highest goals and the hardest hurdles <br>My leads, Samantha, Amerz, & Amir, who were the pillars of my growth & support in Larian<br>My friends & colleagues, who brought happiness and joy every day walking into the office
+<br><br>
+To my everything Darth Godlike.
+<br><br>
+Dad, Mum, Sue, Li, Winnie; thank you for being my pillars of support
+<br><br>
+Julia O' Shea, also known as 'Nana Juju' the inspiration for Auntie Ethel.
+<br><br>
+Eternal gratitude to my amazing girls Eva (human) and Salma (feline) for being my inspiration on a daily basis
+<br><br>
+My girls, Azucena and Shirayuri, for their support, their love, and the happiness we share together.
+<br><br>
+Thanks mom and dad, Sandra, Rafa and Lara, to all my family and friends, and all my past and present dogs!
+<br><br>
+Hey Andre & Sandra, thank you for being such great parents and I love you. Gilles you are the best kawaii potato!
+<br><br>
+Thanks to my parents for supporting my weird career choices<br>To my CotS that have put up with me DMing them for 4 years and counting!<br>To my friends and fellow Wizards for staying connected 3000 miles away
+<br><br>
+I am infinitely grateful to my husband Maxim Statsenko and my son Misha for all the support and patience. You gave me the strength and time to work on the game I love and am truly proud of.<br><br>And special thanks to all my colleagues and ex-colleagues, you are amazing!
+<br><br>
+For Raphie, thank you for your support, I really hope you enjoy the game.
+<br><br>
+Thanks to Jojo and Alexander for all the support!
+<br><br>
+Thank you Andrea L. Tur for the tea<br>To Alex, Uri, Jose, Bibiki, Guinxu; the best monkeys<br>To my family Guxens and Chaparro: I love you all
+<br><br>
+Patricia, for being the most patient and supportive wife, taking care of our home while I was stuck at the office and never getting mad about the working hours. Louise, for welcoming me home every night with her cute, tiny voice as she opened the door. Everyone who fought tooth and nail with me to get this done, handling unplanned requests and staying late just to make a better game, rearranging their whole agenda to squeeze in one more fix. And finally, Swen, for setting a positive example of wisdom, professionalism, and hard work.
+<br><br>
+Merci Maman & Papa pour tout ! Merci Allan, Jordan et Antoine pour votre enthousiasme.
+<br><br>
+Rizzah for pushing me to take this path<br>Eden from standing by me from the soaring heights to the dark nights of my soul<br>My mom and grandma for always being my support
+<br><br>
+Thanks to my parents Alexander and Svetlana for all the support during these troubled times!<br>Thanks to my dear love Darja for bearing with me and being there when I needed you the most!
+<br><br>
+Thank you to my parents for everything, literally everything<br>To my wife, Mimi Rizal for the constant support & motivation & for listening to me talk about the game, almost daily for 3 years and counting!<br>To my friend Zhafri, who is a huge D&D and Baldur's Gate fan and piles me with way more information on the lore than I need <br>To the entire cinematics team and every other department involved with cinematics, for making this whole experience a highlight in my life, legit the best team I've ever had the pleasure of knowing and working with<br>To CJ, Jason, Vossen, Graham and Tomoko for the guidance and for reaching out to me all those years ago to be part of this amazing journey
+<br><br>
+Chorchie the Whiny, Pebbles the Angry, Moggy the Dummy, Mabel the Chatty, Ragsy the Needy, Chazzy the Sassy, Kid the Greedy, Schnappy the Granny & their cat dad Brandon Lee. I love you all
+<br><br>
+Juneita, Mizan, Megat, Ilham, Aizat, Chad & Chloe. To my supportive family, loving partner, and dearest friends, thank you so much for being my pillars of strength.
+<br><br>
+Lucy, for your love and patience x
+<br><br>
+Thanks to my family, my friends and Temple Kkin, for their support and motivation
+<br><br>
+To Toby, my heart and soul.
+<br><br>
+Endlessly grateful to my parents who have always endured and supported me, and my brothers who are the best friends I could ever hope for; love you guys.
+<br><br>
+Sakthivel for supporting me while I moved across oceans to work on this masterpiece.
+<br><br>
+My praise and total devotion to coffee!
+<br><br>
+Shout out to the boys
+<br><br>
+Elisa and Michel, my most faithful DnD players
+<br><br>
+To my Dad, who brought home a Sega Megadrive.
+<br><br>
+Thank you to my beloved wife Olga for everything.
+<br><br>
+To Rachel, for being there every time I got home late<br>To the Hermit Squad, for having my back on Discord every evening<br>To my family, for encouraging me to go for my dream job
+<br><br>
+Big thank you to my family, friends, and the Fumbally Playtesters!
+<br><br>
+Lucy, Isabella & Eli
+<br><br>
+My wife Gen and my son Éli
+<br><br>
+Margarita Gomez
+<br><br>
+Infinite thanks and infinite love to Shane O'Toole!
+<br><br>
+Artem Shukovsky, Natalya Shukovskaya, Dmitriy Madur, Bogdan Dochich, Vera Dochich, Alexandr Bel'aev, Aleksei Kuznetsov and to the amazing Van Canto music band!
+<br><br>
+Cam on Ba Me da ho tro con tren hanh trinh nay.
+<br><br>
+To my old friends, classmates and lecturers of DT508 Game Design Class of 2019
+<br><br>
+Moim rodzicom, Andrzej i Ewa. Dzięki Wam jestem tu gdzie jestem. Kocham Was!<br>My wife Asia, Monika, Paweł, Aga & Przemek for support.
+<br><br>
+Thanks to Diego for putting up with me during the long hours of development. I hope you enjoy the game!
+<br><br>
+Laura Crum for supporting me even on my cranky mornings
+<br><br>
+To my dogs; Madoc who patiently spent many hours at the Gent studio offering support to those who needed it. And Bwca(†) who would have done the same if she had the chance.
+<br><br>
+To Spooky, Yokai and BB, thanks for keeping me sane, despite all the keyboard walking you guys did! Thank you to all my friends & family for putting up with my work hyper focus for the past 4 years. You folks are the real MVPs and I promise to make it up to you!
+<br><br>
+My heartfelt thanks to Jaume and Irene, who have brought me to where I am today, and to my friends in Midustralia's Firefoxes, Zemuria's Bracer's Guild, and my Icewind Dale teammates, who fueled the flames of my passion for video games and TTRPGs!
+<br><br>
+Thanks to Idoia for always being there and supporting me in the hardest moments. And thanks to my family and friends.
+<br><br>
+Thanks to my parents, my partner, and all my NUIM gaming friends over the years
+<br><br>
+Thank you Zyutau for your patience and support. Ngo5 oi3 nei5.
+<br><br>
+Ben, David, Eoghan, Jonny & Paul (The Rake & Friends crew) for keeping the D&D love alive
+<br><br>
+Special thanks to my wife Daria for her help and support.<br>Thanks to my cats, Hilda and Kventa for the Purr-purr-purr therapy.<br>And thanks to all my family.
+<br><br>
+Thank you Mama Lex, Papa Gop, Duke, Dome and my whole family for all the love and support. Thank you to Callum and Ben, I couldn’t have done it without you. To Casper, thank you for always brightening my day.
+<br><br>
+To my sayang Jujubes, thank you for always being there for me!
+<br><br>
+Thank you Annie for supporting and rooting for me through this journey :3c
+<br><br>
+Thank you to my family for all the encouragement!
+<br><br>
+Arseny Lebedev, Artyom Polyakov, Christopher Ashfield, Maxim Kozhnov, Nikita Akimov, Roman Maltsev-Jones, Sergei 'Yung Zai' Zaitsev
+<br><br>
+My dog Oliver, who helped final the game by begging for food in the kitchen and barking at playtesters.
+<br><br>
+To my mother, friends and everyone from the Duckery. And Emi.
+<br><br>
+Mum and Dad! I love you! Thank you for all your support and love! I couldn't have done it without you! Oliver
+<br><br>
+To the ultimate troll, he knows why
+<br><br>
+Graziano Cavion<br>Marqueue Pasalic
+<br><br>
+To my three cats Doris, Alice and Juliette, I love you so much!
+<br><br>
+To my farming friends
+<br><br>
+Thanks to my family (Mom, Aaron, Maureen and of course my wonderful niece Paige!) for the support even though I've been further away than you'd like.  And as always, GO BIG RED!<br><br>Marian Świst thank you for being great fater-in-law!
+<br><br>
+My lovely wife Greet Schoubs who supported me all the way.<br>To my daughter Fien and my son Tuur who was born during the production.<br>Con and Jolie for their patience.<br>Benjamin Diebling who did an amazing job on our trailer.<br>Neil and Saletta Newbon for being such amazing friends.<br>My mother, Maria Mareels, for everything.
+<br><br>
+To my late dad, Thank you for the passion
+<br><br>
+Janie Beaudoin, an incredible partner and an amazing mother.
+<br><br>
+To my family at home, thank you for supporting me all this time. I give my well wishes to all of you.
+<br><br>
+To my parents, for giving me the chance to pursue this career, studying something that I want which is the art of animation<br>To Tarik of Cinematics Animation for introducing me to Larian and pushing me to apply for a job here!!
+<br><br>
+I'd like to thank my mum, dad and grandma for supporting me throughout this journey.
+<br><br>
+Natasha, fly hunter Buttons and Tori the cardboard destroyer.
+<br><br>
+To my wife, Irene, and my kids Alan and Maia.
+<br><br>
+My wonderful wife Lien and our amazing kids Mona and Sam
+<br><br>
+Sophie Leduc, Vicki & Liv Laureys Leduc
+<br><br>
+To my wife!
+<br><br>
+Emilie, for sticking with me, being a great mother, and watching my limits<br>Rebecca, for wonder every day
+<br><br>
+To my girlfriend Mery, and my sons Kyo and Haru.
+<br><br>
+To my parents for the tremendous support and to my two cats Ship and Shippo for being the best companions!
+<br><br>
+A big thank you to Benoit, President of Delicious Food, for keeping my energy high by providing tasty and healthy lunches. To Jules, my son: Sorry, it's time: you have to share your PlayStation 5 with me for a long time... To my dog Lilly, I will make it up to you. And BIG THANKS to the best creators of the best fan art EVER!
+<br><br>
+A mi familia por todo el apoyo y amor, sin los cuales no habría llegado a donde estoy. A mis amigos Álex, Ángel, Dani (os incluyo a los dos no os preocupéis ;) ), Fran, Javi, Lau, Rocío, y Ox por estar ahí a pesar de los miles de kilómetros de distancia. Y a Galle por haber estado aguantándome estos últimos años aquí en Irlanda, que aun tenemos que ir de acampada que uno no olvida!
+<br><br>
+To my IRL D&D party Bridie, Bill & Alex thank you for all the support, inspiration and adventures!
+<br><br>
+Thank you mother, father, mr. husband and my four fur babies for always supporting me when I am at the lowest and always cheering for me!
+<br><br>
+Mamá, Papá: Gracias por apoyarme siempre.
+<br><br>
+Fekko, thank you for inspiring me, gaming with me and for being such an awesome brother and friend. I'm sure you'll appreciate it when I say: Yo Adrian! I DID IT!<br>FJ, got you another game where you can spend 8129 hours on.<br>Mom and dad, thank you for taking such good care of me and supporting me in every way possible.
+<br><br>
+So blessed and grateful to be part of the team & be with amazing people. To my parents Alan & Jennifer who have been forever supporting me in everything.
+<br><br>
+Special thanks to the whole art team, to take this project through the darkest dungeons into the light! Special thanks to my family and kids, Grietje, Amelia and Rosanna for support on the long days. Also Special thanks to my mother for sending me to art school. My life wouldn’t be the same without that little push. Peace and love to the universe!
+<br><br>
+Спасибо моему солнечному человечку за поддержку и понимание
+<br><br>
+To Andre, Leon and Sophie, thank you for all your love and support whilst making this game.<br>Thank you to all my wonderful family and friends.
+<br><br>
+Love to Ma Helen & Pa Paul for always supporting me & being the coolest, and to Charlotte, for being by my side the whole way.
+<br><br>
+My parents, my son Jake and especially to my wife Lorraine
+<br><br>
+To Ekaterina & Dimitar Dadachev, your unwavering support and wise counsel are the foundation to all of our success, and for that our special thanks we want to express!
+<br><br>
+Venexia Ung Gaik Suan
+<br><br>
+To my lovely husband, Fendy Gan, thank you for your patience, believing in me and supporting me.<br>Kenji and Amelia, thank you for your priceless smile and positive energy, I love you!<br>Aiko, Nobu, Yoshi, Mr. & Mrs. Gan, thank you for your support and tolerating me.<br>Serene, I wouldn't have made it this far without you.
+<br><br>
+Thank you to my mother, Tatiana Ganina, for all the never-ending support and understanding throughout the development cycle, and to my SPB colleagues (who have become friends now) for the patience, passion, and jolly good times we have spent together!
+<br><br>
+Thanks to my sisters Ekaterina and Irina for their constant love and support!
+<br><br>
+My wonderful wife Helena and many ex-colleagues from Warhorse Studios, especially Martin Ziegler, Prokop Jirsa, Ondřej Bittner, Tomáš Vodsloň, Tomáš Kraus, Alisa Zavodina, Vojta Nedvěd, Adam Sporka, Michal Vrtílek, Viktor Bocan, Martin Klíma, Jaroslav Antoš, Martin Klekner, Kateřina Matějíčková, Dan Mikeš, Vladimír Mareček, Petr Pekař, Joanna Nowak.
+<br><br>
+Спасибо Лисёнку и Заюшке, самым пушистым на Диком Западе!
+<br><br>
+Thanks to Mum and Mick for all the ongoing support you give<br>and to Haley Evans, for sharing in all the ups and downs!
+<br><br>
+To Beth, for always being there.
+<br><br>
+To my wife An, for holding ground during the times I wasn't home, for understanding my hardships and giving me my space where bandwidth was needed.
+<br><br>
+Mom and Dad for everything.<br>Ina for being there through it all.<br>To all my amazing friends
+<br><br>
+Thanks to my angels clad in ruby red, the foxes of my Tango skulk. Special thanks to Karen, gros bisous, always in my heart in whatever I do... or will get to soon.
+<br><br>
+Thank you Irena, love of my life, for being there for me, supporting me and surrounding me with love and care even in the darkest times. You're my light
+<br><br>
+WolfheartFPS. For how long will you continue to call our Mocap studio a greenscreen room? We do not even have green walls!  ( We love your content )
+<br><br>
+Mr. Dave! Your frog has been sitting on my desk throughout the whole development! It kept reminding me of you and everyone else there that has been telling me how excited they are about the game. Hope you enjoy what we made!
+<br><br>
+To lovely Anna and adorable Andrei
+<br><br>
+Thanks to my family: My wife Natalia and my two kids Matthias and Mirabelle. And to my dog Pippin who left us during production.
+<br><br>
+Hey Mathias, bit better than a cow this time, don't you think?
+<br><br>
+Sean, Eimear, Daniel, Louise, Naoise and my pal thank you for keeping my spirits high
+<br><br>
+Sandra, Nigel, Tom, Connie, and all my friends for your love and support. To all of you folk who cheered us on. And to Bree, for keeping it together.
+<br><br>
+Thanks to everyone with whom I've enjoyed playing TTRPGs, in person, on the Fantastic Lands, Myth-Weavers, and elsewhere.
+<br><br>
+To my wonderful girlfriend, Olga, for all the love and support.
+<br><br>
+Thank you to my best friend and the love of my life Tine Vyvey for supporting me through thick and thin.<br>Much love to my Gent Crew: Bram Braet, Flo Grymonpon, Liesl Schwalbach and Brecht Plasschaert, to my power quattro: Tim Vermeulen, Nick Gunst and Jens Ide, my Patatje™ Nicky Vermeulen, my parents Veerle Delboo and Frederik Doyen and to all members of my Meme Team, Crazy People, Punkrock Round table and Ostend Crüe.<br>It's because of you guys that I have the energy to keep on doing what I do.<br><br>Special shoutout to Xander De Rycke for making me laugh time and time again.
+<br><br>
+To my favorite people, Żonkil & Tysio –thanks for all the patience and support you gave me, in good and bad moments. I know sometimes it was a lot to handle with me. I love you to bits! <br><br>Ola, Wiesiu & Kama  Kocham Was, dziękuję za wszystko! Do zobaczenia niedługo. <br>Michał Osu! :)<br><br>My dog Dobby, thanks for being THE best WFH companion ever.<br><br>Rysiu thanks for all the chats and laughs!<br><br>To Paul, Cesar and the rest of my Kung Fu Crew at YMAA Ireland – thanks for all my bruises :-) you guys rock! <br><br>Miłosz B., Artur M., Wola, Daniel B., Komar Stay cool, always awesome!
+<br><br>
+Kamila, my family, and close friends for their understanding... and to the community and fellow devs who inspired and made this special journey even more so.
+<br><br>
+Karen, Catriena and Ayla! We've got some adventuring to do!
+<br><br>
+To Samila Ooi Ling Ling, my steadfast co-op player in the game of life, whose support kept our world running smoothly while I was immersed in Larian's operations. Thank you.
+<br><br>
+Stefan Randelshofer for getting me on Board and the flexible, friendly and refreshingly nerdy team! Also, to my cat, crashing video conferences at least once per meeting.
+<br><br>
+Dex, Ivy and Simon
+<br><br>
+Thank you Amma and Acha for everything!
+<br><br>
+To my husband and parents that helped mop up the blood, sweat and tears.
+<br><br>
+Kristen Latino<br>Nell, Cindy, and Ozzy<br>Alan McNevin<br>John Fitzgerald
+<br><br>
+To Rokiah and Azhar, thank you Mak and Ayah! Love you always.
+<br><br>
+Mamma, papà, grazie per l'amore, la pazienza, il supporto e, non ultimi, i "pacchi da giù".<br>Giulia, Alessandro, Enrico, Jean, Isa, Ciop, Ivo, Alfio, Peppe e amici miei tutti: a voi devo la mia sanità mentale e il buonumore, grazie per esserci sempre.
+<br><br>
+Thanks Chrystal and Gabi for feeding me when I forgot to eat and for the hugs!
+<br><br>
+Everyone in the Down By the River discord. Fanfiction dreams can become reality.
+<br><br>
+Sarah Makdad
+<br><br>
+My  daughter Nell, your smile makes everything better.
+<br><br>
+To Loraine, Lou and Jules I love you very much.<br>To my team mate and partner in crime Brian Chambaere gacias for all your patience with me enduring all my ranting.
+<br><br>
+Thank you Paul Green, for helping me make the first steps to this new adventure.
+<br><br>
+Grex grexalis optimus! Iva, Maya, Kayetan, Sivý and Luna!
+<br><br>
+Sofie and Celine, for all the love, support and understanding how much this crazy adventure means to me. I love you more than anything else in this world.<br>Chris and Dirk for always being there to help us out!
+<br><br>
+Elliot, Mom & Aşkım
+<br><br>
+Thank you to Mom and Dad, my greatest supporters, and to my dearest Joy.
+<br><br>
+For Louise and Joey. Thank you for your endless love, patience, and highest-quality cuddles.  I love you both. Boy
+<br><br>
+To my parents, thank you for supporting me in my career from the very beginning, without ever doubting my choices. To my brother, thank you for being the best brother I could wish for. To my friends, thank you for all the fun times and for making me realize people really appreciate what I'm working on.
+<br><br>
+To my boo Skyler, who started this adventure with me and who believed in me when I didn't
+<br><br>
+Külli-Triin Laanet
+<br><br>
+À mes parents que j'adore, ma sœur que j'admire.<br>À ma loyale bande de gueux, les Balafrères.
+<br><br>
+To my beloved Mother who will soon depart from this world, may you finally find peace and contentment. Thank you for your patience enduring your stubborn son for all these years.<br>A toast to you Julz, Heloïg, Bandine, Lardaki, Tak & so many more!
+<br><br>
+To my Fiance Charlotte, thank you so much for sticking with me and helping me get to where I am now, I couldn't have done it without you.
+<br><br>
+My dear friend Titus and family
+<br><br>
+Моей любимой сестре, которая всегда поддерживает меня в моих безумных начинаниях. Маринка, ты самая лучшая. Верь в себя, и у тебя все получится!<br><br>Всем моим друзьям, с которыми мы разделили столько захватывающих моментов за все годы нашей дружбы. Тёма, Сережка, Илья, Женя, Денис, Паша и Юрка, вы самые замечательные люди, которых я когда-либо встречал. Спасибо вам, ребята, за то, что вы были и остаетесь важной частью моей жизни!
+<br><br>
+Thank you to my wife Linda and children Jake and Jessica for supporting me and being so patient every time I had to travel for work! I love you all
+<br><br>
+To Olivia Goncalves-Low, thank you for putting up with my absences at home in the pursuit for the greater good.<br>To Dante Goncalves-Low, I can't believe you finished TOTK before me. When you are old enough we will co-op BG3 together.<br>To my Parents and Siblings, thank you for never giving up on me.
+<br><br>
+For the Creme Fraiche boys
+<br><br>
+To my amazing girlfriend Cera, Thanks for always being there for me!
+<br><br>
+Naomi Miller for being an overall stunning human
+<br><br>
+Thanks to my wife, Irina, for love and support!
+<br><br>
+To the three most beautiful girls in the world: Trees, Anna & Bonnie! Thank you for all the love and patience! <br>And greetings to the Snok-elves!
+<br><br>
+To Justin, Darren, Callie, and especially my grandparents for telling me to get a job I enjoy.
+<br><br>
+Thanks to my wife Julia for being with me during entire development course and beyond.
+<br><br>
+Gracias Martin (un), por introducirme en el mundo de D&D junto a Fede, Dory y Nico, a ver cuando es el regreso de Vondal. Gracias Facu y Huguito por haber sido grandes compañeros de facultad, pisteamos como unos campeones. Gracias Jhonny, Ale, Mono, Carlos, Sergi, Los Suarez Brothers y Pablo por darme una bienvenida tan cálida a Barcelona. Gracias Pol, Jorge, Geraldine y toda primera planta por soportarme todos los días en el trabajo, sé que no es tarea fácil! Y gracias a todas aquellas personas que creyeron en mí y me ayudaron a estar done estoy, los amo con todo mi corazón!
+<br><br>
+Большое спасибо всем родным и близким!<br>Мишаня, Иван, Рома, Юра, Стас, обожаю вас, мужики!<br><br>Огромное спасибо Кириллу, Феде, Максиму, Глебу, Маше, Василисе и Соне за 'Бесценный Опыт'
+<br><br>
+IN REMEMBRANCE OF
+Robert Vincke
+Melvyn Maltz
+Laurette Horth
+Dot Stephens
+Agathe Truchon Beaulieu
+Noodle, my cat. Thanks for giving me a reason to wake up everyday and go to work. Wish you were here with me now that the game is out.
+Ana Moreno Bautista
+Thérèse Bal
+"Chuck" Henry Charles Mason
+Rita Walgrave, Julien Walgrave, David 'Corpsegrinder' De Munck
+Yun Mian Chu
+Viv, my mum away from home
+My loved dog and best friend Gandalf
+Klári and Erzsi
+Souroor Eftekharzadeh<br>Diba de Boer Namdar<br>Spikey de Boer Namdar<br>Michelle Eftekharzadeh<br>Faramarz Eftekharzadeh<br>Elmer Nelson Pearson
+Laila Lovely Hetland (Takk for alt, Mor. Jeg elsker deg for alltid. Takk for hjelpen med gameplay-vokalene for the Green Hag)
+In loving memory of my Grandma Aurora. Your support made it all possible.
+My grand-aunt, who taught me the power of story and word.
+My dear granny, Taisiya
+My dog Fons
+Marisa Ocaña Vedia
+Kira, the best there ever was
+In the memory of my lovely cat Barsoochenka, who passed away long ago, but will never be forgotten.
+Nana Sweeney, Nana Hamm , Aaron Smith
+My grandfather, Eduard "Warre".
+Khairuddin 'myuu' Ghani
+Ayco
+Cèlia Cuffi Caselles<br>Dean O'Donnell
+Sandra
+Mini
+Luc Van hamme
+Pak Reen<br>Nenda Chah
+Nan, Grandad, and Brady x
+Roger Wilmsen
+My dad Gerry Roy
+Valérie Bertrand
+Aunt Annie, Aunt Bev, Art, Aunt Michelle, Uncle Gene, and of course my Dad, I miss you every day.
+My father, Jean Van Ooteghem, who passed away during this project.
+My dear Mother who never gave up on me, pushing me to be the better person in life!
+Liew Chu
+My grandmother Irma, who was always there for me
+My dad Roger Vanbesien, 8 March 2020
+Carmen Jiménez del Olmo
+Tomas Flores Sr.
+Thank you  Makkuro, my first fur baby, for staying with me even only for 2 years. Your loss really devastated me, but I need to keep strong so your loss won't be unavailing. I miss you always.
+Tatherwood
+Alexander Higgins Wales - Love you dad
+Trixie Ung Gaik Imm
+Thank you my beloved father - Choo Kong Fei and grandma.
+Pavla Ferstová, Eva Klappová
+Mary Docherty
+Samsul, my orange Tabby. We miss you.
+Bizoe
+My dad, Julio Ricardo.
+Leopold, Opi Stropi, Doyen<br>Nick De Ceulaer, Rock in Peace
+Ryszard Warkiewicz, Edyta Czosnyka and Pickle. I miss you every day.
+Family Dog Crema
+Lucien Vanhoutte
+Nonna Angela e Nonno Peppino
+Rajmika, a good soul!
+Alain Swaelens - thanks for showing me everything is possible no matter where you come from. Rest in peace my friend.
+Elliot
+Gary Gygax and Dave Arneson - I worked with both, and dedicate my efforts on BG3 to them.
+Henk van Meer
+Nana Jackie & Auntie Meryl
+Christopher Fulling
+Diana Novoa
+<br><br>
+BALDURIAN BABIES
+Griffin Isaac Anderson
+Tanit
+Zoé Cassandra Gilbert
+Julia Veciana who who makes me happy even the worst of days
+Lucas Soares
+Shoutout to my little big rascal, Cooper
+Alicia
+Togo
+Valerie De Smet
+Ea
+Ethan Shtelmakher
+Arthur Lafleur-Strapko
+Tess, Lars
+My baby cat Luna - Born with the blessings of Shar on September 2022.
+Baldurian baby girl Bella Alexandra Papadopoulos
+Alexander Fooks
+"Surprise" Fooks might just make it before release
+Magda & Andrzej
+Moomoo
+He's my pal, my special fella, my little guy, Mizu
+Tuur Van Ooteghem
+Léo Beaudoin Zaharias
+Sam Valkenborg
+Liv Laureys Leduc
+Sheh Chian
+Rebecca
+Rosanna Alison Grace Vleminckx
+Sophie Marie Jacobs
+Jake
+Amelia Ayumi Gan
+Jakub
+Yolande and Yenthe of the House of Gyse
+Layla Taisiya Lagab
+Andrei
+Mirabelle Esperanza Ayasta Gotelli
+Elisha Ada Lim Zi Hui, Eliezer Asa Lim Zi Han
+Nell De Fleurquin
+Mona De Meyer
+<br><br>
+LEGAL BITS
+<br><br><br>
+<font size='36'>(c) 2023 Wizards of the Coast. WIZARDS OF THE COAST, BALDUR’S GATE, FORGOTTEN REALMS, DUNGEONS & DRAGONS, D&D and their respective logos are trademarks of Wizards of the Coast LLC.</font>
+<br><br>
+<font size='36'>(c) 2023 Larian Studios. LARIAN STUDIOS is a registered trademark of Larian Studios Games ltd. affiliates. All Rights Reserved.</font>
+<br><br>
+<LSTag Type="Image" Info="CreditsBink"/>
+<font size='36'>Uses Bink Video. Copyright (C)1997-2023 by RAD Game Tools, Inc.</font>
+<br><br>
+<font size='36'>This software contains Autodesk® FBX® code developed by Autodesk, Inc. Copyright 2018 Autodesk, Inc. All rights, reserved. Such code is provided as is and Autodesk, Inc. disclaims any and all warranties, whether express or implied, including without limitation the implied warranties of merchantability, fitness for a particular purpose or non-infringement of third party rights. In no event shall Autodesk, Inc. be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of such code.</font>
+<br><br>
+<LSTag Type="Image" Info="CreditsNoesisGUI"/>
+<font size='36'>Powered by NoesisGUI(C) 2013-2024 Noesis Technologies S.L. All rights reserved.</font>
+<br><br>
+<LSTag Type="Image" Info="CreditsGranny"/>
+<font size='36'>Uses Granny Animation. Copyright (C)1999-2023 by RAD Game Tools, Inc.</font>
+<br><br>
+<font size='36'>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/)</font>
+<br><br>
+<LSTag Type="Image" Info="CreditsWwise"/>
+<font size='36'>Powered by Wwise(C) 2006 – 2023 Audiokinetic Inc. All rights reserved.</font>
+<br><br>
+<LSTag Type="Image" Info="CreditsFacefx"/>
+<font size='36'>Facial animations powered by FaceFX. (c)2002-2018, OC3 Entertainment, Inc. and its licensors. All rights reserved.</font>
+<br><br>
+<LSTag Type="Image" Info="CreditsSpeedtree"/>
+<br><br>
+<font size='22'>Powered by</font><br>
+<font size='36'>Microsoft</font><br>
+<font size='36'>Azure PlayFab</font>
+<br><br>
+<font size='36'>Portions of this program (c) 2023 Microsoft Azure PlayFab</font>
+<br><br>
+<font size='36'>AGS Copyright (c) 2023, Advanced Micro Devices Inc. All rights reserved</font>
+<br><br>
+<font size='36'>CURL Copyright (c) 1996 - 2023, Daniel Stenberg, daniel@haxx.se, and many contributors. All rights reserved</font>
+<br><br>
+<font size='36'>ColorPicker Copyright (c) 2013 - 2021, Cyotek Ltd</font>
+<br><br>
+<font size='36'>D3D12MemoryAllocator Copyright (c) 2019 - 2022, Advanced Micro Devices Inc. All rights reserved</font>
+<br><br>
+<font size='36'>DirectXShaderCompiler Copyright (c) 2003 - 2015, University of Illinois at Urbana-Champaign. All rights reserved</font>
+<br><br>
+<font size='36'>DirectXTex Copyright (c) Microsoft Corporation</font>
+<br><br>
+<font size='36'>DockPanelSuite Copyright (c) 2007, Weifen Luo</font>
+<br><br>
+<font size='36'>OpenXmlSDK.2.0 Copyright (c) .NET Foundation and Contributors</font>
+<br><br>
+<font size='36'>Json.net Copyright (c) 2007, James Newton-King</font>
+<br><br>
+<font size='36'>Lua Copyright (c) 1994 - 2021, Lua.org, PUC-Rio</font>
+<br><br>
+<font size='36'>MiniUPnP Copyright (c) 2005 - 2023, Thomas Bernard. All rights reserved</font>
+<br><br>
+<font size='36'>NVAPI Copyright (c) 2012, NVIDIA Corporation. All rights reserved</font>
+<br><br>
+<font size='36'>This software contains source code provided by NVIDIA Corporation</font>
+<br><br>
+<font size='36'>Osiris Copyright (c) 1999, Grigg bvba</font>
+<br><br>
+<font size='36'>P4.Net Copyright (c) 2011 - 2019, Perforce Software Inc. All rights reserved</font>
+<br><br>
+<font size='36'>PhysX Copyright (c) 2021, NVIDIA Corporation. All rights reserved</font>
+<br><br>
+<font size='36'>RE-flex Copyright (c) 2016, Robert van Engelen, Genivia Inc. All rights reserved</font>
+<br><br>
+<font size='36'>Raknet Copyright (c) 2014, Oculus VR Inc. All rights reserved</font>
+<br><br>
+<font size='36'>RenderDoc Copyright (c) 2015 - 2023, Baldur Karlsson, Copyright (c) 2014, Crytek</font>
+<br><br>
+<font size='36'>RoboSharp Copyright (c) 2016, tjscience</font>
+<br><br>
+<font size='36'>Orchestral samples included in this recording from the Vienna Symphonic Library</font>
+<br><br>
+<font size='36'>SPIRV Copyright (c) 2015 - 2018, The Khronos Group Inc</font>
+<br><br>
+<font size='36'>ScintillaNET Copyright 2002 - 2006, Garrett Serack (gserack@gmail.com)</font>
+<br><br>
+<font size='36'>SonyMathLib Copyright (c) 2006, 2007, Sony Computer Entertainment Inc. All rights reserved</font>
+<br><br>
+<font size='36'>Steamworks.NET Copyright (c) 2013 - 2022, Riley Labrecque</font>
+<br><br>
+<font size='36'>Superluminal Copyright (c) 2019 - 2020, Superluminal. All rights reserved</font>
+<br><br>
+<font size='36'>VMA Copyright (c) 2017 - 2022, Advanced Micro Devices Inc. All rights reserved</font>
+<br><br>
+<font size='36'>VTune Copyright (c) 2005 - 2017, Intel Corporation. All rights reserved</font>
+<br><br>
+<font size='36'>Vulkan-Headers is licensed under Apache 2.0</font>
+<br><br>
+<font size='36'>WindowsAPICodePack Copyright (c) 2009 - 2010, Microsoft Corporation, then modifications by Jacob Slusser 2014, Peter William Wagner 2017 - 2023</font>
+<br><br>
+<font size='36'>amd_tootle Copyright (c) 2015, Advanced Micro Devices Inc. All rights reserved</font>
+<br><br>
+<font size='36'>bc7e Copyright (c) 2018 - 2021, Binomial LLC</font>
+<br><br>
+<font size='36'>castle.core Copyright 2004 - 2021, Castle Project - http://www.castleproject.org/</font>
+<br><br>
+<font size='36'>ispc Copyright Intel Corporation. All rights reserved</font>
+<br><br>
+<font size='36'>libpcp Copyright (c) 2013, by Cisco Systems, Inc. All rights reserved</font>
+<br><br>
+<font size='36'>libpng Copyright (c) 1995 - 2023, The PNG Reference Library Authors. Copyright (c) 2018 - 2023, Cosmin Truta. Copyright (c) 2000 - 2002, 2004, 2006 - 2018, Glenn Randers-Pehrson. Copyright (c) 1996 - 1997, Andreas Dilger. Copyright (c) 1995 - 1996, Guy Eric Schalnat, Group 42 Inc</font>
+<br><br>
+<font size='36'>libwebp Copyright (c) 2010, Google Inc. All rights reserved</font>
+<br><br>
+<font size='36'>LZ4 Library Copyright (c) 2011 - 2014, Yann Collet</font>
+<br><br>
+<font size='36'>meshoptimizer Copyright (c) 2016 - 2023, Arseny Kapoulkine</font>
+<br><br>
+<font size='36'>moq Copyright (c) Daniel Cazzulino and Contributors</font>
+<br><br>
+<font size='36'>zlib Copyright (c) 1995 - 2022, Jean-loup Gailly and Mark Adler</font>
+<br><br>
+<font size='36'>zstd Copyright (c) Meta Platforms Inc and affiliates. All rights reserved</font>
+<br><br>
+<font size='36'>Asio is licensed under BSL</font>
+<br><br>
+<font size='36'>CrashPad is licensed under Apache 2.0</font>
+<br><br>
+<font size='36'>Magick.NET is licensed under Apache 2.0</font>
+<br><br>
+<font size='36'>Masked Occlusion Culling is licensed under Apache 2.0</font>
+<br><br>
+<font size='36'>Copyright (c) Meta Platforms, Inc. and affiliates. All rights reserved. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</font>
+<br><br>
+<br><br>
+Our 2.5 million early access players
+<br><br>
+YOU - for playing this game, supporting us and sharing our love for classic RPGs!
+<br><br><br>

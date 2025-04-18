@@ -92,11 +92,11 @@ local function ensureModMCM(modTable, originalModUUID)
 
     MCMInstance.Set = function(settingId, value, modUUID, shouldEmitEvent)
         if not modUUID then modUUID = originalModUUID end
-        MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
+        MCMAPI:SetSettingValue(settingId, value, modUUID, Fallback.Value(shouldEmitEvent, true))
     end
     MCMInstance.Reset = function(settingId, modUUID, shouldEmitEvent)
         if not modUUID then modUUID = originalModUUID end
-        MCMAPI:ResetSettingValue(settingId, modUUID, shouldEmitEvent)
+        MCMAPI:ResetSettingValue(settingId, modUUID, Fallback.Value(shouldEmitEvent, true))
     end
 
     return MCMInstance

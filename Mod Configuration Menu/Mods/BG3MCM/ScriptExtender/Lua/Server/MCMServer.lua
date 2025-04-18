@@ -101,7 +101,7 @@ function MCMServer:ResetSettingValue(settingId, modUUID)
             modUUID = modUUID,
             settingId = settingId,
             defaultValue = defaultValue
-        })
+        }, true)
     end
 end
 

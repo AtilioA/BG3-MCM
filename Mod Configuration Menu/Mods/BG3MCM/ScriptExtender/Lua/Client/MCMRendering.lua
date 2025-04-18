@@ -49,15 +49,8 @@ function MCMRendering:UpdateSettingValue(mod, settingId, value, modUUID)
     mod.settingsValues[settingId] = value
     MCMAPI.mods[modUUID].settingsValues[settingId] = value
 
-    -- Check if the setting is of type 'text'; no need to update the UI value for text settings
-    -- Also, doing so creates issues with the text input field
-    -- local blueprint = MCMAPI:GetModBlueprint(modUUID)
-    if not blueprint then return end
 
-    local setting = blueprint:GetAllSettings()[settingId]
-    if not setting or setting:GetType() == "text" then return end
-
-    -- Update the displayed value for non-text settings
+    -- Update the displayed value
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 end
 
@@ -436,34 +429,59 @@ function MCMRendering:GetAllKeybindings()
                         keyboardBinding = currentBinding.Keyboard
                         MCMDebug(1, "Using saved keyboard binding for setting: " .. settingId)
                     else
-                        keyboardBinding = setting.Default and setting.Default.Keyboard or
+                        keyboardBinding = Fallback.Value(
+                            setting.Default and setting.Default.Keyboard,
                             { Key = "", ModifierKeys = { "NONE" } }
+                        )
                         MCMDebug(1, "Falling back to default keyboard binding for setting: " .. settingId)
                     end
 
                     local description = setting:GetDescription()
                     local tooltip = setting:GetTooltip()
-                    local enabled = modData.settingsValues[settingId] and
-                        modData.settingsValues[settingId].Enabled ~= false
-                    local defaultEnabled = true
-                    if setting.Default and setting.Default.Enabled ~= nil then
-                        defaultEnabled = setting.Default.Enabled
-                    end
+                    local enabled = Fallback.Value(
+                        currentBinding and currentBinding.Enabled,
+                        true
+                    )
+                    local defaultEnabled = Fallback.Value(
+                        setting.Default and setting.Default.Enabled,
+                        true
+                    )
                     table.insert(modKeybindings.Actions, {
                         ActionId = setting.Id,
                         ActionName = setting:GetLocaName(),
                         KeyboardMouseBinding = keyboardBinding,
                         DefaultEnabled = defaultEnabled,
                         Enabled = enabled,
-                        DefaultKeyboardMouseBinding = setting.Default and setting.Default.Keyboard or
-                            { Key = "", ModifierKeys = { "NONE" } },
+                        DefaultKeyboardMouseBinding = Fallback.Value(
+                            setting.Default and setting.Default.Keyboard,
+                            { Key = "", ModifierKeys = { "NONE" } }
+                        ),
                         Description = description,
                         Tooltip = tooltip,
-                        ShouldTriggerOnRepeat = (setting.Options and setting.Options.ShouldTriggerOnRepeat) or false,
-                        ShouldTriggerOnKeyUp = (setting.Options and setting.Options.ShouldTriggerOnKeyUp) or false,
-                        ShouldTriggerOnKeyDown = (setting.Options and setting.Options.ShouldTriggerOnKeyDown) or true,
-                        BlockIfLevelNotStarted = (setting.Options and setting.Options.BlockIfLevelNotStarted) or false,
-                        IsDeveloperOnly = (setting.Options and setting.Options.IsDeveloperOnly) or false
+                        ShouldTriggerOnRepeat = Fallback.Value(
+                            setting.Options and setting.Options.ShouldTriggerOnRepeat,
+                            false
+                        ),
+                        ShouldTriggerOnKeyUp = Fallback.Value(
+                            setting.Options and setting.Options.ShouldTriggerOnKeyUp,
+                            false
+                        ),
+                        ShouldTriggerOnKeyDown = Fallback.Value(
+                            setting.Options and setting.Options.ShouldTriggerOnKeyDown,
+                            true
+                        ),
+                        BlockIfLevelNotStarted = Fallback.Value(
+                            setting.Options and setting.Options.BlockIfLevelNotStarted,
+                            false
+                        ),
+                        PreventAction = Fallback.Value(
+                            setting.Options and setting.Options.PreventAction,
+                            true
+                        ),
+                        IsDeveloperOnly = Fallback.Value(
+                            setting.Options and setting.Options.IsDeveloperOnly,
+                            false
+                        )
                     })
                 end
             end

@@ -8,6 +8,7 @@ RequireFiles("Shared/Helpers/", {
     "Config",
     "Printer",
     "Color",
+    "Fallback",
     "Preprocessing/_Init",
     "MCM/_Init",
 })
