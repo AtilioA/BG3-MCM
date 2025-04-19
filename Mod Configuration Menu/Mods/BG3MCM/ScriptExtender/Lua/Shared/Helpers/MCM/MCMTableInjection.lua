@@ -44,7 +44,7 @@ end
 
 -- Helper: Ensure that the mod's MCM table exists and attach common functions.
 -- REFACTOR: extract functions to proper API file (MCMAPI/MCMServer)
-local function ensureModMCM(modTable, originalModUUID)
+local function injectSharedMCMTable(modTable, originalModUUID)
     if not modTable.MCM or table.isEmpty(modTable.MCM) then
         modTable.MCM = {}
     end
@@ -103,7 +103,7 @@ local function ensureModMCM(modTable, originalModUUID)
 end
 
 -- Setup client-side MCM: only proceed if not on server.
-local function setupClientSideMCM(originalModUUID)
+local function injectClientMCMTable(originalModUUID)
     if Ext.IsServer() then return end
 
     local modTable, _ = getModTableForUUID(originalModUUID)
@@ -117,21 +117,23 @@ local function setupClientSideMCM(originalModUUID)
 
     -- Function to register callbacks for event_button widgets
     modTable.MCM['SetEventButtonCallback'] = function(settingId, callback, modUUID)
-        if not modUUID then modUUID = originalModUUID end
+        MCMWarn(0, "SetEventButtonCallback has not been implemented yet.")
+        return false
+        -- if not modUUID then modUUID = originalModUUID end
 
-        -- Use MCMAPI to register the callback
-        local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
+        -- -- Use MCMAPI to register the callback
+        -- local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
 
-        if not success then
-            MCMWarn(0,
-                string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
-        else
-            MCMDebug(1,
-                string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
-                    modUUID))
-        end
+        -- if not success then
+        --     MCMWarn(0,
+        --         string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
+        -- else
+        --     MCMDebug(1,
+        --         string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
+        --             modUUID))
+        -- end
 
-        return success
+        -- return success
     end
 
     modTable.MCM['OpenMCMWindow'] = function()
@@ -163,8 +165,8 @@ local function injectMCMToModTable(originalModUUID)
     if not modTable then return end
 
     MCMPrint(1, "Mod table name: " .. modTableName)
-    local MCMInstance = ensureModMCM(modTable, originalModUUID)
-    setupClientSideMCM(originalModUUID)
+    local MCMInstance = injectSharedMCMTable(modTable, originalModUUID)
+    injectClientMCMTable(originalModUUID)
 
     modTable.MCM = MCMInstance
     MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. originalModUUID)
