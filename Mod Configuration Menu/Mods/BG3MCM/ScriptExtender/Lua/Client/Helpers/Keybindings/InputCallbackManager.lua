@@ -15,23 +15,31 @@ InputCallbackManager.KeybindingsLoadedSubject = RX.ReplaySubject.Create(1)
 
 --- Registers a keybinding callback, queued for registration once keybindings are loaded.
 --- @param modUUID string The mod's unique identifier.
----@param actionId string The key of the action.
----@param callback function The callback to invoke when that keybinding is triggered.
+--- @param actionId string The key of the action.
+--- @param callback function The callback to invoke when that keybinding is triggered.
 function InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback)
     -- Queue the registration of callbacks for later processing.
-    table.insert(InputCallbackManager._PendingKeybindingCallbacks, { actionId = actionId, callback = callback })
+    table.insert(InputCallbackManager._PendingKeybindingCallbacks,
+        { modUUID = modUUID, actionId = actionId, callback = callback })
 
     -- Subscribe to the KeybindingsLoadedSubject to register pending callbacks when keybindings are loaded.
+    -- if InputCallbackManager._KeybindingsLoadedSubscribed then return end
+
+    InputCallbackManager._KeybindingsLoadedSubscribed = true
     InputCallbackManager.KeybindingsLoadedSubject:Subscribe(function(loaded)
         if not loaded then return end
 
         -- Once keybindings are loaded, register all pending callbacks.
         for _, entry in ipairs(InputCallbackManager._PendingKeybindingCallbacks) do
-            local success = InputCallbackManager.RegisterKeybinding(modUUID, entry.actionId, entry.callback)
+            local success = InputCallbackManager.RegisterKeybinding(entry.modUUID, entry.actionId, entry.callback)
             if success then
-                MCMPrint(2, string.format("Registered keybinding callback for action '%s'", entry.actionId))
+                MCMPrint(2,
+                    string.format("Registered keybinding callback for action '%s' (mod '%s')", entry.actionId,
+                        entry.modUUID))
             else
-                MCMWarn(0, string.format("Failed to register keybinding callback for action '%s'", entry.actionId))
+                MCMWarn(0,
+                    string.format("Failed to register keybinding callback for action '%s' (mod '%s')", entry
+                        .actionId, entry.modUUID))
             end
         end
         -- Clear the pending queue after processing.
