@@ -110,6 +110,51 @@ function MCMRendering:GetMCMWindowSizeConstraints()
     return { viewportSize[1] / 3, viewportSize[2] / 3 }
 end
 
+--- Ensures the MCM window is within the viewport bounds
+--- @return boolean True if window was repositioned, false otherwise
+function MCMRendering:EnsureWindowVisible()
+    local function checkVec2IsZero(vec2)
+        return vec2[1] == 0 and vec2[2] == 0
+    end
+
+    -- Define margin from screen edges
+    local SCREEN_MARGIN = 30
+    local DEFAULT_WINDOW_POSITION = { 10, 10 }
+
+    -- Get viewport dimensions
+    local viewportSize = Ext.IMGUI.GetViewportSize()
+
+    -- Early return if window doesn't exist
+    if not MCM_WINDOW then
+        return false
+    end
+
+    local shouldReset = false
+
+    -- Check if LastPosition exists and is outside the screen boundaries
+    local pos = MCM_WINDOW.LastPosition
+    local size = MCM_WINDOW.LastSize
+    if pos and size and not checkVec2IsZero(pos) and not checkVec2IsZero(size) then
+        if pos[1] + size[1] <= 0 + SCREEN_MARGIN or        -- Left edge
+            pos[1] >= viewportSize[1] - SCREEN_MARGIN or   -- Right edge
+            pos[2] + size[2] <= 0 + SCREEN_MARGIN or       -- Top edge
+            pos[2] >= viewportSize[2] - SCREEN_MARGIN then -- Bottom edge
+            _D(pos)
+            _D(size)
+            _D(viewportSize)
+            shouldReset = true
+        end
+    end
+
+    -- Reset position if needed
+    if shouldReset then
+        MCM_WINDOW:SetPos(DEFAULT_WINDOW_POSITION)
+        return true
+    end
+
+    return false
+end
+
 --- Create the main IMGUI window for MCM
 function MCMRendering:CreateMainIMGUIWindow()
     if not Ext.IMGUI then
@@ -145,6 +190,8 @@ function MCMRendering:CreateMainIMGUIWindow()
     end
 
     MCM_WINDOW.NoFocusOnAppearing = true
+
+    self:EnsureWindowVisible()
 
     MCM_WINDOW.Visible = shouldOpenOnStart
     MCM_WINDOW.Open = shouldOpenOnStart

@@ -103,6 +103,9 @@ function IMGUIAPI:OpenMCMWindow(playSound)
         return
     end
 
+    -- Ensure window is in visible area before showing it
+    MCMClientState:EnsureWindowVisible()
+
     MCM_WINDOW.Visible = true
     MCM_WINDOW.Open = true
     ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
@@ -136,6 +139,8 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
     if MCM_WINDOW.Open == true then
         self:CloseMCMWindow(playSound)
     else
+        -- Ensure window is in visible area before showing it
+        MCMClientState:EnsureWindowVisible()
         self:OpenMCMWindow(playSound)
     end
 end
