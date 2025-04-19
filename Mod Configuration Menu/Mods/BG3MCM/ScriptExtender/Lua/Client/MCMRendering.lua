@@ -49,8 +49,15 @@ function MCMRendering:UpdateSettingValue(mod, settingId, value, modUUID)
     mod.settingsValues[settingId] = value
     MCMAPI.mods[modUUID].settingsValues[settingId] = value
 
+    -- Check if the setting is of type 'text'; no need to update the UI value for text settings
+    -- Also, doing so creates issues with the text input field
+    local blueprint = MCMAPI:GetModBlueprint(modUUID)
+    if not blueprint then return end
 
-    -- Update the displayed value
+    local setting = blueprint:GetAllSettings()[settingId]
+    if not setting or setting:GetType() == "text" then return end
+
+    -- Update the displayed value for non-text settings
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 end
 
