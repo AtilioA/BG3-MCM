@@ -96,6 +96,17 @@
                             }
                         },
                         {
+                            "Id": "reposition_window_if_out_of_bounds",
+                            "Name": "Reposition window if out of bounds",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Automatically reposition the MCM window if it goes outside the screen boundaries.",
+                            "Handles": {
+                                "NameHandle": "h98e72bb15db546859c41ef81ddac77bc5d69",
+                                "DescriptionHandle": "h48cd3bba1b0347f6b8e81cd36f07890de455"
+                            }
+                        },
+                        {
                             "Id": "dynamic_opacity",
                             "Name": "Dynamic opacity",
                             "Type": "checkbox",

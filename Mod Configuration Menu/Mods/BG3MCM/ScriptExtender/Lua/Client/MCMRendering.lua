@@ -113,13 +113,22 @@ end
 --- Ensures the MCM window is within the viewport bounds
 --- @return boolean True if window was repositioned, false otherwise
 function MCMRendering:EnsureWindowVisible()
+    -- Define margin from screen edges
+    local SCREEN_MARGIN = 30
+    local DEFAULT_WINDOW_POSITION = { 10, 10 }
+
     local function checkVec2IsZero(vec2)
         return vec2[1] == 0 and vec2[2] == 0
     end
 
-    -- Define margin from screen edges
-    local SCREEN_MARGIN = 30
-    local DEFAULT_WINDOW_POSITION = { 10, 10 }
+    local shouldRepositionWindow = MCMClientState:GetClientStateValue("reposition_window_if_out_of_bounds", ModuleUUID)
+    if shouldRepositionWindow == nil then
+        shouldRepositionWindow = true
+    end
+
+    if not shouldRepositionWindow then
+        return false
+    end
 
     -- Get viewport dimensions
     local viewportSize = Ext.IMGUI.GetViewportSize()
