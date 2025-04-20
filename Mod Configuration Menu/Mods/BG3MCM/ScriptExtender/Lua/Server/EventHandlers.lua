@@ -3,9 +3,17 @@ EHandlers = {}
 EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
 EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
-function EHandlers.SavegameLoaded()
+local function loadSettingsAndWarn()
     MCMServer:LoadAndSendSettings()
     ModEventManager:IssueDeprecationWarning()
+end
+
+function EHandlers.SavegameLoaded()
+    loadSettingsAndWarn()
+end
+
+function EHandlers.CCStarted()
+    loadSettingsAndWarn()
 end
 
 function EHandlers.OnClientRequestConfigs(_)

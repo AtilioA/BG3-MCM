@@ -64,6 +64,7 @@ function SubscribedEvents.SubscribeToEvents()
 
     -- When the game is started, load the MCM settings
     Ext.Osiris.RegisterListener("SavegameLoaded", 0, "before", EHandlers.SavegameLoaded)
+    Ext.Osiris.RegisterListener("CharacterCreationStarted", 0, "after", EHandlers.CCStarted)
 
     Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
         MCMDebug(1, "UserConnected: " .. userID .. " " .. userName .. " " .. userProfileID)
