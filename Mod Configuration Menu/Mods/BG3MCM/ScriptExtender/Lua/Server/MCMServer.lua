@@ -186,9 +186,15 @@ end
 ---@param userID integer The ID of the user to send settings to
 function MCMServer:LoadAndSendSettingsToUser(userID)
     MCMDebug(1, "Sending MCM configs to user: " .. userID)
-    MCMAPI:LoadConfigs()
-    Ext.Net.PostMessageToClient(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
-        Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    if not MCMAPI.mods or not MCMAPI.profiles then
+        MCMError(0, "MCM has not loaded configs yet. Cannot send settings to user: " .. userID)
+        MCMWarn(0, "Loading configs...")
+        MCMAPI:LoadConfigs()
+    end
+
+    Ext.ServerNet.PostMessageToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
+        Ext.Json.Stringify({ userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    -- Ext.ServerNet.PostMessageToUser(327681, Mods.BG3MCM.NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({ userID = userID, mods = Mods.BG3MCM.MCMAPI.mods, profiles = Mods.BG3MCM.MCMAPI.profiles }))
 end
 
 --- Reset all settings for a mod to their default values
