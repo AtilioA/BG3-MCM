@@ -96,7 +96,7 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     end
 
     -- During initialization, respect open_on_start setting
-    local shouldOpenWindow = not self.isInitialized or MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+    local shouldOpenWindow = not self.isInitialized and (MCMAPI:GetSettingValue("open_on_start", ModuleUUID) == true)
     MCMDebug(1, "SubtabRestorationService: Restoring subtab '" .. lastUsedSubtab .. "' for mod: " .. modUUID)
 
     -- Let DualPaneController handle sidebar state based on settings

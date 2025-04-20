@@ -81,7 +81,7 @@ function PageRestorationService:RestoreLastModPage()
     end
 
     -- During initialization, respect open_on_start setting
-    local shouldOpenWindow = not self.isInitialized or MCMAPI:GetSettingValue("open_on_start", ModuleUUID)
+    local shouldOpenWindow = not self.isInitialized and (MCMAPI:GetSettingValue("open_on_start", ModuleUUID) == true)
     MCMDebug(1, "PageRestorationService: Restoring last used mod page: " .. lastModUUID)
 
     -- Let DualPaneController handle sidebar state based on settings
