@@ -68,7 +68,7 @@ function SubscribedEvents.SubscribeToEvents()
 
     Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
         MCMDebug(1, "UserConnected: " .. userID .. " " .. userName .. " " .. userProfileID)
-        MCMWarn(1, "TODO: creating MCM window for new user")
+        MCMServer:LoadAndSendSettingsToUser(userID)
     end)
 
     Ext.Events.SessionLoaded:Subscribe(EHandlers.OnSessionLoaded)

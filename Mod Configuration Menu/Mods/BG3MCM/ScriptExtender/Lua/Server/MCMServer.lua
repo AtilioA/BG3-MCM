@@ -182,6 +182,15 @@ function MCMServer:LoadAndSendSettings()
     }))
 end
 
+--- Load configs and send to a specific user (for new clients)
+---@param userID integer The ID of the user to send settings to
+function MCMServer:LoadAndSendSettingsToUser(userID)
+    MCMDebug(1, "Sending MCM configs to user: " .. userID)
+    MCMAPI:LoadConfigs()
+    Ext.Net.PostMessageToClient(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
+        Ext.Json.Stringify({ mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+end
+
 --- Reset all settings for a mod to their default values
 -- -@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
 -- function MCMServer:ResetAllSettings(modUUID)
