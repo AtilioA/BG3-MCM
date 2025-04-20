@@ -147,7 +147,7 @@ end
 local function createDetachedWindow(name)
     local detachedWindow = Ext.IMGUI.NewWindow(name)
     local minSize = Ext.IMGUI.GetViewportSize()
-    detachedWindow:SetStyle("WindowMinSize", minSize[1] / 3, minSize[2] / 3)
+    detachedWindow:SetStyle("WindowMinSize", minSize[1] / 6, minSize[2] / 6)
     return detachedWindow
 end
 
