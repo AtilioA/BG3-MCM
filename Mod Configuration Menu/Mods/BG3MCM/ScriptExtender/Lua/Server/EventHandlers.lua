@@ -16,9 +16,15 @@ function EHandlers.CCStarted()
     loadSettingsAndWarn()
 end
 
-function EHandlers.OnClientRequestConfigs(_)
+function EHandlers.OnClientRequestConfigs(_channel, _payload, userID)
     MCMDebug(1, "Received MCM settings request")
-    MCMServer:LoadAndSendSettings()
+    if not MCMAPI.mods or not MCMAPI.profiles then
+        MCMServer:LoadAndSendSettings()
+        return
+    else
+        Ext.ServerNet.PostMessageToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
+            Ext.Json.Stringify({ userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    end
 end
 
 function EHandlers.OnClientRequestSetSettingValue(_, payload, peerId)
