@@ -28,9 +28,9 @@ function RightPane:New(parent)
     return self
 end
 
-function RightPane:CreateModGroup(modUUID, modName, modDescription)
+function RightPane:CreateModGroup(modUUID, _modName, modDescription)
     local group = self.parent:AddGroup(modUUID)
-    group:AddSeparatorText(modName)
+    -- group:AddSeparatorText(modName)
     if modDescription and modDescription ~= "" then
         local desc = group:AddText(VCString:AddFullStop(modDescription))
         desc.TextWrapPos = 0
