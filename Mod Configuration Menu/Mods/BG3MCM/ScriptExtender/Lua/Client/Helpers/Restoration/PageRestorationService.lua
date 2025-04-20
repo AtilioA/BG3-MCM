@@ -10,7 +10,7 @@
 ---@field manager StateRestorationManager Reference to the state restoration manager
 PageRestorationService = {
     isInitialized = false,
-    manager = nil
+    manager = nil ---@type StateRestorationManager
 }
 
 -- Initialize the PageRestorationService
@@ -73,10 +73,15 @@ function PageRestorationService:RestoreLastModPage()
         return
     end
 
-    -- No action if subtab restoration is enabled; let it handle the restoration
+    -- Only defer to subtab restoration if it's enabled AND we have a valid subtab saved for this mod
     local restoreLastSubtabEnabled = MCMAPI:GetSettingValue("restore_last_subtab", ModuleUUID)
-    if restoreLastSubtabEnabled == true and config.lastUsedModSubTabs and config.lastUsedModSubTabs[ModuleUUID] ~= "" then
-        MCMDebug(1, "PageRestorationService: Subtab restoration enabled in settings")
+    local hasValidSubtab = config.lastUsedModSubTabs and
+        config.lastUsedModSubTabs[lastModUUID] and
+        config.lastUsedModSubTabs[lastModUUID] ~= ""
+
+    if restoreLastSubtabEnabled == true and hasValidSubtab then
+        MCMDebug(1,
+        "PageRestorationService: Subtab restoration enabled and valid subtab found - deferring to subtab restoration")
         return
     end
 
