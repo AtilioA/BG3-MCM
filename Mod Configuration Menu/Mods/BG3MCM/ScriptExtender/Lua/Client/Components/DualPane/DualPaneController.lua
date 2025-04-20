@@ -1,3 +1,5 @@
+-- TODO: add option to be collapsed by default (collapsed_by_default)
+
 --------------------------------------------
 -- DualPaneController (Facade)
 -- Manages the dual-pane interface and wires together the left

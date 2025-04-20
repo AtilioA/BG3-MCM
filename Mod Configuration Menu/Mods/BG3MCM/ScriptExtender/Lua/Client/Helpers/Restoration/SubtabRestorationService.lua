@@ -100,7 +100,7 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     MCMDebug(1, "SubtabRestorationService: Restoring subtab '" .. lastUsedSubtab .. "' for mod: " .. modUUID)
 
     -- Let DualPaneController handle sidebar state based on settings
-    DualPane:OpenModPage(lastUsedSubtab, modUUID, false, nil, shouldOpenWindow)
+    DualPane:OpenModPage(lastUsedSubtab, modUUID, false, true, shouldOpenWindow)
 end
 
 -- Update the last used subtab for a mod page

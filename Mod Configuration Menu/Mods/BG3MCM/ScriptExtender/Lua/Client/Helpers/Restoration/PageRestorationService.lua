@@ -1,3 +1,5 @@
+-- FIXME: fix page restoration not working if no subtab was selected for a given mod
+
 --------------------------------------------
 -- Encapsulates restoration of the last used mod page when the MCM UI is initialized
 -- Managed by StateRestorationManager
@@ -83,7 +85,7 @@ function PageRestorationService:RestoreLastModPage()
     MCMDebug(1, "PageRestorationService: Restoring last used mod page: " .. lastModUUID)
 
     -- Let DualPaneController handle sidebar state based on settings
-    DualPane:OpenModPage(nil, lastModUUID, false, nil, shouldOpenWindow)
+    DualPane:OpenModPage(nil, lastModUUID, false, true, shouldOpenWindow)
 end
 
 -- Update the last used mod page in the config
