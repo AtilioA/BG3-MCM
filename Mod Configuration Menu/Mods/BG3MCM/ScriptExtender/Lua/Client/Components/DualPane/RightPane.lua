@@ -31,7 +31,7 @@ end
 function RightPane:CreateModGroup(modUUID, modName, modDescription)
     local group = self.parent:AddGroup(modUUID)
     group:AddSeparatorText(modName)
-    if modDescription then
+    if modDescription and modDescription ~= "" then
         local desc = group:AddText(VCString:AddFullStop(modDescription))
         desc.TextWrapPos = 0
         group:AddDummy(0, 5)
@@ -136,7 +136,7 @@ function RightPane:SetVisibleGroup(modUUID)
             group = self.contentGroups[modUUID],
             modUUID = modUUID
         }
-        
+
         -- Use HeaderActions to update detach/reattach buttons based on current mod
         if HeaderActionsInstance then
             HeaderActionsInstance:UpdateDetachButtons(modUUID)
@@ -185,7 +185,7 @@ function RightPane:DetachModGroup(modUUID)
     if HeaderActionsInstance then
         HeaderActionsInstance:UpdateDetachButtons(modUUID)
     end
-    
+
     DualPane:Expand()
 end
 
