@@ -221,6 +221,17 @@
                             }
                         },
                         {
+                            "Id": "collapsed_by_default",
+                            "Name": "Start collapsed",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Start with the sidebar in a collapsed state when opening MCM.",
+                            "Handles": {
+                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be922",
+                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6g"
+                            }
+                        },
+                        {
                             "Id": "toggle_mcm_sidebar_keybinding",
                             "Name": "Toggle sidebar (collapse/expand)",
                             "Type": "keybinding_v2",

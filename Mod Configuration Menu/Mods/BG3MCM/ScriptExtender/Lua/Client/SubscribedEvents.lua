@@ -150,7 +150,6 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     -- MCMClientState:SetClientStateValue(settingId, defaultValue, modUUID)
 end)
 
--- FIXME: not working for some reason
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
     MCMDebug(1, "Firing MCM_SETTING_SAVED on client")
     local modUUID = data.modUUID

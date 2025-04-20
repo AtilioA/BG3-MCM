@@ -96,12 +96,23 @@ function DualPaneController:InitWithWindow(window)
     self:initLayout()
     self.leftPane = LeftPane:New(self.menuScrollWindow)
     self.rightPane = RightPane:New(self.contentScrollWindow)
-    self.isCollapsed = false
+
+    -- Check if we should start collapsed
+    local startCollapsed = MCMAPI:GetSettingValue("collapsed_by_default", ModuleUUID)
+    self.isCollapsed = startCollapsed
     self.isHovered = false
     self.userHasInteracted = false
     self.hoverSubscription = nil
     self.currentAnimation = nil
-    -- Attach hover listeners initially (menu is expanded by default)
+
+    -- Initialize the UI state based on the collapsed setting
+    if startCollapsed then
+        self.menuScrollWindow.Visible = false
+        self.mainLayoutTable.ColumnDefs[1].Width = TARGET_WIDTH_COLLAPSED
+        self.menuScrollWindow:SetStyle("Alpha", 0)
+    end
+
+    -- Attach hover listeners initially (menu is expanded by default unless collapsed_by_default is true)
     self:AttachHoverListeners()
     return self
 end

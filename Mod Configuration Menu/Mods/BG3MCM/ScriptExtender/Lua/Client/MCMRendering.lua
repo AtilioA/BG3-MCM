@@ -556,7 +556,7 @@ function MCMRendering:GetAllKeybindings()
     return keybindings
 end
 
--- TODO: extract this to DualPane
+-- TODO: extract this to DualPane?
 function MCMRendering:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
     -- MCMDebug(0, "Creating keybindings page...")
