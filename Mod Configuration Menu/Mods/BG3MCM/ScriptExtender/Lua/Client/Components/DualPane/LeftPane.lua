@@ -24,6 +24,10 @@ function LeftPane:CreateMenuButton(text, description, uuid)
     button.IDContext = "MenuButton_" .. text .. "_" .. uuid
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     button.OnClick = function()
+        -- Auto-reattach if mod is currently detached
+        if DualPane and DualPane.rightPane and DualPane.rightPane.detachedWindows and DualPane.rightPane.detachedWindows[uuid] then
+            DualPane.rightPane:ReattachModGroup(uuid)
+        end
         DualPane:SwitchVisibleContent(button, uuid)
         if MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID) then
             DualPane:ToggleSidebar()
