@@ -1,4 +1,11 @@
+local isSearchingForMCMButton = false
+
 local function handleEscapeKey()
+    if isSearchingForMCMButton then
+        return
+    end
+
+    isSearchingForMCMButton = true
     VCTimer:CallWithInterval(function()
         local MCMButton = Noesis:FindMCMGameMenuButton()
         if not MCMButton then
@@ -6,8 +13,14 @@ local function handleEscapeKey()
             return nil
         end
         Noesis:HandleGameMenuMCMButtonPress(MCMButton)
+        isSearchingForMCMButton = false
         return MCMButton
     end, 100, 1000)
+
+    -- Reset the flag after the total time in case no button was found
+    Ext.Timer.WaitFor(1000, function()
+        isSearchingForMCMButton = false
+    end)
 end
 
 local function handleKeyInput(e)
