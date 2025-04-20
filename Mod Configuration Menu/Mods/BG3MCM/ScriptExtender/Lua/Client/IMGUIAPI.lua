@@ -133,7 +133,8 @@ end
 --- @param playSound boolean Whether to play a sound effect when toggling the window.
 function IMGUIAPI:ToggleMCMWindow(playSound)
     if not MCM_WINDOW then
-        MCMWarn(0, "Tried to toggle MCM window, but it doesn't exist")
+        MCMWarn(0, "Tried to toggle MCM window, but it doesn't exist. Requesting configs from server...")
+        Ext.ClientNet.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, "")
         return
     end
 
