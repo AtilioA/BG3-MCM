@@ -4,7 +4,7 @@
 ---@field GameState string The current game state. Might be used to determine if the game is in the main menu.
 ---@field GameStateSubject any Subject that emits game state changes
 MCMProxy = _Class:Create("MCMProxy", nil, {
-    GameState = "Running", -- Default to Running state
+    GameState = Ext.Net.IsHost() and "Running" or "Menu",
     GameStateSubject = nil
 })
 
@@ -62,7 +62,8 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
 
     -- Subscribe to game state changes to handle tab insertion appropriately
     local disclaimerTab = nil
-    self.GameStateSubject:Subscribe(function(gameState)
+    local subscription = nil
+    subscription = self.GameStateSubject:Subscribe(function(gameState)
         if gameState == "Menu" then
             -- We're in the main menu
             MCMClientState.UIReady:Subscribe(function(ready)
@@ -84,8 +85,9 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
             end
 
             MCMClientState.UIReady:Subscribe(function(ready)
-                if ready then
+                if ready and subscription and not subscription._unsubscribed then
                     DualPane:InsertModTab(modUUID, tabName, tabCallback)
+                    subscription = nil
                 end
             end)
         end
