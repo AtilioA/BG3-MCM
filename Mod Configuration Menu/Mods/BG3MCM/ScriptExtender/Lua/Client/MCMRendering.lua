@@ -26,7 +26,7 @@ local RX = {
 ---@field private profiles table<string, table>
 MCMRendering = _Class:Create("MCMRendering", nil, {
     mods = {},
-    UIReady = RX.Subject.Create(1)
+    UIReady = RX.ReplaySubject.Create(1)
 })
 
 -- Coupled logic :gladge:
