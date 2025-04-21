@@ -2,9 +2,29 @@
 ---
 ---@class MCMProxy
 ---@field GameState string The current game state. Might be used to determine if the game is in the main menu.
+---@field GameStateSubject any Subject that emits game state changes
 MCMProxy = _Class:Create("MCMProxy", nil, {
-    GameState = nil
+    GameState = "Running", -- Default to Running state
+    GameStateSubject = nil
 })
+
+local RX = Ext.Require("Lib/reactivex/_init.lua")
+
+-- Initialize the reactive game state management
+function MCMProxy:Initialize()
+    self.GameStateSubject = RX.BehaviorSubject.Create(self.GameState)
+
+    Ext.Events.GameStateChanged:Subscribe(function(e)
+        MCMProxy.GameState = e.ToState
+
+        -- Emit the state change through our reactive subject
+        if self.GameStateSubject then
+            self.GameStateSubject:OnNext(MCMProxy.GameState)
+        end
+
+        MCMDebug(1, "GameState changed to " .. tostring(MCMProxy.GameState))
+    end)
+end
 
 function MCMProxy.IsMainMenu()
     local gameState = MCMProxy.GameState
@@ -36,24 +56,40 @@ function MCMProxy:LoadConfigs()
 end
 
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
-    if MCMProxy.IsMainMenu() then
-        MCMClientState.UIReady:Subscribe(function(ready)
-            if not ready then
-                return
+    if not self.GameStateSubject then
+        self:Initialize()
+    end
+
+    -- Subscribe to game state changes to handle tab insertion appropriately
+    local disclaimerTab = nil
+    self.GameStateSubject:Subscribe(function(gameState)
+        if gameState == "Menu" then
+            -- We're in the main menu
+            MCMClientState.UIReady:Subscribe(function(ready)
+                if not ready then
+                    return
+                end
+
+                -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
+                if disclaimerTab then return end
+                disclaimerTab = DualPane:CreateTabWithDisclaimer(
+                    modUUID,
+                    tabName,
+                    "h99e6c7f6eb9c43238ca27a89bb45b9690607"
+                )
+            end)
+        elseif gameState == "Running" then
+            if disclaimerTab then
+                xpcall(function() disclaimerTab:Destroy() end, function(_err) end)
             end
 
-            -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
-            local disclaimerTab = DualPane:CreateTabWithDisclaimer(
-                modUUID,
-                tabName,
-                "h99e6c7f6eb9c43238ca27a89bb45b9690607"
-            )
-        end)
-    else
-        Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-            DualPane:InsertModTab(modUUID, tabName, tabCallback)
-        end)
-    end
+            MCMClientState.UIReady:Subscribe(function(ready)
+                if ready then
+                    DualPane:InsertModTab(modUUID, tabName, tabCallback)
+                end
+            end)
+        end
+    end)
 end
 
 function MCMProxy:GetSettingValue(settingId, modUUID)
@@ -114,3 +150,6 @@ function MCMProxy:RegisterMCMKeybindings()
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_sidebar_keybinding",
         function() IMGUIAPI:ToggleMCMSidebar() end)
 end
+
+-- Initialize the proxy when the module is loaded
+MCMProxy:Initialize()
