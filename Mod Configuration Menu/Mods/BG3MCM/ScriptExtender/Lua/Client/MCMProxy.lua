@@ -64,33 +64,36 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
     local disclaimerTab = nil
     local subscription = nil
     subscription = self.GameStateSubject:Subscribe(function(gameState)
-        if gameState == "Menu" then
-            -- We're in the main menu
-            MCMClientState.UIReady:Subscribe(function(ready)
-                if not ready then
-                    return
+        -- This timer is a workaround. Ideally, we should be able to use this value directly. May refactor this if we get a way to query the game state directly.
+        VCTimer:OnTicks(2, function()
+            if gameState == "Menu" then
+                -- We're in the main menu
+                MCMClientState.UIReady:Subscribe(function(ready)
+                    if not ready then
+                        return
+                    end
+
+                    -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
+                    if disclaimerTab then return end
+                    disclaimerTab = DualPane:CreateTabWithDisclaimer(
+                        modUUID,
+                        tabName,
+                        "h99e6c7f6eb9c43238ca27a89bb45b9690607"
+                    )
+                end)
+            elseif gameState == "Running" then
+                if disclaimerTab then
+                    xpcall(function() disclaimerTab:Destroy() end, function(_err) end)
                 end
 
-                -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
-                if disclaimerTab then return end
-                disclaimerTab = DualPane:CreateTabWithDisclaimer(
-                    modUUID,
-                    tabName,
-                    "h99e6c7f6eb9c43238ca27a89bb45b9690607"
-                )
-            end)
-        elseif gameState == "Running" then
-            if disclaimerTab then
-                xpcall(function() disclaimerTab:Destroy() end, function(_err) end)
+                MCMClientState.UIReady:Subscribe(function(ready)
+                    if ready and subscription and not subscription._unsubscribed then
+                        DualPane:InsertModTab(modUUID, tabName, tabCallback)
+                        subscription = nil
+                    end
+                end)
             end
-
-            MCMClientState.UIReady:Subscribe(function(ready)
-                if ready and subscription and not subscription._unsubscribed then
-                    DualPane:InsertModTab(modUUID, tabName, tabCallback)
-                    subscription = nil
-                end
-            end)
-        end
+        end)
     end)
 end
 
