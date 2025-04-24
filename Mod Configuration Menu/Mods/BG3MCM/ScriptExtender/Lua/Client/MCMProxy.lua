@@ -61,7 +61,7 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
     end
 
     -- Subscribe to game state changes to handle tab insertion appropriately
-    local disclaimerTab = nil
+    local disclaimerTab, disclaimerElement
     local subscription = nil
     subscription = self.GameStateSubject:Subscribe(function(gameState)
         -- This timer is a workaround. Ideally, we should be able to use this value directly. May refactor this if we get a way to query the game state directly.
@@ -74,16 +74,14 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
                     end
 
                     -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
-                    if disclaimerTab then return end
-                    disclaimerTab = DualPane:CreateTabWithDisclaimer(
-                        modUUID,
-                        tabName,
-                        "h99e6c7f6eb9c43238ca27a89bb45b9690607"
+                    if disclaimerTab or disclaimerElement then return end
+                    disclaimerTab, disclaimerElement = DualPane:CreateTabWithDisclaimer(
+                        modUUID, tabName, "h99e6c7f6eb9c43238ca27a89bb45b9690607"
                     )
                 end)
             elseif gameState == "Running" then
-                if disclaimerTab then
-                    xpcall(function() disclaimerTab:Destroy() end, function(_err) end)
+                if disclaimerElement then
+                    xpcall(function() disclaimerElement.Label = "" end, function() end)
                 end
 
                 MCMClientState.UIReady:Subscribe(function(ready)

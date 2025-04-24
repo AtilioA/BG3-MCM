@@ -308,13 +308,16 @@ end
 
 function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimerLocaKey)
     local tab = self:CreateModTab(modUUID, tabName)
+    local disclaimerElement = nil
+
     if tab then
-        local disclaimerText = Ext.Loca.GetTranslatedString(disclaimerLocaKey)
-        local disclaimerElement = tab:AddText(disclaimerText)
+        local text = Ext.Loca.GetTranslatedString(disclaimerLocaKey)
+        disclaimerElement = tab:AddText(text)
         disclaimerElement:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
         disclaimerElement.TextWrapPos = 0
     end
-    return tab
+
+    return tab, disclaimerElement
 end
 
 function DualPaneController:InsertModTab(modUUID, tabName, callback)
