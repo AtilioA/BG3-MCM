@@ -114,7 +114,6 @@ function EHandlers.OnSessionLoaded()
 end
 
 local function showTroubleshootingNotification(userCharacter)
-    -- TODO: use loca
     Osi.OpenMessageBox(userCharacter, Ext.Loca.GetTranslatedString("h62488e121c3345bf81777731789205cd2154"))
 end
 

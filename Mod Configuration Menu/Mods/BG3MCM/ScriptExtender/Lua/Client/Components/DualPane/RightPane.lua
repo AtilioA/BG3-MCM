@@ -100,10 +100,10 @@ function RightPane:InsertTab(modUUID, tabName, callback)
         xpcall(function()
             callback(tab)
         end, function(err)
-            -- MCMWarn(0,
-            --     "Callback failed for mod " ..
-            --     Ext.Mod.GetMod(modUUID).Info.Name ..
-            --     ": " .. err .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            MCMError(0,
+                "Callback failed for mod " ..
+                Ext.Mod.GetMod(modUUID).Info.Name ..
+                ": " .. err .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         end)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
