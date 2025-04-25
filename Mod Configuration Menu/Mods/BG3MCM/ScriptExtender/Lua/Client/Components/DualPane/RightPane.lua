@@ -28,9 +28,11 @@ function RightPane:New(parent)
     return self
 end
 
-function RightPane:CreateModGroup(modUUID, _modName, modDescription)
+function RightPane:CreateModGroup(modUUID, modName, modDescription)
     local group = self.parent:AddGroup(modUUID)
-    -- group:AddSeparatorText(modName)
+    local modNameWidget = group:AddSeparatorText(modName)
+    group.UserData = group.UserData or {}
+    group.UserData.modNameWidget = modNameWidget
     if modDescription and modDescription ~= "" then
         local desc = group:AddText(VCString:AddFullStop(modDescription))
         desc.TextWrapPos = 0
@@ -40,9 +42,6 @@ function RightPane:CreateModGroup(modUUID, _modName, modDescription)
     self.currentMod = { group = group, modUUID = modUUID }
     local modTabBar = group:AddTabBar(modUUID .. "_TABS")
     modTabBar.IDContext = modUUID .. "_TABS"
-    -- self.contentGroups[modUUID] = { group = group, tabBar = nil }
-    -- self.contentGroups[modUUID].tabBar = group:AddTabBar(modUUID .. "_TABS")
-    -- self.contentGroups[modUUID].tabBar.IDContext = modUUID .. "_TABS"
     return group
 end
 
@@ -163,6 +162,11 @@ function RightPane:DetachModGroup(modUUID)
         return
     end
 
+    -- Hide modNameWidget when detached
+    if group.UserData and group.UserData.modNameWidget then
+        group.UserData.modNameWidget.Visible = false
+    end
+
     local newWindow = createDetachedWindow(VCString:InterpolateLocalizedMessage("hb341a515eea64380ad0ccfe6c1ff115d1310",
         Ext.Mod.GetMod(modUUID).Info.Name))
     local parent = group.ParentElement
@@ -200,6 +204,11 @@ function RightPane:ReattachModGroup(modUUID)
     if not self.detachedWindows[modUUID] then
         MCMWarn(0, "Mod group " .. modUUID .. " is not detached.")
         return
+    end
+
+    -- Show modNameWidget when reattached
+    if group.UserData and group.UserData.modNameWidget then
+        group.UserData.modNameWidget.Visible = true
     end
 
     local detachedWin = self.detachedWindows[modUUID]

@@ -1,9 +1,6 @@
 -- This became a factory of sorts cause OOP in Lua is a mess
 -- TODO: ADD modUUID TO ALL IDCONTEXTS SINCE THEY MIGHT NOT BE UNIQUE ACROSS DIFFERENT MODS
 
--- Import ReactiveX modules
-local RX = Ext.Require("Lib/reactivex/_init.lua")
-
 ---@class IMGUIWidget
 ---@field Widget any The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
 ---@field _currentValue any The current value of the widget (for internal use)
