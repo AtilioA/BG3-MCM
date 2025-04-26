@@ -39,6 +39,10 @@ EventChannels.MCM_PROFILE_DELETED = "MCM_Profile_Deleted"
 --- @return string tabName The name of the tab added
 EventChannels.MCM_MOD_TAB_ADDED = "MCM_Mod_Tab_Added"
 
+--- Fired when a mod inserts a custom content into the MCM UI.
+--- @return string modUUID The UUID of the mod
+EventChannels.MCM_MOD_CONTENT_ADDED = "MCM_Mod_Content_Added"
+
 --- Fired when the user clicks a mod in the mod list in MCM's left panel.
 --- @return string modUUID The UUID of the mod
 EventChannels.MCM_MOD_TAB_ACTIVATED = "MCM_Mod_Tab_Activated"
@@ -77,6 +81,7 @@ local function RegisterModEvents()
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_ACTIVATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_DELETED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_MOD_TAB_ADDED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_MOD_CONTENT_ADDED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_MOD_TAB_ACTIVATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_MOD_SUBTAB_ACTIVATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_READY)

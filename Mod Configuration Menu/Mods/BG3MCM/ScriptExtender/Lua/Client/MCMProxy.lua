@@ -95,6 +95,53 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
     end)
 end
 
+function MCMProxy:InsertModPageContent(modUUID, contentCallback)
+    if not self.GameStateSubject then
+        self:Initialize()
+    end
+
+    -- Subscribe to game state changes to handle content insertion appropriately
+    local disclaimerElement
+    local subscription = nil
+    subscription = self.GameStateSubject:Subscribe(function(gameState)
+        -- This timer is a workaround. Ideally, we should be able to use this value directly. May refactor this if we get a way to query the game state directly.
+        VCTimer:OnTicks(2, function()
+            if gameState == "Menu" then
+                -- We're in the main menu
+                MCMClientState.UIReady:Subscribe(function(ready)
+                    if not ready then
+                        return
+                    end
+
+                    -- Add temporary message to inform users that custom MCM content is not available in the main menu
+                    if disclaimerElement then return end
+                    local group = DualPane.rightPane:GetModGroup(modUUID)
+                    if not group then
+                        local mod = Ext.Mod.GetMod(modUUID)
+                        if not mod then return end
+                        group = DualPane.rightPane:CreateModGroup(modUUID, mod.Info.Name, mod.Info.Description)
+                        if not group then return end
+                    end
+                    disclaimerElement = group:AddText("Custom content is not available in the main menu")
+                end)
+            elseif gameState == "Running" then
+                if disclaimerElement then
+                    xpcall(function() disclaimerElement.Label = "" end, function() end)
+                end
+
+                MCMClientState.UIReady:Subscribe(function(ready)
+                    if ready and subscription and not subscription._unsubscribed then
+                        if DualPane and DualPane.rightPane then
+                            DualPane.rightPane:InsertModPageContent(modUUID, contentCallback)
+                        end
+                        subscription = nil
+                    end
+                end)
+            end
+        end)
+    end)
+end
+
 function MCMProxy:GetSettingValue(settingId, modUUID)
     if MCMProxy.IsMainMenu() then
         return MCMAPI:GetSettingValue(settingId, modUUID)

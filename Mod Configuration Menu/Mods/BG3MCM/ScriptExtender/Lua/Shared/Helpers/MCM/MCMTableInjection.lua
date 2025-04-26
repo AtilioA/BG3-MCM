@@ -153,6 +153,11 @@ local function injectClientMCMTable(originalModUUID)
         if not modUUID then modUUID = originalModUUID end
         IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
     end
+
+    modTable.MCM['InsertModPageContent'] = function(contentCallback, modUUID)
+        if not modUUID then modUUID = originalModUUID end
+        IMGUIAPI:InsertModPageContent(modUUID, contentCallback)
+    end
 end
 
 -- Main function to inject MCM into the mod table

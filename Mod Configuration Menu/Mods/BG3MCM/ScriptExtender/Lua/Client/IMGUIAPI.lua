@@ -2,6 +2,7 @@
 IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 
 IMGUIAPI.insertedTabs = {}
+IMGUIAPI.insertedPageContents = {} -- New table for page content callbacks
 
 --- Update values for the MCM window
 ---@param settingId string The ID of the setting to update
@@ -224,4 +225,27 @@ function IMGUIAPI:ToggleMCMSidebar()
     if MCM_WINDOW.Visible or MCM_WINDOW.Open then
         DualPane:ToggleSidebar()
     end
+end
+
+--- Insert content directly into a mod's page in the MCM
+---@param modUUID string The UUID of the mod
+---@param contentCallback function The callback function to render the content
+---@return nil
+function IMGUIAPI:InsertModPageContent(modUUID, contentCallback)
+    if not self.insertedPageContents[modUUID] then
+        self.insertedPageContents[modUUID] = {}
+    end
+
+    -- Check if the callback is already registered for this mod
+    for _, existingCallback in ipairs(self.insertedPageContents[modUUID]) do
+        if existingCallback == contentCallback then
+            return
+        end
+    end
+
+    -- Register the new callback
+    table.insert(self.insertedPageContents[modUUID], contentCallback)
+
+    -- Forward to MCMProxy for rendering
+    MCMProxy:InsertModPageContent(modUUID, contentCallback)
 end

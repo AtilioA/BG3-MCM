@@ -254,6 +254,46 @@ function RightPane:ReattachModGroup(modUUID)
     end
 end
 
+--- Adds content directly to a mod's page without creating a tab
+---@param modUUID string The UUID of the mod
+---@param contentCallback function The callback function to render the content
+---@return boolean success Whether the content was successfully added
+function RightPane:InsertModPageContent(modUUID, contentCallback)
+    local group = self:GetModGroup(modUUID)
+
+    -- Create the mod group if it doesn't exist yet
+    if not group then
+        local mod = Ext.Mod.GetMod(modUUID)
+        if not mod then
+            MCMError(0, "Failed to find mod with UUID: " .. modUUID)
+            return false
+        end
+
+        group = self:CreateModGroup(modUUID, mod.Info.Name, mod.Info.Description)
+        if not group then
+            MCMError(0, "Failed to create mod group for: " .. modUUID)
+            return false
+        end
+    end
+
+    -- Add the content directly to the mod group
+    xpcall(function()
+        contentCallback(group)
+    end, function(err)
+        MCMError(0,
+            "Content callback failed for mod " ..
+            Ext.Mod.GetMod(modUUID).Info.Name ..
+            ": " .. err .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+        return false
+    end)
+
+    ModEventManager:Emit(EventChannels.MCM_MOD_CONTENT_ADDED, {
+        modUUID = modUUID
+    })
+
+    return true
+end
+
 -- Update header buttons visibility based on detachment state
 -- Legacy function, use HeaderActions:UpdateDetachButtons instead
 function RightPane:UpdateDetachButtons()
