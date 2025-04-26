@@ -235,8 +235,7 @@ end
 ---@param bothContexts? boolean Whether to emit the event in both contexts. Default is true.
 function ModEventManager:Emit(eventName, eventData, bothContexts)
     if not eventName then
-        MCMWarn(0, "eventName cannot be nil")
-        error("eventName cannot be nil")
+        MCMError(0, "eventName cannot be nil when emitting a mod event")
     end
 
     emitModEvent(eventName, eventData, bothContexts)
