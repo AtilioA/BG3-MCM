@@ -148,9 +148,6 @@ function MCMRendering:EnsureWindowVisible()
             pos[1] >= viewportSize[1] - SCREEN_MARGIN or   -- Right edge
             pos[2] + size[2] <= 0 + SCREEN_MARGIN or       -- Top edge
             pos[2] >= viewportSize[2] - SCREEN_MARGIN then -- Bottom edge
-            _D(pos)
-            _D(size)
-            _D(viewportSize)
             shouldReset = true
         end
     end
