@@ -1,14 +1,37 @@
 # Mod Configuration Menu
 
-Baldur's Gate 3 Mod Configuration Menu (`BG3MCM` or MCM) is a mod that provides an in-game UI to enable players to intuitively manage mod settings as defined by mod authors. It supports various setting types, including integers, floats, checkboxes, text inputs, lists, combos/dropdowns, radio buttons, sliders, drags, and color pickers.
+Baldur's Gate 3 Mod Configuration Menu (`BG3MCM` or MCM) is a mod that provides an in-game UI to enable players to intuitively manage mod settings as defined by mod authors. It supports various setting types, including integers, floats, checkboxes, text inputs, lists, combos/dropdowns, radio buttons, sliders, drags, color pickers and keybindings.
 
-Most importantly, it allows authors to have a JSON-like configuration experience without spending hours writing a configuration system, and it's easy enough to integrate that even novice modders can quickly add support for it in their own mods.
+Most importantly, it allows authors to have a robust JSON-like configuration experience without spending hours writing a configuration system, and it's easy enough to integrate that even novice modders can quickly add support for it in their own mods.
 
 This documentation is aimed at mod authors who want to integrate their mods with MCM. If you are a player looking to use MCM to configure mods, please refer to the [Nexus Mods page](https://www.nexusmods.com/baldursgate3/mods/9162 'MCM on Nexus Mods') for instructions. This documentation provides a thorough guide on the concepts behind MCM, the features it provides to mod authors, and how to integrate MCM into your mod. You can also use the table of contents below to navigate to a desired section.
+
+## Quick-start guide
+
+If you're looking to quickly integrate MCM into your mod, here's the process at a glance:
+
+1. **Create an `MCM_blueprint.json`** file in the same folder as `meta.lsx`
+2. **Add MCM as a dependency** in your mod's `meta.lsx` file or add `"Optional": true` to your blueprint file.
+3. **Replace code** related to settings in your mod with MCM API calls: get settings' values with `MCM.Get("settingId")`
+
+
+> It's **recommended to just pick an existing blueprint** from MCM-integrated mods **and adapt it**, such as:
+> [Auto Send Food To Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp/blob/main/Auto%20Send%20Food%20To%20Camp/Mods/AutoSendFoodToCamp/MCM_blueprint.json)
+> [Smart Autosaving](https://github.com/AtilioA/BG3-smart-autosaving/blob/main/Smart%20Autosaving/Mods/SmartAutosaving/MCM_blueprint.json)
+> [MCM demo](#mcm-demo) (as of MCM 1.23)
+{.is-success}
+
+That's it for a basic integration! MCM will warn you about mistakes in your blueprint file.
+The rest of this documentation provides detailed explanations of these steps and advanced features.
+
+> For basic integration, the important sections are [Defining a blueprint](#defining-a-blueprint) and [Using values from MCM](#using-values-from-mcm).
+If you're interested in keybindings, see [Registering a keybinding callback](#registering-a-keybinding-callback).
+{.is-success}
 
 ## Table of Contents
 
 - [Mod Configuration Menu](#mod-configuration-menu)
+  - [Quick-start guide](#quick-start-guide)
   - [Table of Contents](#table-of-contents)
   - [Features for mod authors](#features-for-mod-authors)
   - [Concepts](#concepts)
@@ -51,7 +74,7 @@ Below are listed some nice features that MCM provides to mod authors:
 >
 > • ***Validation checks***: MCM runs dozens of validation checks to ensure that your blueprint for integration was correctly written, while providing detailed error messages if something is wrong. It also validates the settings' values at runtime to ensure that they respect the defined constraints, which is especially useful if JSON settings files were manually edited, something that is supported by MCM;
 >
-> • ***NEW IN 1.19 - Keybinding management***: MCM offers a robust system for managing keybindings. This feature allows you to easily define, update, and persist keyboard bindings directly from the MCM window, while easily registering callbacks for your actions. Has built-in conflict resolution, so you can focus on your mod's functionality without having to write custom input event code, and minimizing conflicts with other mods.
+> • ***NEW IN 1.19 - Keybinding management***: MCM offers a robust system for managing keybindings. This feature allows you to easily define, update, and persist keyboard bindings directly from the MCM window, while easily registering callbacks for your actions. With built-in conflict resolution, you can focus on your mod's functionality without having to write custom input event code, and minimizing conflicts with other mods.
 >
 > • ***Supports bespoke UI injection***: MCM allows you to inject your own UI elements into the MCM UI, so you could even have a mix of MCM-generated UI and your own custom UI in the same mod. This is useful when your mod has specific features to expose in the UI that are largely unrelated to configuration;
 >
@@ -72,9 +95,9 @@ Below are listed some nice features that MCM provides to mod authors:
 > • ***Localization support***: MCM supports localizing mod settings, allowing you to optionally provide translations for different languages.
 {.is-success}
 
-On top of it all, if you currently offer multiple mod versions with different code to avoid dealing with the complexities of providing settings, you can simplify this by using a single version with MCM to introduce settings. This approach allows you to avoid creating and maintaining several different .pak releases for your mods.
+On top of it all, if you currently offer multiple mod versions with different code to avoid dealing with the complexities of providing settings, you can simplify this by using a single version with MCM to introduce options. This approach allows you to avoid creating and maintaining several different .pak releases for your mods.
 
-You can even technically integrate MCM as an optional requirement (with hardcoded defaults or MCM values if present), although that takes a bit more effort than just adding it as a standard requirement.
+You can even integrate MCM as an optional requirement (with hardcoded defaults or MCM values if present), although that takes a bit more effort than just adding it as a standard requirement.
 
 ## Concepts
 
@@ -86,7 +109,7 @@ First, let's establish some important concepts so that we're on the same page wh
 >**MCM Schema**: Dictates the **structure of the blueprint**; is the 'metaschema'; defined by MCM.
 {.is-info}
 
-Additionally, MCM follows [semantic versioning](https://semver.org/spec/v2.0.0-rc.2.html). MAJOR updates would probably mean introducing breaking changes to blueprints. I currently don't have any MAJOR updates in mind at all.
+Additionally, MCM follows [semantic versioning](https://semver.org/spec/v2.0.0-rc.2.html). MAJOR updates would probably mean introducing breaking changes to blueprints. I currently don't have any plans for a MAJOR update.
 
 ## Integrating MCM into your mod
 
@@ -97,10 +120,10 @@ Mod authors need to integrate their mods with MCM for their settings to appear i
 
 Anything else is a matter of updating objects (if you're storing values in tables, for example), adding custom UI (very situational) and creating hotkeys (MCM 1.19+).
 
-> It's **extremely recommended to define BG3MCM as a dependency in your `meta.lsx` file**. This allows the game and mod managers to ***ensure*** that MCM is loaded ***before** your own mod* - eliminating the need to instruct users to do so manually and avoiding incorrect reports/troubleshooting when they don't! See our [guide for adding dependencies](/Tutorials/General/Basic/adding-mod-dependencies).
+> It's **extremely recommended to define Mod Configuration Menu as a dependency in your `meta.lsx` file**. This allows the game and mod managers to ***ensure*** that MCM is loaded ***before** your own mod* - eliminating the need to instruct users to do so manually and avoiding incorrect reports/troubleshooting when they don't! See our [guide for adding dependencies](/Tutorials/General/Basic/adding-mod-dependencies).
 > • [Example for listing two dependencies in a meta.lsx file, one being BG3MCM](https://github.com/AtilioA/BG3-mod-uninstaller/blob/main/Mod%20Uninstaller/Mods/ModUninstaller/meta.lsx#L7-L24 'Mod Uninstaller with two dependencies, one being BG3MCM'); (Volition Cabinet is not required for MCM)
 > • You can set dependencies and their minimum required versions. It is also recommended to **always set the required version (`Version64`) of MCM to the version you're using** during the development of your mod.
-**MCM 1.14 also verifies dependencies' versions and warn users if they have outdated versions of any mods.**
+**MCM 1.14+ also verifies dependencies' versions and warn users if they have outdated versions of any mods.**
 {.is-warning}
 
 ### Defining a blueprint
@@ -143,6 +166,14 @@ You can also use a service like <https://www.jsonschemavalidator.net/s/cV447mjH>
 > Having the schema file set up in your IDE will help you write the blueprint file correctly, without having to guess the structure or wonder if you're missing something. A few minor features, such as `ModName` (to replace the string used for your mod's name) are only documented by the JSON schema.
 {.is-info}
 
+> It's **recommended to just pick an existing blueprint** from MCM-integrated mods **and adapt it**.
+> For reference, you can check out the following examples:
+> [Auto Send Food To Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp/blob/main/Auto%20Send%20Food%20To%20Camp/Mods/AutoSendFoodToCamp/MCM_blueprint.json)
+> [Smart Autosaving](https://github.com/AtilioA/BG3-smart-autosaving/blob/main/Smart%20Autosaving/Mods/SmartAutosaving/MCM_blueprint.json)
+> [Preemptively Label Containers](https://github.com/AtilioA/BG3-preemptively-label-containers/blob/main/Preemptively%20Label%20Containers/Mods/PreemptivelyLabelContainers/MCM_blueprint.json)
+> [MCM demo](#mcm-demo) (as of MCM 1.23)
+{.is-success}
+
 ##### Schema main components
 
 Following are the main components of the MCM schema. Don't stress over this too much, **the schema file will guide you while writing blueprints if you have set it up, and MCM will warn you about problems during runtime.**
@@ -177,13 +208,6 @@ Future versions of MCM might make this structure less strict, allowing nesting t
 > If your [mod is symlinked](https://wiki.bg3.community/en/Tutorials/ScriptExtender/GettingStarted#h-4-symlinking 'Symlinking mods tutorial'), you can try out changes to your mod's blueprint in-game by using `reset` in the console without having to restart the game every time you make a change to the blueprint file.
 {.is-info}
 
-> It's **recommended to just pick an existing blueprint** from MCM-integrated mods **and adapt it**.
-> For reference, you can check out the following examples:
-> [Auto Send Food To Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp/blob/main/Auto%20Send%20Food%20To%20Camp/Mods/AutoSendFoodToCamp/MCM_blueprint.json)
-> [Smart Autosaving](https://github.com/AtilioA/BG3-smart-autosaving/blob/main/Smart%20Autosaving/Mods/SmartAutosaving/MCM_blueprint.json)
-> [Preemptively Label Containers](https://github.com/AtilioA/BG3-preemptively-label-containers/blob/main/Preemptively%20Label%20Containers/Mods/PreemptivelyLabelContainers/MCM_blueprint.json)
-> [MCM demo](#mcm-demo) (as of MCM 1.23)
-{.is-success}
 
 ### Using values from MCM
 
@@ -285,7 +309,7 @@ After (keybinding_v2 format):
         "ShouldTriggerOnKeyDown": true,
         "ShouldTriggerOnKeyUp": false,
         "ShouldTriggerOnRepeat": false,
-       "IsDeveloperOnly": false,
+        "IsDeveloperOnly": false,
         "BlockIfLevelNotStarted": false
     }
 }
@@ -307,7 +331,9 @@ These options are not mutually exclusive, meaning authors can use any combinatio
 
 #### Registering a keybinding callback
 
-Keybindings must be registered in the client context, as user input is inherently client-sided. To define what happens when a keybinding is triggered, register a callback using the `MCM.SetKeybindingCallback` function available in the client context:
+Keybindings must be registered in the client context, as user input is inherently client-sided. You only need a basic client-code setup; you can read more about it [in this guide](/Tutorials/ScriptExtender/Networking-ClientServerBasics).
+
+To define what happens when a keybinding is triggered, register a callback using the `MCM.SetKeybindingCallback` function available in the client context:
 
 ```lua
 MCM.SetKeybindingCallback('key_teleport_party_to_you', function(e)
@@ -337,7 +363,8 @@ This system provides mod authors with the flexibility to decide how their keybin
 >Note that these methods are only available in the client context. They cannot be executed from server-side code, since UI-related functionality is strictly handled on the client side. If you're trying them out with the console, run `client` before executing these methods.
 >{.is-info}
 
-MCM allows mod authors to insert custom UI elements into the MCM UI. **This is only needed if you want to define custom IMGUI objects within MCM**. This can be done using the `InsertModMenuTab` function from MCM's `IMGUIAPI`:
+MCM allows mod authors to insert custom UI elements into the MCM UI. **This is only needed if you want to define custom IMGUI objects within MCM**, beyond what's generated via your blueprint file.
+This can be done using the `InsertModMenuTab` function from the `MCM` global table added by MCM:
 
 ```lua
 MCM.InsertModMenuTab(ModuleUUID, "Tab name", function(tabHeader)
@@ -479,14 +506,14 @@ Here are the events that can be listened to:
 | `MCM_Mod_Tab_Added`          | Fired when a mod inserts a custom tab into the MCM UI.          | `modUUID`: The UUID of the mod  </br> `tabName`: The name of the tab added                      |
 | `MCM_Mod_Tab_Activated`      | Fired when a player clicks a mod in the mod list in MCM's left panel. | `modUUID`: The UUID of the mod  |
 | `MCM_Mod_Subtab_Activated`   | Fired when a subtab within a mod tab is activated.              | `modUUID`: The UUID of the mod  </br> `subtabName`: The name of the activated subtab  |
-| `MCM_Window_Opened`          | Fired when a player opens the MCM window.         | `playSound`: Whether a sound should be played when the window opens.                        |
-| `MCM_Window_Closed`          | Fired when a player closes the MCM window.                      | `playSound`: Whether a sound should be played when the window closes.                       |
+| `MCM_Window_Opened`          | Fired when a player opens the MCM window.         | |
+| `MCM_Window_Closed`          | Fired when a player closes the MCM window.                      |                        |
 
 For the most up-to-date information, please refer to this file in the Git repository: [EventChannels.lua](https://github.com/AtilioA/BG3-MCM/blob/main/Mod%20Configuration%20Menu/Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/Events/EventChannels.lua)
 
 ### How validation works
 
-Validation is divided into two main categories: blueprint validation and settings validation. Blueprint validation ensures that the blueprint JSON file is correctly formatted and adheres to the MCM schema. Settings validation, on the other hand, ensures that the settings values are valid and respect the constraints defined in the blueprint.
+Validation is divided into two main categories: blueprint validation and settings validation. Blueprint validation ensures that the blueprint JSON file is correctly formatted and adheres to the MCM schema. Settings validation, on the other hand, ensures that the actual, stored settings values are valid and respect the constraints defined in the blueprint.
 
 MCM performs validation checks when:
 
