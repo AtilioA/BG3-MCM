@@ -169,6 +169,7 @@
     <content contentuid="h88ee680058a748d29f6a173ae38205621g58" version="1">Default</content>
     <content contentuid="h0216f2c4d63f4915b25cd7f24b8396e3aff1" version="1">Large</content>
     <content contentuid="ha93072e1b30e40ad9461191e5635882dbc2e" version="1">Big</content>
+    <content contentuid="h169974967d6d45bdb4fe1da9b042f51228c1" version="1">Font size</content>
     <content contentuid="hb0581f5c946848979375a36f96a7febbg72b" version="1">Changes the size of text displayed in the MCM window.&lt;br&gt;NOTE: Icons will only have correct scale after changing font size if you reload a save.</content>
     <content contentuid="hdeb0d5384b744247b7ce270b52ef4721ag3d" version="1">Set the font size for the MCM interface.</content>
 </contentList>
