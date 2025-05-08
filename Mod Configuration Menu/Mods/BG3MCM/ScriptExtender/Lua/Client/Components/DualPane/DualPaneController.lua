@@ -126,6 +126,8 @@ function DualPaneController:initLayout()
     self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     self.mainLayoutTable:AddColumn("Content", "WidthStretch")
+    self.mainLayoutTable.Resizable = true
+
     local row = self.mainLayoutTable:AddRow()
     self.menuCell = row:AddCell()
     self.contentCell = row:AddCell()
@@ -265,10 +267,12 @@ function DualPaneController:Expand()
         HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
         self:AttachHoverListeners()
         self.currentAnimation = nil
+        self.mainLayoutTable.Resizable = true
     end)
 end
 
 function DualPaneController:Collapse()
+    self.mainLayoutTable.Resizable = false
     self.currentAnimation = "collapse"
     HeaderActionsInstance:UpdateToggleButtons(true)
 
