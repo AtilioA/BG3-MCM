@@ -83,17 +83,6 @@
                             }
                         },
                         {
-                            "Id": "host-only_mode",
-                            "Name": "Host-only mode",
-                            "Type": "checkbox",
-                            "Default": false,
-                            "Description": "Only the host can change MCM settings in multiplayer games.",
-                            "Handles": {
-                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f",
-                                "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea"
-                            }
-                        },
-                        {
                             "Id": "open_on_start",
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",
@@ -102,6 +91,17 @@
                             "Handles": {
                                 "NameHandle": "h76a89ee330464e30b1b9a01de85cbd0042a6",
                                 "DescriptionHandle": "h0d8762f0ceb645608a64b684e581f7a72d67"
+                            }
+                        },
+                        {
+                            "Id": "host-only_mode",
+                            "Name": "Host-only mode",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Only the host can change MCM settings in multiplayer games.",
+                            "Handles": {
+                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f",
+                                "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea"
                             }
                         },
                         {
