@@ -52,6 +52,36 @@
                             }
                         },
                         {
+                            "Id": "font_size",
+                            "Name": "Font size",
+                            "Type": "enum",
+                            "Default": "Large",
+                            "Description": "Set the font size for the MCM interface.",
+                            "Tooltip": "Changes the size of text displayed in the MCM window.",
+                            "Options": {
+                                "Choices": [
+                                    "Tiny",
+                                    "Small",
+                                    "Medium",
+                                    "Default",
+                                    "Large",
+                                    "Big"
+                                ]
+                            },
+                            "Handles": {
+                                "NameHandle": "hb0581f5c946848979375a36f96a7febbg72b",
+                                "DescriptionHandle": "hdeb0d5384b744247b7ce270b52ef4721ag3d",
+                                "ChoicesHandles": [
+                                    "hbeb2a0a8c350441eae1f6912aea80689f0b2",
+                                    "hdbe703ec2a034fbb8022a8651c47952be84b",
+                                    "he0a910f53497499dac43116094b83686g431",
+                                    "h88ee680058a748d29f6a173ae38205621g58",
+                                    "h0216f2c4d63f4915b25cd7f24b8396e3aff1",
+                                    "ha93072e1b30e40ad9461191e5635882dbc2e"
+                                ]
+                            }
+                        },
+                        {
                             "Id": "host-only_mode",
                             "Name": "Host-only mode",
                             "Type": "checkbox",

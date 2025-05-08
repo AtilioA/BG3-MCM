@@ -160,4 +160,12 @@
     <content contentuid="h77422890f2f5433486d6e9990a950c91g061" version="1">Restaurar a última página usada</content>
     <content contentuid="h90ef12cdf9314d539f9712e41fe2f4bb8afd" version="1">Quando uma página de mod é aberta, automaticamente restaura a última aba usada para esse mod.</content>
     <content contentuid="h62488e121c3345bf81777731789205cd2154" version="1">Se você não vir a janela do MCM, consulte o guia na página do MCM na Nexus para obter ajuda.&lt;br&gt;Isso geralmente é causado por overlays de terceiros ou por dar alt-tab antes de chegar no menu principal.&lt;br&gt;Você também pode tentar excluir o arquivo imgui.ini dentro da pasta do jogo.</content>
+    <content contentuid="hbeb2a0a8c350441eae1f6912aea80689f0b2" version="1">Tiny</content>
+    <content contentuid="hdbe703ec2a034fbb8022a8651c47952be84b" version="1">Small</content>
+    <content contentuid="he0a910f53497499dac43116094b83686g431" version="1">Medium</content>
+    <content contentuid="h88ee680058a748d29f6a173ae38205621g58" version="1">Default</content>
+    <content contentuid="h0216f2c4d63f4915b25cd7f24b8396e3aff1" version="1">Large</content>
+    <content contentuid="ha93072e1b30e40ad9461191e5635882dbc2e" version="1">Big</content>
+    <content contentuid="hb0581f5c946848979375a36f96a7febbg72b" version="1">Muda o tamanho do texto na janela do MCM</content>
+    <content contentuid="hdeb0d5384b744247b7ce270b52ef4721ag3d" version="1">Configura o tamanho da fonte da janela do MCM.</content>
 </contentList>

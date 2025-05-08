@@ -19,6 +19,10 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     if settingId == "dynamic_opacity" and value == false then
         MCMClientState:SetActiveWindowAlpha(true)
     end
+
+    if settingId == 'font_size' then
+        MCMClientState:SetMCMFontSize(value)
+    end
 end
 
 --- Insert a new tab for a mod in the MCM

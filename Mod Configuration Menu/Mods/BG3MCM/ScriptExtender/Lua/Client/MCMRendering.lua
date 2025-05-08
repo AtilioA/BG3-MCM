@@ -61,6 +61,13 @@ function MCMRendering:UpdateSettingValue(mod, settingId, value, modUUID)
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 end
 
+function MCMRendering:SetMCMFontSize(size)
+    if not MCM_WINDOW then return end
+    if not size then return end
+
+    MCM_WINDOW.Font = size
+end
+
 function MCMRendering:GetModName(modUUID)
     if not modUUID then
         return nil
@@ -141,6 +148,7 @@ function MCMRendering:EnsureWindowVisible()
     local shouldReset = false
 
     -- Check if LastPosition exists and is outside the screen boundaries
+    -- REVIEW: "note that window size is only calculated on draw, so you have to wait for 1 frame to get size after creating it"
     local pos = MCM_WINDOW.LastPosition
     local size = MCM_WINDOW.LastSize
     if pos and size and not checkVec2IsZero(pos) and not checkVec2IsZero(size) then
@@ -181,6 +189,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     local modVersion = MCMUtils.FormatModVersion(ModuleUUID)
     ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
+    MCM_WINDOW.Font = MCMClientState:GetClientStateValue("font_size", ModuleUUID)
 
     MCM_WINDOW.AlwaysAutoResize = false
 
