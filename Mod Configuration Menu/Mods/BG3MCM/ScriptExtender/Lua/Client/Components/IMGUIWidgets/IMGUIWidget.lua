@@ -15,24 +15,43 @@ IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
 
 -- Function to estimate icon size based on viewport size
 -- This is used to scale the icon size based on the resolution, so that it looks good on all resolutions
--- I don't know if this is the best way to do it. I just made it up.
 ---@param height integer The height of the viewport
 ---@return number iconSize The estimated icon size
 function IMGUIWidget:EstimateIconSize(height)
-    -- Estimate the icon size using this made up formula
-    local iconSize = 0.0194 * height + 0.048
-
-    return math.floor(iconSize + 0.5)
+    -- Base icon size calculation from viewport height
+    local baseIconSize = 0.0194 * height + 0.048
+    return math.floor(baseIconSize + 0.5)
 end
 
---- Get the icon sizes for the widget
+--- Get the icon sizes for the widget, taking font size into account
 --- This is used to set the size of the icon for the widget
 --- @param multiplier? number The multiplier to apply to the icon size
 ---@return vec2 - A table containing the icon sizes, e.g. { 32, 32 }
 function IMGUIWidget:GetIconSizes(multiplier)
     multiplier = multiplier or 1
     local viewportSize = Ext.IMGUI.GetViewportSize()
-    local iconSize = self:EstimateIconSize(viewportSize[2]) * multiplier
+    local baseIconSize = self:EstimateIconSize(viewportSize[2])
+
+    -- Calculate font size scaling
+    local fontSizeScaling = 1.0
+    local currentFontSize = MCMClientState:GetMCMFontSize()
+    -- "Medium" is our reference size (32.0f)
+    local referenceSize = 32
+
+    if currentFontSize then
+        local fontSizes = {
+            ["Tiny"] = 24 / referenceSize,
+            ["Small"] = 28 / referenceSize,
+            ["Medium"] = 32 / referenceSize,
+            ["Default"] = 36 / referenceSize,
+            ["Large"] = 40 / referenceSize,
+            ["Big"] = 44 / referenceSize
+        }
+
+        fontSizeScaling = fontSizes[currentFontSize] or 1.0
+    end
+
+    local iconSize = baseIconSize * fontSizeScaling * multiplier
     return { iconSize, iconSize }
 end
 
