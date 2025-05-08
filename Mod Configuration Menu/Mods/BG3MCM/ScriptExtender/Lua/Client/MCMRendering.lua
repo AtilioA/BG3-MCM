@@ -61,6 +61,11 @@ function MCMRendering:UpdateSettingValue(mod, settingId, value, modUUID)
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 end
 
+function MCMRendering:GetMCMFontSize()
+    if not MCM_WINDOW then return end
+    return MCM_WINDOW.Font
+end
+
 function MCMRendering:SetMCMFontSize(size)
     if not MCM_WINDOW then return end
     if not size then return end
