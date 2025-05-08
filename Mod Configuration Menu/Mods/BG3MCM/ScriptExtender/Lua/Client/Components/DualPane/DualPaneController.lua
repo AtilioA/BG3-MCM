@@ -28,6 +28,7 @@ DualPaneController = _Class:Create("DualPaneController", nil, {
     mainLayoutTable = nil,
     menuCell = nil,
     contentCell = nil,
+    lastExpandedWidth = nil,
 })
 DualPaneController.__index = DualPaneController
 
@@ -102,6 +103,7 @@ function DualPaneController:InitWithWindow(window)
     self.userHasInteracted = false
     self.hoverSubscription = nil
     self.currentAnimation = nil
+    self.lastExpandedWidth = TARGET_WIDTH_EXPANDED
 
     -- Initialize the UI state based on the collapsed setting
     if startCollapsed then
@@ -262,7 +264,10 @@ function DualPaneController:Expand()
     HeaderActionsInstance:UpdateToggleButtons(false)
     self.menuScrollWindow.Visible = true
 
-    self:animateSidebar(TARGET_WIDTH_EXPANDED, 1, "expand", function()
+    -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
+    local targetWidth = self.lastExpandedWidth or TARGET_WIDTH_EXPANDED
+
+    self:animateSidebar(targetWidth, 1, "expand", function()
         self.isCollapsed = false
         HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
         self:AttachHoverListeners()
@@ -273,6 +278,10 @@ end
 
 function DualPaneController:Collapse()
     self.mainLayoutTable.Resizable = false
+
+    -- Store the current width before collapsing. Not working since Width is not updating correctly?
+    self.lastExpandedWidth = self.mainLayoutTable.ColumnDefs[1].Width
+
     self.currentAnimation = "collapse"
     HeaderActionsInstance:UpdateToggleButtons(true)
 
