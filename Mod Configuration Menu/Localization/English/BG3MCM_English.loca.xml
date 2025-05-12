@@ -172,4 +172,11 @@
     <content contentuid="h169974967d6d45bdb4fe1da9b042f51228c1" version="1">Font size</content>
     <content contentuid="hb0581f5c946848979375a36f96a7febbg72b" version="1">Changes the size of text displayed in the MCM window.&lt;br&gt;NOTE: Icons will only have correct scale after changing font size if you reload a save.</content>
     <content contentuid="hdeb0d5384b744247b7ce270b52ef4721ag3d" version="1">Set the font size for the MCM interface.</content>
+	<content contentuid="h7de073367e614d0d9d896abbaf2e1b6bdec0" version="1">Sidebar behaviour</content>
+	<content contentuid="h0813e1fea4fe4400b99a11216d16627be922" version="1">Start collapsed</content>
+	<content contentuid="h37d5cb487a49476db6c16dc59452cae67f6g" version="1">Start with the sidebar in a collapsed state when opening MCM.</content>
+	<content contentuid="h3dafbcac8ffe4c7b9ca391520326dbb65984" version="1">Toggle sidebar (collapse/expand)</content>
+	<content contentuid="h4db8c7a1952847eda028173a74dc5e166ea5" version="1">Toggles the sidebar between collapsed and expanded.</content>
+	<content contentuid="hc2133fbab6fb47a9a4f71e83a715780237e1" version="1">Reattach mod</content>
+	<content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Provides an in-game UI that enables players to intuitively manage mod settings and hotkeys.</content>
 </contentList>
