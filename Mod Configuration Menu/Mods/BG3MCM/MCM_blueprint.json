@@ -1,6 +1,9 @@
 {
     "SchemaVersion": 1,
     "ModName": "Mod Configuration Menu",
+    "Handles": {
+        "NameHandle": "h5f7bdef3596c49d4bd83d7586e4f56d3744d"
+    },
     "Tabs": [
         {
             "TabId": "settings",
@@ -222,7 +225,7 @@
             "TabId": "sidebar_behavior",
             "TabName": "Sidebar behavior",
             "Handles": {
-                "NameHandle": "Sidebar behavior"
+                "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0"
             },
             "Sections": [
                 {
@@ -271,7 +274,11 @@
                                     "Key": "CAPSLOCK"
                                 }
                             },
-                            "Description": "Toggles the sidebar between collapsed and expanded."
+                            "Description": "Toggles the sidebar between collapsed and expanded.",
+                            "Handles": {
+                                "NameHandle": "h3dafbcac8ffe4c7b9ca391520326dbb65984",
+                                "DescriptionHandle": "h4db8c7a1952847eda028173a74dc5e166ea5"
+                            }
                         }
                     ],
                     "Handles": {
