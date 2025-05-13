@@ -45,7 +45,7 @@ function HeaderActions:New(parent)
     end
 
     self.reattachBtn = self:CreateActionButton("[Reattach]", "input_dropDownArrow_d",
-        "Reattach mod", 1.5)
+        Ext.Loca.GetTranslatedString("hc2133fbab6fb47a9a4f71e83a715780237e1"), 1.5)
     self.reattachBtn.SameLine = true
     self.reattachBtn.Visible = false
     self.reattachBtn.OnClick = function()
