@@ -169,4 +169,11 @@
     <content contentuid="hb0581f5c946848979375a36f96a7febbg72b" version="1">Muda o tamanho do texto na janela do MCM.&lt;br&gt;NOTA: Os ícones só terão a escala correta ao mudar após recarregar um save.</content>
     <content contentuid="hdeb0d5384b744247b7ce270b52ef4721ag3d" version="1">Configura o tamanho da fonte da janela do MCM.</content>
     <content contentuid="h169974967d6d45bdb4fe1da9b042f51228c1" version="1">Tamanho da fonte</content>
+    <content contentuid="h7de073367e614d0d9d896abbaf2e1b6bdec0" version="1">Comportamento da barra lateral</content>
+	<content contentuid="h0813e1fea4fe4400b99a11216d16627be922" version="1">Iniciar recolhida</content>
+	<content contentuid="h37d5cb487a49476db6c16dc59452cae67f6g" version="1">Iniciar com a barra lateral recolhida ao abrir o MCM.</content>
+	<content contentuid="h3dafbcac8ffe4c7b9ca391520326dbb65984" version="1">Alternar barra lateral (recolher/expandir)</content>
+	<content contentuid="h4db8c7a1952847eda028173a74dc5e166ea5" version="1">Alterna a barra lateral entre recolhida e expandida.</content>
+	<content contentuid="hc2133fbab6fb47a9a4f71e83a715780237e1" version="1">Reanexar mod</content>
+	<content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Fornece uma interface no jogo que permite aos jogadores gerenciar intuitivamente configurações de mods e teclas de atalho.</content>
 </contentList>

@@ -2,7 +2,8 @@
     "SchemaVersion": 1,
     "ModName": "Mod Configuration Menu",
     "Handles": {
-        "NameHandle": "h5f7bdef3596c49d4bd83d7586e4f56d3744d"
+        "DescriptionHandle": "h5f7bdef3596c49d4bd83d7586e4f56d3744d",
+        "NameHandle": "hae2bbc06g288dg43dagb3a5g967fa625c769"
     },
     "Tabs": [
         {
