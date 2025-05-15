@@ -39,6 +39,7 @@ ICON_DOCS = "ico_secret_h"
 ICON_DETACH = "ico_popup_d"
 
 -- Get proportion of screen size based on working number for 4K
+-- TODO: Generate dynamic expanded target when SE adds support for calculating text width
 TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[1] / (3840 / 500)
 TARGET_WIDTH_COLLAPSED = 5
 STEP_DELAY = 1 / 60
@@ -128,7 +129,7 @@ function DualPaneController:initLayout()
     self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     self.mainLayoutTable:AddColumn("Content", "WidthStretch")
-    self.mainLayoutTable.Resizable = true
+    -- self.mainLayoutTable.Resizable = true
 
     local row = self.mainLayoutTable:AddRow()
     self.menuCell = row:AddCell()
@@ -272,15 +273,15 @@ function DualPaneController:Expand()
         HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
         self:AttachHoverListeners()
         self.currentAnimation = nil
-        self.mainLayoutTable.Resizable = true
+        -- self.mainLayoutTable.Resizable = true
     end)
 end
 
 function DualPaneController:Collapse()
-    self.mainLayoutTable.Resizable = false
+    -- self.mainLayoutTable.Resizable = false
 
     -- Store the current width before collapsing. Not working since Width is not updating correctly?
-    self.lastExpandedWidth = self.mainLayoutTable.ColumnDefs[1].Width
+    -- self.lastExpandedWidth = self.mainLayoutTable.ColumnDefs[1].Width
 
     self.currentAnimation = "collapse"
     HeaderActionsInstance:UpdateToggleButtons(true)
