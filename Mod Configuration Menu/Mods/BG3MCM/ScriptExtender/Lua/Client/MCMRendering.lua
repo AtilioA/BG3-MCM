@@ -449,12 +449,13 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
         sectionContentElement:AddDummy(0, 2)
     end
 
-    for i, setting in pairs(section:GetSettings()) do
-        local renderedSetting = self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
-        if renderedSetting and i ~= #section:GetSettings() then
-            sectionContentElement:AddDummy(0, 10)
-        end
-    end
+    -- This used to add dummies (spacing), but this was moved due to VisibleIf logic
+    -- for i, setting in pairs(section:GetSettings()) do
+        -- local renderedSetting = self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
+        -- if renderedSetting and i ~= #section:GetSettings() then
+            -- sectionContentElement:AddDummy(0, 10)
+        -- end
+    -- end
 end
 
 --- Create a new setting for a mod in the MCM
@@ -476,7 +477,10 @@ function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUU
     else
         local widgetGroup = modGroup:AddGroup(setting:GetId())
         widgetGroup.IDContext = modUUID .. "_" .. setting:GetId() .. "_Group"
+
         local widget = createWidget(widgetGroup, setting, settingValue, modUUID)
+        widgetGroup:AddDummy(0, 10)
+        
         VisibilityManager.registerCondition(modUUID, widgetGroup,
             setting:GetVisibleIf())
         self.mods[modUUID].widgets[setting:GetId()] = widget
