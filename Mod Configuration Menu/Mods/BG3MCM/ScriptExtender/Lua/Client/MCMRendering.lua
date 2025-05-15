@@ -471,8 +471,8 @@ function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUU
     local settingValue = modSettings[setting:GetId()]
     local createWidget = InputWidgetFactory[setting:GetType()]
     if not createWidget then
-        MCMWarn(0, "No widget factory found for setting type '" .. setting:GetType() .. "'. Please contact " ..
-            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, "No compatible widget found for setting type '" .. setting:GetType() .. "'. Please contact " ..
+            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue (mod " .. Ext.Mod.GetMod(modUUID).Info.Name .. ").")
         return nil
     else
         local widgetGroup = modGroup:AddGroup(setting:GetId())
