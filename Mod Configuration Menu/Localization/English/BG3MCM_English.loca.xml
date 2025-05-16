@@ -178,4 +178,6 @@
 	<content contentuid="h4db8c7a1952847eda028173a74dc5e166ea5" version="1">Toggles the sidebar between collapsed and expanded.</content>
 	<content contentuid="hc2133fbab6fb47a9a4f71e83a715780237e1" version="1">Reattach mod</content>
 	<content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Provides an in-game UI that enables players to intuitively manage mod settings and hotkeys.</content>
+    <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Toggle detached windows with main window</content>
+    <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">When toggling the MCM window, also toggle the visibility of any detached mod pages.</content>
 </contentList>

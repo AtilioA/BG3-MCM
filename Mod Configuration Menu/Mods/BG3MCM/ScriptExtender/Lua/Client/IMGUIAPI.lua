@@ -149,6 +149,20 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
         MCMClientState:EnsureWindowVisible()
         self:OpenMCMWindow(playSound)
     end
+
+    -- Toggle detached windows if the setting is enabled
+    local toggleDetachedOpt = MCMAPI:GetSettingValue("toggle_detached_with_main", ModuleUUID)
+
+    if toggleDetachedOpt then
+        if DualPane and DualPane.rightPane and DualPane.rightPane.detachedWindows then
+            for _, detachedWin in pairs(DualPane.rightPane.detachedWindows) do
+                if detachedWin then
+                    -- Set detached window visibility to match the new state of the main MCM window
+                    detachedWin.Visible = MCM_WINDOW.Visible
+                end
+            end
+        end
+    end
 end
 
 function IMGUIAPI:OpenModPage(tabName, modUUID, shouldEmitEvent)
