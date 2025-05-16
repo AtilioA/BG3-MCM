@@ -102,7 +102,7 @@
                             "Name": "Host-only mode",
                             "Type": "checkbox",
                             "Default": false,
-                            "Description": "Only the host can change MCM settings in multiplayer games.",
+                            "Description": "Allow only the host to change settings in multiplayer games.",
                             "Handles": {
                                 "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f",
                                 "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea"
@@ -146,7 +146,7 @@
                             "Name": "Dynamic opacity",
                             "Type": "checkbox",
                             "Default": false,
-                            "Description": "Make the MCM window more transparent when interacting with game elements.",
+                            "Description": "Make the MCM window more transparent while interacting with game elements.",
                             "Handles": {
                                 "NameHandle": "h9abda7ddcd564ba69433278a82884c535566",
                                 "DescriptionHandle": "h204a4196566b44eb8070bc8b5d36edde1c1d"
@@ -155,6 +155,71 @@
                     ],
                     "Handles": {
                         "NameHandle": "h6db631a023d0425ca0a62566ab1bec41797f"
+                    }
+                }
+            ]
+        },        {
+            "TabId": "sidebar_behavior",
+            "TabName": "Sidebar behavior",
+            "Handles": {
+                "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0"
+            },
+            "Sections": [
+                {
+                    "SectionId": "sidebar_settings",
+                    "SectionName": "Sidebar settings",
+                    "Settings": [
+                        {
+                            "Id": "enable_hover",
+                            "Name": "Enable expansion on icon hover",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Enable hover-based expansion of the sidebar.",
+                            "Handles": {
+                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be921",
+                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6f"
+                            }
+                        },
+                        {
+                            "Id": "enable_auto_collapse",
+                            "Name": "Enable automatic sidebar collapse",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).",
+                            "Handles": {
+                                "NameHandle": "h0636d5bc17f6464f99c1da18831bb38f1561",
+                                "DescriptionHandle": "h3f6a4e8a570d41c2bf60d673a3bfa1ef3472"
+                            }
+                        },
+                        {
+                            "Id": "collapsed_by_default",
+                            "Name": "Start collapsed",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Start with the sidebar in a collapsed state when opening MCM.",
+                            "Handles": {
+                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be922",
+                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6g"
+                            }
+                        },
+                        {
+                            "Id": "toggle_mcm_sidebar_keybinding",
+                            "Name": "Toggle sidebar (collapse/expand)",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "CAPSLOCK"
+                                }
+                            },
+                            "Description": "Toggles the sidebar between collapsed and expanded.",
+                            "Handles": {
+                                "NameHandle": "h3dafbcac8ffe4c7b9ca391520326dbb65984",
+                                "DescriptionHandle": "h4db8c7a1952847eda028173a74dc5e166ea5"
+                            }
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h3eea24a3dff74849a38e04f0fc43b4b54963"
                     }
                 }
             ]
@@ -218,72 +283,6 @@
                     ],
                     "Handles": {
                         "NameHandle": "h67357ed078184370901b1d572062b7ba26a5"
-                    }
-                }
-            ]
-        },
-        {
-            "TabId": "sidebar_behavior",
-            "TabName": "Sidebar behavior",
-            "Handles": {
-                "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0"
-            },
-            "Sections": [
-                {
-                    "SectionId": "sidebar_settings",
-                    "SectionName": "Sidebar settings",
-                    "Settings": [
-                        {
-                            "Id": "enable_hover",
-                            "Name": "Enable expansion on hover",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Description": "Enable hover-based expansion of the sidebar.",
-                            "Handles": {
-                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be921",
-                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6f"
-                            }
-                        },
-                        {
-                            "Id": "enable_auto_collapse",
-                            "Name": "Enable sidebar auto collapse",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Description": "Enable automatic collapse of the sidebar. When enabled, the sidebar may collapse based on inactivity or other collapse triggers.",
-                            "Handles": {
-                                "NameHandle": "h0636d5bc17f6464f99c1da18831bb38f1561",
-                                "DescriptionHandle": "h3f6a4e8a570d41c2bf60d673a3bfa1ef3472"
-                            }
-                        },
-                        {
-                            "Id": "collapsed_by_default",
-                            "Name": "Start collapsed",
-                            "Type": "checkbox",
-                            "Default": false,
-                            "Description": "Start with the sidebar in a collapsed state when opening MCM.",
-                            "Handles": {
-                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be922",
-                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6g"
-                            }
-                        },
-                        {
-                            "Id": "toggle_mcm_sidebar_keybinding",
-                            "Name": "Toggle sidebar (collapse/expand)",
-                            "Type": "keybinding_v2",
-                            "Default": {
-                                "Keyboard": {
-                                    "Key": "CAPSLOCK"
-                                }
-                            },
-                            "Description": "Toggles the sidebar between collapsed and expanded.",
-                            "Handles": {
-                                "NameHandle": "h3dafbcac8ffe4c7b9ca391520326dbb65984",
-                                "DescriptionHandle": "h4db8c7a1952847eda028173a74dc5e166ea5"
-                            }
-                        }
-                    ],
-                    "Handles": {
-                        "NameHandle": "h3eea24a3dff74849a38e04f0fc43b4b54963"
                     }
                 }
             ]

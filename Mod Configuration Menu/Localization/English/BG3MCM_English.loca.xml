@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentList>
-    <!-- Temporary handle in case MCM is inactive -->
     <content contentuid="h14a348d8g8bb6g4f47g85ecg14bcbaa972e4" version="3">Your load order has invalid or outdated mods. Please delete your modsettings.lsx file, update your mods, and try again.</content>
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;MCM is 'inactive' in your load order.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid UUIDs.&#x0a;Load BG3 with MCM as the ONLY active mod to identify problematic mods. This message will not appear if MCM is active.&#x0a;</content>
+    <!-- Temporary handle in case MCM is inactive -->
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;MCM is 'inactive' in your load order. Make sure you've saved and exported your load order.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid UUIDs.&#x0a;Use BG3MM 1.0.12.8+ to identify load order problems. This message WON'T appear if MCM is active.&#x0a;</content>
+    <!-- IMGUI window name -->
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
     <!-- Used for some buttons (can be overridden during runtime to display advice) -->
     <content contentuid="h8e2c39a3f3c040aebfb9ad10339dd4ff89f7" version="1">Mod Configuration Menu</content>
     <content contentuid="h91b72aadb42a441881a1a7c5de2f82e27agga" version="1">Settings</content>
-    <content contentuid="hc4abe0365af046e6abac1b4432abc3f7g4g3" version="1">(DEPRECATED) Auto-resize window</content>
     <content contentuid="hb2789893dcaf46fca8c40add9358e1f2ca93" version="1">Toggle MCM window</content>
     <content contentuid="h76a89ee330464e30b1b9a01de85cbd0042a6" version="1">Open MCM window on start</content>
     <content contentuid="h98e72bb15db546859c41ef81ddac77bc5d69" version="1">Reposition window if out of bounds</content>
     <content contentuid="h48cd3bba1b0347f6b8e81cd36f07890de455" version="1">Automatically reposition the MCM window if it goes outside the screen boundaries.</content>
-    <content contentuid="h2c525b9161344f509bb4dcad8e49010bb9ce" version="1">(DEPRECATED) Dynamically resize the MCM window to fit settings. Not recommended for MCM 1.23+</content>
     <content contentuid="h0d8762f0ceb645608a64b684e581f7a72d67" version="1">Open the MCM window when the game starts.</content>
     <content contentuid="h7728653cb8de46388719316b95f3a4110e7c" version="1">The keybinding for toggling MCM's window.&lt;br&gt;Alternatively, use the MCM button in the ESC menu.</content>
     <content contentuid="h6db631a023d0425ca0a62566ab1bec41797f" version="1">General settings</content>
@@ -21,7 +20,7 @@
     <content contentuid="h1143226dbdd44d4aab3ce3010ffc589a073a" version="1">Used mainly to determine which messages to print.&lt;br&gt;Useful for developers or general troubleshooting.</content>
     <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Welcome to Baldur's Gate 3 Mod Configuration Menu!&lt;br&gt;If you don't see any mods here, you might need to load a save file first.&lt;br&gt;If you still don't see any mods, make sure you have mods that use MCM.&lt;br&gt;&lt;br&gt;By default, you can press Insert to toggle this menu while it is unfocused.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Dynamic opacity</content>
-    <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window slightly transparent when not in use.</content>
+    <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window more transparent while interacting with game elements.</content>
     <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Apply IMGUI styling to try to replicate the game's color scheme.</content>
     <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicate game color scheme</content>
     <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Host-only mode</content>
@@ -141,9 +140,9 @@
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Set the keybinding for closing MCM's window.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Close MCM window</content>
     <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Sidebar settings</content>
-    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">Enable automatic collapse of the sidebar.&lt;br&gt;When enabled, the sidebar will collapse based on inactivity or other collapse triggers.</content>
-    <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Enable sidebar auto collapse</content>
-    <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Enable expansion on hover</content>
+    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).</content>
+    <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Enable automatic sidebar collapse</content>
+    <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Enable expansion on icon hover</content>
     <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Enable hover-based expansion of the sidebar.</content>
     <content contentuid="hb341a515eea64380ad0ccfe6c1ff115d1310" version="1">Detached view for mod '[1]'</content>
     <content contentuid="h0967f545c53f4796bd25d550fe05e234c1ga" version="1">Wrong No Press Any Key Menu version</content>
