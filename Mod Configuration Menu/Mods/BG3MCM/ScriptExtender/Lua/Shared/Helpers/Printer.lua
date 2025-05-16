@@ -47,7 +47,7 @@ end
 
 function MCMError(debugLevel, ...)
     MCMPrinter:SetFontColor(255, 38, 38)
-    MCMPrinter:PrintWarning(debugLevel, ...)
+    MCMPrinter:PrintError(debugLevel, ...)
 end
 
 function MCMDump(debugLevel, ...)
