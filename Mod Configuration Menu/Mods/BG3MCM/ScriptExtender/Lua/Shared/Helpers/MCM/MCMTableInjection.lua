@@ -186,15 +186,12 @@ local function setupModsMetatable()
                 -- Update the reverse lookup table
                 ModUUIDToModTableName[value.ModuleUUID] = key
                 MCMPrint(2, "Added to reverse lookup: " .. value.ModuleUUID .. " -> " .. key)
+                -- Inject MCM for all mods and always inject the NotificationManager.
+                injectMCMToModTable(value.ModuleUUID)
+                NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)
             else
                 MCMWarn(0, "Unexpected: mod '" .. tostring(key) .. "' does not have a ModuleUUID.")
             end
-
-            -- Inject MCM if the mod has a corresponding blueprint, and always inject the NotificationManager.
-            if ModConfig.mods[value.ModuleUUID] then
-                injectMCMToModTable(value.ModuleUUID)
-            end
-            NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)
         end
     }
 
