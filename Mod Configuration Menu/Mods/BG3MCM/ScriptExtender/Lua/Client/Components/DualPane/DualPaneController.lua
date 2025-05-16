@@ -52,6 +52,11 @@ local RX = {
     TimerScheduler = Ext.Require("Lib/reactivex/schedulers/timerscheduler.lua")
 }
 
+-- Helper: Check if collapse or fade should be skipped due to detached right pane
+function DualPaneController:_shouldSkipCollapseOrFade()
+    return self.rightPane and self.rightPane:IsCurrentModDetached()
+end
+
 -- Helper: Generic animation for sidebar transitions
 -- This function animates both the width (of the column) and the alpha (of the menuScrollWindow)
 -- It stops if the current animation state no longer matches the expected state.
@@ -209,6 +214,16 @@ end
 
 -- Gradually fade the menuScrollWindow's alpha to a target value over a given duration (in seconds)
 function DualPaneController:FadeSidebarOutAlpha(durationInS)
+    local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+    if not enabledAutoCollapse then return end
+
+    -- Prevent fade out if the right pane content is detached
+    if self:_shouldSkipCollapseOrFade() then
+        MCMDebug(3, "Right pane is detached, skipping sidebar fade out.")
+        self.menuScrollWindow:SetStyle("Alpha", 1) -- Ensure alpha is fully visible
+        return
+    end
+
     local targetAlpha = 0.33
     self.menuScrollWindow:SetStyle("Alpha", 0.8)
     local startAlpha = self.menuScrollWindow:GetStyle("Alpha")
@@ -248,6 +263,13 @@ function DualPaneController:ScheduleAutoCollapse()
         return
     end
 
+    -- Prevent auto-collapse if the right pane content is detached
+    if self:_shouldSkipCollapseOrFade() then
+        MCMDebug(3, "Right pane is detached, skipping auto-collapse.")
+        return
+    end
+
+    -- If a subscription already exists, cancel it before creating a new one
     self:CancelAutoCollapse()
 
     local scheduler = RX.TimerScheduler.Create()

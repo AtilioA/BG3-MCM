@@ -168,8 +168,7 @@ function RightPane:DetachModGroup(modUUID)
         group.UserData.modNameWidget.Visible = false
     end
 
-    local newWindow = createDetachedWindow(VCString:InterpolateLocalizedMessage("hb341a515eea64380ad0ccfe6c1ff115d1310",
-        Ext.Mod.GetMod(modUUID).Info.Name))
+    local newWindow = createDetachedWindow(Ext.Mod.GetMod(modUUID).Info.Name)
     local parent = group.ParentElement
 
     -- Store parent reference and mod UUID in the window's UserData for proper reattachment
@@ -253,6 +252,15 @@ function RightPane:ReattachModGroup(modUUID)
     if HeaderActionsInstance then
         HeaderActionsInstance:UpdateDetachButtons(modUUID)
     end
+end
+
+--- Checks if the currently active mod's content is detached.
+--- @return boolean true if the current mod is detached, false otherwise.
+function RightPane:IsCurrentModDetached()
+    if self.currentMod and self.currentMod.modUUID then
+        return self.detachedWindows[self.currentMod.modUUID] ~= nil
+    end
+    return false
 end
 
 -- Update header buttons visibility based on detachment state
