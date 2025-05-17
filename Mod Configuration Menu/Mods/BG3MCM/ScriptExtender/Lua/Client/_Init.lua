@@ -5,6 +5,7 @@ RequireFiles("Client/", {
     "MCMRendering",
     "IMGUIAPI",
     "SubscribedEvents",
+    "ModVarsRuntimeSettings",
 })
 
 local disabledMCMDefaultLabelHandle = "h6e8c611890eb4a589f1777131bebe79a2fcd"
