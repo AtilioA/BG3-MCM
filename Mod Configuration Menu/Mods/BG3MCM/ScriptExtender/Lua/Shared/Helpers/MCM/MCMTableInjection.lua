@@ -159,7 +159,7 @@ end
 local function injectMCMToModTable(originalModUUID)
     if originalModUUID == ModuleUUID then return end
 
-    MCMPrint(2, "Injecting MCM to mod table for modUUID: " .. originalModUUID)
+    MCMPrint(0, "Injecting MCM to mod table for modUUID: " .. originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
 
     local modTable, modTableName = getModTableForUUID(originalModUUID)
     if not modTable then return end
@@ -185,7 +185,7 @@ local function setupModsMetatable()
             if value.ModuleUUID then
                 -- Update the reverse lookup table
                 ModUUIDToModTableName[value.ModuleUUID] = key
-                MCMPrint(2, "Added to reverse lookup: " .. value.ModuleUUID .. " -> " .. key)
+                MCMPrint(2, "Added to reverse lookup: " .. value.ModuleUUID .. " -> " .. key .. " (" .. Ext.Mod.GetMod(value.ModuleUUID).Info.Name .. ")")
                 -- Inject MCM for all mods and always inject the NotificationManager.
                 injectMCMToModTable(value.ModuleUUID)
                 NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)
