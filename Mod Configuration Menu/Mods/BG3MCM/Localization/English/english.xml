@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<contentList>
+    <content contentuid="h14a348d8g8bb6g4f47g85ecg14bcbaa972e4" version="2">Your load order has invalid or outdated mods. Please delete your modsettings.lsx file, update your mods, and try again.</content>
+    <content contentuid="h966d6fabgc29cg4602gad0dg0c50f9418e24" version="1">Unable to start a new game. This may be due to installed mods containing invalid Osiris scripts, or the use of 'Mod Fixer' (harmful since Patch 7). Please disable or update mods and try again!&lt;br&gt;&lt;br&gt;Press Accept to return to the main menu.</content>
+    <content contentuid="h0580f26cg207fg494cgbe80g9d468b0c4996" version="1">Unable to load your saved game. This may be due to installed mods containing invalid Osiris scripts, or the use of 'Mod Fixer' (harmful since Patch 7). Please disable or update mods and try again!&lt;br&gt;&lt;br&gt;Press Accept to return to the main menu.</content>
+</contentList>
