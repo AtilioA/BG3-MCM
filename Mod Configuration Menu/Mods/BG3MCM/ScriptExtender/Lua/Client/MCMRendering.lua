@@ -377,7 +377,7 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
     }
 
     if tabDescription and tabDescription ~= "" then
-        imguiTab:AddText(tabDescription)
+        imguiTab:AddText(VCString:ReplaceBrWithNewlines(tabDescription))
         imguiTab.TextWrapPos = 0
     end
 
