@@ -142,7 +142,7 @@
     <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).</content>
     <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Enable automatic sidebar collapse</content>
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Enable expansion on icon hover</content>
-    <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Enable hover-based expansion of the sidebar.</content>
+    <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Enable hover-based expansion of the sidebar when hovering the hamburger menu icon.</content>
     <content contentuid="hb341a515eea64380ad0ccfe6c1ff115d1310" version="1">Detached view for mod '[1]'</content>
     <content contentuid="h0967f545c53f4796bd25d550fe05e234c1ga" version="1">Wrong No Press Any Key Menu version</content>
     <content contentuid="h41e2dbf1773848eca2001fde456cca4d0156" version="1">You're using 'No Press Any Key Menu' without the MCM compatibility patch.&lt;br&gt;Your main menu may not display the MCM button correctly.&lt;br&gt;&lt;br&gt;Please replace it with the patched version from Caites' mod page.</content>
@@ -179,4 +179,5 @@
     <content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Provides an in-game UI that enables players to intuitively manage mod settings and hotkeys.</content>
     <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Toggle detached windows with main window</content>
     <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">When toggling the MCM window, also toggle the visibility of any detached mod pages.</content>
+    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">By default, the sidebar automatically expands when hovering the menu icon, and will collapse when opening a mod page.&lt;br&gt;You can also manually toggle it with CAPSLOCK.</content>
 </contentList>

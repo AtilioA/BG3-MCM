@@ -368,12 +368,18 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
         return
     end
     local tabName = blueprintTab:GetLocaName()
+    local tabDescription = blueprintTab:GetTabDescription()
     local imguiTab = modTabs:AddTabItem(tabName)
     imguiTab.IDContext = DualPaneController:GenerateTabId(modUUID, blueprintTab:GetTabName())
     imguiTab.UserData = {
         tabId = blueprintTab:GetId(),
         tabName = blueprintTab:GetTabName()
     }
+
+    if tabDescription and tabDescription ~= "" then
+        imguiTab:AddText(tabDescription)
+        imguiTab.TextWrapPos = 0
+    end
 
     imguiTab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)

@@ -82,6 +82,13 @@ end
 --- Get the TabDescription of the BlueprintTab.
 --- @return string
 function BlueprintTab:GetTabDescription()
+    if self.Handles and self.Handles.DescriptionHandle then
+        local translatedDescription = Ext.Loca.GetTranslatedString(self.Handles.DescriptionHandle)
+        if translatedDescription ~= nil and translatedDescription ~= "" then
+            return translatedDescription
+        end
+    end
+
     return self.TabDescription
 end
 

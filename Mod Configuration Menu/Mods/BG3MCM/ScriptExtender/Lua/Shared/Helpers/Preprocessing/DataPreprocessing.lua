@@ -117,6 +117,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modUUID)
         processedData = BlueprintTab:New({
             TabId = elementData.TabId or elementData.Id,
             TabName = elementData.TabName or elementData.Name,
+            TabDescription = elementData.TabDescription or elementData.Description,
             VisibleIf = elementData.VisibleIf,
             Tabs = elementData.Tabs or {}, -- Tabs might also have nested Tabs
             Sections = elementData.Sections or {},
