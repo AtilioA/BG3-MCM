@@ -365,6 +365,7 @@ end
 ---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
 function DualPaneController:SetVisibleFrame(modUUID, shouldEmitEvent)
     -- Set the visible group in the right pane
+    self.leftPane:SetActiveItem(modUUID)
     self.rightPane:SetVisibleGroup(modUUID)
 
     -- Default to true if not specified
