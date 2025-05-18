@@ -399,17 +399,19 @@ function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, ke
     self:SetVisibleFrame(modUUID, shouldEmitEvent)
 
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
-    if not modTabBar then
-        MCMError(0, "No tab bar found for mod " .. modUUID)
-        return
-    end
-
     local targetTab = nil
 
-    for _, tab in ipairs(modTabBar.Children) do
-        if isMatchingTab(modUUID, identifier, tab) then
-            targetTab = tab
-            break
+    if Ext.Mod.IsModLoaded(modUUID) then
+        if not modTabBar then
+            MCMError(0, "No tab bar found for mod " .. modUUID)
+            return
+        end
+        
+        for _, tab in ipairs(modTabBar.Children) do
+            if isMatchingTab(modUUID, identifier, tab) then
+                targetTab = tab
+                break
+            end
         end
     end
 
@@ -419,7 +421,7 @@ function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, ke
         if shouldOpenWindow ~= false then
             IMGUIAPI:OpenMCMWindow(true)
         end
-    else
+    elseif identifier then
         MCMWarn(0, "Tab not found for identifier: " .. identifier)
     end
 
