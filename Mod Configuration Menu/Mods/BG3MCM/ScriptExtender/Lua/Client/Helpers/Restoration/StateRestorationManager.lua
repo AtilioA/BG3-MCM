@@ -13,17 +13,19 @@ StateRestorationManager = {
     services = {}
 }
 
--- Common function to check if a mod exists in MCMClientState
-function StateRestorationManager:CheckModExists(modUUID)
-    if not modUUID or modUUID == "" then
+-- Check if a page exists (mod or special page)
+function StateRestorationManager:CheckModExists(pageId)
+    if not pageId or pageId == "" then
         return false
     end
 
-    -- if not DualPane:DoesModPageExist(modUUID) then
-    --     return false
-    -- end
+    -- Check special pages first
+    if pageId == ClientGlobals.MCM_HOTKEYS or pageId == ClientGlobals.MCM_PROFILES then
+        return true
+    end
 
-    if MCMClientState and MCMClientState.mods and MCMClientState.mods[modUUID] then
+    -- Then check for actual mods
+    if MCMClientState and MCMClientState.mods and MCMClientState.mods[pageId] then
         return true
     end
 
