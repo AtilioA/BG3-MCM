@@ -27,14 +27,13 @@ local function checkConflict(mod, conflict, issues)
             resultMessage = resultMessage,
             severity = "error"
         })
-        MCMError(0, "Conflict detected: " .. resultMessage)
+        MCMWarn(0, "Conflict detected: " .. resultMessage)
     end
 end
 
 -- Iterates over each conflict entry in a mod.
 local function checkModConflicts(mod, conflicts, issues)
     for _, conflict in ipairs(conflicts) do
-        _D(conflicts)
         checkConflict(mod, conflict, issues)
     end
 end
@@ -52,16 +51,21 @@ end
 
 --- Warns about load order conflicts.
 --- This method iterates over all available mods, checks for conflicts, and logs warnings.
+---@return ConflictCheckResult[] issues A list of issues with mod conflicts.
 function ConflictCheck:EvaluateLoadOrderConflicts()
-    local success, issues = xpcall(function()
-        local issues = {}
-        local availableMods = (Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods) or {}
+    local success = false
+    local issues = {}
+
+    success, issues = xpcall(function()
+        local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
+
         MCMDebug(1, "Evaluating load order conflicts for available mods.")
         for _, mod in ipairs(availableMods) do
             if isValidModForConflicts(mod) then
                 checkModConflicts(mod, mod.ModConflicts, issues)
             end
         end
+
         MCMDebug(1, "Conflict evaluation complete. Issues found: " .. #issues)
         return issues
     end, function(e)
@@ -73,9 +77,7 @@ function ConflictCheck:EvaluateLoadOrderConflicts()
         MCMError(0, "Error evaluating load order conflicts.")
     end
 
-    for _, issue in ipairs(issues) do
-        MCMWarn(1, issue.resultMessage)
-    end
+    return issues
 end
 
 return ConflictCheck

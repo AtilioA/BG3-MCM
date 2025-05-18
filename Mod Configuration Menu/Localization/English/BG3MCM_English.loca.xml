@@ -153,7 +153,7 @@
     <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Can't check dependency '[1]' for mod '[2]' because it has no version information.&lt;br&gt;This doesn't impact functionality, but please contact [3] to update the meta.lsx file for '[4]'.&lt;br&gt;The version node might have an outdated ID (it should be Version64).</content>
     <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">Mod '[1]' requires '[2]' version [3] or higher, but loaded version is [4].&lt;br&gt;Please update [2].</content>
     <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">Mod '[1]' requires dependency '[2]', which is not loaded.&lt;br&gt;Please install [2].</content>
-    <content contentuid="h729585d6g09c1g48cfg8290ga2e761cc46bf" version="1">Mod '[1]' declares a conflict with mod '[2]', but '[2]' is loaded. Please resolve this conflict by disabling one of them, or look for compatibility patches.</content>
+    <content contentuid="h729585d6g09c1g48cfg8290ga2e761cc46bf" version="1">Mod '[1]' declares a conflict with mod '[2]', but '[2]' is loaded.&lt;br&gt;Please resolve this conflict by disabling one of them, or look for compatibility patches.</content>
     <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Hide the sidebar.&lt;br&gt;By default, you can toggle it with CAPSLOCK.</content>
     <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expand the sidebar containing keybindings, mods, etc</content>
     <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Detach mod content to a separate window</content>
