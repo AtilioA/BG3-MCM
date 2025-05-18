@@ -147,11 +147,13 @@
     <content contentuid="h0967f545c53f4796bd25d550fe05e234c1ga" version="1">Wrong No Press Any Key Menu version</content>
     <content contentuid="h41e2dbf1773848eca2001fde456cca4d0156" version="1">You're using 'No Press Any Key Menu' without the MCM compatibility patch.&lt;br&gt;Your main menu may not display the MCM button correctly.&lt;br&gt;&lt;br&gt;Please replace it with the patched version from Caites' mod page.</content>
     <content contentuid="he1d69e96b7e44957b6d9373635ef69100180" version="1">Dependency issue detected: [1] depends on [2]</content>
+    <content contentuid="h0acfde6fg6f34g4904g8526g6f1e1c0865e3" version="1">Conflict issue detected: [1] conflicts with [2]</content>
     <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">Mod '[1]' has an invalid UUID ([2]).&lt;br&gt;This mod may cause your load order to reset.&lt;br&gt;Delete the pak file for this mod or look for an update.&lt;br&gt;You may downgrade to Patch 6 or 7 and use Mod Uninstaller to try to remove this mod if you can't load a save without this mod.</content>
     <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Your load order has a mod with an invalid UUID ([1] [2])</content>
     <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Can't check dependency '[1]' for mod '[2]' because it has no version information.&lt;br&gt;This doesn't impact functionality, but please contact [3] to update the meta.lsx file for '[4]'.&lt;br&gt;The version node might have an outdated ID (it should be Version64).</content>
     <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">Mod '[1]' requires '[2]' version [3] or higher, but loaded version is [4].&lt;br&gt;Please update [2].</content>
     <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">Mod '[1]' requires dependency '[2]', which is not loaded.&lt;br&gt;Please install [2].</content>
+    <content contentuid="h729585d6g09c1g48cfg8290ga2e761cc46bf" version="1">Mod '[1]' declares a conflict with mod '[2]', but '[2]' is loaded. Please resolve this conflict by disabling one of them, or look for compatibility patches.</content>
     <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Hide the sidebar.&lt;br&gt;By default, you can toggle it with CAPSLOCK.</content>
     <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expand the sidebar containing keybindings, mods, etc</content>
     <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Detach mod content to a separate window</content>

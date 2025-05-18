@@ -4,6 +4,23 @@ LoadOrderHealthCheck = _Class:Create("LoadOrderHealthCheck", nil, {
     NPAKMWarned = false
 })
 
+-- Evaluates mod conflicts and shows notifications for any issues found.
+function LoadOrderHealthCheck:WarnAboutModConflicts()
+    local issues = ConflictCheck:EvaluateLoadOrderConflicts() or {}
+    for _, issue in ipairs(issues) do
+        local conflictTitle = VCString:InterpolateLocalizedMessage(
+            "h0acfde6fg6f34g4904g8526g6f1e1c0865e3", issue.modName, issue.conflictName)
+        NotificationManager:CreateIMGUINotification(
+            issue.id,
+            issue.severity,
+            conflictTitle,
+            issue.resultMessage,
+            { dontShowAgainButton = true },
+            ModuleUUID
+        )
+    end
+end
+
 -- Checks if a compatibility warning for "No Press Any Key Menu" should be shown.
 function LoadOrderHealthCheck:ShouldWarnAboutNPAKM()
     local NoPressAnyKeyMenuUUID     = "2bae5aa8-bf6a-d196-069c-4269f71d22a3"

@@ -16,5 +16,6 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
         LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
         LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
         LoadOrderHealthCheck:WarnAboutNPAKM()
+        LoadOrderHealthCheck:WarnAboutModConflicts()
     end
 end)
