@@ -69,7 +69,13 @@ end
 
 -- Scans for mods with a "null" UUID (00000000-0000-0000-0000-000000000000) and warns the user.
 function LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
-    local invalidMods = InvalidMods:GetInvalidMods()
+    local invalidMods = {}
+    local modManager = Ext.Mod.GetModManager()
+    if not modManager then
+        return invalidMods
+    end
+
+    invalidMods = InvalidMods:GetInvalidModsFromLoadOrder(modManager)
 
     -- Show a notification for each invalid mod found
     for _, mod in ipairs(invalidMods) do

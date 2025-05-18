@@ -8,14 +8,9 @@ end
 
 --- Returns a list of mods that have a null UUID (00000000-0000-0000-0000-000000000000)
 ---@return table invalidMods
-function InvalidMods:GetInvalidMods()
+function InvalidMods:GetInvalidModsFromLoadOrder(modManagerInstance)
     local invalidMods = {}
-    local modManager = Ext.Mod.GetModManager()
-    if not modManager then
-        return invalidMods
-    end
-
-    local availableMods = modManager.AvailableMods or {}
+    local availableMods = modManagerInstance.AvailableMods or {}
 
     for _, mod in ipairs(availableMods) do
         if mod
