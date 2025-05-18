@@ -13,10 +13,29 @@ ConflictCheck = _Class:Create("ConflictCheck", nil, {})
 ---@field conflictName string
 ---@field resultMessage string
 
+-- Special case handling for MCM conflicts with NPAKM variants
+local function isNPAKMConflict(modUUID, conflictUUID)
+    if modUUID ~= ModuleUUID then return false end
+
+    -- UUIDs for No Press Any Key Menu variants that conflict with MCM
+    local MCM_CONFLICTS_NPAKM_UUIDS = {
+        ["2bae5aa8-bf6a-d196-069c-4269f71d22a3"] = true, -- Original NPAKM
+        ["8c417ab1-195a-2c2a-abbf-70a2da9166da"] = true  -- 'PTSD' version
+    }
+
+    -- Check if the conflict is a NPAKM variant
+    return MCM_CONFLICTS_NPAKM_UUIDS[conflictUUID]
+end
+
 -- Checks a single conflict entry for a mod.
 local function checkConflict(mod, conflict, issues)
     local conflictingMod = Ext.Mod.GetMod(conflict.ModuleUUIDString)
     if conflictingMod then
+        -- Skip generic conflict detection for NPAKM-related conflicts
+        if isNPAKMConflict(mod.Info.ModuleUUID, conflict.ModuleUUIDString) then
+            return
+        end
+
         local issueID = string.format("Conflict_%s_With_%s", mod.Info.ModuleUUID, conflict.ModuleUUIDString)
         local resultMessage = VCString:InterpolateLocalizedMessage(
             "h729585d6g09c1g48cfg8290ga2e761cc46bf", mod.Info.Name, conflict.Name)
