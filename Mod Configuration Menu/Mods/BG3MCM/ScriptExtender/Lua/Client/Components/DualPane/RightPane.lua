@@ -143,6 +143,25 @@ function RightPane:SetVisibleGroup(modUUID)
     end
 end
 
+-- Get the display name for a mod or special page
+local function getDisplayName(identifier)
+    -- Handle special cases
+    if identifier == ClientGlobals.MCM_HOTKEYS then
+        return "Hotkeys"
+    end
+
+    if identifier == ClientGlobals.MCM_PROFILES then
+        return "Profiles"
+    end
+    -- For regular mods, get the mod name
+    local mod = Ext.Mod.GetMod(identifier)
+    if mod then
+        return mod.Info.Name
+    end
+    -- Fallback
+    return identifier
+end
+
 local function createDetachedWindow(name)
     local detachedWindow = Ext.IMGUI.NewWindow(name)
     local minSize = Ext.IMGUI.GetViewportSize()
@@ -168,7 +187,7 @@ function RightPane:DetachModGroup(modUUID)
         group.UserData.modNameWidget.Visible = false
     end
 
-    local newWindow = createDetachedWindow(Ext.Mod.GetMod(modUUID).Info.Name)
+    local newWindow = createDetachedWindow(getDisplayName(modUUID))
     local parent = group.ParentElement
 
     -- Store parent reference and mod UUID in the window's UserData for proper reattachment
