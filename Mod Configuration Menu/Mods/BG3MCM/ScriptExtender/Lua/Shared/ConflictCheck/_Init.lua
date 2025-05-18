@@ -1,3 +1,0 @@
-RequireFiles("Shared/ConflictCheck/", {
-    "ConflictCheck",
-})
