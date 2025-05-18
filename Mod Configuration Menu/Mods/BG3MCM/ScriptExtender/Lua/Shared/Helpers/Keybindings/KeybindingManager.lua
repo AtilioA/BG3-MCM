@@ -26,7 +26,6 @@ function KeybindingManager:IsActiveModifier(key)
     return isActive
 end
 
-
 function KeybindingManager:IsModifierNull(modifier)
     return modifier == nil or modifier == "" or modifier == "NONE"
 end

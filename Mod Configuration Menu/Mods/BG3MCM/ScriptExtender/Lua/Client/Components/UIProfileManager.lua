@@ -28,8 +28,16 @@ function UIProfileManager:CreateProfileContent()
     local currentProfile = MCMAPI:GetCurrentProfile()
     local profileIndex = UIProfileManager:FindProfileIndex(currentProfile) - 1
 
-    FrameManager:AddMenuSection(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
-    local contentGroup = FrameManager:addButtonAndGetModTabBar(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil,"MCM_profiles")
+    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"), nil,
+        "MCM_profiles")
+    DualPane.leftPane:CreateMenuButton(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil,
+        "MCM_profiles")
+    local contentGroup = DualPane.rightPane:CreateModGroup("MCM_profiles",
+        Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
+
+    if not contentGroup then
+        return MCMError(0, "Failed to create profile content group.")
+    end
 
     local profileCombo = contentGroup:AddCombo("")
     profileCombo.Options = profiles.Profiles
@@ -44,18 +52,13 @@ function UIProfileManager:CreateProfileContent()
 
     local deleteProfileButton = contentGroup:AddButton(getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile()))
     self:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
-
-    self:SetupCreateProfileButton(profileButton, newProfileName, profileCombo,
-        deleteProfileButton)
-
+    self:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, deleteProfileButton)
     self:SetupProfileComboOnChange(profileCombo, deleteProfileButton)
     -- TODO: refresh the settings UI when creating profiles
 end
 
 function UIProfileManager:UpdateDeleteProfileButton(deleteProfileButton, profile)
-    if deleteProfileButton == nil then
-        return
-    end
+    if not deleteProfileButton then return end
 
     local newLabel = getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile())
     deleteProfileButton.Label = newLabel
@@ -88,8 +91,7 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
     end
 end
 
-function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName, profileCombo,
-                                                   deleteProfileButton)
+function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, deleteProfileButton)
     profileButton.IDContext = "MCM_createProfileButton"
     profileButton.OnClick = function()
         if newProfileName.Text ~= "" then
@@ -119,7 +121,7 @@ function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileB
         if selectedProfile == "Select a setting profile" then
             MCMWarn(1, "Please select a valid profile.")
             -- Reset the combo box to the current profile
-            MCMAPI:GetCurrentProfile()
+            -- MCMAPI:GetCurrentProfile()
             profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
             return
         end

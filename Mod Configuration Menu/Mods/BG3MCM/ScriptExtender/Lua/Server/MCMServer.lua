@@ -61,12 +61,12 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
     -- Notify MCM clients
-    -- Ext.Net.BroadcastMessage(NetChannels.MCM_SETTING_SAVED, Ext.Json.Stringify({
-    --     modUUID = modUUID,
-    --     settingId = settingId,
-    --     value = value,
-    --     oldValue = oldValue
-    -- }))
+    ModEventManager:Emit(EventChannels.MCM_INTERNAL_SETTING_SAVED, {
+        modUUID = modUUID,
+        settingId = settingId,
+        value = value,
+        oldValue = oldValue
+    }, true)
 
     -- Notify other mods
     ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
@@ -101,7 +101,7 @@ function MCMServer:ResetSettingValue(settingId, modUUID)
             modUUID = modUUID,
             settingId = settingId,
             defaultValue = defaultValue
-        })
+        }, true)
     end
 end
 
@@ -180,6 +180,21 @@ function MCMServer:LoadAndSendSettings()
         mods = MCMAPI.mods,
         profiles = MCMAPI.profiles
     }))
+end
+
+--- Load configs and send to a specific user (for new clients)
+---@param userID integer The ID of the user to send settings to
+function MCMServer:LoadAndSendSettingsToUser(userID)
+    MCMDebug(1, "Sending MCM configs to user: " .. userID)
+    if not MCMAPI.mods or not MCMAPI.profiles then
+        MCMError(0, "MCM has not loaded configs yet. Cannot send settings to user: " .. userID)
+        MCMWarn(0, "Loading configs...")
+        MCMAPI:LoadConfigs()
+    end
+
+    Ext.ServerNet.PostMessageToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
+        Ext.Json.Stringify({ userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    -- Ext.ServerNet.PostMessageToUser(327681, Mods.BG3MCM.NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({ userID = userID, mods = Mods.BG3MCM.MCMAPI.mods, profiles = Mods.BG3MCM.MCMAPI.profiles }))
 end
 
 --- Reset all settings for a mod to their default values

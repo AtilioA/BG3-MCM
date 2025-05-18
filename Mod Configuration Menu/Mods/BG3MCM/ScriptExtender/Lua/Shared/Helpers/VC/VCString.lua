@@ -106,6 +106,14 @@ end
 
 -- Adds full stop to the end of the string if it doesn't already have one
 function VCString:AddFullStop(str)
+    if str == nil then
+        return ""
+    end
+
+    if str == "" then
+        return str
+    end
+
     if string.sub(str, -1) ~= "." then
         return str .. "."
     end
@@ -200,6 +208,8 @@ end
 
 --- Replace <br> tags with newlines in a string
 function VCString:ReplaceBrWithNewlines(description)
+    if not description or description == "" then return "" end
+
     return string.gsub(description, "<br>", "\n")
 end
 
@@ -217,7 +227,7 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
     -- Iterate over each argument and replace the corresponding placeholder.
     for i, value in ipairs(args) do
         -- The pattern dynamically matches [i]. The %[] escapes the brackets.
-        updatedMessage = string.gsub(updatedMessage, "%[" .. i .. "%]", value)
+        updatedMessage = string.gsub(updatedMessage, "%[" .. i .. "%]", tostring(value))
     end
 
     -- Update the translated string with the new content during runtime.

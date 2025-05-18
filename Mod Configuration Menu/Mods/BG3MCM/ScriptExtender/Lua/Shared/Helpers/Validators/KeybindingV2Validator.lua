@@ -43,6 +43,6 @@ function KeybindingV2Validator.Validate(config, value)
         end
     end
 
-    MCMDebug(1, "Validation succeeded for keybinding configuration.")
+    MCMDebug(2, "Validation succeeded for keybinding configuration.")
     return true
 end

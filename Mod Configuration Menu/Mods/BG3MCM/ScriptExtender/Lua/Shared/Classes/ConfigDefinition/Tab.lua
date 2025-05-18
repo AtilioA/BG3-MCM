@@ -2,7 +2,7 @@
 ---@field private TabId string
 ---@field private TabName string
 ---@field private TabDescription string
----@field private VisibleIf string
+---@field private VisibleIf table<string, string>
 ---@field private Tabs? BlueprintTab[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Settings? BlueprintSetting[]
@@ -75,13 +75,20 @@ function BlueprintTab:GetLocaName()
             return translatedName
         end
     end
-    
+
     return self.TabName
 end
 
 --- Get the TabDescription of the BlueprintTab.
 --- @return string
 function BlueprintTab:GetTabDescription()
+    if self.Handles and self.Handles.DescriptionHandle then
+        local translatedDescription = Ext.Loca.GetTranslatedString(self.Handles.DescriptionHandle)
+        if translatedDescription ~= nil and translatedDescription ~= "" then
+            return translatedDescription
+        end
+    end
+
     return self.TabDescription
 end
 

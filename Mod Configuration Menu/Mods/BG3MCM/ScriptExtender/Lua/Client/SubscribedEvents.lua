@@ -1,4 +1,11 @@
+local isSearchingForMCMButton = false
+
 local function handleEscapeKey()
+    if isSearchingForMCMButton then
+        return
+    end
+
+    isSearchingForMCMButton = true
     VCTimer:CallWithInterval(function()
         local MCMButton = Noesis:FindMCMGameMenuButton()
         if not MCMButton then
@@ -6,8 +13,14 @@ local function handleEscapeKey()
             return nil
         end
         Noesis:HandleGameMenuMCMButtonPress(MCMButton)
+        isSearchingForMCMButton = false
         return MCMButton
     end, 100, 1000)
+
+    -- Reset the flag after the total time in case no button was found
+    Ext.Timer.WaitFor(1000, function()
+        isSearchingForMCMButton = false
+    end)
 end
 
 local function handleKeyInput(e)
@@ -116,6 +129,16 @@ Ext.RegisterNetListener(NetChannels.MCM_EMIT_ON_CLIENTS, function(_, payload)
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 end)
 
+ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)
+    local modUUID = payload.modUUID
+    local settingId = payload.settingId
+    local value = payload.value
+
+    MCMClientState:SetClientStateValue(settingId, value, modUUID)
+
+    IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
+end)
+
 --- SECTION: Mod events
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     local modUUID = data.modUUID
@@ -127,12 +150,13 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_RESET, function(data)
     -- MCMClientState:SetClientStateValue(settingId, defaultValue, modUUID)
 end)
 
--- FIXME: not working for some reason
 ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
-    MCMDebug(1, "Firing MCM_SETTING_UPDATED on client")
+    MCMDebug(1, "Firing MCM_SETTING_SAVED on client")
     local modUUID = data.modUUID
     local settingId = data.settingId
     local value = data.value
+
+    IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
 
@@ -144,7 +168,7 @@ ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
     local tabName = data.tabName
     local tabCallback = data.tabCallback
 
-    -- Update the IMGUILayer to include the new tab
+    -- Update the MCMRendering to include the new tab
     IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
 end)
 

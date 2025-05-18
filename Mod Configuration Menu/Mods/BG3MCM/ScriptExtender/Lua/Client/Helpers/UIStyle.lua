@@ -1,7 +1,7 @@
 UIStyle = {}
 -- Thanks Aahz for the original code
 
-local BoxColor = Color.NormalizedRGBA(46, 38, 38, 0.78)
+local BoxColor = Color.NormalizedRGBA(46, 38, 38, 1)
 local BoxHoverColor = Color.NormalizedRGBA(97, 66, 54, 0.78);
 local BoxActiveColor = Color.NormalizedRGBA(30.60, 204, 237.15, 0.33)
 
@@ -86,8 +86,8 @@ UIStyle.Styles = {
     ["ScrollbarSize"]           = 10.0,
     ["SelectableTextAlign"]     = 0.0,  -- vec2?
     ["SeparatorTextAlign"]      = 0.5,  -- vec2?
-    ["SeparatorTextBorderSize"] = 4.0,
-    ["SeparatorTextPadding"]    = 20.0, -- vec2?
+    ["SeparatorTextBorderSize"] = 5.0,
+    ["SeparatorTextPadding"]    = 10.0, -- vec2?
     ["TabBarBorderSize"]        = 1.0,
     ["TabRounding"]             = 6.0,
     ["WindowBorderSize"]        = 2,
@@ -97,7 +97,7 @@ UIStyle.Styles = {
     ["WindowTitleAlign"]        = 0.5, -- vec2?
 }
 
-function UIStyle:ApplyStyleToIMGUIElement(element)
+function UIStyle:ApplyDefaultStylesToIMGUIElement(element)
     for k, v in pairs(self.Colors) do
         element:SetColor(k, v)
     end

@@ -2,11 +2,9 @@
 DragFloatValidator = _Class:Create("DragFloatValidator", Validator)
 
 function DragFloatValidator.Validate(config, value)
-    local isValueNumber = type(value) == "number"
-    if not isValueNumber then
+    if type(value) ~= "number" then
         return false
     end
-    
-    local isValueWithinRange = value >= config.Options.Min and value <= config.Options.Max
-    return isValueWithinRange
+    local min, max = config.Options.Min, config.Options.Max
+    return FloatUtils.isWithinEpsilon(value, min, max)
 end

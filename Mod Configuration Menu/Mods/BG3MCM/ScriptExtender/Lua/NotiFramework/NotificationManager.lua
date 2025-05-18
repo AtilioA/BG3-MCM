@@ -71,7 +71,7 @@ function NotificationManager:new(id, severity, title, message, options, modUUID)
         options = {
             duration = options.duration,
             -- This shouldn't even be needed, but this is Lua after all
-            dontShowAgainButton = options.dontShowAgainButton,
+            dontShowAgainButton = dontShowAgainButton,
             dontShowAgainButtonCountdownInSec = options.dontShowAgainButtonCountdownInSec or
                 DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN,
             displayOnceOnly = options.displayOnceOnly,
@@ -85,7 +85,7 @@ end
 --- Initializes the notification window and sets up its components
 ---@return nil
 function NotificationManager:InitializeNotificationWindow()
-    self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title .. "##" .. math.floor(Ext.Math.Random() * 100000))
+    self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title)
     self.IMGUIwindow.IDContext = self.modUUID .. self.id
     self:ConfigureWindowStyle()
     self:CreateMessageGroup()
@@ -212,6 +212,8 @@ function NotificationManager:ConfigureWindowStyle()
     self.IMGUIwindow.Closeable = false
     self.IMGUIwindow.Visible = true
     self.IMGUIwindow.Open = true
+    self.IMGUIwindow.NoCollapse = true
+
 
     self.IMGUIwindow:SetColor("TitleBg", NotificationStyles:GetStyleTitleBg(self.notificationSeverity))
     self.IMGUIwindow:SetColor("TitleBgActive", NotificationStyles:GetStyleTitleBg(self.notificationSeverity))

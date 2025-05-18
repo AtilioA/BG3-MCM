@@ -106,7 +106,7 @@ function Printer:Print(debugLevel, ...)
             f = string.format(...)
         end
 
-        Ext.Utils.Print(s .. f)
+        Ext.Log.Print(s .. f)
     end
 end
 
@@ -130,7 +130,7 @@ function Printer:PrintTest(debugLevel, ...)
             f = string.format(...)
         end
 
-        Ext.Utils.Print(s .. f)
+        Ext.Log.Print(s .. f)
     end
 end
 
@@ -154,7 +154,31 @@ function Printer:PrintWarning(debugLevel, ...)
             f = string.format(...)
         end
 
-        Ext.Utils.PrintWarning(s .. f)
+        Ext.Log.PrintWarning(s .. f)
+    end
+end
+
+function Printer:PrintError(debugLevel, ...)
+    if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
+        local s
+        if self.DebugLevel > 1 then
+            s = string.format("[%s][%s][%s]: ", self.Prefix, "ERROR", self.Machine)
+        else
+            s = string.format("[%s][%s][%s]: ", self.Prefix, "ERROR", self.Machine)
+        end
+
+        if self.ApplyColor then
+            s = self:Colorize(s)
+        end
+
+        local f
+        if #{ ... } <= 1 then
+            f = tostring(...)
+        else
+            f = string.format(...)
+        end
+
+        Ext.Log.PrintError(s .. f)
     end
 end
 
@@ -178,7 +202,7 @@ function Printer:PrintDeprecation(debugLevel, ...)
             f = string.format(...)
         end
 
-        Ext.Utils.PrintWarning(s .. f)
+        Ext.Log.PrintWarning(s .. f)
     end
 end
 
@@ -202,7 +226,7 @@ function Printer:PrintDebug(debugLevel, ...)
             f = string.format(...)
         end
 
-        Ext.Utils.Print(s .. f)
+        Ext.Log.Print(s .. f)
     end
 end
 
@@ -234,7 +258,7 @@ function Printer:Dump(info, useOptions, includeTime)
         else
             infoString = Ext.DumpExport(info)
         end
-        Ext.Utils.Print(s, infoString)
+        Ext.Log.Print(s, infoString)
     end
 end
 
@@ -270,6 +294,11 @@ end
 function VCWarn(...)
     VCPrinter:SetFontColor(200, 100, 50)
     VCPrinter:PrintWarning(...)
+end
+
+function VCError(...)
+    VCPrinter:SetFontColor(255, 38, 38)
+    VCPrinter:PrintError(...)
 end
 
 function VCDump(...)

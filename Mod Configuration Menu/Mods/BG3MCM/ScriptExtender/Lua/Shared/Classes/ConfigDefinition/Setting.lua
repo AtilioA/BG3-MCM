@@ -3,7 +3,7 @@
 ---@field private OldId string
 ---@field private Name string
 ---@field private Type string
----@field private VisibleIf string
+---@field private VisibleIf table<string, string>
 ---@field private Default any
 ---@field private Description string
 ---@field private Tooltip string
@@ -53,7 +53,7 @@ function BlueprintSetting:New(options)
         self.Type = ""
     end
 
-    self.VisibleIf = options.VisibleIf or ""
+    self.VisibleIf = options.VisibleIf or {}
 
     self.Default = options.Default
 

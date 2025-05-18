@@ -60,7 +60,10 @@ function DataPreprocessing:ValidateSetting(setting, value)
     if not validator then
         MCMWarn(0,
             "No validator found for setting type: " ..
-            setting:GetType() .. ". Please contact " .. Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Author .. " about this issue.")
+            setting:GetType() ..
+            ". Please contact " ..
+            Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Author ..
+            " about this issue (mod " .. Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Name .. ").")
         return false
     end
 
@@ -114,6 +117,7 @@ function DataPreprocessing:RecursivePreprocess(elementData, modUUID)
         processedData = BlueprintTab:New({
             TabId = elementData.TabId or elementData.Id,
             TabName = elementData.TabName or elementData.Name,
+            TabDescription = elementData.TabDescription or elementData.Description,
             VisibleIf = elementData.VisibleIf,
             Tabs = elementData.Tabs or {}, -- Tabs might also have nested Tabs
             Sections = elementData.Sections or {},

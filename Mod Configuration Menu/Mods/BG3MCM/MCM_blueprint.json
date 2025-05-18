@@ -1,6 +1,10 @@
 {
     "SchemaVersion": 1,
     "ModName": "Mod Configuration Menu",
+    "Handles": {
+        "DescriptionHandle": "h5f7bdef3596c49d4bd83d7586e4f56d3744d",
+        "NameHandle": "hae2bbc06g288dg43dagb3a5g967fa625c769"
+    },
     "Tabs": [
         {
             "TabId": "settings",
@@ -35,14 +39,51 @@
                             }
                         },
                         {
-                            "Id": "host-only_mode",
-                            "Name": "Host-only mode",
-                            "Type": "checkbox",
-                            "Default": false,
-                            "Description": "Only the host can change MCM settings in multiplayer games.",
+                            "Id": "close_mcm_keybinding",
+                            "Name": "Close MCM window",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "ESCAPE",
+                                    "ModifierKeys": []
+                                },
+                                "Enabled": false
+                            },
+                            "Description": "Set the keybinding for closing MCM's window.",
                             "Handles": {
-                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f",
-                                "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea"
+                                "NameHandle": "hb2513599ba7a4b689fc3984a9ad9ae1c3d31",
+                                "DescriptionHandle": "heb5490e38fcf43099f6e7d3cd50e57e3adde"
+                            }
+                        },
+                        {
+                            "Id": "font_size",
+                            "Name": "Font size",
+                            "Type": "enum",
+                            "Default": "Large",
+                            "Description": "Set the font size for the MCM interface.",
+                            "Tooltip": "Changes the size of text displayed in the MCM window.\nNOTE: Icons will only have correct scale after loading a save.",
+                            "Options": {
+                                "Choices": [
+                                    "Tiny",
+                                    "Small",
+                                    "Medium",
+                                    "Default",
+                                    "Large",
+                                    "Big"
+                                ]
+                            },
+                            "Handles": {
+                                "NameHandle": "h169974967d6d45bdb4fe1da9b042f51228c1",
+                                "DescriptionHandle": "hdeb0d5384b744247b7ce270b52ef4721ag3d",
+                                "TooltipHandle": "hb0581f5c946848979375a36f96a7febbg72b",
+                                "ChoicesHandles": [
+                                    "hbeb2a0a8c350441eae1f6912aea80689f0b2",
+                                    "hdbe703ec2a034fbb8022a8651c47952be84b",
+                                    "he0a910f53497499dac43116094b83686g431",
+                                    "h88ee680058a748d29f6a173ae38205621g58",
+                                    "h0216f2c4d63f4915b25cd7f24b8396e3aff1",
+                                    "ha93072e1b30e40ad9461191e5635882dbc2e"
+                                ]
                             }
                         },
                         {
@@ -50,23 +91,54 @@
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",
                             "Default": true,
-                            "Description": "Open the MCM menu when the game starts.",
+                            "Description": "Open the MCM window when the game starts.",
                             "Handles": {
                                 "NameHandle": "h76a89ee330464e30b1b9a01de85cbd0042a6",
                                 "DescriptionHandle": "h0d8762f0ceb645608a64b684e581f7a72d67"
                             }
                         },
                         {
-                            "Id": "auto_resize_window",
-                            "Name": "Automatically resize window",
+                            "Id": "host-only_mode",
+                            "Name": "Host-only mode",
                             "Type": "checkbox",
                             "Default": false,
-                            "Description": "Dynamically resize the MCM window to fit settings.",
-                            "Tooltip": "If disabled, the window might require scrolling.\nYou'll be able to resize the window manually by dragging the bottom-right corner.",
+                            "Description": "Allow only the host to change settings in multiplayer games.",
                             "Handles": {
-                                "NameHandle": "hc4abe0365af046e6abac1b4432abc3f7g4g3",
-                                "DescriptionHandle": "h2c525b9161344f509bb4dcad8e49010bb9ce",
-                                "TooltipHandle": "ha94c42869802455dba878884efdbcbee3fea"
+                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f",
+                                "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea"
+                            }
+                        },
+                        {
+                            "Id": "restore_last_page",
+                            "Name": "Restore last used page",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When opening MCM (after loading a save), automatically restore the last used mod page.",
+                            "Handles": {
+                                "NameHandle": "h77422890f2f5433486d6e9990a950c91g061",
+                                "DescriptionHandle": "hff55f0470579497788e9e048f207f1097809"
+                            }
+                        },
+                        {
+                            "Id": "restore_last_subtab",
+                            "Name": "Restore last used subtab",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When a mod page is opened, automatically restore the last used subtab for that mod.",
+                            "Handles": {
+                                "NameHandle": "h508b792738634a4f88639bd379f12e601e96",
+                                "DescriptionHandle": "h90ef12cdf9314d539f9712e41fe2f4bb8afd"
+                            }
+                        },
+                        {
+                            "Id": "reposition_window_if_out_of_bounds",
+                            "Name": "Reposition window if out of bounds",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Automatically reposition the MCM window if it goes outside the screen boundaries.",
+                            "Handles": {
+                                "NameHandle": "h98e72bb15db546859c41ef81ddac77bc5d69",
+                                "DescriptionHandle": "h48cd3bba1b0347f6b8e81cd36f07890de455"
                             }
                         },
                         {
@@ -74,15 +146,94 @@
                             "Name": "Dynamic opacity",
                             "Type": "checkbox",
                             "Default": false,
-                            "Description": "Make the MCM window more transparent when interacting with game elements.",
+                            "Description": "Make the MCM window more transparent while interacting with game elements.",
                             "Handles": {
                                 "NameHandle": "h9abda7ddcd564ba69433278a82884c535566",
                                 "DescriptionHandle": "h204a4196566b44eb8070bc8b5d36edde1c1d"
+                            }
+                        },
+                        {
+                            "Id": "toggle_detached_with_main",
+                            "Name": "Toggle detached windows with main window",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When toggling the MCM window, also toggle the visibility of any detached mod pages.",
+                            "Handles": {
+                                "NameHandle": "hb2920a2b77c847959a151f340846407dc001",
+                                "DescriptionHandle": "h7d50a040d7db44e7a7f0064dd56715d53d49"
                             }
                         }
                     ],
                     "Handles": {
                         "NameHandle": "h6db631a023d0425ca0a62566ab1bec41797f"
+                    }
+                }
+            ]
+        },
+        {
+            "TabId": "sidebar_behavior",
+            "TabName": "Sidebar behavior",
+            "TabDescription": "By default, the sidebar automatically expands when hovering the icon, and will collapse when opening a mod page.\nYou can also manually toggle it with CAPSLOCK.",
+            "Handles": {
+                "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0",
+                "DescriptionHandle": "h4f7f7d8278084ab49b90d31af3f3810eegc7"
+            },
+            "Sections": [
+                {
+                    "SectionId": "sidebar_settings",
+                    "SectionName": "Sidebar settings",
+                    "Settings": [
+                        {
+                            "Id": "enable_hover",
+                            "Name": "Enable expansion on icon hover",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Enable hover-based expansion of the sidebar.",
+                            "Handles": {
+                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be921",
+                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6f"
+                            }
+                        },
+                        {
+                            "Id": "enable_auto_collapse",
+                            "Name": "Enable automatic sidebar collapse",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).",
+                            "Handles": {
+                                "NameHandle": "h0636d5bc17f6464f99c1da18831bb38f1561",
+                                "DescriptionHandle": "h3f6a4e8a570d41c2bf60d673a3bfa1ef3472"
+                            }
+                        },
+                        {
+                            "Id": "collapsed_by_default",
+                            "Name": "Start collapsed",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Start with the sidebar in a collapsed state when opening MCM.",
+                            "Handles": {
+                                "NameHandle": "h0813e1fea4fe4400b99a11216d16627be922",
+                                "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6g"
+                            }
+                        },
+                        {
+                            "Id": "toggle_mcm_sidebar_keybinding",
+                            "Name": "Toggle sidebar (collapse/expand)",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "CAPSLOCK"
+                                }
+                            },
+                            "Description": "Toggles the sidebar between collapsed and expanded.",
+                            "Handles": {
+                                "NameHandle": "h3dafbcac8ffe4c7b9ca391520326dbb65984",
+                                "DescriptionHandle": "h4db8c7a1952847eda028173a74dc5e166ea5"
+                            }
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h3eea24a3dff74849a38e04f0fc43b4b54963"
                     }
                 }
             ]
@@ -136,10 +287,11 @@
                             "Default": {
                                 "Keyboard": {
                                     "Key": "",
-                                    "ModifierKeys": [
-                                        ""
-                                    ]
+                                    "ModifierKeys": []
                                 }
+                            },
+                            "Options": {
+                                "IsDeveloperOnly": true
                             }
                         }
                     ],

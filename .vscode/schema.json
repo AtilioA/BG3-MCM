@@ -465,6 +465,10 @@
                                     "Default": {
                                         "type": "object",
                                         "properties": {
+                                            "Enabled": {
+                                                "type": "boolean",
+                                                "description": "Indicates if the keybinding is enabled."
+                                            },
                                             "Keyboard": {
                                                 "type": "object",
                                                 "properties": {
@@ -479,11 +483,13 @@
                                                                 "Meta"
                                                             ]
                                                         },
-                                                        "description": "Modifier keys for the keyboard binding."
+                                                        "description": "Modifier keys for the keyboard binding.",
+                                                        "minItems": 0
                                                     },
                                                     "Key": {
                                                         "type": "string",
                                                         "enum": [
+                                                            "",
                                                             "UNKNOWN",
                                                             "A",
                                                             "B",
@@ -799,6 +805,21 @@
                                                 "type": "boolean",
                                                 "description": "Trigger the action repeatedly while the key is held down. Default: false",
                                                 "default": false
+                                            },
+                                            "IsDeveloperOnly": {
+                                                "type": "boolean",
+                                                "description": "Make this keybinding only visible if developer mode is enabled. Default: false",
+                                                "default": false
+                                            },
+                                            "BlockIfLevelNotStarted": {
+                                                "type": "boolean",
+                                                "description": "Prevent the keybinding from triggering when the game level has not started yet. Useful for actions that should only work in-game, not in the main menu. Default: false",
+                                                "default": false
+                                            },
+                                            "PreventAction": {
+                                                "type": "boolean",
+                                                "description": "When true (default), the keybinding will prevent the original game action. When false, allows the original action to occur (i.e. they key event will 'fall through').",
+                                                "default": true
                                             }
                                         },
                                         "additionalProperties": false,
@@ -851,8 +872,8 @@
                     "Type": "list_v2",
                     "Description": "This is a list v2 setting",
                     "Default": {
-                        "enabled": true,
-                        "elements": [
+                        "Enabled": true,
+                        "Elements": [
                             {
                                 "name": "a",
                                 "enabled": true
@@ -999,14 +1020,10 @@
                     "Default": {
                         "Keyboard": {
                             "ModifierKeys": [
-                                "Ctrl",
-                                "Shift"
+                                "LCtrl",
+                                "LShift"
                             ],
                             "Key": "K"
-                        },
-                        // NOTE: Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence.
-                        "Mouse": {
-                            "Button": "1"
                         }
                     },
                     "Tooltip": "This is a keybinding setting.",

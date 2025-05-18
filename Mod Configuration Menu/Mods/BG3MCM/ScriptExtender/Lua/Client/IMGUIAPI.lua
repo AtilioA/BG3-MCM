@@ -16,12 +16,12 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
         return
     end
 
-    if settingId == "auto_resize_window" then
-        MCM_WINDOW.AlwaysAutoResize = value
-    end
-
     if settingId == "dynamic_opacity" and value == false then
         MCMClientState:SetActiveWindowAlpha(true)
+    end
+
+    if settingId == 'font_size' then
+        MCMClientState:SetMCMFontSize(value)
     end
 end
 
@@ -81,7 +81,7 @@ end
 function IMGUIAPI:SetSettingValue(settingId, value, modUUID, setUIValue)
     MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
 
-    -- FIXME: this is leaking listeners
+    -- FIXME: this is leaking listeners?
     ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
         if data.modUUID == modUUID and data.settingId == settingId then
             if setUIValue then
@@ -99,6 +99,81 @@ function IMGUIAPI:ResetSettingValue(settingId, modUUID)
     MCMProxy:ResetSettingValue(settingId, modUUID)
 end
 
+--- Opens the MCM window.
+--- @param playSound boolean Whether to play a sound effect when opening the window.
+function IMGUIAPI:OpenMCMWindow(playSound)
+    if not MCM_WINDOW then
+        MCMWarn(0, "Tried to open MCM window, but it doesn't exist. Requesting configs from server...")
+        Ext.ClientNet.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, "")
+        return
+    end
+
+    -- Ensure window is in visible area before showing it
+    MCMClientState:EnsureWindowVisible()
+
+    MCM_WINDOW.Visible = true
+    MCM_WINDOW.Open = true
+    ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
+        playSound = playSound
+    }, true)
+end
+
+--- Closes the MCM window.
+--- @param playSound boolean Whether to play a sound effect when closing the window.
+function IMGUIAPI:CloseMCMWindow(playSound)
+    if not MCM_WINDOW then
+        MCMWarn(0, "Tried to close MCM window, but it doesn't exist")
+        return
+    end
+
+    MCM_WINDOW.Visible = false
+    MCM_WINDOW.Open = false
+    ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {
+        playSound = playSound
+    }, true)
+end
+
+--- Toggles the visibility of the MCM window.
+--- @param playSound boolean Whether to play a sound effect when toggling the window.
+function IMGUIAPI:ToggleMCMWindow(playSound)
+    if not MCM_WINDOW then
+        MCMWarn(0, "Tried to toggle MCM window, but it doesn't exist. Requesting configs from server...")
+        Ext.ClientNet.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, "")
+        return
+    end
+
+    if MCM_WINDOW.Open == true then
+        self:CloseMCMWindow(playSound)
+    else
+        -- Ensure window is in visible area before showing it
+        MCMClientState:EnsureWindowVisible()
+        self:OpenMCMWindow(playSound)
+    end
+
+    -- Toggle detached windows if the setting is enabled
+    local toggleDetachedOpt = MCMAPI:GetSettingValue("toggle_detached_with_main", ModuleUUID)
+
+    if toggleDetachedOpt then
+        if DualPane and DualPane.rightPane and DualPane.rightPane.detachedWindows then
+            for _, detachedWin in pairs(DualPane.rightPane.detachedWindows) do
+                if detachedWin then
+                    -- Set detached window visibility to match the new state of the main MCM window
+                    detachedWin.Visible = MCM_WINDOW.Visible
+                end
+            end
+        end
+    end
+end
+
+function IMGUIAPI:OpenModPage(tabName, modUUID, shouldEmitEvent)
+    if not DualPane or not DualPane.leftPane then
+        MCMError(0, "Tried to open mod page, but DualPane doesn't exist")
+        return
+    end
+
+    DualPane:OpenModPage(tabName, modUUID, shouldEmitEvent)
+end
+
 -- --- Send a message to the server to set a profile
 -- ---@param profileName string The name of the profile to set
 -- ---@return nil
@@ -114,7 +189,7 @@ function IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
     -- Find the widget corresponding to the setting and update its value
     local widget = self:findWidgetForSetting(settingId, modUUID)
     if not widget then
-        MCMWarn(1, "No widget found for setting " .. settingId)
+        MCMWarn(2, "No widget found for setting " .. settingId)
         return
     end
     widget:UpdateCurrentValue(value)
@@ -151,4 +226,20 @@ function IMGUIAPI:GetModWidgets(modUUID)
     end
 
     return MCMClientState.mods[modUUID].widgets
+end
+
+function IMGUIAPI:ToggleMCMSidebar()
+    if not MCM_WINDOW then
+        MCMError(0, "Tried to toggle MCM sidebar, but it doesn't exist")
+        return
+    end
+
+    if not DualPane then
+        MCMError(0, "Tried to toggle MCM sidebar, but DualPane doesn't exist")
+        return
+    end
+
+    if MCM_WINDOW.Visible or MCM_WINDOW.Open then
+        DualPane:ToggleSidebar()
+    end
 end

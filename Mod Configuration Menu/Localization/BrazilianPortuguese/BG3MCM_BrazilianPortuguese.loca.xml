@@ -3,10 +3,10 @@
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Menu de Configuração de Mods</content>
     <content contentuid="h8e2c39a3f3c040aebfb9ad10339dd4ff89f7" version="1">Menu de Configuração de Mods</content>
     <content contentuid="h91b72aadb42a441881a1a7c5de2f82e27agga" version="1">Configurações</content>
-    <content contentuid="hc4abe0365af046e6abac1b4432abc3f7g4g3" version="1">Redimensionar a janela automaticamente</content>
     <content contentuid="hb2789893dcaf46fca8c40add9358e1f2ca93" version="1">Atalho para exibir/esconder janela do MCM</content>
     <content contentuid="h76a89ee330464e30b1b9a01de85cbd0042a6" version="1">Abrir janela do MCM ao iniciar</content>
-    <content contentuid="h2c525b9161344f509bb4dcad8e49010bb9ce" version="1">Redimensionar dinamicamente a janela do MCM para se ajustar às configurações exibidas.</content>
+    <content contentuid="h98e72bb15db546859c41ef81ddac77bc5d69" version="1">Reposicionar janela se fora dos limites</content>
+    <content contentuid="h48cd3bba1b0347f6b8e81cd36f07890de455" version="1">Reposicionar automaticamente a janela do MCM se ela estiver fora dos limites da tela.</content>
     <content contentuid="h0d8762f0ceb645608a64b684e581f7a72d67" version="1">Abrir automaticamente a janela do MCM quando o jogo iniciar.</content>
     <content contentuid="h7728653cb8de46388719316b95f3a4110e7c" version="1">Teclas para exibir/esconder a janela do MCM.&lt;br&gt;Você também pode usar o botão do MCM no menu de ESC.</content>
     <content contentuid="h6db631a023d0425ca0a62566ab1bec41797f" version="1">Configurações gerais</content>
@@ -34,11 +34,11 @@
     <content contentuid="h38c503feb8094c3aae3839b16ea3a74ff1ad" version="1">Sobre o MCM</content>
     <content contentuid="ha303b737440345dd831870ef6b4ff7256601" version="1">Sobre</content>
     <content contentuid="h45722336fcb04208a1b46356190835bb2d86" version="1">Dicas de UI</content>
-    <content contentuid="h99e6c7f6eb9c43238ca27a89bb45b9690607" version="1">Esta aba pode ter conteúdo personalizado que não está disponível no menu principal.</content>
+    <content contentuid="h99e6c7f6eb9c43238ca27a89bb45b9690607" version="1">Esta aba pode ter conteúdo que não está disponível no menu principal. Por favor, carregue um save primeiro.</content>
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Printar avisos de descontinuação para mods com código desatualizado.&lt;br&gt;Eles ainda serão exibidos se o modo desenvolvedor estiver ativado.</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Printar avisos de descontinuação</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Depuração</content>
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">MCM está 'inativo' na sua load order, talvez devido a mods com UUIDs inválidos.&#x0a;Certifique-se de que MCM está ativo no seu gerenciador de mods.&#x0a;Esta mensagem desaparece se o MCM estiver ativo.</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;MCM está 'inativo' na sua load order. Certifique-se de ter salvo e exportado sua load order.&#x0a;Problemas podem ser causados pelo uso do gerenciador de mods nativo do jogo ou mods com UUIDs inválidos.&#x0a;BG3MM 1.0.12.8+ identifica problemas na load order. Isso NÃO aparecerá se o MCM estiver ativo.&#x0a;</content>
     <content contentuid="h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f" version="1">Não mostrar novamente</content>
     <content contentuid="h9b0d0bba0bf64006a6dd8ed86a4d5353a3d8" version="1">Pesquisar por nome:</content>
     <content contentuid="h17e2c93763d54f3f9b5da8722d09cf90fab9" version="1">Marque para habilitar a lista, desmarque para desabilitá-la, sem remover/desabilitar nenhum elemento.</content>
@@ -54,7 +54,7 @@
     <content contentuid="hc8ac6fff0508437d936bb1ae51e9a3dfc8a0" version="1">Remover</content>
     <content contentuid="h9d7807ea594c4e5cb10d616f4a100c94341g" version="1">Cima</content>
     <content contentuid="h5259f8b44fdd4186bccca1948332cf250ac3" version="1">Baixo</content>
-    <content contentuid="hb22eb0c6c4ed41b28966287ab5b20c7b35a3" version="1">Clique e insira um número de página para navegar até ele</content>
+    <content contentuid="hb22eb0c6c4ed41b28966287ab5b20c7b35a3" version="1">Clique, insira um número de página e aperte Enter para navegar até ela</content>
     <content contentuid="hb95bf2a27ec04873b561c53aa35066a75b83" version="1">(filtrado)</content>
     <content contentuid="hf10161d75da04360907b151e4eb07054f8cb" version="1">Adicionar novo elemento:</content>
     <content contentuid="h4b543fe6f0fd4d8199950d7a16b3879ca7d1" version="1">Adicionar</content>
@@ -72,8 +72,8 @@
     <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Criado por [1] | Versão [2]</content>
     <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Não vê a janela do MCM? Veja os passos de resolução de problemas na página do mod.</content>
     <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Redefinir</content>
-    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Redefinir para a configuração padrão.</content>
-    <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">Conflito de atalho de tecla</content>
+    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Redefinir atalho para o padrão.</content>
+    <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">AÇÃO NECESSÁRIA: Conflito de atalho de tecla</content>
     <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Pressione as teclas para atribuir [ESC para cancelar | BACKSPACE para remover]</content>
     <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Atalho de teclado vazio</content>
     <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Pesquisar atalhos de teclado:</content>
@@ -131,4 +131,50 @@
     <content contentuid="h0dfee4b6ba51423da77eaa53e1961ade059f" version="1">CTRL + clique para inserir o valor manualmente.</content>
     <content contentuid="hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d" version="1">Reinicia a máquina virtual Lua do servidor e do cliente.</content>
     <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua</content>
+    <content contentuid="hd4e656a649c14e638ab1cb4380ad714746ea" version="1">O atalho [1] está vinculado a mais de uma ação.&lt;br&gt;Abra o MCM e redefina as teclas em conflito.</content>
+    <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Esse atalho deve ser habilitado?&lt;br&gt;Desabilitá-lo irá impedir que ele seja acionado se a combinação de teclas for pressionada.</content>
+    <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Defina o atalho para fechar a janela do MCM.</content>
+    <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Fechar janela do MCM</content>
+    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Barra lateral</content>
+    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">Ativar colapso automático da barra lateral.&lt;br&gt;Quando ativado, a barra lateral será colapsada com base na inatividade ou em outros gatilhos de colapso.</content>
+    <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Ativar colapso automático da barra lateral</content>
+    <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Expandir barra ao passar o mouse no ícone de menu</content>
+    <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Expandir barra lateral ao passar o mouse pelo menu de hambúrguer, sem necessidade de clicar.</content>
+    <content contentuid="hb341a515eea64380ad0ccfe6c1ff115d1310" version="1">Visualização destacada para o mod '[1]'</content>
+    <content contentuid="h0967f545c53f4796bd25d550fe05e234c1ga" version="1">Versão errada do No Press Any Key Menu</content>
+    <content contentuid="h41e2dbf1773848eca2001fde456cca4d0156" version="1">Você está usando 'No Press Any Key Menu' sem o patch de compatibilidade do MCM.&lt;br&gt;Seu menu principal pode não exibir o botão do MCM corretamente.&lt;br&gt;&lt;br&gt;Por favor, substitua pela versão corrigida da página do mod de Caites.</content>
+    <content contentuid="he1d69e96b7e44957b6d9373635ef69100180" version="1">Problema de dependência detectado: [1] depende de [2]</content>
+    <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">O mod '[1]' tem um UUID inválido ([2]).&lt;br&gt;Este mod impedirá que sua load order funcione corretamente.&lt;br&gt;Por favor, exclua o arquivo pak deste mod ou procure uma atualização.&lt;br&gt;Você pode reverter para o Patch 6 ou 7 e usar o Mod Uninstaller para tentar remover este mod se não conseguir carregar um save sem este mod.</content>
+    <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Sua load order tem um mod com um UUID inválido ([1] [2])</content>
+    <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Não é possível verificar a dependência '[1]' para o mod '[2]' porque não possui informações de versão.&lt;br&gt;Isso não impacta a funcionalidade, mas por favor, entre em contato com [3] para atualizar o arquivo meta.lsx para '[4]'.&lt;br&gt;O node de versão pode ter um ID desatualizado (deve ser Version64).</content>
+    <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">O mod '[1]' requer '[2]' versão [3] ou superior, mas a versão carregada é [4].&lt;br&gt;Por favor, atualize [2].</content>
+    <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">O mod '[1]' requer a dependência '[2]', que não está carregada.&lt;br&gt;Por favor, instale [2].</content>
+    <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Ocultar a barra lateral</content>
+    <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expandir a barra lateral contendo atalhos, mods, etc.</content>
+    <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Desanexar o conteúdo do mod para uma janela separada</content>
+    <content contentuid="hd3bbec3b1be2455986b5da92492f445d4296" version="1">Nenhum atalho encontrado.</content>
+    <content contentuid="h508b792738634a4f88639bd379f12e601e96" version="1">Restaurar a última página usada</content>
+    <content contentuid="hff55f0470579497788e9e048f207f1097809" version="1">Quando o MCM é aberto (após carregar um save), automaticamente restaura a última página de mod usada.</content>
+    <content contentuid="h77422890f2f5433486d6e9990a950c91g061" version="1">Restaurar a última página usada</content>
+    <content contentuid="h90ef12cdf9314d539f9712e41fe2f4bb8afd" version="1">Quando uma página de mod é aberta, automaticamente restaura a última aba usada para esse mod.</content>
+    <content contentuid="h62488e121c3345bf81777731789205cd2154" version="1">Se você não vir a janela do MCM, consulte o guia na página do MCM na Nexus para obter ajuda.&lt;br&gt;Isso geralmente é causado por overlays de terceiros ou por dar alt-tab antes de chegar no menu principal.&lt;br&gt;Você também pode tentar excluir o arquivo imgui.ini dentro da pasta do jogo.</content>
+    <content contentuid="hbeb2a0a8c350441eae1f6912aea80689f0b2" version="1">Tiny</content>
+    <content contentuid="hdbe703ec2a034fbb8022a8651c47952be84b" version="1">Small</content>
+    <content contentuid="he0a910f53497499dac43116094b83686g431" version="1">Medium</content>
+    <content contentuid="h88ee680058a748d29f6a173ae38205621g58" version="1">Default</content>
+    <content contentuid="h0216f2c4d63f4915b25cd7f24b8396e3aff1" version="1">Large</content>
+    <content contentuid="ha93072e1b30e40ad9461191e5635882dbc2e" version="1">Big</content>
+    <content contentuid="hb0581f5c946848979375a36f96a7febbg72b" version="1">Muda o tamanho do texto na janela do MCM.&lt;br&gt;NOTA: Os ícones só terão a escala correta ao mudar após recarregar um save.</content>
+    <content contentuid="hdeb0d5384b744247b7ce270b52ef4721ag3d" version="1">Configura o tamanho da fonte da janela do MCM.</content>
+    <content contentuid="h169974967d6d45bdb4fe1da9b042f51228c1" version="1">Tamanho da fonte</content>
+    <content contentuid="h7de073367e614d0d9d896abbaf2e1b6bdec0" version="1">Comportamento da barra lateral</content>
+    <content contentuid="h0813e1fea4fe4400b99a11216d16627be922" version="1">Iniciar recolhida</content>
+    <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6g" version="1">Iniciar com a barra lateral recolhida ao abrir o MCM.</content>
+    <content contentuid="h3dafbcac8ffe4c7b9ca391520326dbb65984" version="1">Alternar barra lateral (recolher/expandir)</content>
+    <content contentuid="h4db8c7a1952847eda028173a74dc5e166ea5" version="1">Alterna a barra lateral entre recolhida e expandida.</content>
+    <content contentuid="hc2133fbab6fb47a9a4f71e83a715780237e1" version="1">Reanexar mod</content>
+    <content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Fornece uma interface no jogo que permite aos jogadores gerenciar intuitivamente configurações de mods e teclas de atalho.</content>
+    <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Exibir/esconder janelas desanexadas com a janela principal</content>
+    <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">Quando exibir/esconder a janela do MCM, faz o mesmo com quaisquer páginas de mod desanexadas.</content>
+    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">Por padrão, a barra lateral expande automaticamente ao passar o mouse sobre o ícone de menu e será recolhida ao abrir uma página de mod.&lt;br&gt;Você também pode manualmente alterná-la com CAPSLOCK.</content>
 </contentList>

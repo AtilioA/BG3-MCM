@@ -1,6 +1,9 @@
 RequireFiles("Client/Helpers/", {
-    "KeyPresentationMapping",
-    "IMGUIWidgets/_Init",
+    "Font",
+    "VisibilityManager/_Init",
+    "Keybindings/_Init",
+    "ClientGlobals",
     "UIStyle",
     "Noesis",
+    "Restoration/_Init",
 })

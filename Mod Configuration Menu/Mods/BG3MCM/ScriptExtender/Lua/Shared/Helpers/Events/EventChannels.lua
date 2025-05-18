@@ -8,6 +8,7 @@ EventChannels = {}
 EventChannels.MCM_SETTING_SAVED = "MCM_Setting_Saved"
 -- REMOVED: Use MCM_SETTING_SAVED instead
 -- EventChannels.MCM_SETTING_UPDATED = "MCM_Setting_Updated"
+EventChannels.MCM_INTERNAL_SETTING_SAVED = "MCM_Internal_Setting_Saved"
 
 --- Fired when a setting is reset to its default value.
 --- @return string modUUID The UUID of the mod
@@ -62,6 +63,11 @@ EventChannels.MCM_WINDOW_CLOSED = "MCM_Window_Closed"
 --- Fired when keybindings are loaded.
 EventChannels.MCM_KEYBINDINGS_LOADED = "MCM_Keybindings_Loaded"
 
+--- Fired when an event_button is clicked.
+--- @return string modUUID The UUID of the mod
+--- @return string settingId The ID of the event button setting
+EventChannels.MCM_EVENT_BUTTON_CLICKED = "MCM_Event_Button_Clicked"
+
 local function RegisterModEvents()
     local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
 
@@ -77,6 +83,7 @@ local function RegisterModEvents()
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_OPENED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_CLOSED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_KEYBINDINGS_LOADED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_EVENT_BUTTON_CLICKED)
 end
 
 RegisterModEvents()

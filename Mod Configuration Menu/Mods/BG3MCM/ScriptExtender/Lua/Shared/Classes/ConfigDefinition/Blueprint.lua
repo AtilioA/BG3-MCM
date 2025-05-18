@@ -60,7 +60,7 @@ function Blueprint:GetModDescription()
 
     local modDescription = self.ModDescription
     local modData = Ext.Mod.GetMod(self.ModUUID)
-    if (not self.ModDescription or self.ModDescription == "") and modData and modData.Info then
+    if not self.ModDescription and modData and modData.Info then
         modDescription = modData.Info.Description
     end
 

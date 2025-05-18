@@ -2,17 +2,36 @@
 ---
 ---@class MCMProxy
 ---@field GameState string The current game state. Might be used to determine if the game is in the main menu.
+---@field GameStateSubject any Subject that emits game state changes
 MCMProxy = _Class:Create("MCMProxy", nil, {
-    GameState = 'Menu'
+    GameState = Ext.Net.IsHost() and "Running" or "Menu",
+    GameStateSubject = nil
 })
 
+local RX = Ext.Require("Lib/reactivex/_init.lua")
+
+-- Initialize the reactive game state management
+function MCMProxy:Initialize()
+    self.GameStateSubject = RX.BehaviorSubject.Create(self.GameState)
+
+    Ext.Events.GameStateChanged:Subscribe(function(e)
+        MCMProxy.GameState = e.ToState
+
+        -- Emit the state change through our reactive subject
+        if self.GameStateSubject then
+            self.GameStateSubject:OnNext(MCMProxy.GameState)
+        end
+
+        MCMDebug(1, "GameState changed to " .. tostring(MCMProxy.GameState))
+    end)
+end
+
 function MCMProxy.IsMainMenu()
-    if Ext.Net.IsHost then
+    local gameState = MCMProxy.GameState
+
+    if not gameState and Ext.Net.IsHost then
         return not Ext.Net.IsHost()
     end
-
-    -- Old fallback since it's already here
-    local gameState = MCMProxy.GameState
 
     if gameState == 'Menu' then
         return true
@@ -36,24 +55,44 @@ function MCMProxy:LoadConfigs()
     end
 end
 
--- TODO: add temporary message to inform users that custom MCM tabs are not available in the main menu
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
-    -- FrameManager:updateModDescriptionTooltip(modUUID, "Some functionality from this mod requires a save to be loaded first.")
-
-    if MCMProxy.IsMainMenu() or not
-        FrameManager:GetGroup(modUUID) then
-        -- local function addTempTextMainMenu(tabHeader)
-        --     local tempTextDisclaimer = Ext.Loca.GetTranslatedString("h99e6c7f6eb9c43238ca27a89bb45b9690607")
-        --     addTempText = tabHeader:AddText(tempTextDisclaimer)
-        --     addTempText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
-        -- end
-
-        Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function()
-            FrameManager:InsertModTab(modUUID, tabName, tabCallback)
-        end)
-    else
-        FrameManager:InsertModTab(modUUID, tabName, tabCallback)
+    if not self.GameStateSubject then
+        self:Initialize()
     end
+
+    -- Subscribe to game state changes to handle tab insertion appropriately
+    local disclaimerTab, disclaimerElement
+    local subscription = nil
+    subscription = self.GameStateSubject:Subscribe(function(gameState)
+        -- This timer is a workaround. Ideally, we should be able to use this value directly. May refactor this if we get a way to query the game state directly.
+        VCTimer:OnTicks(2, function()
+            if gameState == "Menu" then
+                -- We're in the main menu
+                MCMClientState.UIReady:Subscribe(function(ready)
+                    if not ready then
+                        return
+                    end
+
+                    -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
+                    if disclaimerTab or disclaimerElement then return end
+                    disclaimerTab, disclaimerElement = DualPane:CreateTabWithDisclaimer(
+                        modUUID, tabName, "h99e6c7f6eb9c43238ca27a89bb45b9690607"
+                    )
+                end)
+            elseif gameState == "Running" then
+                if disclaimerElement then
+                    xpcall(function() disclaimerElement.Label = "" end, function() end)
+                end
+
+                MCMClientState.UIReady:Subscribe(function(ready)
+                    if ready and subscription and not subscription._unsubscribed then
+                        DualPane:InsertModTab(modUUID, tabName, tabCallback)
+                        subscription = nil
+                    end
+                end)
+            end
+        end)
+    end)
 end
 
 function MCMProxy:GetSettingValue(settingId, modUUID)
@@ -107,6 +146,13 @@ end
 
 function MCMProxy:RegisterMCMKeybindings()
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_keybinding",
-        function() IMGUILayer:ToggleMCMWindow(true) end)
+        function() IMGUIAPI:ToggleMCMWindow(true) end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua", function() Ext.Debug.Reset() end)
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "close_mcm_keybinding",
+        function() IMGUIAPI:CloseMCMWindow(true) end)
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_sidebar_keybinding",
+        function() IMGUIAPI:ToggleMCMSidebar() end)
 end
+
+-- Initialize the proxy when the module is loaded
+MCMProxy:Initialize()

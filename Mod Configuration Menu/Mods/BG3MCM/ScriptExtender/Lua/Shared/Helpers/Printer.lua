@@ -10,6 +10,9 @@ Ext.ModEvents['BG3MCM'][EventChannels.MCM_SETTING_SAVED]:Subscribe(function(payl
     if payload.settingId == "debug_level" then
         MCMPrint(0, "Setting debug level to " .. payload.value)
         MCMPrinter.DebugLevel = payload.value
+        local config = Config:getCfg()
+        config.DEBUG.level = payload.value
+        Config:SaveCurrentConfig()
     end
 end)
 
@@ -44,7 +47,7 @@ end
 
 function MCMError(debugLevel, ...)
     MCMPrinter:SetFontColor(255, 38, 38)
-    MCMPrinter:PrintWarning(debugLevel, ...)
+    MCMPrinter:PrintError(debugLevel, ...)
 end
 
 function MCMDump(debugLevel, ...)

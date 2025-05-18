@@ -40,6 +40,10 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
         return
     end
 
+    if InvalidMods:IsModInvalid(modUUID) then
+        return
+    end
+
     if blueprint:GetOptional() then
         return
     end

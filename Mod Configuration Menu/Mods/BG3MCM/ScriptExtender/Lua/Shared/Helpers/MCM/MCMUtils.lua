@@ -111,5 +111,33 @@ function MCMUtils:SyncModVars(module)
     end
 end
 
+--- Formats the mod version table to a string, omitting trailing zeros.
+---@param ModuleUUID string The UUID of the mod
+---@return string The formatted version string
+function MCMUtils.FormatModVersion(ModuleUUID)
+    if not ModuleUUID then
+        return ""
+    end
+
+    local mod = Ext.Mod.GetMod(ModuleUUID)
+    if not mod or not mod.Info.ModVersion then
+        return ""
+    end
+
+    local rawVersion = mod.Info.ModVersion
+    local lastIndex = #rawVersion
+
+    while lastIndex > 1 and rawVersion[lastIndex] == 0 do
+        lastIndex = lastIndex - 1
+    end
+
+    -- Build a new table with only the necessary numbers
+    local parts = {}
+    for i = 1, lastIndex do
+        parts[i] = rawVersion[i]
+    end
+
+    return table.concat(parts, ".")
+end
 
 return MCMUtils

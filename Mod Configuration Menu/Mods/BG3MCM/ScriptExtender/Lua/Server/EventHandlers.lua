@@ -3,14 +3,28 @@ EHandlers = {}
 EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
 EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
-function EHandlers.SavegameLoaded()
+local function loadSettingsAndWarn()
     MCMServer:LoadAndSendSettings()
     ModEventManager:IssueDeprecationWarning()
 end
 
-function EHandlers.OnClientRequestConfigs(_)
+function EHandlers.SavegameLoaded()
+    loadSettingsAndWarn()
+end
+
+function EHandlers.CCStarted()
+    loadSettingsAndWarn()
+end
+
+function EHandlers.OnClientRequestConfigs(_channel, _payload, userID)
     MCMDebug(1, "Received MCM settings request")
-    MCMServer:LoadAndSendSettings()
+    if not MCMAPI.mods or not MCMAPI.profiles then
+        MCMServer:LoadAndSendSettings()
+        return
+    else
+        Ext.ServerNet.PostMessageToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
+            Ext.Json.Stringify({ userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    end
 end
 
 function EHandlers.OnClientRequestSetSettingValue(_, payload, peerId)
@@ -100,9 +114,7 @@ function EHandlers.OnSessionLoaded()
 end
 
 local function showTroubleshootingNotification(userCharacter)
-    -- TODO: use loca
-    Osi.OpenMessageBox(userCharacter,
-        "If you don't see the MCM window, please see the mod page for troubleshooting steps.\nThis is usually caused by third-party overlays or by alt-tabbing before reaching the main menu.")
+    Osi.OpenMessageBox(userCharacter, Ext.Loca.GetTranslatedString("h62488e121c3345bf81777731789205cd2154"))
 end
 
 local function updateNotificationStatus(userId, MCMModVars)

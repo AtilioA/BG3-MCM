@@ -271,6 +271,10 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                 if not self:ValidateKeybindingV2Setting(setting) then
                     return false
                 end
+            elseif settingType == "event_button" then
+                if not self:ValidateEventButtonSetting(setting) then
+                    return false
+                end
             end
         end
     end
@@ -336,6 +340,15 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
         return false
     end
 
+    if setting.Options and setting.Options.IsDeveloperOnly ~= nil and type(setting.Options.IsDeveloperOnly) ~= "boolean" then
+        MCMWarn(0,
+            "Options.IsDeveloperOnly for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
     if setting.Options and setting.Options.ShouldTriggerOnKeyUp ~= nil and type(setting.Options.ShouldTriggerOnKeyUp) ~= "boolean" then
         MCMWarn(0,
             "Options.ShouldTriggerOnKeyUp for keybinding_v2 setting '" ..
@@ -353,10 +366,80 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
+
+    if setting.Options and setting.Options.BlockIfLevelNotStarted ~= nil and type(setting.Options.BlockIfLevelNotStarted) ~= "boolean" then
+        MCMWarn(0,
+            "Options.BlockIfLevelNotStarted for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if setting.Options and setting.Options.PreventAction ~= nil and type(setting.Options.PreventAction) ~= "boolean" then
+        MCMWarn(0,
+            "Options.PreventAction for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+    return true
+end
+
+--- Validates settings of type event_button
+---@param setting table The setting to validate
+---@return boolean Whether the setting is valid
+function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    -- Validate Options.Icon if present
+    if setting.Options and setting.Options.Icon ~= nil and type(setting.Options.Icon) ~= "string" then
+        MCMWarn(0,
+            "Options.Icon for event_button setting '" ..
+            setting.Id ..
+            "' must be a string. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate Options.ConfirmDialog if present
+    if setting.Options and setting.Options.ConfirmDialog ~= nil then
+        if type(setting.Options.ConfirmDialog) ~= "table" then
+            MCMWarn(0,
+                "Options.ConfirmDialog for event_button setting '" ..
+                setting.Id ..
+                "' must be a table. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        if setting.Options.ConfirmDialog.Title ~= nil and type(setting.Options.ConfirmDialog.Title) ~= "string" and setting.Options.ConfirmDialog.Title == "" then
+            MCMWarn(0,
+                "Options.ConfirmDialog.Title for event_button setting '" ..
+                setting.Id ..
+                "' must be a non-empty string. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        if setting.Options.ConfirmDialog.Message ~= nil and type(setting.Options.ConfirmDialog.Message) ~= "string" and setting.Options.ConfirmDialog.Message == "" then
+            MCMWarn(0,
+                "Options.ConfirmDialog.Message for event_button setting '" ..
+                setting.Id ..
+                "' must be a non-empty string. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+    end
+
     return true
 end
 
 function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
+    -- Skip Default validation for event_button type
+    if setting.Type == "event_button" then
+        return true
+    end
+
     if setting.Default == nil then
         MCMWarn(0,
             "Setting '" ..
@@ -450,6 +533,15 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         end
     elseif setting.Type == "keybinding_v2" then
         if type(setting.Default) == "table" then
+            if setting.Default["Enabled"] ~= nil and type(setting.Default["Enabled"]) ~= "boolean" then
+                MCMWarn(0,
+                    "Default value for 'enabled' in keybinding_v2 setting '" ..
+                    setting.Id ..
+                    "' must be a boolean. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+
             if not (type(setting.Default["Keyboard"]) == "table") then
                 MCMWarn(0,
                     "Default value for setting '" ..
@@ -491,11 +583,11 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             end
         end
     elseif setting.Type == "list_v2" then
-        if type(setting.Default) ~= "table" or setting.Default.enabled == nil or type(setting.Default.elements) ~= "table" then
+        if type(setting.Default) ~= "table" or (setting.Default["enabled"] == nil and setting.Default["Enabled"] == nil) or (type(setting.Default.elements) ~= "table" and type(setting.Default.Elements) ~= "table") then
             MCMWarn(0,
                 "Default value for setting '" ..
                 setting.Id ..
-                "' must be a table with 'enabled' and 'elements'. Please contact " ..
+                "' must be a table with 'Enabled' and 'Elements'. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
