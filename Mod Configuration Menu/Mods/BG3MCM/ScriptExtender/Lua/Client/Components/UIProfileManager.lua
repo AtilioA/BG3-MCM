@@ -15,7 +15,7 @@ function UIProfileManager:FindProfileIndex(profile)
     local profiles = ProfileService:GetProfiles()
     if not profiles then return nil end
 
-    for i, name in ipairs(profiles) do
+    for i, name in ipairs(profiles.Profiles) do
         if name == profile then
             return i
         end
@@ -41,6 +41,7 @@ function UIProfileManager:CreateProfileContent()
     -- Get current profiles and selection
     local profiles = ProfileService:GetProfiles() or {}
     local profileIndex = self:FindProfileIndex(ProfileService:GetCurrentProfile()) or 1
+    _D(self:FindProfileIndex(ProfileService:GetCurrentProfile()))
 
     -- Create UI elements
     if not DualPane or not DualPane.leftPane then return end

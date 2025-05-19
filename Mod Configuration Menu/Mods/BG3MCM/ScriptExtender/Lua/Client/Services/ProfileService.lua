@@ -16,7 +16,7 @@ end
 ---Get the current active profile
 ---@return string profileName
 function ProfileService:GetCurrentProfile()
-  return self.currentProfile
+  return MCMAPI:GetCurrentProfile()
 end
 
 ---Set the active profile
