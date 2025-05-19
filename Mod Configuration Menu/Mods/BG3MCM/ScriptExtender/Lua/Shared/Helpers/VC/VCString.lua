@@ -93,15 +93,26 @@ end
 ---@param handle string The handle of the localized message to update
 ---@param dynamicContent string The dynamic content to replace the placeholder with
 function VCString:UpdateLocalizedMessage(handle, dynamicContent)
-    -- Retrieve the current translated string for the given handle
-    local currentMessage = Ext.Loca.GetTranslatedString(handle)
+    -- Store original message in a cache if not already stored
+    if not self._originalMessages then
+        self._originalMessages = {}
+    end
 
-    -- Replace the placeholder [1] with the dynamic content. The g flag is for global replacement.
-    local updatedMessage = string.gsub(currentMessage, "%[1%]", function() return dynamicContent end)
+    -- Get or cache the original message
+    if not self._originalMessages[handle] then
+        self._originalMessages[handle] = Ext.Loca.GetTranslatedString(handle)
+    end
 
-    -- Update the translated string with the new content, altering it during runtime. Any GetTranslatedString calls will now return this updated message.
+    -- Use the original message as base
+    local originalMessage = self._originalMessages[handle]
+
+    -- Replace placeholder '[1]'' with the dynamic content
+    local updatedMessage = string.gsub(originalMessage, "%[1%]", tostring(dynamicContent))
+
+    -- Update the translated string with the new content during runtime
     Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
-    return updatedMessage
+    
+    return VCString:ReplaceBrWithNewlines(updatedMessage)
 end
 
 -- Adds full stop to the end of the string if it doesn't already have one
