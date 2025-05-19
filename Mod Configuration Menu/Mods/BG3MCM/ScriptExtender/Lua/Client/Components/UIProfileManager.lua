@@ -41,43 +41,33 @@ function UIProfileManager:CreateProfileContent()
     -- Get current profiles and selection
     local profiles = ProfileService:GetProfiles() or {}
     local profileIndex = self:FindProfileIndex(ProfileService:GetCurrentProfile()) or 1
-    _D(self:FindProfileIndex(ProfileService:GetCurrentProfile()))
 
     -- Create UI elements
+    -- REFACTOR: encapsulate this within DualPane
     if not DualPane or not DualPane.leftPane then return end
 
-    local separatorText = Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804") or "Profiles"
-    DualPane.leftPane:AddMenuSeparator(
-        separatorText,
-        nil,
-        ClientGlobals.MCM_PROFILES
-    )
-
-    local buttonText = Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782") or "Profiles"
+    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
     DualPane.leftPane:CreateMenuButton(
-        buttonText,
+        Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"),
         nil,
         ClientGlobals.MCM_PROFILES
     )
 
-    local groupLabel = Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804") or "Profile Management"
-    if not DualPane.rightPane then return end
-
-    local contentGroup = DualPane.rightPane:CreateModGroup(
-        ClientGlobals.MCM_PROFILES,
-        groupLabel
-    )
+    if not DualPane.contentScrollWindow then return end
+    local contentGroup = DualPane.contentScrollWindow:AddGroup(ClientGlobals.MCM_PROFILES)
 
     if not contentGroup then return end
 
+    contentGroup:AddSeparatorText(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
+
     -- Add disclaimer
-    contentGroup:AddText("Profile changes require a reload to take effect.")
-    contentGroup:AddText("Connecting players cannot use this page. Only the host may change these settings.")
+    contentGroup:AddText(Ext.Loca.GetTranslatedString("h48e0882af2b840e18f01ed08d40bfb03ggeb"))
+    contentGroup:AddText(Ext.Loca.GetTranslatedString("hcec0ce416d41404fa1358b7deb85124cb6d8"))
 
     -- Profile selection dropdown
     local profileCombo = contentGroup:AddCombo("")
     profileCombo.Options = profiles.Profiles
-    profileCombo.SelectedIndex = profileIndex - 1  -- Convert to 0-based index
+    profileCombo.SelectedIndex = profileIndex - 1 -- Convert to 0-based index
 
     -- Profile creation section
     local separatorText = Ext.Loca.GetTranslatedString("h5788159872f84825b184d42c1fbd6a216541")
@@ -130,7 +120,7 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
         -- Update UI
         if profileCombo then
             profileCombo.Options = ProfileService:GetProfiles() or {}
-            profileCombo.SelectedIndex = 0  -- Select Default profile (first in list)
+            profileCombo.SelectedIndex = 0 -- Select Default profile (first in list)
             self:UpdateDeleteProfileButton(deleteProfileButton, "Default")
         end
     end
@@ -145,7 +135,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
     profileButton.IDContext = "MCM_createProfileButton"
 
     profileButton.OnClick = function()
-        local profileName = newProfileName.Text:match("^%s*(.-)%s*$")  -- Trim whitespace
+        local profileName = newProfileName.Text:match("^%s*(.-)%s*$") -- Trim whitespace
         if profileName == "" then return end
 
         -- Create and switch to the new profile
@@ -157,7 +147,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
             if profileCombo then
                 profileCombo.Options = ProfileService:GetProfiles() or {}
                 local newIndex = self:FindProfileIndex(profileName) or 1
-                profileCombo.SelectedIndex = newIndex - 1  -- Convert to 0-based index
+                profileCombo.SelectedIndex = newIndex - 1 -- Convert to 0-based index
                 self:UpdateDeleteProfileButton(deleteProfileButton, profileName)
             end
         else
@@ -175,7 +165,7 @@ function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileB
 
     ---@param inputChange {SelectedIndex: number, Options: string[]}
     profileCombo.OnChange = function(inputChange)
-        local selectedIndex = inputChange.SelectedIndex + 1  -- Convert to 1-based index
+        local selectedIndex = inputChange.SelectedIndex + 1 -- Convert to 1-based index
         local selectedProfile = inputChange.Options[selectedIndex]
 
         if not selectedProfile then return end
@@ -186,7 +176,7 @@ function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileB
         else
             -- Revert selection on failure
             local currentIndex = self:FindProfileIndex(selectedProfile) or 1
-            profileCombo.SelectedIndex = currentIndex - 1  -- Convert to 0-based index
+            profileCombo.SelectedIndex = currentIndex - 1 -- Convert to 0-based index
         end
     end
 end
