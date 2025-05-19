@@ -292,7 +292,9 @@ end
 --- Create profile management header
 ---@return nil
 function MCMRendering:CreateProfileManagementHeader()
-    UIProfileManager:CreateProfileContent()
+    if MCMProxy:IsMainMenu() or Ext.Net.IsHost() then
+        UIProfileManager:CreateProfileContent()
+    end
     MCM_WINDOW:AddDummy(0, 10)
 end
 
