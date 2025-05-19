@@ -59,7 +59,7 @@
                             "Id": "font_size",
                             "Name": "Font size",
                             "Type": "enum",
-                            "Default": "Large",
+                            "Default": "Default",
                             "Description": "Set the font size for the MCM interface.",
                             "Tooltip": "Changes the size of text displayed in the MCM window.\nNOTE: Icons will only have correct scale after loading a save.",
                             "Options": {
