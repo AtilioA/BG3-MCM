@@ -171,8 +171,8 @@
             ]
         },
         {
-            "TabId": "sidebar_behavior",
-            "TabName": "Sidebar behavior",
+            "TabId": "sidebar_behaviour",
+            "TabName": "Sidebar behaviour",
             "TabDescription": "By default, the sidebar automatically expands when hovering the icon, and will collapse when opening a mod page.\nYou can also manually toggle it with CAPSLOCK.",
             "Handles": {
                 "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0",
