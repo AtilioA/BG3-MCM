@@ -1,12 +1,21 @@
+-- Profile management UI component that works directly with ProfileService
 -- "Give someone state and they'll have a bug one day, but teach them how to represent state in two separate locations that have to be kept in sync and they'll have bugs for a lifetime."
--- -ryg
 
--- Honestly, this is not worth being multiplayer-ready; I'll just make it work for the host for now.
 
+---@class UIProfileManager
 UIProfileManager = {}
 
+---Find the index of a profile in the profiles list
+---@param self UIProfileManager
+---@param profile string The profile name to find
+---@return number|nil index The 1-based index of the profile, or nil if not found
 function UIProfileManager:FindProfileIndex(profile)
-    for i, name in ipairs(MCMAPI:GetProfiles().Profiles) do
+    if not profile then return nil end
+
+    local profiles = ProfileService:GetProfiles()
+    if not profiles then return nil end
+
+    for i, name in ipairs(profiles) do
         if name == profile then
             return i
         end
@@ -14,125 +23,169 @@ function UIProfileManager:FindProfileIndex(profile)
     return nil
 end
 
+---Get the localized label for the delete profile button
+---@param profile string The profile name
+---@return string The localized button label
 local function getDeleteProfileButtonLabel(profile)
     if profile == "Default" then
         return Ext.Loca.GetTranslatedString("hfdf59b69495c4aeca03f38977a00a69d431c")
     else
-        return VCString:UpdateLocalizedMessage("h75b86690333d4937a1737fe8daddde41ga10", profile)
+        local newString = VCString:UpdateLocalizedMessage("h75b86690333d4937a1737fe8daddde41ga10", profile)
+        return newString
     end
 end
 
---- Create widgets for managing profiles (selecting, creating, deleting)
+---Create the profile management UI
+---@param self UIProfileManager
 function UIProfileManager:CreateProfileContent()
-    local profiles = MCMAPI:GetProfiles()
-    local currentProfile = MCMAPI:GetCurrentProfile()
-    local profileIndex = UIProfileManager:FindProfileIndex(currentProfile) - 1
+    -- Get current profiles and selection
+    local profiles = ProfileService:GetProfiles() or {}
+    local profileIndex = self:FindProfileIndex(ProfileService:GetCurrentProfile()) or 1
 
-    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"), nil,
-        ClientGlobals.MCM_PROFILES)
-    DualPane.leftPane:CreateMenuButton(Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"), nil,
-        ClientGlobals.MCM_PROFILES)
-    local contentGroup = DualPane.rightPane:CreateModGroup(ClientGlobals.MCM_PROFILES,
-        Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
+    -- Create UI elements
+    if not DualPane or not DualPane.leftPane then return end
 
-    if not contentGroup then
-        return MCMError(0, "Failed to create profile content group.")
-    end
+    local separatorText = Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804") or "Profiles"
+    DualPane.leftPane:AddMenuSeparator(
+        separatorText,
+        nil,
+        ClientGlobals.MCM_PROFILES
+    )
 
+    local buttonText = Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782") or "Profiles"
+    DualPane.leftPane:CreateMenuButton(
+        buttonText,
+        nil,
+        ClientGlobals.MCM_PROFILES
+    )
+
+    local groupLabel = Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804") or "Profile Management"
+    if not DualPane.rightPane then return end
+
+    local contentGroup = DualPane.rightPane:CreateModGroup(
+        ClientGlobals.MCM_PROFILES,
+        groupLabel
+    )
+
+    if not contentGroup then return end
+
+    -- Add disclaimer
+    contentGroup:AddText("Profile changes require a reload to take effect.")
+    contentGroup:AddText("Connecting players cannot use this page. Only the host may change these settings.")
+
+    -- Profile selection dropdown
     local profileCombo = contentGroup:AddCombo("")
     profileCombo.Options = profiles.Profiles
-    profileCombo.SelectedIndex = profileIndex or 1
+    profileCombo.SelectedIndex = profileIndex - 1  -- Convert to 0-based index
 
-    -- Create/delete profile buttons
+    -- Profile creation section
+    local separatorText = Ext.Loca.GetTranslatedString("h5788159872f84825b184d42c1fbd6a216541")
+    if separatorText then
+        contentGroup:AddSeparatorText(separatorText)
+    end
 
-    contentGroup:AddSeparatorText(Ext.Loca.GetTranslatedString("h5788159872f84825b184d42c1fbd6a216541"))
     local newProfileName = contentGroup:AddInputText("")
-    local profileButton = contentGroup:AddButton(Ext.Loca.GetTranslatedString("h3e4b68e2569e4df2b548b4a5a893a57a7972"))
+
+    -- Action buttons
+    local buttonText = Ext.Loca.GetTranslatedString("h3e4b68e2569e4df2b548b4a5a893a57a7972")
+    local profileButton = contentGroup:AddButton(buttonText)
     profileButton.SameLine = true
 
-    local deleteProfileButton = contentGroup:AddButton(getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile()))
+    local deleteProfileButton = contentGroup:AddButton(getDeleteProfileButtonLabel(ProfileService:GetCurrentProfile()))
+
+    -- Set up button behaviors
     self:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
     self:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, deleteProfileButton)
     self:SetupProfileComboOnChange(profileCombo, deleteProfileButton)
-    -- TODO: refresh the settings UI when creating profiles
 end
 
+---Update the delete profile button state based on current profile
+---@param deleteProfileButton UIButton The delete button to update
+---@param profile? string Optional profile name to use instead of current profile
 function UIProfileManager:UpdateDeleteProfileButton(deleteProfileButton, profile)
     if not deleteProfileButton then return end
-
-    local newLabel = getDeleteProfileButtonLabel(MCMAPI:GetCurrentProfile())
-    deleteProfileButton.Label = newLabel
-
-    if profile == "Default" then
-        deleteProfileButton.Visible = false
-    else
-        deleteProfileButton.Visible = true
-    end
+    local currentProfile = profile or ProfileService:GetCurrentProfile()
+    deleteProfileButton.Label = getDeleteProfileButtonLabel(currentProfile)
+    deleteProfileButton.Visible = (currentProfile ~= "Default")
 end
 
+---Set up the delete profile button click handler
+---@param deleteProfileButton UIButton The delete button to set up
+---@param profileCombo UICombo The profile selection dropdown
 function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
     deleteProfileButton.IDContext = "MCM_deleteProfileButton"
+
     deleteProfileButton.OnClick = function()
-        local currentProfile = MCMAPI:GetCurrentProfile()
-        if currentProfile ~= "Default" then
-            MCMAPI:DeleteProfile(currentProfile)
-            profileCombo.Options = MCMAPI:GetProfiles().Profiles
-            MCMAPI:SetProfile("Default")
-            profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
-            self:UpdateDeleteProfileButton(deleteProfileButton, MCMAPI:GetCurrentProfile())
-
-            -- TODO: handle the response from the server
-            Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE, Ext.Json.Stringify({
-                profileName = currentProfile
-            }))
-        else
+        local currentProfile = ProfileService:GetCurrentProfile()
+        if currentProfile == "Default" then
             MCMWarn(0, "Cannot delete the default profile.")
-        end
-    end
-end
-
-function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, deleteProfileButton)
-    profileButton.IDContext = "MCM_createProfileButton"
-    profileButton.OnClick = function()
-        if newProfileName.Text ~= "" then
-            MCMAPI:CreateProfile(newProfileName.Text)
-            MCMAPI:SetProfile(newProfileName.Text)
-
-            -- TODO: handle the response from the server
-            Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE, Ext.Json.Stringify({
-                profileName = newProfileName.Text
-            }))
-
-            newProfileName.Text = ""
-            profileCombo.Options = MCMAPI:GetProfiles().Profiles
-            profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
-            self:UpdateDeleteProfileButton(deleteProfileButton, MCMAPI:GetCurrentProfile())
-        end
-    end
-end
-
-function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileButton)
-    profileCombo.IDContext = "MCM_profileCombo"
-    profileCombo.OnChange = function(inputChange)
-        local selectedIndex = inputChange.SelectedIndex + 1
-        local selectedProfile = inputChange.Options[selectedIndex]
-
-        -- Handle the placeholder option (this isn't used anymore)
-        if selectedProfile == "Select a setting profile" then
-            MCMWarn(1, "Please select a valid profile.")
-            -- Reset the combo box to the current profile
-            -- MCMAPI:GetCurrentProfile()
-            profileCombo.SelectedIndex = UIProfileManager:FindProfileIndex(MCMAPI:GetCurrentProfile()) - 1
             return
         end
 
-        MCMAPI:SetProfile(selectedProfile)
+        -- Delete the current profile and switch to Default
+        ProfileService:DeleteProfile(currentProfile)
+        ProfileService:SetProfile("Default")
 
-        -- TODO: handle the response from the server
-        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_SET_PROFILE, Ext.Json.Stringify({
-            profileName = selectedProfile
-        }))
+        -- Update UI
+        if profileCombo then
+            profileCombo.Options = ProfileService:GetProfiles() or {}
+            profileCombo.SelectedIndex = 0  -- Select Default profile (first in list)
+            self:UpdateDeleteProfileButton(deleteProfileButton, "Default")
+        end
+    end
+end
 
-        self:UpdateDeleteProfileButton(deleteProfileButton, selectedProfile)
+---Set up the create profile button click handler
+---@param profileButton UIButton The create profile button
+---@param newProfileName UIInputText The input field for new profile name
+---@param profileCombo UICombo The profile selection dropdown
+---@param deleteProfileButton UIButton The delete profile button
+function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, deleteProfileButton)
+    profileButton.IDContext = "MCM_createProfileButton"
+
+    profileButton.OnClick = function()
+        local profileName = newProfileName.Text:match("^%s*(.-)%s*$")  -- Trim whitespace
+        if profileName == "" then return end
+
+        -- Create and switch to the new profile
+        if ProfileService:CreateProfile(profileName) then
+            ProfileService:SetProfile(profileName)
+
+            -- Update UI
+            newProfileName.Text = ""
+            if profileCombo then
+                profileCombo.Options = ProfileService:GetProfiles() or {}
+                local newIndex = self:FindProfileIndex(profileName) or 1
+                profileCombo.SelectedIndex = newIndex - 1  -- Convert to 0-based index
+                self:UpdateDeleteProfileButton(deleteProfileButton, profileName)
+            end
+        else
+            MCMWarn(0, string.format("Failed to create profile '%s'. It may already exist.", profileName))
+        end
+    end
+end
+
+---Set up the profile selection dropdown change handler
+---@param self UIProfileManager
+---@param profileCombo UICombo The profile selection dropdown
+---@param deleteProfileButton UIButton The delete profile button
+function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileButton)
+    profileCombo.IDContext = "MCM_profileCombo"
+
+    ---@param inputChange {SelectedIndex: number, Options: string[]}
+    profileCombo.OnChange = function(inputChange)
+        local selectedIndex = inputChange.SelectedIndex + 1  -- Convert to 1-based index
+        local selectedProfile = inputChange.Options[selectedIndex]
+
+        if not selectedProfile then return end
+
+        -- Switch to the selected profile
+        if ProfileService:SetProfile(selectedProfile) then
+            self:UpdateDeleteProfileButton(deleteProfileButton, selectedProfile)
+        else
+            -- Revert selection on failure
+            local currentIndex = self:FindProfileIndex(selectedProfile) or 1
+            profileCombo.SelectedIndex = currentIndex - 1  -- Convert to 0-based index
+        end
     end
 end

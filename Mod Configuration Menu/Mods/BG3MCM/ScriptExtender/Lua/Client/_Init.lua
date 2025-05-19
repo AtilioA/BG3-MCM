@@ -1,4 +1,5 @@
 RequireFiles("Client/", {
+    "Services/_Init",
     "MCMProxy",
     "Helpers/_Init",
     "Components/_Init",

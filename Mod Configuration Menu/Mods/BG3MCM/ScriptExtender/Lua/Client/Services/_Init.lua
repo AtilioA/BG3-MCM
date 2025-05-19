@@ -1,0 +1,3 @@
+RequireFiles("Client/Services/", {
+    "ProfileService"
+})
