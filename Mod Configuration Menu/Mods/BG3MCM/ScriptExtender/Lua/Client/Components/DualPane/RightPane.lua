@@ -40,6 +40,7 @@ function RightPane:CreateModGroup(modUUID, modName, modDescription)
     end
     self.contentGroups[modUUID] = group
     self.currentMod = { group = group, modUUID = modUUID }
+    
     local modTabBar = group:AddTabBar(modUUID .. "_TABS")
     modTabBar.IDContext = modUUID .. "_TABS"
     return group

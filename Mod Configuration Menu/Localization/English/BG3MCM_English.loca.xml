@@ -182,4 +182,6 @@
     <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Toggle detached windows with main window</content>
     <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">When toggling the MCM window, also toggle the visibility of any detached mod pages.</content>
     <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">By default, the sidebar automatically expands when hovering the menu icon, and will collapse when opening a mod page.&lt;br&gt;You can also manually toggle it with CAPSLOCK.</content>
+    <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Profile changes require a reload to take effect.</content>
+    <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Connecting players cannot use this page. Only the host may change these settings.</content>
 </contentList>

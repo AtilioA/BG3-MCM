@@ -179,4 +179,6 @@
     <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Exibir/esconder janelas desanexadas com a janela principal</content>
     <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">Quando exibir/esconder a janela do MCM, faz o mesmo com quaisquer páginas de mod desanexadas.</content>
     <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">Por padrão, a barra lateral expande automaticamente ao passar o mouse sobre o ícone de menu e será recolhida ao abrir uma página de mod.&lt;br&gt;Você também pode manualmente alterná-la com CAPSLOCK.</content>
+    <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Mudanças de perfil requerem recarregar um save para ter efeito.</content>
+    <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Jogadores conectados não podem usar esta página. Somente o host pode alterar estas configurações.</content>
 </contentList>
