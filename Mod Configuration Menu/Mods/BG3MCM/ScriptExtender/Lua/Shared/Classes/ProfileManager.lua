@@ -123,15 +123,39 @@ end
 --- Create a new profile and save it to the MCM params JSON file (mcm_params.json)
 ---@param profileName string The name of the new profile
 ---@return boolean success Whether the profile was successfully created
+---@return string? errorMessage Error message if creation failed, nil on success
 function ProfileManager:CreateProfile(profileName)
     if not self.Profiles then
-        MCMWarn(1, "Profile feature is not properly configured in MCM.")
-        return false
+        local errorMsg = "Profile feature is not properly configured in MCM."
+        MCMWarn(1, errorMsg)
+        return false, errorMsg
+    end
+
+    -- Validate profile name
+    if not profileName or profileName == "" then
+        local errorMsg = "Profile name cannot be empty"
+        MCMWarn(1, errorMsg)
+        return false, errorMsg
+    end
+
+    -- Check for reserved names
+    if profileName == "Default" then
+        local errorMsg = "'Default' is a reserved profile name"
+        MCMWarn(1, errorMsg)
+        return false, errorMsg
+    end
+
+    -- Validate path components in the profile name
+    local isValid, errorMsg = PathValidator:IsValidPathComponent(profileName, true) -- true for Windows validation
+    if not isValid then
+        MCMWarn(1, string.format("Invalid profile name '%s': %s", profileName, errorMsg))
+        return false, errorMsg
     end
 
     if table.contains(self.Profiles, profileName) then
-        MCMWarn(1, "Profile " .. profileName .. " already exists.")
-        return false
+        local errorMsg = string.format("Profile '%s' already exists.", profileName)
+        MCMWarn(1, errorMsg)
+        return false, errorMsg
     end
 
     table.insert(self.Profiles, profileName)
