@@ -387,6 +387,32 @@ function DualPaneController:DoesModPageExist(ID)
     return modTabBar ~= nil
 end
 
+--- Add a new menu section with a separator and button
+---@param sectionName string The name of the section to add
+---@param identifier string The unique identifier for this section
+function DualPaneController:AddMenuSection(sectionName, identifier)
+    self.leftPane:AddMenuSeparator(sectionName)
+    self.leftPane:CreateMenuButton(sectionName, nil, identifier)
+end
+
+--- Create a content group for a menu section
+---@param identifier string The unique identifier for the content group
+---@return any The created content group
+function DualPaneController:CreateContentGroup(identifier)
+    local contentGroup = self.contentScrollWindow:AddGroup(identifier)
+    self.rightPane.contentGroups[identifier] = contentGroup
+    return contentGroup
+end
+
+--- Add a new menu section with associated content group
+---@param sectionName string The name of the section to add
+---@param identifier string The unique identifier for this section
+---@return any The created content group
+function DualPaneController:AddMenuSectionWithContent(sectionName, identifier)
+    self:AddMenuSection(sectionName, identifier)
+    return self:CreateContentGroup(identifier)
+end
+
 -- Open a specific page and optionally a subtab.
 -- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
 ---@param identifier string|nil The name of the tab to open
@@ -394,19 +420,11 @@ end
 ---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
 ---@param keepSidebarState boolean|nil If true, won't modify the sidebar state (expanded/collapsed). Default is false (will collapse)
 ---@param shouldOpenWindow boolean|nil If true, will open the MCM window. Default is true.
--- FIXME: does not work with hotkeys and other non-mod pages because they are not registered in the right pane correctly
+--- FIXME: does not work with hotkeys and other non-mod pages because they are not registered in the right pane correctly
 function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, keepSidebarState, shouldOpenWindow)
-    self:SetVisibleFrame(modUUID, shouldEmitEvent)
-
-    local modTabBar = self.rightPane:GetModTabBar(modUUID)
     local targetTab = nil
-
-    if Ext.Mod.IsModLoaded(modUUID) then
-        if not modTabBar then
-            MCMError(0, "No tab bar found for mod " .. modUUID)
-            return
-        end
-        
+    local modTabBar = self.rightPane:GetModTabBar(modUUID)
+    if modTabBar then
         for _, tab in ipairs(modTabBar.Children) do
             if isMatchingTab(modUUID, identifier, tab) then
                 targetTab = tab

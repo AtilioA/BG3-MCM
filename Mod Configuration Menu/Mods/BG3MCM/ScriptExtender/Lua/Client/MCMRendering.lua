@@ -582,19 +582,16 @@ function MCMRendering:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
     -- MCMDebug(0, "Creating keybindings page...")
 
-    -- REFACTOR: encapsulate this within DualPane
-    -- Create a dedicated "Hotkeys" menu section via DualPane.
-    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
-    DualPane.leftPane:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), nil,
-        hotkeysUUID)
-
-    local hotkeysGroup = DualPane.contentScrollWindow:AddGroup(hotkeysUUID)
-    DualPane.rightPane.contentGroups[hotkeysUUID] = hotkeysGroup
+    -- Create a dedicated "Hotkeys" menu section using the new interface
+    local hotkeysGroup = DualPane:AddMenuSectionWithContent(
+        Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"),
+        hotkeysUUID
+    )
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
     local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
     -- MCMDebug(0, "Keybinding widget created.")
-
+    
     -- Load keybindings from the mod settings
     local allModKeybindings = self:GetAllKeybindings()
     if #allModKeybindings == 0 then

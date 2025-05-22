@@ -42,19 +42,13 @@ function UIProfileManager:CreateProfileContent()
     local profiles = ProfileService:GetProfiles() or {}
     local profileIndex = self:FindProfileIndex(ProfileService:GetCurrentProfile()) or 1
 
-    -- Create UI elements
-    -- REFACTOR: encapsulate this within DualPane
-    if not DualPane or not DualPane.leftPane then return end
-
-    DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
-    DualPane.leftPane:CreateMenuButton(
+    -- Create UI elements using the new DualPane interface
+    if not DualPane then return end
+    
+    local profilesGroup = DualPane:AddMenuSectionWithContent(
         Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"),
-        nil,
         ClientGlobals.MCM_PROFILES
     )
-
-    local profilesGroup = DualPane.contentScrollWindow:AddGroup(ClientGlobals.MCM_PROFILES)
-    DualPane.rightPane.contentGroups[ClientGlobals.MCM_PROFILES] = profilesGroup
 
     if not profilesGroup then return end
 
