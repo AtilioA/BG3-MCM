@@ -27,7 +27,7 @@ end
 ---@param profileName string The name of the new profile
 function MCMAPI:CreateProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    local success = ModConfig.profileManager:CreateProfile(profileName)
+    local success, errorMessage = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
@@ -41,7 +41,7 @@ function MCMAPI:CreateProfile(profileName)
 
     self:SetProfile(profileName)
 
-    return success
+    return success, errorMessage
 end
 
 --- Get the table of MCM profiles
@@ -64,9 +64,9 @@ function MCMAPI:SetProfile(profileName)
     local currentProfile = self:GetCurrentProfile()
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
-    MCMDebug(1, "Set profile to " .. profileName)
 
     if success then
+        MCMDebug(1, "Set profile to " .. profileName)
         if Ext.IsServer() then
             -- Notify other servers about the profile change
             ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
