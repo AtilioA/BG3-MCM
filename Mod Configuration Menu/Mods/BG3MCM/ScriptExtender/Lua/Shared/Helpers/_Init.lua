@@ -4,6 +4,7 @@ RequireFiles("Shared/Helpers/", {
     "VC/_Init",
     "Keybindings/_Init",
     "LoadOrderHealthCheck/_Init",
+    "PathValidator",
     "Validators/_Init",
     "Config",
     "Printer",
