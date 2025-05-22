@@ -121,9 +121,12 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
 
         -- Update UI
         if profileCombo then
-            profileCombo.Options = ProfileService:GetProfiles() or {}
-            profileCombo.SelectedIndex = 0 -- Select Default profile (first in list)
-            self:UpdateDeleteProfileButton(deleteProfileButton, "Default")
+            local profiles = ProfileService:GetProfiles()
+            if profiles then
+                profileCombo.Options = profiles.Profiles or {}
+                profileCombo.SelectedIndex = 0 -- Select Default profile (first in list)
+                self:UpdateDeleteProfileButton(deleteProfileButton, "Default")
+            end
         end
     end
 end
@@ -135,6 +138,7 @@ end
 ---@param deleteProfileButton ExtuiButton The delete profile button
 function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, deleteProfileButton)
     profileButton.IDContext = "MCM_createProfileButton"
+    profileButton.Disabled = newProfileName.Text == ""
 
     -- Add tooltip to the input field
     MCMRendering:AddTooltip(profileButton, "Profile names cannot contain: < > : \" / \\ | ? *", ModuleUUID)
@@ -146,7 +150,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
     local function showError(message)
         -- Change button to show error state
         profileButton.Label = message
-        profileButton:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1)) -- 
+        profileButton:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1)) --
         profileButton.Disabled = true
 
         -- Revert after 3 seconds
@@ -186,6 +190,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
 
                 -- Show success feedback
                 profileButton.Label = "Created!"
+                profileButton.Disabled = true
                 profileButton:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
 
                 -- Revert after 2 seconds
@@ -203,7 +208,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
     -- Enable/disable button based on whether there's any text
     newProfileName.OnChange = function(input)
         local text = input.Text or ""
-        profileButton.Disabled = text:match("%S") == nil
+        profileButton.Disabled = text:match("^%s*$") ~= nil
     end
 end
 
