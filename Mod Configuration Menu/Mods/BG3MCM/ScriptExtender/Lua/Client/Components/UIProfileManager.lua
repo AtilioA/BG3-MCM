@@ -69,6 +69,8 @@ function UIProfileManager:CreateProfileContent()
     profileCombo.Options = profiles.Profiles
     profileCombo.SelectedIndex = profileIndex - 1 -- Convert to 0-based index
 
+    -- TODO: move button here but add delete confirmation
+
     -- Profile creation section
     local separatorText = Ext.Loca.GetTranslatedString("h5788159872f84825b184d42c1fbd6a216541")
     if separatorText then

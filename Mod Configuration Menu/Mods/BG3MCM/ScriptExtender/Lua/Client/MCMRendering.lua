@@ -293,9 +293,9 @@ end
 ---@return nil
 function MCMRendering:CreateProfileManagementHeader()
     if MCMProxy:IsMainMenu() or Ext.Net.IsHost() then
-        UIProfileManager:CreateProfileContent()
+        -- UIProfileManager:CreateProfileContent()
+        MCM_WINDOW:AddDummy(0, 10)
     end
-    MCM_WINDOW:AddDummy(0, 10)
 end
 
 --- Create the main table and populate it with mod trees
@@ -582,7 +582,7 @@ function MCMRendering:CreateKeybindingsPage()
     local hotkeysUUID = "MCM_HOTKEYS"
     -- MCMDebug(0, "Creating keybindings page...")
 
-    -- REFACTOR: encapsulate this within DualPane 
+    -- REFACTOR: encapsulate this within DualPane
     -- Create a dedicated "Hotkeys" menu section via DualPane.
     DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"))
     DualPane.leftPane:CreateMenuButton(Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"), nil,
