@@ -293,7 +293,7 @@ end
 ---@return nil
 function MCMRendering:CreateProfileManagementHeader()
     if MCMProxy:IsMainMenu() or Ext.Net.IsHost() then
-        -- UIProfileManager:CreateProfileContent()
+        UIProfileManager:CreateProfileContent()
         MCM_WINDOW:AddDummy(0, 10)
     end
 end

@@ -53,19 +53,19 @@ function UIProfileManager:CreateProfileContent()
         ClientGlobals.MCM_PROFILES
     )
 
-    if not DualPane.contentScrollWindow then return end
-    local contentGroup = DualPane.contentScrollWindow:AddGroup(ClientGlobals.MCM_PROFILES)
+    local profilesGroup = DualPane.contentScrollWindow:AddGroup(ClientGlobals.MCM_PROFILES)
+    DualPane.rightPane.contentGroups[ClientGlobals.MCM_PROFILES] = profilesGroup
 
-    if not contentGroup then return end
+    if not profilesGroup then return end
 
-    contentGroup:AddSeparatorText(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
+    profilesGroup:AddSeparatorText(Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"))
 
     -- Add disclaimer
-    contentGroup:AddText(Ext.Loca.GetTranslatedString("h48e0882af2b840e18f01ed08d40bfb03ggeb"))
-    contentGroup:AddText(Ext.Loca.GetTranslatedString("hcec0ce416d41404fa1358b7deb85124cb6d8"))
+    profilesGroup:AddText(Ext.Loca.GetTranslatedString("h48e0882af2b840e18f01ed08d40bfb03ggeb"))
+    profilesGroup:AddText(Ext.Loca.GetTranslatedString("hcec0ce416d41404fa1358b7deb85124cb6d8"))
 
     -- Profile selection dropdown
-    local profileCombo = contentGroup:AddCombo("")
+    local profileCombo = profilesGroup:AddCombo("")
     profileCombo.Options = profiles.Profiles
     profileCombo.SelectedIndex = profileIndex - 1 -- Convert to 0-based index
 
@@ -74,17 +74,17 @@ function UIProfileManager:CreateProfileContent()
     -- Profile creation section
     local separatorText = Ext.Loca.GetTranslatedString("h5788159872f84825b184d42c1fbd6a216541")
     if separatorText then
-        contentGroup:AddSeparatorText(separatorText)
+        profilesGroup:AddSeparatorText(separatorText)
     end
 
-    local newProfileName = contentGroup:AddInputText("")
+    local newProfileName = profilesGroup:AddInputText("")
 
     -- Action buttons
     local buttonText = Ext.Loca.GetTranslatedString("h3e4b68e2569e4df2b548b4a5a893a57a7972")
-    local profileButton = contentGroup:AddButton(buttonText)
+    local profileButton = profilesGroup:AddButton(buttonText)
     profileButton.SameLine = true
 
-    local deleteProfileButton = contentGroup:AddButton(getDeleteProfileButtonLabel(ProfileService:GetCurrentProfile()))
+    local deleteProfileButton = profilesGroup:AddButton(getDeleteProfileButtonLabel(ProfileService:GetCurrentProfile()))
 
     -- Set up button behaviors
     self:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
@@ -93,7 +93,7 @@ function UIProfileManager:CreateProfileContent()
 end
 
 ---Update the delete profile button state based on current profile
----@param deleteProfileButton UIButton The delete button to update
+---@param deleteProfileButton ExtuiButton The delete button to update
 ---@param profile? string Optional profile name to use instead of current profile
 function UIProfileManager:UpdateDeleteProfileButton(deleteProfileButton, profile)
     if not deleteProfileButton then return end
@@ -103,8 +103,8 @@ function UIProfileManager:UpdateDeleteProfileButton(deleteProfileButton, profile
 end
 
 ---Set up the delete profile button click handler
----@param deleteProfileButton UIButton The delete button to set up
----@param profileCombo UICombo The profile selection dropdown
+---@param deleteProfileButton ExtuiButton The delete button to set up
+---@param profileCombo ExtuiCombo The profile selection dropdown
 function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileCombo)
     deleteProfileButton.IDContext = "MCM_deleteProfileButton"
 
@@ -129,39 +129,88 @@ function UIProfileManager:SetupDeleteProfileButton(deleteProfileButton, profileC
 end
 
 ---Set up the create profile button click handler
----@param profileButton UIButton The create profile button
----@param newProfileName UIInputText The input field for new profile name
----@param profileCombo UICombo The profile selection dropdown
----@param deleteProfileButton UIButton The delete profile button
+---@param profileButton ExtuiButton The create profile button
+---@param newProfileName ExtuiInputText The input field for new profile name
+---@param profileCombo ExtuiCombo The profile selection dropdown
+---@param deleteProfileButton ExtuiButton The delete profile button
 function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName, profileCombo, deleteProfileButton)
     profileButton.IDContext = "MCM_createProfileButton"
 
+    -- Add tooltip to the input field
+    MCMRendering:AddTooltip(profileButton, "Profile names cannot contain: < > : \" / \\ | ? *", ModuleUUID)
+
+    -- Store the original button text for later restoration
+    local originalButtonText = profileButton.Label
+
+    -- Function to show error feedback
+    local function showError(message)
+        -- Change button to show error state
+        profileButton.Label = message
+        profileButton:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1)) -- 
+        profileButton.Disabled = true
+
+        -- Revert after 3 seconds
+        VCTimer:OnTime(3000, function()
+            profileButton.Label = originalButtonText
+            profileButton:SetColor("Text", UIStyle.Colors.Text)
+            profileButton.Disabled = false
+        end)
+    end
+
     profileButton.OnClick = function()
-        local profileName = newProfileName.Text:match("^%s*(.-)%s*$") -- Trim whitespace
-        if profileName == "" then return end
+        -- Trim whitespace from the profile name
+        local profileName = newProfileName.Text:match("^%s*(.-)%s*$")
 
-        -- Create and switch to the new profile
-        if ProfileService:CreateProfile(profileName) then
-            ProfileService:SetProfile(profileName)
+        -- Check for empty name
+        if profileName == "" then
+            showError(Ext.Loca.GetTranslatedString("Name cannot be empty"))
+            return
+        end
 
-            -- Update UI
-            newProfileName.Text = ""
-            if profileCombo then
-                profileCombo.Options = ProfileService:GetProfiles() or {}
-                local newIndex = self:FindProfileIndex(profileName) or 1
-                profileCombo.SelectedIndex = newIndex - 1 -- Convert to 0-based index
-                self:UpdateDeleteProfileButton(deleteProfileButton, profileName)
+        -- Try to create the profile
+        local success, errorMessage = ProfileService:CreateProfile(profileName)
+
+        if success then
+            -- Switch to the new profile
+            if ProfileService:SetProfile(profileName) then
+                newProfileName.Text = ""
+
+                -- Update the dropdown
+                if profileCombo then
+                    local profiles = ProfileService:GetProfiles()
+                    profileCombo.Options = profiles.Profiles or {}
+                    local newIndex = self:FindProfileIndex(profileName) or 1
+                    profileCombo.SelectedIndex = newIndex - 1 -- Convert to 0-based index
+                    self:UpdateDeleteProfileButton(deleteProfileButton, profileName)
+                end
+
+                -- Show success feedback
+                profileButton.Label = "Created!"
+                profileButton:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
+
+                -- Revert after 2 seconds
+                VCTimer:OnTime(2000, function()
+                    profileButton.Label = originalButtonText
+                    profileButton:SetColor("Text", UIStyle.Colors.Text)
+                end)
             end
         else
-            MCMWarn(0, string.format("Failed to create profile '%s'. It may already exist.", profileName))
+            -- Show the error message from the ProfileService
+            showError(errorMessage or "Creation failed")
         end
+    end
+
+    -- Enable/disable button based on whether there's any text
+    newProfileName.OnChange = function(input)
+        local text = input.Text or ""
+        profileButton.Disabled = text:match("%S") == nil
     end
 end
 
 ---Set up the profile selection dropdown change handler
 ---@param self UIProfileManager
----@param profileCombo UICombo The profile selection dropdown
----@param deleteProfileButton UIButton The delete profile button
+---@param profileCombo ExtuiCombo The profile selection dropdown
+---@param deleteProfileButton ExtuiButton The delete profile button
 function UIProfileManager:SetupProfileComboOnChange(profileCombo, deleteProfileButton)
     profileCombo.IDContext = "MCM_profileCombo"
 
