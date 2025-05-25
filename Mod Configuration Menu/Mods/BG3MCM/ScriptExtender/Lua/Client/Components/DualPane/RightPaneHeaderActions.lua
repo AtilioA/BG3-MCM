@@ -12,10 +12,10 @@ function HeaderActions:New(parent)
     self.group = self.parent:AddGroup("HeaderActions")
 
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
-    self.expandBtn = self:CreateActionButton("Toggle", ICON_TOGGLE_EXPAND,
+    self.expandBtn = self:CreateActionButton("[Show mods]", ICON_TOGGLE_EXPAND,
         Ext.Loca.GetTranslatedString("hbb483085e7f04700beb8cc5bf94a98b4g6ac"), 1.5)
     self.expandBtn.SameLine = true
-    self.collapseBtn = self:CreateActionButton("Collapse", ICON_TOGGLE_COLLAPSE,
+    self.collapseBtn = self:CreateActionButton("[Hide mods]", ICON_TOGGLE_COLLAPSE,
         Ext.Loca.GetTranslatedString("h4e0e208daa6a439ca5ba95a668a7ac36d882"), 1.5)
     self.collapseBtn.SameLine = true
     self.expandBtn.OnClick = function() DualPane:ToggleSidebar() end
@@ -62,6 +62,13 @@ end
 
 function HeaderActions:CreateActionButton(text, icon, tooltip, multiplier)
     local button = self.parent:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(multiplier))
+
+    -- Check if the image is not available and replace with text fallback if needed
+    if not button.Image or button.Image.Icon == "" then
+        button:Destroy()
+        button = self.parent:AddButton(text)
+    end
+
     button.IDContext = "HeaderAction_" .. text .. "_BUTTON"
     MCMRendering:AddTooltip(button, tooltip, "HeaderAction_" .. text)
     return button
