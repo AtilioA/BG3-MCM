@@ -11,7 +11,7 @@ LeftPane.__index = LeftPane
 
 function LeftPane:New(parent)
     local self = setmetatable({}, LeftPane)
-    self.parent = parent -- Typically the menuScrollWindow
+    self.parent = parent -- Should:tm: be the menuScrollChildWindow
     return self
 end
 

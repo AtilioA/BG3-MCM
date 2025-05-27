@@ -23,8 +23,8 @@ DualPaneController = _Class:Create("DualPaneController", nil, {
     userHasInteracted = false,
     hoverSubscription = nil,
     currentAnimation = nil,
-    menuScrollWindow = nil,
-    contentScrollWindow = nil,
+    menuScrollChildWindow = nil,
+    contentScrollChildWindow = nil,
     mainLayoutTable = nil,
     menuCell = nil,
     contentCell = nil,
@@ -58,12 +58,12 @@ function DualPaneController:_shouldSkipCollapseOrFade()
 end
 
 -- Helper: Generic animation for sidebar transitions
--- This function animates both the width (of the column) and the alpha (of the menuScrollWindow)
+-- This function animates both the width (of the column) and the alpha (of the menuScrollChildWindow)
 -- It stops if the current animation state no longer matches the expected state.
 function DualPaneController:animateSidebar(targetWidth, targetAlpha, expectedState, onComplete)
     local colDef = self.mainLayoutTable.ColumnDefs[1]
     local currentWidth = colDef.Width
-    local currentAlpha = self.menuScrollWindow:GetStyle("Alpha") or 0
+    local currentAlpha = self.menuScrollChildWindow:GetStyle("Alpha") or 0
 
     local function step()
         if self.currentAnimation ~= expectedState then
@@ -77,12 +77,12 @@ function DualPaneController:animateSidebar(targetWidth, targetAlpha, expectedSta
             colDef.Width = currentWidth
 
             currentAlpha = currentAlpha + (targetAlpha - currentAlpha) * STEP_FACTOR
-            self.menuScrollWindow:SetStyle("Alpha", currentAlpha)
+            self.menuScrollChildWindow:SetStyle("Alpha", currentAlpha)
 
             Ext.Timer.WaitFor(STEP_DELAY, step)
         else
             colDef.Width = targetWidth
-            self.menuScrollWindow:SetStyle("Alpha", targetAlpha)
+            self.menuScrollChildWindow:SetStyle("Alpha", targetAlpha)
             if onComplete then onComplete() end
         end
     end
@@ -99,8 +99,8 @@ function DualPaneController:InitWithWindow(window)
     local self = setmetatable({}, DualPaneController)
     self.window = window
     self:initLayout()
-    self.leftPane = LeftPane:New(self.menuScrollWindow)
-    self.rightPane = RightPane:New(self.contentScrollWindow)
+    self.leftPane = LeftPane:New(self.menuScrollChildWindow)
+    self.rightPane = RightPane:New(self.contentScrollChildWindow)
 
     -- Check if we should start collapsed
     local startCollapsed = MCMAPI:GetSettingValue("collapsed_by_default", ModuleUUID)
@@ -113,9 +113,9 @@ function DualPaneController:InitWithWindow(window)
 
     -- Initialize the UI state based on the collapsed setting
     if startCollapsed then
-        self.menuScrollWindow.Visible = false
+        self.menuScrollChildWindow.Visible = false
         self.mainLayoutTable.ColumnDefs[1].Width = TARGET_WIDTH_COLLAPSED
-        self.menuScrollWindow:SetStyle("Alpha", 0)
+        self.menuScrollChildWindow:SetStyle("Alpha", 0)
     end
 
     -- Attach hover listeners initially (menu is expanded by default unless collapsed_by_default is true)
@@ -134,19 +134,15 @@ function DualPaneController:initLayout()
     self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     self.mainLayoutTable:AddColumn("Content", "WidthStretch")
-    -- self.mainLayoutTable.Resizable = true
 
     local row = self.mainLayoutTable:AddRow()
-    self.menuCell = row:AddCell()
-    self.contentCell = row:AddCell()
+    local menuCell = row:AddCell()
+    local contentCell = row:AddCell()
 
-    self.menuScrollWindow = self.menuCell:AddChildWindow("MenuScrollWindow")
+    HeaderActionsInstance = HeaderActions:New(contentCell)
 
-    -- Create header actions before creating the content scroll window.
-    -- HeaderActionsInstance is used by RightPane later.
-    HeaderActionsInstance = HeaderActions:New(self.contentCell)
-
-    self.contentScrollWindow = self.contentCell:AddChildWindow("ContentScrollWindow")
+    self.menuScrollChildWindow = menuCell:AddChildWindow("MenuScrollChildWindow")
+    self.contentScrollChildWindow = contentCell:AddChildWindow("ContentScrollChildWindow")
 end
 
 local function normalizeString(str)
@@ -172,19 +168,19 @@ function DualPaneController:GenerateTabId(modUUID, tabName)
     return modUUID .. "_" .. normalizeString(tabName)
 end
 
--- Attach hover listeners to either the menuScrollWindow (if expanded/visible) or the expand button (if collapsed)
+-- Attach hover listeners to either the menuScrollChildWindow (if expanded/visible) or the expand button (if collapsed)
 function DualPaneController:AttachHoverListeners()
     local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
     if not enabledHover then return end
 
-    if self.menuScrollWindow.Visible then
+    if self.menuScrollChildWindow.Visible then
         self:setupHoverHandlers(
-            self.menuScrollWindow,
+            self.menuScrollChildWindow,
             function()
                 self.isHovered = true
                 self.userHasInteracted = true
                 self:CancelAutoCollapse()
-                self.menuScrollWindow:SetStyle("Alpha", 1)
+                self.menuScrollChildWindow:SetStyle("Alpha", 1)
             end,
             function()
                 local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
@@ -212,7 +208,7 @@ function DualPaneController:AttachHoverListeners()
     end
 end
 
--- Gradually fade the menuScrollWindow's alpha to a target value over a given duration (in seconds)
+-- Gradually fade the menuScrollChildWindow's alpha to a target value over a given duration (in seconds)
 function DualPaneController:FadeSidebarOutAlpha(durationInS)
     local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
     if not enabledAutoCollapse then return end
@@ -220,13 +216,13 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
     -- Prevent fade out if the right pane content is detached
     if self:_shouldSkipCollapseOrFade() then
         MCMDebug(3, "Right pane is detached, skipping sidebar fade out.")
-        self.menuScrollWindow:SetStyle("Alpha", 1) -- Ensure alpha is fully visible
+        self.menuScrollChildWindow:SetStyle("Alpha", 1) -- Ensure alpha is fully visible
         return
     end
 
     local targetAlpha = 0.33
-    self.menuScrollWindow:SetStyle("Alpha", 0.8)
-    local startAlpha = self.menuScrollWindow:GetStyle("Alpha")
+    self.menuScrollChildWindow:SetStyle("Alpha", 0.8)
+    local startAlpha = self.menuScrollChildWindow:GetStyle("Alpha")
     local steps = durationInS / STEP_DELAY
     local alphaStep = (startAlpha - targetAlpha) / steps
 
@@ -236,10 +232,10 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
             return
         end
 
-        local currentAlpha = self.menuScrollWindow:GetStyle("Alpha") or startAlpha
+        local currentAlpha = self.menuScrollChildWindow:GetStyle("Alpha") or startAlpha
         if currentAlpha > targetAlpha then
             local newAlpha = math.max(targetAlpha, currentAlpha - alphaStep)
-            self.menuScrollWindow:SetStyle("Alpha", newAlpha)
+            self.menuScrollChildWindow:SetStyle("Alpha", newAlpha)
             if newAlpha > targetAlpha then
                 Ext.Timer.WaitFor(STEP_DELAY, stepFade)
             end
@@ -285,7 +281,7 @@ function DualPaneController:Expand()
     -- Set the current animation to "expand". This cancels any ongoing collapse animation.
     self.currentAnimation = "expand"
     HeaderActionsInstance:UpdateToggleButtons(false)
-    self.menuScrollWindow.Visible = true
+    self.menuScrollChildWindow.Visible = true
 
     -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
     local targetWidth = self.lastExpandedWidth or TARGET_WIDTH_EXPANDED
@@ -309,7 +305,7 @@ function DualPaneController:Collapse()
     HeaderActionsInstance:UpdateToggleButtons(true)
 
     self:animateSidebar(TARGET_WIDTH_COLLAPSED, 0, "collapse", function()
-        self.menuScrollWindow.Visible = false
+        self.menuScrollChildWindow.Visible = false
         self.isCollapsed = true
         HeaderActionsInstance:UpdateToggleButtons(self.isCollapsed)
         self:AttachHoverListeners()
@@ -399,7 +395,7 @@ end
 ---@param identifier string The unique identifier for the content group
 ---@return any The created content group
 function DualPaneController:CreateContentGroup(identifier)
-    local contentGroup = self.contentScrollWindow:AddGroup(identifier)
+    local contentGroup = self.contentScrollChildWindow:AddGroup(identifier)
     self.rightPane.contentGroups[identifier] = contentGroup
     return contentGroup
 end

@@ -18,7 +18,7 @@ RightPane.__index = RightPane
 
 function RightPane:New(parent)
     local self = setmetatable({}, RightPane)
-    -- Should:tm: be the contentScrollWindow
+    -- Should:tm: be the contentScrollChildWindow
     self.parent = parent
     self.contentGroups = {}
     -- Table to track detached windows keyed by mod UUID (not by handle)
@@ -40,7 +40,7 @@ function RightPane:CreateModGroup(modUUID, modName, modDescription)
     end
     self.contentGroups[modUUID] = group
     self.currentMod = { group = group, modUUID = modUUID }
-    
+
     local modTabBar = group:AddTabBar(modUUID .. "_TABS")
     modTabBar.IDContext = modUUID .. "_TABS"
     return group
