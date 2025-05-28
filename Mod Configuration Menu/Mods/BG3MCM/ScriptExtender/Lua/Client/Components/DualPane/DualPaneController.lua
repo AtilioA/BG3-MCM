@@ -139,10 +139,12 @@ function DualPaneController:initLayout()
     local menuCell = row:AddCell()
     local contentCell = row:AddCell()
 
-    HeaderActionsInstance = HeaderActions:New(contentCell)
+    local contentWindow = contentCell:AddChildWindow("MainContentScrollChildWindow")
+
+    HeaderActionsInstance = HeaderActions:New(contentWindow)
 
     self.menuScrollChildWindow = menuCell:AddChildWindow("MenuScrollChildWindow")
-    self.contentScrollChildWindow = contentCell:AddChildWindow("ContentScrollChildWindow")
+    self.contentScrollChildWindow = contentWindow:AddChildWindow("ContentScrollChildWindow")
 end
 
 local function normalizeString(str)
@@ -424,6 +426,7 @@ function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, ke
         for _, tab in ipairs(modTabBar.Children) do
             if isMatchingTab(modUUID, identifier, tab) then
                 targetTab = tab
+                MCMSuccess(1, "Found tab for identifier " .. identifier .. " in mod " .. modUUID)
                 break
             end
         end

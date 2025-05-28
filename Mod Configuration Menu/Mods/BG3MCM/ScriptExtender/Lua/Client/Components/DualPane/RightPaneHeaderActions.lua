@@ -8,8 +8,7 @@ HeaderActions.__index = HeaderActions
 
 function HeaderActions:New(parent)
     local self = setmetatable({}, HeaderActions)
-    self.parent = parent
-    self.group = self.parent:AddGroup("HeaderActions")
+    self.group = parent:AddGroup("HeaderActions")
 
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
     self.expandBtn = self:CreateActionButton("[Show mods]", ICON_TOGGLE_EXPAND,
@@ -29,7 +28,7 @@ function HeaderActions:New(parent)
         self.collapseBtn.Visible = true
     end
 
-    local dummy = self.parent:AddDummy(15, 0)
+    local dummy = self.group:AddDummy(15, 0)
     dummy.SameLine = true
 
     self.detachBtn = self:CreateActionButton("[Detach]", ICON_DETACH,
@@ -61,12 +60,12 @@ function HeaderActions:New(parent)
 end
 
 function HeaderActions:CreateActionButton(text, icon, tooltip, multiplier)
-    local button = self.parent:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(multiplier))
+    local button = self.group:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(multiplier))
 
     -- Check if the image is not available and replace with text fallback if needed
     if not button.Image or button.Image.Icon == "" then
         button:Destroy()
-        button = self.parent:AddButton(text)
+        button = self.group:AddButton(text)
     end
 
     button.IDContext = "HeaderAction_" .. text .. "_BUTTON"
@@ -77,6 +76,11 @@ end
 -- Update the visibility of toggle buttons based on whether the sidebar is collapsed.
 -- If isCollapsed is true then show the expand button; otherwise, show the collapse button.
 function HeaderActions:UpdateToggleButtons(isCollapsed)
+    if self.expandBtn == nil or self.collapseBtn == nil then
+        MCMError(0, "HeaderActions:UpdateToggleButtons: self.expandBtn or self.collapseBtn is nil")
+        return
+    end
+
     if isCollapsed then
         self.expandBtn.Visible = true
         self.collapseBtn.Visible = false
@@ -90,6 +94,11 @@ end
 -- This function should be called whenever switching mods or changing detachment state
 function HeaderActions:UpdateDetachButtons(modUUID)
     if not DualPane or not DualPane.rightPane then return end
+
+    if self.detachBtn == nil or self.reattachBtn == nil then
+        MCMError(0, "HeaderActions:UpdateDetachButtons: self.detachBtn or self.reattachBtn is nil")
+        return
+    end
 
     -- If no modUUID is provided, use the current mod
     if not modUUID and DualPane.rightPane.currentMod then
