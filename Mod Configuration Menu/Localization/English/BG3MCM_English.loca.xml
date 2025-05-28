@@ -6,7 +6,7 @@
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
     <!-- Used for some buttons (can be overridden during runtime to display advice) -->
     <content contentuid="h8e2c39a3f3c040aebfb9ad10339dd4ff89f7" version="1">Mod Configuration Menu</content>
-    <content contentuid="h91b72aadb42a441881a1a7c5de2f82e27agga" version="1">Settings</content>
+    <content contentuid="h91b72aadb42a441881a1a7c5de2f82e27agga" version="1">Window</content>
     <content contentuid="hb2789893dcaf46fca8c40add9358e1f2ca93" version="1">Toggle MCM window</content>
     <content contentuid="h76a89ee330464e30b1b9a01de85cbd0042a6" version="1">Open MCM window on start</content>
     <content contentuid="h98e72bb15db546859c41ef81ddac77bc5d69" version="1">Reposition window if out of bounds</content>
@@ -138,7 +138,7 @@
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Should this keybinding be enabled?&lt;br&gt;Disabling it will prevent it from firing if the keybinding is pressed.</content>
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Set the keybinding for closing MCM's window.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Close MCM window</content>
-    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Sidebar settings</content>
+    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Sidebar behavior</content>
     <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).</content>
     <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Enable automatic sidebar collapse</content>
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Enable expansion on icon hover</content>
@@ -172,7 +172,7 @@
     <content contentuid="h169974967d6d45bdb4fe1da9b042f51228c1" version="1">Font size</content>
     <content contentuid="hb0581f5c946848979375a36f96a7febbg72b" version="1">Changes the size of text displayed in the MCM window.&lt;br&gt;NOTE: Icons will only have correct scale after changing font size if you reload a save.</content>
     <content contentuid="hdeb0d5384b744247b7ce270b52ef4721ag3d" version="1">Set the font size for the MCM interface.</content>
-    <content contentuid="h7de073367e614d0d9d896abbaf2e1b6bdec0" version="1">Sidebar behaviour</content>
+    <content contentuid="h7de073367e614d0d9d896abbaf2e1b6bdec0" version="1">Sidebar</content>
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be922" version="1">Start collapsed</content>
     <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6g" version="1">Start with the sidebar in a collapsed state when opening MCM.</content>
     <content contentuid="h3dafbcac8ffe4c7b9ca391520326dbb65984" version="1">Toggle sidebar (collapse/expand)</content>
@@ -184,4 +184,7 @@
     <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">By default, the sidebar automatically expands when hovering the menu icon, and will collapse when opening a mod page.&lt;br&gt;You can also manually toggle it with CAPSLOCK.</content>
     <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Profile changes require a reload to take effect.</content>
     <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Connecting players cannot use this page. Only the host may change these settings.</content>
+    <content contentuid="h38caa4e657a746509697741417cc96049f52" version="1">Window behavior</content>
+    <content contentuid="h4c268ec86668491996f95e0e311fd420fba7" version="1">Multiplayer</content>
+    <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Interface preferences</content>
 </contentList>

@@ -7,54 +7,16 @@
     },
     "Tabs": [
         {
-            "TabId": "settings",
-            "TabName": "Settings",
+            "TabId": "window",
+            "TabName": "Window",
             "Handles": {
                 "NameHandle": "h91b72aadb42a441881a1a7c5de2f82e27agga"
             },
             "Sections": [
                 {
-                    "SectionId": "general_settings",
-                    "SectionName": "General settings",
+                    "SectionId": "interface_preferences",
+                    "SectionName": "Interface preferences",
                     "Settings": [
-                        {
-                            "Id": "toggle_mcm_keybinding",
-                            "Name": "Toggle MCM window",
-                            "Type": "keybinding_v2",
-                            "Default": {
-                                "Keyboard": {
-                                    "Key": "INSERT",
-                                    "ModifierKeys": []
-                                }
-                            },
-                            "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",
-                            "Handles": {
-                                "NameHandle": "hb2789893dcaf46fca8c40add9358e1f2ca93",
-                                "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
-                            },
-                            "Options": {
-                                "ShouldTriggerOnRepeat": false,
-                                "ShouldTriggerOnKeyUp": false,
-                                "ShouldTriggerOnKeyDown": true
-                            }
-                        },
-                        {
-                            "Id": "close_mcm_keybinding",
-                            "Name": "Close MCM window",
-                            "Type": "keybinding_v2",
-                            "Default": {
-                                "Keyboard": {
-                                    "Key": "ESCAPE",
-                                    "ModifierKeys": []
-                                },
-                                "Enabled": false
-                            },
-                            "Description": "Set the keybinding for closing MCM's window.",
-                            "Handles": {
-                                "NameHandle": "hb2513599ba7a4b689fc3984a9ad9ae1c3d31",
-                                "DescriptionHandle": "heb5490e38fcf43099f6e7d3cd50e57e3adde"
-                            }
-                        },
                         {
                             "Id": "font_size",
                             "Name": "Font size",
@@ -98,17 +60,6 @@
                             }
                         },
                         {
-                            "Id": "host-only_mode",
-                            "Name": "Host-only mode",
-                            "Type": "checkbox",
-                            "Default": false,
-                            "Description": "Allow only the host to change settings in multiplayer games.",
-                            "Handles": {
-                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f",
-                                "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea"
-                            }
-                        },
-                        {
                             "Id": "restore_last_page",
                             "Name": "Restore last used page",
                             "Type": "checkbox",
@@ -129,7 +80,16 @@
                                 "NameHandle": "h508b792738634a4f88639bd379f12e601e96",
                                 "DescriptionHandle": "h90ef12cdf9314d539f9712e41fe2f4bb8afd"
                             }
-                        },
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h2cf876f2bca243e5b907ef4b2db58d965bg5"
+                    }
+                },
+                {
+                    "SectionId": "window_behavior",
+                    "SectionName": "Window behavior",
+                    "Settings": [
                         {
                             "Id": "reposition_window_if_out_of_bounds",
                             "Name": "Reposition window if out of bounds",
@@ -139,6 +99,17 @@
                             "Handles": {
                                 "NameHandle": "h98e72bb15db546859c41ef81ddac77bc5d69",
                                 "DescriptionHandle": "h48cd3bba1b0347f6b8e81cd36f07890de455"
+                            }
+                        },
+                        {
+                            "Id": "toggle_detached_with_main",
+                            "Name": "Toggle detached windows with main window",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "When toggling the MCM window, also toggle the visibility of any detached mod pages.",
+                            "Handles": {
+                                "NameHandle": "hb2920a2b77c847959a151f340846407dc001",
+                                "DescriptionHandle": "h7d50a040d7db44e7a7f0064dd56715d53d49"
                             }
                         },
                         {
@@ -153,26 +124,73 @@
                             }
                         },
                         {
-                            "Id": "toggle_detached_with_main",
-                            "Name": "Toggle detached windows with main window",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Description": "When toggling the MCM window, also toggle the visibility of any detached mod pages.",
+                            "Id": "toggle_mcm_keybinding",
+                            "Name": "Toggle MCM window",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "INSERT",
+                                    "ModifierKeys": []
+                                }
+                            },
+                            "Description": "Set the keybinding for toggling MCM's window.\nAlternatively, use the MCM button in the ESC menu.",
                             "Handles": {
-                                "NameHandle": "hb2920a2b77c847959a151f340846407dc001",
-                                "DescriptionHandle": "h7d50a040d7db44e7a7f0064dd56715d53d49"
+                                "NameHandle": "hb2789893dcaf46fca8c40add9358e1f2ca93",
+                                "DescriptionHandle": "h7728653cb8de46388719316b95f3a4110e7c"
+                            },
+                            "Options": {
+                                "ShouldTriggerOnRepeat": false,
+                                "ShouldTriggerOnKeyUp": false,
+                                "ShouldTriggerOnKeyDown": true
+                            }
+                        },
+                        {
+                            "Id": "close_mcm_keybinding",
+                            "Name": "Close MCM window",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "ESCAPE",
+                                    "ModifierKeys": []
+                                },
+                                "Enabled": false
+                            },
+                            "Description": "Set the keybinding for closing MCM's window.",
+                            "Handles": {
+                                "NameHandle": "hb2513599ba7a4b689fc3984a9ad9ae1c3d31",
+                                "DescriptionHandle": "heb5490e38fcf43099f6e7d3cd50e57e3adde"
                             }
                         }
                     ],
                     "Handles": {
-                        "NameHandle": "h6db631a023d0425ca0a62566ab1bec41797f"
+                        "NameHandle": "h38caa4e657a746509697741417cc96049f52"
+                    }
+                },
+                {
+                    "SectionId": "multiplayer_settings",
+                    "SectionName": "Multiplayer",
+                    "Settings": [
+                        {
+                            "Id": "host-only_mode",
+                            "Name": "Host-only mode",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Allow only the host to change settings in multiplayer games.",
+                            "Handles": {
+                                "NameHandle": "h119ee473f3f644b887ed4e2a2fdb97b9fea",
+                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f"
+                            }
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h4c268ec86668491996f95e0e311fd420fba7"
                     }
                 }
             ]
         },
         {
-            "TabId": "sidebar_behaviour",
-            "TabName": "Sidebar behaviour",
+            "TabId": "sidebar",
+            "TabName": "Sidebar",
             "TabDescription": "By default, the sidebar automatically expands when hovering the icon, and will collapse when opening a mod page.\nYou can also manually toggle it with CAPSLOCK.",
             "Handles": {
                 "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0",
@@ -181,7 +199,7 @@
             "Sections": [
                 {
                     "SectionId": "sidebar_settings",
-                    "SectionName": "Sidebar settings",
+                    "SectionName": "Sidebar behavior",
                     "Settings": [
                         {
                             "Id": "enable_hover",
