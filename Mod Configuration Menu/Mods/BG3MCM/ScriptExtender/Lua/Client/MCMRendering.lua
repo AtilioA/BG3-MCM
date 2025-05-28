@@ -591,7 +591,7 @@ function MCMRendering:CreateKeybindingsPage()
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
     local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
     -- MCMDebug(0, "Keybinding widget created.")
-    
+
     -- Load keybindings from the mod settings
     local allModKeybindings = self:GetAllKeybindings()
     if #allModKeybindings == 0 then

@@ -358,6 +358,70 @@ function DualPaneController:InsertModTab(modUUID, tabName, callback)
     return self.rightPane:InsertTab(modUUID, tabName, callback)
 end
 
+-- Helper to find tab by identifier in a mod's tab bar
+function DualPaneController:FindTab(modUUID, tabIdentifier)
+    local modTabBar = self.rightPane:GetModTabBar(modUUID)
+    if not modTabBar then
+        MCMWarn(1, "Tab bar not found for mod " .. modUUID)
+        return nil
+    end
+    for _, tab in ipairs(modTabBar.Children) do
+        if isMatchingTab(modUUID, tabIdentifier, tab) then
+            MCMSuccess(1, "Found tab for mod " .. modUUID)
+            return tab
+        end
+    end
+    return nil
+end
+
+-- Helper to activate a tab and open window if needed
+function DualPaneController:ActivateTab(targetTab, shouldOpenWindow)
+    targetTab.SetSelected = true
+    if shouldOpenWindow ~= false then
+        IMGUIAPI:OpenMCMWindow(true)
+    end
+end
+
+-- Helper to handle sidebar expansion or collapse
+function DualPaneController:HandleSidebarStateChange(keepSidebarState)
+    if keepSidebarState == true then
+        return
+    end
+    local enableAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+    if enableAutoCollapse then
+        self:Collapse()
+    else
+        self:Expand()
+    end
+end
+
+-- Helper to unselect a tab after a short delay
+function DualPaneController:UnselectTabAfterDelay(targetTab)
+    Ext.Timer.WaitFor(100, function()
+        if not targetTab then return end
+        targetTab.SetSelected = false
+    end)
+end
+
+-- Open a specific mod page and optionally a tab
+---@param modUUID string The UUID of the mod to open
+---@param tabIdentifier string|nil The identifier of the tab to open
+---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events
+---@param keepSidebarState boolean|nil If true, retains current sidebar state (expanded/collapsed)
+---@param shouldOpenWindow boolean|nil If true, opens the MCM window
+function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent, keepSidebarState, shouldOpenWindow)
+    local targetTab = self:FindTab(modUUID, tabIdentifier)
+    if targetTab then
+        self:ActivateTab(targetTab, shouldOpenWindow)
+        self:SetVisibleFrame(modUUID, shouldEmitEvent)
+    elseif tabIdentifier then
+        MCMWarn(0, "Tab not found for mod " .. modUUID)
+    end
+
+    self:HandleSidebarStateChange(keepSidebarState)
+    self:UnselectTabAfterDelay(targetTab)
+end
+
 -- Sets the visible frame for a mod UUID
 ---@param modUUID string The UUID of the mod to show
 ---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
@@ -409,52 +473,4 @@ end
 function DualPaneController:AddMenuSectionWithContent(sectionName, identifier)
     self:AddMenuSection(sectionName, identifier)
     return self:CreateContentGroup(identifier)
-end
-
--- Open a specific page and optionally a subtab.
--- If tabName is provided, it activates that tab (by setting its SetSelected property to true).
----@param identifier string|nil The name of the tab to open
----@param modUUID string The UUID of the mod to open
----@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
----@param keepSidebarState boolean|nil If true, won't modify the sidebar state (expanded/collapsed). Default is false (will collapse)
----@param shouldOpenWindow boolean|nil If true, will open the MCM window. Default is true.
---- FIXME: does not work with hotkeys and other non-mod pages because they are not registered in the right pane correctly
-function DualPaneController:OpenModPage(identifier, modUUID, shouldEmitEvent, keepSidebarState, shouldOpenWindow)
-    local targetTab = nil
-    local modTabBar = self.rightPane:GetModTabBar(modUUID)
-    if modTabBar then
-        for _, tab in ipairs(modTabBar.Children) do
-            if isMatchingTab(modUUID, identifier, tab) then
-                targetTab = tab
-                MCMSuccess(1, "Found tab for identifier " .. identifier .. " in mod " .. modUUID)
-                break
-            end
-        end
-    end
-
-    if targetTab then
-        targetTab.SetSelected = true
-        -- Only open window if explicitly requested (default true)
-        if shouldOpenWindow ~= false then
-            IMGUIAPI:OpenMCMWindow(true)
-        end
-    elseif identifier then
-        MCMWarn(0, "Tab not found for identifier: " .. identifier)
-    end
-
-    -- Handle sidebar state based on settings unless explicitly told to keep current state
-    if keepSidebarState ~= true then
-        local enableAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
-        if enableAutoCollapse then
-            self:Collapse()
-        else
-            self:Expand()
-        end
-    end
-
-    -- Avoid select lockdown by unselecting the tab after a few ticks
-    Ext.Timer.WaitFor(100, function()
-        if not targetTab then return end
-        targetTab.SetSelected = false
-    end)
 end

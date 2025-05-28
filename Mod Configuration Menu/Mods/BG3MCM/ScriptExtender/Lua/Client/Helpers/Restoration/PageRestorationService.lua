@@ -90,7 +90,7 @@ function PageRestorationService:RestoreLastModPage()
     MCMDebug(1, "PageRestorationService: Restoring last used mod page: " .. lastModUUID)
 
     -- Let DualPaneController handle sidebar state based on settings
-    DualPane:OpenModPage(nil, lastModUUID, false, true, shouldOpenWindow)
+    DualPane:OpenModPage(lastModUUID, nil, false, true, shouldOpenWindow)
 end
 
 -- Update the last used mod page in the config
