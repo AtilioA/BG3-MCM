@@ -401,8 +401,14 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
             self:CreateModMenuSection(sectionIndex, imguiTab, section, modSettings, modUUID)
         end
     elseif #tabSettings > 0 then
+        -- Gather setting groups to add dummy separators (which makes them go away if visibility conditions are not met)
+        local settingGroups = {}
         for _, setting in ipairs(tabSettings) do
-            self:CreateModMenuSetting(imguiTab, setting, modSettings, modUUID)
+            local group = self:CreateModMenuSetting(imguiTab, setting, modSettings, modUUID)
+            if group then table.insert(settingGroups, group) end
+        end
+        for i, group in ipairs(settingGroups) do
+            if i < #settingGroups then group:AddDummy(0, 10) end
         end
     end
 end
@@ -455,12 +461,14 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
         sectionContentElement:AddDummy(0, 2)
     end
 
-    for _i, setting in pairs(section:GetSettings()) do
-        local _renderedSetting = self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
-        -- This used to add dummies (spacing), but this was moved due to VisibleIf logic
-        -- if renderedSetting and i ~= #section:GetSettings() then
-        -- sectionContentElement:AddDummy(0, 10)
-        -- end
+    -- Gather setting groups to add dummy separators (which makes them go away if visibility conditions are not met)
+    local settingGroups = {}
+    for _, setting in ipairs(section:GetSettings()) do
+        local group = self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
+        if group then table.insert(settingGroups, group) end
+    end
+    for i, group in ipairs(settingGroups) do
+        if i < #settingGroups then group:AddDummy(0, 10) end
     end
 end
 
@@ -469,8 +477,7 @@ end
 ---@param setting BlueprintSetting The setting to create a widget for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modUUID string The UUID of the mod
----@return nil
----@see InputWidgetFactory
+---@return ExtuiStyledRenderable
 function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUUID)
     if setting:GetType() == "keybinding_v2" then return nil end
 
@@ -485,14 +492,10 @@ function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUU
         widgetGroup.IDContext = modUUID .. "_" .. setting:GetId() .. "_Group"
 
         local widget = createWidget(widgetGroup, setting, settingValue, modUUID)
-        widgetGroup:AddDummy(0, 10)
-
-        VisibilityManager.registerCondition(modUUID, widgetGroup,
-            setting:GetVisibleIf())
+        VisibilityManager.registerCondition(modUUID, widgetGroup, setting:GetVisibleIf())
         self.mods[modUUID].widgets[setting:GetId()] = widget
+        return widgetGroup
     end
-
-    return true
 end
 
 ------------------------------------------------------------
