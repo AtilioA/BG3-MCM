@@ -395,9 +395,9 @@ function DualPaneController:HandleSidebarStateChange(keepSidebarState)
     end
 end
 
--- Helper to unselect a tab after a short delay
+-- Helper to avoid select lockdown by unselecting the tab after a few ticks
 function DualPaneController:UnselectTabAfterDelay(targetTab)
-    Ext.Timer.WaitFor(100, function()
+    VCTimer:OnTicks(1, function()
         if not targetTab then return end
         targetTab.SetSelected = false
     end)
