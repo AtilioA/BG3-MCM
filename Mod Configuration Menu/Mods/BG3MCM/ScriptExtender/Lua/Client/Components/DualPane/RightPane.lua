@@ -75,10 +75,15 @@ function RightPane:CreateTab(modUUID, tabName)
     local modTabBar = self:GetModTabBar(modUUID)
     if not group or not modTabBar then return nil end
 
-    local tab = modTabBar:AddTabItem(tabName)
-
     local tabId = DualPaneController:GenerateTabId(modUUID, tabName)
-    tab.IDContext = DualPaneController:GenerateTabId(modUUID, tabName)
+    for _, existingTab in ipairs(modTabBar.Children) do
+        if existingTab.IDContext == tabId then
+            return existingTab
+        end
+    end
+
+    local tab = modTabBar:AddTabItem(tabName)
+    tab.IDContext = tabId
     tab.UserData = tab.UserData or {}
     tab.UserData.tabId = tabId
     tab.UserData.tabName = tabName
@@ -96,7 +101,9 @@ end
 
 function RightPane:InsertTab(modUUID, tabName, callback)
     local tab = self:CreateTab(modUUID, tabName)
-    if tab and callback then
+    if not tab then return nil end
+
+    if callback then
         tab.UserData.Callback = callback
         xpcall(function()
             callback(tab)
