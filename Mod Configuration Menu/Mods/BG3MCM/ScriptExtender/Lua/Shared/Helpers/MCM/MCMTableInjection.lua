@@ -159,12 +159,12 @@ end
 local function injectMCMToModTable(originalModUUID)
     if originalModUUID == ModuleUUID then return end
 
-    MCMPrint(0, "Injecting MCM to mod table for modUUID: " .. originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
+    MCMPrint(2, "Injecting MCM to mod table for modUUID: " .. originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
 
     local modTable, modTableName = getModTableForUUID(originalModUUID)
     if not modTable then return end
 
-    MCMPrint(1, "Mod table name: " .. modTableName)
+    MCMPrint(2, "Mod table name: " .. modTableName)
     local MCMInstance = injectSharedMCMTable(modTable, originalModUUID)
     injectClientMCMTable(originalModUUID)
 
