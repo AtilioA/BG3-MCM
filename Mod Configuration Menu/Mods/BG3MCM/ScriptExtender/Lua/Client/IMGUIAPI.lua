@@ -23,6 +23,10 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     if settingId == 'font_size' then
         MCMClientState:SetMCMFontSize(value)
     end
+
+    -- if settingId == "toggle_mcm_sidebar_keybinding" then
+    --     InitHandles:UpdateMCMSidebarKeybindingHandle()
+    -- end
 end
 
 --- Insert a new tab for a mod in the MCM
