@@ -12,10 +12,12 @@ function HeaderActions:New(parent)
 
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
     self.expandBtn = self:CreateActionButton("[Show mods]", ICON_TOGGLE_EXPAND,
-        Ext.Loca.GetTranslatedString("hbb483085e7f04700beb8cc5bf94a98b4g6ac"), 1.5)
+        VCString:InterpolateLocalizedMessage("hbb483085e7f04700beb8cc5bf94a98b4g6ac",
+            KeyPresentationMapping:GetKBViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)), 1.5)
     self.expandBtn.SameLine = true
     self.collapseBtn = self:CreateActionButton("[Hide mods]", ICON_TOGGLE_COLLAPSE,
-        Ext.Loca.GetTranslatedString("h4e0e208daa6a439ca5ba95a668a7ac36d882"), 1.5)
+        VCString:InterpolateLocalizedMessage("h4e0e208daa6a439ca5ba95a668a7ac36d882",
+            KeyPresentationMapping:GetKBViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)), 1.5)
     self.collapseBtn.SameLine = true
     self.expandBtn.OnClick = function() DualPane:ToggleSidebar() end
     self.collapseBtn.OnClick = function() DualPane:ToggleSidebar() end
