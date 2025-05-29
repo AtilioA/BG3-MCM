@@ -20,6 +20,7 @@ RequireFiles("Shared/Helpers/", {
 })
 
 RequireFiles("NotiFramework/", {
+    "NotificationRegistry",
     "NotificationPreferences",
     "NotificationStyles",
     "NotificationOptions",

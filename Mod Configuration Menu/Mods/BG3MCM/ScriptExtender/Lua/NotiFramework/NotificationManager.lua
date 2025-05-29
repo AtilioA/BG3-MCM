@@ -1,21 +1,8 @@
 -- Indefinite duration for notifications
 local DEFAULT_DURATION = nil
 
--- Table to track active notifications by title and message
-local activeNotifications = {}
-
---- Finds an existing notification with the same title and message
----@param title string The title to search for
----@param message string The message to search for
----@return NotificationManager|nil
-local function findExistingNotification(title, message)
-    for _, notification in pairs(activeNotifications) do
-        if notification.title == title and notification.message == message then
-            return notification
-        end
-    end
-    return nil
-end
+-- Global registry for all notifications
+local notificationRegistry = NotificationRegistry:New()
 
 local DEFAULT_DONT_SHOW_AGAIN_BUTTON = true
 local DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN = 5
@@ -69,7 +56,7 @@ end
 ---@param message string The message to display in the IMGUIwindow
 ---@param options NotificationOptions The options for the warning IMGUIwindow
 ---@param modUUID string The UUID of the mod that owns the warning
----@return NotificationManager
+---@return NotificationManager instance The notification instance creaated by the manager
 function NotificationManager:new(id, severity, title, message, options, modUUID)
     -- Preprocess options for validity
     options = NotificationOptions:PreprocessOptions(options)
@@ -157,19 +144,18 @@ end
 
 --- Cleans up and destroys the IMGUIwindow, also handling the show once parameter
 ---@return nil
+--- Cleans up and destroys the IMGUIwindow, also handling the show once parameter
+---@return nil
 function NotificationManager:Destroy()
-    -- Remove from active notifications
-    for key, notification in pairs(activeNotifications) do
-        if notification == self then
-            activeNotifications[key] = nil
-            break
-        end
-    end
+    -- Remove from registry
+    notificationRegistry:Remove(self)
 
+    -- Clean up window if it exists
     if self.IMGUIwindow then
         self.IMGUIwindow.Visible = false
         self.IMGUIwindow:SetCollapsed(true)
         self.IMGUIwindow:Destroy()
+        self.IMGUIwindow = nil
     end
 
     self:HandleDisplayOnceOnly()
@@ -347,33 +333,43 @@ function NotificationManager:StartButtonCountdown(button, countdown)
     VCTimer:CallWithInterval(updateCountdownAndLabel, 1000, countdown * 1000)
 end
 
---- Displays a warning message to the user
----@param severity NotificationSeverity The warning severity
----@param title string The title of the warning IMGUIwindow
----@param message string The message to display
----@param options NotificationOptions The options for the warning
----@param modUUID string The UUID of the mod that owns the warning
+--- Creates a new IMGUI notification or returns an existing one with the same title and message
+---@param id string The unique identifier for the notification
+---@param severity NotificationSeverity The severity level (info, success, warning, error)
+---@param title string The notification title
+---@param message string The notification message
+---@param options NotificationOptions Configuration options for the notification
+---@param modUUID string The UUID of the mod creating the notification
+---@return NotificationManager|nil The created notification or an existing one with matching title/message
 function NotificationManager:CreateIMGUINotification(id, severity, title, message, options, modUUID)
     if Ext.IsServer() then
         -- TODO: Ext.Net.PostMessageToClient
-        return
+        return nil
     end
 
+    -- Check if we should show this notification based on preferences
     if not NotificationPreferences:ShouldShowNotification(id, modUUID) then
-        return
+        return nil
     end
 
     -- Check for existing notification with same title and message
-    local existingNotification = findExistingNotification(title, message)
+    local existingNotification = notificationRegistry:FindExisting(title, message)
     if existingNotification then
-        MCMDebug(1, "Notification with title '" .. title .. "' and message '" .. message .. "' already exists.")
+        MCMDebug(2, string.format(
+            "Notification suppressed - duplicate found (ID: %s, Title: %s, Message: %s)",
+            id, title, message
+        ))
         return existingNotification
     end
 
-    -- Create new notification and store it in active notifications
+    -- Create and register new notification
     local newNotification = NotificationManager:new(id, severity, title, message, options, modUUID)
     if newNotification then
-        table.insert(activeNotifications, newNotification)
+        notificationRegistry:Add(newNotification)
+        MCMDebug(3, string.format(
+            "Created new notification (ID: %s, Title: %s, Active notifications: %d)",
+            id, title, notificationRegistry:Count()
+        ))
     end
 
     return newNotification
