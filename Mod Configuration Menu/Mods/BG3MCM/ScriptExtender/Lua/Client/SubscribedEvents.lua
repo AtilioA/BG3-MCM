@@ -111,7 +111,6 @@ Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(
 
     MCMProxy.GameState = "Running"
     MCMAPI:LoadConfigs()
-    InitHandles:UpdateDynamicMCMWindowHandles()
     MCMClientState:LoadMods(mods)
 end)
 
@@ -181,6 +180,25 @@ ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
             IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modUUID)
         end
     end
+end)
+
+MCMAPI.configsLoaded:Subscribe(function(configsLoaded)
+    if not configsLoaded then
+        return
+    end
+
+    -- Use settings' values as soon as they are available, and before UI rendering
+    xpcall(function()
+        InitHandles:UpdateDynamicMCMWindowHandles()
+    end, function(err)
+        MCMError(0, "Failed to update dynamic MCM window handles: " .. tostring(err))
+    end)
+
+    xpcall(function()
+        MCMPrinter:UpdateLogLevels()
+    end, function(err)
+        MCMError(0, "Failed to update log levels: " .. tostring(err))
+    end)
 end)
 
 -- SECTION: Noesis events

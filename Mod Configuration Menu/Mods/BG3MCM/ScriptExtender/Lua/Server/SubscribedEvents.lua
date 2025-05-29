@@ -73,6 +73,13 @@ function SubscribedEvents.SubscribeToEvents()
 
     Ext.Events.SessionLoaded:Subscribe(EHandlers.OnSessionLoaded)
 
+    MCMAPI.configsLoaded:Subscribe(function(configsLoaded)
+        if not configsLoaded then
+            return
+        end
+        MCMPrinter:UpdateLogLevels()
+    end)
+
     registerNetListeners(netEventsRegistry)
     registerModEventListeners(modEventRegistry)
 end
