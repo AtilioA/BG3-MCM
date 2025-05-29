@@ -1,9 +1,19 @@
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
+---@field Widget table
+---@field PressedKeys table<string, boolean>
+---@field AllPressedKeys table<string, boolean>
+---@field _registrySubscription any
 KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
 
+---@type string
 LISTENING_INPUT_STRING = Ext.Loca.GetTranslatedString("h2ea690497b1a4ffea4b2ed480df3654c486f")
+
+---@type string
 UNASSIGNED_KEYBOARD_MOUSE_STRING = Ext.Loca.GetTranslatedString("h08c75c996813442bb40fa085f1ecec07f14e")
 
+---Creates a new instance of KeybindingV2IMGUIWidget
+---@param group ExtuiGroup The IMGUI group to attach this widget to
+---@return KeybindingV2IMGUIWidget
 function KeybindingV2IMGUIWidget:new(group)
     local instance = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
     instance.Widget = {
@@ -37,6 +47,11 @@ function KeybindingV2IMGUIWidget:new(group)
     return instance
 end
 
+---Stores a keybinding in the registry
+---@param modData table The mod data containing ModUUID and ModName
+---@param action table The action data containing ActionId
+---@param payload table The payload containing the keybinding data
+---@return boolean success Whether the operation was successful
 function KeybindingV2IMGUIWidget:StoreKeybinding(modData, action, payload)
     local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, payload)
     if not success then
@@ -48,7 +63,7 @@ function KeybindingV2IMGUIWidget:StoreKeybinding(modData, action, payload)
     return success
 end
 
--- Filters actions using the centralized registry.
+---Filters actions using the centralized registry based on the current search text
 function KeybindingV2IMGUIWidget:FilterActions()
     local filteredMods = {}
     local searchText = self.Widget.SearchText:upper()
@@ -56,6 +71,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
 
     for modUUID, actions in pairs(registry) do
         local modName = MCMClientState:GetModName(modUUID)
+        if not modName then modName = "MISSING_NAME" end
         local filteredActions = {}
         for actionId, binding in pairs(actions) do
             local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
@@ -94,6 +110,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
     self.Widget.FilteredActions = filteredMods
 end
 
+---Renders the search bar UI element
 function KeybindingV2IMGUIWidget:RenderSearchBar()
     local group = self.Widget.Group
     if not self.Widget.DynamicElements.SearchInput then
@@ -111,6 +128,7 @@ function KeybindingV2IMGUIWidget:RenderSearchBar()
     end
 end
 
+---Sorts the filtered actions with MCM first, then alphabetically by mod name
 function KeybindingV2IMGUIWidget:SortFilteredActions()
     -- Sort mods: MCM comes first, then alphabetically by mod name.
     table.sort(self.Widget.FilteredActions, function(a, b)
@@ -133,7 +151,7 @@ function KeybindingV2IMGUIWidget:SortFilteredActions()
     end
 end
 
---- Renders the keybinding tables for all filtered mods.
+---Renders the keybinding tables for all filtered mods
 function KeybindingV2IMGUIWidget:RenderKeybindingTables()
     local group = self.Widget.Group
     self:ClearDynamicElements()
@@ -156,6 +174,9 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
     end
 end
 
+---Renders the keybinding table for a specific mod
+---@param modGroup ExtuiGroup The IMGUI group to render the table in
+---@param mod table The mod data containing actions to render
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     xpcall(function()
         local columns = 4 -- Changed from 3 to 5 to add the enabled column.
@@ -251,6 +272,11 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     end)
 end
 
+---Starts listening for input for a specific keybinding
+---@param mod table The mod data
+---@param action table The action data
+---@param inputType string The type of input to listen for ("KeyboardMouse")
+---@param button ExtuiButton The button element that triggered the input listening
 function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, button)
     self.Widget.ListeningForInput = true
     self.Widget.CurrentListeningAction = { Mod = mod, Action = action, InputType = inputType, Button = button }
@@ -259,6 +285,7 @@ function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, 
     button.Disabled = true
 end
 
+---Registers input event handlers for key and mouse input
 function KeybindingV2IMGUIWidget:RegisterInputEvents()
     self.Widget.InputEventSubscriptions = {
         KeyInput = Ext.Events.KeyInput:Subscribe(function(e)
@@ -267,6 +294,7 @@ function KeybindingV2IMGUIWidget:RegisterInputEvents()
     }
 end
 
+---Unregisters all input event handlers
 function KeybindingV2IMGUIWidget:UnregisterInputEvents()
     local subs = self.Widget.InputEventSubscriptions
     if subs.KeyInput then
@@ -277,6 +305,8 @@ function KeybindingV2IMGUIWidget:UnregisterInputEvents()
     end
 end
 
+---Handles keyboard input events
+---@param e table The key input event
 function KeybindingV2IMGUIWidget:HandleKeyInput(e)
     if not self.Widget.ListeningForInput then
         return
@@ -345,12 +375,16 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
     end
 end
 
-function KeybindingV2IMGUIWidget:HandleMouseInput(e)
-    if not self.Widget.ListeningForInput or not e.Pressed then return end
-    local button = "Mouse" .. tostring(e.Button)
-    self:AssignKeybinding(button)
-end
+-- ---Handles mouse input events
+-- ---@param e table The mouse input event
+-- function KeybindingV2IMGUIWidget:HandleMouseInput(e)
+--     if not self.Widget.ListeningForInput or not e.Pressed then return end
+--     local button = "Mouse" .. tostring(e.Button)
+--     self:AssignKeybinding(button)
+-- end
 
+---Assigns a keybinding to the current action
+---@param keybinding table The keybinding to assign (string for mouse, table for keyboard)
 function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     if not self.Widget.CurrentListeningAction then
         return
@@ -392,6 +426,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     end)
 end
 
+---Cancels the current keybinding operation
 function KeybindingV2IMGUIWidget:CancelKeybinding()
     if self.Widget.CurrentListeningAction then
         local buttonElement = self.Widget.CurrentListeningAction.Button
@@ -410,6 +445,12 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
     end
 end
 
+---Checks if a keybinding conflicts with existing bindings
+---@param keybinding Keybinding The keybinding to check
+---@param currentMod table The current mod data
+---@param currentAction table The current action data
+---@param inputType string The type of input ("KeyboardMouse")
+---@return table|nil Conflicting action if found, nil otherwise
 function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, currentAction, inputType)
     local registry = KeybindingsRegistry.GetFilteredRegistry()
     local _currentModUUID = currentMod.ModUUID
@@ -442,6 +483,9 @@ function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, curre
     return nil
 end
 
+---Resets a binding to its default value
+---@param modUUID string The UUID of the mod
+---@param actionId string The ID of the action to reset
 function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     local registry = KeybindingsRegistry.GetFilteredRegistry()
     local binding = registry[modUUID] and registry[modUUID][actionId]
@@ -458,10 +502,12 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     end
 end
 
+---Refreshes the UI to reflect the current state
 function KeybindingV2IMGUIWidget:RefreshUI()
     self:RenderKeybindingTables()
 end
 
+---Clears all dynamically created UI elements
 function KeybindingV2IMGUIWidget:ClearDynamicElements()
     for _, modHeader in ipairs(self.Widget.DynamicElements.ModHeaders) do
         modHeader:Destroy()
@@ -473,6 +519,7 @@ function KeybindingV2IMGUIWidget:ClearDynamicElements()
     end
 end
 
+---Cleans up resources when the widget is destroyed
 function KeybindingV2IMGUIWidget:Destroy()
     self:UnregisterInputEvents()
     self:ClearDynamicElements()
@@ -483,6 +530,8 @@ function KeybindingV2IMGUIWidget:Destroy()
     self.Widget.Group:Destroy()
 end
 
+---Updates the current value (not used)
+---@param value any The new value (unused)
 function KeybindingV2IMGUIWidget:UpdateCurrentValue(value)
     -- Not used.
 end

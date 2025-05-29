@@ -4,6 +4,10 @@ local RX = {
     BehaviorSubject = Ext.Require("Lib/reactivex/subjects/behaviorsubject.lua")
 }
 
+---@class Keybinding
+---@field Key string
+---@field ModifierKeys string[]
+
 KeybindingsRegistry = {}
 
 -- Internal registry: a table mapping mod UUID to its actions.
@@ -12,7 +16,8 @@ local registry = {}
 -- A BehaviorSubject that always holds the current registry state.
 local keybindingsSubject = RX.BehaviorSubject.Create(registry)
 
--- Utility functions for normalizing bindings.
+--- Utility functions for normalizing bindings.
+---@param binding Keybinding
 function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     if binding == nil or binding == "" then
         return ""
