@@ -111,6 +111,7 @@ Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(
 
     MCMProxy.GameState = "Running"
     MCMAPI:LoadConfigs()
+    InitHandles:UpdateDynamicMCMWindowHandles()
     MCMClientState:LoadMods(mods)
 end)
 
