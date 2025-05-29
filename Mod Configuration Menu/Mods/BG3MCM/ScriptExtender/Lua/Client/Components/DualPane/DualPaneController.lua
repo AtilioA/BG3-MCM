@@ -413,10 +413,10 @@ function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent,
     local targetTab = self:FindTab(modUUID, tabIdentifier)
     if targetTab then
         self:ActivateTab(targetTab, shouldOpenWindow)
-        self:SetVisibleFrame(modUUID, shouldEmitEvent)
     elseif tabIdentifier then
-        MCMWarn(0, "Tab not found for mod " .. modUUID)
+        MCMWarn(1, "Tab not found for mod " .. modUUID .. ": " .. tabIdentifier)
     end
+    self:SetVisibleFrame(modUUID, shouldEmitEvent)
 
     self:HandleSidebarStateChange(keepSidebarState)
     self:UnselectTabAfterDelay(targetTab)
