@@ -1,5 +1,11 @@
+local RX = {
+    ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
+}
+
 ---@class MCMAPI: MetaClass
 ---@field private mods table<string, table> A table of modUUIDs that has a table of blueprints and settings for each mod
+---@field private profiles table<string, table> A table of profile data
+---@field private configsLoaded ReplaySubject
 -- The MCM (Mod Configuration Menu) class is the main entry point for interacting with the Mod Configuration Menu system.
 -- It acts as a high-level interface to the underlying ModConfig and ProfileManager classes, which handle the low-level details of loading, saving, and managing the mod configurations and user profiles, as well as JSON file handling from the JsonLayer class.
 --
@@ -13,6 +19,7 @@
 MCMAPI = _Class:Create("MCMAPI", nil, {
     mods = {},
     profiles = {},
+    configsLoaded = RX.ReplaySubject.Create(1)
 })
 
 --- Loads the profile manager and the configurations for all mods.
@@ -20,6 +27,7 @@ MCMAPI = _Class:Create("MCMAPI", nil, {
 function MCMAPI:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
+    self.configsLoaded:OnNext(true)
     MCMSuccess(0, "Finished loading MCM blueprints")
 end
 
