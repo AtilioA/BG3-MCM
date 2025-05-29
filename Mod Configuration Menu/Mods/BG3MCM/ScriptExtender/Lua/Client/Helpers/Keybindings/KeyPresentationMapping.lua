@@ -181,4 +181,12 @@ function KeyPresentationMapping:GetKBViewKey(keybinding)
     return table.concat(modifiers, " + ") .. (next(modifiers) and " + " or "") .. keyStr
 end
 
+function KeyPresentationMapping:GetKBViewKeyForSetting(keybinding_setting_id, modUUID)
+    local keybinding = MCMClientState:GetClientStateValue(keybinding_setting_id, modUUID)
+    if not keybinding or not keybinding.Keyboard then
+        return UNASSIGNED_KEYBOARD_MOUSE_STRING
+    end
+    return self:GetKBViewKey(keybinding.Keyboard)
+end
+
 return KeyPresentationMapping
