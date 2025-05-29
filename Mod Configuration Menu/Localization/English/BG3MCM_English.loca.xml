@@ -20,8 +20,6 @@
     <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Welcome to Baldur's Gate 3 Mod Configuration Menu!&lt;br&gt;If you don't see any mods here, you might need to load a save file first.&lt;br&gt;If you still don't see any mods, make sure you have mods that use MCM.&lt;br&gt;&lt;br&gt;By default, you can press Insert to toggle this menu while it is unfocused.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Dynamic opacity</content>
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window more transparent while interacting with game elements.</content>
-    <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Apply IMGUI styling to try to replicate the game's color scheme.</content>
-    <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicate game color scheme</content>
     <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Host-only mode</content>
     <content contentuid="h48d5ce6ebd8144649e72da14b64214a9b57f" version="1">Allow only the host to change settings in multiplayer games.</content>
     <content contentuid="hb7ee77283bd94bd5b9d3fe696b45e85ae804" version="1">Profile management</content>
@@ -154,8 +152,8 @@
     <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">Mod '[1]' requires '[2]' version [3] or higher, but loaded version is [4].&lt;br&gt;Please update [2].</content>
     <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">Mod '[1]' requires dependency '[2]', which is not loaded.&lt;br&gt;Please install [2].</content>
     <content contentuid="h729585d6g09c1g48cfg8290ga2e761cc46bf" version="1">Mod '[1]' declares a conflict with mod '[2]', but '[2]' is loaded.&lt;br&gt;Please resolve this conflict by disabling one of them, or look for compatibility patches.</content>
-    <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Hide the sidebar.&lt;br&gt;By default, you can toggle it with CAPSLOCK.</content>
-    <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expand the sidebar containing keybindings, mods, etc</content>
+    <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Hide the sidebar.&lt;br&gt;You can also toggle it with [1].</content>
+    <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expand the sidebar containing keybindings, mods, etc.&lt;br&gt;You can also toggle it with [1].</content>
     <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Detach mod content to a separate window</content>
     <content contentuid="hd3bbec3b1be2455986b5da92492f445d4296" version="1">No keybindings found.</content>
     <content contentuid="h508b792738634a4f88639bd379f12e601e96" version="1">Restore last used subtab</content>
@@ -181,7 +179,7 @@
     <content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Provides an in-game UI that enables players to intuitively manage mod settings and hotkeys.</content>
     <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Toggle detached windows with main window</content>
     <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">When toggling the MCM window, also toggle the visibility of any detached mod pages.</content>
-    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">By default, the sidebar automatically expands when hovering the menu icon, and will collapse when opening a mod page.&lt;br&gt;You can also manually toggle it with CAPSLOCK.</content>
+    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">By default, the sidebar automatically expands when hovering the menu icon, and will collapse when opening a mod page.&lt;br&gt;You can also manually toggle it with [1].</content>
     <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Profile changes require a reload to take effect.</content>
     <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Connecting players cannot use this page. Only the host may change these settings.</content>
     <content contentuid="h38caa4e657a746509697741417cc96049f52" version="1">Window behavior</content>

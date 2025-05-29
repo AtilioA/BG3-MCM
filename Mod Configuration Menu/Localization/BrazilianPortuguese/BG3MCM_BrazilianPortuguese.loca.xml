@@ -16,8 +16,6 @@
     <content contentuid="h81a4a9991875424984b876d017675879c959" version="1">Bem-vindo ao Menu de Configuração de Mods do Baldur's Gate 3!&lt;br&gt;Se você não vir nenhum mod aqui, talvez seja necessário carregar um save primeiro.&lt;br&gt;Se você ainda não vir nenhum mod, certifique-se de ter mods integrados/que usem o MCM.&lt;br&gt;&lt;br&gt;Por padrão, você pode pressionar Insert para alternar esta janela quando ele não estiver em foco.</content>
     <content contentuid="h9abda7ddcd564ba69433278a82884c535566" version="1">Opacidade dinâmica</content>
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Torna a janela do MCM ligeiramente transparente enquanto você interagir com elementos do jogo.</content>
-    <content contentuid="h88c35900fc8743d1a2d029526f8810df684b" version="1">Aplicar estilo ao IMGUI para tentar replicar o esquema de cores do jogo.</content>
-    <content contentuid="h18f05e5a07a34db4904b86be8a016ce2e30g" version="1">Replicar esquema de cores do jogo</content>
     <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Modo somente host</content>
     <content contentuid="h48d5ce6ebd8144649e72da14b64214a9b57f" version="1">Apenas o host pode alterar as configurações do MCM quando em multiplayer.</content>
     <content contentuid="hb7ee77283bd94bd5b9d3fe696b45e85ae804" version="1">Gerenciamento de perfis</content>
@@ -151,8 +149,8 @@
     <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Não é possível verificar a dependência '[1]' para o mod '[2]' porque não possui informações de versão.&lt;br&gt;Isso não impacta a funcionalidade, mas por favor, entre em contato com [3] para atualizar o arquivo meta.lsx para '[4]'.&lt;br&gt;O node de versão pode ter um ID desatualizado (deve ser Version64).</content>
     <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">O mod '[1]' requer '[2]' versão [3] ou superior, mas a versão carregada é [4].&lt;br&gt;Por favor, atualize [2].</content>
     <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">O mod '[1]' requer a dependência '[2]', que não está carregada.&lt;br&gt;Por favor, instale [2].</content>
-    <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Ocultar a barra lateral</content>
-    <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expandir a barra lateral contendo atalhos, mods, etc.</content>
+    <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Ocultar a barra lateral.&lt;br&gt;Também pode ser alternada com [1].</content>
+    <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expandir a barra lateral contendo atalhos, mods, etc.&lt;br&gt;Também pode ser alternada com [1].</content>
     <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Desanexar o conteúdo do mod para uma janela separada</content>
     <content contentuid="hd3bbec3b1be2455986b5da92492f445d4296" version="1">Nenhum atalho encontrado.</content>
     <content contentuid="h508b792738634a4f88639bd379f12e601e96" version="1">Restaurar a última página usada</content>
@@ -178,7 +176,7 @@
     <content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Fornece uma interface no jogo que permite aos jogadores gerenciar intuitivamente configurações de mods e teclas de atalho.</content>
     <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Exibir/esconder janelas desanexadas com a janela principal</content>
     <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">Quando exibir/esconder a janela do MCM, faz o mesmo com quaisquer páginas de mod desanexadas.</content>
-    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">Por padrão, a barra lateral expande automaticamente ao passar o mouse sobre o ícone de menu e será recolhida ao abrir uma página de mod.&lt;br&gt;Você também pode manualmente alterná-la com CAPSLOCK.</content>
+    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">Por padrão, a barra lateral expande automaticamente ao passar o mouse sobre o ícone de menu e será recolhida ao abrir uma página de mod.&lt;br&gt;Você também pode manualmente alterná-la com [1].</content>
     <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Mudanças de perfil requerem recarregar um save para ter efeito.</content>
     <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Jogadores conectados não podem usar esta página. Somente o host pode alterar estas configurações.</content>
     <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Preferências de interface</content>
