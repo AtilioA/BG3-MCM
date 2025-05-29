@@ -18,6 +18,7 @@ local keybindingsSubject = RX.BehaviorSubject.Create(registry)
 
 --- Utility functions for normalizing bindings.
 ---@param binding Keybinding
+---@return string|nil The normalized binding, or nil if invalid
 function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     if binding == nil or binding == "" then
         return ""
