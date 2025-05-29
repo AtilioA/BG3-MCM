@@ -272,7 +272,7 @@
                             "Name": "Debug level",
                             "Type": "slider_int",
                             "Default": 0,
-                            "Description": "Used mainly to determine which messages to print.\nUseful for developers or general troubleshooting.",
+                            "Description": "Used mainly to determine which messages to print.\nUseful for developers or general troubleshooting. Independent of log type settings.",
                             "Options": {
                                 "Min": 0,
                                 "Max": 3
@@ -315,6 +315,72 @@
                     ],
                     "Handles": {
                         "NameHandle": "h67357ed078184370901b1d572062b7ba26a5"
+                    }
+                },
+                {
+                    "SectionId": "log_types",
+                    "SectionName": "Log types",
+                    "SectionDescription": "Enable or disable specific log levels. These settings work in conjunction with the debug level to determine which messages are displayed.",
+                    "Settings": [
+                        {
+                            "Id": "log_level_debug",
+                            "Name": "Enable debug logs",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Tooltip": "Enable debug logs (yellow)",
+                            "Handles": {
+                                "NameHandle": "h193e8c23d2504cef9a0002baacbdb6a7c923",
+                                "TooltipHandle": "h3a06069498904f7791e754ff190e1649e8a6"
+                            }
+                        },
+                        {
+                            "Id": "log_level_print",
+                            "Name": "Enable print logs",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Tooltip": "Enable standard print logs (cyan)",
+                            "Handles": {
+                                "NameHandle": "hc836da17893e47618c2524c724a23f5585bd",
+                                "TooltipHandle": "h48379d9c95fe4393b221b9d105374174ecaa"
+                            }
+                        },
+                        {
+                            "Id": "log_level_info",
+                            "Name": "Enable info logs",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Tooltip": "Enable info logs (light gray)",
+                            "Handles": {
+                                "NameHandle": "hdb101e2835e7482d919a3d1f0ae0af13fdc3",
+                                "TooltipHandle": "h2091c8df590049748bdf95d6141497e215gg"
+                            }
+                        },
+                        {
+                            "Id": "log_level_success",
+                            "Name": "Enable success logs",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Tooltip": "Enable success logs (green)",
+                            "Handles": {
+                                "NameHandle": "h97ff4d538fd24adebd33abcda9ed64e05e31",
+                                "TooltipHandle": "h1023ace9c14d4a8bbf2c4c2f80a4c47c6513"
+                            }
+                        },
+                        {
+                            "Id": "log_level_warn",
+                            "Name": "Enable warning logs",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Tooltip": "Enable warning logs (orange-red)",
+                            "Handles": {
+                                "NameHandle": "habe7ddb9ad9944b58744705857ca8cde0357",
+                                "TooltipHandle": "hddf4673450d344dc924bc6210f17ea62544g"
+                            }
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "he26ef06bc36043578987ed0e7fe059046206",
+                        "DescriptionHandle": "he697e03397c64a9e97a8762743d1111b4b91"
                     }
                 }
             ]

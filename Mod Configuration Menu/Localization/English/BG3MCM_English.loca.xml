@@ -185,4 +185,17 @@
     <content contentuid="h38caa4e657a746509697741417cc96049f52" version="1">Window behavior</content>
     <content contentuid="h4c268ec86668491996f95e0e311fd420fba7" version="1">Multiplayer</content>
     <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Interface preferences</content>
+    <content contentuid="he697e03397c64a9e97a8762743d1111b4b91" version="1">Enable or disable specific log types. These settings work in conjunction with the debug level to determine which messages are displayed.</content>
+    <content contentuid="he26ef06bc36043578987ed0e7fe059046206" version="1">Log types</content>
+    <content contentuid="hc7c98d50ed46434d8ab9d383c45ac51addbd" version="1">Enable debug logs"</content>
+    <content contentuid="h193e8c23d2504cef9a0002baacbdb6a7c923" version="1">Enable debug logs</content>
+    <content contentuid="h3a06069498904f7791e754ff190e1649e8a6" version="1">Enable debug logs (yellow)</content>
+    <content contentuid="hc836da17893e47618c2524c724a23f5585bd" version="1">Enable print logs</content>
+    <content contentuid="h48379d9c95fe4393b221b9d105374174ecaa" version="1">Enable standard print logs (cyan)</content>
+    <content contentuid="hdb101e2835e7482d919a3d1f0ae0af13fdc3" version="1">Enable info logs</content>
+    <content contentuid="h2091c8df590049748bdf95d6141497e215gg" version="1">Enable info logs (light gray)</content>
+    <content contentuid="h97ff4d538fd24adebd33abcda9ed64e05e31" version="1">Enable success logs</content>
+    <content contentuid="h1023ace9c14d4a8bbf2c4c2f80a4c47c6513" version="1">Enable success logs (green)</content>
+    <content contentuid="habe7ddb9ad9944b58744705857ca8cde0357" version="1">Enable warning logs</content>
+    <content contentuid="hddf4673450d344dc924bc6210f17ea62544g" version="1">Enable warning logs (orange-red)</content>
 </contentList>
