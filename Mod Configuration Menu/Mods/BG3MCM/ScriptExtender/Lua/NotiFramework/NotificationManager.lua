@@ -1,6 +1,22 @@
 -- Indefinite duration for notifications
 local DEFAULT_DURATION = nil
 
+-- Table to track active notifications by title and message
+local activeNotifications = {}
+
+--- Finds an existing notification with the same title and message
+---@param title string The title to search for
+---@param message string The message to search for
+---@return NotificationManager|nil
+local function findExistingNotification(title, message)
+    for _, notification in pairs(activeNotifications) do
+        if notification.title == title and notification.message == message then
+            return notification
+        end
+    end
+    return nil
+end
+
 local DEFAULT_DONT_SHOW_AGAIN_BUTTON = true
 local DEFAULT_DONT_SHOW_AGAIN_BUTTON_COUNTDOWN = 5
 
@@ -142,9 +158,19 @@ end
 --- Cleans up and destroys the IMGUIwindow, also handling the show once parameter
 ---@return nil
 function NotificationManager:Destroy()
-    self.IMGUIwindow.Visible = false
-    self.IMGUIwindow:SetCollapsed(true)
-    self.IMGUIwindow:Destroy()
+    -- Remove from active notifications
+    for key, notification in pairs(activeNotifications) do
+        if notification == self then
+            activeNotifications[key] = nil
+            break
+        end
+    end
+
+    if self.IMGUIwindow then
+        self.IMGUIwindow.Visible = false
+        self.IMGUIwindow:SetCollapsed(true)
+        self.IMGUIwindow:Destroy()
+    end
 
     self:HandleDisplayOnceOnly()
 end
@@ -159,7 +185,10 @@ end
 
 --- Resets the fade-out timer and alpha when the notification is activated (unused)
 ---@return nil
+---@return nil
 function NotificationManager:ResetFadeOutTimer()
+    if not self.IMGUIwindow then return end
+
     self.IMGUIwindow.Visible = true
     self._alpha = 1.0
     self._timer = Ext.Utils.MonotonicTime()
@@ -330,9 +359,24 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
         return
     end
 
-    if NotificationPreferences:ShouldShowNotification(id, modUUID) then
-        return NotificationManager:new(id, severity, title, message, options, modUUID)
+    if not NotificationPreferences:ShouldShowNotification(id, modUUID) then
+        return
     end
+
+    -- Check for existing notification with same title and message
+    local existingNotification = findExistingNotification(title, message)
+    if existingNotification then
+        MCMDebug(1, "Notification with title '" .. title .. "' and message '" .. message .. "' already exists.")
+        return existingNotification
+    end
+
+    -- Create new notification and store it in active notifications
+    local newNotification = NotificationManager:new(id, severity, title, message, options, modUUID)
+    if newNotification then
+        table.insert(activeNotifications, newNotification)
+    end
+
+    return newNotification
 end
 
 function NotificationManager:InjectNotificationManagerToModTable(modUUID)
