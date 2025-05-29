@@ -582,13 +582,10 @@ end
 
 -- TODO: extract this to DualPane?
 function MCMRendering:CreateKeybindingsPage()
-    local hotkeysUUID = "MCM_HOTKEYS"
-    -- MCMDebug(0, "Creating keybindings page...")
-
     -- Create a dedicated "Hotkeys" menu section using the new interface
     local hotkeysGroup = DualPane:AddMenuSectionWithContent(
         Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"),
-        hotkeysUUID
+        ClientGlobals.MCM_HOTKEYS
     )
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
