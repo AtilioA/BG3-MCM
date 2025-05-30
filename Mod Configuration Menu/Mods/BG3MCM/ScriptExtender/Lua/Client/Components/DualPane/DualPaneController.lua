@@ -425,7 +425,7 @@ function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent,
     if targetTab then
         self:ActivateTab(modUUID, targetTab, shouldOpenWindow)
     elseif tabIdentifier then
-        MCMWarn(1, "Tab not found for mod " .. modUUID .. ": " .. tabIdentifier)
+        MCMWarn(2, "Tab not immediately found for mod " .. modUUID .. ": " .. tabIdentifier)
     end
     self:SetVisibleFrame(modUUID, shouldEmitEvent)
 
