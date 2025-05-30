@@ -87,6 +87,26 @@
                     }
                 },
                 {
+                    "SectionId": "multiplayer_settings",
+                    "SectionName": "Multiplayer",
+                    "Settings": [
+                        {
+                            "Id": "host-only_mode",
+                            "Name": "Host-only mode",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Allow only the host to change settings in multiplayer games.",
+                            "Handles": {
+                                "NameHandle": "h119ee473f3f644b887ed4e2a2fdb97b9fea",
+                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f"
+                            }
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h4c268ec86668491996f95e0e311fd420fba7"
+                    }
+                },
+                {
                     "SectionId": "window_behavior",
                     "SectionName": "Window behavior",
                     "Settings": [
@@ -164,26 +184,6 @@
                     ],
                     "Handles": {
                         "NameHandle": "h38caa4e657a746509697741417cc96049f52"
-                    }
-                },
-                {
-                    "SectionId": "multiplayer_settings",
-                    "SectionName": "Multiplayer",
-                    "Settings": [
-                        {
-                            "Id": "host-only_mode",
-                            "Name": "Host-only mode",
-                            "Type": "checkbox",
-                            "Default": false,
-                            "Description": "Allow only the host to change settings in multiplayer games.",
-                            "Handles": {
-                                "NameHandle": "h119ee473f3f644b887ed4e2a2fdb97b9fea",
-                                "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f"
-                            }
-                        }
-                    ],
-                    "Handles": {
-                        "NameHandle": "h4c268ec86668491996f95e0e311fd420fba7"
                     }
                 }
             ]
