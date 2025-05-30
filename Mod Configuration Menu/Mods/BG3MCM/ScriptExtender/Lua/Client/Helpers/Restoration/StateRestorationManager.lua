@@ -71,6 +71,7 @@ function StateRestorationManager:Setup()
         VCTimer:OnTicks(1, function()
             if MCMClientState and MCMClientState.UIReady then
                 -- Subscribe to UIReady to know when the UI is fully loaded
+                -- TODO: Use an observable to wait for custom tabs to be inserted
                 MCMClientState.UIReady:Subscribe(function(ready)
                     if ready then
                         MCMDebug(1, "StateRestorationManager: MCM UI is ready, initializing services")

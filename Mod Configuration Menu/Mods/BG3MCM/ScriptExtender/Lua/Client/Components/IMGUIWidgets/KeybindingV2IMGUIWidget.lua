@@ -1,3 +1,5 @@
+-- TODO: add another column to 'ignore conflicts'?
+
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 ---@field Widget table
 ---@field PressedKeys table<string, boolean>
