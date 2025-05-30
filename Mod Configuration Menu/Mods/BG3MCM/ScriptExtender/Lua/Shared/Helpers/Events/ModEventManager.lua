@@ -211,6 +211,7 @@ end
 --- Subscribe to a mod event
 ---@param eventName string The name of the event
 ---@param callback function The callback function to handle the event
+---@return integer The subscription index
 function ModEventManager:Subscribe(eventName, callback)
     if not eventName or not callback then
         MCMWarn(0, "eventName and callback cannot be nil")
@@ -222,7 +223,25 @@ function ModEventManager:Subscribe(eventName, callback)
     end
 
     MCMDebug(1, "Subscribing to mod event: " .. eventName)
-    Ext.ModEvents['BG3MCM'][eventName]:Subscribe(callback)
+    local subIndex = Ext.ModEvents['BG3MCM'][eventName]:Subscribe(callback)
+    return subIndex
+end
+
+--- Unsubscribe from a mod event
+---@param eventName string The name of the event
+---@param subscriptionIndex integer The subscription index returned by Subscribe
+function ModEventManager:Unsubscribe(eventName, subscriptionIndex)
+    if not eventName or not subscriptionIndex then
+        MCMWarn(0, "eventName and subscriptionIndex cannot be nil")
+        error("eventName and subscriptionIndex cannot be nil")
+    end
+    if not Ext.ModEvents['BG3MCM'] or not Ext.ModEvents['BG3MCM'][eventName] then
+        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
+        error("Event '" .. eventName .. "' is not registered.")
+    end
+
+    MCMDebug(1, "Unsubscribing from mod event: " .. eventName)
+    Ext.ModEvents['BG3MCM'][eventName]:Unsubscribe(subscriptionIndex)
 end
 
 function ModEventManager:IsEventRegistered(eventName)
