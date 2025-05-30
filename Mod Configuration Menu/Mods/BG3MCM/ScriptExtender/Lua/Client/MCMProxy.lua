@@ -1,14 +1,18 @@
 --- MCMProxy ensures that mod settings can be managed and updated from the main menu if necessary, or from the server if the game is running.
----
+
+---@class RXClass
+---@field BehaviorSubject table
+local RX = {
+    BehaviorSubject = Ext.Require("Lib/reactivex/subjects/behaviorsubject.lua")
+}
+
 ---@class MCMProxy
 ---@field GameState string The current game state. Might be used to determine if the game is in the main menu.
 ---@field GameStateSubject any Subject that emits game state changes
 MCMProxy = _Class:Create("MCMProxy", nil, {
     GameState = Ext.Net.IsHost() and "Running" or "Menu",
-    GameStateSubject = nil
+    GameStateSubject = nil,
 })
-
-local RX = Ext.Require("Lib/reactivex/_init.lua")
 
 -- Initialize the reactive game state management
 function MCMProxy:Initialize()
@@ -26,6 +30,8 @@ function MCMProxy:Initialize()
     end)
 end
 
+---Check if the game is in the main menu
+---@return boolean
 function MCMProxy.IsMainMenu()
     local gameState = MCMProxy.GameState
 
@@ -40,13 +46,15 @@ function MCMProxy.IsMainMenu()
     return false
 end
 
+--- Load mod configurations
+---@param self MCMProxy
 function MCMProxy:LoadConfigs()
     local function loadConfigs()
-        self.mods = ModConfig:GetSettings()
-        self.profiles = ModConfig:GetProfiles()
+        local _mods = ModConfig:GetSettings()
+        local _profiles = ModConfig:GetProfiles()
     end
 
-    if MCMProxy.IsMainMenu() then
+    if self:IsMainMenu() then
         loadConfigs()
     else
         Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
@@ -55,6 +63,11 @@ function MCMProxy:LoadConfigs()
     end
 end
 
+--- Insert a mod menu tab
+---@param self MCMProxy
+---@param modUUID string
+---@param tabName string
+---@param tabCallback function?
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
     if not self.GameStateSubject then
         self:Initialize()
@@ -95,6 +108,10 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
     end)
 end
 
+--- Get a setting value
+---@param settingId string The ID of the setting to get
+---@param modUUID string The UUID of the mod to get the setting for
+---@return any - The value of the setting
 function MCMProxy:GetSettingValue(settingId, modUUID)
     if MCMProxy.IsMainMenu() then
         return MCMAPI:GetSettingValue(settingId, modUUID)
@@ -103,8 +120,13 @@ function MCMProxy:GetSettingValue(settingId, modUUID)
     end
 end
 
+--- Set a setting value
+---@param settingId string The ID of the setting to set
+---@param value any The value to set the setting to
+---@param modUUID string The UUID of the mod to set the setting for
+---@param setUIValue function|nil A function to set the UI value
 function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
-    if MCMProxy.IsMainMenu() then
+    if self:IsMainMenu() then
         -- Handle locally
         MCMAPI:SetSettingValue(settingId, value, modUUID)
         if setUIValue then
@@ -130,6 +152,9 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
     end
 end
 
+--- Reset a setting value
+---@param settingId string The ID of the setting to reset
+---@param modUUID string The UUID of the mod to reset the setting for
 function MCMProxy:ResetSettingValue(settingId, modUUID)
     if MCMProxy.IsMainMenu() then
         -- Handle locally
