@@ -160,8 +160,8 @@ function SubtabRestorationService:SetupTabInsertionListener(modUUID, tabName)
     -- Register the event handler
     self.tabInsertionHandlerId = ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, onTabInserted)
 
-    -- Set up cleanup timer
-    VCTimer:OnTicks(60, function()
+    -- Set up cleanup timer if no tab is found inserted within 10 seconds
+    VCTimer:OnTime(ClientGlobals.MCM_RESTORATION_MOD_TAB_INSERTED_TIMEOUT, function()
         self:CleanupTabInsertionListener()
     end)
 end
@@ -169,6 +169,7 @@ end
 --- Clean up tab insertion listener and timer
 function SubtabRestorationService:CleanupTabInsertionListener()
     -- Remove event handler if it exists
+    MCMDebug(2, "Cleaning up tab insertion listener with handler ID: " .. tostring(self.tabInsertionHandlerId))
     if self.tabInsertionHandlerId then
         ModEventManager:Unsubscribe(EventChannels.MCM_MOD_TAB_ADDED, self.tabInsertionHandlerId)
         self.tabInsertionHandlerId = nil

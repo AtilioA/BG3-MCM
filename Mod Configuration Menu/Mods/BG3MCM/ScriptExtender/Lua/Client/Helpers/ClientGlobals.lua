@@ -7,4 +7,7 @@ ClientGlobals.RESET_SETTING_BUTTON_ICON = "ico_randomize_d"
 ClientGlobals.MCM_HOTKEYS = "MCM_HOTKEYS"
 ClientGlobals.MCM_PROFILES = "MCM_PROFILES"
 
+-- If no tab is found inserted within 10 seconds
+ClientGlobals.MCM_RESTORATION_MOD_TAB_INSERTED_TIMEOUT = 1000 * 10
+
 return ClientGlobals
