@@ -211,7 +211,7 @@ end
 --- Subscribe to a mod event
 ---@param eventName string The name of the event
 ---@param callback function The callback function to handle the event
----@return integer The subscription index
+---@return integer subIndex The subscription index
 function ModEventManager:Subscribe(eventName, callback)
     if not eventName or not callback then
         MCMWarn(0, "eventName and callback cannot be nil")

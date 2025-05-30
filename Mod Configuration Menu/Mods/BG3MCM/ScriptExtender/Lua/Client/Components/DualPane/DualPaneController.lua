@@ -359,6 +359,9 @@ function DualPaneController:InsertModTab(modUUID, tabName, callback)
 end
 
 -- Helper to find tab by identifier in a mod's tab bar
+---@param modUUID string The UUID of the mod to find the tab in
+---@param tabIdentifier string|nil The identifier of the tab to find
+---@return ExtuiTabItem|nil tab The tab, or nil if not found
 function DualPaneController:FindTab(modUUID, tabIdentifier)
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
@@ -368,6 +371,7 @@ function DualPaneController:FindTab(modUUID, tabIdentifier)
     for _, tab in ipairs(modTabBar.Children) do
         if isMatchingTab(modUUID, tabIdentifier, tab) then
             MCMSuccess(1, "Found tab for mod " .. modUUID)
+            ---@type ExtuiTabItem
             return tab
         end
     end
@@ -375,8 +379,15 @@ function DualPaneController:FindTab(modUUID, tabIdentifier)
 end
 
 -- Helper to activate a tab and open window if needed
-function DualPaneController:ActivateTab(targetTab, shouldOpenWindow)
+---@param modUUID string The UUID of the mod to activate
+---@param targetTab ExtuiTabItem The tab to activate
+---@param shouldOpenWindow boolean|nil If true, opens the MCM window
+function DualPaneController:ActivateTab(modUUID, targetTab, shouldOpenWindow)
     targetTab.SetSelected = true
+    ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
+        modUUID = modUUID,
+        tabName = targetTab.UserData.tabName
+    }, true)
     if shouldOpenWindow ~= false then
         IMGUIAPI:OpenMCMWindow(true)
     end
@@ -397,7 +408,7 @@ end
 
 -- Helper to avoid select lockdown by unselecting the tab after a few ticks
 function DualPaneController:UnselectTabAfterDelay(targetTab)
-    VCTimer:OnTicks(1, function()
+    VCTimer:OnTicks(2, function()
         if not targetTab then return end
         targetTab.SetSelected = false
     end)
@@ -412,7 +423,7 @@ end
 function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent, keepSidebarState, shouldOpenWindow)
     local targetTab = self:FindTab(modUUID, tabIdentifier)
     if targetTab then
-        self:ActivateTab(targetTab, shouldOpenWindow)
+        self:ActivateTab(modUUID, targetTab, shouldOpenWindow)
     elseif tabIdentifier then
         MCMWarn(1, "Tab not found for mod " .. modUUID .. ": " .. tabIdentifier)
     end
@@ -422,6 +433,7 @@ function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent,
     self:UnselectTabAfterDelay(targetTab)
 end
 
+-- FIXME: Here or on Mod Uninstaller: not triggering tab callback for some reason even if event is emitted
 -- Sets the visible frame for a mod UUID
 ---@param modUUID string The UUID of the mod to show
 ---@param shouldEmitEvent boolean|nil If true (default), will emit events; if false, won't emit events (prevents recursive loops)
@@ -433,7 +445,7 @@ function DualPaneController:SetVisibleFrame(modUUID, shouldEmitEvent)
     -- Default to true if not specified
     if shouldEmitEvent == nil then shouldEmitEvent = true end
 
-    if shouldEmitEvent and not MCMProxy.IsMainMenu() then
+    if shouldEmitEvent and (not MCMProxy.IsMainMenu() or modUUID == ModuleUUID) then
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = modUUID }, true)
     end
 end
