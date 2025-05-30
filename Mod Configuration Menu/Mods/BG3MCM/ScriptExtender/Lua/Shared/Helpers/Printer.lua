@@ -35,7 +35,7 @@ local function shouldLog(logType)
 end
 
 -- Update the Printer debug level when the setting is changed, since the value is only used during the object's creation
-Ext.ModEvents['BG3MCM'][EventChannels.MCM_SETTING_SAVED]:Subscribe(function(payload)
+Ext.ModEvents['BG3MCM'][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Subscribe(function(payload)
     if not payload or payload.modUUID ~= ModuleUUID or not payload.settingId then
         return
     end
