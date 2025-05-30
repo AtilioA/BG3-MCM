@@ -72,7 +72,7 @@ else
 end
 
 MCMAPI = MCMAPI:New({}, "BG3MCM")
-if Config:getCfg().DEBUG.level > 1 then
+if Config:getCfg().DEBUG.level > 2 then
     -- Add debug wrapper to BG3MCM (very useful for logging writes and reads)
     MCMAPI = _MetaClass._Debug(MCMAPI)
 end
