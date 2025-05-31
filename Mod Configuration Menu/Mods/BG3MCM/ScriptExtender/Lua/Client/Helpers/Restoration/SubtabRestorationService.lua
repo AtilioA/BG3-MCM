@@ -106,7 +106,7 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     DualPane:OpenModPage(modUUID, tabName, false, true, shouldOpenWindow)
 
     -- Set up a listener for when tabs are inserted - this is needed for dynamic tabs
-    self:SetupTabInsertionListener(modUUID, tabName)
+    self:SetupTabInsertionListener(modUUID, tabName, shouldOpenWindow)
 end
 
 -- Update the last used subtab for a mod page
@@ -142,7 +142,8 @@ end
 --- Set up a listener for when a specific tab is inserted
 ---@param modUUID string The UUID of the mod
 ---@param tabName string The name of the tab to wait for
-function SubtabRestorationService:SetupTabInsertionListener(modUUID, tabName)
+---@param shouldOpenWindow boolean|nil If true, opens the MCM window
+function SubtabRestorationService:SetupTabInsertionListener(modUUID, tabName, shouldOpenWindow)
     -- Clean up any existing handler and timer, just in case
     self:CleanupTabInsertionListener()
 
@@ -151,7 +152,7 @@ function SubtabRestorationService:SetupTabInsertionListener(modUUID, tabName)
         local tabInfo = e
         if tabInfo and tabInfo.modUUID == modUUID and tabInfo.tabName == tabName then
             MCMDebug(2, "Awaited tab now available, opening mod page: " .. modUUID .. " and tab: " .. tabName)
-            DualPane:OpenModPage(modUUID, tabName, false, true, true)
+            DualPane:OpenModPage(modUUID, tabName, false, true, shouldOpenWindow)
 
             self:CleanupTabInsertionListener()
         end

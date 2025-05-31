@@ -73,7 +73,7 @@ local function injectSharedMCMTable(modTable, originalModUUID)
     end
 
     -- Keybindings API
-    MCMInstance.Keybindings = {
+    MCMInstance.Keybinding = {
         --- Get a human-readable string representation of a keybinding
         ---@param settingId string The ID of the keybinding setting
         ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
