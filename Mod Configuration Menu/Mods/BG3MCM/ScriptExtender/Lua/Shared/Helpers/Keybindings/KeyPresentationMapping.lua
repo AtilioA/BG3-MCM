@@ -182,11 +182,16 @@ function KeyPresentationMapping:GetKBViewKey(keybinding)
 end
 
 function KeyPresentationMapping:GetKBViewKeyForSetting(keybinding_setting_id, modUUID)
-    local keybinding = MCMClientState:GetClientStateValue(keybinding_setting_id, modUUID)
+    local keybinding = MCMAPI:GetSettingValue(keybinding_setting_id, modUUID)
     if not keybinding or not keybinding.Keyboard then
         return UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
     return self:GetKBViewKey(keybinding.Keyboard)
+end
+
+function KeyPresentationMapping:GetViewKeyForSetting(settingId, modUUID)
+    -- TODO: determine if this is a mouse or keyboard binding, etc and return the appropriate value
+    return self:GetKBViewKeyForSetting(settingId, modUUID)
 end
 
 return KeyPresentationMapping
