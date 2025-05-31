@@ -42,7 +42,7 @@ local function getModTableForUUID(modUUID)
     return modTable, modTableName
 end
 
--- Helper: Ensure that the mod's MCM table exists and attach common functions.
+-- Ensure that the mod's MCM table exists and attach common functions.
 -- REFACTOR: extract functions to proper API file (MCMAPI/MCMServer)
 local function injectSharedMCMTable(modTable, originalModUUID)
     if not modTable.MCM or table.isEmpty(modTable.MCM) then
@@ -50,53 +50,145 @@ local function injectSharedMCMTable(modTable, originalModUUID)
     end
     local MCMInstance = modTable.MCM
 
-    -- Define common functions for mods
+    -- Core API functions
+
+    --- Get the value of a setting
+    ---@param settingId string The ID of the setting to retrieve
+    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@return any The value of the setting, or nil if not found
     MCMInstance.Get = function(settingId, modUUID)
         if not modUUID then modUUID = originalModUUID end
         return MCMAPI:GetSettingValue(settingId, modUUID)
     end
 
-    MCMInstance.GetList = function(listSettingId, modUUID)
+    --- Set the value of a setting
+    ---@param settingId string The ID of the setting to set
+    ---@param value any The value to set
+    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@param shouldEmitEvent? boolean Whether to emit a setting changed event
+    ---@return boolean success True if the setting was successfully updated
+    MCMInstance.Set = function(settingId, value, modUUID, shouldEmitEvent)
         if not modUUID then modUUID = originalModUUID end
-
-        local setting = MCMInstance.Get(listSettingId, modUUID)
-        local enabledItems = {}
-        if setting and setting.enabled then
-            for _, element in ipairs(setting.elements) do
-                if element.enabled then
-                    enabledItems[element.name] = true
-                end
-            end
-        end
-        return enabledItems
+        return MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
     end
 
-    MCMInstance.SetListElement = function(listSettingId, elementName, enabled, modUUID, shouldEmitEvent)
-        if not modUUID then modUUID = originalModUUID end
-        local setting = MCMInstance.Get(listSettingId, modUUID)
-        if setting and setting.elements then
+    -- Keybindings API
+    MCMInstance.Keybindings = {
+        --- Get a human-readable string representation of a keybinding
+        ---@param settingId string The ID of the keybinding setting
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return string The formatted keybinding string (e.g., "[Ctrl] + [C]")
+        Get = function(settingId, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            return KeyPresentationMapping:GetViewKeyForSetting(settingId, modUUID)
+        end,
+
+        --- Get the raw keybinding data
+        ---@param settingId string The ID of the keybinding setting
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return table|nil The raw keybinding data structure or nil if not found
+        GetRaw = function(settingId, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            return MCMAPI:GetSettingValue(settingId, modUUID)
+        end
+    }
+
+    -- List API
+    MCMInstance.List = {
+        --- Get a table of enabled items in a list setting
+        ---@param listSettingId string The ID of the list setting
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return table<string, boolean> enabledItems - A table where keys are enabled item names and values are true
+        GetEnabled = function(listSettingId, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            local setting = MCMInstance.Get(listSettingId, modUUID)
+            local enabledItems = {}
+            if setting and setting.enabled and setting.elements then
+                for _, element in ipairs(setting.elements) do
+                    if element.enabled then
+                        enabledItems[element.name] = true
+                    end
+                end
+            end
+            return enabledItems
+        end,
+
+        --- Get the raw list setting data
+        ---@param listSettingId string The ID of the list setting
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return table|nil The raw list setting data or nil if not found
+        GetRaw = function(listSettingId, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            return MCMInstance.Get(listSettingId, modUUID)
+        end,
+
+        --- Check if a specific item is enabled in a list setting
+        ---@param listSettingId string The ID of the list setting
+        ---@param itemName string The name of the item to check
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return boolean enabled - True if the item is enabled, false otherwise
+        IsEnabled = function(listSettingId, itemName, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            local setting = MCMInstance.Get(listSettingId, modUUID)
+            if setting and setting.enabled and setting.elements then
+                for _, element in ipairs(setting.elements) do
+                    if element.name == itemName then
+                        return element.enabled == true
+                    end
+                end
+            end
+            return false
+        end,
+
+        --- Set the enabled state of an item in a list setting
+        ---@param listSettingId string The ID of the list setting
+        ---@param itemName string The name of the item to update
+        ---@param enabled boolean Whether the item should be enabled
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param shouldEmitEvent? boolean Whether to emit a setting changed event (default: true)
+        ---@return boolean success True if the update was successful
+        SetEnabled = function(listSettingId, itemName, enabled, modUUID, shouldEmitEvent)
+            if not modUUID then modUUID = originalModUUID end
+            local setting = MCMInstance.Get(listSettingId, modUUID)
+            if not setting then return false end
+
+            -- Ensure the elements table exists
+            setting.elements = setting.elements or {}
+
+            -- Find and update the element if it exists
             local elementFound = false
             for _, element in ipairs(setting.elements) do
-                if element.name == elementName then
+                if element.name == itemName then
                     element.enabled = enabled
                     elementFound = true
                     break
                 end
             end
+
+            -- If element doesn't exist, add it
             if not elementFound then
-                table.insert(setting.elements, { name = elementName, enabled = enabled })
+                table.insert(setting.elements, {
+                    name = itemName,
+                    enabled = enabled
+                })
             end
+
+            -- Update the setting
+            return MCMInstance.Set(listSettingId, setting, modUUID, shouldEmitEvent)
         end
-        return MCMAPI:SetSettingValue(listSettingId, setting, modUUID, shouldEmitEvent)
+    }
+
+    -- For backward compatibility
+    MCMInstance.GetList = function(...)
+        MCMDeprecation(1,
+            "MCM.GetList is deprecated and will be removed in a future version. Use MCM.List.GetEnabled instead.")
+        return MCMInstance.List.GetEnabled(...)
     end
 
-    MCMInstance.Set = function(settingId, value, modUUID, shouldEmitEvent)
-        if not modUUID then modUUID = originalModUUID end
-        MCMAPI:SetSettingValue(settingId, value, modUUID, Fallback.Value(shouldEmitEvent, true))
-    end
-    MCMInstance.Reset = function(settingId, modUUID, shouldEmitEvent)
-        if not modUUID then modUUID = originalModUUID end
-        MCMAPI:ResetSettingValue(settingId, modUUID, Fallback.Value(shouldEmitEvent, true))
+    MCMInstance.SetListElement = function(...)
+        MCMDeprecation(1,
+            "MCM.SetListElement is deprecated and will be removed in a future version. Use MCM.List.SetEnabled instead.")
+        return MCMInstance.List.SetEnabled(...)
     end
 
     return MCMInstance
@@ -159,7 +251,9 @@ end
 local function injectMCMToModTable(originalModUUID)
     if originalModUUID == ModuleUUID then return end
 
-    MCMPrint(2, "Injecting MCM to mod table for modUUID: " .. originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
+    MCMPrint(2,
+        "Injecting MCM to mod table for modUUID: " ..
+        originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
 
     local modTable, modTableName = getModTableForUUID(originalModUUID)
     if not modTable then return end
@@ -185,7 +279,9 @@ local function setupModsMetatable()
             if value.ModuleUUID then
                 -- Update the reverse lookup table
                 ModUUIDToModTableName[value.ModuleUUID] = key
-                MCMPrint(2, "Added to reverse lookup: " .. value.ModuleUUID .. " -> " .. key .. " (" .. Ext.Mod.GetMod(value.ModuleUUID).Info.Name .. ")")
+                MCMPrint(2,
+                    "Added to reverse lookup: " ..
+                    value.ModuleUUID .. " -> " .. key .. " (" .. Ext.Mod.GetMod(value.ModuleUUID).Info.Name .. ")")
                 -- Inject MCM for all mods and always inject the NotificationManager.
                 injectMCMToModTable(value.ModuleUUID)
                 NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)

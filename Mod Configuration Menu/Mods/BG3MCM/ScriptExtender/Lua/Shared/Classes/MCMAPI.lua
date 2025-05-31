@@ -169,7 +169,7 @@ end
 --- Get the value of a configuration setting
 ---@param settingId string The id of the setting
 ---@param modUUID string The UUID of the mod that has the setting
----@return any The value of the setting
+---@return any - The value of the setting
 function MCMAPI:GetSettingValue(settingId, modUUID)
     if not modUUID then
         MCMWarn(0, "modUUID is nil. Cannot get setting value.")
@@ -231,21 +231,22 @@ end
 ---@param value any The new value of the setting
 ---@param modUUID GUIDSTRING The UUID of the mod
 ---@param shouldEmitEvent? boolean Whether to emit an event
+---@return boolean success True if the setting was successfully updated
 function MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
     if not settingId then
         MCMWarn(0, "settingId is nil. Value will not be saved.")
-        return
+        return false
     end
 
     if not modUUID then
         MCMWarn(0, "modUUID is nil. Value will not be saved.")
-        return
+        return false
     end
 
     local modSettingsTable = self:GetAllModSettings(modUUID)
     if not modSettingsTable then
         MCMWarn(0, "Mod settings table is nil for mod UUID: " .. modUUID)
-        return
+        return false
     end
 
     local oldValue = modSettingsTable[settingId]
@@ -254,7 +255,7 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
     MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
     if not isValid then
         MCMWarn(0, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
-        return
+        return false
     end
 
     modSettingsTable[settingId] = value
@@ -274,6 +275,8 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
             oldValue = oldValue
         }, true)
     end
+
+    return true
 end
 
 ---@param settingId string The id of the setting to reset
