@@ -71,7 +71,7 @@ local function injectSharedMCMTable(modTable, originalModUUID)
         return enabledItems
     end
 
-    MCMInstance.SetListElement = function(listSettingId, elementName, enabled, modUUID)
+    MCMInstance.SetListElement = function(listSettingId, elementName, enabled, modUUID, shouldEmitEvent)
         if not modUUID then modUUID = originalModUUID end
         local setting = MCMInstance.Get(listSettingId, modUUID)
         if setting and setting.elements then
@@ -87,7 +87,7 @@ local function injectSharedMCMTable(modTable, originalModUUID)
                 table.insert(setting.elements, { name = elementName, enabled = enabled })
             end
         end
-        return MCMAPI:SetSettingValue(listSettingId, setting, modUUID)
+        return MCMAPI:SetSettingValue(listSettingId, setting, modUUID, shouldEmitEvent)
     end
 
     MCMInstance.Set = function(settingId, value, modUUID, shouldEmitEvent)

@@ -125,10 +125,11 @@ end
 ---@param value any The value to set the setting to
 ---@param modUUID string The UUID of the mod to set the setting for
 ---@param setUIValue function|nil A function to set the UI value
-function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
+---@param shouldEmitEvent? boolean Whether to emit the setting saved event
+function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
     if self:IsMainMenu() then
         -- Handle locally
-        MCMAPI:SetSettingValue(settingId, value, modUUID)
+        MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
         if setUIValue then
             setUIValue(value)
         end

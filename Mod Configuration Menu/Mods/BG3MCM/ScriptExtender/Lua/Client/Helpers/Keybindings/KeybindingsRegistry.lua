@@ -123,7 +123,11 @@ end
 
 --- Updates a binding for a given mod/action.
 --- Accepts a table of updates that can include fields like 'Keyboard' and 'Enabled'.
-function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates)
+--- @param modUUID string The UUID of the mod to update the binding for
+--- @param actionId string The ID of the action to update the binding for
+--- @param updates table A table of updates to apply to the binding
+--- @param shouldEmitEvent? boolean Whether to emit the setting saved event
+function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates, shouldEmitEvent)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
         MCMWarn(0, string.format("No binding found to update for mod '%s', action '%s'.", modUUID, actionId))
@@ -143,7 +147,7 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates)
     end
 
     -- Persist the updated binding.
-    MCMAPI:SetSettingValue(actionId, updates, modUUID)
+    MCMProxy:SetSettingValue(actionId, updates, modUUID, nil, shouldEmitEvent)
 
     keybindingsSubject:OnNext(registry)
     return true
