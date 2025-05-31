@@ -215,6 +215,9 @@ function MCMRendering:CreateMainIMGUIWindow()
 
     MCM_WINDOW.Visible = shouldOpenOnStart
     MCM_WINDOW.Open = shouldOpenOnStart
+    MCM_WINDOW.OnClose = function()
+        ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {}, true)
+    end
 
     MCM_WINDOW.AlwaysAutoResize = false
     MCM_WINDOW.Closeable = true

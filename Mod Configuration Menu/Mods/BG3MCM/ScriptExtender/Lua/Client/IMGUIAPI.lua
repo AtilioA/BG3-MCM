@@ -132,9 +132,7 @@ function IMGUIAPI:CloseMCMWindow(playSound)
 
     MCM_WINDOW.Visible = false
     MCM_WINDOW.Open = false
-    ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {
-        playSound = playSound
-    }, true)
+    ModEventManager:Emit(EventChannels.MCM_WINDOW_CLOSED, {}, true)
 end
 
 --- Toggles the visibility of the MCM window.
