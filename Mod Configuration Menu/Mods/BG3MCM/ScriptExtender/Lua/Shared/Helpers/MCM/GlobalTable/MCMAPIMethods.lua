@@ -1,54 +1,10 @@
--- Reverse lookup table for ModuleUUID to modTable
-ModUUIDToModTableName = {}
+-- Contains the API methods that will be injected into the MCM table
 
--- Utility function to populate the reverse lookup table from existing Mods
--- Thanks to LaughingLeader for this!
-local function initializeReverseLookupTable(lookupTable)
-    for _, modUUID in pairs(Ext.Mod.GetLoadOrder()) do
-        local mod = Ext.Mod.GetMod(modUUID)
-        local scriptExtenderConfigPath = string.format("Mods/%s/ScriptExtender/Config.json", mod.Info.Directory)
-        local config = Ext.IO.LoadFile(scriptExtenderConfigPath, "data")
-        if config then
-            local modConfig = Ext.Json.Parse(config)
-            if modConfig then
-                lookupTable[mod.Info.ModuleUUID] = modConfig.ModTable
-            end
-        else
-            MCMWarn(3, string.format("No config for %s at %s", mod.Info.Name, scriptExtenderConfigPath))
-        end
-    end
-end
-
--- Utility function to get ModTable name by ModuleUUID using reverse lookup
----@param modUUID GUIDSTRING The UUID of the mod
----@return string ModTable - The ModTable key string in the Mods table for the given modUUID
-local function getModTableNameByUUID(modUUID)
-    return ModUUIDToModTableName[modUUID]
-end
-
--- Helper: Get and validate the mod table for a given modUUID.
-local function getModTableForUUID(modUUID)
-    local modTableName = getModTableNameByUUID(modUUID)
-    if not modTableName then
-        MCMWarn(1, "Unable to find ModTable name for modUUID: " .. modUUID)
-        return nil
-    end
-
-    local modTable = Mods[modTableName]
-    if not modTable then
-        MCMWarn(2, "Mod table not found for modTableName: " .. modTableName)
-        return nil
-    end
-    return modTable, modTableName
-end
-
--- Ensure that the mod's MCM table exists and attach common functions.
--- REFACTOR: extract functions to proper API file (MCMAPI/MCMServer)
-local function injectSharedMCMTable(modTable, originalModUUID)
-    if not modTable.MCM or table.isEmpty(modTable.MCM) then
-        modTable.MCM = {}
-    end
-    local MCMInstance = modTable.MCM
+-- Create the API methods that will be injected into each mod's MCM table
+---@param originalModUUID GUIDSTRING The UUID of the mod that will receive these methods
+---@return table MCMInstance The table containing all API methods
+local function createMCMAPIMethods(originalModUUID)
+    local MCMInstance = {}
 
     -- Core API functions
 
@@ -194,13 +150,13 @@ local function injectSharedMCMTable(modTable, originalModUUID)
     return MCMInstance
 end
 
--- Setup client-side MCM: only proceed if not on server.
-local function injectClientMCMTable(originalModUUID)
+-- Create client-side API methods (only available on the client)
+---@param originalModUUID GUIDSTRING The UUID of the mod that will receive these methods
+---@param modTable table The mod table to inject the methods into
+local function createClientAPIMethods(originalModUUID, modTable)
     if Ext.IsServer() then return end
-
-    local modTable, _ = getModTableForUUID(originalModUUID)
+    
     if not modTable then return end
-
     if not modTable.MCM then
         modTable.MCM = {}
     end
@@ -263,60 +219,10 @@ local function injectClientMCMTable(originalModUUID)
     end
 end
 
--- Main function to inject MCM into the mod table
-local function injectMCMToModTable(originalModUUID)
-    if originalModUUID == ModuleUUID then return end
+-- Public API
+local MCMAPIMethods = {
+    createMCMAPIMethods = createMCMAPIMethods,
+    createClientAPIMethods = createClientAPIMethods
+}
 
-    MCMPrint(2,
-        "Injecting MCM to mod table for modUUID: " ..
-        originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
-
-    local modTable, modTableName = getModTableForUUID(originalModUUID)
-    if not modTable then return end
-
-    MCMPrint(2, "Mod table name: " .. modTableName)
-    local MCMInstance = injectSharedMCMTable(modTable, originalModUUID)
-    injectClientMCMTable(originalModUUID)
-
-    modTable.MCM = MCMInstance
-    MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. originalModUUID)
-end
-
--- Set up the metatable for the Mods table so that we can listen for new mods being added
-local function setupModsMetatable()
-    -- Define a custom __newindex function to listen for new entries in the Mods table
-    local modsMetatable = {
-        __newindex = function(table, key, value)
-            MCMDebug(2, "New mod being added to Mods table: " .. tostring(key))
-
-            -- Set the new key-value pair in the table as normal
-            rawset(table, key, value)
-
-            if value.ModuleUUID then
-                -- Update the reverse lookup table
-                ModUUIDToModTableName[value.ModuleUUID] = key
-                MCMPrint(2,
-                    "Added to reverse lookup: " ..
-                    value.ModuleUUID .. " -> " .. key .. " (" .. Ext.Mod.GetMod(value.ModuleUUID).Info.Name .. ")")
-                -- Inject MCM for all mods and always inject the NotificationManager.
-                injectMCMToModTable(value.ModuleUUID)
-                NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)
-            else
-                MCMWarn(0, "Unexpected: mod '" .. tostring(key) .. "' does not have a ModuleUUID.")
-            end
-        end
-    }
-
-    if not getmetatable(Mods) then
-        setmetatable(Mods, modsMetatable)
-        MCMPrint(1, "Metatable for Mods table has been set.")
-    else
-        MCMWarn(2, "Mods table already has a metatable. Skipping metatable assignment.")
-    end
-end
-
--- Initialize the reverse lookup table with existing Config.json files
-initializeReverseLookupTable(ModUUIDToModTableName)
-
--- Set up the metatable to handle future additions to Mods and possible MCM injection
-setupModsMetatable()
+return MCMAPIMethods

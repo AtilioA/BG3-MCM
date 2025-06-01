@@ -105,7 +105,7 @@ function StorageManager.RegisterEventListeners()
         MCMDebug(1, "SessionLoaded event received, initializing storage and discovering variables")
         StorageManager.Initialize()
         StorageManager.DiscoverAllVariables()
-        testServiceCalls()
+        -- testServiceCalls()
     end)
 
     -- Could add other listeners here for refreshing discovery, etc.

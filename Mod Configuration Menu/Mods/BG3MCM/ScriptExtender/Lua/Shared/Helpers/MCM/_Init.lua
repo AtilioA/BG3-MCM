@@ -1,5 +1,5 @@
 RequireFiles("Shared/Helpers/MCM/", {
     "MCMUtils",
     "MCMCommands",
-    "MCMTableInjection"
+    "GlobalTable/_Init"
 })
