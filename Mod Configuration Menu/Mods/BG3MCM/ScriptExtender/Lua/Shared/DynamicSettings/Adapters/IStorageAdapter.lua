@@ -9,7 +9,7 @@ local IStorageAdapter = {}
 ---@param key string The key to read
 ---@return any value The raw Lua value or nil if not set
 function IStorageAdapter:GetValue(moduleUUID, key)
-    error("IStorageAdapter:GetValue() not implemented")
+    MCMError(0, "IStorageAdapter:GetValue() not implemented")
 end
 
 --- Write the raw Lua value (boolean/number/string/table/etc.) for (moduleUUID, key).
@@ -18,7 +18,7 @@ end
 ---@param key string The key to write
 ---@param value any The value to write (nil to delete)
 function IStorageAdapter:SetValue(moduleUUID, key, value)
-    error("IStorageAdapter:SetValue() not implemented")
+    MCMError(0, "IStorageAdapter:SetValue() not implemented")
 end
 
 return IStorageAdapter

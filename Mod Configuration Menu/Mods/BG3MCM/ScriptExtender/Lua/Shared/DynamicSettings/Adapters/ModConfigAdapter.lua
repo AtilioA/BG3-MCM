@@ -12,7 +12,7 @@ ModConfigAdapter.__index = ModConfigAdapter
 ---@param key string The key to read
 ---@return any value The raw Lua value or nil if not set
 function ModConfigAdapter:GetValue(moduleUUID, key)
-  error("ModConfigAdapter:GetValue(): ModConfig not available yet.")
+    MCMError(0, "ModConfigAdapter:GetValue(): ModConfig not available yet.")
 end
 
 --- Future: replace with something like Ext.ModConfig.SetValue(moduleUUID, key, value)
@@ -20,7 +20,7 @@ end
 ---@param key string The key to write
 ---@param value any The value to write (nil to delete)
 function ModConfigAdapter:SetValue(moduleUUID, key, value)
-  error("ModConfigAdapter:SetValue(): ModConfig not available yet.")
+    MCMError(0, "ModConfigAdapter:SetValue(): ModConfig not available yet.")
 end
 
 return ModConfigAdapter
