@@ -210,16 +210,20 @@ function SettingsService.Set(moduleUUID, varName, storageType, newValue)
   end
 
   local adapter = AdapterFactory.GetAdapter(storageType)
+
+    --FIXME: deepcopy oldValue since it may be a table
+    local oldValue = adapter:GetValue(moduleUUID, varName)
   adapter:SetValue(moduleUUID, varName, val)
 
-  -- Emit a single event for any listener (no need for internal subscribe/unsubscribe):
+    -- Emit a setting saved event for any listeners
   ModEventManager:Emit(
-    "SettingsChanged",
+        EventChannels.MCM_DYNAMIC_SETTING_SAVED,
     {
-      Module = moduleUUID,
-      Key    = varName,
-      Store  = storageType,
-      Value  = val
+            modUUID     = moduleUUID,
+            key         = varName,
+            storageType = storageType,
+            oldValue    = oldValue,
+            value       = val
     },
     true
   )
