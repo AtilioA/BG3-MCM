@@ -55,6 +55,7 @@ RequireFiles("Shared/", {
     "Helpers/_Init",
     "Classes/_Init",
     "Tests/_Init",
+    "DynamicSettings/_Init"
 })
 
 local MODVERSION = Ext.Mod.GetMod(ModuleUUID).Info.ModVersion
