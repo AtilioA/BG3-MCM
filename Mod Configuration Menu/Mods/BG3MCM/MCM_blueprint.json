@@ -97,7 +97,7 @@
                             "Default": false,
                             "Description": "Allow only the host to change settings in multiplayer games.",
                             "Handles": {
-                                "NameHandle": "h119ee473f3f644b887ed4e2a2fdb97b9fea",
+                                "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea",
                                 "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f"
                             }
                         }
