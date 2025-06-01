@@ -60,6 +60,21 @@ end
 ---@param varName string The name of the variable
 ---@param storageType string The type of storage ("ModVar", "ModConfig", etc.)
 function SettingsService.RegisterDiscoveredVariable(moduleUUID, varName, storageType)
+    if not moduleUUID then
+        MCMWarn(0, "RegisterDiscoveredVariable: moduleUUID cannot be nil")
+        return
+    end
+
+    if not varName then
+        MCMWarn(0, "RegisterDiscoveredVariable: varName cannot be nil")
+        return
+    end
+
+    if not storageType then
+        MCMWarn(0, "RegisterDiscoveredVariable: storageType cannot be nil")
+        return
+    end
+
     if not SettingsService.schema[moduleUUID] then
         SettingsService.schema[moduleUUID] = { ModVar = {}, ModConfig = {} }
     end
@@ -82,6 +97,26 @@ end
 ---@param storageType string The type of storage ("ModVar", "ModConfig", etc.)
 ---@param definition table { type=<"boolean"|"number"|"string"|"table">, default=<any>, validate=<fn>|nil }
 function SettingsService.PromoteVariable(moduleUUID, varName, storageType, definition)
+    if not moduleUUID then
+        MCMWarn(0, "PromoteVariable: moduleUUID cannot be nil")
+        return
+    end
+
+    if not varName then
+        MCMWarn(0, "PromoteVariable: varName cannot be nil")
+        return
+    end
+
+    if not storageType then
+        MCMWarn(0, "PromoteVariable: storageType cannot be nil")
+        return
+    end
+
+    if not definition then
+        MCMWarn(0, "PromoteVariable: definition cannot be nil")
+        return
+    end
+
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
         MCMWarn(0, "No variables known for module " .. moduleUUID)
@@ -117,6 +152,21 @@ end
 ---@param storageType string The type of storage ("ModVar", "ModConfig", etc.)
 ---@return any value The value of the variable
 function SettingsService.Get(moduleUUID, varName, storageType)
+    if not moduleUUID then
+        MCMWarn(0, "Get: moduleUUID cannot be nil")
+        return nil
+    end
+
+    if not varName then
+        MCMWarn(0, "Get: varName cannot be nil")
+        return nil
+    end
+
+    if not storageType then
+        MCMWarn(0, "Get: storageType cannot be nil")
+        return nil
+    end
+
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
         MCMWarn(0, "No variables known for module " .. moduleUUID)
@@ -149,6 +199,11 @@ end
 ---@param moduleUUID string The UUID of the module
 ---@return table<string, any> - A table containing all variables and their values
 function SettingsService.GetAll(moduleUUID)
+    if not moduleUUID then
+        MCMWarn(0, "GetAll: moduleUUID cannot be nil")
+        return {}
+    end
+
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
         MCMWarn(0, "No variables known for module " .. moduleUUID)
@@ -181,6 +236,26 @@ end
 ---@param storageType string The type of storage ("ModVar", "ModConfig", etc.)
 ---@param newValue any The new value to set
 function SettingsService.Set(moduleUUID, varName, storageType, newValue)
+    if not moduleUUID then
+        MCMWarn(0, "Set: moduleUUID cannot be nil")
+        return
+    end
+
+    if not varName then
+        MCMWarn(0, "Set: varName cannot be nil")
+        return
+    end
+
+    if not storageType then
+        MCMWarn(0, "Set: storageType cannot be nil")
+        return
+    end
+
+    if not newValue then
+        MCMWarn(0, "Set: newValue cannot be nil")
+        return
+    end
+
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
         MCMWarn(0, "No variables known for module " .. moduleUUID)
