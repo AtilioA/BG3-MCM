@@ -201,15 +201,31 @@ local function injectClientMCMTable(originalModUUID)
     local modTable, _ = getModTableForUUID(originalModUUID)
     if not modTable then return end
 
-    modTable.MCM['SetKeybindingCallback'] = function(settingId, callback, modUUID)
+    if not modTable.MCM then
+        modTable.MCM = {}
+    end
+
+    if not modTable.MCM.Keybinding then
+        modTable.MCM.Keybinding = {}
+    end
+    modTable.MCM.Keybinding['SetCallback'] = function(settingId, callback, modUUID)
         if not modUUID then modUUID = originalModUUID end
 
         InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
     end
 
+    modTable.MCM['SetKeybindingCallback'] = function(settingId, callback, modUUID)
+        MCMDeprecation(1,
+            "MCM.SetKeybindingCallback is deprecated and will be removed in a future version. Use MCM.Keybinding.SetCallback instead.")
+        return modTable.MCM.Keybinding.SetCallback(settingId, callback, modUUID)
+    end
+
     -- Function to register callbacks for event_button widgets
-    modTable.MCM['SetEventButtonCallback'] = function(settingId, callback, modUUID)
-        MCMWarn(0, "SetEventButtonCallback has not been implemented yet.")
+    if not modTable.MCM.EventButton then
+        modTable.MCM.EventButton = {}
+    end
+    modTable.MCM.EventButton['SetCallback'] = function(settingId, callback, modUUID)
+        MCMWarn(0, "SetCallback has not been implemented yet.")
         return false
         -- if not modUUID then modUUID = originalModUUID end
 
