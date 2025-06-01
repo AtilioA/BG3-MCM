@@ -463,10 +463,11 @@ end
 
 --- Add a new menu section with a separator and button
 ---@param sectionName string The name of the section to add
+---@param pageName string The name of the page
 ---@param identifier string The unique identifier for this section
-function DualPaneController:AddMenuSection(sectionName, identifier)
+function DualPaneController:AddMenuSection(sectionName, pageName, identifier)
     self.leftPane:AddMenuSeparator(sectionName)
-    self.leftPane:CreateMenuButton(sectionName, nil, identifier)
+    self.leftPane:CreateMenuButton(pageName, nil, identifier)
 end
 
 --- Create a content group for a menu section
@@ -480,9 +481,10 @@ end
 
 --- Add a new menu section with associated content group
 ---@param sectionName string The name of the section to add
+---@param pageName string The name of the page
 ---@param identifier string The unique identifier for this section
 ---@return any The created content group
-function DualPaneController:AddMenuSectionWithContent(sectionName, identifier)
-    self:AddMenuSection(sectionName, identifier)
+function DualPaneController:AddMenuSectionWithContent(sectionName, pageName, identifier)
+    self:AddMenuSection(sectionName, pageName, identifier)
     return self:CreateContentGroup(identifier)
 end
