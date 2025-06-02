@@ -1,7 +1,7 @@
 -- Handles the creation and injection of the MCM table into mod tables
 
 local MCMAPIMethods = Ext.Require("Shared/Helpers/MCM/GlobalTable/MCMAPIMethods.lua")
-local MetatableInjection = Ext.Require("Shared/Helpers/MCM/GlobalTable/MetatableInjection.lua")
+local MetatableInjection = nil
 
 -- Ensure that the mod's MCM table exists and attach common functions.
 ---@param modTable table The mod table to inject the MCM table into
@@ -27,6 +27,11 @@ end
 local function injectMCMToModTable(originalModUUID)
     if originalModUUID == ModuleUUID then return end
 
+    -- Ensure MetatableInjection is loaded
+    if not MetatableInjection then
+        MetatableInjection = Ext.Require("Shared/Helpers/MCM/GlobalTable/MetatableInjection.lua")
+    end
+
     MCMPrint(2,
         "Injecting MCM to mod table for modUUID: " ..
         originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
@@ -44,6 +49,10 @@ end
 
 -- Initialize the MCM table injection system
 function Initialize()
+    -- Ensure MetatableInjection is loaded
+    if not MetatableInjection then
+        MetatableInjection = Ext.Require("Shared/Helpers/MCM/GlobalTable/MetatableInjection.lua")
+    end
 
     -- Initialize the reverse lookup table with existing Config.json files
     MetatableInjection.initializeReverseLookupTable(ModUUIDToModTableName)
