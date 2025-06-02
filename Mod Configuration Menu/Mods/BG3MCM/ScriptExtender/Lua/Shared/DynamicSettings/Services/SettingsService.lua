@@ -16,8 +16,10 @@ local AdapterFactory = require("Shared/DynamicSettings/Factories/AdapterFactory"
 
 ---@class SettingsService
 ---@field schema table<string, ModuleSchema> Map of module UUIDs to their schemas
+---@field serverSideVars table<string, table<string, table>> Map of module UUIDs to server-side variables
 local SettingsService = {
-    schema = {}
+    schema = {},
+    serverSideVars = {}
 }
 
 --- INTERNAL: Coerce a rawValue into the declared type (if promoted), or accept raw.
@@ -297,6 +299,91 @@ function SettingsService.Set(moduleUUID, varName, storageType, newValue)
             storageType = storageType,
             oldValue    = oldValue,
             value       = val
+        },
+        true
+    )
+end
+
+-- SERVER VARIABLES: Register a server-side variable discovered on the server
+---@param moduleUUID string The UUID of the module
+---@param varName string The name of the variable
+---@param varType string The type of the variable
+---@param value any The current value of the variable
+function SettingsService.RegisterServerVariable(moduleUUID, varName, varType, value)
+    if not moduleUUID then
+        MCMWarn(0, "RegisterServerVariable: moduleUUID cannot be nil")
+        return
+    end
+
+    if not varName then
+        MCMWarn(0, "RegisterServerVariable: varName cannot be nil")
+        return
+    end
+
+    if not SettingsService.serverSideVars[moduleUUID] then
+        SettingsService.serverSideVars[moduleUUID] = {}
+    end
+
+    SettingsService.serverSideVars[moduleUUID][varName] = {
+        type = varType,
+        value = value
+    }
+end
+
+-- SERVER VARIABLES: Get all server-side variables for a module
+---@param moduleUUID string The UUID of the module
+---@return table<string, table> A table of variable names to their entries
+function SettingsService.GetServerVariables(moduleUUID)
+    if not moduleUUID then
+        MCMWarn(0, "GetServerVariables: moduleUUID cannot be nil")
+        return {}
+    end
+
+    return SettingsService.serverSideVars[moduleUUID] or {}
+end
+
+-- SERVER VARIABLES: Get all server-side variables for all modules
+---@return table<string, table<string, table>> A table of module UUIDs to their variables
+function SettingsService.GetAllServerVariables()
+    return SettingsService.serverSideVars
+end
+
+-- SERVER VARIABLES: Update a server-side variable's value
+---@param moduleUUID string The UUID of the module
+---@param varName string The name of the variable
+---@param newValue any The new value to set
+function SettingsService.UpdateServerVariable(moduleUUID, varName, newValue)
+    if not moduleUUID then
+        MCMWarn(0, "UpdateServerVariable: moduleUUID cannot be nil")
+        return
+    end
+
+    if not varName then
+        MCMWarn(0, "UpdateServerVariable: varName cannot be nil")
+        return
+    end
+
+    if not SettingsService.serverSideVars[moduleUUID] then
+        MCMWarn(0, "UpdateServerVariable: No variables known for module " .. moduleUUID)
+        return
+    end
+
+    if not SettingsService.serverSideVars[moduleUUID][varName] then
+        MCMWarn(0, "UpdateServerVariable: Variable '" .. varName .. "' not found for module " .. moduleUUID)
+        return
+    end
+
+    local oldValue = SettingsService.serverSideVars[moduleUUID][varName].value
+    SettingsService.serverSideVars[moduleUUID][varName].value = newValue
+
+    -- Emit a server variable updated event for any listeners
+    ModEventManager:Emit(
+        EventChannels.MCM_SERVER_VARS_UPDATED,
+        {
+            modUUID  = moduleUUID,
+            key      = varName,
+            oldValue = oldValue,
+            value    = newValue
         },
         true
     )

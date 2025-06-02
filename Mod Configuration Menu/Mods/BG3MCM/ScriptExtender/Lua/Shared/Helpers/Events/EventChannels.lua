@@ -76,9 +76,15 @@ EventChannels.MCM_KEYBINDINGS_LOADED = "MCM_Keybindings_Loaded"
 --- @return string settingId The ID of the event button setting
 EventChannels.MCM_EVENT_BUTTON_CLICKED = "MCM_Event_Button_Clicked"
 
+--- Fired when server variables are updated and received by the client
+EventChannels.MCM_SERVER_VARS_UPDATED = "MCM_Server_Vars_Updated"
+
+--- Fired when dynamic settings are refreshed
+EventChannels.MCM_DYNAMIC_SETTINGS_REFRESHED = "MCM_Dynamic_Settings_Refreshed"
+
 local function RegisterModEvents()
     local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
-
+    -- RegisterModEvent is injected by the Script Extender
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_SAVED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_RESET)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_CREATED)
@@ -92,6 +98,8 @@ local function RegisterModEvents()
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_CLOSED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_KEYBINDINGS_LOADED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_EVENT_BUTTON_CLICKED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SERVER_VARS_UPDATED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_DYNAMIC_SETTINGS_REFRESHED)
 end
 
 RegisterModEvents()

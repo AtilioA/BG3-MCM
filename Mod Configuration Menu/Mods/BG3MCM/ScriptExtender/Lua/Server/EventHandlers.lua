@@ -106,11 +106,15 @@ function EHandlers.OnUserClosedWindow(_, payload, peerId)
     end
 end
 
--- Run tests if debug level is high enough
+-- Run tests if debug level is high enough and initialize ServerDiscovery
 function EHandlers.OnSessionLoaded()
     if Config:getCfg().DEBUG.level > 2 then
         TestSuite.RunTests()
     end
+
+    -- Initialize server-side variable discovery
+    local ServerDiscovery = Ext.Require("Server/DynamicSettings/ServerDiscovery.lua")
+    ServerDiscovery.Initialize()
 end
 
 local function showTroubleshootingNotification(userCharacter)
@@ -156,6 +160,7 @@ function EHandlers.OnEmitOnServer(_, payload)
 
     MCMDebug(1, "Emitting event " .. eventName .. " on server as well.")
 
+    ---@diagnostic disable-next-line: undefined-field
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 end
 

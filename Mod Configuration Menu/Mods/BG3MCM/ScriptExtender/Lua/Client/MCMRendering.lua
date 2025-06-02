@@ -278,6 +278,7 @@ function MCMRendering:CreateModMenu()
 
     self:ConvertModTablesToBlueprints()
     self:CreateProfileManagementHeader()
+    self:CreateDynamicSettingsPage()
     self:CreateKeybindingsPage()
     self:CreateMainTable()
 
@@ -589,6 +590,43 @@ end
 -- InputScheme.InputBindings[] has all currently-assigned bindings. InputScheme.RawToBinding[] also has it, not sure what's the difference though.
 -- Native bindings can be keybinding (including mouse buttons) or gamepad, and there can be two bindings for each; front-end needs to be custom to handle this. We must have an adapter to map between the SE format and our data format. We need to determine what are keybindings and what are gamepad bindings, and ignore keybindings. We'll need to improve KeyPresentationMapping to handle mouse buttons.
 -- We won't tackle editing any native bindings. We'll only be displaying them and displaying any conflict detection with MCM-defined bindings.
+function MCMRendering:CreateDynamicSettingsPage()
+    -- Create a dedicated "Dynamic Settings" menu section
+    local dynamicSettingsGroup = DualPane:AddMenuSectionWithContent(
+        "Dynamic Settings",
+        "Configure mod variables and server settings",
+        ClientGlobals.MCM_DYNAMIC_SETTINGS
+    )
+    
+    -- Initialize the dynamic settings manager if not already done
+    local DynamicSettingsManager = Ext.Require("Client/DynamicSettings/DynamicSettingsManager")
+    if not DynamicSettingsManager.initialized then
+        DynamicSettingsManager.Initialize()
+        DynamicSettingsManager.initialized = true
+    end
+    
+    -- Create the dynamic settings UI
+    local DynamicSettingsUI = Ext.Require("Client/DynamicSettings/DynamicSettingsUI")
+    DynamicSettingsUI.CreateUI(dynamicSettingsGroup, DynamicSettingsManager)
+    
+    -- Add refresh button
+    local refreshBtn = dynamicSettingsGroup:CreateButton("Refresh Settings")
+    refreshBtn:SetCallback(function()
+        DynamicSettingsManager.RefreshAll()
+        -- Recreate the UI after refresh
+        DynamicSettingsUI.CreateUI(dynamicSettingsGroup, DynamicSettingsManager)
+    end)
+    
+    -- Add server write toggle if not in main menu
+    if not MCMProxy:IsMainMenu() then
+        local serverWriteToggle = dynamicSettingsGroup:CreateCheckbox("Enable Server Writes")
+        serverWriteToggle:SetValue(DynamicSettingsManager.tryWriteToServer)
+        serverWriteToggle:SetCallback(function(value)
+            DynamicSettingsManager.tryWriteToServer = value
+        end)
+    end
+end
+
 function MCMRendering:CreateKeybindingsPage()
     -- Create a dedicated "Hotkeys" menu section using the new interface
     local hotkeysGroup = DualPane:AddMenuSectionWithContent(
