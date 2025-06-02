@@ -1,5 +1,21 @@
 -- Contains the API methods that will be injected into the MCM table
 
+local warnedDeprecation = {}
+
+--- Helper function to show a deprecation warning once per mod and method
+---@param modUUID GUIDSTRING The UUID of the mod showing the warning
+---@param methodName string The name of the deprecated method
+---@param message string The deprecation message
+local function showDeprecationWarning(modUUID, methodName, message)
+    if not warnedDeprecation[modUUID] then 
+        warnedDeprecation[modUUID] = {}
+    end
+    if not warnedDeprecation[modUUID][methodName] then
+        MCMDeprecation(1, Ext.Mod.GetMod(modUUID).Info.Name .. ": " .. message)
+        warnedDeprecation[modUUID][methodName] = true
+    end
+end
+
 -- Create the API methods that will be injected into each mod's MCM table
 ---@param originalModUUID GUIDSTRING The UUID of the mod that will receive these methods
 ---@return table MCMInstance The table containing all API methods
@@ -136,13 +152,13 @@ local function createMCMAPIMethods(originalModUUID)
 
     -- For backward compatibility
     MCMInstance.GetList = function(...)
-        MCMDeprecation(1,
+        showDeprecationWarning(originalModUUID, "GetList",
             "MCM.GetList is deprecated and will be removed in a future version. Use MCM.List.GetEnabled instead.")
         return MCMInstance.List.GetEnabled(...)
     end
 
     MCMInstance.SetListElement = function(...)
-        MCMDeprecation(1,
+        showDeprecationWarning(originalModUUID, "SetListElement",
             "MCM.SetListElement is deprecated and will be removed in a future version. Use MCM.List.SetEnabled instead.")
         return MCMInstance.List.SetEnabled(...)
     end
@@ -155,7 +171,7 @@ end
 ---@param modTable table The mod table to inject the methods into
 local function createClientAPIMethods(originalModUUID, modTable)
     if Ext.IsServer() then return end
-    
+
     if not modTable then return end
     if not modTable.MCM then
         modTable.MCM = {}
@@ -171,7 +187,8 @@ local function createClientAPIMethods(originalModUUID, modTable)
     end
 
     modTable.MCM['SetKeybindingCallback'] = function(settingId, callback, modUUID)
-        MCMDeprecation(1,
+        if not modUUID then modUUID = originalModUUID end
+        showDeprecationWarning(originalModUUID, "SetKeybindingCallback",
             "MCM.SetKeybindingCallback is deprecated and will be removed in a future version. Use MCM.Keybinding.SetCallback instead.")
         return modTable.MCM.Keybinding.SetCallback(settingId, callback, modUUID)
     end
