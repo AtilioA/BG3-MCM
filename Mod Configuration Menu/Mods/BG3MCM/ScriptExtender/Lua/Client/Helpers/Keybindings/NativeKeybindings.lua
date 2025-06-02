@@ -44,6 +44,8 @@ local _inputManager = nil
 ---@field Type table
 
 ---@class NativeKeybindingBinding
+---@field DeviceId? integer
+---@field InputType string
 ---@field InputId string
 ---@field Modifiers string[]
 
@@ -80,52 +82,72 @@ function NativeKeybindings.GetAll()
 
     local inputScheme = _inputManager and _inputManager.InputScheme
 
+    -- TODO: use RawToBinding to complement since InputBindings seems incomplete
     if not inputScheme or not inputScheme.InputBindings then
         MCMDebug(1, "InputScheme or InputBindings not available in NativeKeybindings.GetAll")
         return result
     end
 
-    if not _inputManager.InputDefinitions then
+    if not _inputManager or not _inputManager.InputDefinitions then
         MCMDebug(1, "InputDefinitions not available in NativeKeybindings.GetAll")
         return result
     end
 
-    -- Create a lookup for all bindings
-    local allBindings = {}
+    --- Processes a single binding and validates it
+    ---@param binding table The binding to process
+    ---@return table|nil The processed binding or nil if invalid
+    local function processBinding(binding)
+        if not binding or not binding.InputId or binding.InputId == "" then
+            return nil
+        end
+
+        return {
+            DeviceId = binding.DeviceId,
+            InputId = binding.InputId,
+            Modifiers = binding.Modifiers or {}
+        }
+    end
+
+    --- Safely gets the description from an input definition
+    ---@param def InputDefinition
+    ---@return string
+    local function getDefinitionDescription(def)
+        if not def.EventDesc or type(def.EventDesc.Get) ~= "function" then
+            return ""
+        end
+
+        local success, desc = pcall(def.EventDesc.Get, def.EventDesc)
+        return success and type(desc) == "string" and desc or ""
+    end
+
+    -- Get the input bindings
     local inputBindings = inputScheme.InputBindings[1]
-    if inputBindings then
-        for eventId, bindings in pairs(inputBindings) do
-            -- Convert eventId to number if it's a string
-            local numericEventId = tonumber(eventId)
-            if numericEventId then
-                allBindings[numericEventId] = {}
-                for _, binding in ipairs(bindings) do
-                    if binding and binding.InputId and binding.InputId ~= "" then
-                        table.insert(allBindings[numericEventId], {
-                            DeviceId = binding.DeviceId,
-                            InputId = binding.InputId,
-                            Modifiers = binding.Modifiers or {}
-                        })
-                    end
-                end
+    if not inputBindings then
+        MCMDebug(1, "No input bindings found in NativeKeybindings.GetAll")
+        return result
+    end
+
+    --- Extract bindings for a given input definition
+    ---@param def InputDefinition
+    ---@return NativeKeybindingBinding[]
+    local function extractBindings(def)
+        local eventId = tostring(def.EventID)
+        local eventBindings = inputBindings[eventId] or {}
+        local bindings = {}
+        for _, binding in ipairs(eventBindings) do
+            local processed = processBinding(binding)
+            if processed then
+                table.insert(bindings, processed)
             end
         end
+        return bindings
     end
 
     -- Process all input definitions
     for _, def in ipairs(_inputManager.InputDefinitions or {}) do
-        local eventId = def.EventID
-        -- Ensure we're using the same type for lookup (number)
-        local numericEventId = tonumber(eventId) or eventId
-        local bindings = allBindings[numericEventId] or {}
-        local description = ""
-        -- Safely get the description
-        if def.EventDesc and type(def.EventDesc.Get) == "function" then
-            local success, desc = pcall(def.EventDesc.Get, def.EventDesc)
-            if success and type(desc) == "string" then
-                description = desc
-            end
-        end
+        local bindings = extractBindings(def)
+
+        local description = getDefinitionDescription(def)
 
         local keybinding = {
             CategoryName = def.CategoryName or "",
@@ -139,7 +161,6 @@ function NativeKeybindings.GetAll()
         for _, binding in ipairs(bindings) do
             local inputType = NativeKeybindings.GetInputTypeForDevice(binding.DeviceId)
             table.insert(keybinding.Bindings, {
-                DeviceId = binding.DeviceId,
                 InputId = binding.InputId,
                 Modifiers = binding.Modifiers,
                 InputType = inputType
@@ -162,7 +183,7 @@ end
 
 --- Gets the input type string for a given device ID
 ---@param deviceId integer The device ID to check
----@return string The input type as a string ("Keyboard", "Mouse", "Controller", "Unassigned", or "Unknown")
+---@return string - The input type as a string ("Keyboard", "Mouse", "Controller", "Unassigned", or "Unknown")
 function NativeKeybindings.GetInputTypeForDevice(deviceId)
     if deviceId == nil then
         return "Unknown"
