@@ -20,8 +20,10 @@ function StateRestorationManager:CheckModExists(pageId)
     end
 
     -- Check special pages first
-    if pageId == ClientGlobals.MCM_HOTKEYS or pageId == ClientGlobals.MCM_PROFILES then
-        return true
+    for _, specialPageId in pairs(ClientGlobals.SPECIAL_PAGES) do
+        if pageId == specialPageId then
+            return true
+        end
     end
 
     -- Then check for actual mods

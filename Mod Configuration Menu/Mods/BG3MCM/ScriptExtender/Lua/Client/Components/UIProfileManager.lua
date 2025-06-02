@@ -48,7 +48,7 @@ function UIProfileManager:CreateProfileContent()
     local profilesGroup = DualPane:AddMenuSectionWithContent(
         Ext.Loca.GetTranslatedString("hb7ee77283bd94bd5b9d3fe696b45e85ae804"),
         Ext.Loca.GetTranslatedString("h2082b6b6954741ef970486be3bb77ad53782"),
-        ClientGlobals.MCM_PROFILES
+        ClientGlobals.SPECIAL_PAGES.MCM_PROFILES
     )
 
     if not profilesGroup then return end

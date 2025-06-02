@@ -596,11 +596,11 @@ end
 
 -- TODO: move this to DynamicSettings/
 function MCMRendering:CreateDynamicSettingsPage()
-    -- Create a dedicated "Dynamic Settings" menu section
+    -- Create a dedicated Dynamic Settings menu section
     local dynamicSettingsGroup = DualPane:AddMenuSectionWithContent(
-        "Dynamic Settings",
-        "Configure mod variables and server settings",
-        ClientGlobals.MCM_DYNAMIC_SETTINGS
+        Ext.Loca.GetTranslatedString("haa412174bc3e45a4a43dc88f7877df8409d3"),
+        "ModVars",
+        ClientGlobals.SPECIAL_PAGES.MCM_DYNAMIC_SETTINGS
     )
 
     -- Initialize the dynamic settings manager if not already done
@@ -611,23 +611,6 @@ function MCMRendering:CreateDynamicSettingsPage()
 
     -- Create the dynamic settings UI
     DynamicSettingsUI.CreateUI(dynamicSettingsGroup, DynamicSettingsManager)
-
-    -- Add refresh button
-    local refreshBtn = dynamicSettingsGroup:AddButton("Refresh Settings")
-    refreshBtn.OnClick = function()
-        DynamicSettingsManager.RefreshAll()
-        -- Recreate the UI after refresh
-        DynamicSettingsUI.CreateUI(dynamicSettingsGroup, DynamicSettingsManager)
-    end
-
-    -- Add server write toggle if not in main menu
-    if not MCMProxy:IsMainMenu() then
-        local serverWriteToggle = dynamicSettingsGroup:AddCheckbox("Enable Server Writes")
-        serverWriteToggle.Checked = DynamicSettingsManager.tryWriteToServer
-        serverWriteToggle.OnChange = function(newValue)
-            DynamicSettingsManager.tryWriteToServer = newValue
-        end
-    end
 end
 
 function MCMRendering:CreateKeybindingsPage()
@@ -635,7 +618,7 @@ function MCMRendering:CreateKeybindingsPage()
     local hotkeysGroup = DualPane:AddMenuSectionWithContent(
         Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"),
         Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"),
-        ClientGlobals.MCM_HOTKEYS
+        ClientGlobals.SPECIAL_PAGES.MCM_HOTKEYS
     )
 
     -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)

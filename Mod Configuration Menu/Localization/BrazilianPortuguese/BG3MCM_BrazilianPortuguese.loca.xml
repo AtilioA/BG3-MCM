@@ -193,5 +193,14 @@
     <content contentuid="h97ff4d538fd24adebd33abcda9ed64e05e31" version="1">Ativar logs de sucesso</content>
     <content contentuid="h1023ace9c14d4a8bbf2c4c2f80a4c47c6513" version="1">Ativar logs de sucesso (verde)</content>
     <content contentuid="habe7ddb9ad9944b58744705857ca8cde0357" version="1">Ativar logs de alerta</content>
-    <content contentuid="hddf4673450d344dc924bc6210f17ea62544g" version="1">Ativar logs de alerta (laranja-vermelho)</content>
+    <content contentuid="hddf4673450d344dc924bc6210f17ea62544g" version="1">Ativar logs de aviso (laranja-vermelho)</content>
+    <content contentuid="haa412174bc3e45a4a43dc88f7877df8409d3" version="1">Configurações Dinâmicas</content>
+    <content contentuid="h21ddcc085e7a42e694517d0eaf7bb1a41153" version="1">Modvars</content>
+    <content contentuid="h229fc42a5c5948739322148a34c606cf7e2c" version="1">Variáveis do servidor</content>
+    <content contentuid="hf648402fb0114805a62ff7a077d0a17ef5ga" version="1">Variáveis do cliente</content>
+    <content contentuid="hc6931ea0d7c04a4b979c094ead878e82d213" version="1">Tentar escrita no cliente</content>
+    <content contentuid="h1935ff98cadd410aaf7c300bcc0eaf836f5b" version="1">Tentar escrita no servidor</content>
+    <content contentuid="h187c9e5764a345f5aa3f280672d758895fcd" version="1">Atualizar</content>
+    <content contentuid="h6793f37631c84e9ead95c1de2bfdb7a2d2f9" version="1">Ativar escritas no servidor</content>
+    <content contentuid="h76b7854090334179a5d2f894275d2d2724f8" version="1">Atualizar configurações</content>
 </contentList>

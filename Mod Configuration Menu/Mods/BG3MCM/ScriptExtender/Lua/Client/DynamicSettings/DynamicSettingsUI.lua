@@ -12,13 +12,13 @@ function DynamicSettingsUI.CreateGlobalControls(parent)
     local group = parent:AddGroup("DynamicSettingsGlobalControls")
 
     -- Client write checkbox
-    local clientWriteCheckbox = group:AddCheckbox("Try write on client", DynamicSettingsManager.tryWriteToClient)
+    local clientWriteCheckbox = group:AddCheckbox(Ext.Loca.GetTranslatedString("hc6931ea0d7c04a4b979c094ead878e82d213"), DynamicSettingsManager.tryWriteToClient)
     clientWriteCheckbox.OnChange = function(widget, newValue)
         DynamicSettingsManager.tryWriteToClient = newValue
     end
 
     -- Server write checkbox
-    local serverWriteCheckbox = group:AddCheckbox("Try write on server", DynamicSettingsManager.tryWriteToServer)
+    local serverWriteCheckbox = group:AddCheckbox(Ext.Loca.GetTranslatedString("h1935ff98cadd410aaf7c300bcc0eaf836f5b"), DynamicSettingsManager.tryWriteToServer)
     serverWriteCheckbox.SameLine = true
     serverWriteCheckbox.OnChange = function(widget, newValue)
         DynamicSettingsManager.tryWriteToServer = newValue
@@ -30,7 +30,7 @@ function DynamicSettingsUI.CreateGlobalControls(parent)
     end
 
     -- Refresh button (only visible in-game)
-    local refreshButton = group:AddButton("Refresh")
+    local refreshButton = group:AddButton(Ext.Loca.GetTranslatedString("h187c9e5764a345f5aa3f280672d758895fcd"))
     refreshButton.SameLine = true
     refreshButton.OnClick = function()
         DynamicSettingsManager.RefreshAll()
@@ -45,7 +45,7 @@ end
 
 -- Create a tab for client or server variables
 function DynamicSettingsUI.CreateVariablesTab(parent, isServerTab)
-    local tabName = isServerTab and "Server Variables" or "Client Variables"
+    local tabName = isServerTab and Ext.Loca.GetTranslatedString("h229fc42a5c5948739322148a34c606cf7e2c") or Ext.Loca.GetTranslatedString("hf648402fb0114805a62ff7a077d0a17ef5ga")
     local tab = parent:AddTabItem(tabName)
 
     -- Hide server tab in main menu
@@ -201,8 +201,8 @@ function DynamicSettingsUI.AddDynamicSettingsSection(dualPane)
     -- Create the section
     -- TODO: refactor dual pane to allow inserting buttons to an existing section (will be used for each storageType)
     local contentGroup = dualPane:AddMenuSectionWithContent(
-        "Dynamic Settings",
-        "Dynamic settings",
+        Ext.Loca.GetTranslatedString("haa412174bc3e45a4a43dc88f7877df8409d3"),
+        Ext.Loca.GetTranslatedString("h21ddcc085e7a42e694517d0eaf7bb1a41153"),
         "dynamic_settings"
     )
 

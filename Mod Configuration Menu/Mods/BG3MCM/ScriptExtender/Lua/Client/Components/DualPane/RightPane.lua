@@ -154,12 +154,10 @@ end
 -- Get the display name for a mod or special page
 local function getDisplayName(identifier)
     -- Handle special cases
-    if identifier == ClientGlobals.MCM_HOTKEYS then
-        return "Hotkeys"
-    end
-
-    if identifier == ClientGlobals.MCM_PROFILES then
-        return "Profiles"
+    for specialPageId, translation in pairs(ClientGlobals.SPECIAL_PAGE_TRANSLATIONS) do
+        if identifier == specialPageId then
+            return translation
+        end
     end
     -- For regular mods, get the mod name
     local mod = Ext.Mod.GetMod(identifier)
