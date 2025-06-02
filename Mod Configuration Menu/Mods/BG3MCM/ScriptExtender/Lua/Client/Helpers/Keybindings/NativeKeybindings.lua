@@ -271,4 +271,64 @@ function NativeKeybindings.GetByCategory()
     }
 end
 
+--- Get keybindings filtered by device type, with public and internal keybindings separated
+---@param deviceType string|nil The device type to filter by ("Keyboard", "Mouse", "Controller", "Unassigned", or "Unknown").
+---@return {Public: NativeKeybinding[], Internal: NativeKeybinding[]}
+function NativeKeybindings.GetByDeviceType(deviceType)
+    local allKeybindings = NativeKeybindings.GetAll()
+    local result = {
+        Public = {},
+        Internal = {}
+    }
+
+    local function matchesDeviceType(binding, targetType)
+        local bindingType = binding.InputType
+        return bindingType == targetType or
+               (targetType == "Unassigned" and bindingType == "Unknown")
+    end
+
+    -- Process all keybindings
+    for _, kb in ipairs(allKeybindings.Public) do
+        local filtered = {
+            CategoryName = kb.CategoryName,
+            EventName = kb.EventName,
+            Description = kb.Description,
+            Type = kb.Type,
+            Bindings = {}
+        }
+
+        for _, binding in ipairs(kb.Bindings) do
+            if not deviceType or matchesDeviceType(binding, deviceType) then
+                table.insert(filtered.Bindings, binding)
+            end
+        end
+
+        if #filtered.Bindings > 0 then
+            table.insert(result.Public, filtered)
+        end
+    end
+
+    for _, kb in ipairs(allKeybindings.Internal) do
+        local filtered = {
+            CategoryName = kb.CategoryName,
+            EventName = kb.EventName,
+            Description = kb.Description,
+            Type = kb.Type,
+            Bindings = {}
+        }
+
+        for _, binding in ipairs(kb.Bindings) do
+            if not deviceType or matchesDeviceType(binding, deviceType) then
+                table.insert(filtered.Bindings, binding)
+            end
+        end
+
+        if #filtered.Bindings > 0 then
+            table.insert(result.Internal, filtered)
+        end
+    end
+
+    return result
+end
+
 return NativeKeybindings
