@@ -3,6 +3,8 @@ EHandlers = {}
 EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
 EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
+local ServerDiscovery = Ext.Require("Server/DynamicSettings/ServerDiscovery.lua")
+
 local function loadSettingsAndWarn()
     MCMServer:LoadAndSendSettings()
     ModEventManager:IssueDeprecationWarning()
@@ -113,7 +115,6 @@ function EHandlers.OnSessionLoaded()
     end
 
     -- Initialize server-side variable discovery
-    local ServerDiscovery = Ext.Require("Server/DynamicSettings/ServerDiscovery.lua")
     ServerDiscovery.Initialize()
 end
 
