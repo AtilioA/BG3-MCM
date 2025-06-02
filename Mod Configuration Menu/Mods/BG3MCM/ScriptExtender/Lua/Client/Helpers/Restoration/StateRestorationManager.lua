@@ -42,14 +42,14 @@ function StateRestorationManager:RegisterService(name, service)
     end
 
     self.services[name] = service
-    MCMDebug(1, "StateRestorationManager: Registered service: " .. name)
+    MCMDebug(2, "StateRestorationManager: Registered service: " .. name)
 end
 
 -- Initialize all registered services
 function StateRestorationManager:InitializeServices()
     for name, service in pairs(self.services) do
         if service.Initialize then
-            MCMDebug(1, "StateRestorationManager: Initializing service: " .. name)
+            MCMDebug(2, "StateRestorationManager: Initializing service: " .. name)
             service:Initialize(self)
         end
     end

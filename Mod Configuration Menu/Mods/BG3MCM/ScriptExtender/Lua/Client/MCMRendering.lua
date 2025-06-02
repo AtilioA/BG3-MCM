@@ -517,7 +517,7 @@ function MCMRendering:GetAllKeybindings()
                     local keyboardBinding = nil
                     if currentBinding and currentBinding.Keyboard then
                         keyboardBinding = currentBinding.Keyboard
-                        MCMDebug(1, "Using saved keyboard binding for setting: " .. settingId)
+                        MCMDebug(2, "Using saved keyboard binding for setting: " .. settingId)
                     else
                         keyboardBinding = Fallback.Value(
                             setting.Default and setting.Default.Keyboard,

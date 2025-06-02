@@ -20,7 +20,7 @@ function PageRestorationService:Initialize(manager)
         return
     end
 
-    MCMDebug(1, "PageRestorationService: Initializing...")
+    MCMDebug(2, "PageRestorationService: Initializing...")
 
     -- Store reference to the manager
     self.manager = manager
@@ -31,7 +31,7 @@ function PageRestorationService:Initialize(manager)
     -- Attempt to restore the page (if we have one stored)
     self:RestoreLastModPage()
 
-    MCMDebug(1, "PageRestorationService: Initialized")
+    MCMDebug(2, "PageRestorationService: Initialized")
     self.isInitialized = true
 end
 
@@ -81,7 +81,7 @@ function PageRestorationService:RestoreLastModPage()
 
     if restoreLastSubtabEnabled == true and hasValidSubtab then
         MCMDebug(1,
-        "PageRestorationService: Subtab restoration enabled and valid subtab found - deferring to subtab restoration")
+            "PageRestorationService: Subtab restoration enabled and valid subtab found - deferring to subtab restoration")
         return
     end
 

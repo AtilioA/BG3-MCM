@@ -154,7 +154,7 @@ function EHandlers.OnEmitOnServer(_, payload)
     local eventName = data.eventName
     local eventData = data.eventData
 
-    MCMDebug(1, "Emitting event " .. eventName .. " on server as well.")
+    MCMDebug(2, "Emitting event " .. eventName .. " on server as well.")
 
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 end

@@ -21,7 +21,7 @@ function SubtabRestorationService:Initialize(manager)
         return
     end
 
-    MCMDebug(1, "SubtabRestorationService: Initializing...")
+    MCMDebug(2, "SubtabRestorationService: Initializing...")
 
     -- Store reference to the manager
     self.manager = manager
@@ -32,7 +32,7 @@ function SubtabRestorationService:Initialize(manager)
     -- Restore last used subtab (also listens for tab insertions for dynamic tabs)
     self:RestoreLastUsedSubtab()
 
-    MCMDebug(1, "SubtabRestorationService: Initialized")
+    MCMDebug(2, "SubtabRestorationService: Initialized")
     self.isInitialized = true
 end
 
