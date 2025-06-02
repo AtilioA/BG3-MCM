@@ -1,3 +1,5 @@
+local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
+
 local RX = {
     Subject = Ext.Require("Lib/reactivex/subjects/subject.lua"),
     ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
@@ -506,8 +508,13 @@ function MCMRendering:GetAllKeybindings()
 end
 
 --- Creates the keybindings page in the MCM UI
----@return table The created hotkeys group
+---@return ExtuiGroup|nil The created hotkeys group
 function MCMRendering:CreateKeybindingsPage()
+    if not DualPane then
+        MCMWarn(1, "DualPane is not available, skipping keybindings page creation.")
+        return nil
+    end
+
     -- Delegate keybindings page creation to KeybindingsUI
     local hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
 
@@ -516,7 +523,6 @@ function MCMRendering:CreateKeybindingsPage()
     if #allModKeybindings == 0 then
         MCMDebug(1, "No keybinding settings found for any mod.")
     end
-
 
     -- Register the keybindings in the centralized registry
     KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
@@ -541,6 +547,10 @@ function MCMRendering:CreateKeybindingsPage()
             MCMProxy:RegisterMCMKeybindings()
         end
     end
+
+    -- Get all keybindings
+    local nativeKeybindings = NativeKeybindings.GetAll()
+    _D(nativeKeybindings.Public)
 
     return hotkeysGroup
 end
