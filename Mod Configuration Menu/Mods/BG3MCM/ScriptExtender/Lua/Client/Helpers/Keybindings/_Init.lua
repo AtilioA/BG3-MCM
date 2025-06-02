@@ -1,4 +1,5 @@
 RequireFiles("Client/Helpers/Keybindings/", {
     "KeybindingsRegistry",
-    "InputCallbackManager"
+    "InputCallbackManager",
+    "KeybindingsUI"
 })
