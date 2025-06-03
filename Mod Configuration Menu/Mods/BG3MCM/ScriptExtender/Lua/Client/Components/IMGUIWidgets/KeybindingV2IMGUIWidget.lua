@@ -258,6 +258,9 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             end
             resetButton.SameLine = true
 
+            -- Hide reset button if the binding is set to default
+            resetButton.Visible = not self:IsDefaultBinding(action)
+
             MCMRendering:AddTooltip(resetButton,
                 VCString:InterpolateLocalizedMessage(
                     "h497bb04f93734d52a265956df140e77a7add",
@@ -455,19 +458,46 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
     end
 end
 
+---@alias Keybinding { Key: string, ModifierKeys: string[] }
+
 ---Compares two keybindings for equality after normalization
----@param binding1 Keybinding The first keybinding to compare
----@param binding2 Keybinding The second keybinding to compare
+---@param binding1 Keybinding|string|nil The first keybinding to compare
+---@param binding2 Keybinding|string|nil The second keybinding to compare
 ---@return boolean True if the keybindings are equal, false otherwise
 function KeybindingV2IMGUIWidget:AreKeybindingsEqual(binding1, binding2)
-    if binding1 == nil or binding2 == nil then
+    -- Normalize both bindings
+    local normalized1 = nil
+    local normalized2 = nil
+
+    -- Both are unassigned
+    if (binding1 == nil or binding1 == UNASSIGNED_KEYBOARD_MOUSE_STRING) and
+        (binding2 == nil or binding2 == UNASSIGNED_KEYBOARD_MOUSE_STRING) then
+        return true
+    end
+
+    -- If one is unassigned and the other isn't, they're different
+    if (binding1 == nil or binding1 == UNASSIGNED_KEYBOARD_MOUSE_STRING) ~=
+        (binding2 == nil or binding2 == UNASSIGNED_KEYBOARD_MOUSE_STRING) then
         return false
     end
 
-    local normalized1 = KeybindingsRegistry.NormalizeKeyboardBinding(binding1)
-    local normalized2 = KeybindingsRegistry.NormalizeKeyboardBinding(binding2)
+    if type(binding1) == "table" and binding1.Key ~= nil then
+        normalized1 = KeybindingsRegistry.NormalizeKeyboardBinding(binding1)
+    end
 
-    return normalized1 ~= nil and normalized1 == normalized2
+    if type(binding2) == "table" and binding2.Key ~= nil then
+        normalized2 = KeybindingsRegistry.NormalizeKeyboardBinding(binding2)
+    end
+
+    -- Compare normalized bindings if both are valid
+    return normalized1 ~= nil and normalized2 ~= nil and normalized1 == normalized2
+end
+
+---Checks if a keybinding is set to its default value
+---@param action table The action to check
+---@return boolean True if the binding is set to its default value, false otherwise
+function KeybindingV2IMGUIWidget:IsDefaultBinding(action)
+    return self:AreKeybindingsEqual(action.KeyboardMouseBinding, action.DefaultKeyboardMouseBinding)
 end
 
 ---Checks if a keybinding conflicts with an existing action
@@ -478,6 +508,12 @@ end
 ---@return table|nil Conflicting action if found, nil otherwise
 function KeybindingV2IMGUIWidget:CheckActionForConflict(keybinding, action, actionId, currentActionId)
     if actionId == currentActionId or not action.keyboardBinding or action.keyboardBinding == "" then
+        return nil
+    end
+
+    if keybinding == nil or action.keyboardBinding == nil or
+        keybinding == UNASSIGNED_KEYBOARD_MOUSE_STRING or
+        action.keyboardBinding == UNASSIGNED_KEYBOARD_MOUSE_STRING then
         return nil
     end
 
