@@ -39,7 +39,7 @@ function EHandlers.OnClientRequestSetSettingValue(_, payload, peerId)
         MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modUUID)
     end
 
-    MCMServer:SetSettingValue(settingId, value, modUUID, true)
+    MCMServer:SetSettingValue(settingId, value, modUUID)
 end
 
 function EHandlers.OnClientRequestResetSettingValue(_, payload, peerId)
@@ -48,7 +48,7 @@ function EHandlers.OnClientRequestResetSettingValue(_, payload, peerId)
     local modUUID = parsedPayload.modUUID
 
     MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modUUID)
-    MCMServer:ResetSettingValue(settingId, modUUID, true)
+    MCMServer:ResetSettingValue(settingId, modUUID)
 end
 
 -- function EHandlers.OnClientRequestProfiles(_)

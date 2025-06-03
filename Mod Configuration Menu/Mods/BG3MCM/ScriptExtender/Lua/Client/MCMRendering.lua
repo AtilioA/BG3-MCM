@@ -550,7 +550,7 @@ function MCMRendering:CreateKeybindingsPage()
 
     -- Get all keybindings
     local nativeKeybindings = NativeKeybindings.GetAll()
-    _D(nativeKeybindings.Public)
+    -- _D(nativeKeybindings.Public)
 
     return hotkeysGroup
 end

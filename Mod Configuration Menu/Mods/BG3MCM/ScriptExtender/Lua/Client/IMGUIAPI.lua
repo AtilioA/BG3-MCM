@@ -82,8 +82,8 @@ end
 ---@param modUUID string The UUID of the mod
 ---@param setUIValue? function A callback function to be called after the setting value is updated
 ---@return nil
-function IMGUIAPI:SetSettingValue(settingId, value, modUUID, setUIValue)
-    MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue)
+function IMGUIAPI:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
+    MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
 
     -- FIXME: this is leaking listeners?
     ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
