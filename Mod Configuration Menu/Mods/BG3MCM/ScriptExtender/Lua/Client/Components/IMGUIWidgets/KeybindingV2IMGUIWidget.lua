@@ -181,7 +181,7 @@ end
 ---@param mod table The mod data containing actions to render
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     xpcall(function()
-        local columns = 4 -- Changed from 3 to 5 to add the enabled column.
+        local columns = 3 -- Changed from 3 to 5 to add the enabled column.
         local imguiTable = modGroup:AddTable("", columns)
         imguiTable.BordersOuter = true
         imguiTable.BordersInner = true
@@ -189,9 +189,9 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
         -- Define the columns: Enabled, Action, Description, Keybinding, and Reset.
         imguiTable:AddColumn("Enabled", "WidthFixed", 100)
-        imguiTable:AddColumn("Action", "WidthFixed", 700)
-        imguiTable:AddColumn("Keybinding", "WidthFixed", 600)
-        imguiTable:AddColumn("Reset", "WidthFixed", 50)
+        imguiTable:AddColumn("Action", "WidthStretch")
+        imguiTable:AddColumn("Keybinding", "WidthStretch")
+        -- imguiTable:AddColumn("Reset", "WidthFixed", 50)
 
         for _, action in ipairs(mod.Actions) do
             local row = imguiTable:AddRow()
