@@ -414,8 +414,12 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
 
     local conflictAction = self:CheckForConflicts(keybinding, modData, action, inputType)
     if conflictAction then
-        local keybindingStr = KeyPresentationMapping:GetKBViewKey(keybinding) or ""
-        KeybindingsRegistry.NotifyConflict(keybindingStr)
+        -- TODO: reduce duplication with KeybindingV2IMGUIWidget
+        local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
+            action.ActionName)
+        local conflictStr = VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee",
+            KeyPresentationMapping:GetKBViewKey(keybinding) or "", action.ActionName)
+        KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
     end
 
     local registry = KeybindingsRegistry.GetFilteredRegistry()
