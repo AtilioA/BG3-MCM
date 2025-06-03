@@ -89,32 +89,6 @@ function VCString:Lowercase(str)
     return str:gsub("^%u", string.lower)
 end
 
---- Update a localized message with dynamic content
----@param handle string The handle of the localized message to update
----@param dynamicContent string The dynamic content to replace the placeholder with
-function VCString:UpdateLocalizedMessage(handle, dynamicContent)
-    -- Store original message in a cache if not already stored
-    if not self._originalMessages then
-        self._originalMessages = {}
-    end
-
-    -- Get or cache the original message
-    if not self._originalMessages[handle] then
-        self._originalMessages[handle] = Ext.Loca.GetTranslatedString(handle)
-    end
-
-    -- Use the original message as base
-    local originalMessage = self._originalMessages[handle]
-
-    -- Replace placeholder '[1]'' with the dynamic content
-    local updatedMessage = string.gsub(originalMessage, "%[1%]", tostring(dynamicContent))
-
-    -- Update the translated string with the new content during runtime
-    Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
-
-    return VCString:ReplaceBrWithNewlines(updatedMessage)
-end
-
 -- Adds full stop to the end of the string if it doesn't already have one
 function VCString:AddFullStop(str)
     if str == nil then
@@ -244,5 +218,5 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
         Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
     end
 
-    return VCString:ReplaceBrWithNewlines(updatedMessage)
+    return self:ReplaceBrWithNewlines(updatedMessage)
 end

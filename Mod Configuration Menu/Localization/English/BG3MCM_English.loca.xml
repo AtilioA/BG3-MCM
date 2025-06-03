@@ -74,9 +74,9 @@
     <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Created by [1] | Version [2]</content>
     <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Don't see the MCM window? Check the troubleshooting steps on the mod page.</content>
     <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Reset</content>
-    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Reset keybinding to default.</content>
+    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Reset keybinding to default: [1].</content>
     <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">ACTION REQUIRED: Keybinding conflict</content>
-    <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Press keys to assign [ESC to cancel | BACKSPACE to remove]</content>
+    <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Press keys to assign | [ESC] to cancel, [BACKSPACE] to unassign</content>
     <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Empty keyboard shortcut</content>
     <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Search keybindings:</content>
     <content contentuid="h7e9b6453340548c29a8f3add8a402bedbe8g" version="1">No matching keyboard shortcut found.</content>

@@ -55,7 +55,7 @@ end
 ---@param payload table The payload containing the keybinding data
 ---@return boolean success Whether the operation was successful
 function KeybindingV2IMGUIWidget:StoreKeybinding(modData, action, payload)
-    local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, payload)
+    local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, payload, true)
     if not success then
         MCMWarn(0,
             "Failed to update binding in registry for mod '" ..
@@ -242,12 +242,13 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             kbButton.OnClick = function()
                 self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
             end
+            -- kbButton.SameLine = true
             MCMRendering:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
                 mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
 
             -- Reset button cell.
-            local resetCell = row:AddCell()
-            local resetButton = resetCell:AddImageButton(
+            -- local resetCell = row:AddCell()
+            local resetButton = kbCell:AddImageButton(
                 Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459"),
                 ClientGlobals.RESET_SETTING_BUTTON_ICON,
                 IMGUIWidget:GetIconSizes())
@@ -255,7 +256,14 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             resetButton.OnClick = function()
                 self:ResetBinding(mod.ModUUID, action.ActionId)
             end
-            MCMRendering:AddTooltip(resetButton, Ext.Loca.GetTranslatedString("h497bb04f93734d52a265956df140e77a7add"),
+            resetButton.SameLine = true
+
+            MCMRendering:AddTooltip(resetButton,
+                VCString:InterpolateLocalizedMessage(
+                    "h497bb04f93734d52a265956df140e77a7add",
+                    KeyPresentationMapping:GetKBViewKey(action.DefaultKeyboardMouseBinding),
+                    { updateHandle = false }
+                ),
                 mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
 
             -- If there is a conflict, color the keybinding button red.
@@ -339,7 +347,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             self.Widget.CurrentListeningAction = nil
             self:UnregisterInputEvents()
 
-            KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, { Keyboard = "" })
+            KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, { Keyboard = "" }, true)
             return
         end
 
@@ -528,7 +536,7 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     if binding then
         local resetKeybinding = binding.defaultKeyboardBinding
         local resetPayload = KeybindingsRegistry.BuildKeyboardPayload(resetKeybinding, binding.defaultEnabled)
-        local success = KeybindingsRegistry.UpdateBinding(modUUID, actionId, resetPayload)
+        local success = KeybindingsRegistry.UpdateBinding(modUUID, actionId, resetPayload, true)
         if not success then
             MCMError(0,
                 "Failed to reset binding for mod '" .. modUUID .. "', action '" .. actionId .. "'. Please contact " ..
