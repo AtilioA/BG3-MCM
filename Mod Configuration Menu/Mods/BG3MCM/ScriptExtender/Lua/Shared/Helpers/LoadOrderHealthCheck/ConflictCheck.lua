@@ -57,17 +57,6 @@ local function checkModConflicts(mod, conflicts, issues)
     end
 end
 
--- Determines if a mod is valid for conflict checking.
-local function isValidModForConflicts(mod)
-    return mod
-        and mod.Info
-        and mod.Info.ModuleUUID
-        and Ext.Mod.IsModLoaded(mod.Info.ModuleUUID)
-        and mod.Info.Author ~= ""
-        and mod.Info.Author ~= "LS"
-        and mod.ModConflicts
-end
-
 --- Warns about load order conflicts.
 --- This method iterates over all available mods, checks for conflicts, and logs warnings.
 ---@return ConflictCheckResult[] issues A list of issues with mod conflicts.
@@ -80,7 +69,7 @@ function ConflictCheck:EvaluateLoadOrderConflicts()
 
         MCMDebug(1, "Evaluating load order conflicts for available mods.")
         for _, mod in ipairs(availableMods) do
-            if isValidModForConflicts(mod) then
+            if ModValidation:IsModRelevant(mod) and mod.ModConflicts then
                 checkModConflicts(mod, mod.ModConflicts, issues)
             end
         end

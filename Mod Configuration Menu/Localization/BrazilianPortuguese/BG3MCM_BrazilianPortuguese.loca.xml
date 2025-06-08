@@ -194,4 +194,6 @@
     <content contentuid="h1023ace9c14d4a8bbf2c4c2f80a4c47c6513" version="1">Ativar logs de sucesso (verde)</content>
     <content contentuid="habe7ddb9ad9944b58744705857ca8cde0357" version="1">Ativar logs de alerta</content>
     <content contentuid="hddf4673450d344dc924bc6210f17ea62544g" version="1">Ativar logs de alerta (laranja-vermelho)</content>
+    <content contentuid="h695e89a6bc5e4064b183454101463d0e3g4e" version="1">O mod '[1]' usa MCM mas está carregado antes do próprio MCM.&lt;br&gt;Isso pode causar problemas.&lt;br&gt;Por favor, mova '[2]' para depois do MCM na sua load order.</content>
+    <content contentuid="hbb05ad5f055141f5846365e1d6175ae74fb4" version="1">Precedência na load order: carregue o MCM antes de '[1]'</content>
 </contentList>

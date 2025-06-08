@@ -168,12 +168,6 @@ local function checkModDependencies(mod, dependencies, issues)
     end
 end
 
-local function isValidMod(mod)
-    return mod and mod.Info and mod.Info.ModuleUUID and Ext.Mod.IsModLoaded(mod.Info.ModuleUUID)
-        and mod.Info.Author ~= "" and mod.Info.Author ~= "LS"
-        and mod.Dependencies
-end
-
 --- Checks mod dependencies and returns a list of issues.
 ---@return DependencyCheckResult[] issues A list of issues with mod dependencies.
 function DependencyCheck:EvaluateLoadOrderDependencies()
@@ -185,7 +179,7 @@ function DependencyCheck:EvaluateLoadOrderDependencies()
 
         MCMPrint(1, "Evaluating load order dependencies for available mods.")
         for _, mod in ipairs(availableMods) do
-            if isValidMod(mod) then
+            if ModValidation:IsModRelevant(mod) and mod.Dependencies then
                 checkModDependencies(mod, mod.Dependencies, issues)
             end
         end

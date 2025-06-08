@@ -222,4 +222,21 @@ function LoadOrderHealthCheck:CreateNotificationForEachLevel()
     )
 end
 
+function LoadOrderHealthCheck:WarnAboutMCMPrecedence()
+    local mcmUUID = ModuleUUID
+    local violations = MCMPrecedenceCheck.GetPrecedenceViolations()
+    for _, uuid in ipairs(violations) do
+        local modInfo = Ext.Mod.GetMod(uuid).Info
+        NotificationManager:CreateIMGUINotification(
+            "MCM_PRECEDENCE_WARNING_" .. uuid,
+            "warning",
+            VCString:InterpolateLocalizedMessage("hbb05ad5f055141f5846365e1d6175ae74fb4", modInfo.Name, false),
+            VCString:InterpolateLocalizedMessage("h695e89a6bc5e4064b183454101463d0e3g4e", modInfo.Name, modInfo.Name,
+                false),
+            { dontShowAgainButton = true },
+            mcmUUID
+        )
+    end
+end
+
 return LoadOrderHealthCheck

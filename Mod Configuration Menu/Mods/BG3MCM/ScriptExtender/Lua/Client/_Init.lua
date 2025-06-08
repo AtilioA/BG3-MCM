@@ -14,5 +14,6 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
         LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
         LoadOrderHealthCheck:WarnAboutNPAKM()
         LoadOrderHealthCheck:WarnAboutModConflicts()
+        LoadOrderHealthCheck:WarnAboutMCMPrecedence()
     end
 end)
