@@ -200,4 +200,17 @@
     <content contentuid="hddf4673450d344dc924bc6210f17ea62544g" version="1">Enable warning logs (orange-red)</content>
     <content contentuid="h695e89a6bc5e4064b183454101463d0e3g4e" version="1">Mod '[1]' uses MCM but is loaded before MCM itself.&lt;br&gt;This may cause issues.&lt;br&gt;Please move '[2]' after MCM in your load order.</content>
     <content contentuid="hbb05ad5f055141f5846365e1d6175ae74fb4" version="1">Load order precedence: load MCM before '[1]'</content>
+    <content contentuid="h22531fbba80a4aa5a046c3bbfd55c373g923" version="1">Warns if any mod in the load order has an invalid or missing UUID.</content>
+    <content contentuid="hae5d939989a4461997798b892d7dc34366c4" version="1">Warns if there are missing or outdated load order dependencies.</content>
+    <content contentuid="h545b1baf66324fc28c0c726d7c016e73a3c9" version="1">Warns if incompatible No Press Any Key Menu version is detected in the load order.</content>
+    <content contentuid="h01582783e20d43bfba15142da3f8a22adf42" version="1">Warns if there are mod conflicts in the load order.</content>
+    <content contentuid="h5611eef852e342ed932b47cb0cedfa51g66e" version="1">Warns if MCM is not placed before dependent mods in the load order.</content>
+    <content contentuid="hc8d418eb08b243dca7827e5a873295d34d9b" version="1">Load order check</content>
+    <content contentuid="h9e33c60be1134adaa0256000af3a4a142c08" version="1">Health check toggle</content>
+    <content contentuid="h1fd4e620b15146b79d30f01768ceb27581gg" version="1">Warn about invalid UUIDs</content>
+    <content contentuid="hea337fe67fb44c6d9e2870b524bdcdc9e8bg" version="1">Warn about load order dependencies</content>
+    <content contentuid="h0386d12fd1774adcab7d6d40bc8dcc403182" version="1">Warn about NPAKM</content>
+    <content contentuid="h51d62ec178ef42339febafa360593169dccc" version="1">Warn about mod conflicts</content>
+    <content contentuid="h0b200012c87d4a2e8173a15243ee0355ace1" version="1">Warn about MCM precedence</content>
+    <content contentuid="hbc82ae3470f942bd843e33ae6e7498908935" version="1">MCM will scan your load order for potential issues and display visual warnings in the main menu if any are found.&lt;br&gt;It is recommended to keep all checks enabled. Most of these issues would cause problems for some of your mods.&lt;br&gt;Warnings can be disabled in an individual basis as they appear.</content>
 </contentList>

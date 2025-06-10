@@ -6,4 +6,5 @@ RequireFiles("Shared/Helpers/LoadOrderHealthCheck/", {
     "ConflictCheck",
     "LoadOrderHealthCheck",
     "MCMPrecedenceCheck",
+    "LoadOrderHealthCheckToggles",
 })

@@ -8,12 +8,8 @@ RequireFiles("Client/", {
     "SubscribedEvents",
 })
 
+local LoadOrderHealthCheckToggles = require("Shared/Helpers/LoadOrderHealthCheck/LoadOrderHealthCheckToggles")
+
 Ext.Events.GameStateChanged:Subscribe(function(e)
-    if e.ToState == Ext.Enums.ClientGameState["Menu"] then
-        LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
-        LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
-        LoadOrderHealthCheck:WarnAboutNPAKM()
-        LoadOrderHealthCheck:WarnAboutModConflicts()
-        LoadOrderHealthCheck:WarnAboutMCMPrecedence()
-    end
+    LoadOrderHealthCheckToggles:RunAllChecks(e)
 end)
