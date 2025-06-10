@@ -45,7 +45,6 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
     - [`keybinding` functions](#keybinding-functions)
     - [`list_v2` functions](#list_v2-functions)
     - [Using values from MCM](#using-values-from-mcm)
-      - [Reducing verbiage](#reducing-verbiage)
     - [Adding a keybinding](#adding-a-keybinding)
       - [Defining a keybinding](#defining-a-keybinding)
       - [Registering a keybinding callback](#registering-a-keybinding-callback)
@@ -273,36 +272,6 @@ end)
 ```
 
 Remember, SE injects a `ModuleUUID` constant that holds the value of the mod you're writing into your runtime.
-
-<details>
-<summary> Setting usage prior to 1.14 (DEPRECATED) </summary>
-
-While the following code is still valid, it is recommended to use the new global `MCM` table introduced in 1.14+ for easier access to settings values.
-
-```lua
--- Get the value of a setting with the ID "MySetting". ModuleUUID has the UUID of your mod
-local mySettingValue = Mods.BG3MCM.MCMAPI:GetSettingValue("MySetting", ModuleUUID)
-
--- Set the value of a setting
-Mods.BG3MCM.MCMAPI:SetSettingValue("MySetting", newValue, ModuleUUID)
-```
-
-#### Reducing verbiage
-
-To avoid typing `Mods.BG3MCM.MCMAPI:GetSettingValue` and passing your mod's UUID every time you get/set a setting value, you can define a simple global function such as this early in your scripts:
-
-```lua
-function MCMGet(settingID)
-    return Mods.BG3MCM.MCMAPI:GetSettingValue(settingID, ModuleUUID)
-end
--- Now, get values by calling MCMGet("setting_id")
-```
-
-Global functions are only accessible within your mod table, so this function won't be causing conflicts with other MCM mods that also define it.
-
-You can allow global usage of `MCM` functions by incorporating MCM's table early in your scripts with `setmetatable(Mods[Ext.Mod.GetMod(ModuleUUID).Info.Directory], { __index = Mods.BG3MCM })`.
-Otherwise, prepend `Mods.BG3MCM` to all function calls.
-</details>
 
 ### Adding a keybinding
 
@@ -568,7 +537,7 @@ For the most up-to-date information, please refer to this file in the Git reposi
 
 ## How validation works
 
-Validation is divided into two main categories: blueprint validation and settings validation. Blueprint validation ensures that the blueprint JSON file is correctly formatted and adheres to the MCM schema. Settings validation, on the other hand, ensures that the actual, stored settings values are valid and respect the constraints defined in the blueprint.
+Validation is divided into two main categories: blueprint validation and settings validation. Blueprint validation ensures that the blueprint JSON file is correctly formatted and adheres to the MCM schema. Settings validation, on the other hand, ensures that the actual or to-be-stored settings values are valid and respect the constraints defined in the blueprint.
 
 MCM performs validation checks when:
 
@@ -581,7 +550,7 @@ MCM performs validation checks when:
 
 >• Settings not present in the blueprint will be removed from the settings JSON file;
 >• Invalid settings values will be replaced with their respective default value as specified in the blueprint;
->• New settings are automatically introduced to the settings JSON file when new settings are added to the schema;
+>• New settings are automatically introduced to the settings JSON file when new settings are added to the blueprint;
 > **Therefore, mod authors can safely add or remove settings from the blueprint without worrying about inconsistencies in the settings JSON file.**
 {.is-success}
 
@@ -656,6 +625,6 @@ The demo below showcases the different types of config options that can be used 
 
 ## Closing words
 
-I hope this documentation has provided you with a clear understanding of how to integrate MCM into your mod. If you have any suggestions or encountered any points of confusion or errors, no matter how small or mundane, please let me know [on the Nexus page](https://www.nexusmods.com/baldursgate3/mods/9162) or on Discord ([BG3MC](https://discord.com/invite/bg3mods)). I'm keen on ensuring MCM has excellent design and documentation. I also hope MCM enhances your development experience and provides a better experience for your users!
+I hope this documentation has provided you with a clear understanding of how to integrate MCM into your mod. If you have any suggestions or encountered any points of confusion or errors, no matter how small or mundane, please let me know [on the Nexus page](https://www.nexusmods.com/baldursgate3/mods/9162) or on Discord ([BG3MC](https://discord.com/invite/bg3mods)). I'm keen on ensuring MCM has excellent design and documentation. I also hope MCM enhances not only your development experience but also provides a better experience for your users too!
 
 I'd like to thank the community again for their support and feedback, as well as the mod authors who have integrated MCM into their mods. It's been awesome to see what you've been building with it so far.
