@@ -1,36 +1,37 @@
-# Mod Configuration Menu
+# Mod Configuration Menu documentation
 
 Baldur's Gate 3 Mod Configuration Menu (`BG3MCM` or MCM) is a mod that provides an in-game UI to enable players to intuitively manage mod settings as defined by mod authors. It supports various setting types, including integers, floats, checkboxes, text inputs, lists, combos/dropdowns, radio buttons, sliders, drags, color pickers and keybindings.
 
 Most importantly, it allows authors to have a robust JSON-like configuration experience without spending hours writing a configuration system, and it's easy enough to integrate that even novice modders can quickly add support for it in their own mods.
 
-This documentation is aimed at mod authors who want to integrate their mods with MCM. If you are a player looking to use MCM to configure mods, please refer to the [Nexus Mods page](https://www.nexusmods.com/baldursgate3/mods/9162 'MCM on Nexus Mods') for instructions. This documentation provides a thorough guide on the concepts behind MCM, the features it provides to mod authors, and how to integrate MCM into your mod. You can also use the table of contents below to navigate to a desired section.
+This documentation is aimed at mod authors who want to integrate their mods with MCM. If you are a player looking to use MCM to configure mods, please refer to the [Nexus Mods page](https://www.nexusmods.com/baldursgate3/mods/9162 'MCM on Nexus Mods') for instructions. This documentation provides a centralized and thorough guide on the concepts behind MCM, the features it provides to mod authors, and how to integrate MCM into your mod. You can also use the table of contents below to navigate to a desired section.
 
 ## Quick-start guide
 
 If you're looking to quickly integrate MCM into your mod, here's the process at a glance:
 
 1. **Create an `MCM_blueprint.json`** file in the same folder as `meta.lsx`
-2. **Add MCM as a dependency** in your mod's `meta.lsx` file or add `"Optional": true` to your blueprint file.
-3. **Replace code** related to settings in your mod with MCM API calls: get settings' values with `MCM.Get("settingId")`
-
+2. **Add MCM as a dependency** in your mod's `meta.lsx` file ([guide here](/en/Tutorials/General/Basic/adding-mod-dependencies)) or add `"Optional": true` to your blueprint file.
+3. **Replace code** related to settings in your mod with MCM API calls: **get settings' values with `MCM.Get("settingId")`.**
+*(MCM adds a global `MCM` table to SE mods providing all [MCM functions that can be used](#mcm-api-functions))*
 
 > It's **recommended to just pick an existing blueprint** from MCM-integrated mods **and adapt it**, such as:
 > [Auto Send Food To Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp/blob/main/Auto%20Send%20Food%20To%20Camp/Mods/AutoSendFoodToCamp/MCM_blueprint.json)
 > [Smart Autosaving](https://github.com/AtilioA/BG3-smart-autosaving/blob/main/Smart%20Autosaving/Mods/SmartAutosaving/MCM_blueprint.json)
 > [MCM demo](#mcm-demo) (as of MCM 1.23)
+An LLM is likely able to adapt them into a different blueprint, especially if you also provide it MCM's [blueprint schema](https://raw.githubusercontent.com/AtilioA/BG3-MCM/refs/heads/main/.vscode/schema.json) for context.
 {.is-success}
 
-That's it for a basic integration! MCM will warn you about mistakes in your blueprint file.
+That's it for a basic integration! MCM will warn you about mistakes in your code or blueprint file.
 The rest of this documentation provides detailed explanations of these steps and advanced features.
 
-> For basic integration, the important sections are [Defining a blueprint](#defining-a-blueprint) and [Using values from MCM](#using-values-from-mcm).
-If you're interested in keybindings, see [Registering a keybinding callback](#registering-a-keybinding-callback).
+> For basic integration, the important sections are *[Defining a blueprint](#defining-a-blueprint)* and *[Using values from MCM](#using-values-from-mcm)*.
+If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybinding)*.
 {.is-success}
 
 ## Table of Contents
 
-- [Mod Configuration Menu](#mod-configuration-menu)
+- [Mod Configuration Menu documentation](#mod-configuration-menu-documentation)
   - [Quick-start guide](#quick-start-guide)
   - [Table of Contents](#table-of-contents)
   - [Features for mod authors](#features-for-mod-authors)
@@ -40,6 +41,9 @@ If you're interested in keybindings, see [Registering a keybinding callback](#re
       - [The MCM Schema](#the-mcm-schema)
         - [IDE support](#ide-support)
         - [Schema main components](#schema-main-components)
+  - [MCM API functions](#mcm-api-functions)
+    - [`keybinding` functions](#keybinding-functions)
+    - [`list_v2` functions](#list_v2-functions)
     - [Using values from MCM](#using-values-from-mcm)
       - [Reducing verbiage](#reducing-verbiage)
     - [Adding a keybinding](#adding-a-keybinding)
@@ -49,10 +53,10 @@ If you're interested in keybindings, see [Registering a keybinding callback](#re
     - [Inserting custom UI elements](#inserting-custom-ui-elements)
     - [Defining lists](#defining-lists)
       - [Inserting Search Results for ListV2 settings](#inserting-search-results-for-listv2-settings)
-    - [Listening to MCM events](#listening-to-mcm-events)
-    - [How validation works](#how-validation-works)
-    - [Localization support](#localization-support)
-    - [TODO: ported IMGUI icons](#todo-ported-imgui-icons)
+  - [Listening to MCM events](#listening-to-mcm-events)
+  - [How validation works](#how-validation-works)
+  - [Localization support](#localization-support)
+  - [TODO: ported IMGUI icons](#todo-ported-imgui-icons)
   - [Notification API](#notification-api)
     - [Features](#features)
     - [Example usage](#example-usage)
@@ -127,6 +131,8 @@ Anything else is a matter of updating objects (if you're storing values in table
 {.is-warning}
 
 ### Defining a blueprint
+
+How does MCM know what settings your mod has? How does it know which ones are numbers, which are checkboxes, what their default values should be, or how to show them nicely in the MCM window?
 
 The `MCM_blueprint.json` file is how you specify your mod's configuration definition; this JSON file will define how your settings are to be structured, what are their name, input type, default, etc., allowing for automatic generation of a user-friendly interface and validation of user-set values.
 
@@ -208,11 +214,40 @@ Future versions of MCM might make this structure less strict, allowing nesting t
 > If your [mod is symlinked](https://wiki.bg3.community/en/Tutorials/ScriptExtender/GettingStarted#h-4-symlinking 'Symlinking mods tutorial'), you can try out changes to your mod's blueprint in-game by using `reset` in the console without having to restart the game every time you make a change to the blueprint file.
 {.is-info}
 
+## MCM API functions
+
+As of version 1.14+, MCM introduces a global `MCM` table (can be called anywhere in your code) that simplifies MCM usage such as access and modification of settings' values. This should be used for any operations with MCM, avoiding usage of `Mods.BG3MCM` internals unless explicitly stated in the documentation.
+
+**Notes**:
+
+- `modUUID?` indicates the parameter is optional and defaults to the current mod's UUID
+- `shouldEmitEvent?` is an optional boolean that defaults to `false`
+
+| Function | Description | Client | Server |
+|----------|-------------|:------:|:------:|
+| `MCM.Get(settingId, modUUID?)` | Gets the value of a setting | ✅ | ✅ |
+| `MCM.Set(settingId, value, modUUID?, shouldEmitEvent?)` | Sets the value of a setting | ✅ | ✅ |
+
+### `keybinding` functions
+
+| Function | Description | Client | Server |
+|----------|-------------|:------:|:------:|
+| `MCM.Keybinding.Get(settingId, modUUID?)` | Gets a human-readable keybinding string, e.g. `"[Caps Lock]"` | ✅ | ❌ |
+| `MCM.Keybinding.GetRaw(settingId, modUUID?)` | Gets raw keybinding data | ✅ | ❌ |
+| `MCM.Keybinding.SetCallback(settingId, callback, modUUID?)` | Sets a callback for the associated keybinding | ✅ | ❌ |
+
+### `list_v2` functions
+
+| Function | Description | Client | Server |
+|----------|-------------|:------:|:------:|
+| `MCM.List.GetEnabled(listSettingId, modUUID?)` | Gets a table of enabled items in a list | ✅ | ✅ |
+| `MCM.List.GetRaw(listSettingId, modUUID?)` | Gets raw list setting data | ✅ | ✅ |
+| `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Checks if a specific item is enabled in a list | ✅ | ✅ |
+| `MCM.List.SetEnabled(listSettingId, itemName, enabled, modUUID?, shouldEmitEvent?)` | Sets the enabled state of a list item | ✅ | ✅ |
 
 ### Using values from MCM
 
-After setting up the blueprint, mod authors can access the values set by the player through the MCM API from anywhere in their mod's code.
-As of version 1.14+, MCM introduces a global `MCM` table that simplifies access and modification of values. This should be used for almost all operations, avoiding usage of `Mods.BG3MCM` internals unless explicitly stated in the documentation.
+Mod authors can access the values set by the player through the MCM API from anywhere in their mod's code.
 
 ```lua
   -- Get the value of a setting with the ID "MySetting"
@@ -221,7 +256,7 @@ As of version 1.14+, MCM introduces a global `MCM` table that simplifies access 
   MCM.Set("MySetting", newValue)
 ```
 
-You can also listen to changes to settings values by listening to mod events like this (more on this below):
+You can also listen to changes to settings values by listening to mod events like this (more on *[Listening to MCM events](#listening-to-mcm-events)*):
 
 ```lua
 -- In your MCM-integrated mod's code
@@ -273,6 +308,22 @@ Otherwise, prepend `Mods.BG3MCM` to all function calls.
 
 MCM 1.19 introduces built-in support for keybinding management, allowing mods to define and register hotkeys with ease. This system provides a familiar interface for users to customize keybindings while handling conflicts automatically.
 
+If you wanted to add a hotkey to your mod without a system like MCM, you'd have to:
+
+- Store and load the player's chosen key combination (e.g., CTRL + J) somewhere (like a file).
+- Write code to listen for key presses in the game.
+- Every time a key is pressed, check if it matches the player's saved combination, then run your mod's action.
+- Optionally build a UI element where the player can view and set the key combination.
+- Deal with potential conflicts if another mod uses the same combination, and generally a **ton** of other edge cases not considered here.
+
+This is a lot of work and prone to errors! MCM solves this by:
+
+- Providing a standardized way for your mod to declare it has a keybinding action in its MCM blueprint.
+- Providing a simple way for your mod to register the Lua function (*callback*) that should run when the hotkey is pressed.
+- Handling all the low-level work: loading and saving keybinding preferences, UI creation, listening for input, checking against registered keybindings, detecting conflicts, and calling the correct callback function in your mod.
+
+Essentially, you define what your hotkey action is and what code runs, and the MCM handles how it's triggered by player input and managed in the UI.
+
 #### Defining a keybinding
 
 To define a keybinding, add it as a `keybinding_v2` setting anywhere in your mod's blueprint file. Below is an example of transitioning from the old format to the new `keybinding_v2` format:
@@ -315,7 +366,7 @@ After (keybinding_v2 format):
 }
 ```
 
-MCM also provides additional options to control how a keybinding behaves. These options can be set within the Options object when defining a keybinding in the blueprint file.
+MCM also provides additional options to control how a keybinding behaves. These options can be set within the `Options` object when defining a keybinding in the blueprint file.
 
 Available `Options`:
 
@@ -333,10 +384,10 @@ These options are not mutually exclusive, meaning authors can use any combinatio
 
 Keybindings must be registered in the client context, as user input is inherently client-sided. You only need a basic client-code setup; you can read more about it [in this guide](/Tutorials/ScriptExtender/Networking-ClientServerBasics).
 
-To define what happens when a keybinding is triggered, register a callback using the `MCM.SetKeybindingCallback` function available in the client context:
+To define what happens when a keybinding is triggered, register a callback using the `MCM.Keybinding.SetCallback` function available in the client context:
 
 ```lua
-MCM.SetKeybindingCallback('key_teleport_party_to_you', function(e)
+MCM.Keybinding.SetCallback('key_teleport_party_to_you', function(e)
     Ext.Net.PostMessageToServer("FS_TeleportPartyToYou", Ext.Json.Stringify({ skipChecks = false }))
 end)
 ```
@@ -359,7 +410,7 @@ This is a basic interaction between server and client that is often necessary wh
 This system provides mod authors with the flexibility to decide how their keybindings should function while ensuring ease of integration.
 
 ### Inserting custom UI elements
->
+
 >Note that these methods are only available in the client context. They cannot be executed from server-side code, since UI-related functionality is strictly handled on the client side. If you're trying them out with the console, run `client` before executing these methods.
 >{.is-info}
 
@@ -383,12 +434,16 @@ This will create a new tab or insert the content at the end of an existing one.
 
 ### Defining lists
 
-MCM 1.17 introduced `list_v2` to supersede the now deprecated `list` input type. It offers better UI and ergonomics, with  more granular control over lists and their elements.
+MCM 1.17 introduced `list_v2` to supersede the now deprecated `list` input type. It offers better UI and ergonomics, with more granular control over lists and their elements.
 
 > MCM will automatically migrate players' old `list` values to `list_v2` if the setting ID remains the same.
 > {.is-success}
 
+`MCM.List` contains useful methods for dealing with `list_v2` settings.
+
 #### Inserting Search Results for ListV2 settings
+
+NOTE: this will be added to the `MCM.List` table in a future update.
 
 The `InsertListV2SearchResults` method in the `IMGUIAPI` allows mod authors to insert suggestions/'search results' into a `list_v2` setting. This is particularly useful for providing users with dynamic suggestions based on their input as they type in the add input field of the setting.
 
@@ -406,7 +461,7 @@ Mods.BG3MCM.IMGUIAPI:InsertListV2SearchResults("1c132ec4-4cd2-4c40-aeb9-ff6ee046
 
 All searches on MCM use fuzzy matching.
 
-### Listening to MCM events
+## Listening to MCM events
 
 > • With the introduction of `ModEvents` in SE v18, the previous method for listening to MCM events was deprecated. MCM will maintain backward compatibility with the net message method for the time being.
 > • Prior to version 1.11, mod events were handled using a workaround that relied on net messages, which were originally designed for communication within a single mod. That approach was necessary due to the absence of a dedicated mod event system in SE at that time.
@@ -511,7 +566,7 @@ Here are the events that can be listened to:
 
 For the most up-to-date information, please refer to this file in the Git repository: [EventChannels.lua](https://github.com/AtilioA/BG3-MCM/blob/main/Mod%20Configuration%20Menu/Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/Events/EventChannels.lua)
 
-### How validation works
+## How validation works
 
 Validation is divided into two main categories: blueprint validation and settings validation. Blueprint validation ensures that the blueprint JSON file is correctly formatted and adheres to the MCM schema. Settings validation, on the other hand, ensures that the actual, stored settings values are valid and respect the constraints defined in the blueprint.
 
@@ -530,7 +585,7 @@ MCM performs validation checks when:
 > **Therefore, mod authors can safely add or remove settings from the blueprint without worrying about inconsistencies in the settings JSON file.**
 {.is-success}
 
-### Localization support
+## Localization support
 
 In your blueprint, you can optionally define localization handles for various elements of the configuration, including:
 
@@ -558,7 +613,7 @@ This is achieved through the use of "handles" - unique identifiers that can be u
 
 The [BG3 Mod Helper](https://marketplace.visualstudio.com/items?itemName=ghostboats.bg3-mod-helper) extension can help you create localization files and mass replace strings with handles conveniently added to your localization files.
 
-### TODO: ported IMGUI icons
+## TODO: ported IMGUI icons
 
 --
 
