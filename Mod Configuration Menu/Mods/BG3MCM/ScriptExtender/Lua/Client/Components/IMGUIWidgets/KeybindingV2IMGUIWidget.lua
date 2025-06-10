@@ -220,16 +220,19 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             local nameCell = row:AddCell()
             local nameText = nameCell:AddText(action.ActionName)
             nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
-            local descriptionText = nameCell:AddText(VCString:ReplaceBrWithNewlines(action.Description))
-            nameText.TextWrapPos = 0
-            descriptionText.TextWrapPos = 0
-            nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
-            descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
+
+            if action.Description and action.Description ~= "" then
+                local descriptionText = nameCell:AddText(VCString:ReplaceBrWithNewlines(action.Description))
+                nameText.TextWrapPos = 0
+                descriptionText.TextWrapPos = 0
+                nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
+                descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
+            end
+
             MCMRendering:AddTooltip(nameText,
                 VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
                 mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
-
-
+                
             -- Keybinding cell.
             local kbCell = row:AddCell()
             local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
@@ -511,13 +514,24 @@ end
 ---@param currentActionId string The ID of the current action (to skip)
 ---@return table|nil Conflicting action if found, nil otherwise
 function KeybindingV2IMGUIWidget:CheckActionForConflict(keybinding, action, actionId, currentActionId)
-    if actionId == currentActionId or not action.keyboardBinding or action.keyboardBinding == "" then
+    local function isEmptyBinding(binding)
+        if binding == nil or binding == "" or binding == UNASSIGNED_KEYBOARD_MOUSE_STRING then
+            return true
+        end
+        if type(binding) == "table" then
+            -- Accept tables with no key or empty key as empty
+            if not binding.Key or binding.Key == "" then
+                return true
+            end
+        end
+        return false
+    end
+
+    if actionId == currentActionId or isEmptyBinding(action.keyboardBinding) then
         return nil
     end
 
-    if keybinding == nil or action.keyboardBinding == nil or
-        keybinding == UNASSIGNED_KEYBOARD_MOUSE_STRING or
-        action.keyboardBinding == UNASSIGNED_KEYBOARD_MOUSE_STRING then
+    if isEmptyBinding(keybinding) then
         return nil
     end
 
