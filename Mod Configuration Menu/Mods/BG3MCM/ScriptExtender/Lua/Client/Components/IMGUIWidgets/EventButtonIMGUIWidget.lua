@@ -194,6 +194,15 @@ function EventButtonIMGUIWidget:TriggerCallback()
         settingId = settingId,
     })
 
+    -- Permanent disable when Cooldown == -1 (disable until reload/reset)
+    local options = self.Widget.Setting:GetOptions()
+    if options and options.Cooldown == -1 then
+        self.Widget.Button.Disabled = true
+        MCMRendering:AddTooltip(self.Widget.Button,
+            "Action disabled until reload/reset", modUUID)
+        return
+    end
+
     -- Check if a callback has been registered
     if reg[modUUID] and reg[modUUID][settingId] then
         local callbackEntry = reg[modUUID][settingId]
