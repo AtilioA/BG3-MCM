@@ -170,8 +170,81 @@
             "required": [
                 "Id",
                 "Name",
-                "Type",
-                "Default"
+                "Type"
+            ],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "Type": {
+                                "const": "event_button"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "Default": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "array"
+                                    }
+                                ],
+                                "description": "The default value is optional for event_button. It will not be required when the setting is an event_button."
+                            }
+                        }
+                    },
+                    "else": {
+                        "required": [
+                            "Default"
+                        ],
+                        "properties": {
+                            "Default": {
+                                "anyOf": [
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "array"
+                                    }
+                                ],
+                                "description": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid."
+                            }
+                        }
+                    }
+                }
             ],
             "anyOf": [
                 {
@@ -261,6 +334,10 @@
                         {
                             "const": "keybinding_v2",
                             "description": "A keybinding/hotkey input, consisting of optional modifiers and a key, and listed in the 'Hotkeys' section of MCM. Replaces the deprecated 'keybinding' type. Remember to inject the hotkey functionality in your mod via the MCM API, otherwise the hotkeys will not do anything."
+                        },
+                        {
+                            "const": "event_button",
+                            "description": "A button that executes a Lua function when clicked. The callback must be defined in the mod's code during runtime."
                         }
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
@@ -303,8 +380,49 @@
                 },
                 "Options": {
                     "type": "object",
-                    "properties": {},
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
+                    "properties": {
+                        "ConfirmDialog": {
+                            "type": "object",
+                            "properties": {
+                                "Title": {
+                                    "type": "string",
+                                    "description": "Title of the confirmation dialog"
+                                },
+                                "Message": {
+                                    "type": "string",
+                                    "description": "Message to display in the confirmation dialog"
+                                },
+                                "ConfirmText": {
+                                    "type": "string",
+                                    "description": "Text for the confirm button",
+                                    "default": "Confirm"
+                                },
+                                "CancelText": {
+                                    "type": "string",
+                                    "description": "Text for the cancel button",
+                                    "default": "Cancel"
+                                }
+                            },
+                            "required": [
+                                "Title",
+                                "Message"
+                            ],
+                            "description": "Configuration for the confirmation dialog that appears when the button is clicked. If not provided, no confirmation will be shown."
+                        },
+                        "Cooldown": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "minimum": -1,
+                            "description": "Cooldown duration in seconds before the button can be clicked again. -1 means infinite cooldown. 0 or undefined means no cooldown."
+                        },
+                        "Icon": {
+                            "type": "string",
+                            "description": "Name of the icon to display on the button. Must be a valid icon name from the game's icon set."
+                        }
+                    },
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). For event_button type, can include ConfirmDialog, Cooldown, and Icon."
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -1032,6 +1150,22 @@
                         "ShouldTriggerOnKeyDown": true,
                         "ShouldTriggerOnKeyUp": false,
                         "ShouldTriggerOnRepeat": false
+                    }
+                },
+                {
+                    "Id": "EventButtonExample",
+                    "Name": "Event Button Example",
+                    "Type": "event_button",
+                    "Description": "Click this button to trigger an action in the mod.",
+                    "Options": {
+                        "ConfirmDialog": {
+                            "Title": "Confirm Action",
+                            "Message": "Are you sure you want to perform this action?",
+                            "ConfirmText": "Yes, do it",
+                            "CancelText": "No, cancel"
+                        },
+                        "Cooldown": 5,
+                        "Icon": "Action_Jump"
                     }
                 }
             ]
