@@ -120,6 +120,33 @@ function EventButtonIMGUIWidget:HandleButtonClick()
     local wrappedCallback = function()
         local callbackSuccess = self:TriggerCallback()
 
+        -- Clear previous press feedback
+        if self._actionFeedbackLabel then
+            self._actionFeedbackLabel:Destroy()
+            self._actionFeedbackLabel = nil
+        end
+
+        -- Show success or error feedback
+        if callbackSuccess then
+            local label = self.Widget.CooldownGroup:AddText("Action executed!")
+            label.SameLine = false
+            label:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
+            self._actionFeedbackLabel = label
+            Ext.Timer.WaitFor(5000, function()
+                if self._actionFeedbackLabel then
+                    self._actionFeedbackLabel:Destroy()
+                    self._actionFeedbackLabel = nil
+                end
+            end)
+        else
+            local author = Ext.Mod.GetMod(self.Widget.ModUUID).Info.Author
+            local label = self.Widget.CooldownGroup:AddText(
+                "Button errored. Please contact " .. author .. " about this")
+            label.SameLine = false
+            label:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1))
+            self._actionFeedbackLabel = label
+        end
+
         -- start cooldown if configured
         if callbackSuccess and cooldown and cooldown > 0 then
             local button = self.Widget.Button
@@ -199,7 +226,7 @@ function EventButtonIMGUIWidget:TriggerCallback()
     local options = self.Widget.Setting:GetOptions()
     if options and options.Cooldown == -1 then
         self:DisableButton(self.Widget.Button, "Action disabled until reload/reset")
-        return
+        return true
     end
 
     -- Check if a callback has been registered
