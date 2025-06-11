@@ -1,4 +1,4 @@
----@class MessageBoxMode
+---@enum MessageBoxMode
 MessageBoxMode = {
     Ok = "ok",
     OkCancel = "okcancel",
@@ -95,7 +95,7 @@ function MessageBox:Show(parentGroup)
     end
 
     self.PopupDialog = group:AddPopup(self.ContextId .. "_Popup")
-    self.PopupDialog:SetSizeConstraints({600,600})
+    self.PopupDialog:SetSizeConstraints({ 600, 600 })
     self.PopupDialog.IDContext = self.ModUUID .. "_" .. self.ContextId
 
     -- Add title text
@@ -105,14 +105,13 @@ function MessageBox:Show(parentGroup)
 
     -- Add separator
     self.PopupDialog:AddSeparator()
-    self.PopupDialog:AddDummy(0, 5)
 
     -- Add message text
     local messageText = self.PopupDialog:AddText(self.Message)
     messageText:SetColor("Text", Color.NormalizedRGBA(200, 200, 200, 0.9))
     messageText.TextWrapPos = 0
 
-    self.PopupDialog:AddDummy(0, 10)
+    self.PopupDialog:AddDummy(0, 5)
 
     -- Add buttons based on mode
     if self.Mode == MessageBoxMode.Ok then
@@ -138,7 +137,7 @@ end
 ---Adds an OK button to the popup
 ---@return any The button object
 function MessageBox:AddOkButton()
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("OK") or "OK")
+    local button = self.PopupDialog:AddButton("OK")
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_OkButton"
     button.OnClick = function()
         if self.OkCallback then
@@ -153,7 +152,7 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddCancelButton(sameLine)
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("Cancel") or "Cancel")
+    local button = self.PopupDialog:AddButton("Cancel")
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_CancelButton"
     if sameLine then
         button.SameLine = true
