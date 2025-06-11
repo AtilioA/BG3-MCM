@@ -1,6 +1,9 @@
 ---@class EventButtonIMGUIWidget: IMGUIWidget
 EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget)
 
+-- Rx subject for callback events
+local RX = { Subject = Ext.Require("Lib/reactivex/subjects/subject.lua") }
+
 function EventButtonIMGUIWidget:GetButtonLabel()
     local setting = self.Widget.Setting
     local options = setting:GetOptions() or {}
@@ -103,11 +106,14 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
         self:HandleButtonClick()
     end
 
+    -- Initialize action handlers
+    self:InitActionStream()
+
     -- Register for callbacks via RX when widget is created
     -- This allows for callbacks to be registered even if the button hasn't been created yet
-    self:RegisterCallback()
+    self:RegisterCallbackSub()
 
-    -- Initialize button enabled state based on current registry.
+    -- Initialize button enabled state based on current registry
     self:UpdateButtonState(EventButtonRegistry.GetRegistry())
 end
 
@@ -119,63 +125,9 @@ function EventButtonIMGUIWidget:HandleButtonClick()
 
     local wrappedCallback = function()
         local callbackSuccess = self:TriggerCallback()
-
-        -- Clear previous press feedback
-        if self._actionFeedbackLabel then
-            self._actionFeedbackLabel:Destroy()
-            self._actionFeedbackLabel = nil
-        end
-
-        -- Show success or error feedback
-        if callbackSuccess then
-            local label = self.Widget.CooldownGroup:AddText("Action executed!")
-            label.SameLine = false
-            label:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
-            self._actionFeedbackLabel = label
-            Ext.Timer.WaitFor(5000, function()
-                if self._actionFeedbackLabel then
-                    self._actionFeedbackLabel:Destroy()
-                    self._actionFeedbackLabel = nil
-                end
-            end)
-        else
-            local author = Ext.Mod.GetMod(self.Widget.ModUUID).Info.Author
-            local label = self.Widget.CooldownGroup:AddText(
-                "Button errored. Please contact " .. author .. " about this")
-            label.SameLine = false
-            label:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1))
-            self._actionFeedbackLabel = label
-        end
-
-        -- start cooldown if configured
-        if callbackSuccess and cooldown and cooldown > 0 then
-            local button = self.Widget.Button
-            local countdownText = self.Widget.CooldownGroup:AddText("")
-            countdownText.SameLine = false
-            -- local cooldownTooltip = MCMRendering:AddTooltip(self.Widget.Button, "This button has a cooldown of " .. cooldown .. " seconds.",
-            -- self.Widget.ModUUID)
-
-            local function onTick(el, remaining)
-                if not el then
-                    MCMError(0, "Cooldown timer ticked on nil element")
-                    return true
-                end
-                el.Disabled = true
-                if countdownText then countdownText.Label = "Cooldown: " .. remaining .. "s" end
-
-                return false
-            end
-            local function onComplete(el)
-                if not el then
-                    MCMError(0, "Cooldown timer completed on nil element")
-                    return
-                end
-                el.Disabled = false
-
-                if countdownText then countdownText:Destroy() end
-                -- -- if cooldownTooltip then cooldownTooltip:Destroy() end
-            end
-            CooldownHelper:StartCooldown(button, cooldown, onTick, onComplete)
+        local cooldown = options.Cooldown
+        if self._actionSubject then
+            self._actionSubject:OnNext({ success = callbackSuccess, cooldown = cooldown })
         end
     end
 
@@ -303,7 +255,7 @@ function EventButtonIMGUIWidget:EnableButton(button)
     end
 end
 
-function EventButtonIMGUIWidget:RegisterCallback()
+function EventButtonIMGUIWidget:RegisterCallbackSub()
     -- Subscribe to registry updates so we know when a callback becomes available or is removed.
     if self._registrySubscription then return end
     local ok, sub = pcall(function()
@@ -322,6 +274,11 @@ function EventButtonIMGUIWidget:UpdateCurrentValue(value)
 end
 
 function EventButtonIMGUIWidget:Destroy()
+    -- Unsubscribe action event stream
+    if self._actionSubscription then
+        self._actionSubscription:Unsubscribe()
+        self._actionSubscription = nil
+    end
     if self._registrySubscription then
         self._registrySubscription:Unsubscribe()
         self._registrySubscription = nil
@@ -329,6 +286,62 @@ function EventButtonIMGUIWidget:Destroy()
 
     if self.Widget and self.Widget.Group then
         self.Widget.Group:Destroy()
+    end
+end
+
+function EventButtonIMGUIWidget:InitActionStream()
+    self._actionSubject = RX.Subject.Create()
+    self._actionSubscription = self._actionSubject:Subscribe(function(event)
+        self:_HandleActionFeedback(event)
+        self:_HandleActionCooldown(event)
+    end)
+end
+
+---@private
+function EventButtonIMGUIWidget:_HandleActionFeedback(event)
+    -- Clear previous press feedback
+    if self._actionFeedbackLabel then
+        self._actionFeedbackLabel:Destroy()
+        self._actionFeedbackLabel = nil
+    end
+    -- Show success or error feedback
+    if event.success then
+        local label = self.Widget.CooldownGroup:AddText("Action executed!")
+        label.SameLine = false
+        label:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
+        self._actionFeedbackLabel = label
+        Ext.Timer.WaitFor(5000, function()
+            if self._actionFeedbackLabel then
+                self._actionFeedbackLabel:Destroy()
+                self._actionFeedbackLabel = nil
+            end
+        end)
+    else
+        local author = Ext.Mod.GetMod(self.Widget.ModUUID).Info.Author
+        local label = self.Widget.CooldownGroup:AddText("Button errored. Please contact " .. author)
+        label.SameLine = false
+        label:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1))
+        self._actionFeedbackLabel = label
+    end
+end
+
+---@private
+function EventButtonIMGUIWidget:_HandleActionCooldown(event)
+    -- Start cooldown if configured
+    if event.success and event.cooldown and event.cooldown > 0 then
+        local button = self.Widget.Button
+        local countdownText = self.Widget.CooldownGroup:AddText("")
+        countdownText.SameLine = false
+        local function onTick(el, remaining)
+            el.Disabled = true
+            if countdownText then countdownText.Label = "Cooldown: " .. remaining .. "s" end
+            return false
+        end
+        local function onComplete(el)
+            el.Disabled = false
+            if countdownText then countdownText:Destroy() end
+        end
+        CooldownHelper:StartCooldown(button, event.cooldown, onTick, onComplete)
     end
 end
 
