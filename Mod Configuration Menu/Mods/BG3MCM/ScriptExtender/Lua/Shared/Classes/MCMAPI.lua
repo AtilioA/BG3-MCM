@@ -202,27 +202,40 @@ function MCMAPI:GetSettingsIDs(modSettingsTable)
     return settingIDs
 end
 
--- TODO: add debouncing to this function
+-- Uses debouncing to avoid spamming warnings for the same missing setting
 --- Handle the case when a setting is missing
 ---@param settingId string The id of the setting
 ---@param modSettingsTable table The mod settings table
 ---@param modUUID string The UUID of the mod
 function MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modUUID)
-    local modInfo = Ext.Mod.GetMod(modUUID).Info
-    local closestMatch, distance = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable), false)
-    if closestMatch and distance < 8 then
-        MCMWarn(0,
-            "Setting '" ..
-            settingId ..
-            "' not found for mod '" ..
-            modInfo.Name ..
-            "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
-    else
-        MCMWarn(0,
-            "Setting '" ..
-            settingId ..
-            "' not found for mod '" .. modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
+    -- Create a debounced warning function (500ms delay)
+    if not self._debouncedWarnings then
+        self._debouncedWarnings = {}
     end
+
+    local warningKey = modUUID .. "_" .. settingId
+    if not self._debouncedWarnings[warningKey] then
+        self._debouncedWarnings[warningKey] = VCTimer:Debounce(500, function()
+            local modInfo = Ext.Mod.GetMod(modUUID).Info
+            local closestMatch, distance = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable), false)
+            if closestMatch and distance < 8 then
+                MCMWarn(0,
+                    "Setting '" ..
+                    settingId ..
+                    "' not found for mod '" ..
+                    modInfo.Name ..
+                    "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
+            else
+                MCMWarn(0,
+                    "Setting '" ..
+                    settingId ..
+                    "' not found for mod '" .. modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
+            end
+        end)
+    end
+
+    -- Call the debounced function
+    self._debouncedWarnings[warningKey]()
 end
 
 --- Set the value of a configuration setting
