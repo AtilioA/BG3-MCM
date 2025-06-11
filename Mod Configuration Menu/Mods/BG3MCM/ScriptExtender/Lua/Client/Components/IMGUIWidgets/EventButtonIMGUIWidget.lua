@@ -94,15 +94,16 @@ function EventButtonIMGUIWidget:HandleButtonClick()
             message = confirmOptions
         end
 
-        -- Show confirmation dialog
-        local dialog = MessageBox:Create(title, message, MessageBoxMode.OkCancel, self.Widget.ModUUID,
-            self.Widget.ModUUID .. "_" .. setting:GetId() .. "_Confirm")
-        dialog:SetOkCallback(function()
-            self:TriggerCallback()
-        end)
-        dialog:SetCancelCallback(function()
-            -- Do nothing on cancel
-        end)
+        -- Show confirmation dialog via service
+        local dialog = DialogService:Confirm(
+            self.Widget.ModUUID,
+            setting:GetId() .. "_Confirm",
+            self.Widget.Group,
+            title,
+            message,
+            function() self:TriggerCallback() end,
+            function() end
+        )
         dialog:Show(self.Widget.Group)
     else
         -- No confirmation needed, trigger callback immediately
