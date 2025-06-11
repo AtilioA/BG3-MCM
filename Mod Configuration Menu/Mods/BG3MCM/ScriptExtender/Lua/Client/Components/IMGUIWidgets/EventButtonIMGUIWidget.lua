@@ -85,9 +85,6 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     local tooltip = setting:GetTooltip()
     if tooltip and tooltip ~= "" then
         MCMRendering:AddTooltip(self.Widget.Button, tooltip, modUUID)
-        MCMRendering:AddTooltip(self.Widget.Button,
-            "No callback registered for event_button '" .. self.Widget.Setting:GetId() .. "'",
-            modUUID)
     end
 
     -- Set the click callback for the button
@@ -221,15 +218,27 @@ function EventButtonIMGUIWidget:UpdateButtonState(registry)
         and registry[modUUID][settingId]
         and type(registry[modUUID][settingId].eventButtonCallback) == "function"
 
-    -- Enable the button only if a callback was registered.
-    if not callbackExists then
+    -- Manage enable/disable and tooltip
+    if callbackExists then
+        self.Widget.Button.Disabled = false
+        if self._noCallbackTooltip then
+            self._noCallbackTooltip:Destroy()
+            self._noCallbackTooltip = nil
+        end
+    else
         self.Widget.Button.Disabled = true
+        if not self._noCallbackTooltip then
+            self._noCallbackTooltip = MCMRendering:AddTooltip(
+                self.Widget.Button,
+                "No callback registered for event_button '" .. settingId .. "'",
+                modUUID
+            )
+        end
     end
 
     -- Optional: grey out text if disabled for clearer UX
     if self.Widget.Button.SetColor then
         if callbackExists then
-            -- Reset to default colours (using explicit colour values to avoid relying on defaults)
             self.Widget.Button:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
         else
             self.Widget.Button:SetColor("Text", Color.NormalizedRGBA(128, 128, 128, 1))
