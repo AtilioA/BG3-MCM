@@ -343,6 +343,22 @@
                     "SectionName": "Debug settings",
                     "Settings": [
                         {
+                            "Id": "EventButtonExample",
+                            "Name": "Event Button Example",
+                            "Type": "event_button",
+                            "Description": "Click this button to trigger an action in the mod.",
+                            "Options": {
+                                "ConfirmDialog": {
+                                    "Title": "Confirm Action",
+                                    "Message": "Are you sure you want to perform this action?",
+                                    "ConfirmText": "Yes, do it",
+                                    "CancelText": "No, cancel"
+                                },
+                                "Cooldown": 5,
+                                "Icon": "Action_Jump"
+                            }
+                        },
+                        {
                             "Id": "debug_level",
                             "Name": "Debug level",
                             "Type": "slider_int",
