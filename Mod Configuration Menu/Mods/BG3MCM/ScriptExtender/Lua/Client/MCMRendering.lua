@@ -644,15 +644,25 @@ function MCMRendering:AddTooltip(imguiObject, tooltipText, uuid)
         MCMWarn(1, "Tried to add a tooltip to an object with no tooltip support")
         return nil
     end
+    
+    local success, imguiObjectTooltip = xpcall(function()
+        local tt = imguiObject:Tooltip()
+        tt.IDContext = uuid .. "_TOOLTIP"
+        local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods(tooltipText))
+        tt:AddText(preprocessedTooltip)
+        tt:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
+        tt:SetStyle("WindowPadding", 15, 15)
+        tt:SetStyle("PopupBorderSize", 2)
+        tt:SetColor("BorderShadow", { 0, 0, 0, 0.4 })
+        return tt
+    end, function(err)
+        MCMError(1, "Error creating tooltip: " .. tostring(err))
+        return nil
+    end)
 
-    local imguiObjectTooltip = imguiObject:Tooltip()
-    imguiObjectTooltip.IDContext = uuid .. "_TOOLTIP"
-    local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods(tooltipText))
-    imguiObjectTooltip:AddText(preprocessedTooltip)
-    imguiObjectTooltip:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
-    imguiObjectTooltip:SetStyle("WindowPadding", 15, 15)
-    imguiObjectTooltip:SetStyle("PopupBorderSize", 2)
-    imguiObjectTooltip:SetColor("BorderShadow", { 0, 0, 0, 0.4 })
+    if not success then
+        imguiObjectTooltip = nil
+    end
 
     return imguiObjectTooltip
 end
