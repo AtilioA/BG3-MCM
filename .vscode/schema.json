@@ -418,11 +418,42 @@
                             "description": "Cooldown duration in seconds before the button can be clicked again. -1 means infinite cooldown. 0 or undefined means no cooldown."
                         },
                         "Icon": {
+                            "type": "object",
+                            "properties": {
+                                "Name": {
+                                    "type": "string",
+                                    "description": "Name of the icon to display on the button. Must be a valid icon name from the game's icon set."
+                                },
+                                "Size": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Width": {
+                                            "type": "number",
+                                            "description": "Width of the icon in pixels."
+                                        },
+                                        "Height": {
+                                            "type": "number",
+                                            "description": "Height of the icon in pixels."
+                                        }
+                                    },
+                                    "required": [
+                                        "Width",
+                                        "Height"
+                                    ],
+                                    "description": "Size of the icon in pixels."
+                                }
+                            },
+                            "required": [
+                                "Name"
+                            ],
+                            "description": "Icon configuration for the event_button, including Name and optional Size."
+                        },
+                        "Label": {
                             "type": "string",
-                            "description": "Name of the icon to display on the button. Must be a valid icon name from the game's icon set."
+                            "description": "Label for the button. Will be localized if a handle is provided."
                         }
                     },
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). For event_button type, can include ConfirmDialog, Cooldown, and Icon."
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). For event_button type, can include ConfirmDialog, Cooldown, Icon, and Label."
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -1165,7 +1196,13 @@
                             "CancelText": "No, cancel"
                         },
                         "Cooldown": 5,
-                        "Icon": "Action_Jump"
+                        "Icon": {
+                            "Name": "Action_Jump",
+                            "Size": {
+                                "Width": 20,
+                                "Height": 20
+                            }
+                        }
                     }
                 }
             ]

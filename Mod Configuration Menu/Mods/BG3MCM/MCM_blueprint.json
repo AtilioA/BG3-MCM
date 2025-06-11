@@ -355,7 +355,9 @@
                                     "CancelText": "No, cancel"
                                 },
                                 "Cooldown": 2,
-                                "Icon": "Skill_Fighter_ActionSurge",
+                                "Icon": {
+                                    "Name": "Skill_Fighter_ActionSurge"
+                                },
                                 "Label": "Fallback Button"
                             },
                             "Tooltip": "Click this button and see a confirmation dialog."

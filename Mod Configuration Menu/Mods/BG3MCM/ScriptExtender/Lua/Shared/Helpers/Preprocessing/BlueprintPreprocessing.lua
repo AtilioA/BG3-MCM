@@ -343,21 +343,37 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
     if options.Cooldown ~= nil then
         if type(options.Cooldown) ~= "number" then
             MCMWarn(0,
-                "Options.Cooldown for event_button setting '" ..
-                settingId .. "' must be a number. " ..
+                "Options.Cooldown for event_button setting '" .. settingId .. "' must be a number. " ..
                 "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             isValid = false
         end
-        -- Negative cooldown is allowed (will disable the button without re-enabling)
     end
 
     -- Validate Icon if present
-    if options.Icon ~= nil and type(options.Icon) ~= "string" then
-        MCMWarn(0,
-            "Options.Icon for event_button setting '" ..
-            settingId .. "' must be a string. " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        isValid = false
+    if options.Icon ~= nil then
+        if type(options.Icon) ~= "table" then
+            MCMWarn(0,
+                "Options.Icon for event_button setting '" .. settingId .. "' must be an object with a Name field. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+        else
+            if type(options.Icon.Name) ~= "string" or options.Icon.Name == "" then
+                MCMWarn(0,
+                    "Options.Icon.Name for event_button setting '" .. settingId .. "' must be a non-empty string. " ..
+                    "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                isValid = false
+            end
+            if options.Icon.Size ~= nil then
+                if type(options.Icon.Size) ~= "table"
+                   or type(options.Icon.Size.Width) ~= "number"
+                   or type(options.Icon.Size.Height) ~= "number" then
+                    MCMWarn(0,
+                        "Options.Icon.Size for event_button setting '" .. settingId .. "' must be a table with numeric Width and Height fields. " ..
+                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    isValid = false
+                end
+            end
+        end
     end
 
     -- Validate Label if present
@@ -370,24 +386,13 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
         end
     end
 
-    -- Validate Size if present
-    if options.Size ~= nil then
-        if type(options.Size) ~= "table"
-           or type(options.Size.Width) ~= "number"
-           or type(options.Size.Height) ~= "number" then
-            MCMWarn(0,
-                "Options.Size for event_button setting '" .. settingId .. "' must be a table with numeric Width and Height fields. " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            isValid = false
-        end
-    end
-
     -- Validate ConfirmDialog if present
     if options.ConfirmDialog ~= nil then
         if type(options.ConfirmDialog) ~= "table" then
             MCMWarn(0,
                 "Options.ConfirmDialog for event_button setting '" ..
-                settingId .. "' must be a table. " ..
+                settingId ..
+                "' must be a table. " ..
                 "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             isValid = false
         else

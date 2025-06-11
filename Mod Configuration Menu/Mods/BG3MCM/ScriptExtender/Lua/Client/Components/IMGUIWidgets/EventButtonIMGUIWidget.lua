@@ -17,17 +17,17 @@ function EventButtonIMGUIWidget:CreateButton()
     local buttonLabel = self:GetButtonLabel()
     local setting = self.Widget.Setting
     local options = setting:GetOptions() or {}
-    local useIcon = options.Icon and options.Icon ~= ""
+    local useIcon = options.Icon and options.Icon.Name and options.Icon.Name ~= ""
     local buttonContainer = self.Widget.Group
     -- Create either an image button or a regular button
     if useIcon then
         local success, button = xpcall(function()
             local iconSize = IMGUIWidget:GetIconSizes(2)
-            if options.Size then
-                iconSize = { options.Size.Width, options.Size.Height }
+            if options.Icon.Size then
+                iconSize = { options.Icon.Size.Width, options.Icon.Size.Height }
             end
 
-            local btn = buttonContainer:AddImageButton(buttonLabel, options.Icon, iconSize)
+            local btn = buttonContainer:AddImageButton(buttonLabel, options.Icon.Name, iconSize)
 
             if not btn.Image or btn.Image.Icon == "" then
                 btn:Destroy()
@@ -84,7 +84,7 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
 
     -- Get button options from setting
     local options = setting:GetOptions() or {}
-    local useIcon = options.Icon and options.Icon ~= ""
+    local useIcon = options.Icon and options.Icon.Name and options.Icon.Name ~= ""
     local confirmOptions = options.ConfirmDialog
 
     self:CreateButton()
