@@ -41,8 +41,6 @@ function EventButtonIMGUIWidget:CreateButton()
             return buttonContainer:AddButton(buttonLabel)
         end)
 
-        self.Widget.CooldownGroup = buttonContainer:AddGroup("CooldownGroup_" .. setting:GetId())
-
         self.Widget.Button = success and button or nil
 
         -- If xpcall failed but didn't return a button, create a regular button
@@ -53,6 +51,8 @@ function EventButtonIMGUIWidget:CreateButton()
         -- Create a regular button
         self.Widget.Button = buttonContainer:AddButton(buttonLabel)
     end
+
+    self.Widget.CooldownGroup = buttonContainer:AddGroup("CooldownGroup_" .. setting:GetId())
 end
 
 function EventButtonIMGUIWidget:new(group, setting, currentValue, modUUID)

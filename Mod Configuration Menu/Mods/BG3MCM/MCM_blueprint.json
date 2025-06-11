@@ -354,7 +354,7 @@
                                     "ConfirmText": "Yes, do it",
                                     "CancelText": "No, cancel"
                                 },
-                                "Cooldown": 2,
+                                "Cooldown": 5,
                                 "Icon": {
                                     "Name": "Skill_Fighter_ActionSurge"
                                 },
@@ -368,6 +368,7 @@
                             "Type": "event_button",
                             "Description": "Click this button to trigger another action in the mod.",
                             "Options": {
+                                "Cooldown": 5,
                                 "Label": "My Button"
                             }
                         },
