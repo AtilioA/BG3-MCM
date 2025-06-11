@@ -344,7 +344,7 @@
                     "Settings": [
                         {
                             "Id": "EventButtonExample",
-                            "Name": "Event Button Example",
+                            "Name": "Event Button example",
                             "Type": "event_button",
                             "Description": "Click this button to trigger an action in the mod.",
                             "Options": {
@@ -354,8 +354,18 @@
                                     "ConfirmText": "Yes, do it",
                                     "CancelText": "No, cancel"
                                 },
-                                "Cooldown": 0,
+                                "Cooldown": 2,
                                 "Icon": "Action_Jump"
+                            },
+                            "Tooltip": "Click this button and see a confirmation dialog."
+                        },
+                        {
+                            "Id": "EventButtonExample 2",
+                            "Name": "Event Button example 2",
+                            "Type": "event_button",
+                            "Description": "Click this button to trigger another action in the mod.",
+                            "Options": {
+                                "Label": "My Button"
                             }
                         },
                         {
