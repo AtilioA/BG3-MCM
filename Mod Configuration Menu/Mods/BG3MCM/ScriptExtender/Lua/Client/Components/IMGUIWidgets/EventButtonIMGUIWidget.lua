@@ -1,12 +1,56 @@
 ---@class EventButtonIMGUIWidget: IMGUIWidget
 EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget)
 
+function EventButtonIMGUIWidget:GetButtonLabel()
+    local setting = self.Widget.Setting
+    local options = setting:GetOptions() or {}
+
+    local finalLabel = options.Label
+    if not finalLabel or finalLabel == "" then
+        finalLabel = setting:GetLocaName()
+    end
+
+    return finalLabel
+end
+
+function EventButtonIMGUIWidget:CreateButton()
+    local buttonLabel = self:GetButtonLabel()
+    local setting = self.Widget.Setting
+    local options = setting:GetOptions() or {}
+    local useIcon = options.Icon and options.Icon ~= ""
+    local buttonContainer = self.Widget.Group
+    -- Create either an image button or a regular button
+    if useIcon then
+        local success, button = xpcall(function()
+            local btn = buttonContainer:AddImageButton(buttonLabel, options.Icon)
+            return btn
+        end, function(err)
+            -- Fallback to regular button if icon fails to load
+            MCMWarn(0, "Failed to load icon for event_button '" .. setting:GetId() .. "': " .. tostring(err))
+            return buttonContainer:AddButton(buttonLabel)
+        end)
+
+        self.Widget.CooldownGroup = buttonContainer:AddGroup("CooldownGroup_" .. setting:GetId())
+
+        self.Widget.Button = success and button or nil
+
+        -- If xpcall failed but didn't return a button, create a regular button
+        if not self.Widget.Button then
+            self.Widget.Button = buttonContainer:AddButton(buttonLabel)
+        end
+    else
+        -- Create a regular button
+        self.Widget.Button = buttonContainer:AddButton(buttonLabel)
+    end
+end
+
 function EventButtonIMGUIWidget:new(group, setting, currentValue, modUUID)
     local instance = setmetatable({}, { __index = EventButtonIMGUIWidget })
 
     instance.Widget = {
         Group = group,
         Setting = setting,
+        CooldownGroup = nil,
         ModUUID = modUUID,
         Button = nil,
         ButtonCallback = nil,
@@ -32,27 +76,7 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     local useIcon = options.Icon and options.Icon ~= ""
     local confirmOptions = options.ConfirmDialog
 
-    -- Create either an image button or a regular button
-    if useIcon then
-        local success, button = xpcall(function()
-            local btn = buttonContainer:AddImageButton(setting:GetLocaName(), options.Icon)
-            return btn
-        end, function(err)
-            -- Fallback to regular button if icon fails to load
-            MCMWarn(0, "Failed to load icon for event_button '" .. setting:GetId() .. "': " .. tostring(err))
-            return buttonContainer:AddButton(setting:GetLocaName())
-        end)
-
-        self.Widget.Button = success and button or nil
-
-        -- If xpcall failed but didn't return a button, create a regular button
-        if not self.Widget.Button then
-            self.Widget.Button = buttonContainer:AddButton(setting:GetLocaName())
-        end
-    else
-        -- Create a regular button
-        self.Widget.Button = buttonContainer:AddButton(setting:GetLocaName())
-    end
+    self:CreateButton()
 
     -- Set button properties
     self.Widget.Button.IDContext = modUUID .. "_" .. setting:GetId() .. "_EventButton"
@@ -61,6 +85,9 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     local tooltip = setting:GetTooltip()
     if tooltip and tooltip ~= "" then
         MCMRendering:AddTooltip(self.Widget.Button, tooltip, modUUID)
+        MCMRendering:AddTooltip(self.Widget.Button,
+            "No callback registered for event_button '" .. self.Widget.Setting:GetId() .. "'",
+            modUUID)
     end
 
     -- Set the click callback for the button
@@ -80,6 +107,42 @@ function EventButtonIMGUIWidget:HandleButtonClick()
     local setting = self.Widget.Setting
     local options = setting:GetOptions() or {}
     local confirmOptions = options.ConfirmDialog
+    local cooldown = options.Cooldown
+
+    local wrappedCallback = function()
+        local callbackSuccess = self:TriggerCallback()
+
+        -- start cooldown if configured
+        if callbackSuccess and cooldown and cooldown > 0 then
+            local button = self.Widget.Button
+            local countdownText = self.Widget.CooldownGroup:AddText("")
+            countdownText.SameLine = false
+            -- local cooldownTooltip = MCMRendering:AddTooltip(self.Widget.Button, "This button has a cooldown of " .. cooldown .. " seconds.",
+            -- self.Widget.ModUUID)
+
+            local function onTick(el, remaining)
+                if not el then
+                    MCMError(0, "Cooldown timer ticked on nil element")
+                    return true
+                end
+                el.Disabled = true
+                if countdownText then countdownText.Label = "Cooldown: " .. remaining .. "s" end
+
+                return false
+            end
+            local function onComplete(el)
+                if not el then
+                    MCMError(0, "Cooldown timer completed on nil element")
+                    return
+                end
+                el.Disabled = false
+
+                if countdownText then countdownText:Destroy() end
+                -- -- if cooldownTooltip then cooldownTooltip:Destroy() end
+            end
+            CooldownHelper:StartCooldown(button, cooldown, onTick, onComplete)
+        end
+    end
 
     -- If confirmation dialog is configured, show it before triggering the event
     if confirmOptions then
@@ -101,13 +164,13 @@ function EventButtonIMGUIWidget:HandleButtonClick()
             self.Widget.Group,
             title,
             message,
-            function() self:TriggerCallback() end,
+            function() wrappedCallback() end,
             function() end
         )
         dialog:Show(self.Widget.Group)
     else
         -- No confirmation needed, trigger callback immediately
-        self:TriggerCallback()
+        wrappedCallback()
     end
 end
 
@@ -130,14 +193,17 @@ function EventButtonIMGUIWidget:TriggerCallback()
 
         if type(callback) == "function" then
             -- Execute the callback with error handling
-            xpcall(callback, function(err)
+            local success = xpcall(callback, function(err)
                 MCMError(0, "Error executing callback for event_button '" .. settingId .. "': " .. tostring(err))
             end)
+            return success
         else
             MCMDebug(1, "No callback registered for event_button '" .. settingId .. "'")
+            return false
         end
     else
         MCMDebug(1, "No registry entry found for event_button '" .. settingId .. "'")
+        return false
     end
 end
 
@@ -158,9 +224,6 @@ function EventButtonIMGUIWidget:UpdateButtonState(registry)
     -- Enable the button only if a callback was registered.
     if not callbackExists then
         self.Widget.Button.Disabled = true
-        -- TODO: localize
-        MCMRendering:AddTooltip(self.Widget.Button, "No callback registered for event_button '" .. settingId .. "'",
-            modUUID)
     end
 
     -- Optional: grey out text if disabled for clearer UX
