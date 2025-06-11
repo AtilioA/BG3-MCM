@@ -155,7 +155,12 @@ function EventButtonIMGUIWidget:UpdateButtonState(registry)
         and type(registry[modUUID][settingId].eventButtonCallback) == "function"
 
     -- Enable the button only if a callback was registered.
-    self.Widget.Button.Disabled = not callbackExists
+    if not callbackExists then
+        self.Widget.Button.Disabled = true
+        -- TODO: localize
+        MCMRendering:AddTooltip(self.Widget.Button, "No callback registered for event_button '" .. settingId .. "'",
+            modUUID)
+    end
 
     -- Optional: grey out text if disabled for clearer UX
     if self.Widget.Button.SetColor then
