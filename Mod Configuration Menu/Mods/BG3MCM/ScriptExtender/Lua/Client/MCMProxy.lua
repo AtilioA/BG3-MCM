@@ -178,6 +178,12 @@ function MCMProxy:RegisterMCMKeybindings()
         function() IMGUIAPI:CloseMCMWindow(true) end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_sidebar_keybinding",
         function() IMGUIAPI:ToggleMCMSidebar() end)
+    MCMAPI:RegisterEventButtonCallback(ModuleUUID, "EventButtonExample", function()
+        _D("Hello")
+    end)
+    MCMAPI:RegisterEventButtonCallback(ModuleUUID, "EventButtonExample2", function()
+        _D("Hello2")
+    end)
 end
 
 -- Initialize the proxy when the module is loaded
