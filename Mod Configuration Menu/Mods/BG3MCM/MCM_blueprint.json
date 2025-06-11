@@ -368,7 +368,7 @@
                             "Type": "event_button",
                             "Description": "Click this button to trigger another action in the mod.",
                             "Options": {
-                                "Cooldown": 5,
+                                "Cooldown": -1,
                                 "Label": "My Button"
                             }
                         },

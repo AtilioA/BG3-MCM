@@ -195,11 +195,10 @@ function EventButtonIMGUIWidget:TriggerCallback()
     })
 
     -- Permanent disable when Cooldown == -1 (disable until reload/reset)
+    -- TODO: persist disabling button (e.g. with a registry entry), and/or allow API to disable button
     local options = self.Widget.Setting:GetOptions()
     if options and options.Cooldown == -1 then
-        self.Widget.Button.Disabled = true
-        MCMRendering:AddTooltip(self.Widget.Button,
-            "Action disabled until reload/reset", modUUID)
+        self:DisableButton(self.Widget.Button, "Action disabled until reload/reset")
         return
     end
 
@@ -238,31 +237,42 @@ function EventButtonIMGUIWidget:UpdateButtonState(registry)
         and registry[modUUID][settingId]
         and type(registry[modUUID][settingId].eventButtonCallback) == "function"
 
-    -- Manage enable/disable and tooltip
+    -- Manage enable/disable and feedback tooltip
     if callbackExists then
-        self.Widget.Button.Disabled = false
-        if self._noCallbackTooltip then
-            self._noCallbackTooltip:Destroy()
-            self._noCallbackTooltip = nil
-        end
+        self:EnableButton(self.Widget.Button)
     else
-        self.Widget.Button.Disabled = true
-        if not self._noCallbackTooltip then
-            self._noCallbackTooltip = MCMRendering:AddTooltip(
-                self.Widget.Button,
-                "No callback registered for event_button '" .. settingId .. "'",
-                modUUID
-            )
-        end
+        local msg = "No callback registered for event_button '" .. settingId .. "'"
+        self:DisableButton(self.Widget.Button, msg)
     end
+end
 
-    -- Optional: grey out text if disabled for clearer UX
-    if self.Widget.Button.SetColor then
-        if callbackExists then
-            self.Widget.Button:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
-        else
-            self.Widget.Button:SetColor("Text", Color.NormalizedRGBA(128, 128, 128, 1))
-        end
+function EventButtonIMGUIWidget:_ApplyDisabledStyle(button)
+    if button.SetColor then
+        button:SetColor("Text", Color.NormalizedRGBA(128, 128, 128, 1))
+    end
+end
+
+function EventButtonIMGUIWidget:_ApplyEnabledStyle(button)
+    if button.SetColor then
+        button:SetColor("Text", UIStyle.Colors.Text)
+    end
+end
+
+function EventButtonIMGUIWidget:DisableButton(button, tooltipText)
+    button.Disabled = true
+    self:_ApplyDisabledStyle(button)
+    if self._feedbackTooltip then
+        self._feedbackTooltip:Destroy()
+    end
+    self._feedbackTooltip = MCMRendering:AddTooltip(button, tooltipText, self.Widget.ModUUID)
+end
+
+function EventButtonIMGUIWidget:EnableButton(button)
+    button.Disabled = false
+    self:_ApplyEnabledStyle(button)
+    if self._feedbackTooltip then
+        self._feedbackTooltip:Destroy()
+        self._feedbackTooltip = nil
     end
 end
 
