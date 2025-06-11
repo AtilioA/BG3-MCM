@@ -331,7 +331,6 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
     return true
 end
 
-
 --- Validates the options for an event_button setting
 ---@param setting BlueprintSetting The setting to validate
 ---@return boolean True if the setting is valid, false otherwise
@@ -370,21 +369,42 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
                 "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             isValid = false
         else
-            -- Validate ConfirmDialog fields if it's a table
+            -- Define required fields for ConfirmDialog
+            local requiredFields = {
+                "Title",
+                "Message",
+                "ConfirmText",
+                "CancelText"
+            }
+
+            -- Get the dialog table
             local dialog = options.ConfirmDialog
-            local validFields = {
+
+            -- Check if all required fields are present
+            for _, field in ipairs(requiredFields) do
+                if dialog[field] == nil then
+                    MCMWarn(0,
+                        string.format(
+                            "Missing required field 'Options.ConfirmDialog.%s' for event_button setting '%s'. ",
+                            field, settingId) ..
+                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    return false
+                end
+            end
+
+            -- Validate field types for all fields that are present
+            local validFieldTypes = {
                 Title = "string",
                 Message = "string",
                 ConfirmText = "string",
                 CancelText = "string"
             }
 
-
-            for field, expectedType in pairs(validFields) do
+            for field, expectedType in pairs(validFieldTypes) do
                 if dialog[field] ~= nil and type(dialog[field]) ~= expectedType then
                     MCMWarn(0,
-                        string.format("Options.ConfirmDialog.%s for event_button setting '%s' must be a %s. ", 
-                        field, settingId, expectedType) ..
+                        string.format("Options.ConfirmDialog.%s for event_button setting '%s' must be a %s. ",
+                            field, settingId, expectedType) ..
                         "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                     isValid = false
                 end
@@ -398,7 +418,7 @@ end
 function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     local options = setting:GetOptions() or {}
     local settingId = setting:GetId()
-    
+
     if options.ShouldTriggerOnRepeat ~= nil and type(options.ShouldTriggerOnRepeat) ~= "boolean" then
         MCMWarn(0,
             "Options.ShouldTriggerOnRepeat for keybinding_v2 setting '" ..
@@ -453,8 +473,6 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     end
     return true
 end
-
-
 
 function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
     -- Skip Default validation for event_button type
