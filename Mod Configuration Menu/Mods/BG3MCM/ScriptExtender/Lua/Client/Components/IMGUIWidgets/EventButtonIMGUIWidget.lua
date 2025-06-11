@@ -71,6 +71,9 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     -- Register for callbacks via RX when widget is created
     -- This allows for callbacks to be registered even if the button hasn't been created yet
     self:RegisterCallback()
+
+    -- Initialize button enabled state based on current registry.
+    self:UpdateButtonState(EventButtonRegistry.GetRegistry())
 end
 
 function EventButtonIMGUIWidget:HandleButtonClick()
@@ -109,7 +112,7 @@ end
 
 function EventButtonIMGUIWidget:TriggerCallback()
     -- Retrieve and execute the callback registered for this event button
-    local reg = KeybindingsRegistry.GetRegistry()
+    local reg = EventButtonRegistry.GetRegistry()
     local modUUID = self.Widget.ModUUID
     local settingId = self.Widget.Setting:GetId()
 
@@ -137,8 +140,46 @@ function EventButtonIMGUIWidget:TriggerCallback()
     end
 end
 
+---Updates the visual/interactive state of the button according to whether a callback is registered
+---@param registry table|nil A full registry table (may be nil)
+function EventButtonIMGUIWidget:UpdateButtonState(registry)
+    if not self.Widget or not self.Widget.Button then return end
+
+    registry = registry or {}
+
+    local modUUID = self.Widget.ModUUID
+    local settingId = self.Widget.Setting:GetId()
+
+    local callbackExists = registry[modUUID]
+        and registry[modUUID][settingId]
+        and type(registry[modUUID][settingId].eventButtonCallback) == "function"
+
+    -- Enable the button only if a callback was registered.
+    self.Widget.Button.Disabled = not callbackExists
+
+    -- Optional: grey out text if disabled for clearer UX
+    if self.Widget.Button.SetColor then
+        if callbackExists then
+            -- Reset to default colours (using explicit colour values to avoid relying on defaults)
+            self.Widget.Button:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
+        else
+            self.Widget.Button:SetColor("Text", Color.NormalizedRGBA(128, 128, 128, 1))
+        end
+    end
+end
+
 function EventButtonIMGUIWidget:RegisterCallback()
-    -- Callbacks are registered via the MCMAPI in a separate call
+    -- Subscribe to registry updates so we know when a callback becomes available or is removed.
+    if self._registrySubscription then return end
+    local ok, sub = pcall(function()
+        return EventButtonRegistry.GetSubject():Subscribe(function(newRegistry)
+            self:UpdateButtonState(newRegistry)
+        end)
+    end)
+
+    if ok and sub then
+        self._registrySubscription = sub
+    end
 end
 
 function EventButtonIMGUIWidget:UpdateCurrentValue(value)
@@ -146,7 +187,12 @@ function EventButtonIMGUIWidget:UpdateCurrentValue(value)
 end
 
 function EventButtonIMGUIWidget:Destroy()
-    if self.Widget.Group then
+    if self._registrySubscription then
+        self._registrySubscription:Unsubscribe()
+        self._registrySubscription = nil
+    end
+
+    if self.Widget and self.Widget.Group then
         self.Widget.Group:Destroy()
     end
 end

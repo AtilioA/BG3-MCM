@@ -354,7 +354,7 @@
                                     "ConfirmText": "Yes, do it",
                                     "CancelText": "No, cancel"
                                 },
-                                "Cooldown": 5,
+                                "Cooldown": 0,
                                 "Icon": "Action_Jump"
                             }
                         },

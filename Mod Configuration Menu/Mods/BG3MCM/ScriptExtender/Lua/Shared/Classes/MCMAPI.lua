@@ -140,7 +140,6 @@ function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
         return false
     end
 
-    -- TODO: add blueprint methods to solve this
     local blueprint = self:GetModBlueprint(modUUID)
     if not blueprint then
         MCMWarn(0, "Blueprint not found for mod '" .. modUUID .. "'.")
@@ -353,11 +352,40 @@ function MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
         return false
     end
 
-    -- Register the callback using the InputCallbackManager
-    InputCallbackManager.SetCallback(modUUID, settingId, callback, InputCallbackManager.CallbackTypes.EVENT_BUTTON)
+    -- TODO: use an interface instead of direct access to EventButtonRegistry
+    local success = EventButtonRegistry.RegisterCallback(modUUID, settingId, callback)
+    if success then
+        MCMDebug(1, string.format("Registered event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    else
+        MCMWarn(0,
+            string.format("Failed to register event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    end
+    return success
+end
 
-    MCMDebug(1, "Registered event button callback for mod '" .. modUUID .. "', setting '" .. settingId .. "'")
-    return true
+--- Unregister a callback for an event button
+---@param modUUID string
+---@param settingId string
+---@return boolean success
+function MCMAPI:UnregisterEventButtonCallback(modUUID, settingId)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot unregister event button callback.")
+        return false
+    end
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot unregister event button callback.")
+        return false
+    end
+
+    -- TODO: use an interface instead of direct access to EventButtonRegistry
+    local success = EventButtonRegistry.UnregisterCallback(modUUID, settingId)
+    if success then
+        MCMDebug(1, string.format("Unregistered event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    else
+        MCMWarn(0,
+            string.format("Failed to unregister event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    end
+    return success
 end
 
 -- UNUSED since profile management currently calls shared code
