@@ -22,7 +22,18 @@ function EventButtonIMGUIWidget:CreateButton()
     -- Create either an image button or a regular button
     if useIcon then
         local success, button = xpcall(function()
-            local btn = buttonContainer:AddImageButton(buttonLabel, options.Icon)
+            local iconSize = IMGUIWidget:GetIconSizes(2)
+            if options.Size then
+                iconSize = { options.Size.Width, options.Size.Height }
+            end
+
+            local btn = buttonContainer:AddImageButton(buttonLabel, options.Icon, iconSize)
+
+            if not btn.Image or btn.Image.Icon == "" then
+                btn:Destroy()
+                btn = buttonContainer:AddButton(buttonLabel)
+            end
+
             return btn
         end, function(err)
             -- Fallback to regular button if icon fails to load

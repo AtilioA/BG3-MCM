@@ -360,6 +360,28 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
         isValid = false
     end
 
+    -- Validate Label if present
+    if options.Label ~= nil then
+        if type(options.Label) ~= "string" or options.Label == "" then
+            MCMWarn(0,
+                "Options.Label for event_button setting '" .. settingId .. "' must be a non-empty string. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+        end
+    end
+
+    -- Validate Size if present
+    if options.Size ~= nil then
+        if type(options.Size) ~= "table"
+           or type(options.Size.Width) ~= "number"
+           or type(options.Size.Height) ~= "number" then
+            MCMWarn(0,
+                "Options.Size for event_button setting '" .. settingId .. "' must be a table with numeric Width and Height fields. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+        end
+    end
+
     -- Validate ConfirmDialog if present
     if options.ConfirmDialog ~= nil then
         if type(options.ConfirmDialog) ~= "table" then
