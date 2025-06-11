@@ -7,7 +7,7 @@ local warnedDeprecation = {}
 ---@param methodName string The name of the deprecated method
 ---@param message string The deprecation message
 local function showDeprecationWarning(modUUID, methodName, message)
-    if not warnedDeprecation[modUUID] then 
+    if not warnedDeprecation[modUUID] then
         warnedDeprecation[modUUID] = {}
     end
     if not warnedDeprecation[modUUID][methodName] then
@@ -198,23 +198,20 @@ local function createClientAPIMethods(originalModUUID, modTable)
         modTable.MCM.EventButton = {}
     end
     modTable.MCM.EventButton['SetCallback'] = function(settingId, callback, modUUID)
-        MCMWarn(0, "SetCallback has not been implemented yet.")
-        return false
-        -- if not modUUID then modUUID = originalModUUID end
+        if not modUUID then modUUID = originalModUUID end
 
-        -- -- Use MCMAPI to register the callback
-        -- local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
+        local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
 
-        -- if not success then
-        --     MCMWarn(0,
-        --         string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
-        -- else
-        --     MCMDebug(1,
-        --         string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
-        --             modUUID))
-        -- end
+        if not success then
+            MCMWarn(0,
+                string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
+        else
+            MCMDebug(1,
+                string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
+                    modUUID))
+        end
 
-        -- return success
+        return success
     end
 
     modTable.MCM['OpenMCMWindow'] = function()
