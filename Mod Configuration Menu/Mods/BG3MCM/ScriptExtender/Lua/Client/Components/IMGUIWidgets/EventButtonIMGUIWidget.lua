@@ -85,21 +85,10 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     buttonContainer.IDContext = modUUID .. "_" .. setting:GetId() .. "_EventButtonContainer"
     buttonContainer.SameLine = false
 
-    -- Get button options from setting
-    local options = setting:GetOptions() or {}
-    local useIcon = options.Icon and options.Icon.Name and options.Icon.Name ~= ""
-    local confirmOptions = options.ConfirmDialog
-
     self:CreateButton()
 
     -- Set button properties
     self.Widget.Button.IDContext = modUUID .. "_" .. setting:GetId() .. "_EventButton"
-
-    -- Add tooltip if available
-    local tooltip = setting:GetTooltip()
-    if tooltip and tooltip ~= "" then
-        MCMRendering:AddTooltip(self.Widget.Button, tooltip, modUUID)
-    end
 
     -- Set the click callback for the button
     self.Widget.Button.OnClick = function()
@@ -113,8 +102,8 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     -- This allows for callbacks to be registered even if the button hasn't been created yet
     self:RegisterCallbackSub()
 
-    -- Initialize button enabled state based on current registry
-    self:UpdateButtonState(EventButtonRegistry.GetRegistry())
+    -- Initialize button enabled state based on current registry (not necessary since we already subscribe to registry changes)
+    -- self:UpdateButtonState(EventButtonRegistry.GetRegistry())
 end
 
 function EventButtonIMGUIWidget:HandleButtonClick()
@@ -211,13 +200,17 @@ function EventButtonIMGUIWidget:UpdateButtonState(registry)
 
     local modUUID = self.Widget.ModUUID
     local settingId = self.Widget.Setting:GetId()
+    local entry = registry[modUUID] and registry[modUUID][settingId] or {}
 
-    local callbackExists = registry[modUUID]
-        and registry[modUUID][settingId]
-        and type(registry[modUUID][settingId].eventButtonCallback) == "function"
+    -- If explicitly disabled via API
+    if entry.disabled then
+        self:DisableButton(self.Widget.Button, entry.disabledTooltip or "a")
+        return
+    end
 
-    -- Manage enable/disable and feedback tooltip
-    if callbackExists then
+    local hasCallback = type(entry.eventButtonCallback) == "function"
+
+    if hasCallback then
         self:EnableButton(self.Widget.Button)
     else
         local msg = "No callback registered for event_button '" .. settingId .. "'"
@@ -237,15 +230,20 @@ function EventButtonIMGUIWidget:_ApplyEnabledStyle(button)
     end
 end
 
+--- Disables the button and adds a tooltip
+---@param button ExtuiButton|ExtuiImageButton The button to disable
+---@param tooltipText string The tooltip text to add
 function EventButtonIMGUIWidget:DisableButton(button, tooltipText)
     button.Disabled = true
     self:_ApplyDisabledStyle(button)
-    if self._feedbackTooltip then
-        self._feedbackTooltip:Destroy()
-    end
+    -- if self._feedbackTooltip then
+    --     self._feedbackTooltip:Destroy()
+    -- end
     self._feedbackTooltip = MCMRendering:AddTooltip(button, tooltipText, self.Widget.ModUUID)
 end
 
+--- Enables the button and removes any tooltip
+---@param button ExtuiButton|ExtuiImageButton The button to enable
 function EventButtonIMGUIWidget:EnableButton(button)
     button.Disabled = false
     self:_ApplyEnabledStyle(button)
@@ -342,6 +340,19 @@ function EventButtonIMGUIWidget:_HandleActionCooldown(event)
             if countdownText then countdownText:Destroy() end
         end
         CooldownHelper:StartCooldown(button, event.cooldown, onTick, onComplete)
+    end
+end
+
+function EventButtonIMGUIWidget:SetupTooltip()
+    local tooltipText = self.Widget.Setting:GetTooltip()
+    if not tooltipText or tooltipText == "" then
+        return
+    end
+    local tooltipId = self.Widget.Setting.Id .. "_TOOLTIP"
+
+    local tt = MCMRendering:AddTooltip(self.Widget.Button, tooltipText, tooltipId)
+    if not tt then
+        return
     end
 end
 

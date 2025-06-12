@@ -644,7 +644,7 @@ function MCMRendering:AddTooltip(imguiObject, tooltipText, uuid)
         MCMWarn(1, "Tried to add a tooltip to an object with no tooltip support")
         return nil
     end
-    
+
     local success, imguiObjectTooltip = xpcall(function()
         local tt = imguiObject:Tooltip()
         tt.IDContext = uuid .. "_TOOLTIP"

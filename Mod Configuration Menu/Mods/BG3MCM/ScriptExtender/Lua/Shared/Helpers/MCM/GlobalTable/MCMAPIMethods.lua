@@ -67,7 +67,7 @@ local function createMCMAPIMethods(originalModUUID)
             end
             return success
         end,
-
+        
         --- Unregister a callback function for an event button
         ---@param buttonId string The ID of the event button
         ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
@@ -87,6 +87,49 @@ local function createMCMAPIMethods(originalModUUID)
                         modUUID))
             end
             return success
+        end,
+        
+        --- Set the disabled state of an event button
+        ---@param buttonId string The ID of the event button
+        ---@param disabled boolean Whether the button should be disabled
+        ---@param tooltipText? string Optional tooltip text to show when disabled
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return boolean success True if the state was updated successfully
+        SetDisabled = function(buttonId, disabled, tooltipText, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            if Ext.IsServer() then return false end
+            
+            -- Handle case where tooltipText is omitted and modUUID is passed as third parameter
+            if tooltipText ~= nil and type(tooltipText) == "string" and #tooltipText == 36 then  -- Check if it might be a UUID
+                modUUID = tooltipText
+                tooltipText = nil
+            end
+            
+            local success = MCMAPI:SetEventButtonDisabled(modUUID, buttonId, disabled, tooltipText)
+            if not success then
+                MCMWarn(0,
+                    string.format("Failed to set disabled state for button '%s' in mod '%s'", buttonId, modUUID))
+            else
+                MCMDebug(1,
+                    string.format("Successfully set disabled state for button '%s' in mod '%s' to %s",
+                        buttonId, modUUID, tostring(disabled)))
+            end
+            return success
+        end,
+        
+        --- Check if an event button is disabled
+        ---@param buttonId string The ID of the event button
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return boolean|nil isDisabled True if disabled, false if enabled, nil if button not found
+        IsDisabled = function(buttonId, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            if Ext.IsServer() then return nil end
+            
+            local isDisabled = MCMAPI:IsEventButtonDisabled(modUUID, buttonId)
+            if isDisabled == nil then
+                MCMDebug(1, string.format("Button '%s' not found in mod '%s'", buttonId, modUUID))
+            end
+            return isDisabled
         end
     }
 

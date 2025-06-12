@@ -184,6 +184,7 @@ function MCMProxy:RegisterMCMKeybindings()
     MCMAPI:RegisterEventButtonCallback(ModuleUUID, "EventButtonExample2", function()
         _D("Hello2")
     end)
+    MCMAPI:SetEventButtonDisabled(ModuleUUID, "EventButtonExample", true, "Disabled via API")
 end
 
 -- Initialize the proxy when the module is loaded
