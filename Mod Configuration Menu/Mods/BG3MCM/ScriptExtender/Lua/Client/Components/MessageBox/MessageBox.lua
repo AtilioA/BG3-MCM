@@ -180,6 +180,7 @@ function MessageBox:AddOkButton()
     local buttonText = self.OkLabel or Ext.Loca.GetTranslatedString("hf03356ba46684764b32d26ff28d3e709af5a") or "OK"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_OkButton"
+    button:SetColor("Button", Color.NormalizedRGBA(117, 140, 74, 0.33))
     button.OnClick = function()
         if self.OkCallback then
             self.OkCallback()
