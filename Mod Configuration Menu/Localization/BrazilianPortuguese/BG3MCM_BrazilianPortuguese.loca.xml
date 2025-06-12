@@ -209,4 +209,8 @@
     <content contentuid="h51d62ec178ef42339febafa360593169dccc" version="1">Avisar sobre conflitos de mods</content>
     <content contentuid="h0b200012c87d4a2e8173a15243ee0355ace1" version="1">Avisar sobre precedência do MCM</content>
     <content contentuid="hbc82ae3470f942bd843e33ae6e7498908935" version="1">MCM irá verificar sua load order por potenciais problemas, e exibirá avisos visuais no menu principal se houverem problemas.&lt;br&gt;Recomenda-se manter todas as verificações ativadas. A maioria desses problemas causaria problemas para alguns de seus mods.&lt;br&gt;Avisos podem ser desativados individualmente quando aparecerem.</content>
+    <content contentuid="ha639028d9ca54b76a72e88059e3d24acd9a7" version="1">Sim</content>
+    <content contentuid="h2f7a7913be50404cbbdd9878ee774cca2113" version="1">Não</content>
+    <content contentuid="he43ef9b250584bc2840b8b291c73e4b53cb4" version="1">Cancelar</content>
+    <content contentuid="hf03356ba46684764b32d26ff28d3e709af5a" version="1">OK</content>
 </contentList>

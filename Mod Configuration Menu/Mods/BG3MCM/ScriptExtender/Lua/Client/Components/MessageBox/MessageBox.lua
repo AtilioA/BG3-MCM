@@ -15,6 +15,10 @@ MessageBoxMode = {
 ---@field CancelCallback function|nil Callback function for the Cancel button
 ---@field YesCallback function|nil Callback function for the Yes button
 ---@field NoCallback function|nil Callback function for the No button
+---@field OkLabel string|nil The text for the OK button
+---@field CancelLabel string|nil The text for the Cancel button
+---@field YesLabel string|nil The text for the Yes button
+---@field NoLabel string|nil The text for the No button
 ---@field ModUUID string|nil The UUID of the mod that owns this message box (for context ID generation)
 ---@field ContextId string|nil A custom context ID for this message box
 MessageBox = {}
@@ -36,6 +40,10 @@ function MessageBox:Create(title, message, mode, modUUID, contextId)
         CancelCallback = nil,
         YesCallback = nil,
         NoCallback = nil,
+        OkLabel = nil,
+        CancelLabel = nil,
+        YesLabel = nil,
+        NoLabel = nil,
         ModUUID = modUUID or ModuleUUID,
         ContextId = contextId or "MessageBox_" .. tostring(math.random(1000000)),
     }
@@ -73,6 +81,34 @@ end
 ---@return MessageBox
 function MessageBox:SetNoCallback(callback)
     self.NoCallback = callback
+    return self
+end
+
+---@param label string The text for the OK button
+---@return MessageBox
+function MessageBox:SetOkLabel(label)
+    self.OkLabel = label
+    return self
+end
+
+---@param label string The text for the Cancel button
+---@return MessageBox
+function MessageBox:SetCancelLabel(label)
+    self.CancelLabel = label
+    return self
+end
+
+---@param label string The text for the Yes button
+---@return MessageBox
+function MessageBox:SetYesLabel(label)
+    self.YesLabel = label
+    return self
+end
+
+---@param label string The text for the No button
+---@return MessageBox
+function MessageBox:SetNoLabel(label)
+    self.NoLabel = label
     return self
 end
 
@@ -137,7 +173,8 @@ end
 ---Adds an OK button to the popup
 ---@return any The button object
 function MessageBox:AddOkButton()
-    local button = self.PopupDialog:AddButton("OK")
+    local buttonText = self.OkLabel or Ext.Loca.GetTranslatedString("hf03356ba46684764b32d26ff28d3e709af5a") or "OK"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_OkButton"
     button.OnClick = function()
         if self.OkCallback then
@@ -152,7 +189,9 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddCancelButton(sameLine)
-    local button = self.PopupDialog:AddButton("Cancel")
+    local buttonText = self.CancelLabel or Ext.Loca.GetTranslatedString("he43ef9b250584bc2840b8b291c73e4b53cb4") or
+        "Cancel"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_CancelButton"
     if sameLine then
         button.SameLine = true
@@ -169,7 +208,8 @@ end
 ---Adds a Yes button to the popup
 ---@return any The button object
 function MessageBox:AddYesButton()
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("Yes") or "Yes")
+    local buttonText = self.YesLabel or Ext.Loca.GetTranslatedString("ha639028d9ca54b76a72e88059e3d24acd9a7") or "Yes"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_YesButton"
     button.OnClick = function()
         if self.YesCallback then
@@ -184,7 +224,8 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddNoButton(sameLine)
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("No") or "No")
+    local buttonText = self.NoLabel or Ext.Loca.GetTranslatedString("h2f7a7913be50404cbbdd9878ee774cca2113") or "No"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_NoButton"
     if sameLine then
         button.SameLine = true
