@@ -549,8 +549,8 @@ function MCMRendering:CreateKeybindingsPage()
     end
 
     -- Get all keybindings
-    local nativeKeybindings = NativeKeybindings.GetAll()
-    -- _D(nativeKeybindings.Public)
+    local nativeKeybindings = NativeKeybindings.GetByDeviceType("Keyboard")
+    _D(nativeKeybindings.Public)
 
     return hotkeysGroup
 end
