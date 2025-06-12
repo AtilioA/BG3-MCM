@@ -5,4 +5,5 @@ RequireFiles("Shared/Tests/", {
     "DataPreprocessing.test",
     "Validators.test",
     "ModConfig.test",
+    "EventButton.test",
 })

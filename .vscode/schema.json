@@ -170,8 +170,147 @@
             "required": [
                 "Id",
                 "Name",
-                "Type",
-                "Default"
+                "Type"
+            ],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "Type": {
+                                "const": "event_button"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "Default": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "array"
+                                    }
+                                ],
+                                "description": "The default value is optional for event_button. It is not used."
+                            },
+                            "Options": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "Cooldown": {
+                                        "type": "number"
+                                    },
+                                    "Icon": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "Name": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "Size": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "Width": {
+                                                        "type": "number"
+                                                    },
+                                                    "Height": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "Width",
+                                                    "Height"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "Name"
+                                        ]
+                                    },
+                                    "Label": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "ConfirmDialog": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "Title": {
+                                                "type": "string"
+                                            },
+                                            "Message": {
+                                                "type": "string"
+                                            },
+                                            "ConfirmText": {
+                                                "type": "string"
+                                            },
+                                            "CancelText": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "Title",
+                                            "Message",
+                                            "ConfirmText",
+                                            "CancelText"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "else": {
+                        "required": [
+                            "Default"
+                        ],
+                        "properties": {
+                            "Default": {
+                                "anyOf": [
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "array"
+                                    }
+                                ],
+                                "description": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid."
+                            }
+                        }
+                    }
+                }
             ],
             "anyOf": [
                 {
@@ -261,6 +400,10 @@
                         {
                             "const": "keybinding_v2",
                             "description": "A keybinding/hotkey input, consisting of optional modifiers and a key, and listed in the 'Hotkeys' section of MCM. Replaces the deprecated 'keybinding' type. Remember to inject the hotkey functionality in your mod via the MCM API, otherwise the hotkeys will not do anything."
+                        },
+                        {
+                            "const": "event_button",
+                            "description": "A button that executes a Lua function when clicked. The callback must be defined in the mod's code during runtime."
                         }
                     ],
                     "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
@@ -303,8 +446,80 @@
                 },
                 "Options": {
                     "type": "object",
-                    "properties": {},
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
+                    "properties": {
+                        "ConfirmDialog": {
+                            "type": "object",
+                            "properties": {
+                                "Title": {
+                                    "type": "string",
+                                    "description": "Title of the confirmation dialog"
+                                },
+                                "Message": {
+                                    "type": "string",
+                                    "description": "Message to display in the confirmation dialog"
+                                },
+                                "ConfirmText": {
+                                    "type": "string",
+                                    "description": "Text for the confirm button",
+                                    "default": "Confirm"
+                                },
+                                "CancelText": {
+                                    "type": "string",
+                                    "description": "Text for the cancel button",
+                                    "default": "Cancel"
+                                }
+                            },
+                            "required": [
+                                "Title",
+                                "Message"
+                            ],
+                            "description": "Configuration for the confirmation dialog that appears when the button is clicked. If not provided, no confirmation will be shown."
+                        },
+                        "Cooldown": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "minimum": -1,
+                            "description": "Cooldown duration in seconds before the button can be clicked again. -1 means infinite cooldown. 0 or undefined means no cooldown."
+                        },
+                        "Icon": {
+                            "type": "object",
+                            "properties": {
+                                "Name": {
+                                    "type": "string",
+                                    "description": "Name of the icon to display on the button. Must be a valid icon name from the game's icon set."
+                                },
+                                "Size": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Width": {
+                                            "type": "number",
+                                            "description": "Width of the icon in pixels."
+                                        },
+                                        "Height": {
+                                            "type": "number",
+                                            "description": "Height of the icon in pixels."
+                                        }
+                                    },
+                                    "required": [
+                                        "Width",
+                                        "Height"
+                                    ],
+                                    "description": "Size of the icon in pixels."
+                                }
+                            },
+                            "required": [
+                                "Name"
+                            ],
+                            "description": "Icon configuration for the event_button, including Name and optional Size."
+                        },
+                        "Label": {
+                            "type": "string",
+                            "description": "Label for the button. Will be localized if a handle is provided."
+                        }
+                    },
+                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). For event_button type, can include ConfirmDialog, Cooldown, Icon, and Label."
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
@@ -1033,6 +1248,28 @@
                         "ShouldTriggerOnKeyUp": false,
                         "ShouldTriggerOnRepeat": false
                     }
+                },
+                {
+                    "Id": "EventButtonExample",
+                    "Name": "Event Button Example",
+                    "Type": "event_button",
+                    "Description": "Click this button to trigger an action in the mod.",
+                    "Options": {
+                        "ConfirmDialog": {
+                            "Title": "Confirm Action",
+                            "Message": "Are you sure you want to perform this action?",
+                            "ConfirmText": "Yes, do it",
+                            "CancelText": "No, cancel"
+                        },
+                        "Cooldown": 5,
+                        "Icon": {
+                            "Name": "Action_Jump",
+                            "Size": {
+                                "Width": 20,
+                                "Height": 20
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1196,6 +1433,49 @@
                         "minLength": 1
                     },
                     "description": "Handles to be used to localize choices for enums/radios."
+                },
+                "EventButtonHandles": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "LabelHandle": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "The handle to be used to localize the label of the button."
+                        },
+                        "ConfirmDialogHandles": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "TitleHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the title of the confirmation dialog."
+                                },
+                                "MessageHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the message of the confirmation dialog."
+                                },
+                                "ConfirmTextHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the confirm text of the confirmation dialog."
+                                },
+                                "CancelTextHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the cancel text of the confirmation dialog."
+                                }
+                            },
+                            "required": [
+                                "TitleHandle",
+                                "MessageHandle",
+                                "ConfirmTextHandle",
+                                "CancelTextHandle"
+                            ]
+                        }
+                    }
                 }
             },
             "required": [
