@@ -87,6 +87,7 @@ end
 ---@param label string The text for the OK button
 ---@return MessageBox
 function MessageBox:SetOkLabel(label)
+    if not label or label == "" then return self end
     self.OkLabel = label
     return self
 end
@@ -94,6 +95,7 @@ end
 ---@param label string The text for the Cancel button
 ---@return MessageBox
 function MessageBox:SetCancelLabel(label)
+    if not label or label == "" then return self end
     self.CancelLabel = label
     return self
 end
@@ -101,6 +103,7 @@ end
 ---@param label string The text for the Yes button
 ---@return MessageBox
 function MessageBox:SetYesLabel(label)
+    if not label or label == "" then return self end
     self.YesLabel = label
     return self
 end
@@ -108,6 +111,7 @@ end
 ---@param label string The text for the No button
 ---@return MessageBox
 function MessageBox:SetNoLabel(label)
+    if not label or label == "" then return self end
     self.NoLabel = label
     return self
 end

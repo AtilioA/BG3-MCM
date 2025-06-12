@@ -122,12 +122,14 @@ function EventButtonIMGUIWidget:HandleButtonClick()
 
     -- If confirmation dialog is configured, show it before triggering the event
     if confirmOptions then
-        -- Handle both new object format and legacy string format
-        local title, message
+        -- Handle optional custom button labels
+        local title, message, okLabel, cancelLabel
 
         if type(confirmOptions) == "table" then
             title = confirmOptions.Title or "Confirm"
             message = confirmOptions.Message or "Are you sure you want to proceed?"
+            okLabel = confirmOptions.ConfirmText
+            cancelLabel = confirmOptions.CancelText
         else
             title = "Confirm"
             message = confirmOptions
@@ -143,6 +145,9 @@ function EventButtonIMGUIWidget:HandleButtonClick()
             function() wrappedCallback() end,
             function() end
         )
+
+        dialog:SetOkLabel(okLabel)
+        dialog:SetCancelLabel(cancelLabel)
         dialog:Show(self.Widget.Group)
     else
         -- No confirmation needed, trigger callback immediately
