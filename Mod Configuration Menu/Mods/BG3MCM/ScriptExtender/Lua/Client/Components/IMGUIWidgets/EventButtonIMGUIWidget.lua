@@ -4,16 +4,31 @@ EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget)
 -- Rx subject for callback events
 local RX = { Subject = Ext.Require("Lib/reactivex/subjects/subject.lua") }
 
+-- Gets localized text for a handle, falling back to fallbackText if handle is nil/empty or no translation found
+local function localize(handle, fallbackText)
+    if type(handle) ~= "string" or handle == "" then return fallbackText end
+
+    local translated = Ext.Loca.GetTranslatedString(handle)
+    if translated and translated ~= "" then return translated end
+
+    return fallbackText
+end
+
 function EventButtonIMGUIWidget:GetButtonLabel()
     local setting = self.Widget.Setting
     local options = setting:GetOptions() or {}
+    local handles = setting:GetHandles() or {}
 
-    local finalLabel = options.Label
-    if not finalLabel or finalLabel == "" then
-        finalLabel = setting:GetLocaName()
+    local rawLabel = options.Label
+    if rawLabel == "" then
+        rawLabel = setting:GetLocaName()
     end
 
-    return finalLabel
+    if handles.EventButtonHandles and handles.EventButtonHandles.LabelHandle then
+        return localize(handles.EventButtonHandles.LabelHandle, rawLabel)
+    end
+
+    return rawLabel
 end
 
 function EventButtonIMGUIWidget:CreateButton()
@@ -122,18 +137,22 @@ function EventButtonIMGUIWidget:HandleButtonClick()
 
     -- If confirmation dialog is configured, show it before triggering the event
     if confirmOptions then
-        -- Handle optional custom button labels
         local title, message, okLabel, cancelLabel
-
-        if type(confirmOptions) == "table" then
-            title = confirmOptions.Title or "Confirm"
-            message = confirmOptions.Message or "Are you sure you want to proceed?"
-            okLabel = confirmOptions.ConfirmText
-            cancelLabel = confirmOptions.CancelText
-        else
-            title = "Confirm"
-            message = confirmOptions
+        local settingHandles = setting:GetHandles() or {}
+        local cdHandles = {}
+        if settingHandles.EventButtonHandles and settingHandles.EventButtonHandles.ConfirmDialogHandles then
+            cdHandles = settingHandles.EventButtonHandles.ConfirmDialogHandles
         end
+        _D(cdHandles)
+        title = localize(cdHandles.TitleHandle,
+            confirmOptions.Title or localize("h652b98e111884533a0ec00fd94ecc386f717", "Confirm action"))
+        message = localize(cdHandles.MessageHandle,
+            confirmOptions.Message or
+            localize("h6cea07ecefe545ddaf13f4259fa75a6b2400", "Are you sure you want to proceed?"))
+        okLabel = localize(cdHandles.ConfirmTextHandle,
+            confirmOptions.ConfirmText or localize("hf03356ba46684764b32d26ff28d3e709af5a", "Confirm"))
+        cancelLabel = localize(cdHandles.CancelTextHandle,
+            confirmOptions.CancelText or localize("he43ef9b250584bc2840b8b291c73e4b53cb4", "Cancel"))
 
         -- Show confirmation dialog via service
         local dialog = DialogService:Confirm(

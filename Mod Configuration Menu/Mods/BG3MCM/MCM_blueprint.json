@@ -370,6 +370,19 @@
                             "Options": {
                                 "Cooldown": -1,
                                 "Label": "My Button"
+                            },
+                            "Handles": {
+                                "NameHandle": "a",
+                                "DescriptionHandle": "a",
+                                "EventButtonHandles": {
+                                    "ConfirmDialogHandles": {
+                                        "TitleHandle": "h44dcdae59c954d6c91671025f399f05c7064",
+                                        "MessageHandle": "a",
+                                        "ConfirmTextHandle": "a",
+                                        "CancelTextHandle": "a"
+                                    },
+                                    "LabelHandle": "a"
+                                }
                             }
                         },
                         {

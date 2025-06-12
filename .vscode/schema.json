@@ -207,7 +207,73 @@
                                         "type": "array"
                                     }
                                 ],
-                                "description": "The default value is optional for event_button. It will not be required when the setting is an event_button."
+                                "description": "The default value is optional for event_button. It is not used."
+                            },
+                            "Options": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "Cooldown": {
+                                        "type": "number"
+                                    },
+                                    "Icon": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "Name": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "Size": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "Width": {
+                                                        "type": "number"
+                                                    },
+                                                    "Height": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "Width",
+                                                    "Height"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "Name"
+                                        ]
+                                    },
+                                    "Label": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "ConfirmDialog": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "Title": {
+                                                "type": "string"
+                                            },
+                                            "Message": {
+                                                "type": "string"
+                                            },
+                                            "ConfirmText": {
+                                                "type": "string"
+                                            },
+                                            "CancelText": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "Title",
+                                            "Message",
+                                            "ConfirmText",
+                                            "CancelText"
+                                        ]
+                                    }
+                                }
                             }
                         }
                     },
@@ -1367,6 +1433,49 @@
                         "minLength": 1
                     },
                     "description": "Handles to be used to localize choices for enums/radios."
+                },
+                "EventButtonHandles": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "LabelHandle": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "The handle to be used to localize the label of the button."
+                        },
+                        "ConfirmDialogHandles": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "TitleHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the title of the confirmation dialog."
+                                },
+                                "MessageHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the message of the confirmation dialog."
+                                },
+                                "ConfirmTextHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the confirm text of the confirmation dialog."
+                                },
+                                "CancelTextHandle": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "The handle to be used to localize the cancel text of the confirmation dialog."
+                                }
+                            },
+                            "required": [
+                                "TitleHandle",
+                                "MessageHandle",
+                                "ConfirmTextHandle",
+                                "CancelTextHandle"
+                            ]
+                        }
+                    }
                 }
             },
             "required": [
