@@ -209,6 +209,10 @@ local function shouldTriggerBinding(e, binding)
 end
 
 function KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
+    if not conflictTitle or conflictTitle == "" or not conflictStr or conflictStr == "" then
+        return
+    end
+
     NotificationManager:CreateIMGUINotification(
         "Keybinding_Conflict" .. Ext.Math.Random(),
         'warning',

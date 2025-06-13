@@ -1,8 +1,5 @@
 -- TODO: add another column to 'ignore conflicts'?
 
-local ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
-
-
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 ---@field Widget table
 ---@field PressedKeys table<string, boolean>
@@ -263,7 +260,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
 
             -- If there is a conflict, color the keybinding button red.
-            local conflictKB = self:CheckForConflicts(action.KeyboardMouseBinding, mod, action, "KeyboardMouse")
+            local conflictKB = KeybindingConflictService:CheckForConflicts(action.KeyboardMouseBinding, mod, action,
+                "KeyboardMouse")
             if conflictKB then
                 kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
             end
@@ -405,13 +403,16 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     self.Widget.CurrentListeningAction = nil
     self:UnregisterInputEvents()
 
-    local conflictAction = self:CheckForConflicts(keybinding, modData, action, inputType)
+    local conflictAction = KeybindingConflictService:CheckForConflicts(keybinding, modData, action, inputType)
     if conflictAction then
+        _D(action)
         -- TODO: reduce duplication with KeybindingV2IMGUIWidget
         local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
             action.ActionName)
         local conflictStr = VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee",
             KeyPresentationMapping:GetKBViewKey(keybinding) or "", action.ActionName)
+        _D(conflictTitle)
+        _D(conflictStr)
         KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
     end
 
@@ -455,120 +456,11 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
     end
 end
 
----@alias Keybinding { Key: string, ModifierKeys: string[] }
-
----Compares two keybindings for equality after normalization
----@param binding1 Keybinding|string|nil The first keybinding to compare
----@param binding2 Keybinding|string|nil The second keybinding to compare
----@return boolean True if the keybindings are equal, false otherwise
-function KeybindingV2IMGUIWidget:AreKeybindingsEqual(binding1, binding2)
-    -- Normalize both bindings
-    local normalized1 = nil
-    local normalized2 = nil
-
-    -- Both are unassigned
-    if (binding1 == nil or binding1 == UNASSIGNED_KEYBOARD_MOUSE_STRING) and
-        (binding2 == nil or binding2 == UNASSIGNED_KEYBOARD_MOUSE_STRING) then
-        return true
-    end
-
-    -- If one is unassigned and the other isn't, they're different
-    if (binding1 == nil or binding1 == UNASSIGNED_KEYBOARD_MOUSE_STRING) ~=
-        (binding2 == nil or binding2 == UNASSIGNED_KEYBOARD_MOUSE_STRING) then
-        return false
-    end
-
-    if type(binding1) == "table" and binding1.Key ~= nil then
-        normalized1 = KeybindingsRegistry.NormalizeKeyboardBinding(binding1)
-    end
-
-    if type(binding2) == "table" and binding2.Key ~= nil then
-        normalized2 = KeybindingsRegistry.NormalizeKeyboardBinding(binding2)
-    end
-
-    -- Compare normalized bindings if both are valid
-    return normalized1 ~= nil and normalized2 ~= nil and normalized1 == normalized2
-end
-
 ---Checks if a keybinding is set to its default value
 ---@param action table The action to check
 ---@return boolean True if the binding is set to its default value, false otherwise
 function KeybindingV2IMGUIWidget:IsDefaultBinding(action)
-    return self:AreKeybindingsEqual(action.KeyboardMouseBinding, action.DefaultKeyboardMouseBinding)
-end
-
----Checks if a keybinding conflicts with an existing action
----@param keybinding Keybinding The keybinding to check
----@param action table The action to check against
----@param actionId string The ID of the action to check
----@param currentActionId string The ID of the current action (to skip)
----@return table|nil Conflicting action if found, nil otherwise
-function KeybindingV2IMGUIWidget:CheckActionForConflict(keybinding, action, actionId, currentActionId)
-    local function isEmptyBinding(binding)
-        if binding == nil or binding == "" or binding == UNASSIGNED_KEYBOARD_MOUSE_STRING then
-            return true
-        end
-        if type(binding) == "table" then
-            -- Accept tables with no key or empty key as empty
-            if not binding.Key or binding.Key == "" then
-                return true
-            end
-        end
-        return false
-    end
-
-    if actionId == currentActionId or isEmptyBinding(action.keyboardBinding) then
-        return nil
-    end
-
-    if isEmptyBinding(keybinding) then
-        return nil
-    end
-
-    if self:AreKeybindingsEqual(keybinding, action.keyboardBinding) then
-        return { ActionName = action.actionName }
-    end
-
-    return nil
-end
-
----Checks if a keybinding conflicts with any existing bindings in a mod
----@param keybinding Keybinding The keybinding to check
----@param actions table The actions to check against
----@param currentActionId string The ID of the current action (to skip)
----@return table|nil Conflicting action if found, nil otherwise
-function KeybindingV2IMGUIWidget:CheckModForConflicts(keybinding, actions, currentActionId)
-    for actionId, action in pairs(actions) do
-        local conflict = self:CheckActionForConflict(keybinding, action, actionId, currentActionId)
-        if conflict then
-            return conflict
-        end
-    end
-    return nil
-end
-
----Checks if a keybinding conflicts with existing bindings
----@param keybinding Keybinding The keybinding to check
----@param currentMod table The current mod data
----@param currentAction table The current action data
----@param inputType string The type of input ("KeyboardMouse")
----@return table|nil Conflicting action if found, nil otherwise
-function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, currentAction, inputType)
-    if inputType ~= "KeyboardMouse" then
-        return nil
-    end
-
-    local registry = KeybindingsRegistry.GetFilteredRegistry()
-    local currentActionId = currentAction.ActionId
-
-    for _modUUID, actions in pairs(registry) do
-        local conflict = self:CheckModForConflicts(keybinding, actions, currentActionId)
-        if conflict then
-            return conflict
-        end
-    end
-
-    return nil
+    return KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding, action.DefaultKeyboardMouseBinding)
 end
 
 ---Resets a binding to its default value
@@ -583,8 +475,7 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
         local success = KeybindingsRegistry.UpdateBinding(modUUID, actionId, resetPayload, true)
         if not success then
             MCMError(0,
-                "Failed to reset binding for mod '" .. modUUID .. "', action '" .. actionId .. "'. Please contact " ..
-                Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+                "Failed to reset binding for mod '" .. modUUID .. "', action '" .. actionId .. "'.")
             self:RefreshUI()
         end
     end

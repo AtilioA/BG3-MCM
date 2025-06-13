@@ -1,3 +1,4 @@
 RequireFiles("Client/Services/", {
-    "ProfileService"
+    "ProfileService",
+    "KeybindingConflictService"
 })
