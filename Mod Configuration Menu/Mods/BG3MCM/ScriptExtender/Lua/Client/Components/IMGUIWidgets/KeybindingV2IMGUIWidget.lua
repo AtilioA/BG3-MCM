@@ -1,5 +1,8 @@
 -- TODO: add another column to 'ignore conflicts'?
 
+local ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
+
+
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 ---@field Widget table
 ---@field PressedKeys table<string, boolean>
@@ -35,9 +38,12 @@ function KeybindingV2IMGUIWidget:new(group)
     instance.PressedKeys = {}
     instance.AllPressedKeys = {}
 
+    KeybindingV2IMGUIWidget.SearchSubject = ReplaySubject.Create(1)
+
     instance.Widget.DebounceSearch = VCTimer:Debounce(50, function()
         instance:FilterActions()
         instance:RefreshUI()
+        KeybindingV2IMGUIWidget.SearchSubject:OnNext(instance.Widget.SearchText)
     end)
 
     -- Subscribe to registry changes so UI updates automatically.
@@ -232,7 +238,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             MCMRendering:AddTooltip(nameText,
                 VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
                 mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
-                
+
             -- Keybinding cell.
             local kbCell = row:AddCell()
             local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or

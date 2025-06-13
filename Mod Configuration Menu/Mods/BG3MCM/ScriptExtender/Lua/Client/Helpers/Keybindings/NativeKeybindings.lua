@@ -80,7 +80,7 @@ function NativeKeybindings.GetAll()
         Internal = {}
     }
 
-    local inputScheme = _inputManager and _inputManager.InputScheme
+    local inputScheme = Ext.Input.GetInputManager().InputScheme
 
     -- TODO: use RawToBinding to complement since InputBindings seems incomplete
     if not inputScheme or not inputScheme.InputBindings then
@@ -88,7 +88,7 @@ function NativeKeybindings.GetAll()
         return result
     end
 
-    if not _inputManager or not _inputManager.InputDefinitions then
+    if not Ext.Input.GetInputManager().InputDefinitions then
         MCMDebug(1, "InputDefinitions not available in NativeKeybindings.GetAll")
         return result
     end
@@ -144,7 +144,7 @@ function NativeKeybindings.GetAll()
     end
 
     -- Process all input definitions
-    for _, def in ipairs(_inputManager.InputDefinitions or {}) do
+    for _, def in ipairs(Ext.Input.GetInputManager().InputDefinitions or {}) do
         local bindings = extractBindings(def)
 
         local description = getDefinitionDescription(def)
@@ -284,7 +284,7 @@ function NativeKeybindings.GetByDeviceType(deviceType)
     local function matchesDeviceType(binding, targetType)
         local bindingType = binding.InputType
         return bindingType == targetType or
-               (targetType == "Unassigned" and bindingType == "Unknown")
+            (targetType == "Unassigned" and bindingType == "Unknown")
     end
 
     -- Process all keybindings

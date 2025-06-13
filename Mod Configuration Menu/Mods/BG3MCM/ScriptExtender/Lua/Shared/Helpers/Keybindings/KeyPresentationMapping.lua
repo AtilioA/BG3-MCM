@@ -152,7 +152,12 @@ KeyPresentationMapping.Mapping = {
 --- @param sdlKey string The raw SDL key value.
 --- @return string The view string; if no mapping is found, returns the original value.
 function KeyPresentationMapping:GetViewKey(sdlKey)
-    return self.Mapping[sdlKey] or sdlKey
+    if not sdlKey then
+        MCMWarn(1, "No SDL key provided. Defaulting to unassigned.")
+        return UNASSIGNED_KEYBOARD_MOUSE_STRING
+    end
+
+    return self.Mapping[sdlKey:upper()] or sdlKey
 end
 
 --- Returns the presentation string for a given SDL key.

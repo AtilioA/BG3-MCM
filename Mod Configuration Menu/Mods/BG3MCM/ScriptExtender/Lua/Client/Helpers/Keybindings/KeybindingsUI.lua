@@ -1,12 +1,16 @@
+local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
+
 ---@class KeybindingsUI
 --- Handles UI-related functionality for keybindings in MCM
 
 ---@class KeybindingsUI
 ---@field GetAllKeybindings fun(self: KeybindingsUI): table<string, table>
 ---@field CreateKeybindingsPage fun(self: KeybindingsUI, dualPane: DualPane): any
+---@field GetNativeKeybindings fun(self: KeybindingsUI): table[]
 
 ---@class KeybindingsUI
 KeybindingsUI = {}
+
 
 -- Local references for better performance
 local pairs = pairs
@@ -107,6 +111,34 @@ function KeybindingsUI.GetAllKeybindings()
     return keybindings
 end
 
+--- Gets native keybindings in unified model
+---@return table[] unified native keybinding groups
+function KeybindingsUI.GetNativeKeybindings()
+    local result = {}
+    local native = NativeKeybindings.GetByDeviceType("Keyboard")
+    if not native or not native.Public then return result end
+    local byCategory = {}
+    for _, kb in ipairs(native.Public) do
+        local cat = kb.CategoryName or "Uncategorized"
+        byCategory[cat] = byCategory[cat] or {}
+        table_insert(byCategory[cat], kb)
+    end
+    for category, kbs in pairs(byCategory) do
+        local actions = {}
+        for _, kb in ipairs(kbs) do
+            local action = {
+                ActionId = kb.EventName or "",
+                ActionName = kb.EventName or "",
+                Description = kb.Description or "",
+                Bindings = kb.Bindings or {}
+            }
+            table_insert(actions, action)
+        end
+        table_insert(result, { CategoryName = category, Actions = actions })
+    end
+    return result
+end
+
 --- Creates the keybindings page in the MCM UI
 ---@param dualPane DualPaneController The dual pane controller to add the keybindings to
 ---@return any The created hotkeys group
@@ -125,15 +157,28 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
         )
     end)
 
+
     if not success or not hotkeysGroup then
         MCMDebug(1, "Failed to create hotkeys group in CreateKeybindingsPage")
         return {}
     end
 
+    -- Create groups in advance to preserve order
+    local nativeHotkeysGroup = hotkeysGroup:AddGroup("Native Keybindings")
+    local MCMHotkeysGroup = hotkeysGroup:AddGroup("MCM Keybindings")
+
     -- Safely create the keybinding widget
     pcall(function()
         if type(KeybindingV2IMGUIWidget) == "table" and type(KeybindingV2IMGUIWidget.new) == "function" then
-            local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
+            local _keybindingWidget = KeybindingV2IMGUIWidget:new(MCMHotkeysGroup)
+        end
+    end)
+
+    -- Safely create native keybindings
+    pcall(function()
+        if type(NativeKeybindingIMGUIWidget) == "table" and type(NativeKeybindingIMGUIWidget.new) == "function" then
+            local nativeWidget = NativeKeybindingIMGUIWidget:new(nativeHotkeysGroup)
+            nativeWidget:RefreshUI()
         end
     end)
 
