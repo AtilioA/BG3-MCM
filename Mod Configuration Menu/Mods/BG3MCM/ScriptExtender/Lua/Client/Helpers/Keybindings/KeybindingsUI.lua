@@ -174,6 +174,8 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
     -- Create groups in advance to preserve order
     local nativeHotkeysGroup = hotkeysGroup:AddGroup("Native Keybindings")
     local MCMHotkeysGroup = hotkeysGroup:AddGroup("MCM Keybindings")
+    MCMHotkeysGroup:AddDummy(0, 2)
+    nativeHotkeysGroup:AddDummy(0, 2)
 
     -- Safely create the keybinding widget
     pcall(function()
@@ -181,6 +183,10 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
             local _keybindingWidget = KeybindingV2IMGUIWidget:new(MCMHotkeysGroup)
         end
     end)
+
+    -- Add a separator to separate the groups
+    MCMHotkeysGroup:AddSeparator()
+    MCMHotkeysGroup:AddDummy(0, 2)
 
     -- Safely create native keybindings
     pcall(function()
