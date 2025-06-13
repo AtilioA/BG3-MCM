@@ -122,29 +122,44 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
                     -- Keybinding cell
                     local kbCell = row:AddCell()
 
-                    -- Format bindings
-                    local bindingText = UNASSIGNED_KEYBOARD_MOUSE_STRING or "Unassigned"
+                    -- Add a button for each binding
                     if action.Bindings and #action.Bindings > 0 then
-                        local bindingStrings = {}
-                        for _, binding in ipairs(action.Bindings) do
-                            if binding.InputId then
-                                table.insert(bindingStrings,
-                                    KeyPresentationMapping:GetKBViewKey({
-                                        Key = tostring(binding.InputId),
-                                        ModifierKeys = binding.Modifiers
-                                    }))
-                            end
-                        end
-                        if #bindingStrings > 0 then
-                            bindingText = table.concat(bindingStrings, ", ")
-                        end
-                    end
+                        -- Render the bindings
+                        local firstButton = true
+                        for i, binding in ipairs(action.Bindings) do
+                            local bindingText = UNASSIGNED_KEYBOARD_MOUSE_STRING or "Unassigned"
 
-                    local kbButton = kbCell:AddButton(bindingText)
-                    kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
-                    kbButton:SetColor("ButtonActive", Color.NormalizedRGBA(18, 18, 18, 1))
-                    kbButton:SetColor("ButtonHovered", Color.NormalizedRGBA(18, 18, 18, 1))
-                    kbButton.IDContext = "Native_KBMouse_" .. (action.ActionId or action.ActionName or "")
+                            if binding.InputId then
+                                bindingText = KeyPresentationMapping:GetKBViewKey({
+                                    Key = tostring(binding.InputId),
+                                    ModifierKeys = binding.Modifiers
+                                })
+                            end
+
+                            -- Only add spacing if this isn't the first button
+                            if not firstButton then
+                                kbCell:AddDummy(0, 1)
+                            end
+
+                            local kbButton = kbCell:AddButton(bindingText)
+                            kbButton.SameLine = false
+                            kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
+                            kbButton:SetColor("ButtonActive", Color.NormalizedRGBA(18, 18, 18, 1))
+                            kbButton:SetColor("ButtonHovered", Color.NormalizedRGBA(18, 18, 18, 1))
+                            kbButton.IDContext = string.format("Native_KBMouse_%s_%d",
+                                action.ActionId or action.ActionName or "", i)
+
+                            firstButton = false
+                        end
+                    else
+                        -- Show unassigned state if no bindings at all
+                        local kbButton = kbCell:AddButton(UNASSIGNED_KEYBOARD_MOUSE_STRING or "Unassigned")
+                        kbButton.SameLine = false
+                        kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
+                        kbButton:SetColor("Text", Color.HEXToRGBA("#777777"))
+                        kbButton.IDContext = "Native_KBMouse_" ..
+                        (action.ActionId or action.ActionName or "") .. "_unassigned"
+                    end
                 end
             end, function(err)
                 if not categoryHeader then return end
