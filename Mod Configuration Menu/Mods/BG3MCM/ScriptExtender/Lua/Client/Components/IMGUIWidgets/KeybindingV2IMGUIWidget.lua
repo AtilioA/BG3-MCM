@@ -31,20 +31,23 @@ function KeybindingV2IMGUIWidget:new(group)
         InputEventSubscriptions = {},
         DynamicElements = {
             ModHeaders = {},
-            SearchInput = nil,
             NoResultsText = nil
         }
     }
     instance.PressedKeys = {}
     instance.AllPressedKeys = {}
 
-    KeybindingV2IMGUIWidget.SearchSubject = ReplaySubject.Create(1)
+    -- Use the global search subject if available
+    instance.SearchSubject = KeybindingsUI.SearchBar and KeybindingsUI.SearchBar.SearchSubject
 
-    instance.Widget.DebounceSearch = VCTimer:Debounce(50, function()
-        instance:FilterActions()
-        instance:RefreshUI()
-        KeybindingV2IMGUIWidget.SearchSubject:OnNext(instance.Widget.SearchText)
-    end)
+    if instance.SearchSubject then
+        -- Subscribe to search text changes
+        instance._searchSubscription = instance.SearchSubject:Subscribe(function(searchText)
+            instance.Widget.SearchText = searchText or ""
+            instance:FilterActions()
+            instance:RefreshUI()
+        end)
+    end
 
     -- Subscribe to registry changes so UI updates automatically.
     instance._registrySubscription = KeybindingsRegistry:GetSubject():Subscribe(function(newRegistry)
@@ -118,24 +121,6 @@ function KeybindingV2IMGUIWidget:FilterActions()
     self.Widget.FilteredActions = filteredMods
 end
 
----Renders the search bar UI element
-function KeybindingV2IMGUIWidget:RenderSearchBar()
-    local group = self.Widget.Group
-    if not self.Widget.DynamicElements.SearchInput then
-        group:AddSpacing()
-        group:AddText(Ext.Loca.GetTranslatedString("h2f1eda98ddb949d09792e1e1bc45ecddg446"))
-        local searchInput = group:AddInputText("", self.Widget.SearchText)
-        searchInput.IDContext = "SearchInput"
-        searchInput.AutoSelectAll = true
-        searchInput.OnChange = function(input)
-            self.Widget.SearchText = input.Text
-            self.Widget.DebounceSearch()
-        end
-        group:AddSeparator()
-        self.Widget.DynamicElements.SearchInput = searchInput
-    end
-end
-
 ---Sorts the filtered actions with MCM first, then alphabetically by mod name
 function KeybindingV2IMGUIWidget:SortFilteredActions()
     -- Sort mods: MCM comes first, then alphabetically by mod name.
@@ -163,7 +148,6 @@ end
 function KeybindingV2IMGUIWidget:RenderKeybindingTables()
     local group = self.Widget.Group
     self:ClearDynamicElements()
-    self:RenderSearchBar()
 
     if #self.Widget.FilteredActions == 0 then
         -- FIXME: display a "No results" message

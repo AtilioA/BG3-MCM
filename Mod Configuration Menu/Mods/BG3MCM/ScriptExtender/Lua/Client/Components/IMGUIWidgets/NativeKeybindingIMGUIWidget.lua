@@ -11,8 +11,8 @@ function NativeKeybindingIMGUIWidget:new(group)
     }
     -- subscribe to search subject for dynamic filtering
     instance.Widget.SearchText = ""
-    if KeybindingV2IMGUIWidget and KeybindingV2IMGUIWidget.SearchSubject then
-        instance._searchSubscription = KeybindingV2IMGUIWidget.SearchSubject:Subscribe(function(searchText)
+    if KeybindingsUI.SearchBar and KeybindingsUI.SearchBar.SearchSubject then
+        instance._searchSubscription = KeybindingsUI.SearchBar.SearchSubject:Subscribe(function(searchText)
             instance.Widget.SearchText = searchText
             instance:RefreshUI()
         end)

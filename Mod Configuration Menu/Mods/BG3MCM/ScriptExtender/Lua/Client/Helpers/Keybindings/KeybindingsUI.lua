@@ -11,6 +11,7 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 ---@class KeybindingsUI
 KeybindingsUI = {}
 
+KeybindingsUI.SearchBar = nil
 
 -- Local references for better performance
 local pairs = pairs
@@ -163,6 +164,13 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
         return {}
     end
 
+    -- Create search bar group at the top
+    local searchBarGroup = hotkeysGroup:AddGroup("Search Keybindings")
+
+    -- Create and render the search bar instance
+    KeybindingsUI.SearchBar = KeybindingSearchBar:new()
+    KeybindingsUI.SearchBar:Render(searchBarGroup)
+
     -- Create groups in advance to preserve order
     local nativeHotkeysGroup = hotkeysGroup:AddGroup("Native Keybindings")
     local MCMHotkeysGroup = hotkeysGroup:AddGroup("MCM Keybindings")
@@ -184,11 +192,5 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
 
     return hotkeysGroup
 end
-
--- TODO: display native keybindings with Ext.ClientInput.GetInputManager():
--- InputDefinitions has all the actions (EventName entries) ID for bindings (EventID entries).
--- InputScheme.InputBindings[] has all currently-assigned bindings. InputScheme.RawToBinding[] also has it, not sure what's the difference though.
--- Native bindings can be keybinding (including mouse buttons) or gamepad, and there can be two bindings for each; front-end needs to be custom to handle this. We must have an adapter to map between the SE format and our data format. We need to determine what are keybindings and what are gamepad bindings, and ignore keybindings. We'll need to improve KeyPresentationMapping to handle mouse buttons.
--- We won't tackle editing any native bindings. We'll only be displaying them and displaying any conflict detection with MCM-defined bindings.
 
 return KeybindingsUI
