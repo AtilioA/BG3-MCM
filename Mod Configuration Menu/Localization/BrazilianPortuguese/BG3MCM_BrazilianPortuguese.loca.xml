@@ -80,7 +80,8 @@
     <content contentuid="h68057d690e2f44ae98c31cb07f8074fb7134" version="1">Entrada de Teclado</content>
     <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Clique para atribuir uma nova tecla.</content>
     <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Ação: '[1]'</content>
-    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Tecla [1] conflita com a ação '[2]'</content>
+    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Tecla [1] conflita com a ação '[2]'&lt;br&gt;A ação '[3]' já usa essa tecla.</content>
+    <content contentuid="h8509840fdfe4453b800fd84957a50800gacb" version="1">Tecla [1] conflita para ação '[2]'</content>
     <content contentuid="h919dc9b46db144ed8c330d1abb728459aea3" version="1">Conflito de atalho de tecla com a ação: [1]</content>
     <content contentuid="hb20ef6573e4b42329222dcae8e6809c9ab0c" version="1">Atalhos de teclado</content>
     <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Ajuda &amp; solução de problemas</content>

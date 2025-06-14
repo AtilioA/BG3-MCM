@@ -421,7 +421,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
         local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
             action.ActionName)
         local conflictStr = VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee",
-            KeyPresentationMapping:GetKBViewKey(keybinding) or "", action.ActionName)
+            KeyPresentationMapping:GetKBViewKey(keybinding) or "", action.ActionName, conflictAction.ActionName)
         KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
     end
 

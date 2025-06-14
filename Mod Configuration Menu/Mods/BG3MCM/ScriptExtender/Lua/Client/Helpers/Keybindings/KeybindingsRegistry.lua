@@ -282,7 +282,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         -- TODO: reduce duplication with KeybindingV2IMGUIWidget
         local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
             binding.actionName)
-        local conflictStr = VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee", keybindingStr,
+        local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb", keybindingStr,
             binding.actionName)
         KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
     elseif #triggered == 1 then
