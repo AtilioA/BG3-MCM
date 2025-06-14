@@ -70,7 +70,17 @@ end
 ---@return string The display string for the event, or the original name if not found
 function NativeKeybindingsTranslator.GetEventString(eventName)
   if not eventName then return "" end
-  return _eventStrings[eventName] or eventName:gsub("([A-Z])", " %1"):gsub("^%s+", "")
+  local str = _eventStrings[eventName]
+
+  if not str then
+    str = eventName:gsub("([A-Z])", " %1"):gsub("^%s+", "")
+    _eventStrings[eventName] = str
+  end
+
+  local locString = Ext.Loca.GetTranslatedString(str)
+  if locString and locString ~= "" then return locString end
+
+  return str
 end
 
 return NativeKeybindingsTranslator

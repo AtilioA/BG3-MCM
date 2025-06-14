@@ -75,9 +75,11 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
     -- process each category under the collapse header
     for _, category in ipairs(categories) do
         if category.Actions and #category.Actions > 0 then
-            -- determine display name
-            local catName = (category.CategoryName and category.CategoryName ~= "") and category.CategoryName or
-                "Uncategorized"
+            -- Get translated category name with fallback
+            local catName = "Uncategorized"
+            if category.CategoryName and category.CategoryName ~= "" then
+                catName = NativeKeybindingsTranslator.GetCategoryString(category.CategoryName) or category.CategoryName
+            end
 
             -- add category header as a collapsible header
             local categoryHeader = nativeHeader:AddCollapsingHeader(catName)
@@ -106,9 +108,11 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
                     -- enabledCheckbox.Checked = true
                     -- enabledCheckbox.IDContext = "Native_Enabled_" .. (action.ActionId or action.ActionName or "")
 
-                    -- Action Name cell
+                    -- Action Name cell with translated name
                     local nameCell = row:AddCell()
-                    local nameText = nameCell:AddText(action.ActionName or "")
+                    local displayName = action.ActionName and
+                        NativeKeybindingsTranslator.GetEventString(action.ActionName) or ""
+                    local nameText = nameCell:AddText(displayName)
                     nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
 
                     if action.Description and action.Description ~= "" then
@@ -158,7 +162,7 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
                         kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
                         kbButton:SetColor("Text", Color.HEXToRGBA("#777777"))
                         kbButton.IDContext = "Native_KBMouse_" ..
-                        (action.ActionId or action.ActionName or "") .. "_unassigned"
+                            (action.ActionId or action.ActionName or "") .. "_unassigned"
                     end
                 end
             end, function(err)
