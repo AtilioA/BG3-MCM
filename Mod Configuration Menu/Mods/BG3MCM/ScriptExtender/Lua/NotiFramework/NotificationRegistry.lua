@@ -1,18 +1,30 @@
 -- Manages the lifecycle and tracking of active notifications
 
 ---@class NotificationRegistry
----@field private _activeNotifications table<number, NotificationManager>
+---@field private _activeNotifications table<NotificationManager, boolean>
 NotificationRegistry = _Class:Create("NotificationRegistry", nil, {
     _activeNotifications = {}
 })
 
---- Finds an existing notification with the given title and message
+-- --- Finds an existing notification with the given title and message
+-- ---@param title string The title to search for
+-- ---@param message string The message to search for
+-- ---@return NotificationManager|nil
+-- function NotificationRegistry:FindExisting(title, message)
+--     for notification, _ in pairs(self._activeNotifications) do
+--         if notification and type(notification) == "table" and notification.title == title and notification.message == message then
+--             return notification
+--         end
+--     end
+--     return nil
+-- end
+
+--- Finds an existing notification with the given title
 ---@param title string The title to search for
----@param message string The message to search for
 ---@return NotificationManager|nil
-function NotificationRegistry:FindExisting(title, message)
-    for _, notification in pairs(self._activeNotifications) do
-        if notification.title == title and notification.message == message then
+function NotificationRegistry:FindByTitle(title)
+    for notification, _ in pairs(self._activeNotifications) do
+        if notification and type(notification) == "table" and notification.title == title then
             return notification
         end
     end
@@ -26,7 +38,6 @@ function NotificationRegistry:Add(notification)
 
     -- Remove any existing notification with the same ID
     self:Remove(notification)
-
     self._activeNotifications[notification] = true
 end
 

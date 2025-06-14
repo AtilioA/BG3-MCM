@@ -352,14 +352,24 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
         return nil
     end
 
-    -- Check for existing notification with same title and message
-    local existingNotification = notificationRegistry:FindExisting(title, message)
+    -- Check for existing notification with same title but different message
+    local existingNotification = notificationRegistry:FindByTitle(title)
     if existingNotification then
-        MCMDebug(2, string.format(
-            "Notification suppressed - duplicate found (ID: %s, Title: %s, Message: %s)",
-            id, title, message
-        ))
-        return existingNotification
+        -- If message is different, modify the title with a random number
+        if existingNotification.message ~= message then
+            title = string.format("%s##%s", title, tostring(Ext.Math.Random()))
+            MCMDebug(2, string.format(
+                "Notification with same title but different message found. Using modified title: %s",
+                title
+            ))
+        else
+            -- Exact duplicate found, return the existing one
+            MCMDebug(2, string.format(
+                "Notification suppressed - exact duplicate found (ID: %s, Title: %s, Message: %s)",
+                id, title, message
+            ))
+            return existingNotification
+        end
     end
 
     -- Create and register new notification
