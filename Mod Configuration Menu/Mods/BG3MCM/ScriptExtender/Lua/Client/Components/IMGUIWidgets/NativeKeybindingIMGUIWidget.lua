@@ -72,47 +72,73 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
     nativeHeader:AddText("Vanilla/Native keybindings are read-only and will not update when you change them in-game.")
     table.insert(self.Widget.DynamicElements.ModHeaders, nativeHeader)
 
-    -- process each category under the collapse header
+    -- Create a sorted list of categories with their translated names
+    local sortedCategories = {}
     for _, category in ipairs(categories) do
+        local catName = "Uncategorized"
+        if category.CategoryName and category.CategoryName ~= "" then
+            catName = NativeKeybindingsTranslator.GetCategoryString(category.CategoryName) or category.CategoryName
+        end
+        table.insert(sortedCategories, {
+            original = category,
+            translatedName = catName
+        })
+    end
+    
+    -- Sort categories by their translated names
+    table.sort(sortedCategories, function(a, b)
+        return VCString.NaturalOrderCompare(a.translatedName, b.translatedName)
+    end)
+    
+    -- Process each category in sorted order
+    for _, categoryItem in ipairs(sortedCategories) do
+        local category = categoryItem.original
+        local catName = categoryItem.translatedName
         if category.Actions and #category.Actions > 0 then
-            -- Get translated category name with fallback
-            local catName = "Uncategorized"
-            if category.CategoryName and category.CategoryName ~= "" then
-                catName = NativeKeybindingsTranslator.GetCategoryString(category.CategoryName) or category.CategoryName
-            end
+            -- Use the pre-translated category name
 
-            -- add category header as a collapsible header
+            -- Add category header as a collapsible header
             local categoryHeader = nativeHeader:AddCollapsingHeader(catName)
             categoryHeader.DefaultOpen = false
             categoryHeader:AddDummy(5, 5)
             table.insert(self.Widget.DynamicElements.ModHeaders, categoryHeader)
 
+
             xpcall(function()
-                -- create table for this category
+                -- Create a copy of actions to sort without modifying the original
+                local sortedActions = {}
+                for _, action in ipairs(category.Actions) do
+                    table.insert(sortedActions, {
+                        action = action,
+                        displayName = action.ActionName and
+                            NativeKeybindingsTranslator.GetEventString(action.ActionName) or ""
+                    })
+                end
+
+                -- Sort actions by their translated names using natural order
+                table.sort(sortedActions, function(a, b)
+                    return VCString.NaturalOrderCompare(a.displayName, b.displayName)
+                end)
+
+                -- Create table for this category
                 local imguiTable = categoryHeader:AddTable(catName .. "_table", 2)
                 imguiTable.BordersOuter = true
                 imguiTable.BordersInner = true
                 imguiTable.RowBg = true
 
                 -- Define the columns
-                -- imguiTable:AddColumn("Enabled", "WidthFixed", 100)
                 imguiTable:AddColumn("Action", "WidthStretch")
                 imguiTable:AddColumn("Keybinding", "WidthStretch")
 
-                for _, action in ipairs(category.Actions) do
-                    local row = imguiTable:AddRow()
 
-                    -- Enabled checkbox cell (TODO: allow ignoring conflict)
-                    -- local enabledCell = row:AddCell()
-                    -- local enabledCheckbox = enabledCell:AddCheckbox("")
-                    -- enabledCheckbox.Checked = true
-                    -- enabledCheckbox.IDContext = "Native_Enabled_" .. (action.ActionId or action.ActionName or "")
+                -- Render sorted actions
+                for _, item in ipairs(sortedActions) do
+                    local action = item.action
+                    local row = imguiTable:AddRow()
 
                     -- Action Name cell with translated name
                     local nameCell = row:AddCell()
-                    local displayName = action.ActionName and
-                        NativeKeybindingsTranslator.GetEventString(action.ActionName) or ""
-                    local nameText = nameCell:AddText(displayName)
+                    local nameText = nameCell:AddText(item.displayName)
                     nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
 
                     if action.Description and action.Description ~= "" then

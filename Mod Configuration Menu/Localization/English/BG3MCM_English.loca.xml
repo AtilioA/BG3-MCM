@@ -222,6 +222,8 @@
     <content contentuid="h652b98e111884533a0ec00fd94ecc386f717" version="1">Confirm action</content>
     <content contentuid="h6cea07ecefe545ddaf13f4259fa75a6b2400" version="1">Are you sure you want to proceed?</content>
     <content contentuid="hac5a1fd7d223410b8a5fab04951eb428adde" version="1">Keybinding conflict: [1]</content>
+
+    <!-- Below are entries for native keybindings. It is not something players will see much. -->
     <content contentuid="hbf47285d75054db8961a2bbd76e650fcd991" version="1">Camera Controls</content>
     <content contentuid="h86fe2b0403a84fb7908f6bdf3ee17dd21e7f" version="1">Unknown</content>
     <content contentuid="h726ccf29105d41538780a0a1b61bf3cab5f0" version="1">Photo Mode Controls</content>
@@ -550,4 +552,5 @@
     <content contentuid="hf0c2fd4c56a64f0f8b71262129de4b9b29fd" version="1">Widget Mouse Right</content>
     <content contentuid="h5471cbe24a5b43739a991242912f1fd304d6" version="1">Controller Unlinked B</content>
     <content contentuid="h108a40bd44e043d5975c5e6765aad4d11e7a" version="1">Controller Unlinked X</content>
+    <!-- End of entries for native keybindings -->
 </contentList>
