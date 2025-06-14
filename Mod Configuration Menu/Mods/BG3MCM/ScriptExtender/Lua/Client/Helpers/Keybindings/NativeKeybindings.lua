@@ -178,7 +178,25 @@ function NativeKeybindings.GetAll()
         end
     end
 
+    NativeKeybindings.SortKeybindings(result.Public)
+    NativeKeybindings.SortKeybindings(result.Internal)
+
     return result
+end
+
+--- Sort helper
+function NativeKeybindings.SortKeybindings(list)
+    table.sort(list, function(a, b)
+        local catA = a.CategoryName or ""
+        local catB = b.CategoryName or ""
+        if catA == catB then
+            local eventA = a.EventName or ""
+            local eventB = b.EventName or ""
+            return VCString.NaturalOrderCompare(eventA, eventB)
+        else
+            return VCString.NaturalOrderCompare(catA, catB)
+        end
+    end)
 end
 
 --- Gets the input type string for a given device ID

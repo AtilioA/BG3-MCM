@@ -119,19 +119,19 @@ function KeybindingsUI.GetNativeKeybindings()
     local native = NativeKeybindings.GetByDeviceType("Keyboard")
     if not native or not native.Public then return result end
     local byCategory = {}
-    for _, kb in ipairs(native.Public) do
-        local cat = kb.CategoryName or "Uncategorized"
-        byCategory[cat] = byCategory[cat] or {}
-        table_insert(byCategory[cat], kb)
+    for _, kBinding in ipairs(native.Public) do
+        local category = kBinding.CategoryName or "Uncategorized"
+        byCategory[category] = byCategory[category] or {}
+        table_insert(byCategory[category], kBinding)
     end
-    for category, kbs in pairs(byCategory) do
+    for category, keybindings in pairs(byCategory) do
         local actions = {}
-        for _, kb in ipairs(kbs) do
+        for _, kBinding in ipairs(keybindings) do
             local action = {
-                ActionId = kb.EventName or "",
-                ActionName = kb.EventName or "",
-                Description = kb.Description or "",
-                Bindings = kb.Bindings or {}
+                ActionId = kBinding.EventName or "",
+                ActionName = kBinding.EventName or "",
+                Description = kBinding.Description or "",
+                Bindings = kBinding.Bindings or {}
             }
             table_insert(actions, action)
         end

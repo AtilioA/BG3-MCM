@@ -220,3 +220,51 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
 
     return self:ReplaceBrWithNewlines(updatedMessage)
 end
+
+--- Compares two strings using natural order (e.g., "2" < "11").
+---@param a string
+---@param b string
+---@return boolean
+function VCString.NaturalOrderCompare(strA, strB)
+    if strA == strB then return false end
+    if strA == nil then return true end
+    if strB == nil then return false end
+
+    --- Splits a string into a sequence of text and number parts.
+    ---@param inputString string
+    ---@return table
+    local function splitParts(inputString)
+        local parts = {}
+        local index = 1
+        while index <= #inputString do
+            local startNum, endNum, numberPart = inputString:find('^(%d+)', index)
+            if startNum then
+                table.insert(parts, tonumber(numberPart))
+                index = endNum + 1
+            else
+                local startTxt, endTxt, textPart = inputString:find('^([^%d]+)', index)
+                if startTxt then
+                    table.insert(parts, textPart)
+                    index = endTxt + 1
+                else
+                    break
+                end
+            end
+        end
+        return parts
+    end
+
+    local partsA, partsB = splitParts(strA), splitParts(strB)
+    for partIndex = 1, math.max(#partsA, #partsB) do
+        local valueA, valueB = partsA[partIndex], partsB[partIndex]
+        if valueA == nil then return true end
+        if valueB == nil then return false end
+        if type(valueA) == 'number' and type(valueB) == 'number' then
+            if valueA ~= valueB then return valueA < valueB end
+        else
+            local stringA, stringB = tostring(valueA), tostring(valueB)
+            if stringA ~= stringB then return stringA < stringB end
+        end
+    end
+    return false
+end
