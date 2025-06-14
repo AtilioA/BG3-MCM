@@ -60,7 +60,10 @@ function KeybindingConflictService:CheckActionForConflict(keybinding, action, ac
         return nil
     end
     if self:AreKeybindingsEqual(keybinding, action.keyboardBinding) then
-        return { ActionName = action.actionName }
+        return {
+            ActionName = action.actionName,
+            Keybinding = action.keyboardBinding
+        }
     end
     return nil
 end
@@ -104,16 +107,18 @@ function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, cur
     -- Check native keybindings for conflicts
     local nativeData = NativeKeybindings.GetByDeviceType("Keyboard")
     if nativeData and nativeData.Public then
-        for _, action in ipairs(nativeData.Public) do
-            for _, binding in ipairs(action.Bindings or {}) do
+        for _, nativeAction in ipairs(nativeData.Public) do
+            for _, binding in ipairs(nativeAction.Bindings or {}) do
+                -- Convert native binding to standard Keybinding table
+                local transformed = { Key = tostring(binding.InputId), ModifierKeys = binding.Modifiers or {} }
                 local mcmAction = {
-                    ActionId = action.EventName,
-                    ActionName = action.Name,
-                    keyboardBinding = binding,
-                    enabled = true,
-                    defaultKeyboardBinding = binding,
+                    ActionId = nativeAction.EventName,
+                    ActionName = nativeAction.EventName,
+                    actionName = nativeAction.EventName, -- Add this line to ensure actionName is available
+                    keyboardBinding = transformed
                 }
-                local conflict = self:CheckActionForConflict(keybinding, mcmAction, action.EventName, currentActionId)
+                local conflict = self:CheckActionForConflict(keybinding, mcmAction, nativeAction.EventName,
+                    currentActionId)
                 if conflict then
                     return conflict
                 end

@@ -259,11 +259,22 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 ),
                 mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
 
-            -- If there is a conflict, color the keybinding button red.
+            -- If there is a conflict, color the keybinding button red and show conflict details
             local conflictKB = KeybindingConflictService:CheckForConflicts(action.KeyboardMouseBinding, mod, action,
                 "KeyboardMouse")
             if conflictKB then
                 kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+
+                -- Add conflict text below the button
+                local conflictText = VCString:InterpolateLocalizedMessage(
+                    "h919dc9b46db144ed8c330d1abb728459aea3",
+                    conflictKB.ActionName
+                )
+
+                -- Add the conflict text below the keybinding button
+                local conflictLabel = kbCell:AddText(conflictText)
+                conflictLabel.TextWrapPos = 0
+                conflictLabel:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
             end
         end
     end, function(err)
@@ -411,8 +422,6 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
             action.ActionName)
         local conflictStr = VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee",
             KeyPresentationMapping:GetKBViewKey(keybinding) or "", action.ActionName)
-        _D(conflictTitle)
-        _D(conflictStr)
         KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
     end
 

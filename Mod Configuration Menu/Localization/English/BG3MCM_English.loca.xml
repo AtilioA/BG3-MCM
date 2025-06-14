@@ -85,6 +85,7 @@
     <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Click to assign a new key combination.</content>
     <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Action: '[1]'</content>
     <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Keybinding [1] conflicts for action '[2]'</content>
+    <content contentuid="h919dc9b46db144ed8c330d1abb728459aea3" version="1">Keybinding conflicts with action '[1]'</content>
     <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Help &amp; Troubleshooting</content>
     <content contentuid="h361dd694cca74b30a87f02d035e35dcac0d4" version="1">Troubleshooting and Reporting</content>
     <content contentuid="hafec095716ec4208b2319d24b3c230d969d4" version="1">Script Extender's (SE) IMGUI implementation is in constant development. If you're having issues:</content>
