@@ -354,7 +354,11 @@ local _eventStrings = {
 ---@param categoryName string The category name to look up
 ---@return string The display string for the category, or a default string if not found
 function NativeKeybindingsTranslator.GetCategoryString(categoryName)
-  if not categoryName then return _categoryStrings[""] end
+  if not categoryName then categoryName = "" end
+
+  local locString = Ext.Loca.GetTranslatedString(_categoryStrings[categoryName])
+  if locString and locString ~= "" then return locString end
+
   return _categoryStrings[categoryName] or _categoryStrings[""]
 end
 
