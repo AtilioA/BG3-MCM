@@ -6,5 +6,6 @@ RequireFiles("Client/Helpers/", {
     "UIStyle",
     "Noesis",
     "Restoration/_Init",
+    "NativeKeybindingsTranslator",
     "InitHandles"
 })
