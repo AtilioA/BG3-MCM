@@ -94,7 +94,7 @@ end
 function NativeKeybindingIMGUIWidget:RenderKeybindingCell(cell, action)
     if not action.Bindings or #action.Bindings == 0 then
         -- Show unassigned state if no bindings at all
-        local kbButton = cell:AddButton(UNASSIGNED_KEYBOARD_MOUSE_STRING)
+        local kbButton = cell:AddButton(ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING)
         kbButton.SameLine = false
         kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
         kbButton:SetColor("Text", Color.HEXToRGBA("#777777"))
@@ -105,7 +105,7 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingCell(cell, action)
     -- Render each binding
     local firstButton = true
     for i, binding in ipairs(action.Bindings) do
-        local bindingText = UNASSIGNED_KEYBOARD_MOUSE_STRING
+        local bindingText = ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
 
         if binding.InputId then
             bindingText = KeyPresentationMapping:GetKBViewKey({

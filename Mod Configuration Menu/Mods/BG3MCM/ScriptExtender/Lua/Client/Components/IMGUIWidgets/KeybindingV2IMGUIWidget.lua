@@ -7,11 +7,6 @@
 ---@field _registrySubscription any
 KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
 
----@type string
-LISTENING_INPUT_STRING = Ext.Loca.GetTranslatedString("h2ea690497b1a4ffea4b2ed480df3654c486f")
-
----@type string
-UNASSIGNED_KEYBOARD_MOUSE_STRING = Ext.Loca.GetTranslatedString("h08c75c996813442bb40fa085f1ecec07f14e")
 
 ---Creates a new instance of KeybindingV2IMGUIWidget
 ---@param group ExtuiGroup The IMGUI group to attach this widget to
@@ -98,7 +93,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
                     ActionId = actionId,
                     Enabled = binding.enabled,
                     DefaultEnabled = binding.defaultEnabled,
-                    KeyboardMouseBinding = binding.keyboardBinding or UNASSIGNED_KEYBOARD_MOUSE_STRING,
+                    KeyboardMouseBinding = binding.keyboardBinding or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
                     Description = binding.description,
                     Tooltip = binding.tooltip
@@ -223,7 +218,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- Keybinding cell.
             local kbCell = row:AddCell()
             local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
-                UNASSIGNED_KEYBOARD_MOUSE_STRING)
+                ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING)
             kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 0.8))
             kbButton:SetColor("ButtonActive", Color.NormalizedRGBA(18, 18, 18, 1))
             kbButton:SetColor("ButtonHovered", Color.NormalizedRGBA(18, 18, 18, 0.5))
@@ -296,7 +291,7 @@ function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, 
     self.Widget.ListeningForInput = true
     self.Widget.CurrentListeningAction = { Mod = mod, Action = action, InputType = inputType, Button = button }
     self:RegisterInputEvents()
-    button.Label = LISTENING_INPUT_STRING
+    button.Label = ClientGlobals.LISTENING_INPUT_STRING
     button.Disabled = true
 end
 
@@ -433,9 +428,10 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     xpcall(function()
         if self:StoreKeybinding(modData, action, newPayload) then
             if inputType == "KeyboardMouse" and type(keybinding) == "table" and buttonElement then
-                buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or UNASSIGNED_KEYBOARD_MOUSE_STRING
+                buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or
+                ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
             else
-                buttonElement.Label = UNASSIGNED_KEYBOARD_MOUSE_STRING
+                buttonElement.Label = ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
             end
             buttonElement.Disabled = false
         else
@@ -459,7 +455,7 @@ function KeybindingV2IMGUIWidget:CancelKeybinding()
 
         if inputType == "KeyboardMouse" then
             buttonElement.Label = KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
-                UNASSIGNED_KEYBOARD_MOUSE_STRING
+                ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
         end
         buttonElement.Disabled = false
     end

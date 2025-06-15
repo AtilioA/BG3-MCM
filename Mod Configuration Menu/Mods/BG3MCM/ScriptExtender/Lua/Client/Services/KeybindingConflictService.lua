@@ -4,7 +4,7 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 KeybindingConflictService = _Class:Create("KeybindingConflictService", nil)
 
 local function isEmptyBinding(binding)
-    if binding == nil or binding == "" or binding == UNASSIGNED_KEYBOARD_MOUSE_STRING then
+    if binding == nil or binding == "" or binding == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING then
         return true
     end
     if type(binding) == "table" then
@@ -23,14 +23,14 @@ function KeybindingConflictService:AreKeybindingsEqual(binding1, binding2)
     local normalized1, normalized2 = nil, nil
 
     -- Both unassigned
-    if (binding1 == nil or binding1 == UNASSIGNED_KEYBOARD_MOUSE_STRING) and
-        (binding2 == nil or binding2 == UNASSIGNED_KEYBOARD_MOUSE_STRING) then
+    if (binding1 == nil or binding1 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) and
+        (binding2 == nil or binding2 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) then
         return true
     end
 
     -- One unassigned, the other not
-    if (binding1 == nil or binding1 == UNASSIGNED_KEYBOARD_MOUSE_STRING) ~=
-        (binding2 == nil or binding2 == UNASSIGNED_KEYBOARD_MOUSE_STRING) then
+    if (binding1 == nil or binding1 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) ~=
+        (binding2 == nil or binding2 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) then
         return false
     end
 

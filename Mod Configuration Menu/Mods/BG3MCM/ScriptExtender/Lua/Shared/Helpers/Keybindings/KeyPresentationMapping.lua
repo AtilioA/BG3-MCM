@@ -154,7 +154,7 @@ KeyPresentationMapping.Mapping = {
 function KeyPresentationMapping:GetViewKey(sdlKey)
     if not sdlKey then
         MCMWarn(1, "No SDL key provided. Defaulting to unassigned.")
-        return UNASSIGNED_KEYBOARD_MOUSE_STRING
+        return ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
 
     return self.Mapping[sdlKey:upper()] or sdlKey
@@ -166,7 +166,7 @@ end
 function KeyPresentationMapping:GetKBViewKey(keybinding)
     if not keybinding or (not keybinding.Key and not keybinding.ModifierKeys) or
         (type(keybinding.Key) == "string" and keybinding.Key == "") then
-        return UNASSIGNED_KEYBOARD_MOUSE_STRING
+        return ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
 
     local keyStr = ""
@@ -189,7 +189,7 @@ end
 function KeyPresentationMapping:GetKBViewKeyForSetting(keybinding_setting_id, modUUID)
     local keybinding = MCMAPI:GetSettingValue(keybinding_setting_id, modUUID)
     if not keybinding or not keybinding.Keyboard then
-        return UNASSIGNED_KEYBOARD_MOUSE_STRING
+        return ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
     return self:GetKBViewKey(keybinding.Keyboard)
 end
