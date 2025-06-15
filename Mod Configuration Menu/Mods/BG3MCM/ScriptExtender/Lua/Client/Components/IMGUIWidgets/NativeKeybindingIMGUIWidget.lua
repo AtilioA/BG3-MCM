@@ -45,34 +45,10 @@ function NativeKeybindingIMGUIWidget:RefreshUI()
     self:RenderKeybindingTables()
 end
 
---- Renders the native keybinding tables grouped by category
-function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
-    local group = self.Widget.Group
-    -- group:AddDummy(0, 5)
-    self:ClearDynamicElements()
-
-    -- get native keybindings
-    local categories = KeybindingsUI.GetNativeKeybindings()
-    -- apply search filter from KeybindingV2IMGUIWidget
-    if self.Widget.SearchText and self.Widget.SearchText ~= "" then
-        categories = self:FilterCategories(categories)
-    end
-    if not categories or #categories == 0 then
-        local msg = (self.Widget.SearchText and self.Widget.SearchText ~= "") and
-            ("No native keybindings found for '" .. self.Widget.SearchText .. "'.") or
-            "No native keybindings found."
-        local noResults = group:AddText(msg)
-        self.Widget.DynamicElements.NoResultsText = noResults
-        return
-    end
-
-    -- create a collapsible header for native keybindings
-    local nativeHeader = group:AddCollapsingHeader("Vanilla keybindings")
-    nativeHeader.DefaultOpen = false
-    nativeHeader:AddText("Vanilla/Native keybindings are read-only and will not update when you change them in-game.")
-    table.insert(self.Widget.DynamicElements.ModHeaders, nativeHeader)
-
-    -- Create a sorted list of categories with their translated names
+--- Sorts categories by their translated names
+---@param categories table List of category objects
+---@return table Sorted list of categories with translated names
+function NativeKeybindingIMGUIWidget:SortCategoriesByTranslatedName(categories)
     local sortedCategories = {}
     for _, category in ipairs(categories) do
         local catName = "Uncategorized"
@@ -84,120 +60,171 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
             translatedName = catName
         })
     end
-    
-    -- Sort categories by their translated names
+
     table.sort(sortedCategories, function(a, b)
         return VCString.NaturalOrderCompare(a.translatedName, b.translatedName)
     end)
-    
-    -- Process each category in sorted order
-    for _, categoryItem in ipairs(sortedCategories) do
-        local category = categoryItem.original
-        local catName = categoryItem.translatedName
-        if category.Actions and #category.Actions > 0 then
-            -- Use the pre-translated category name
 
-            -- Add category header as a collapsible header
-            local categoryHeader = nativeHeader:AddCollapsingHeader(catName)
-            categoryHeader.DefaultOpen = false
-            categoryHeader:AddDummy(5, 5)
-            table.insert(self.Widget.DynamicElements.ModHeaders, categoryHeader)
+    return sortedCategories
+end
 
+--- Sorts actions by their translated names
+---@param actions table List of action objects
+---@return table Sorted list of actions with display names
+function NativeKeybindingIMGUIWidget:SortActionsByTranslatedName(actions)
+    local sortedActions = {}
+    for _, action in ipairs(actions) do
+        table.insert(sortedActions, {
+            action = action,
+            displayName = action.ActionName and
+                NativeKeybindingsTranslator.GetEventString(action.ActionName) or ""
+        })
+    end
 
-            xpcall(function()
-                -- Create a copy of actions to sort without modifying the original
-                local sortedActions = {}
-                for _, action in ipairs(category.Actions) do
-                    table.insert(sortedActions, {
-                        action = action,
-                        displayName = action.ActionName and
-                            NativeKeybindingsTranslator.GetEventString(action.ActionName) or ""
-                    })
-                end
+    table.sort(sortedActions, function(a, b)
+        return VCString.NaturalOrderCompare(a.displayName, b.displayName)
+    end)
 
-                -- Sort actions by their translated names using natural order
-                table.sort(sortedActions, function(a, b)
-                    return VCString.NaturalOrderCompare(a.displayName, b.displayName)
-                end)
+    return sortedActions
+end
 
-                -- Create table for this category
-                local imguiTable = categoryHeader:AddTable(catName .. "_table", 2)
-                imguiTable.BordersOuter = true
-                imguiTable.BordersInner = true
-                imguiTable.RowBg = true
+--- Renders the keybinding cell for an action
+---@param cell any The IMGUI cell to render into
+---@param action table The action to render bindings for
+function NativeKeybindingIMGUIWidget:RenderKeybindingCell(cell, action)
+    if not action.Bindings or #action.Bindings == 0 then
+        -- Show unassigned state if no bindings at all
+        local kbButton = cell:AddButton(UNASSIGNED_KEYBOARD_MOUSE_STRING)
+        kbButton.SameLine = false
+        kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
+        kbButton:SetColor("Text", Color.HEXToRGBA("#777777"))
+        kbButton.IDContext = "Native_KBMouse_" .. (action.ActionId or action.ActionName or "") .. "_unassigned"
+        return
+    end
 
-                -- Define the columns
-                imguiTable:AddColumn("Action", "WidthStretch")
-                imguiTable:AddColumn("Keybinding", "WidthStretch")
+    -- Render each binding
+    local firstButton = true
+    for i, binding in ipairs(action.Bindings) do
+        local bindingText = UNASSIGNED_KEYBOARD_MOUSE_STRING
 
-
-                -- Render sorted actions
-                for _, item in ipairs(sortedActions) do
-                    local action = item.action
-                    local row = imguiTable:AddRow()
-
-                    -- Action Name cell with translated name
-                    local nameCell = row:AddCell()
-                    local nameText = nameCell:AddText(item.displayName)
-                    nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
-
-                    if action.Description and action.Description ~= "" then
-                        local descriptionText = nameCell:AddText(action.Description)
-                        nameText.TextWrapPos = 0
-                        descriptionText.TextWrapPos = 0
-                        nameText.IDContext = "Native_ActionName_" .. (action.ActionId or action.ActionName or "")
-                        descriptionText.IDContext = "Native_ActionDesc_" .. (action.ActionId or action.ActionName or "")
-                    end
-
-                    -- Keybinding cell
-                    local kbCell = row:AddCell()
-
-                    -- Add a button for each binding
-                    if action.Bindings and #action.Bindings > 0 then
-                        -- Render the bindings
-                        local firstButton = true
-                        for i, binding in ipairs(action.Bindings) do
-                            local bindingText = UNASSIGNED_KEYBOARD_MOUSE_STRING or "Unassigned"
-
-                            if binding.InputId then
-                                bindingText = KeyPresentationMapping:GetKBViewKey({
-                                    Key = tostring(binding.InputId),
-                                    ModifierKeys = binding.Modifiers
-                                })
-                            end
-
-                            -- Only add spacing if this isn't the first button
-                            if not firstButton then
-                                kbCell:AddDummy(0, 1)
-                            end
-
-                            local kbButton = kbCell:AddButton(bindingText)
-                            kbButton.SameLine = false
-                            kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
-                            kbButton:SetColor("ButtonActive", Color.NormalizedRGBA(18, 18, 18, 1))
-                            kbButton:SetColor("ButtonHovered", Color.NormalizedRGBA(18, 18, 18, 1))
-                            kbButton.IDContext = string.format("Native_KBMouse_%s_%d",
-                                action.ActionId or action.ActionName or "", i)
-
-                            firstButton = false
-                        end
-                    else
-                        -- Show unassigned state if no bindings at all
-                        local kbButton = kbCell:AddButton(UNASSIGNED_KEYBOARD_MOUSE_STRING or "Unassigned")
-                        kbButton.SameLine = false
-                        kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
-                        kbButton:SetColor("Text", Color.HEXToRGBA("#777777"))
-                        kbButton.IDContext = "Native_KBMouse_" ..
-                            (action.ActionId or action.ActionName or "") .. "_unassigned"
-                    end
-                end
-            end, function(err)
-                if not categoryHeader then return end
-                MCMError(0, "Error in RenderKeybindingTables: " .. tostring(err))
-                local errorText = categoryHeader:AddText("Error in RenderKeybindingTables: " .. tostring(err))
-                errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
-            end)
+        if binding.InputId then
+            bindingText = KeyPresentationMapping:GetKBViewKey({
+                Key = tostring(binding.InputId),
+                ModifierKeys = binding.Modifiers
+            })
         end
+
+        -- Only add spacing if this isn't the first button
+        if not firstButton then
+            cell:AddDummy(0, 1)
+        end
+
+        local kbButton = cell:AddButton(bindingText)
+        kbButton.SameLine = false
+        kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 1))
+        kbButton:SetColor("ButtonActive", Color.NormalizedRGBA(18, 18, 18, 1))
+        kbButton:SetColor("ButtonHovered", Color.NormalizedRGBA(18, 18, 18, 1))
+        kbButton.IDContext = string.format("Native_KBMouse_%s_%d",
+            action.ActionId or action.ActionName or "", i)
+
+        firstButton = false
+    end
+end
+
+--- Renders a single category with its actions
+---@param nativeHeader any The parent header to add the category to
+---@param categoryItem table The category item to render
+function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
+    local category = categoryItem.original
+    local catName = categoryItem.translatedName
+
+    if not (category.Actions and #category.Actions > 0) then
+        return
+    end
+
+    -- Add category header as a collapsible header
+    local categoryHeader = nativeHeader:AddCollapsingHeader(catName)
+    categoryHeader.DefaultOpen = false
+    categoryHeader:AddDummy(5, 5)
+    table.insert(self.Widget.DynamicElements.ModHeaders, categoryHeader)
+
+    xpcall(function()
+        -- Sort actions by translated names
+        local sortedActions = self:SortActionsByTranslatedName(category.Actions)
+
+        -- Create table for this category
+        local imguiTable = categoryHeader:AddTable(catName .. "_table", 2)
+        imguiTable.BordersOuter = true
+        imguiTable.BordersInner = true
+        imguiTable.RowBg = true
+
+        -- Define the columns
+        imguiTable:AddColumn("Action", "WidthStretch")
+        imguiTable:AddColumn("Keybinding", "WidthStretch")
+
+        -- Render sorted actions
+        for _, item in ipairs(sortedActions) do
+            local action = item.action
+            local row = imguiTable:AddRow()
+
+            -- Render action name cell
+            local nameCell = row:AddCell()
+            local nameText = nameCell:AddText(item.displayName)
+            nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
+
+            if action.Description and action.Description ~= "" then
+                local descriptionText = nameCell:AddText(action.Description)
+                nameText.TextWrapPos = 0
+                descriptionText.TextWrapPos = 0
+                nameText.IDContext = "Native_ActionName_" .. (action.ActionId or action.ActionName or "")
+                descriptionText.IDContext = "Native_ActionDesc_" .. (action.ActionId or action.ActionName or "")
+            end
+
+            -- Render keybinding cell
+            local kbCell = row:AddCell()
+            self:RenderKeybindingCell(kbCell, action)
+        end
+    end, function(err)
+        if not categoryHeader then return end
+        MCMError(0, "Error rendering category " .. tostring(catName) .. ": " .. tostring(err))
+        local errorText = categoryHeader:AddText("Error: " .. tostring(err))
+        errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+    end)
+end
+
+--- Renders the native keybinding tables grouped by category
+function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
+    local group = self.Widget.Group
+    self:ClearDynamicElements()
+
+    -- Get native keybindings
+    local categories = KeybindingsUI.GetNativeKeybindings()
+
+    -- Apply search filter if any
+    if self.Widget.SearchText and self.Widget.SearchText ~= "" then
+        categories = self:FilterCategories(categories)
+    end
+
+    -- Show message if no keybindings found
+    if not categories or #categories == 0 then
+        local msg = (self.Widget.SearchText and self.Widget.SearchText ~= "") and
+            ("No native keybindings found for '" .. self.Widget.SearchText .. "'.") or
+            "No native keybindings found."
+        local noResults = group:AddText(msg)
+        self.Widget.DynamicElements.NoResultsText = noResults
+        return
+    end
+
+    -- Create a collapsible header for native keybindings
+    local nativeHeader = group:AddCollapsingHeader("Vanilla keybindings")
+    nativeHeader.DefaultOpen = false
+    nativeHeader:AddText("Vanilla/Native keybindings are read-only and will not update when you change them in-game.")
+    table.insert(self.Widget.DynamicElements.ModHeaders, nativeHeader)
+
+    -- Sort and render categories
+    local sortedCategories = self:SortCategoriesByTranslatedName(categories)
+    for _, categoryItem in ipairs(sortedCategories) do
+        self:RenderCategory(nativeHeader, categoryItem)
     end
 
     -- group:AddDummy(0, 5)
