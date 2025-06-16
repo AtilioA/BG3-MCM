@@ -411,7 +411,6 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
 
     local conflictAction = KeybindingConflictService:CheckForConflicts(keybinding, modData, action, inputType)
     if conflictAction then
-        _D(action)
         -- TODO: reduce duplication with KeybindingV2IMGUIWidget
         local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
             action.ActionName)
@@ -429,7 +428,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
         if self:StoreKeybinding(modData, action, newPayload) then
             if inputType == "KeyboardMouse" and type(keybinding) == "table" and buttonElement then
                 buttonElement.Label = KeyPresentationMapping:GetKBViewKey(keybinding) or
-                ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
+                    ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
             else
                 buttonElement.Label = ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
             end

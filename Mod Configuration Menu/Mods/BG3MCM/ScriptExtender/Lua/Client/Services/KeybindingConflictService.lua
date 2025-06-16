@@ -94,6 +94,26 @@ function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, cur
         return nil
     end
 
+    -- Check MCM-defined keybindings for conflicts
+    local mcmConflict = self:CheckMCMForConflicts(keybinding, currentAction)
+    if mcmConflict then
+        return mcmConflict
+    end
+
+    -- Check native keybindings for conflicts
+    -- local nativeConflict = self:CheckNativeForConflicts(keybinding, currentAction)
+    -- if nativeConflict then
+    --     return nativeConflict
+    -- end
+
+    return nil
+end
+
+--- Checks if a keybinding conflicts with existing MCM-defined bindings
+---@param keybinding Keybinding|string
+---@param currentAction table The current action data
+---@return table|nil Conflicting action if found, nil otherwise
+function KeybindingConflictService:CheckMCMForConflicts(keybinding, currentAction)
     local registry = KeybindingsRegistry.GetFilteredRegistry()
     local currentActionId = currentAction.ActionId
 
@@ -104,7 +124,14 @@ function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, cur
         end
     end
 
-    -- Check native keybindings for conflicts
+    return nil
+end
+
+--- Checks if a keybinding conflicts with existing native bindings
+---@param keybinding Keybinding|string
+---@param currentAction table The current action data
+---@return table|nil Conflicting action if found, nil otherwise
+function KeybindingConflictService:CheckNativeForConflicts(keybinding, currentAction)
     local nativeData = NativeKeybindings.GetByDeviceType("Keyboard")
     if nativeData and nativeData.Public then
         for _, nativeAction in ipairs(nativeData.Public) do
@@ -118,7 +145,7 @@ function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, cur
                     keyboardBinding = transformed
                 }
                 local conflict = self:CheckActionForConflict(keybinding, mcmAction, nativeAction.EventName,
-                    currentActionId)
+                    currentAction.ActionId)
                 if conflict then
                     return conflict
                 end
