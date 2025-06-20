@@ -3,9 +3,21 @@ EHandlers = {}
 EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
 EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
+local function warnAboutNPAKM()
+    if LoadOrderHealthCheck and LoadOrderHealthCheck.ShouldWarnAboutNPAKM and LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then
+        local host = Osi.GetHostCharacter()
+        if host and Osi.OpenMessageBox then
+            local message = Ext.Loca.GetTranslatedString("h41e2dbf1773848eca2001fde456cca4d0156")
+            MCMWarn(0, message)
+            Osi.OpenMessageBox(host, message)
+        end
+    end
+end
+
 local function loadSettingsAndWarn()
     MCMServer:LoadAndSendSettings()
     ModEventManager:IssueDeprecationWarning()
+    VCTimer:OnTicks(5, warnAboutNPAKM)
 end
 
 function EHandlers.SavegameLoaded()
