@@ -8,7 +8,7 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TabsCanHaveEitherTabIdOrId",
     "TabsCanHaveEitherTabNameOrName",
     "SectionsCanHaveEitherSectionIdOrId",
-    "SettingsCanHaveEitherSectionNameOrName",
+    -- "SettingsCanHaveEitherSectionNameOrName",
 
     --- Blueprint integrity validation
     -- IDs

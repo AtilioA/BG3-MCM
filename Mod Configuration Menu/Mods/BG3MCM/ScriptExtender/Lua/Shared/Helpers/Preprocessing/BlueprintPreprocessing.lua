@@ -254,7 +254,7 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                 return false
             end
 
-            local settingType = setting.Type
+            local settingType = setting:GetType()
             if settingType == "enum" then
                 if not self:ValidateEnumSetting(setting) then
                     return false
@@ -331,28 +331,142 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
     return true
 end
 
+--- Validates the options for an event_button setting
+---@param setting BlueprintSetting The setting to validate
+---@return boolean True if the setting is valid, false otherwise
+function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    local options = setting:GetOptions() or {}
+    local isValid = true
+    local settingId = setting:GetId()
+
+    -- Validate Cooldown if present
+    if options.Cooldown ~= nil then
+        if type(options.Cooldown) ~= "number" then
+            MCMWarn(0,
+                "Options.Cooldown for event_button setting '" .. settingId .. "' must be a number. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+        end
+    end
+
+    -- Validate Icon if present
+    if options.Icon ~= nil then
+        if type(options.Icon) ~= "table" then
+            MCMWarn(0,
+                "Options.Icon for event_button setting '" .. settingId .. "' must be an object with a Name field. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+        else
+            if type(options.Icon.Name) ~= "string" or options.Icon.Name == "" then
+                MCMWarn(0,
+                    "Options.Icon.Name for event_button setting '" .. settingId .. "' must be a non-empty string. " ..
+                    "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                isValid = false
+            end
+            if options.Icon.Size ~= nil then
+                if type(options.Icon.Size) ~= "table"
+                   or type(options.Icon.Size.Width) ~= "number"
+                   or type(options.Icon.Size.Height) ~= "number" then
+                    MCMWarn(0,
+                        "Options.Icon.Size for event_button setting '" .. settingId .. "' must be a table with numeric Width and Height fields. " ..
+                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    isValid = false
+                end
+            end
+        end
+    end
+
+    -- Validate Label if present
+    if options.Label ~= nil then
+        if type(options.Label) ~= "string" or options.Label == "" then
+            MCMWarn(0,
+                "Options.Label for event_button setting '" .. settingId .. "' must be a non-empty string. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+        end
+    end
+
+    -- Validate ConfirmDialog if present
+    if options.ConfirmDialog ~= nil then
+        if type(options.ConfirmDialog) ~= "table" then
+            MCMWarn(0,
+                "Options.ConfirmDialog for event_button setting '" ..
+                settingId ..
+                "' must be a table. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+        else
+            -- Define required fields for ConfirmDialog
+            local requiredFields = {
+                "Title",
+                "Message",
+                "ConfirmText",
+                "CancelText"
+            }
+
+            -- Get the dialog table
+            local dialog = options.ConfirmDialog
+
+            -- Check if all required fields are present
+            for _, field in ipairs(requiredFields) do
+                if dialog[field] == nil then
+                    MCMWarn(0,
+                        string.format(
+                            "Missing required field 'Options.ConfirmDialog.%s' for event_button setting '%s'. ",
+                            field, settingId) ..
+                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    return false
+                end
+            end
+
+            -- Validate field types for all fields that are present
+            local validFieldTypes = {
+                Title = "string",
+                Message = "string",
+                ConfirmText = "string",
+                CancelText = "string"
+            }
+
+            for field, expectedType in pairs(validFieldTypes) do
+                if dialog[field] ~= nil and type(dialog[field]) ~= expectedType then
+                    MCMWarn(0,
+                        string.format("Options.ConfirmDialog.%s for event_button setting '%s' must be a %s. ",
+                            field, settingId, expectedType) ..
+                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    isValid = false
+                end
+            end
+        end
+    end
+
+    return isValid
+end
+
 function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
-    if setting.Options and setting.Options.ShouldTriggerOnRepeat ~= nil and type(setting.Options.ShouldTriggerOnRepeat) ~= "boolean" then
+    local options = setting:GetOptions() or {}
+    local settingId = setting:GetId()
+
+    if options.ShouldTriggerOnRepeat ~= nil and type(options.ShouldTriggerOnRepeat) ~= "boolean" then
         MCMWarn(0,
             "Options.ShouldTriggerOnRepeat for keybinding_v2 setting '" ..
-            setting.Id .. "' must be a boolean. Please contact " ..
+            settingId .. "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
 
-    if setting.Options and setting.Options.IsDeveloperOnly ~= nil and type(setting.Options.IsDeveloperOnly) ~= "boolean" then
+    if options.IsDeveloperOnly ~= nil and type(options.IsDeveloperOnly) ~= "boolean" then
         MCMWarn(0,
             "Options.IsDeveloperOnly for keybinding_v2 setting '" ..
-            setting.Id ..
+            settingId ..
             "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
 
-    if setting.Options and setting.Options.ShouldTriggerOnKeyUp ~= nil and type(setting.Options.ShouldTriggerOnKeyUp) ~= "boolean" then
+    if options.ShouldTriggerOnKeyUp ~= nil and type(options.ShouldTriggerOnKeyUp) ~= "boolean" then
         MCMWarn(0,
             "Options.ShouldTriggerOnKeyUp for keybinding_v2 setting '" ..
-            setting.Id ..
+            settingId ..
             "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -384,53 +498,6 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
-    return true
-end
-
---- Validates settings of type event_button
----@param setting table The setting to validate
----@return boolean Whether the setting is valid
-function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-    -- Validate Options.Icon if present
-    if setting.Options and setting.Options.Icon ~= nil and type(setting.Options.Icon) ~= "string" then
-        MCMWarn(0,
-            "Options.Icon for event_button setting '" ..
-            setting.Id ..
-            "' must be a string. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    -- Validate Options.ConfirmDialog if present
-    if setting.Options and setting.Options.ConfirmDialog ~= nil then
-        if type(setting.Options.ConfirmDialog) ~= "table" then
-            MCMWarn(0,
-                "Options.ConfirmDialog for event_button setting '" ..
-                setting.Id ..
-                "' must be a table. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-
-        if setting.Options.ConfirmDialog.Title ~= nil and type(setting.Options.ConfirmDialog.Title) ~= "string" and setting.Options.ConfirmDialog.Title == "" then
-            MCMWarn(0,
-                "Options.ConfirmDialog.Title for event_button setting '" ..
-                setting.Id ..
-                "' must be a non-empty string. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-
-        if setting.Options.ConfirmDialog.Message ~= nil and type(setting.Options.ConfirmDialog.Message) ~= "string" and setting.Options.ConfirmDialog.Message == "" then
-            MCMWarn(0,
-                "Options.ConfirmDialog.Message for event_button setting '" ..
-                setting.Id ..
-                "' must be a non-empty string. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    end
-
     return true
 end
 

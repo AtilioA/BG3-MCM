@@ -1,4 +1,4 @@
----@class MessageBoxMode
+---@enum MessageBoxMode
 MessageBoxMode = {
     Ok = "ok",
     OkCancel = "okcancel",
@@ -15,6 +15,10 @@ MessageBoxMode = {
 ---@field CancelCallback function|nil Callback function for the Cancel button
 ---@field YesCallback function|nil Callback function for the Yes button
 ---@field NoCallback function|nil Callback function for the No button
+---@field OkLabel string|nil The text for the OK button
+---@field CancelLabel string|nil The text for the Cancel button
+---@field YesLabel string|nil The text for the Yes button
+---@field NoLabel string|nil The text for the No button
 ---@field ModUUID string|nil The UUID of the mod that owns this message box (for context ID generation)
 ---@field ContextId string|nil A custom context ID for this message box
 MessageBox = {}
@@ -36,6 +40,10 @@ function MessageBox:Create(title, message, mode, modUUID, contextId)
         CancelCallback = nil,
         YesCallback = nil,
         NoCallback = nil,
+        OkLabel = nil,
+        CancelLabel = nil,
+        YesLabel = nil,
+        NoLabel = nil,
         ModUUID = modUUID or ModuleUUID,
         ContextId = contextId or "MessageBox_" .. tostring(math.random(1000000)),
     }
@@ -76,6 +84,38 @@ function MessageBox:SetNoCallback(callback)
     return self
 end
 
+---@param label string The text for the OK button
+---@return MessageBox
+function MessageBox:SetOkLabel(label)
+    if not label or label == "" then return self end
+    self.OkLabel = label
+    return self
+end
+
+---@param label string The text for the Cancel button
+---@return MessageBox
+function MessageBox:SetCancelLabel(label)
+    if not label or label == "" then return self end
+    self.CancelLabel = label
+    return self
+end
+
+---@param label string The text for the Yes button
+---@return MessageBox
+function MessageBox:SetYesLabel(label)
+    if not label or label == "" then return self end
+    self.YesLabel = label
+    return self
+end
+
+---@param label string The text for the No button
+---@return MessageBox
+function MessageBox:SetNoLabel(label)
+    if not label or label == "" then return self end
+    self.NoLabel = label
+    return self
+end
+
 ---Shows the message box
 ---@param parentGroup any|nil The parent IMGUI group to attach the popup to
 ---@return MessageBox|nil
@@ -95,7 +135,7 @@ function MessageBox:Show(parentGroup)
     end
 
     self.PopupDialog = group:AddPopup(self.ContextId .. "_Popup")
-    self.PopupDialog:SetSizeConstraints({600,600})
+    self.PopupDialog:SetSizeConstraints({ 600, 600 })
     self.PopupDialog.IDContext = self.ModUUID .. "_" .. self.ContextId
 
     -- Add title text
@@ -105,14 +145,13 @@ function MessageBox:Show(parentGroup)
 
     -- Add separator
     self.PopupDialog:AddSeparator()
-    self.PopupDialog:AddDummy(0, 5)
 
     -- Add message text
     local messageText = self.PopupDialog:AddText(self.Message)
     messageText:SetColor("Text", Color.NormalizedRGBA(200, 200, 200, 0.9))
     messageText.TextWrapPos = 0
 
-    self.PopupDialog:AddDummy(0, 10)
+    self.PopupDialog:AddDummy(0, 5)
 
     -- Add buttons based on mode
     if self.Mode == MessageBoxMode.Ok then
@@ -138,8 +177,10 @@ end
 ---Adds an OK button to the popup
 ---@return any The button object
 function MessageBox:AddOkButton()
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("OK") or "OK")
+    local buttonText = self.OkLabel or Ext.Loca.GetTranslatedString("hf03356ba46684764b32d26ff28d3e709af5a") or "OK"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_OkButton"
+    button:SetColor("Button", Color.NormalizedRGBA(117, 140, 74, 0.33))
     button.OnClick = function()
         if self.OkCallback then
             self.OkCallback()
@@ -153,7 +194,9 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddCancelButton(sameLine)
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("Cancel") or "Cancel")
+    local buttonText = self.CancelLabel or Ext.Loca.GetTranslatedString("he43ef9b250584bc2840b8b291c73e4b53cb4") or
+        "Cancel"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_CancelButton"
     if sameLine then
         button.SameLine = true
@@ -170,7 +213,8 @@ end
 ---Adds a Yes button to the popup
 ---@return any The button object
 function MessageBox:AddYesButton()
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("Yes") or "Yes")
+    local buttonText = self.YesLabel or Ext.Loca.GetTranslatedString("ha639028d9ca54b76a72e88059e3d24acd9a7") or "Yes"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_YesButton"
     button.OnClick = function()
         if self.YesCallback then
@@ -185,7 +229,8 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddNoButton(sameLine)
-    local button = self.PopupDialog:AddButton(Ext.Loca.GetTranslatedString("No") or "No")
+    local buttonText = self.NoLabel or Ext.Loca.GetTranslatedString("h2f7a7913be50404cbbdd9878ee774cca2113") or "No"
+    local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_NoButton"
     if sameLine then
         button.SameLine = true
