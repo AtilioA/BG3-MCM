@@ -59,6 +59,22 @@ local function createMCMAPIMethods(originalModUUID)
                 MCMDebug(1, string.format("Button '%s' not found in mod '%s'", buttonId, modUUID))
             end
             return isDisabled
+        end,
+        
+        --- Show feedback message for an event button
+        ---@param buttonId string The ID of the event button
+        ---@param message string The feedback message to display
+        ---@param isError? boolean If true, displays the message as an error (red), otherwise as success (green)
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ShowFeedback = function(buttonId, message, isError, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            if Ext.IsServer() then return false end
+            
+            local success = MCMAPI:ShowEventButtonFeedback(modUUID, buttonId, message, isError)
+            if not success then
+                MCMDebug(1, string.format("Failed to show feedback for button '%s' in mod '%s'", buttonId, modUUID))
+            end
+            return success
         end
     }
 

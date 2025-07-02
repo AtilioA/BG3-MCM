@@ -449,7 +449,7 @@ function MCMAPI:SetEventButtonDisabled(modUUID, settingId, disabled, tooltipText
         MCMWarn(0, string.format("Failed to set disabled state for mod '%s', setting '%s'",
             modUUID, settingId))
     end
-    
+
     return success
 end
 
@@ -478,6 +478,45 @@ function MCMAPI:IsEventButtonDisabled(modUUID, settingId)
     end
 
     return isDisabled
+end
+
+--- Show feedback message for an event button
+---@param modUUID string The UUID of the mod that owns the button
+---@param settingId string The ID of the event button setting
+---@param message string The feedback message to display
+---@param isError? boolean If true, displays the message as an error (red), otherwise as success (green)
+---@return boolean success True if the feedback was shown successfully
+function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, isError)
+    if Ext.IsServer() then
+        MCMWarn(0, "ShowEventButtonFeedback can only be called on the client")
+        return false
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot show feedback for event button.")
+        return false
+    end
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot show feedback for event button.")
+        return false
+    end
+    if not message or message == "" then
+        MCMWarn(0, "message is empty. Cannot show empty feedback.")
+        return false
+    end
+
+    -- Delegate to EventButtonRegistry to show the feedback
+    local success = EventButtonRegistry.ShowFeedback(modUUID, settingId, message, isError)
+
+    if not success then
+        MCMDebug(1, string.format("Failed to show feedback for button: mod='%s', setting='%s'",
+            tostring(modUUID), tostring(settingId)))
+    else
+        MCMDebug(3, string.format("Showing feedback for mod '%s', setting '%s': %s",
+            modUUID, settingId, message))
+    end
+
+    return success
 end
 
 -- UNUSED since profile management currently calls shared code

@@ -2,9 +2,13 @@ local RX = {
     BehaviorSubject = Ext.Require("Lib/reactivex/subjects/behaviorsubject.lua")
 }
 
+---@alias EventButtonRegistryEntry { eventButtonCallback: function, disabled: boolean, disabledTooltip: string }
+
 ---@class EventButtonRegistry
+---@field Registry table<string, table<string, EventButtonRegistryEntry>>
 EventButtonRegistry = {
     Registry = {},
+    Widgets = {},
 }
 
 -- BehaviorSubject to emit registry changes.
@@ -106,6 +110,62 @@ function EventButtonRegistry.IsDisabled(modUUID, settingId)
         return EventButtonRegistry.Registry[modUUID][settingId].disabled == true
     end
     return nil
+end
+
+--- Get a widget by mod UUID and setting ID
+---@param modUUID string
+---@param settingId string
+---@return table|nil widget
+function EventButtonRegistry.GetWidget(modUUID, settingId)
+    if not EventButtonRegistry.Widgets[modUUID] then return nil end
+    return EventButtonRegistry.Widgets[modUUID][settingId]
+end
+
+--- Set a widget reference for a specific button
+---@param modUUID string
+---@param settingId string
+---@param widget table The widget to store
+function EventButtonRegistry.SetWidget(modUUID, settingId, widget)
+    if not modUUID or not settingId or not widget then return end
+
+    if not EventButtonRegistry.Widgets[modUUID] then
+        EventButtonRegistry.Widgets[modUUID] = {}
+    end
+    EventButtonRegistry.Widgets[modUUID][settingId] = widget
+end
+
+--- Remove a widget reference
+---@param modUUID string
+---@param settingId string
+function EventButtonRegistry.RemoveWidget(modUUID, settingId)
+    if EventButtonRegistry.Widgets[modUUID] then
+        EventButtonRegistry.Widgets[modUUID][settingId] = nil
+    end
+end
+
+--- Show feedback for an event button
+---@param modUUID string
+---@param settingId string
+---@param message string
+---@param isError? boolean
+---@return boolean success
+function EventButtonRegistry.ShowFeedback(modUUID, settingId, message, isError)
+    if not modUUID or not settingId or not message then return false end
+
+    local widget = EventButtonRegistry.GetWidget(modUUID, settingId)
+
+    if not widget then
+        MCMWarn(0, string.format("Widget not found for mod='%s', setting='%s'", tostring(modUUID), tostring(settingId)))
+        return false
+    end
+
+    -- Call the UpdateFeedback method on the widget
+    if widget.UpdateFeedback then
+        widget:UpdateFeedback(message, isError)
+        return true
+    end
+
+    return false
 end
 
 return EventButtonRegistry

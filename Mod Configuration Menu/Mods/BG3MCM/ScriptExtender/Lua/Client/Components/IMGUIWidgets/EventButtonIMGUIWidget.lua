@@ -87,6 +87,8 @@ function EventButtonIMGUIWidget:new(group, setting, currentValue, modUUID)
 
     instance:CreateWidgetElements()
 
+    EventButtonRegistry.SetWidget(modUUID, setting:GetId(), instance)
+
     return instance
 end
 
@@ -306,6 +308,11 @@ function EventButtonIMGUIWidget:Destroy()
         self._registrySubscription = nil
     end
 
+    -- Unregister the widget from EventButtonRegistry
+    if self.Widget and self.Widget.Setting then
+        EventButtonRegistry.RemoveWidget(self.Widget.ModUUID, self.Widget.Setting:GetId())
+    end
+
     if self.Widget and self.Widget.Group then
         self.Widget.Group:Destroy()
     end
@@ -314,7 +321,8 @@ end
 function EventButtonIMGUIWidget:InitActionStream()
     self._actionSubject = RX.Subject.Create()
     self._actionSubscription = self._actionSubject:Subscribe(function(event)
-        self:_HandleActionFeedback(event)
+        -- Only do the following if no feedback was set by mod authors
+        -- self:_HandleActionFeedback(event)
         self:_HandleActionCooldown(event)
     end)
 end
@@ -365,6 +373,42 @@ function EventButtonIMGUIWidget:_HandleActionCooldown(event)
         end
         CooldownHelper:StartCooldown(button, event.cooldown, onTick, onComplete)
     end
+end
+
+--- Updates the feedback label with a custom message
+---@param message string The message to display
+---@param isError? boolean If true, displays the message as an error (red), otherwise as success (green)
+function EventButtonIMGUIWidget:UpdateFeedback(message, isError)
+    if not self.Widget or not self.Widget.Button then return end
+    if not message or message == "" then return end
+    MCMDebug(3, "Updating feedback for " .. self.Widget.ModUUID .. ":" .. self.Widget.Setting:GetId() .. " - " .. message)
+
+    -- Clear previous feedback if any
+    if self._actionFeedbackLabel then
+        self._actionFeedbackLabel:Destroy()
+        self._actionFeedbackLabel = nil
+        MCMDebug(3, "Cleared previous feedback for " .. self.Widget.ModUUID .. ":" .. self.Widget.Setting:GetId())
+    end
+
+    -- Create and display the feedback label
+    local label = self.Widget.CooldownGroup:AddText(message)
+    label.SameLine = false
+
+    -- Set color based on error state
+    local color = isError and
+        Color.NormalizedRGBA(255, 0, 0, 1) or  -- Red for error
+        Color.NormalizedRGBA(0, 255, 0, 1)     -- Green for success
+
+    label:SetColor("Text", color)
+    self._actionFeedbackLabel = label
+
+    -- Auto-hide the feedback after 5 seconds
+    Ext.Timer.WaitFor(5000, function()
+        if self._actionFeedbackLabel == label then
+            self._actionFeedbackLabel:Destroy()
+            self._actionFeedbackLabel = nil
+        end
+    end)
 end
 
 function EventButtonIMGUIWidget:SetupTooltip()
