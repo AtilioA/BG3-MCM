@@ -484,9 +484,10 @@ end
 ---@param modUUID string The UUID of the mod that owns the button
 ---@param settingId string The ID of the event button setting
 ---@param message string The feedback message to display
----@param isError? boolean If true, displays the message as an error (red), otherwise as success (green)
+---@param feedbackType? string The type of feedback ("success", "error", "info", "warning"). Defaults to "info".
+---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
 ---@return boolean success True if the feedback was shown successfully
-function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, isError)
+function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, feedbackType, durationInMs)
     if Ext.IsServer() then
         MCMWarn(0, "ShowEventButtonFeedback can only be called on the client")
         return false
@@ -505,15 +506,15 @@ function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, isError)
         return false
     end
 
-    -- Delegate to EventButtonRegistry to show the feedback
-    local success = EventButtonRegistry.ShowFeedback(modUUID, settingId, message, isError)
+    -- Delegate to EventButtonRegistry to show the feedback with all parameters
+    local success = EventButtonRegistry.ShowFeedback(modUUID, settingId, message, feedbackType or "info", durationInMs)
 
     if not success then
         MCMDebug(1, string.format("Failed to show feedback for button: mod='%s', setting='%s'",
             tostring(modUUID), tostring(settingId)))
     else
-        MCMDebug(3, string.format("Showing feedback for mod '%s', setting '%s': %s",
-            modUUID, settingId, message))
+        MCMDebug(3, string.format("Showing %s feedback for mod '%s', setting '%s': %s",
+            feedbackType or "info", modUUID, settingId, message))
     end
 
     return success

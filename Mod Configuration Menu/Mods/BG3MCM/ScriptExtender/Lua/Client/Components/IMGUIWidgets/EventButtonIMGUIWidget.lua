@@ -1,5 +1,28 @@
 ---@class EventButtonIMGUIWidget: IMGUIWidget
-EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget)
+EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget, {
+    FEEDBACK_TYPE = {
+        SUCCESS = "success",
+        ERROR = "error",
+        INFO = "info",
+        WARNING = "warning"
+    },
+
+    FEEDBACK_COLORS = {
+        ["success"] = Color.NormalizedRGBA(0, 200, 0, 1),    
+        ["error"] = Color.NormalizedRGBA(220, 0, 0, 1),
+        ["info"] = Color.NormalizedRGBA(0, 120, 215, 1),
+        ["warning"] = Color.NormalizedRGBA(255, 165, 0, 1)
+    },
+
+
+    _actionSubject = nil,
+    _actionSubscription = nil,
+    _registrySubscription = nil,
+    _actionFeedbackLabel = nil,
+    _cooldownTimer = nil,
+    _cooldownEndTime = 0,
+    _isCooldownActive = false
+})
 
 -- Rx subject for callback events
 local RX = { Subject = Ext.Require("Lib/reactivex/subjects/subject.lua") }
@@ -375,10 +398,11 @@ function EventButtonIMGUIWidget:_HandleActionCooldown(event)
     end
 end
 
---- Updates the feedback label with a custom message
+--- Update the feedback label with a message
 ---@param message string The message to display
----@param isError? boolean If true, displays the message as an error (red), otherwise as success (green)
-function EventButtonIMGUIWidget:UpdateFeedback(message, isError)
+---@param feedbackType? string The type of feedback ("success", "error", "info", "warning"). Defaults to "info".
+---@param duration? number How long to display the feedback in milliseconds. Defaults to 5000ms.
+function EventButtonIMGUIWidget:UpdateFeedback(message, feedbackType, duration)
     if not self.Widget or not self.Widget.Button then return end
     if not message or message == "" then return end
     MCMDebug(3, "Updating feedback for " .. self.Widget.ModUUID .. ":" .. self.Widget.Setting:GetId() .. " - " .. message)
@@ -394,16 +418,20 @@ function EventButtonIMGUIWidget:UpdateFeedback(message, isError)
     local label = self.Widget.CooldownGroup:AddText(message)
     label.SameLine = false
 
-    -- Set color based on error state
-    local color = isError and
-        Color.NormalizedRGBA(255, 0, 0, 1) or  -- Red for error
-        Color.NormalizedRGBA(0, 255, 0, 1)     -- Green for success
+    -- Set color based on feedback type
+    feedbackType = feedbackType or self.FEEDBACK_TYPE.INFO
+    if not self.FEEDBACK_COLORS[feedbackType] then
+        MCMWarn(1, string.format("Unknown feedback type: %s. Defaulting to 'info'.", tostring(feedbackType)))
+        feedbackType = self.FEEDBACK_TYPE.INFO
+    end
 
+    local color = self.FEEDBACK_COLORS[feedbackType]
     label:SetColor("Text", color)
     self._actionFeedbackLabel = label
 
-    -- Auto-hide the feedback after 5 seconds
-    Ext.Timer.WaitFor(5000, function()
+    -- Auto-hide the feedback after duration
+    if not duration then duration = ClientGlobals.MCM_EVENT_BUTTON_FEEDBACK_DURATION end
+    Ext.Timer.WaitFor(duration, function()
         if self._actionFeedbackLabel == label then
             self._actionFeedbackLabel:Destroy()
             self._actionFeedbackLabel = nil

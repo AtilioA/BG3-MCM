@@ -147,10 +147,13 @@ end
 ---@param modUUID string
 ---@param settingId string
 ---@param message string
----@param isError? boolean
+---@param feedbackType? string The type of feedback ("success", "error", "info", "warning"). Defaults to "info".
+---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
 ---@return boolean success
-function EventButtonRegistry.ShowFeedback(modUUID, settingId, message, isError)
+function EventButtonRegistry.ShowFeedback(modUUID, settingId, message, feedbackType, durationInMs)
     if not modUUID or not settingId or not message then return false end
+    if not feedbackType then feedbackType = "info" end
+    if not durationInMs then durationInMs = ClientGlobals.MCM_EVENT_BUTTON_FEEDBACK_DURATION end
 
     local widget = EventButtonRegistry.GetWidget(modUUID, settingId)
 
@@ -159,9 +162,9 @@ function EventButtonRegistry.ShowFeedback(modUUID, settingId, message, isError)
         return false
     end
 
-    -- Call the UpdateFeedback method on the widget
+    -- Call the UpdateFeedback method on the widget with all parameters
     if widget.UpdateFeedback then
-        widget:UpdateFeedback(message, isError)
+        widget:UpdateFeedback(message, feedbackType, durationInMs)
         return true
     end
 

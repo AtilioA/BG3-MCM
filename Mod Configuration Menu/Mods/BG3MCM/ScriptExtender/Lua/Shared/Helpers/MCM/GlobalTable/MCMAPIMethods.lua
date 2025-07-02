@@ -60,22 +60,26 @@ local function createMCMAPIMethods(originalModUUID)
             end
             return isDisabled
         end,
-        
+
         --- Show feedback message for an event button
         ---@param buttonId string The ID of the event button
         ---@param message string The feedback message to display
-        ---@param isError? boolean If true, displays the message as an error (red), otherwise as success (green)
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
-        ShowFeedback = function(buttonId, message, isError, modUUID)
-            if not modUUID then modUUID = originalModUUID end
-            if Ext.IsServer() then return false end
-            
-            local success = MCMAPI:ShowEventButtonFeedback(modUUID, buttonId, message, isError)
-            if not success then
-                MCMDebug(1, string.format("Failed to show feedback for button '%s' in mod '%s'", buttonId, modUUID))
-            end
-            return success
-        end
+        ---@param feedbackType string The type of feedback ("success", "error", "info", "warning")
+        ---@param modUUID? string The UUID of the mod that owns the button (defaults to current mod)
+        ---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
+        ---@return boolean success True if the feedback was shown successfully
+        ShowFeedback = function(buttonId, message, feedbackType, modUUID, durationInMs)
+            modUUID = modUUID or originalModUUID
+            return MCMAPI:ShowEventButtonFeedback(modUUID, buttonId, message, feedbackType, durationInMs)
+        end,
+
+        -- Constants for feedback types
+        FEEDBACK_TYPE = {
+            SUCCESS = "success",
+            ERROR = "error",
+            INFO = "info",
+            WARNING = "warning"
+        }
     }
 
     -- Keybindings API
