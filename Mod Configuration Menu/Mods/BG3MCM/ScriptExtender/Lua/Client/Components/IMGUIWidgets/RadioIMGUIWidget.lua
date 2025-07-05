@@ -64,3 +64,19 @@ end
 function RadioIMGUIWidget:GetOnChangeValue(value)
     return value.Label
 end
+
+function RadioIMGUIWidget:SetupTooltip(widget, setting)
+    local radioOptions = widget
+    local tooltipText = setting:GetTooltip()
+    if not tooltipText or tooltipText == "" then
+        return
+    end
+    local tooltipId = setting.Id .. "_TOOLTIP"
+
+    for _, button in ipairs(radioOptions) do
+        local tt = MCMRendering:AddTooltip(button, tooltipText, tooltipId)
+        if not tt then
+            return
+        end
+    end
+end

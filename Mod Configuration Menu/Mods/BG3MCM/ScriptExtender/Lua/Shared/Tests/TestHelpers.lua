@@ -311,10 +311,10 @@ end
 
 ---Asserts that the given value is false.
 ---@param val boolean The value to check.
-function TestSuite.AssertFalse(val)
+function TestSuite.AssertFalse(val, message)
     if val ~= false then
         local valStr = tostring(val)
-        error("Value not false: " .. (valStr or ""))
+        error(message or ("Value not false: " .. (valStr or "")))
     end
 end
 

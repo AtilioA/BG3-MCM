@@ -6,7 +6,9 @@ local RX = {
 ---@field private mods table<string, table> A table of modUUIDs that has a table of blueprints and settings for each mod
 ---@field private profiles table<string, table> A table of profile data
 ---@field private configsLoaded ReplaySubject
--- The MCM (Mod Configuration Menu) class is the main entry point for interacting with the Mod Configuration Menu system.
+
+---@class MCMAPI
+--- The MCM (Mod Configuration Menu) class is the main entry point for interacting with the Mod Configuration Menu system.
 -- It acts as a high-level interface to the underlying ModConfig and ProfileManager classes, which handle the low-level details of loading, saving, and managing the mod configurations and user profiles, as well as JSON file handling from the JsonLayer class.
 --
 -- The MCM class is responsible for providing a consistent and user-friendly API for mod authors and the IMGUI client to interact with the Mod Configuration Menu system.
@@ -140,7 +142,6 @@ function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
         return false
     end
 
-    -- TODO: add blueprint methods to solve this
     local blueprint = self:GetModBlueprint(modUUID)
     if not blueprint then
         MCMWarn(0, "Blueprint not found for mod '" .. modUUID .. "'.")
@@ -203,27 +204,42 @@ function MCMAPI:GetSettingsIDs(modSettingsTable)
     return settingIDs
 end
 
--- TODO: add debouncing to this function
+-- Uses debouncing to avoid spamming warnings for the same missing setting
 --- Handle the case when a setting is missing
 ---@param settingId string The id of the setting
 ---@param modSettingsTable table The mod settings table
 ---@param modUUID string The UUID of the mod
 function MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modUUID)
-    local modInfo = Ext.Mod.GetMod(modUUID).Info
-    local closestMatch, distance = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable), false)
-    if closestMatch and distance < 8 then
-        MCMWarn(0,
-            "Setting '" ..
-            settingId ..
-            "' not found for mod '" ..
-            modInfo.Name ..
-            "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
-    else
-        MCMWarn(0,
-            "Setting '" ..
-            settingId ..
-            "' not found for mod '" .. modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
+    -- Create a debounced warning function (500ms delay)
+    if not self._debouncedWarnings then
+        self._debouncedWarnings = {}
     end
+
+    local warningKey = modUUID .. "_" .. settingId
+    if not self._debouncedWarnings[warningKey] then
+        self._debouncedWarnings[warningKey] = VCTimer:Debounce(500, function()
+            local modInfo = Ext.Mod.GetMod(modUUID).Info
+            local closestMatch, distance = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable),
+                false)
+            if closestMatch and distance < 8 then
+                MCMWarn(0,
+                    "Setting '" ..
+                    settingId ..
+                    "' not found for mod '" ..
+                    modInfo.Name ..
+                    "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
+            else
+                MCMWarn(0,
+                    "Setting '" ..
+                    settingId ..
+                    "' not found for mod '" ..
+                    modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
+            end
+        end)
+    end
+
+    -- Call the debounced function
+    self._debouncedWarnings[warningKey]()
 end
 
 --- Set the value of a configuration setting
@@ -353,11 +369,155 @@ function MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
         return false
     end
 
-    -- Register the callback using the InputCallbackManager
-    InputCallbackManager.SetCallback(modUUID, settingId, callback, InputCallbackManager.CallbackTypes.EVENT_BUTTON)
+    -- TODO: use an interface instead of direct access to EventButtonRegistry
+    local success = EventButtonRegistry.RegisterCallback(modUUID, settingId, callback)
+    if success then
+        MCMDebug(1, string.format("Registered event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    else
+        MCMWarn(0,
+            string.format("Failed to register event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    end
+    return success
+end
 
-    MCMDebug(1, "Registered event button callback for mod '" .. modUUID .. "', setting '" .. settingId .. "'")
-    return true
+--- Unregister a callback for an event button
+---@param modUUID string
+---@param settingId string
+---@return boolean success
+function MCMAPI:UnregisterEventButtonCallback(modUUID, settingId)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot unregister event button callback.")
+        return false
+    end
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot unregister event button callback.")
+        return false
+    end
+
+    -- TODO: use an interface instead of direct access to EventButtonRegistry
+    local success = EventButtonRegistry.UnregisterCallback(modUUID, settingId)
+    if success then
+        MCMDebug(1, string.format("Unregistered event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    else
+        MCMWarn(0,
+            string.format("Failed to unregister event button callback for mod '%s', setting '%s'", modUUID, settingId))
+    end
+    return success
+end
+
+--- Set the disabled state of an event button
+---@param modUUID string The UUID of the mod that owns the button
+---@param settingId string The ID of the event button setting
+---@param disabled boolean Whether the button should be disabled
+---@param tooltipText? string Optional tooltip text to show when disabled
+---@return boolean success True if the state was updated successfully
+function MCMAPI:SetEventButtonDisabled(modUUID, settingId, disabled, tooltipText)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot set event button disabled state.")
+        return false
+    end
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot set event button disabled state.")
+        return false
+    end
+    if disabled == nil then
+        MCMWarn(0, "disabled parameter is required. Cannot set event button disabled state.")
+        return false
+    end
+
+    -- Verify that the mod exists
+    local modSettingsTable = self:GetAllModSettings(modUUID)
+    if not modSettingsTable then
+        MCMWarn(0, "Mod settings table not found for UUID: " .. tostring(modUUID))
+        return false
+    end
+
+    -- Check if the button exists by trying to get its current state
+    local currentState = EventButtonRegistry.IsDisabled(modUUID, settingId)
+    if currentState == nil then
+        MCMWarn(0, string.format("Button not found: mod='%s', setting='%s'",
+            tostring(modUUID), tostring(settingId)))
+        return false
+    end
+
+    -- Update the disabled state via EventButtonRegistry
+    local success = EventButtonRegistry.SetDisabled(modUUID, settingId, disabled, tooltipText)
+    if success then
+        MCMDebug(1, string.format("Set disabled state for mod '%s', setting '%s' to %s",
+            modUUID, settingId, tostring(disabled)))
+    else
+        MCMWarn(0, string.format("Failed to set disabled state for mod '%s', setting '%s'",
+            modUUID, settingId))
+    end
+
+    return success
+end
+
+--- Check if an event button is disabled
+---@param modUUID string The UUID of the mod that owns the button
+---@param settingId string The ID of the event button setting
+---@return boolean|nil isDisabled True if disabled, false if enabled, nil if button not found
+function MCMAPI:IsEventButtonDisabled(modUUID, settingId)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot get event button disabled state.")
+        return nil
+    end
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot get event button disabled state.")
+        return nil
+    end
+
+    -- Delegate to EventButtonRegistry to check if the button exists and get its disabled state
+    local isDisabled = EventButtonRegistry.IsDisabled(modUUID, settingId)
+    if isDisabled == nil then
+        MCMDebug(2, string.format("Button not found or error getting state: mod='%s', setting='%s'",
+            tostring(modUUID), tostring(settingId)))
+    else
+        MCMDebug(3, string.format("Current disabled state for mod '%s', setting '%s': %s",
+            modUUID, settingId, tostring(isDisabled)))
+    end
+
+    return isDisabled
+end
+
+--- Show feedback message for an event button
+---@param modUUID string The UUID of the mod that owns the button
+---@param settingId string The ID of the event button setting
+---@param message string The feedback message to display
+---@param feedbackType? string The type of feedback ("success", "error", "info", "warning"). Defaults to "info".
+---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
+---@return boolean success True if the feedback was shown successfully
+function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, feedbackType, durationInMs)
+    if Ext.IsServer() then
+        MCMWarn(0, "ShowEventButtonFeedback can only be called on the client")
+        return false
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot show feedback for event button.")
+        return false
+    end
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot show feedback for event button.")
+        return false
+    end
+    if not message or message == "" then
+        MCMWarn(0, "message is empty. Cannot show empty feedback.")
+        return false
+    end
+
+    -- Delegate to EventButtonRegistry to show the feedback with all parameters
+    local success = EventButtonRegistry.ShowFeedback(modUUID, settingId, message, feedbackType or "info", durationInMs)
+
+    if not success then
+        MCMDebug(1, string.format("Failed to show feedback for button: mod='%s', setting='%s'",
+            tostring(modUUID), tostring(settingId)))
+    else
+        MCMDebug(3, string.format("Showing %s feedback for mod '%s', setting '%s': %s",
+            feedbackType or "info", modUUID, settingId, message))
+    end
+
+    return success
 end
 
 -- UNUSED since profile management currently calls shared code

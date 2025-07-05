@@ -178,6 +178,17 @@ function MCMProxy:RegisterMCMKeybindings()
         function() IMGUIAPI:CloseMCMWindow(true) end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_sidebar_keybinding",
         function() IMGUIAPI:ToggleMCMSidebar() end)
+    MCMAPI:RegisterEventButtonCallback(ModuleUUID, "EventButtonExample", function()
+        _D("Hello")
+        EventButtonRegistry.ShowFeedback(ModuleUUID, "EventButtonExample", "Hello")
+    end)
+    MCMAPI:RegisterEventButtonCallback(ModuleUUID, "EventButtonExample2", function()
+        _D("Hello2")
+        EventButtonRegistry.ShowFeedback(ModuleUUID, "EventButtonExample2", "Warning: This is a warning message!", "warning", 3000)
+    end)
+
+    -- MCMAPI:SetEventButtonDisabled(ModuleUUID, "EventButtonExample2", true, "Disabled via API")
+    -- MCMAPI:SetEventButtonDisabled(ModuleUUID, "EventButtonExample", true, "Disabled via API too")
 end
 
 -- Initialize the proxy when the module is loaded

@@ -1,5 +1,3 @@
--- FIXME: fix page restoration not working if no subtab was selected for a given mod
-
 --------------------------------------------
 -- Encapsulates restoration of the last used mod page when the MCM UI is initialized
 -- Managed by StateRestorationManager
