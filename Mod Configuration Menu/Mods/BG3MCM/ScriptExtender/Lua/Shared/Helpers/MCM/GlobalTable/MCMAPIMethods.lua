@@ -44,43 +44,6 @@ local function createMCMAPIMethods(originalModUUID)
         return MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
     end
 
-    -- EventButton API
-    MCMInstance.EventButton = {
-        --- Check if an event button is disabled
-        ---@param buttonId string The ID of the event button
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
-        ---@return boolean|nil isDisabled True if disabled, false if enabled, nil if button not found
-        IsDisabled = function(buttonId, modUUID)
-            if not modUUID then modUUID = originalModUUID end
-            if Ext.IsServer() then return nil end
-
-            local isDisabled = MCMAPI:IsEventButtonDisabled(modUUID, buttonId)
-            if isDisabled == nil then
-                MCMDebug(1, string.format("Button '%s' not found in mod '%s'", buttonId, modUUID))
-            end
-            return isDisabled
-        end,
-
-        --- Show feedback message for an event button
-        ---@param buttonId string The ID of the event button
-        ---@param message string The feedback message to display
-        ---@param feedbackType string The type of feedback ("success", "error", "info", "warning")
-        ---@param modUUID? string The UUID of the mod that owns the button (defaults to current mod)
-        ---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
-        ---@return boolean success True if the feedback was shown successfully
-        ShowFeedback = function(buttonId, message, feedbackType, modUUID, durationInMs)
-            modUUID = modUUID or originalModUUID
-            return MCMAPI:ShowEventButtonFeedback(modUUID, buttonId, message, feedbackType, durationInMs)
-        end,
-
-        -- Constants for feedback types
-        FEEDBACK_TYPE = {
-            SUCCESS = "success",
-            ERROR = "error",
-            INFO = "info",
-            WARNING = "warning"
-        }
-    }
 
     -- Keybindings API
     MCMInstance.Keybinding = {
@@ -224,9 +187,42 @@ local function createClientAPIMethods(originalModUUID, modTable)
         InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
     end
 
+    -- Client-side EventButton methods
     if not modTable.MCM.EventButton then
         modTable.MCM.EventButton = {}
     end
+    --- Check if an event button is enabled (client only)
+    ---@param buttonId string The ID of the event button
+    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@return boolean|nil isEnabled True if enabled, false if disabled, nil if button not found
+    modTable.MCM.EventButton['IsEnabled'] = function(buttonId, modUUID)
+        if not modUUID then modUUID = originalModUUID end
+        local isDisabled = MCMAPI:IsEventButtonDisabled(tostring(modUUID), buttonId)
+        if isDisabled == nil then
+            MCMDebug(1, string.format("Button '%s' not found in mod '%s'", buttonId, tostring(modUUID)))
+        end
+        return not isDisabled
+    end
+
+    --- Show feedback message for an event button (client only)
+    ---@param buttonId string The ID of the event button
+    ---@param message string The feedback message to display
+    ---@param feedbackType string The type of feedback ("success", "error", "info", "warning")
+    ---@param modUUID? string The UUID of the mod that owns the button (defaults to current mod)
+    ---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
+    ---@return boolean success True if the feedback was shown successfully
+    modTable.MCM.EventButton['ShowFeedback'] = function(buttonId, message, feedbackType, modUUID, durationInMs)
+        modUUID = modUUID or originalModUUID
+        return MCMAPI:ShowEventButtonFeedback(tostring(modUUID), buttonId, message, feedbackType, durationInMs)
+    end
+
+    modTable.MCM.EventButton["FeedbackTypes"] = {
+        SUCCESS = "success",
+        ERROR = "error",
+        INFO = "info",
+        WARNING = "warning"
+    }
+
     --- Register a callback function for an event button
     ---@param buttonId string The ID of the event button
     ---@param callback function The callback function to execute when the button is clicked
@@ -279,7 +275,7 @@ local function createClientAPIMethods(originalModUUID, modTable)
         if Ext.IsServer() then return false end
 
         -- Handle case where tooltipText is omitted and modUUID is passed as third parameter
-        if tooltipText ~= nil and type(tooltipText) == "string" and #tooltipText == 36 then     -- Check if it might be a UUID
+        if tooltipText ~= nil and type(tooltipText) == "string" and #tooltipText == 36 then -- Check if it might be a UUID
             modUUID = tooltipText
             tooltipText = nil
         end
