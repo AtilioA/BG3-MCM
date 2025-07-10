@@ -180,7 +180,7 @@ function EventButtonIMGUIWidget:HandleButtonClick()
             confirmOptions.Message or
             localize("h6cea07ecefe545ddaf13f4259fa75a6b2400", "Are you sure you want to proceed?"))
         okLabel = localize(cdHandles.ConfirmTextHandle,
-            confirmOptions.ConfirmText or localize("hf03356ba46684764b32d26ff28d3e709af5a", "Confirm"))
+            confirmOptions.ConfirmText or localize("hf03356ba46684764b32d26ff28d3e709af5a", "OK"))
         cancelLabel = localize(cdHandles.CancelTextHandle,
             confirmOptions.CancelText or localize("he43ef9b250584bc2840b8b291c73e4b53cb4", "Cancel"))
 
@@ -265,7 +265,7 @@ function EventButtonIMGUIWidget:UpdateButtonState(registry)
     if hasCallback then
         self:EnableButton(self.Widget.Button)
     else
-        local msg = "No callback registered for event_button '" .. settingId .. "'"
+        local msg = VCString:InterpolateLocalizedMessage("hc19226a66ff845e0b3e8ddcae7b251c52d23", settingId)
         self:DisableButton(self.Widget.Button, msg)
     end
 end
@@ -362,7 +362,9 @@ function EventButtonIMGUIWidget:_HandleActionFeedback(event)
     end
     -- Show success or error feedback
     if event.success then
-        local label = self.Widget.CooldownGroup:AddText("Action executed!")
+        -- Needs translation: Action executed feedback
+        local label = self.Widget.CooldownGroup:AddText(localize("hbaeea4f4db8b46ed98f47a36a38cbe72c463",
+            "Action executed!"))
         label.SameLine = false
         label:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
         self._actionFeedbackLabel = label
@@ -374,7 +376,9 @@ function EventButtonIMGUIWidget:_HandleActionFeedback(event)
         end)
     else
         local author = Ext.Mod.GetMod(self.Widget.ModUUID).Info.Author
-        local label = self.Widget.CooldownGroup:AddText("Button errored. Please contact " .. author)
+        local label = self.Widget.CooldownGroup:AddText(VCString:InterpolateLocalizedMessage(
+            "h56d95a2dbb034ce6a8145626d3abf55fg274",
+            author))
         label.SameLine = false
         label:SetColor("Text", Color.NormalizedRGBA(255, 0, 0, 1))
         self._actionFeedbackLabel = label
@@ -390,7 +394,11 @@ function EventButtonIMGUIWidget:_HandleActionCooldown(event)
         countdownText.SameLine = false
         local function onTick(el, remaining)
             el.Disabled = true
-            if countdownText then countdownText.Label = "Button cooldown: " .. remaining .. "s" end
+            if countdownText then
+                countdownText.Label = VCString:InterpolateLocalizedMessage(
+                    "hb31fa6f91735475eb72da548b26a3516af31",
+                    remaining) .. Ext.Loca.GetTranslatedString("hcd9314b58f0946be8df07686c2cb9518b95g")
+            end
             return false
         end
         local function onComplete(el)
