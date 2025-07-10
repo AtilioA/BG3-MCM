@@ -343,49 +343,6 @@
                     "SectionName": "Debug settings",
                     "Settings": [
                         {
-                            "Id": "EventButtonExample",
-                            "Name": "Event Button example",
-                            "Type": "event_button",
-                            "Description": "Click this button to trigger an action in the mod.",
-                            "Options": {
-                                "ConfirmDialog": {
-                                    "Title": "Confirm Action",
-                                    "Message": "Are you sure you want to perform this action?",
-                                    "ConfirmText": "Yes, do it",
-                                    "CancelText": "No, cancel"
-                                },
-                                "Cooldown": 5,
-                                "Icon": {
-                                    "Name": "Skill_Fighter_ActionSurge"
-                                },
-                                "Label": "Fallback Button"
-                            },
-                            "Tooltip": "Click this button and see a confirmation dialog."
-                        },
-                        {
-                            "Id": "EventButtonExample2",
-                            "Name": "Event Button example 2",
-                            "Type": "event_button",
-                            "Description": "Click this button to trigger another action in the mod.",
-                            "Options": {
-                                "Cooldown": -1,
-                                "Label": "My Button"
-                            },
-                            "Handles": {
-                                "NameHandle": "a",
-                                "DescriptionHandle": "a",
-                                "EventButtonHandles": {
-                                    "ConfirmDialogHandles": {
-                                        "TitleHandle": "h44dcdae59c954d6c91671025f399f05c7064",
-                                        "MessageHandle": "a",
-                                        "ConfirmTextHandle": "a",
-                                        "CancelTextHandle": "a"
-                                    },
-                                    "LabelHandle": "a"
-                                }
-                            }
-                        },
-                        {
                             "Id": "debug_level",
                             "Name": "Debug level",
                             "Type": "slider_int",
