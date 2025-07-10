@@ -8,7 +8,7 @@ EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget, {
     },
 
     FEEDBACK_COLORS = {
-        ["success"] = Color.NormalizedRGBA(0, 200, 0, 1),    
+        ["success"] = Color.NormalizedRGBA(0, 200, 0, 1),
         ["error"] = Color.NormalizedRGBA(220, 0, 0, 1),
         ["info"] = Color.NormalizedRGBA(0, 120, 215, 1),
         ["warning"] = Color.NormalizedRGBA(255, 165, 0, 1)
@@ -387,7 +387,7 @@ function EventButtonIMGUIWidget:_HandleActionCooldown(event)
         countdownText.SameLine = false
         local function onTick(el, remaining)
             el.Disabled = true
-            if countdownText then countdownText.Label = "Cooldown: " .. remaining .. "s" end
+            if countdownText then countdownText.Label = "Button cooldown: " .. remaining .. "s" end
             return false
         end
         local function onComplete(el)
