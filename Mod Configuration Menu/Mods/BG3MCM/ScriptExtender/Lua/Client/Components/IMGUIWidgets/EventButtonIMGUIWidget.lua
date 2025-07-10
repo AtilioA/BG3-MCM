@@ -146,15 +146,20 @@ function EventButtonIMGUIWidget:CreateWidgetElements()
     -- self:UpdateButtonState(EventButtonRegistry.GetRegistry())
 end
 
+function EventButtonIMGUIWidget:GetCooldown()
+    local setting = self.Widget.Setting
+    local options = setting:GetOptions() or {}
+    return options.Cooldown or 0
+end
+
 function EventButtonIMGUIWidget:HandleButtonClick()
     local setting = self.Widget.Setting
     local options = setting:GetOptions() or {}
     local confirmOptions = options.ConfirmDialog
-    local cooldown = options.Cooldown
 
     local wrappedCallback = function()
         local callbackSuccess = self:TriggerCallback()
-        local cooldown = options.Cooldown
+        local cooldown = self:GetCooldown()
         if self._actionSubject then
             self._actionSubject:OnNext({ success = callbackSuccess, cooldown = cooldown })
         end
@@ -204,6 +209,7 @@ function EventButtonIMGUIWidget:TriggerCallback()
     local reg = EventButtonRegistry.GetRegistry()
     local modUUID = self.Widget.ModUUID
     local settingId = self.Widget.Setting:GetId()
+    local callbackSuccess = false
 
     -- Emit event for the button click - this allows external systems to react
     ModEventManager:Emit(EventChannels.MCM_EVENT_BUTTON_CLICKED, {
@@ -211,33 +217,30 @@ function EventButtonIMGUIWidget:TriggerCallback()
         settingId = settingId,
     })
 
-    -- Permanent disable when Cooldown == -1 (disable until reload/reset)
-    -- TODO: persist disabling button (e.g. with a registry entry), and/or allow API to disable button
-    local options = self.Widget.Setting:GetOptions()
-    if options and options.Cooldown == -1 then
-        self:DisableButton(self.Widget.Button, "Action disabled until reload/reset")
-        return true
-    end
+    local callbackEntry = reg[modUUID] and reg[modUUID][settingId]
+    local callback = callbackEntry and callbackEntry.eventButtonCallback
 
-    -- Check if a callback has been registered
-    if reg[modUUID] and reg[modUUID][settingId] then
-        local callbackEntry = reg[modUUID][settingId]
-        local callback = callbackEntry.eventButtonCallback
+    if type(callback) == "function" then
+        -- Execute the callback with error handling
+        callbackSuccess = xpcall(callback, function(err)
+            MCMError(0, "Error executing callback for event_button '" .. settingId .. "': " .. tostring(err))
+        end)
 
-        if type(callback) == "function" then
-            -- Execute the callback with error handling
-            local success = xpcall(callback, function(err)
-                MCMError(0, "Error executing callback for event_button '" .. settingId .. "': " .. tostring(err))
-            end)
-            return success
-        else
-            MCMDebug(1, "No callback registered for event_button '" .. settingId .. "'")
-            return false
+        -- Permanent disable when Cooldown == -1 (disable until reload/reset)
+        local cooldown = self:GetCooldown()
+        if cooldown == -1 then
+            self:DisableButton(self.Widget.Button, "Action disabled until reload/reset")
         end
     else
-        MCMDebug(1, "No registry entry found for event_button '" .. settingId .. "'")
-        return false
+        if callbackEntry then
+            MCMDebug(1, "No callback registered for event_button '" .. settingId .. "'")
+        else
+            MCMDebug(1, "No registry entry found for event_button '" .. settingId .. "'")
+        end
+        callbackSuccess = false
     end
+
+    return callbackSuccess
 end
 
 ---Updates the visual/interactive state of the button according to whether a callback is registered
