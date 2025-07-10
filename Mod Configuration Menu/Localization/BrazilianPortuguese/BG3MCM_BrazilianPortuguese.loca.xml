@@ -209,4 +209,16 @@
     <content contentuid="h51d62ec178ef42339febafa360593169dccc" version="1">Avisar sobre conflitos de mods</content>
     <content contentuid="h0b200012c87d4a2e8173a15243ee0355ace1" version="1">Avisar sobre precedência do MCM</content>
     <content contentuid="hbc82ae3470f942bd843e33ae6e7498908935" version="1">MCM irá verificar sua load order por potenciais problemas, e exibirá avisos visuais no menu principal se houverem problemas.&lt;br&gt;Recomenda-se manter todas as verificações ativadas. A maioria desses problemas causaria problemas para alguns de seus mods.&lt;br&gt;Avisos podem ser desativados individualmente quando aparecerem.</content>
+    <content contentuid="ha639028d9ca54b76a72e88059e3d24acd9a7" version="1">Sim</content>
+    <content contentuid="h2f7a7913be50404cbbdd9878ee774cca2113" version="1">Não</content>
+    <content contentuid="he43ef9b250584bc2840b8b291c73e4b53cb4" version="1">Cancelar</content>
+    <content contentuid="hf03356ba46684764b32d26ff28d3e709af5a" version="1">OK</content>
+    <content contentuid="h652b98e111884533a0ec00fd94ecc386f717" version="1">Confirmar ação</content>
+    <content contentuid="h6cea07ecefe545ddaf13f4259fa75a6b2400" version="1">Você tem certeza que deseja prosseguir?</content>
+    <content contentuid="hbaeea4f4db8b46ed98f47a36a38cbe72c463" version="1">Ação executada!</content>
+    <content contentuid="h56d95a2dbb034ce6a8145626d3abf55fg274" version="1">O botão apresentou erro. Por favor, contate [1] sobre este problema.</content>
+    <content contentuid="hc19226a66ff845e0b3e8ddcae7b251c52d23" version="1">Nenhum callback registrado para o event_button '[1]'.</content>
+    <content contentuid="h20966555a08747a0bec0a3e0e77047b3f9gc" version="1">Cooldown do botão: [1][2]</content>
+    <content contentuid="hb31fa6f91735475eb72da548b26a3516af31" version="1">Cooldown do botão: [1]</content>
+    <content contentuid="hcd9314b58f0946be8df07686c2cb9518b95g" version="1">s</content>
 </contentList>
