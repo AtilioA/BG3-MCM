@@ -76,7 +76,13 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     -- Kludge since class instantiation and rendering are coupled in the code;
     -- That prohibits knowing class details before rendering. This is a workaround to avoid a major refactoring.
     local options = setting:GetOptions()
-    if options and options.InlineTitle ~= true then
+    local settingType = setting:GetType()
+    if settingType == "checkbox" then
+        -- Only create normal title if InlineTitle is explicitly false
+        if options and options.InlineTitle == false then
+            self:CreateTitle(group, widgetName)
+        end
+    else
         self:CreateTitle(group, widgetName)
     end
 

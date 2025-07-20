@@ -275,11 +275,23 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                 if not self:ValidateEventButtonSetting(setting) then
                     return false
                 end
+            elseif settingType == "checkbox" then
+                if not self:ValidateCheckboxSetting(setting) then
+                    return false
+                end
             end
         end
     end
 
     return isValid
+end
+
+function BlueprintPreprocessing:ValidateCheckboxSetting(setting)
+    local opts = setting:GetOptions() or {}
+    if opts["InlineTitle"] ~= nil and type(opts["InlineTitle"]) ~= "boolean" then
+        MCMWarn(0, "Checkbox setting '" .. setting:GetId() .. "' has Options.InlineTitle of type '" .. type(opts["InlineTitle"]) .. "'. It must be a boolean (true/false) if present.")
+    end
+    return true
 end
 
 function BlueprintPreprocessing:ValidateEnumSetting(setting)

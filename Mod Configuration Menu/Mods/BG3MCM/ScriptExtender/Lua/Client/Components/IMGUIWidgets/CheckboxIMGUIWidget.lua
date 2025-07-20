@@ -11,7 +11,8 @@ function CheckboxIMGUIWidget:new(group, setting, initialValue, modUUID)
     end
     instance.Widget.SameLine = false
 
-    if setting:GetOptions() and setting:GetOptions()["InlineTitle"] then
+    local opts = setting:GetOptions() or {}
+    if opts["InlineTitle"] ~= false then
         instance:_addTitleText(group, setting:GetLocaName() or setting:GetId())
     end
 
