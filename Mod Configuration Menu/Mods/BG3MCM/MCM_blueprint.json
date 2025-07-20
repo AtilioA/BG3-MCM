@@ -57,6 +57,9 @@
                             "Handles": {
                                 "NameHandle": "h76a89ee330464e30b1b9a01de85cbd0042a6",
                                 "DescriptionHandle": "h0d8762f0ceb645608a64b684e581f7a72d67"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -68,6 +71,9 @@
                             "Handles": {
                                 "NameHandle": "h77422890f2f5433486d6e9990a950c91g061",
                                 "DescriptionHandle": "hff55f0470579497788e9e048f207f1097809"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -79,6 +85,9 @@
                             "Handles": {
                                 "NameHandle": "h508b792738634a4f88639bd379f12e601e96",
                                 "DescriptionHandle": "h90ef12cdf9314d539f9712e41fe2f4bb8afd"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         }
                     ],
@@ -99,6 +108,9 @@
                             "Handles": {
                                 "NameHandle": "h119ee473f3f6444b887ed4e2a2fdb97b9fea",
                                 "DescriptionHandle": "h48d5ce6ebd8144649e72da14b64214a9b57f"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         }
                     ],
@@ -119,6 +131,9 @@
                             "Handles": {
                                 "NameHandle": "h98e72bb15db546859c41ef81ddac77bc5d69",
                                 "DescriptionHandle": "h48cd3bba1b0347f6b8e81cd36f07890de455"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -130,6 +145,9 @@
                             "Handles": {
                                 "NameHandle": "hb2920a2b77c847959a151f340846407dc001",
                                 "DescriptionHandle": "h7d50a040d7db44e7a7f0064dd56715d53d49"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -141,6 +159,9 @@
                             "Handles": {
                                 "NameHandle": "h9abda7ddcd564ba69433278a82884c535566",
                                 "DescriptionHandle": "h204a4196566b44eb8070bc8b5d36edde1c1d"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -209,6 +230,9 @@
                             "Handles": {
                                 "NameHandle": "h0813e1fea4fe4400b99a11216d16627be921",
                                 "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6f"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -220,6 +244,9 @@
                             "Handles": {
                                 "NameHandle": "h0636d5bc17f6464f99c1da18831bb38f1561",
                                 "DescriptionHandle": "h3f6a4e8a570d41c2bf60d673a3bfa1ef3472"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -231,6 +258,9 @@
                             "Handles": {
                                 "NameHandle": "h0813e1fea4fe4400b99a11216d16627be922",
                                 "DescriptionHandle": "h37d5cb487a49476db6c16dc59452cae67f6g"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -281,6 +311,9 @@
                             "Handles": {
                                 "NameHandle": "h1fd4e620b15146b79d30f01768ceb27581gg",
                                 "DescriptionHandle": "h22531fbba80a4aa5a046c3bbfd55c373g923"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -292,6 +325,9 @@
                             "Handles": {
                                 "NameHandle": "hea337fe67fb44c6d9e2870b524bdcdc9e8bg",
                                 "DescriptionHandle": "hae5d939989a4461997798b892d7dc34366c4"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -303,6 +339,9 @@
                             "Handles": {
                                 "NameHandle": "h0386d12fd1774adcab7d6d40bc8dcc403182",
                                 "DescriptionHandle": "h545b1baf66324fc28c0c726d7c016e73a3c9"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -314,6 +353,9 @@
                             "Handles": {
                                 "NameHandle": "h51d62ec178ef42339febafa360593169dccc",
                                 "DescriptionHandle": "h01582783e20d43bfba15142da3f8a22adf42"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -325,6 +367,9 @@
                             "Handles": {
                                 "NameHandle": "h0b200012c87d4a2e8173a15243ee0355ace1",
                                 "DescriptionHandle": "h5611eef852e342ed932b47cb0cedfa51g66e"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         }
                     ]
@@ -366,6 +411,9 @@
                             "Handles": {
                                 "NameHandle": "h676e89908a8543c18ca789ec673306febb93",
                                 "DescriptionHandle": "h8bc90105aaff4addaebee525051bde958a87"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -406,6 +454,9 @@
                             "Handles": {
                                 "NameHandle": "h193e8c23d2504cef9a0002baacbdb6a7c923",
                                 "TooltipHandle": "h3a06069498904f7791e754ff190e1649e8a6"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -417,6 +468,9 @@
                             "Handles": {
                                 "NameHandle": "hc836da17893e47618c2524c724a23f5585bd",
                                 "TooltipHandle": "h48379d9c95fe4393b221b9d105374174ecaa"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -428,6 +482,9 @@
                             "Handles": {
                                 "NameHandle": "hdb101e2835e7482d919a3d1f0ae0af13fdc3",
                                 "TooltipHandle": "h2091c8df590049748bdf95d6141497e215gg"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -439,6 +496,9 @@
                             "Handles": {
                                 "NameHandle": "h97ff4d538fd24adebd33abcda9ed64e05e31",
                                 "TooltipHandle": "h1023ace9c14d4a8bbf2c4c2f80a4c47c6513"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         },
                         {
@@ -450,6 +510,9 @@
                             "Handles": {
                                 "NameHandle": "habe7ddb9ad9944b58744705857ca8cde0357",
                                 "TooltipHandle": "hddf4673450d344dc924bc6210f17ea62544g"
+                            },
+                            "Options": {
+                                "InlineTitle": true
                             }
                         }
                     ],

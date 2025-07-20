@@ -73,11 +73,18 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
         widgetName = setting:GetId()
     end
 
-    local widgetNameText = group:AddText(widgetName)
-    widgetNameText.TextWrapPos = 0
+    -- Kludge since class instantiation and rendering are coupled in the code;
+    -- That prohibits knowing class details before rendering. This is a workaround to avoid a major refactoring.
+    local options = setting:GetOptions()
+    if options and options.InlineTitle ~= true then
+        self:CreateTitle(group, widgetName)
+    end
 
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
+
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
+
+    widget._group = group
 
     -- Store essential information for reset functionality
     widget._currentValue = initialValue
@@ -218,6 +225,17 @@ function IMGUIWidget:IsValueEqualToDefault(currentValue, defaultValue)
         -- For simple types, just compare directly
         return currentValue == defaultValue
     end
+end
+
+--- Create a title for the widget
+-- @param group The IMGUI group to add the title to
+-- @param titleText The text to display as the title
+function IMGUIWidget:CreateTitle(group, titleText)
+    if not titleText or titleText == "" then return end
+
+    local widgetNameText = group:AddText(titleText)
+    widgetNameText.TextWrapPos = 0
+    return widgetNameText
 end
 
 function IMGUIWidget:InitializeWidget(widget, group, setting)
