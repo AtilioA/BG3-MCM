@@ -359,7 +359,7 @@ function NativeKeybindingsTranslator.GetCategoryString(categoryName)
   local locString = Ext.Loca.GetTranslatedString(_categoryStrings[categoryName])
   if locString and locString ~= "" then return locString end
 
-  return _categoryStrings[categoryName] or _categoryStrings[""]
+  return categoryName or _categoryStrings[""]
 end
 
 --- Gets the display string for an event name.
