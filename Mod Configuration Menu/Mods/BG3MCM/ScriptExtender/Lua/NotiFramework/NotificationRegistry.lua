@@ -38,7 +38,8 @@ function NotificationRegistry:Add(notification)
 
     -- Remove any existing notification with the same ID
     self:Remove(notification)
-    self._activeNotifications[notification] = true
+
+    table.insert(self._activeNotifications, notification)
 end
 
 --- Removes a notification from the registry
@@ -47,9 +48,11 @@ end
 function NotificationRegistry:Remove(notification)
     if not notification then return false end
 
-    if self._activeNotifications[notification] then
-        self._activeNotifications[notification] = nil
-        return true
+    for i, n in ipairs(self._activeNotifications) do
+        if n == notification then
+            table.remove(self._activeNotifications, i)
+            return true
+        end
     end
     return false
 end
@@ -57,11 +60,7 @@ end
 --- Gets the number of active notifications
 ---@return integer
 function NotificationRegistry:Count()
-    local count = 0
-    for _ in pairs(self._activeNotifications) do
-        count = count + 1
-    end
-    return count
+    return #self._activeNotifications
 end
 
 return NotificationRegistry

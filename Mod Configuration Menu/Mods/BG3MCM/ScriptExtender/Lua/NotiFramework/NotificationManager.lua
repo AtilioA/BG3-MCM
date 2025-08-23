@@ -307,30 +307,22 @@ end
 ---@param countdown number|nil The initial countdown time
 ---@return nil
 function NotificationManager:StartButtonCountdown(button, countdown)
-    if not countdown then
-        return
+    if not countdown then return end
+    local originalLabel = button.Label
+    local localizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
+    local function onTick(element, remaining)
+        element.Disabled = true
+        element:SetColor("Button", Color.NormalizedRGBA(50, 50, 50, 0.5))
+        element.Label = localizedLabel .. " (" .. remaining .. ")"
+        return false
     end
-    local dontShowAgainButtonLocalizedLabel = Ext.Loca.GetTranslatedString("h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f")
-
-    local function updateCountdownAndLabel()
-        countdown = countdown - 1
-        button:SetColor("Button", Color.NormalizedRGBA(50, 50, 50, 0.5))
-        button.Label = dontShowAgainButtonLocalizedLabel .. " (" .. countdown .. ")"
-
-        if countdown <= 0 then
-            button.Disabled = false
-            button.Label = button.Label:match("^(.*) %(%d+%)")
-            self.IMGUIwindow.Closeable = true
-            button:SetColor("Button", UIStyle.Colors.Button)
-            return true
-        else
-            -- Continue the timer
-            return false
-        end
+    local function onComplete(element)
+        element.Disabled = false
+        element.Label = originalLabel
+        self.IMGUIwindow.Closeable = true
+        element:SetColor("Button", UIStyle.Colors.Button)
     end
-
-    -- Update the button label each second as a countdown
-    VCTimer:CallWithInterval(updateCountdownAndLabel, 1000, countdown * 1000)
+    CooldownHelper:StartCooldown(button, countdown, onTick, onComplete)
 end
 
 --- Creates a new IMGUI notification or returns an existing one with the same title and message

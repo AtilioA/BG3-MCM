@@ -2,6 +2,7 @@ RequireFiles("Shared/Helpers/", {
     "Table/_Init",
     "Events/_Init",
     "VC/_Init",
+    "CooldownHelper",
     "Keybindings/_Init",
     "LoadOrderHealthCheck/_Init",
     "PathValidator",

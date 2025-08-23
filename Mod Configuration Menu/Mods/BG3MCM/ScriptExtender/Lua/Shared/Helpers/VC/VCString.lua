@@ -89,6 +89,42 @@ function VCString:Lowercase(str)
     return str:gsub("^%u", string.lower)
 end
 
+--- Update a localized message with dynamic content
+---@param handle string The handle of the localized message to update
+---@param dynamicContent string The dynamic content to replace the placeholder with
+function VCString:UpdateLocalizedMessage(handle, dynamicContent)
+    -- Store original message in a cache if not already stored
+    if not self._originalMessages then
+        self._originalMessages = {}
+    end
+
+    -- Get or cache the original message
+    if not self._originalMessages[handle] then
+        self._originalMessages[handle] = Ext.Loca.GetTranslatedString(handle)
+    end
+
+    -- Use the original message as base
+    local originalMessage = self._originalMessages[handle]
+
+    -- Escape '%' for safe gsub replacement
+    local safeContent = VCString:EscapeReplacement(tostring(dynamicContent))
+    -- Replace placeholder '[1]' with the dynamic content
+    local updatedMessage = string.gsub(originalMessage, "%[1%]", safeContent)
+
+    -- Update the translated string with the new content during runtime
+    Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
+
+    return VCString:ReplaceBrWithNewlines(updatedMessage)
+end
+
+--- Escapes '%' in a string for safe use as a replacement in string.gsub
+---@param str string
+---@return string
+function VCString:EscapeReplacement(str)
+    if str == nil then return "" end
+    return str:gsub("%%", "%%%%")
+end
+
 -- Adds full stop to the end of the string if it doesn't already have one
 function VCString:AddFullStop(str)
     if str == nil then
@@ -211,7 +247,8 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
     local settings = type(args[#args]) == "table" and table.remove(args) or {}
 
     for i, value in ipairs(args) do
-        updatedMessage = updatedMessage:gsub("%[" .. i .. "%]", tostring(value))
+        local safeValue = VCString:EscapeReplacement(tostring(value))
+        updatedMessage = updatedMessage:gsub("%[" .. i .. "%]", safeValue)
     end
 
     if settings.updateHandle then

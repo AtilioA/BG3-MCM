@@ -191,14 +191,13 @@
         {
             "TabId": "sidebar",
             "TabName": "Sidebar",
-            "TabDescription": "By default, the sidebar automatically expands when hovering the icon, and will collapse when opening a mod page.\nYou can also manually toggle it with CAPSLOCK.",
             "Handles": {
-                "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0",
-                "DescriptionHandle": "h4f7f7d8278084ab49b90d31af3f3810eegc7"
+                "NameHandle": "h7de073367e614d0d9d896abbaf2e1b6bdec0"
             },
             "Sections": [
                 {
                     "SectionId": "sidebar_settings",
+                    "SectionDescription": "By default, the sidebar automatically expands when hovering the icon, and will collapse when opening a mod page.\nYou can also manually toggle it with CAPSLOCK.",
                     "SectionName": "Sidebar behavior",
                     "Settings": [
                         {
@@ -251,8 +250,84 @@
                         }
                     ],
                     "Handles": {
-                        "NameHandle": "h3eea24a3dff74849a38e04f0fc43b4b54963"
+                        "NameHandle": "h3eea24a3dff74849a38e04f0fc43b4b54963",
+                        "DescriptionHandle": "h4f7f7d8278084ab49b90d31af3f3810eegc7"
                     }
+                }
+            ]
+        },
+        {
+            "TabId": "load_order_checks",
+            "TabName": "Load order checks",
+            "Handles": {
+                "NameHandle": "hc8d418eb08b243dca7827e5a873295d34d9bs"
+            },
+            "Sections": [
+                {
+                    "SectionId": "health_check_toggles",
+                    "SectionName": "Health check toggles",
+                    "SectionDescription": "MCM will scan your load order for potential issues and display visual warnings in the main menu if any are found.\nIt is recommended to keep all checks enabled. Most of these issues would cause problems for some of your mods.\nWarnings can be disabled in an individual basis as they appear.",
+                    "Handles": {
+                        "NameHandle": "h9e33c60be1134adaa0256000af3a4a142c08s",
+                        "DescriptionHandle": "hbc82ae3470f942bd843e33ae6e7498908935"
+                    },
+                    "Settings": [
+                        {
+                            "Id": "enable_invalid_uuids_check",
+                            "Name": "Warn about invalid UUIDs",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Warns if any mod in the load order has an invalid or missing UUID.",
+                            "Handles": {
+                                "NameHandle": "h1fd4e620b15146b79d30f01768ceb27581gg",
+                                "DescriptionHandle": "h22531fbba80a4aa5a046c3bbfd55c373g923"
+                            }
+                        },
+                        {
+                            "Id": "enable_loadorder_dependencies_check",
+                            "Name": "Warn about load order dependencies",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Warns if there are missing or outdated load order dependencies.",
+                            "Handles": {
+                                "NameHandle": "hea337fe67fb44c6d9e2870b524bdcdc9e8bg",
+                                "DescriptionHandle": "hae5d939989a4461997798b892d7dc34366c4"
+                            }
+                        },
+                        {
+                            "Id": "enable_npakm_check",
+                            "Name": "Warn about NPAKM",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Warns if incompatible No Press Any Key Menu version is detected in the load order.",
+                            "Handles": {
+                                "NameHandle": "h0386d12fd1774adcab7d6d40bc8dcc403182",
+                                "DescriptionHandle": "h545b1baf66324fc28c0c726d7c016e73a3c9"
+                            }
+                        },
+                        {
+                            "Id": "enable_modconflicts_check",
+                            "Name": "Warn about mod conflicts",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Warns if there are mod conflicts in the load order.",
+                            "Handles": {
+                                "NameHandle": "h51d62ec178ef42339febafa360593169dccc",
+                                "DescriptionHandle": "h01582783e20d43bfba15142da3f8a22adf42"
+                            }
+                        },
+                        {
+                            "Id": "enable_mcmprecedence_check",
+                            "Name": "Warn about MCM precedence",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Warns if MCM is not placed before dependent mods in the load order.",
+                            "Handles": {
+                                "NameHandle": "h0b200012c87d4a2e8173a15243ee0355ace1",
+                                "DescriptionHandle": "h5611eef852e342ed932b47cb0cedfa51g66e"
+                            }
+                        }
+                    ]
                 }
             ]
         },

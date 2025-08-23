@@ -14,4 +14,7 @@ ClientGlobals.LISTENING_INPUT_STRING = Ext.Loca.GetTranslatedString("h2ea690497b
 -- Timeouts
 ClientGlobals.MCM_RESTORATION_MOD_TAB_INSERTED_TIMEOUT = 1000 * 10
 
+-- Default duration for event button feedback in milliseconds
+ClientGlobals.MCM_EVENT_BUTTON_FEEDBACK_DURATION = 5000
+
 return ClientGlobals

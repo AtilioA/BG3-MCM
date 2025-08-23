@@ -236,4 +236,31 @@
     <content contentuid="h0956d399e7d54f3c9e52482048530abcf06d" version="1">Throw Item</content>
     <content contentuid="h1174c660801b4143acde0a6f1dfc2a6ed5g8" version="1">Toggle Mouse Rotation</content>
     <content contentuid="h11c49d334a6d429eb1fa26da1379390a5333" version="1">General</content>
+    <content contentuid="h695e89a6bc5e4064b183454101463d0e3g4e" version="1">O mod '[1]' usa MCM mas está carregado antes do próprio MCM.&lt;br&gt;Isso pode causar problemas.&lt;br&gt;Por favor, mova '[2]' para depois do MCM na sua load order.</content>
+    <content contentuid="hbb05ad5f055141f5846365e1d6175ae74fb4" version="1">Precedência na load order: carregue o MCM antes de '[1]'</content>
+    <content contentuid="h22531fbba80a4aa5a046c3bbfd55c373g923" version="1">Avisa se algum mod na load order tem um UUID inválido ou ausente.</content>
+    <content contentuid="hae5d939989a4461997798b892d7dc34366c4" version="1">Avisa se há dependências ausentes ou desatualizadas na load order.</content>
+    <content contentuid="h545b1baf66324fc28c0c726d7c016e73a3c9" version="1">Avisa se uma versão incompatível do No Press Any Key Menu for detectada na load order.</content>
+    <content contentuid="h01582783e20d43bfba15142da3f8a22adf42" version="1">Avisa se há conflitos de mods na load order.</content>
+    <content contentuid="h5611eef852e342ed932b47cb0cedfa51g66e" version="1">Avisa se o MCM não estiver posicionado antes dos mods dependentes na load order.</content>
+    <content contentuid="hc8d418eb08b243dca7827e5a873295d34d9b" version="1">Verificações de load order</content>
+    <content contentuid="h9e33c60be1134adaa0256000af3a4a142c08" version="1">Verificações de integridade de load order</content>
+    <content contentuid="h1fd4e620b15146b79d30f01768ceb27581gg" version="1">Avisar sobre UUIDs inválidos</content>
+    <content contentuid="hea337fe67fb44c6d9e2870b524bdcdc9e8bg" version="1">Avisar sobre dependências na load order</content>
+    <content contentuid="h0386d12fd1774adcab7d6d40bc8dcc403182" version="1">Avisar sobre NPAKM</content>
+    <content contentuid="h51d62ec178ef42339febafa360593169dccc" version="1">Avisar sobre conflitos de mods</content>
+    <content contentuid="h0b200012c87d4a2e8173a15243ee0355ace1" version="1">Avisar sobre precedência do MCM</content>
+    <content contentuid="hbc82ae3470f942bd843e33ae6e7498908935" version="1">MCM irá verificar sua load order por potenciais problemas, e exibirá avisos visuais no menu principal se houverem problemas.&lt;br&gt;Recomenda-se manter todas as verificações ativadas. A maioria desses problemas causaria problemas para alguns de seus mods.&lt;br&gt;Avisos podem ser desativados individualmente quando aparecerem.</content>
+    <content contentuid="ha639028d9ca54b76a72e88059e3d24acd9a7" version="1">Sim</content>
+    <content contentuid="h2f7a7913be50404cbbdd9878ee774cca2113" version="1">Não</content>
+    <content contentuid="he43ef9b250584bc2840b8b291c73e4b53cb4" version="1">Cancelar</content>
+    <content contentuid="hf03356ba46684764b32d26ff28d3e709af5a" version="1">OK</content>
+    <content contentuid="h652b98e111884533a0ec00fd94ecc386f717" version="1">Confirmar ação</content>
+    <content contentuid="h6cea07ecefe545ddaf13f4259fa75a6b2400" version="1">Você tem certeza que deseja prosseguir?</content>
+    <content contentuid="hbaeea4f4db8b46ed98f47a36a38cbe72c463" version="1">Ação executada!</content>
+    <content contentuid="h56d95a2dbb034ce6a8145626d3abf55fg274" version="1">O botão apresentou erro. Por favor, contate [1] sobre este problema.</content>
+    <content contentuid="hc19226a66ff845e0b3e8ddcae7b251c52d23" version="1">Nenhum callback registrado para o event_button '[1]'.</content>
+    <content contentuid="h20966555a08747a0bec0a3e0e77047b3f9gc" version="1">Cooldown do botão: [1][2]</content>
+    <content contentuid="hb31fa6f91735475eb72da548b26a3516af31" version="1">Cooldown do botão: [1]</content>
+    <content contentuid="hcd9314b58f0946be8df07686c2cb9518b95g" version="1">s</content>
 </contentList>

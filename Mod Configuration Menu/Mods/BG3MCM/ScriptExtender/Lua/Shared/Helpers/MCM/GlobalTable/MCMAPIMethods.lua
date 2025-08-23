@@ -7,7 +7,7 @@ local warnedDeprecation = {}
 ---@param methodName string The name of the deprecated method
 ---@param message string The deprecation message
 local function showDeprecationWarning(modUUID, methodName, message)
-    if not warnedDeprecation[modUUID] then 
+    if not warnedDeprecation[modUUID] then
         warnedDeprecation[modUUID] = {}
     end
     if not warnedDeprecation[modUUID][methodName] then
@@ -43,6 +43,7 @@ local function createMCMAPIMethods(originalModUUID)
         if not modUUID then modUUID = originalModUUID end
         return MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
     end
+
 
     -- Keybindings API
     MCMInstance.Keybinding = {
@@ -186,6 +187,111 @@ local function createClientAPIMethods(originalModUUID, modTable)
         InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
     end
 
+    -- Client-side EventButton methods
+    if not modTable.MCM.EventButton then
+        modTable.MCM.EventButton = {}
+    end
+    --- Check if an event button is enabled (client only)
+    ---@param buttonId string The ID of the event button
+    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@return boolean|nil isEnabled True if enabled, false if disabled, nil if button not found
+    modTable.MCM.EventButton['IsEnabled'] = function(buttonId, modUUID)
+        if not modUUID then modUUID = originalModUUID end
+        local isDisabled = MCMAPI:IsEventButtonDisabled(tostring(modUUID), buttonId)
+        if isDisabled == nil then
+            MCMDebug(1, string.format("Button '%s' not found in mod '%s'", buttonId, tostring(modUUID)))
+        end
+        return not isDisabled
+    end
+
+    --- Show feedback message for an event button (client only)
+    ---@param buttonId string The ID of the event button
+    ---@param message string The feedback message to display
+    ---@param feedbackType string The type of feedback ("success", "error", "info", "warning")
+    ---@param modUUID? string The UUID of the mod that owns the button (defaults to current mod)
+    ---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
+    ---@return boolean success True if the feedback was shown successfully
+    modTable.MCM.EventButton['ShowFeedback'] = function(buttonId, message, feedbackType, modUUID, durationInMs)
+        modUUID = modUUID or originalModUUID
+        return MCMAPI:ShowEventButtonFeedback(tostring(modUUID), buttonId, message, feedbackType, durationInMs)
+    end
+
+    modTable.MCM.EventButton["FeedbackTypes"] = {
+        SUCCESS = "success",
+        ERROR = "error",
+        INFO = "info",
+        WARNING = "warning"
+    }
+
+    --- Register a callback function for an event button
+    ---@param buttonId string The ID of the event button
+    ---@param callback function The callback function to execute when the button is clicked
+    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@return boolean success True if the callback was registered successfully
+    modTable.MCM.EventButton['RegisterCallback'] = function(buttonId, callback, modUUID)
+        if not modUUID then modUUID = originalModUUID end
+        if Ext.IsServer() then return false end
+        local success = MCMAPI:RegisterEventButtonCallback(modUUID, buttonId, callback)
+        if not success then
+            MCMWarn(0,
+                string.format("Failed to register event button callback for button '%s' in mod '%s'", buttonId,
+                    modUUID))
+        else
+            MCMDebug(1,
+                string.format("Successfully registered event button callback for button '%s' in mod '%s'", buttonId,
+                    modUUID))
+        end
+        return success
+    end
+
+    --- Unregister a callback function for an event button
+    ---@param buttonId string The ID of the event button
+    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@return boolean success True if the callback was unregistered successfully
+    modTable.MCM.EventButton['UnregisterCallback'] = function(buttonId, modUUID)
+        if not modUUID then modUUID = originalModUUID end
+        if Ext.IsServer() then return false end
+        local success = MCMAPI:UnregisterEventButtonCallback(modUUID, buttonId)
+        if not success then
+            MCMWarn(0,
+                string.format("Failed to unregister event button callback for button '%s' in mod '%s'", buttonId,
+                    modUUID))
+        else
+            MCMDebug(1,
+                string.format("Successfully unregistered event button callback for button '%s' in mod '%s'", buttonId,
+                    modUUID))
+        end
+        return success
+    end
+
+    --- Set the disabled state of an event button
+    ---@param buttonId string The ID of the event button
+    ---@param disabled boolean Whether the button should be disabled
+    ---@param tooltipText? string Optional tooltip text to show when disabled
+    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@return boolean success True if the state was updated successfully
+    modTable.MCM.EventButton['SetDisabled'] = function(buttonId, disabled, tooltipText, modUUID)
+        if not modUUID then modUUID = originalModUUID end
+        if Ext.IsServer() then return false end
+
+        -- Handle case where tooltipText is omitted and modUUID is passed as third parameter
+        if tooltipText ~= nil and type(tooltipText) == "string" and #tooltipText == 36 then -- Check if it might be a UUID
+            modUUID = tooltipText
+            tooltipText = nil
+        end
+
+        local success = MCMAPI:SetEventButtonDisabled(modUUID, buttonId, disabled, tooltipText)
+        if not success then
+            MCMWarn(0,
+                string.format("Failed to set disabled state for button '%s' in mod '%s'", buttonId, modUUID))
+        else
+            MCMDebug(1,
+                string.format("Successfully set disabled state for button '%s' in mod '%s' to %s",
+                    buttonId, modUUID, tostring(disabled)))
+        end
+        return success
+    end
+
     modTable.MCM['SetKeybindingCallback'] = function(settingId, callback, modUUID)
         if not modUUID then modUUID = originalModUUID end
         showDeprecationWarning(originalModUUID, "SetKeybindingCallback",
@@ -193,29 +299,26 @@ local function createClientAPIMethods(originalModUUID, modTable)
         return modTable.MCM.Keybinding.SetCallback(settingId, callback, modUUID)
     end
 
-    -- Function to register callbacks for event_button widgets
-    if not modTable.MCM.EventButton then
-        modTable.MCM.EventButton = {}
-    end
-    modTable.MCM.EventButton['SetCallback'] = function(settingId, callback, modUUID)
-        MCMWarn(0, "SetCallback has not been implemented yet.")
-        return false
-        -- if not modUUID then modUUID = originalModUUID end
+    -- -- Function to register callbacks for event_button widgets
+    -- if not modTable.MCM.EventButton then
+    --     modTable.MCM.EventButton = {}
+    -- end
+    -- modTable.MCM.EventButton['SetCallback'] = function(settingId, callback, modUUID)
+    --     if not modUUID then modUUID = originalModUUID end
 
-        -- -- Use MCMAPI to register the callback
-        -- local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
+    --     local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
 
-        -- if not success then
-        --     MCMWarn(0,
-        --         string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
-        -- else
-        --     MCMDebug(1,
-        --         string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
-        --             modUUID))
-        -- end
+    --     if not success then
+    --         MCMWarn(0,
+    --             string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
+    --     else
+    --         MCMDebug(1,
+    --             string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
+    --                 modUUID))
+    --     end
 
-        -- return success
-    end
+    --     return success
+    -- end
 
     modTable.MCM['OpenMCMWindow'] = function()
         IMGUIAPI:OpenMCMWindow(true)

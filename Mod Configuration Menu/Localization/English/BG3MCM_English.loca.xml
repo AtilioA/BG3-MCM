@@ -553,4 +553,11 @@
     <content contentuid="h5471cbe24a5b43739a991242912f1fd304d6" version="1">Controller Unlinked B</content>
     <content contentuid="h108a40bd44e043d5975c5e6765aad4d11e7a" version="1">Controller Unlinked X</content>
     <!-- End of entries for native keybindings -->
+    <content contentuid="hbaeea4f4db8b46ed98f47a36a38cbe72c463" version="1">Action executed!</content>
+    <content contentuid="h56d95a2dbb034ce6a8145626d3abf55fg274" version="1">Button errored. Please contact [1] about this issue.</content>
+    <content contentuid="hc19226a66ff845e0b3e8ddcae7b251c52d23" version="1">No callback registered for event_button '[1]'.</content>
+    <content contentuid="h20966555a08747a0bec0a3e0e77047b3f9gc" version="1">Button cooldown: [1][2]</content>
+    <content contentuid="hb31fa6f91735475eb72da548b26a3516af31" version="1">Button cooldown: [1]</content>
+    <!-- This is used for seconds abbreviation -->
+    <content contentuid="hcd9314b58f0946be8df07686c2cb9518b95g" version="1">s</content>
 </contentList>
