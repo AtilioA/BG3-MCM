@@ -561,4 +561,6 @@
     <!-- This is used for seconds abbreviation -->
     <content contentuid="hcd9314b58f0946be8df07686c2cb9518b95g" version="1">s</content>
     <content contentuid="hdbcd16c5f55e4e9c800e7284ebef8b0f5372" version="1">This mod has one or more assigned hotkeys.&lt;br&gt;Click to open Hotkeys.</content>
+    <content contentuid="hef97155533604ba6adf42a09c666469c0c4c" version="1">Vanilla/Native keybindings are read-only. This UI does not update when you change them in-game.</content>
+    <content contentuid="h692c5bc059d841ccba0bc66c92f5bb09e53g" version="1">Vanilla keybindings</content>
 </contentList>
