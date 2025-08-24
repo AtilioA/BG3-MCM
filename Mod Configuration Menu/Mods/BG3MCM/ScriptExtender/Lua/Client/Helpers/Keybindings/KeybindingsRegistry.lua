@@ -291,7 +291,19 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
             MCMPrint(1,
                 "Dispatching keyboard callback for mod '" ..
                 binding.modUUID .. "', action '" .. binding.actionName .. "'.")
-            binding.keyboardCallback(e)
+            xpcall(function()
+                binding.keyboardCallback(e)
+            end, function(err)
+                local traceback = ""
+                if debug and type(debug.traceback) == "function" then
+                    traceback = debug.traceback("", 2)
+                end
+                local mod = Ext.Mod.GetMod(binding.modUUID)
+                local modName = (mod and mod.Info and mod.Info.Name) or tostring(binding.modUUID)
+                MCMError(0,
+                    "Keyboard callback failed for mod '" .. modName .. "', action '" .. tostring(binding.actionName) ..
+                    "': " .. tostring(err) .. traceback .. "\nPlease contact " .. (mod and mod.Info and mod.Info.Author) .. " about this issue.")
+            end)
         else
             MCMWarn(0,
                 "No keyboard callback found for mod '" .. binding.modUUID .. "', action '" .. binding.actionName .. "'.")
@@ -302,6 +314,20 @@ end
 --- Exposes the registry's BehaviorSubject so others can subscribe.
 function KeybindingsRegistry.GetSubject()
     return keybindingsSubject
+end
+
+--- Returns true if the given mod has at least one visible, enabled, and assigned keyboard binding
+---@param modUUID string|nil
+---@return boolean
+function KeybindingsRegistry.HasKeybindings(modUUID)
+    if not modUUID then return false end
+
+    local filtered = KeybindingsRegistry and KeybindingsRegistry.GetFilteredRegistry
+        and KeybindingsRegistry.GetFilteredRegistry() or {}
+    local actions = filtered[modUUID]
+    if not actions then return false end
+
+    return true
 end
 
 --- Returns the full registry table.

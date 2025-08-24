@@ -108,10 +108,14 @@ function RightPane:InsertTab(modUUID, tabName, callback)
         xpcall(function()
             callback(tab)
         end, function(err)
+            local traceback = ""
+            if debug and type(debug.traceback) == "function" then
+                traceback = debug.traceback("", 2)
+            end
             MCMError(0,
                 "Callback failed for mod " ..
                 Ext.Mod.GetMod(modUUID).Info.Name ..
-                ": " .. err .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+                ": " .. err .. traceback .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         end)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
@@ -147,6 +151,10 @@ function RightPane:SetVisibleGroup(modUUID)
         -- Use HeaderActions to update detach/reattach buttons based on current mod
         if HeaderActionsInstance then
             HeaderActionsInstance:UpdateDetachButtons(modUUID)
+            -- Also refresh keybinding indicator for the newly selected mod
+            if HeaderActionsInstance.UpdateKeybindingIndicator then
+                HeaderActionsInstance:UpdateKeybindingIndicator(modUUID)
+            end
         end
     end
 end
