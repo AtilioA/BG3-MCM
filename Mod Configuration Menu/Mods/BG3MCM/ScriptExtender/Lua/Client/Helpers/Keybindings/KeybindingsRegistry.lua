@@ -307,6 +307,20 @@ function KeybindingsRegistry.GetSubject()
     return keybindingsSubject
 end
 
+--- Returns true if the given mod has at least one visible, enabled, and assigned keyboard binding
+---@param modUUID string|nil
+---@return boolean
+function KeybindingsRegistry.HasKeybindings(modUUID)
+    if not modUUID then return false end
+
+    local filtered = KeybindingsRegistry and KeybindingsRegistry.GetFilteredRegistry
+        and KeybindingsRegistry.GetFilteredRegistry() or {}
+    local actions = filtered[modUUID]
+    if not actions then return false end
+
+    return true
+end
+
 --- Returns the full registry table.
 function KeybindingsRegistry.GetRegistry()
     return registry

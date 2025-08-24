@@ -6,6 +6,8 @@
 HeaderActions = {}
 HeaderActions.__index = HeaderActions
 
+-- REFACTOR: replace DualPane.rightPane calls with encapsulation
+
 function HeaderActions:New(parent)
     local self = setmetatable({}, HeaderActions)
     self.group = parent:AddGroup("HeaderActions")
@@ -57,6 +59,34 @@ function HeaderActions:New(parent)
             self:UpdateDetachButtons(modUUID)
         end
     end
+
+    -- Keybinding indicator: shows when current mod has assigned hotkeys.
+    self.keybindingsIndicator = self:CreateActionButton("[Hotkeys]", nil,
+        Ext.Loca.GetTranslatedString("hdbcd16c5f55e4e9c800e7284ebef8b0f5372"), 1)
+    self.keybindingsIndicator.SameLine = true
+    self.keybindingsIndicator.Disabled = false
+    self.keybindingsIndicator.Visible = false
+    self.keybindingsIndicator.OnClick = function()
+        if not DualPane or not DualPane.rightPane or not DualPane.rightPane.currentMod then return end
+        local modUUID = DualPane.rightPane.currentMod.modUUID
+        if not modUUID or modUUID == "" then return end
+
+        -- Navigate to the Hotkeys page
+        -- TODO: focus the mod
+        if DualPane and DualPane.OpenModPage then
+            DualPane:OpenModPage(ClientGlobals.MCM_HOTKEYS)
+        end
+    end
+
+    -- React to keybindings registry updates so the indicator stays in sync.
+    if KeybindingsRegistry and KeybindingsRegistry.GetSubject then
+        self._kbSubscription = KeybindingsRegistry:GetSubject():Subscribe(function()
+            self:UpdateKeybindingIndicator()
+        end)
+    end
+
+    -- Initial state for indicator.
+    self:UpdateKeybindingIndicator()
 
     return self
 end
@@ -117,4 +147,40 @@ function HeaderActions:UpdateDetachButtons(modUUID)
     self.reattachBtn.Visible = isDetached
 
     MCMDebug(2, "Updated detach buttons for mod " .. modUUID .. ", isDetached: " .. tostring(isDetached))
+end
+
+--- Updates the keybinding indicator visibility and tooltip for the current or provided mod
+---@param modUUID string|nil
+function HeaderActions:UpdateKeybindingIndicator(modUUID)
+    if not self.keybindingsIndicator then return end
+
+    -- Resolve modUUID from current context if not provided
+    if (not modUUID) and DualPane and DualPane.rightPane and DualPane.rightPane.currentMod then
+        modUUID = DualPane.rightPane.currentMod.modUUID
+    end
+
+    if not modUUID then
+        self.keybindingsIndicator.Visible = false
+        return
+    end
+
+    local hasAssigned = KeybindingsRegistry and KeybindingsRegistry.HasKeybindings
+        and KeybindingsRegistry.HasKeybindings(modUUID) or false
+
+    if not hasAssigned then
+        self.keybindingsIndicator.Visible = false
+        return
+    end
+
+    -- If we have assigned hotkeys, show the indicator and ensure tooltip is informative
+    self.keybindingsIndicator.Visible = true
+
+    -- Count assigned actions to enrich tooltip
+    -- local count = 0
+    -- local filtered = KeybindingsRegistry.GetFilteredRegistry and KeybindingsRegistry.GetFilteredRegistry() or {}
+    -- local nActions = #filtered[modUUID] or 0
+
+    -- local modName = (MCMClientState and MCMClientState.GetModName and MCMClientState:GetModName(modUUID)) or modUUID
+    -- local tooltip = string.format("%s has %d assigned hotkey%s. Click to open Hotkeys.", tostring(modName), nActions, nActions == 1 and "" or "s")
+    -- MCMRendering:AddTooltip(self.keybindingsIndicator, tooltip, "HeaderAction_[Hotkeys]")
 end

@@ -226,4 +226,5 @@
     <content contentuid="hb31fa6f91735475eb72da548b26a3516af31" version="1">Button cooldown: [1]</content>
     <!-- This is used for seconds abbreviation -->
     <content contentuid="hcd9314b58f0946be8df07686c2cb9518b95g" version="1">s</content>
+    <content contentuid="hdbcd16c5f55e4e9c800e7284ebef8b0f5372" version="1">This mod has one or more assigned hotkeys.&lt;br&gt;Click to open Hotkeys.</content>
 </contentList>

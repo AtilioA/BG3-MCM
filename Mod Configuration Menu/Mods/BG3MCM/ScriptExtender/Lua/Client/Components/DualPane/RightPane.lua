@@ -151,6 +151,10 @@ function RightPane:SetVisibleGroup(modUUID)
         -- Use HeaderActions to update detach/reattach buttons based on current mod
         if HeaderActionsInstance then
             HeaderActionsInstance:UpdateDetachButtons(modUUID)
+            -- Also refresh keybinding indicator for the newly selected mod
+            if HeaderActionsInstance.UpdateKeybindingIndicator then
+                HeaderActionsInstance:UpdateKeybindingIndicator(modUUID)
+            end
         end
     end
 end
