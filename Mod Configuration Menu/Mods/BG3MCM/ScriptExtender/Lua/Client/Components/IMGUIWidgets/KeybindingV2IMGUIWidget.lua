@@ -506,6 +506,12 @@ function KeybindingV2IMGUIWidget:CheckForConflicts(keybinding, currentMod, curre
         return nil
     end
 
+    -- If no keybinding is assigned (e.g. using UNASSIGNED_KEYBOARD_MOUSE_STRING or nil),
+    -- skip conflict detection entirely.
+    if type(keybinding) ~= "table" or keybinding.Key == "" then
+        return nil
+    end
+
     local registry = KeybindingsRegistry.GetFilteredRegistry()
     local currentActionId = currentAction.ActionId
 
