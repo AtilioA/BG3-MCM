@@ -208,12 +208,15 @@ local function shouldTriggerBinding(e, binding)
     })
 end
 
-function KeybindingsRegistry.NotifyConflict(keybindingStr)
-    local conflictStr = VCString:InterpolateLocalizedMessage("hd4e656a649c14e638ab1cb4380ad714746ea", keybindingStr)
+function KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
+    if not conflictTitle or conflictTitle == "" or not conflictStr or conflictStr == "" then
+        return
+    end
+
     NotificationManager:CreateIMGUINotification(
         "Keybinding_Conflict" .. Ext.Math.Random(),
         'warning',
-        "Keybinding conflict",
+        conflictTitle,
         conflictStr,
         { duration = 10, dontShowAgainButton = false },
         ModuleUUID
@@ -275,7 +278,13 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         local binding = triggered[1]
         local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
         MCMWarn(0, "Keybinding conflict detected for: " .. keybindingStr)
-        KeybindingsRegistry.NotifyConflict(keybindingStr)
+
+        -- TODO: reduce duplication with KeybindingV2IMGUIWidget
+        local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
+            binding.actionName)
+        local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb", keybindingStr,
+            binding.actionName)
+        KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
     elseif #triggered == 1 then
         local binding = triggered[1]
         if binding.keyboardCallback then

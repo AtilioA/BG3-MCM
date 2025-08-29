@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentList>
     <!-- Temporary handle in case MCM is inactive -->
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;MCM is 'inactive' in your load order. Make sure you've saved and exported your load order.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid UUIDs.&#x0a;Use BG3MM 1.0.12.8+ to identify load order problems. This message WON'T appear if MCM is active.&#x0a;</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;MCM is 'inactive' in your load order. Make sure you have SE and saved + exported your load order.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid UUIDs.&#x0a;Use BG3MM 1.0.12.8+ to identify load order problems. This message WON'T appear if MCM is active.&#x0a;</content>
     <!-- IMGUI window name -->
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
     <!-- Used for some buttons (can be overridden during runtime to display advice) -->
@@ -74,17 +74,19 @@
     <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Created by [1] | Version [2]</content>
     <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Don't see the MCM window? Check the troubleshooting steps on the mod page.</content>
     <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Reset</content>
-    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Reset keybinding to default.</content>
+    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Reset keybinding to default: [1].</content>
     <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">ACTION REQUIRED: Keybinding conflict</content>
-    <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Press keys to assign [ESC to cancel | BACKSPACE to remove]</content>
-    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Empty keyboard shortcut</content>
+    <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Press keys to assign | [ESC] to cancel, [BACKSPACE] to unassign</content>
+    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Empty hotkey</content>
     <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Search keybindings:</content>
-    <content contentuid="h7e9b6453340548c29a8f3add8a402bedbe8g" version="1">No matching keyboard shortcut found.</content>
+    <content contentuid="h7e9b6453340548c29a8f3add8a402bedbe8g" version="1">No matching hotkey found.</content>
     <content contentuid="h037fe64fb38a45dfb6e3d27ad038f48028a3" version="1">Action Name</content>
     <content contentuid="h68057d690e2f44ae98c31cb07f8074fb7134" version="1">Keyboard input</content>
     <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Click to assign a new key combination.</content>
-    <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Action: [1]</content>
-    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Keybinding conflicts with action: [1]</content>
+    <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Action: '[1]'</content>
+    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Keybinding [1] for action '[2]' conflicts with action '[3]'.</content>
+    <content contentuid="h8509840fdfe4453b800fd84957a50800gacb" version="1">Keybinding [1] conflicts for action '[2]'.</content>
+    <content contentuid="h919dc9b46db144ed8c330d1abb728459aea3" version="1">Keybinding conflicts with action '[1]'</content>
     <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Help &amp; Troubleshooting</content>
     <content contentuid="h361dd694cca74b30a87f02d035e35dcac0d4" version="1">Troubleshooting and Reporting</content>
     <content contentuid="hafec095716ec4208b2319d24b3c230d969d4" version="1">Script Extender's (SE) IMGUI implementation is in constant development. If you're having issues:</content>
@@ -144,8 +146,8 @@
     <content contentuid="hb341a515eea64380ad0ccfe6c1ff115d1310" version="1">Detached view for mod '[1]'</content>
     <content contentuid="h0967f545c53f4796bd25d550fe05e234c1ga" version="1">Wrong No Press Any Key Menu version</content>
     <content contentuid="h41e2dbf1773848eca2001fde456cca4d0156" version="1">You're using 'No Press Any Key Menu' without the MCM compatibility patch.&lt;br&gt;Your main menu may not display the MCM button correctly.&lt;br&gt;&lt;br&gt;Please replace it with the patched version from Caites' mod page.</content>
-    <content contentuid="he1d69e96b7e44957b6d9373635ef69100180" version="1">Dependency issue detected: [1] depends on [2]</content>
-    <content contentuid="h0acfde6fg6f34g4904g8526g6f1e1c0865e3" version="1">Conflict issue detected: [1] conflicts with [2]</content>
+    <content contentuid="he1d69e96b7e44957b6d9373635ef69100180" version="1">Dependency issue detected: '[1]' depends on '[2]'.</content>
+    <content contentuid="h0acfde6fg6f34g4904g8526g6f1e1c0865e3" version="1">Conflict issue detected: '[1]' conflicts with '[2]'</content>
     <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">Mod '[1]' has an invalid UUID ([2]).&lt;br&gt;This mod may cause your load order to reset.&lt;br&gt;Delete the pak file for this mod or look for an update.&lt;br&gt;You may downgrade to Patch 6 or 7 and use Mod Uninstaller to try to remove this mod if you can't load a save without this mod.</content>
     <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Your load order has a mod with an invalid UUID ([1] [2])</content>
     <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Can't check dependency '[1]' for mod '[2]' because it has no version information.&lt;br&gt;This doesn't impact functionality, but please contact [3] to update the meta.lsx file for '[4]'.&lt;br&gt;The version node might have an outdated ID (it should be Version64).</content>
@@ -219,6 +221,338 @@
     <content contentuid="hf03356ba46684764b32d26ff28d3e709af5a" version="1">OK</content>
     <content contentuid="h652b98e111884533a0ec00fd94ecc386f717" version="1">Confirm action</content>
     <content contentuid="h6cea07ecefe545ddaf13f4259fa75a6b2400" version="1">Are you sure you want to proceed?</content>
+    <content contentuid="hac5a1fd7d223410b8a5fab04951eb428adde" version="1">Keybinding conflict: [1]</content>
+
+    <!-- Below are entries for native keybindings. It is not something players will see much. -->
+    <content contentuid="hbf47285d75054db8961a2bbd76e650fcd991" version="1">Camera Controls</content>
+    <content contentuid="h86fe2b0403a84fb7908f6bdf3ee17dd21e7f" version="1">Unknown</content>
+    <content contentuid="h726ccf29105d41538780a0a1b61bf3cab5f0" version="1">Photo Mode Controls</content>
+    <content contentuid="hd0c6191488c948b99d81f0cd66fc1ccb6a26" version="1">User Interface</content>
+    <content contentuid="h2d7144c5b0454e149411e2542ab303ae933b" version="1">Move Camera Forward</content>
+    <content contentuid="h39a720e76b4141949a505be4a602a75d54ea" version="1">Move Camera Backward</content>
+    <content contentuid="h7e26b3c3fa6a4606be5ba33fd622eb837e70" version="1">Move Camera Left</content>
+    <content contentuid="h24831ad9f6ef40a5a98377fa56ee766d8f26" version="1">Move Camera Right</content>
+    <content contentuid="h5675f4200f7f46a2a2af47c66fa9ccac2221" version="1">Zoom In</content>
+    <content contentuid="hca0f71f6093a4bf695237cae5bd5a1badg51" version="1">Zoom Out</content>
+    <content contentuid="h1ce8fbd46d3a4f46acba57ed0a734bfa2ab5" version="1">Rotate Camera Left</content>
+    <content contentuid="h5563361ff2b744848871cdbaf12539c16c5b" version="1">Rotate Camera Right</content>
+    <content contentuid="h74811b458d7c4508a32237dc7e3efa173789" version="1">Move Forward</content>
+    <content contentuid="h5dfb2c27117d4b779116875a427ff373c18f" version="1">Move Backward</content>
+    <content contentuid="h7b47f1295b6d48d491e5bce102d5637f11cf" version="1">Strafe Left</content>
+    <content contentuid="h867a112c3e6e4ae2bbc52dd477dbf4e3b95e" version="1">Strafe Right</content>
+    <content contentuid="hb12f6c48442548e1b9e387a14d9a20aaee2c" version="1">Jump</content>
+    <content contentuid="h7025fc893be6495088864712e05d0adaa889" version="1">Toggle Sneak</content>
+    <content contentuid="hdb227dc7309b42b885a9b133058c47aa5663" version="1">Interact</content>
+    <content contentuid="h024c99f044774880a6a1a90dc1f1bcbfb56c" version="1">Shove</content>
+    <content contentuid="h166a50bf762d4cd7a1d827184d336bb264df" version="1">Toggle Inventory</content>
+    <content contentuid="hab00d79972f3481784c6c31b1d5779f0c742" version="1">Toggle Character Sheet</content>
+    <content contentuid="h10c8d7eba5144bc4ac9ca09ff20f29e283af" version="1">Toggle Journal</content>
+    <content contentuid="h8745d6a103924a2fa748042b1c7b95734g00" version="1">Toggle Map</content>
+    <content contentuid="h70085eab331a4597bba1bfdcf6de0b5b8g23" version="1">Toggle Spells</content>
+    <content contentuid="hd0e73646b7c14325ac1d7a7e2ad65f3c9ggd" version="1">Toggle Combat Mode</content>
+    <content contentuid="ha67fb4a3797740c6b74aa406c9364064dd69" version="1">Toggle Weapon Set</content>
+    <content contentuid="hf5e39ec5e1914d2a8f6a9ee6d6e888ed968e" version="1">Accept</content>
+    <content contentuid="h683a30d71c35413086cbd53bfd4f4e8da827" version="1">Cancel</content>
+    <content contentuid="h579cabee5479438ab94dd3b8b47c66b70789" version="1">Move Cursor Left</content>
+    <content contentuid="had916ada428d43119b088e53521f3beb99b3" version="1">Move Cursor Right</content>
+    <content contentuid="h3ef3ea845c2e4902b8c4633a2c63209059g3" version="1">Move Cursor Up</content>
+    <content contentuid="h85d3fde3585b4127b2ccfe271399b3a7a5ea" version="1">Move Cursor Down</content>
+    <content contentuid="h44a74f242dc842828ae26f5e91408b423def" version="1">Next Tab</content>
+    <content contentuid="h79de9dffb4604234a93e77eef26696835f1g" version="1">Previous Tab</content>
+    <content contentuid="h9e7d63a517984acc84b5e64187cce82672d5" version="1">Toggle Menu</content>
+    <content contentuid="h0956d399e7d54f3c9e52482048530abcf06d" version="1">Throw Item</content>
+    <content contentuid="h1174c660801b4143acde0a6f1dfc2a6ed5g8" version="1">Toggle Mouse Rotation</content>
+    <content contentuid="h11c49d334a6d429eb1fa26da1379390a5333" version="1">General</content>
+    <content contentuid="hca3c9b028da54a9ebd0cf8e22da46a46b0d0" version="1">Camera Rotate</content>
+    <content contentuid="h65255d7a57fc43a794c4eff3390c9bea9db8" version="1">Camera Rotate Mouse Left</content>
+    <content contentuid="h0b766d48ddfb46f38adf3f430315a80f568f" version="1">Camera Rotate Mouse Right</content>
+    <content contentuid="hc1019c147d5e4ee8a382ae55be90e6b6e9ad" version="1">Default Camera Pan Camera</content>
+    <content contentuid="hbd4d8764bfc24bd89f2b947fee74388f396e" version="1">Default Camera Special Pan Camera 1</content>
+    <content contentuid="h9a1b0dae30be4ff6bb769a98f194bf97ffgd" version="1">Default Camera Special Pan Camera 2</content>
+    <content contentuid="h6e971fd9a04a449a92320f6dde43a388ed4g" version="1">Default Camera Toggle Mouse Rotation</content>
+    <content contentuid="h7932472ec2834c498a729c1485fd6ba9g4fc" version="1">Default Camera Capture Input</content>
+    <content contentuid="hb4463266c1dd4ded998ca5753a1ceef6acb1" version="1">Default Camera Left</content>
+    <content contentuid="h689229a5b0154cee9e92d60a8b719e51e51g" version="1">Default Camera Right</content>
+    <content contentuid="h3a6304ab54f9481ebcc774b8b944fbc50a12" version="1">Default Camera Forward</content>
+    <content contentuid="h547842626e7b4cd4ab197ae85e573371ff00" version="1">Default Camera Backward</content>
+    <content contentuid="h306a4564a58649c9bb62e1362689d7d355aa" version="1">Default Camera Up</content>
+    <content contentuid="hf17f8330c13745aa9c38e5d1b8af4f96gc34" version="1">Default Camera Down</content>
+    <content contentuid="hdc0ec747a3f446b481e31872f397e8f3dea4" version="1">Default Camera Zoom In</content>
+    <content contentuid="he74385f0940a4b648f692424fbd04c7eg82g" version="1">Default Camera Zoom Out</content>
+    <content contentuid="h62d1c30eb2b940538a8f621527e4f61c32b4" version="1">Default Camera Rotate Left</content>
+    <content contentuid="h449f3dca011f4f2da0ca66ee505d31b9585e" version="1">Default Camera Rotate Right</content>
+    <content contentuid="h44fbeadb66244f7fa33e93d3262a2666a8ed" version="1">Default Camera Rotate Up</content>
+    <content contentuid="h05868b89aa5349ad8a806722fc300fa76473" version="1">Default Camera Rotate Down</content>
+    <content contentuid="hef55bb5bb1da44c7aa04b72e45f8e9d99gf3" version="1">Default Camera Mouse Left</content>
+    <content contentuid="hcc0fefb3b1244b3981cb1b8718d9ab92770f" version="1">Default Camera Mouse Right</content>
+    <content contentuid="hce6cafdf68204fa2945ae83f80e3cb9a75d1" version="1">Default Camera Mouse Up</content>
+    <content contentuid="hc654575355334e61b6f755076df203ca9a28" version="1">Default Camera Mouse Down</content>
+    <content contentuid="h98df841eaae14b96af7a20817ef71f7a0f52" version="1">Default Camera Top View</content>
+    <content contentuid="h68dc91992e78477db27e5a6c941fe500e2e1" version="1">Default Camera Left View</content>
+    <content contentuid="h310444bd333044d0a3ddebaef8e7706dc6f5" version="1">Default Camera Front View</content>
+    <content contentuid="h20dd0f72166d408b8fa3671c3941abc99d3a" version="1">Default Camera Slow</content>
+    <content contentuid="he987f72da2284f7c87e59c57c1fc4e4d8684" version="1">Default Camera Fast</content>
+    <content contentuid="hdc08b6b0773e48b5bf7a2780ae877d7123g3" version="1">Camera Center</content>
+    <content contentuid="hcfcf729e19d44e5180469cbf9a23f547cb73" version="1">Free Camera Toggle Mouse Rotate</content>
+    <content contentuid="hd5f3012a28264751a0a987e474e38764b57d" version="1">Free Camera Move Forward</content>
+    <content contentuid="h907c9ebfe4e04c0280fa233a4611e80726g0" version="1">Free Camera Move Backward</content>
+    <content contentuid="h5d757beaf8e947248de29281a83a6a8827a7" version="1">Free Camera Move Left</content>
+    <content contentuid="h646937f0040f4bdf8950828224a886f937a2" version="1">Free Camera Move Right</content>
+    <content contentuid="h273da3dca9bc4fbc81deaf57288678e3d4b2" version="1">Free Camera FoV Increase</content>
+    <content contentuid="h62a818948f6240299fc74fcf3d981e8da4c4" version="1">Free Camera FoV Decrease</content>
+    <content contentuid="hdb342a5205a44173882e24e580fb032086e6" version="1">Free Camera Speed Increase</content>
+    <content contentuid="h22eda154c94c4e8ca9ce5bf5f8abaca89b2a" version="1">Free Camera Speed Decrease</content>
+    <content contentuid="h77ea83e0d9634ed495379cd0f5c45e1eg287" version="1">Free Camera Speed Reset</content>
+    <content contentuid="h4966a9019f3f46d4a06c50f5c80715508fc0" version="1">Free Camera Rotation Speed Increase</content>
+    <content contentuid="he515b86e2056453b88297a0949dc56af63a1" version="1">Free Camera Rotation Speed Decrease</content>
+    <content contentuid="h5643d3dd655b4c4f8c05c769b0ccc4c5ddd9" version="1">Free Camera Rotate Controller Left</content>
+    <content contentuid="h87d39b8c7f0348479726270ab6f29e4608c0" version="1">Free Camera Rotate Controller Right</content>
+    <content contentuid="h07354d24c17c4d7ca69646315c5ffd2877b6" version="1">Free Camera Rotate Controller Up</content>
+    <content contentuid="hbf83adfb014b4a018b50143ee85f0be423ed" version="1">Free Camera Rotate Controller Down</content>
+    <content contentuid="h4efd5b8251984a97ae8cbf0da8db3dca6g9f" version="1">Free Camera Rotate Mouse Left</content>
+    <content contentuid="h7a51e20de6be43c2ad312e066357bfad56ba" version="1">Free Camera Rotate Mouse Right</content>
+    <content contentuid="h7acaec12f43e48dea3944bacb256474dbf83" version="1">Free Camera Rotate Mouse Up</content>
+    <content contentuid="hf81b48c1b328429ab3b62592bca43657031b" version="1">Free Camera Rotate Mouse Down</content>
+    <content contentuid="ha81a63fe68414312a487f07d1fe216f43g48" version="1">Free Camera Height Increase</content>
+    <content contentuid="he480b3ed8e214feca1476ea8a4a46514g5dg" version="1">Free Camera Height Decrease</content>
+    <content contentuid="h8427c067e9a044dabc96871865891161ff55" version="1">Free Camera Slowdown</content>
+    <content contentuid="h06f2f68751704b6eb12078b48bdff785a30e" version="1">Free Camera Freeze Game Time</content>
+    <content contentuid="h986adaf5349a4e1abcd769e2dc8bc610a15a" version="1">Photo Mode Camera Backward</content>
+    <content contentuid="h13faba6bbbed4573b798c0f47b36fa050cd1" version="1">Photo Mode Camera Forward</content>
+    <content contentuid="hc5664999162a47708319e46a14bed744c112" version="1">Photo Mode Camera Left</content>
+    <content contentuid="h91fb94a2e63f42868ef297a71e5bf21b20f5" version="1">Photo Mode Camera Right</content>
+    <content contentuid="h474ac2dc2b9f44b6bae8963e6db7147c875g" version="1">Photo Mode Camera Toggle Mouse Rotate</content>
+    <content contentuid="hbb85722af6ca4ebe92a57d0dbf517b6781f4" version="1">Photo Mode Camera Height Increase</content>
+    <content contentuid="h7662dfebc9fe46ddaaf62ad93a5018f2f41d" version="1">Photo Mode Camera Height Decrease</content>
+    <content contentuid="hdf29b2304ccd4e5eb440df3a41e13ad193df" version="1">Photo Mode Camera Rotate Mouse Right</content>
+    <content contentuid="h778f79d064b44b62b0bae0c62ae6184e0076" version="1">Photo Mode Camera Rotate Mouse Left</content>
+    <content contentuid="h087b9b3896554b69880cc3a74fb3b769dd26" version="1">Photo Mode Camera Rotate Mouse Up</content>
+    <content contentuid="h6766b001b58e4b04a8520f878576d0648f75" version="1">Photo Mode Camera Rotate Mouse Down</content>
+    <content contentuid="hd5dde2dd0056410597d1cdadcd3306565c3g" version="1">Photo Mode Camera Rotate Right</content>
+    <content contentuid="h535b72eefb7a404d85e3ad8861636b3bf278" version="1">Photo Mode Camera Rotate Left</content>
+    <content contentuid="heaa8aa296ae64d20b00d36483ffc5b07a793" version="1">Photo Mode Camera Rotate Up</content>
+    <content contentuid="h35215e74448440718814dd5418ea43a64e7e" version="1">Photo Mode Camera Rotate Up Alt</content>
+    <content contentuid="hb08416ad280c4ab7b6de9085b66aafd850eb" version="1">Photo Mode Camera Rotate Down</content>
+    <content contentuid="h3272fa322b104f13a79209e3f8a9587f1696" version="1">Photo Mode Camera Rotate Down Alt</content>
+    <content contentuid="hf3eaaddecf3243fa999b2c67c7268da31ca4" version="1">Photo Mode Camera Tilt Right</content>
+    <content contentuid="hd3a070a709f44f2fbff7d48c665044780d5e" version="1">Photo Mode Camera Tilt Left</content>
+    <content contentuid="hd06a913cc60c461eaa909fb64287bd62e1e6" version="1">Camera Zoom</content>
+    <content contentuid="h2d99b72d56444620af5d5278b313184c6bgf" version="1">UI Left Mouse</content>
+    <content contentuid="h4abf23e1306e44c18e64c70cbfc46522b9cg" version="1">UI Right Mouse</content>
+    <content contentuid="hcc1fdad6c34043d2a7a292536f332bfcdgdb" version="1">UI Add Class</content>
+    <content contentuid="hb5c63a42bc39440e8caa67a685abcec3b839" version="1">UI Delete</content>
+    <content contentuid="h69804cff6f814431a8b5fb4ca016c517c55a" version="1">UI Back</content>
+    <content contentuid="h4481014d1ac64deea7033c56d873ce06c943" version="1">UI Take All</content>
+    <content contentuid="h89092543ce544907a2c951d20d0c3b08b082" version="1">UI End Turn</content>
+    <content contentuid="h02d7492243eb40fbb694fbff8b42863aabed" version="1">UI Cancel End Turn</content>
+    <content contentuid="h440f997ed3504b0aa7b76a1096dd0bd1e523" version="1">UI Enter Turn-Based</content>
+    <content contentuid="h6c0e37a4fb0d4702bff8dc66b8e183952ea9" version="1">UI Leave Turn-Based</content>
+    <content contentuid="h87679221fc8644928f5b406d5e5bab2b6e4e" version="1">UI Flee From Combat</content>
+    <content contentuid="hfa8ad5d1d9554fabb0f16e0708725b357ga0" version="1">UI Radial Left</content>
+    <content contentuid="he00d11045ea5437ea267ea67245fb7713ef2" version="1">UI Radial Right</content>
+    <content contentuid="hc4f74296547842a6b6d1e07bc92c9ab0731d" version="1">UI Radial Up</content>
+    <content contentuid="hb441ff6947864d59bd56f0fdd098f4ec8789" version="1">UI Radial Down</content>
+    <content contentuid="h4ba960e53de94497b62a1c8e68dc07b48g9e" version="1">UI Pin Tooltip</content>
+    <content contentuid="h008f29b78e364d4dab47213cd5ebfb3ee935" version="1">UI Skip Dialog</content>
+    <content contentuid="he64aecc5064d4cd09684a57d81316d1dg0ec" version="1">UI Photo Mode Take Picture</content>
+    <content contentuid="h29b72b3048a44b5393a2eada528a9c0aa337" version="1">UI Toggle Tadpole Powers</content>
+    <content contentuid="he08c3dcdc835422f9388c08071bc585bcb2f" version="1">UI Toggle Alchemy</content>
+    <content contentuid="h2f52e71aa32b422198a070259d320856g2ad" version="1">UI Move</content>
+    <content contentuid="he47fe639bf574d73baadb31124c4eab13453" version="1">UI Selection Left</content>
+    <content contentuid="h0f3ae136300d4f8887e71577c6b9cd2f0836" version="1">UI Selection Right</content>
+    <content contentuid="h6b877e6171604f48bb2d8fb8cbc308504b30" version="1">UI Selection Up</content>
+    <content contentuid="hc77b1ed971f9406aa5a06b3c929898d31d8f" version="1">UI Selection Down</content>
+    <content contentuid="ha1e6a077fdf844b0a19434d64285e91ag61d" version="1">UI Select Character 1</content>
+    <content contentuid="h8617d809bd4a4445bf70db8098a7d1fdb194" version="1">UI Select Character 2</content>
+    <content contentuid="h1a8158c5c05e4c89aa94cad2f70bed303gfb" version="1">UI Select Character 3</content>
+    <content contentuid="hfafb197b8f854972959c56bb7eab287f6fbd" version="1">UI Select Character 4</content>
+    <content contentuid="h3390acdf1fc249e7a6daf0c7562364154b61" version="1">UI Select Slot 0</content>
+    <content contentuid="h48175d7c37b64adf90e6e242270517ec8g23" version="1">UI Select Slot 1</content>
+    <content contentuid="hda68219d62f44d33969e028e752ccbcc6601" version="1">UI Select Slot 2</content>
+    <content contentuid="haf3611659fd54a848d897b2668a892f74ga6" version="1">UI Select Slot 3</content>
+    <content contentuid="hb80a24b21eb94429880f11c8abaf0817df9d" version="1">UI Select Slot 4</content>
+    <content contentuid="he3330e2263f249808d5cb7e1f2843527d376" version="1">UI Select Slot 5</content>
+    <content contentuid="h5955022f8631446cbaff563386518828g17a" version="1">UI Select Slot 6</content>
+    <content contentuid="h2af37c4b4b2c4930ad0a385082d161bf51ef" version="1">UI Select Slot 7</content>
+    <content contentuid="he380bb90a2a14ffbbe24dc1632c8d72fd8eg" version="1">UI Select Slot 8</content>
+    <content contentuid="h0f7ef12e4cde43c1a83e01102ee5caead211" version="1">UI Select Slot 9</content>
+    <content contentuid="he14729c7c24c4f5b824b17014aafc25b330b" version="1">UI Select Slot 11</content>
+    <content contentuid="hdef14e19236b415ab1ee9cda561e24b21be4" version="1">UI Select Slot 12</content>
+    <content contentuid="hf553274d333440fe86d534484756103be194" version="1">UI Compare Items</content>
+    <content contentuid="h192d90ec6146484692fe7bb50bd3f6f88c80" version="1">UI Request Trade</content>
+    <content contentuid="he3333dd32ff64ec99856ded56947f97agd66" version="1">UI Add Points</content>
+    <content contentuid="h9c171970fa93401aa606177553705f56388f" version="1">UI Remove Points</content>
+    <content contentuid="hded26d631fa44474beea86d55378f803647a" version="1">UI Refresh</content>
+    <content contentuid="h3b0a99c916a14bbfa8d3d44fb6857ffb9af1" version="1">UI Create Lobby</content>
+    <content contentuid="h3bd29e03945b45939d0bd514c4296a787b83" version="1">UI Create</content>
+    <content contentuid="h0d95cd7c207e4edbb82ce175f24f644a126b" version="1">UI Show Info</content>
+    <content contentuid="h58f2c1bfe8de4cd98f54a7313eb639bfa0bg" version="1">UI Rename</content>
+    <content contentuid="h74177cf959244947bffbc7e29759496f41ff" version="1">UI Enter Code</content>
+    <content contentuid="h90cea83b293d487195868b60e356aa50a719" version="1">UI Filter</content>
+    <content contentuid="ha8f4ddef57744e2abf42f39c4413a1b78057" version="1">UI Kick Player</content>
+    <content contentuid="hb4ed231499454218aca2594bce0eeb55f1e3" version="1">UI Mute Player</content>
+    <content contentuid="hd5f524db8ae545bba852a0c8d5ea8a09f140" version="1">UI Rename Lobby</content>
+    <content contentuid="h031ccc6ac7674afe81dee72e7200231133d3" version="1">UI Move Character</content>
+    <content contentuid="hcf56e3f399df4e6fb60d963f97b936c6g242" version="1">UI Map Add Custom Marker</content>
+    <content contentuid="h35b8e3a0db304529bc48ad134b458b4412b0" version="1">UI Map Remove Custom Marker</content>
+    <content contentuid="h6ac8accc9298483bbbb06e2abf99e2ef42c7" version="1">UI Map Move</content>
+    <content contentuid="h7c22ab09edb142b39b9965dc31ea7e106b0g" version="1">UI Map Down</content>
+    <content contentuid="hf24b00c25a2c44ea9f7b3d14a738be7aga30" version="1">UI Map Up</content>
+    <content contentuid="h872e7f75cf1e4ecd8e4c4e7b12380b5d9fe7" version="1">UI Map Left</content>
+    <content contentuid="hfa58c7c1995b42339fab923f85f32d762a4e" version="1">UI Map Right</content>
+    <content contentuid="hd880fd59c0064efba6d4600444084000gc0f" version="1">UI Map Zoom In</content>
+    <content contentuid="h8091326048444ab484ebc802ad6b27e9895c" version="1">UI Map Zoom Out</content>
+    <content contentuid="h513f5b3741574514856f55956c69542c15e5" version="1">UI Map Reset</content>
+    <content contentuid="h6f388c8a502149da839f8aef63b7c2ba0197" version="1">UI Map Remove Marker</content>
+    <content contentuid="h726e7ba802404831ab705e54073d460a7d97" version="1">UI Map Toggle Waypoints</content>
+    <content contentuid="h1655b14224e24c7b970efc4c08d440f76g16" version="1">UI Map Show In Journal</content>
+    <content contentuid="ha5c9edbacb3c4c4692e249ffbf84d77ba17g" version="1">UI Switch Mode</content>
+    <content contentuid="h6c315fc27ab34598ad76938b8a926765e6eb" version="1">UI Trade Balance</content>
+    <content contentuid="he8d008d767244b62a885e1b0ebbe05192a14" version="1">UI Message Box A</content>
+    <content contentuid="h4a7aa6e27a40441db9d3dc45c1e194d32c95" version="1">UI Middle Mouse</content>
+    <content contentuid="h4ab0252bd58f49e6b7136b34e6c9333229g8" version="1">UI Message Box B</content>
+    <content contentuid="h80488bbc7a6040cba5faea8942e66cabage3" version="1">UI Message Box X</content>
+    <content contentuid="h0701152629594eca895103e3cc3533ec2535" version="1">UI Message Box Y</content>
+    <content contentuid="hb8200ff5b04743d18775be3f71f318ea8e77" version="1">UI Invite</content>
+    <content contentuid="he5b16dd444504bc68fce7de63057ec2f4dgg" version="1">UI Toggle Tutorials</content>
+    <content contentuid="h64d164a1b528473ea8fabc5ef2b5900ddffe" version="1">UI Copy</content>
+    <content contentuid="h5bdc1e938bae47808614c7402492dd8a01g5" version="1">UI Cut</content>
+    <content contentuid="h1181bdb1a45948b3a4e232d4b35351a31078" version="1">UI Paste</content>
+    <content contentuid="h2d549aeb08534e6a806aa2bb6d3112cb2faf" version="1">UI Edit Text Box</content>
+    <content contentuid="h7252f2cf5a75432e87180abc2bd5c36d8021" version="1">UI Select All Text</content>
+    <content contentuid="he3cbcaab441f4e23991d4e7bc6adcc684g69" version="1">UI Mark Wares</content>
+    <content contentuid="h84e8a6d621dd4b84a7fe21e5b1cb5465f10e" version="1">UI Sort</content>
+    <content contentuid="h4591b045d6cf4f93923828884a199317967b" version="1">UI Toggle Character Overview</content>
+    <content contentuid="h4fb2af28ef5b475fb60eaf636d4ec7bf0f72" version="1">UI Direct Connect</content>
+    <content contentuid="h480aec761e954eb7b1b107e7bfd536658f83" version="1">UI Start Poll</content>
+    <content contentuid="h28315b28e49a488a8a4a1ed3ae0c7983581g" version="1">UI Call Allies</content>
+    <content contentuid="h23a5defb94e844599b0366c7ca4117648d00" version="1">UI Toggle Photo Mode</content>
+    <content contentuid="h1820800a42bd423fb748a4e1b893b659c224" version="1">UI Toggle Photo Mode Secondary</content>
+    <content contentuid="hca96810ba819482088ffd0fbf38ff4879a0c" version="1">UI Toggle Photo Preview</content>
+    <content contentuid="h7e7fe2c28c7f41dbb976a2615c7fa95deeg5" version="1">UI Mouse Move</content>
+    <content contentuid="ha9f106df0a2e4abd85781ffe824088276209" version="1">UI Arrow Up</content>
+    <content contentuid="h66476f508f15438491e8b8d4012df9799e8b" version="1">UI Arrow Left</content>
+    <content contentuid="h802cbc5d375140d1bdf3864f02181c0e8dc8" version="1">UI Arrow Right</content>
+    <content contentuid="hf46adae2c595408f8da3f122cf9fd44280eg" version="1">UI Arrow Down</content>
+    <content contentuid="h1d8a46e8be3d4d949a298c4348eef9e314e1" version="1">UI Enter</content>
+    <content contentuid="hf6a7f00dd09d459cbfe377d46d15e1f11d0e" version="1">UI Page Up</content>
+    <content contentuid="hb50b645e19bf4096aa261faa16b378813eed" version="1">UI Page Down</content>
+    <content contentuid="h347938013ca34ebea8af66f26103dd7194c7" version="1">UI Backspace</content>
+    <content contentuid="h7a893fb58e1e4bafa9eee999e499b69e7739" version="1">UI Tab</content>
+    <content contentuid="hdc0579a84022495cb2ee35bfd884409fb5d9" version="1">UI Base Delete</content>
+    <content contentuid="he14f2c79256443d1be7cfe2518dd83694e9b" version="1">UI Home</content>
+    <content contentuid="hd0e492509b8e485d9ec5af749eb147f6823f" version="1">UI End</content>
+    <content contentuid="h5eb65f086e4f4b17a905e154583ccffcad22" version="1">UI Control</content>
+    <content contentuid="h75f626d3764949bd8207326cf6647822e5bg" version="1">UI Alt</content>
+    <content contentuid="h28462220fb79426facd2ae827bbbe92126e0" version="1">UI Scroll</content>
+    <content contentuid="h09d38de6ce0541928443e1279cd57041a907" version="1">UI Scroll Up</content>
+    <content contentuid="h4cd4ff4fb3c1491a9550118319a937e33713" version="1">UI Scroll Down</content>
+    <content contentuid="h49bb2b320aec456ca8200558b40f5729dc01" version="1">UI Base Cancel</content>
+    <content contentuid="h288fae81577f419d9c72587b7ce3f363fd59" version="1">Unknown Event</content>
+    <content contentuid="h2cd35179b628404888a7591e0dd4a39df719" version="1">Keyboard Any</content>
+    <content contentuid="h7fe7a19fb85845a49b43d4c6d3d315bdc0f9" version="1">Controller Unlinked Y</content>
+    <content contentuid="h931e9d90ece9430bb670e8a9c11507e22d6d" version="1">Character Creation Rotate Left</content>
+    <content contentuid="hff85a5b3ad11454681f93460161a3dad1dcc" version="1">Character Creation Rotate Right</content>
+    <content contentuid="hd68486c2534d4ae8ac81a0a908c840773b7e" version="1">Character Creation Accept</content>
+    <content contentuid="hce6dde4e159f4483838e2beefe0943712129" version="1">Drag Single Toggle</content>
+    <content contentuid="h39791671286749f19a8bdba21a954074f2fd" version="1">Toggle Presentation</content>
+    <content contentuid="h57836785adbb487fb354cf5384a814fe1de6" version="1">Toggle Summary Focus</content>
+    <content contentuid="h83d84d2b66694188b757479532c3fa9e04c1" version="1">Jump To/From Tab</content>
+    <content contentuid="h36dc6036e95b4a3bbb89e1724d500c09bagb" version="1">Party Management</content>
+    <content contentuid="hd057a2eba22643dfa449d580cbf6895b4c58" version="1">Panel Select</content>
+    <content contentuid="h624d52e219d444e0aac8b663f24970424046" version="1">Speaker Select</content>
+    <content contentuid="h62fdef50557b4fea846a0eff6d096c514g73" version="1">Cycle Characters Next</content>
+    <content contentuid="ha72b7840bd374170b9f85711ed3bbda4g2c3" version="1">Cycle Characters Previous</content>
+    <content contentuid="h8804811c8e63414f8a0462746cef071d6d75" version="1">Climbing Toggle</content>
+    <content contentuid="hb4b329f071604ed0bbc0a3a0143b9d666f3b" version="1">Destruction Toggle</content>
+    <content contentuid="h7c025683b6304ed88ad47646cb68f7ab3g1d" version="1">Highlight Characters</content>
+    <content contentuid="hb57a6a1e874f4ee4b33b9b1a19abf88d35a7" version="1">Action Cancel</content>
+    <content contentuid="h962c8ec282184fdea668fe284b18f82c3fe0" version="1">Next Object</content>
+    <content contentuid="hd362aaa08d074773a6ed9f0569796f6c0b59" version="1">Pause</content>
+    <content contentuid="haa7762b0a6234ae78ee7fb57944b5a163427" version="1">Previous Object</content>
+    <content contentuid="h3544bf864e2b4d92b115647488cf0d15c3ba" version="1">Quick Load</content>
+    <content contentuid="h3b99b5e1df9747aebad55127b0db5195ffg8" version="1">Quick Save</content>
+    <content contentuid="hd753c2113c544357b28506e59a9d06684ggg" version="1">Skip Video</content>
+    <content contentuid="h06de41ab38f74605abe46112bd3e1a0a35ad" version="1">Split Item Toggle</content>
+    <content contentuid="h721d2740f81c4d9d9607c044120ad0dbeb07" version="1">Rotate Item Left</content>
+    <content contentuid="h6bf6bf37965f481eab4dd388f720c90eb003" version="1">Rotate Item Right</content>
+    <content contentuid="h2df0d785a5de4ecbba515a05f1bef602ef52" version="1">Teleport Player</content>
+    <content contentuid="hce5b54aab69d443b9e377d5b905dbfa7gd57" version="1">Teleport Party</content>
+    <content contentuid="h40717b10cbf846b9b79ea931e5b32ad3a3de" version="1">Toggle Dual Wielding</content>
+    <content contentuid="he5ad755ff4df43e1b1d08fba97f3affd08fg" version="1">Toggle Splitscreen</content>
+    <content contentuid="he0a71bdd4f394ef48d5eff7a58b5e7eab348" version="1">Toggle Info</content>
+    <content contentuid="hdf7f843e0fc44ea7a8a09a25085f8fe04bg4" version="1">Toggle Input Mode</content>
+    <content contentuid="hc97fb7504e044139aec09e86b8d02e7d95da" version="1">Cancel Selector Mode</content>
+    <content contentuid="h72c079b9beef48e79c875fc7d5b8f58bd611" version="1">Toggle Reactions</content>
+    <content contentuid="h378e1029cffe4c7bb940e46e9620dae545g7" version="1">Toggle Spells End</content>
+    <content contentuid="h64dc7f623b5a48ba89fcc6afc2f192e6fd85" version="1">Toggle Inspiration</content>
+    <content contentuid="hef2dff2fa6ad47f2bf5912407693f3ec2ddb" version="1">Toggle Rest Panel</content>
+    <content contentuid="he0284364d6774c129c1a1ddd8e2f2c8e58g5" version="1">Toggle Group Mode</content>
+    <content contentuid="hcf0d398f98bc43038a4047acd58c6cef734g" version="1">Toggle Group Stealth</content>
+    <content contentuid="hfd845180546841de96822dba2e0109513g29" version="1">Toggle Manual Turn-Based Mode</content>
+    <content contentuid="h06608135ff944031b7e3b3a723cad74171cd" version="1">Toggle Party Character View</content>
+    <content contentuid="hbed62b0879a647848b23f30346bc9d4ac134" version="1">Grouping Select</content>
+    <content contentuid="h77f5251ae9cb49f180d27117be27d9e1b985" version="1">Grouping Split</content>
+    <content contentuid="hd171f96e597e43d3b5687c389eb18fbf4309" version="1">Grouping Confirm</content>
+    <content contentuid="ha88d8e04fcd14353b8f7f5fdbf7d0a8cf050" version="1">Context Menu</content>
+    <content contentuid="h546ff0ce91884e2498312f32d4894e8eaa54" version="1">Short Rest</content>
+    <content contentuid="ha2bd15b94fb84b8294a8f7f0da6817222db2" version="1">Combine</content>
+    <content contentuid="hd2df01fe941a4226a93f8c19bc9c3fe7592e" version="1">Toggle Tactical Camera</content>
+    <content contentuid="hcee23ded5f704f4c92db8d9ff90cc15caca7" version="1">Show World Tooltips</content>
+    <content contentuid="h79288933c105410f88d0711d0d1a61e2ced9" version="1">Expand Tooltip</content>
+    <content contentuid="hb39ff35cf39b411ebeba61e2ad3557f7d121" version="1">Show Sneak Cones</content>
+    <content contentuid="hb1105ac29ac7466b8ceeede18d38bd7bcaeb" version="1">Toggle Dialog Privacy</content>
+    <content contentuid="hbecb08632f3b43629c5a8dd527b7e26c9752" version="1">Ping</content>
+    <content contentuid="hdf5be3bb2a1849e6bff7d6fd6160ce489b15" version="1">Copy Version To Clipboard</content>
+    <content contentuid="he65a21022ec1467198c175cc57afbae96b37" version="1">Connectivity Menu</content>
+    <content contentuid="he65316a83c2f4289be84355f20a84d4e1502" version="1">Toggle Dialogue History</content>
+    <content contentuid="h612c636464e34b439cbdee3963b459db4a42" version="1">Widget Toggle Output</content>
+    <content contentuid="h153f6082eab04bdd8771d8bb354fcde12g6d" version="1">Widget Toggle Effect Stats</content>
+    <content contentuid="h72d61e4d485c472da08c8214444e66570e4f" version="1">Action 1</content>
+    <content contentuid="hb0e9ae166da34efe9cfeb1d07357122f533b" version="1">Widget Screenshot</content>
+    <content contentuid="h0fdf56b33b544badbc8f7c2e5148c09f29dg" version="1">Widget Screenshot Video</content>
+    <content contentuid="h93488d3acd0948419b54e50d40a2c6bd51aa" version="1">Widget Toggle Options</content>
+    <content contentuid="h4da1d9e240c6459ca3572253a4203c28bb01" version="1">Widget Toggle Stats</content>
+    <content contentuid="he1ed03181b194ea3832e48a63566d54efgf9" version="1">Widget Toggle Debug Console</content>
+    <content contentuid="hd5d21c510f3c4216aa760658fe2897dd25b9" version="1">Widget Toggle VFX Debug</content>
+    <content contentuid="h89bf121f74c84230b2394e3b24be24a82147" version="1">Widget Toggle Graphics Debug</content>
+    <content contentuid="h98242c17bdc445ed85ba7f9cdb270ac4e1cf" version="1">Widget Toggle Developer Comments</content>
+    <content contentuid="h9aeff2ca846946e1b46736840ea30b157cc1" version="1">Widget Button Tab</content>
+    <content contentuid="h00fe16755a9e45dba2672adc35d46d2bgg29" version="1">Widget Button Left</content>
+    <content contentuid="h2e4898e64c1c4db3b3f26d5c2ce16263effg" version="1">Controller Unlinked Back</content>
+    <content contentuid="hc9101064ae2b486e8d872ed724f666f675f1" version="1">Widget Button Right</content>
+    <content contentuid="he2fc1be5bd8f4e33b4033663c1f1b1c5a480" version="1">Widget Button Up</content>
+    <content contentuid="h7696491ed4574493934a2c9ad78c3f48a5b9" version="1">Widget Button Down</content>
+    <content contentuid="h9a1597e286924caeaed995708cfcfd316acg" version="1">Widget Button Home</content>
+    <content contentuid="h676b52308b9f471a96982a2f555f5913152e" version="1">Widget Button End</content>
+    <content contentuid="h67843375188844a3b5414d3dd2bc087dggg3" version="1">Widget Button Delete</content>
+    <content contentuid="h06d50aa27b3f462dbf04caa855bea4887532" version="1">Widget Button Backspace</content>
+    <content contentuid="h013e22bb30164c159a5a2410e99d2842ggc4" version="1">Widget Button Enter</content>
+    <content contentuid="h3f0e8a1b3f4841dcbce53de91b01e775ba50" version="1">Widget Button Escape</content>
+    <content contentuid="hbcc6cb8134f645eb8014ae454be544b9b4g0" version="1">Widget Button Page Up</content>
+    <content contentuid="h71fe26d92e4341dfa00c760d829f9fe6eaa6" version="1">Controller Unlinked Start</content>
+    <content contentuid="hd2ced909ea9d40e4b9432475421e37afgg77" version="1">Widget Button Page Down</content>
+    <content contentuid="h5807090e197140f8ae9f2298fa5f8fc0073e" version="1">Widget Button Space</content>
+    <content contentuid="h0b6ab5b9d24c4c0e8b807fcaa897e6cad64e" version="1">Widget Button A</content>
+    <content contentuid="hdd6d73615d9f4a7aa956c05aee44e18cd3f5" version="1">Widget Button C</content>
+    <content contentuid="h8bdc102f6afe46a8b51afbf7f9b8798269a4" version="1">Widget Button V</content>
+    <content contentuid="h15b19f5fa5d84feaa84d3932b4371e0fb1fd" version="1">Widget Button X</content>
+    <content contentuid="h44bc1c8fdea9409483f4bf05f76fd136299f" version="1">Widget Button Y</content>
+    <content contentuid="hf4bb8ae90d6f4db2bb1106b7f21ab1782423" version="1">Widget Button Z</content>
+    <content contentuid="h997ca36769d344059c69c642b050e0083d7a" version="1">Widget Undo</content>
+    <content contentuid="h64586b7bbcf842af92c5d7b7c4dcfff1a5g5" version="1">Widget Redo</content>
+    <content contentuid="h80de29c5fb1c41ce82e2cb68e13d0ff43db4" version="1">Controller Unlinked A</content>
+    <content contentuid="h04f7a0a63b264b0fb97dc4f3592e1ae5833b" version="1">Widget Cut</content>
+    <content contentuid="he29c12f2825042e1a3c12d6e7d495d731g13" version="1">Widget Copy</content>
+    <content contentuid="h5286552f153e4ab8bc884633a1a2951eg167" version="1">Widget Paste</content>
+    <content contentuid="hc1afa239fd1148c39c9a7c27328a683150cd" version="1">Widget Scroll Up</content>
+    <content contentuid="h7e13b6e0bf5e462ea1b91391cd5c27fab326" version="1">Widget Scroll Down</content>
+    <content contentuid="h81f900b6acd0486e8f2902098ccc81b68816" version="1">Widget Mouse Motion</content>
+    <content contentuid="h2493ff0983e643bc8fea4bd95b665cef3fc7" version="1">Widget Mouse Left</content>
+    <content contentuid="hf0c2fd4c56a64f0f8b71262129de4b9b29fd" version="1">Widget Mouse Right</content>
+    <content contentuid="h5471cbe24a5b43739a991242912f1fd304d6" version="1">Controller Unlinked B</content>
+    <content contentuid="h108a40bd44e043d5975c5e6765aad4d11e7a" version="1">Controller Unlinked X</content>
+    <!-- End of entries for native keybindings -->
     <content contentuid="hbaeea4f4db8b46ed98f47a36a38cbe72c463" version="1">Action executed!</content>
     <content contentuid="h56d95a2dbb034ce6a8145626d3abf55fg274" version="1">Button errored. Please contact [1] about this issue.</content>
     <content contentuid="hc19226a66ff845e0b3e8ddcae7b251c52d23" version="1">No callback registered for event_button '[1]'.</content>
@@ -227,4 +561,6 @@
     <!-- This is used for seconds abbreviation -->
     <content contentuid="hcd9314b58f0946be8df07686c2cb9518b95g" version="1">s</content>
     <content contentuid="hdbcd16c5f55e4e9c800e7284ebef8b0f5372" version="1">This mod has one or more assigned hotkeys.&lt;br&gt;Click to open Hotkeys.</content>
+    <content contentuid="hef97155533604ba6adf42a09c666469c0c4c" version="1">Vanilla/Native keybindings are read-only. This UI does not update when you change them in-game.</content>
+    <content contentuid="h692c5bc059d841ccba0bc66c92f5bb09e53g" version="1">Vanilla keybindings</content>
 </contentList>

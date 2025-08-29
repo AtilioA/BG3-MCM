@@ -1,4 +1,5 @@
 RequireFiles("Client/Services/", {
-    "DialogService",
     "ProfileService",
+    "KeybindingConflictService",
+    "DialogService",
 })

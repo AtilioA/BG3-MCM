@@ -74,7 +74,7 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
         settingId = settingId,
         value = value,
         oldValue = oldValue
-    })
+    }, true)
 end
 
 ---@param settingId string The id of the setting to reset

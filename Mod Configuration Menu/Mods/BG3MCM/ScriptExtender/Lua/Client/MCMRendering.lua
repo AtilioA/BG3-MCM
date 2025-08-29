@@ -1,4 +1,4 @@
--- TODO: decouple UI presentation from data handling (e.g. mod blueprint, settings values, keybinding gathering, etc)
+local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
 
 local RX = {
     Subject = Ext.Require("Lib/reactivex/subjects/subject.lua"),
@@ -501,125 +501,54 @@ function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUU
     end
 end
 
-------------------------------------------------------------
--- Helper: Extract all keybinding settings from loaded mods.
-------------------------------------------------------------
+--- Gets all keybinding settings from loaded mods
+---@return table<string, table> A table of keybinding settings organized by mod UUID
 function MCMRendering:GetAllKeybindings()
-    local keybindings = {}
-    for modUUID, modData in pairs(self.mods) do
-        local blueprint = modData.blueprint
-        if blueprint then
-            local modKeybindings = { ModUUID = modUUID, Actions = {} }
-            local allSettings = blueprint:GetAllSettings()
-            for settingId, setting in pairs(allSettings) do
-                if setting:GetType() == "keybinding_v2" then
-                    local currentBinding = modData.settingsValues[settingId]
-                    local keyboardBinding = nil
-                    if currentBinding and currentBinding.Keyboard then
-                        keyboardBinding = currentBinding.Keyboard
-                        MCMDebug(2, "Using saved keyboard binding for setting: " .. settingId)
-                    else
-                        keyboardBinding = Fallback.Value(
-                            setting.Default and setting.Default.Keyboard,
-                            { Key = "", ModifierKeys = { "NONE" } }
-                        )
-                        MCMDebug(1, "Falling back to default keyboard binding for setting: " .. settingId)
-                    end
-
-                    local description = setting:GetDescription()
-                    local tooltip = setting:GetTooltip()
-                    local enabled = Fallback.Value(
-                        currentBinding and currentBinding.Enabled,
-                        true
-                    )
-                    local defaultEnabled = Fallback.Value(
-                        setting.Default and setting.Default.Enabled,
-                        true
-                    )
-                    table.insert(modKeybindings.Actions, {
-                        ActionId = setting.Id,
-                        ActionName = setting:GetLocaName(),
-                        KeyboardMouseBinding = keyboardBinding,
-                        DefaultEnabled = defaultEnabled,
-                        Enabled = enabled,
-                        DefaultKeyboardMouseBinding = Fallback.Value(
-                            setting.Default and setting.Default.Keyboard,
-                            { Key = "", ModifierKeys = { "NONE" } }
-                        ),
-                        Description = description,
-                        Tooltip = tooltip,
-                        ShouldTriggerOnRepeat = Fallback.Value(
-                            setting.Options and setting.Options.ShouldTriggerOnRepeat,
-                            false
-                        ),
-                        ShouldTriggerOnKeyUp = Fallback.Value(
-                            setting.Options and setting.Options.ShouldTriggerOnKeyUp,
-                            false
-                        ),
-                        ShouldTriggerOnKeyDown = Fallback.Value(
-                            setting.Options and setting.Options.ShouldTriggerOnKeyDown,
-                            true
-                        ),
-                        BlockIfLevelNotStarted = Fallback.Value(
-                            setting.Options and setting.Options.BlockIfLevelNotStarted,
-                            false
-                        ),
-                        PreventAction = Fallback.Value(
-                            setting.Options and setting.Options.PreventAction,
-                            true
-                        ),
-                        IsDeveloperOnly = Fallback.Value(
-                            setting.Options and setting.Options.IsDeveloperOnly,
-                            false
-                        )
-                    })
-                end
-            end
-            if #modKeybindings.Actions > 0 then
-                table.insert(keybindings, modKeybindings)
-            end
-        end
-    end
-    return keybindings
+    return KeybindingsUI.GetAllKeybindings()
 end
 
--- TODO: extract this to DualPane?
--- TODO: display native keybindings with Ext.ClientInput.GetInputManager():
--- InputDefinitions has all the actions (EventName entries) ID for bindings (EventID entries).
--- InputScheme.InputBindings[] has all currently-assigned bindings. InputScheme.RawToBinding[] also has it, not sure what's the difference though.
--- Native bindings can be keybinding (including mouse buttons) or gamepad, and there can be two bindings for each; front-end needs to be custom to handle this. We must have an adapter to map between the SE format and our data format. We need to determine what are keybindings and what are gamepad bindings, and ignore keybindings. We'll need to improve KeyPresentationMapping to handle mouse buttons.
--- We won't tackle editing any native bindings. We'll only be displaying them and displaying any conflict detection with MCM-defined bindings.
+--- Creates the keybindings page in the MCM UI
+---@return ExtuiGroup|nil The created hotkeys group
 function MCMRendering:CreateKeybindingsPage()
-    -- Create a dedicated "Hotkeys" menu section using the new interface
-    local hotkeysGroup = DualPane:AddMenuSectionWithContent(
-        Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"),
-        Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139"),
-        ClientGlobals.MCM_HOTKEYS
-    )
+    if not DualPane then
+        MCMWarn(1, "DualPane is not available, skipping keybindings page creation.")
+        return nil
+    end
 
-    -- Create the keybinding widget (which will subscribe to registry changes via ReactiveX)
-    local _keybindingWidget = KeybindingV2IMGUIWidget:new(hotkeysGroup)
-    -- MCMDebug(0, "Keybinding widget created.")
+    -- Delegate keybindings page creation to KeybindingsUI
+    local hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
 
-    -- Load keybindings from the mod settings
+    -- Load and register keybindings
     local allModKeybindings = self:GetAllKeybindings()
     if #allModKeybindings == 0 then
-        -- MCMDebug(0, "No keybinding settings found for any mod.")
-    else
-        -- MCMDebug(0, "Registering keybindings...")
-        -- Register the keybindings in the centralized registry.
-        KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
+        MCMDebug(1, "No keybinding settings found for any mod.")
+    end
 
-        -- Initialize our reactive input dispatcher.
+    -- Register the keybindings in the centralized registry
+    KeybindingsRegistry.RegisterModKeybindings(allModKeybindings)
+
+    -- Initialize our reactive input dispatcher.
+    if not InputCallbackManager._initialized then
         InputCallbackManager.Initialize()
 
-        -- Technically, mods should not worry about this, but we'll emit an event here for them.
-        ModEventManager:Emit(EventChannels.MCM_KEYBINDINGS_LOADED, {})
-        -- Tell the dispatcher that keybindings have been loaded so it may process any pending callbacks.
-        InputCallbackManager.KeybindingsLoadedSubject:OnNext(true)
+        -- Notify that keybindings have been loaded
+        if ModEventManager then
+            -- Technically, mods should not worry about this, but we'll emit an event here for them.
+            ModEventManager:Emit(EventChannels.MCM_KEYBINDINGS_LOADED, {})
+        end
 
-        MCMProxy:RegisterMCMKeybindings()
+        -- Tell the dispatcher that keybindings have been loaded so it may process any pending callbacks.
+        if InputCallbackManager.KeybindingsLoadedSubject then
+            InputCallbackManager.KeybindingsLoadedSubject:OnNext(true)
+        end
+
+        -- Register MCM keybindings if MCMProxy is available
+        if MCMProxy and MCMProxy.RegisterMCMKeybindings then
+            MCMProxy:RegisterMCMKeybindings()
+        end
     end
+
+    return hotkeysGroup
 end
 
 --- Add a tooltip to a button
