@@ -66,21 +66,23 @@
     <content contentuid="h8886849a4a674633a14df972d408cb71d012" version="1">Não</content>
     <content contentuid="hdf197961585844d394b3e372417ac6fd66eg" version="1">Cancelar redefinição da lista</content>
     <content contentuid="h2e8476727f27406c813c00ae59dfd9d08543" version="1">Sugestões</content>
-    <content contentuid="h132d4b2d4cd044c8a3956a77f7e3499d0737" version="1">Reseta essa configuração para o padrão</content>
+    <content contentuid="h132d4b2d4cd044c8a3956a77f7e3499d0737" version="1">Reseta essa configuração para o padrão ([1])</content>
     <content contentuid="h4c3c735aad0f47c8b13ffee7cc7fcc660338" version="1">Criado por [1] | Versão [2]</content>
     <content contentuid="h354808a337024c99b6149d5d1b11934bd36e" version="1">Não vê a janela do MCM? Veja os passos de resolução de problemas na página do mod.</content>
     <content contentuid="hf6cf844cd5fb40d3aca640d5584ed6d47459" version="1">Redefinir</content>
-    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Redefinir atalho para o padrão.</content>
+    <content contentuid="h497bb04f93734d52a265956df140e77a7add" version="1">Redefinir atalho para o padrão ([1]).</content>
     <content contentuid="h3da76df520324473a863b03cc622ac65fbfd" version="1">AÇÃO NECESSÁRIA: Conflito de atalho de tecla</content>
     <content contentuid="h2ea690497b1a4ffea4b2ed480df3654c486f" version="1">Pressione as teclas para atribuir [ESC para cancelar | BACKSPACE para remover]</content>
-    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Atalho de teclado vazio</content>
+    <content contentuid="h08c75c996813442bb40fa085f1ecec07f14e" version="1">Atalho vazio</content>
     <content contentuid="h2f1eda98ddb949d09792e1e1bc45ecddg446" version="1">Pesquisar atalhos de teclado:</content>
     <content contentuid="h7e9b6453340548c29a8f3add8a402bedbe8g" version="1">Nenhum atalho de tecla correspondente encontrado.</content>
     <content contentuid="h037fe64fb38a45dfb6e3d27ad038f48028a3" version="1">Nome da Ação</content>
     <content contentuid="h68057d690e2f44ae98c31cb07f8074fb7134" version="1">Entrada de Teclado</content>
     <content contentuid="h232887313a904f9b8a0818632bb3a418ad0e" version="1">Clique para atribuir uma nova tecla.</content>
-    <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Ação: [1]</content>
-    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Conflito de atalho de tecla com a ação: [1]</content>
+    <content contentuid="hf1cfd5663fe044a38ea4747ceb768ff02206" version="1">Ação: '[1]'</content>
+    <content contentuid="h0f52923132fa41c1a269a7eb647068d8d2ee" version="1">Tecla [1] conflita com a ação '[2]'&lt;br&gt;A ação '[3]' já usa essa tecla.</content>
+    <content contentuid="h8509840fdfe4453b800fd84957a50800gacb" version="1">Tecla [1] conflita para ação '[2]'</content>
+    <content contentuid="h919dc9b46db144ed8c330d1abb728459aea3" version="1">Conflito de atalho de tecla com a ação: [1]</content>
     <content contentuid="hb20ef6573e4b42329222dcae8e6809c9ab0c" version="1">Atalhos de teclado</content>
     <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Ajuda &amp; solução de problemas</content>
     <content contentuid="h361dd694cca74b30a87f02d035e35dcac0d4" version="1">Solução e relato de problemas</content>
@@ -194,6 +196,46 @@
     <content contentuid="h1023ace9c14d4a8bbf2c4c2f80a4c47c6513" version="1">Ativar logs de sucesso (verde)</content>
     <content contentuid="habe7ddb9ad9944b58744705857ca8cde0357" version="1">Ativar logs de alerta</content>
     <content contentuid="hddf4673450d344dc924bc6210f17ea62544g" version="1">Ativar logs de alerta (laranja-vermelho)</content>
+    <content contentuid="hac5a1fd7d223410b8a5fab04951eb428adde" version="1">Conflito de atalho: [1]</content>
+    <content contentuid="hbf47285d75054db8961a2bbd76e650fcd991" version="1">Camera Controls</content>
+    <content contentuid="h86fe2b0403a84fb7908f6bdf3ee17dd21e7f" version="1">Unknown</content>
+    <content contentuid="h726ccf29105d41538780a0a1b61bf3cab5f0" version="1">Photo Mode Controls</content>
+    <content contentuid="hd0c6191488c948b99d81f0cd66fc1ccb6a26" version="1">User Interface</content>
+    <content contentuid="h2d7144c5b0454e149411e2542ab303ae933b" version="1">Move Camera Forward</content>
+    <content contentuid="h39a720e76b4141949a505be4a602a75d54ea" version="1">Move Camera Backward</content>
+    <content contentuid="h7e26b3c3fa6a4606be5ba33fd622eb837e70" version="1">Move Camera Left</content>
+    <content contentuid="h24831ad9f6ef40a5a98377fa56ee766d8f26" version="1">Move Camera Right</content>
+    <content contentuid="h5675f4200f7f46a2a2af47c66fa9ccac2221" version="1">Zoom In</content>
+    <content contentuid="hca0f71f6093a4bf695237cae5bd5a1badg51" version="1">Zoom Out</content>
+    <content contentuid="h1ce8fbd46d3a4f46acba57ed0a734bfa2ab5" version="1">Rotate Camera Left</content>
+    <content contentuid="h5563361ff2b744848871cdbaf12539c16c5b" version="1">Rotate Camera Right</content>
+    <content contentuid="h74811b458d7c4508a32237dc7e3efa173789" version="1">Move Forward</content>
+    <content contentuid="h5dfb2c27117d4b779116875a427ff373c18f" version="1">Move Backward</content>
+    <content contentuid="h7b47f1295b6d48d491e5bce102d5637f11cf" version="1">Strafe Left</content>
+    <content contentuid="h867a112c3e6e4ae2bbc52dd477dbf4e3b95e" version="1">Strafe Right</content>
+    <content contentuid="hb12f6c48442548e1b9e387a14d9a20aaee2c" version="1">Jump</content>
+    <content contentuid="h7025fc893be6495088864712e05d0adaa889" version="1">Toggle Sneak</content>
+    <content contentuid="hdb227dc7309b42b885a9b133058c47aa5663" version="1">Interact</content>
+    <content contentuid="h024c99f044774880a6a1a90dc1f1bcbfb56c" version="1">Shove</content>
+    <content contentuid="h166a50bf762d4cd7a1d827184d336bb264df" version="1">Toggle Inventory</content>
+    <content contentuid="hab00d79972f3481784c6c31b1d5779f0c742" version="1">Toggle Character Sheet</content>
+    <content contentuid="h10c8d7eba5144bc4ac9ca09ff20f29e283af" version="1">Toggle Journal</content>
+    <content contentuid="h8745d6a103924a2fa748042b1c7b95734g00" version="1">Toggle Map</content>
+    <content contentuid="h70085eab331a4597bba1bfdcf6de0b5b8g23" version="1">Toggle Spells</content>
+    <content contentuid="hd0e73646b7c14325ac1d7a7e2ad65f3c9ggd" version="1">Toggle Combat Mode</content>
+    <content contentuid="ha67fb4a3797740c6b74aa406c9364064dd69" version="1">Toggle Weapon Set</content>
+    <content contentuid="hf5e39ec5e1914d2a8f6a9ee6d6e888ed968e" version="1">Accept</content>
+    <content contentuid="h683a30d71c35413086cbd53bfd4f4e8da827" version="1">Cancel</content>
+    <content contentuid="h579cabee5479438ab94dd3b8b47c66b70789" version="1">Move Cursor Left</content>
+    <content contentuid="had916ada428d43119b088e53521f3beb99b3" version="1">Move Cursor Right</content>
+    <content contentuid="h3ef3ea845c2e4902b8c4633a2c63209059g3" version="1">Move Cursor Up</content>
+    <content contentuid="h85d3fde3585b4127b2ccfe271399b3a7a5ea" version="1">Move Cursor Down</content>
+    <content contentuid="h44a74f242dc842828ae26f5e91408b423def" version="1">Next Tab</content>
+    <content contentuid="h79de9dffb4604234a93e77eef26696835f1g" version="1">Previous Tab</content>
+    <content contentuid="h9e7d63a517984acc84b5e64187cce82672d5" version="1">Toggle Menu</content>
+    <content contentuid="h0956d399e7d54f3c9e52482048530abcf06d" version="1">Throw Item</content>
+    <content contentuid="h1174c660801b4143acde0a6f1dfc2a6ed5g8" version="1">Toggle Mouse Rotation</content>
+    <content contentuid="h11c49d334a6d429eb1fa26da1379390a5333" version="1">General</content>
     <content contentuid="h695e89a6bc5e4064b183454101463d0e3g4e" version="1">O mod '[1]' usa MCM mas está carregado antes do próprio MCM.&lt;br&gt;Isso pode causar problemas.&lt;br&gt;Por favor, mova '[2]' para depois do MCM na sua load order.</content>
     <content contentuid="hbb05ad5f055141f5846365e1d6175ae74fb4" version="1">Precedência na load order: carregue o MCM antes de '[1]'</content>
     <content contentuid="h22531fbba80a4aa5a046c3bbfd55c373g923" version="1">Avisa se algum mod na load order tem um UUID inválido ou ausente.</content>
@@ -222,4 +264,6 @@
     <content contentuid="hb31fa6f91735475eb72da548b26a3516af31" version="1">Cooldown do botão: [1]</content>
     <content contentuid="hcd9314b58f0946be8df07686c2cb9518b95g" version="1">s</content>
     <content contentuid="hdbcd16c5f55e4e9c800e7284ebef8b0f5372" version="1">Este mod tem um ou mais atalhos de teclado atribuídos.&lt;br&gt;Clique para vê-los.</content>
+    <content contentuid="hef97155533604ba6adf42a09c666469c0c4c" version="1">Atalhos de teclado nativos/vanilla são modo-leitura apenas. Esta interface não atualiza quando você altera-os no jogo.</content>
+    <content contentuid="h692c5bc059d841ccba0bc66c92f5bb09e53g" version="1">Atalhos de teclado nativos</content>
 </contentList>

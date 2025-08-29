@@ -255,5 +255,59 @@ function VCString:InterpolateLocalizedMessage(handle, ...)
         Ext.Loca.UpdateTranslatedString(handle, updatedMessage)
     end
 
-    return VCString:ReplaceBrWithNewlines(updatedMessage)
+    return self:ReplaceBrWithNewlines(updatedMessage)
+end
+
+local string_find = string.find
+local table_insert = table.insert
+local tonumber_func = tonumber
+local tostring_func = tostring
+local math_max = math.max
+
+--- Compares two strings using natural order (e.g., "2" < "11").
+---@param strA string
+---@param strB string
+---@return boolean
+function VCString.NaturalOrderCompare(strA, strB)
+    if strA == strB then return false end
+    if strA == nil then return true end
+    if strB == nil then return false end
+
+    --- Splits a string into a sequence of text and number parts.
+    ---@param inputString string
+    ---@return table
+    local function splitParts(inputString)
+        local parts = {}
+        local index = 1
+        while index <= #inputString do
+            local startNum, endNum, numberPart = string_find(inputString, '^(%d+)', index)
+            if startNum then
+                table_insert(parts, tonumber_func(numberPart))
+                index = endNum + 1
+            else
+                local startTxt, endTxt, textPart = string_find(inputString, '^([^%d]+)', index)
+                if startTxt then
+                    table_insert(parts, textPart)
+                    index = endTxt + 1
+                else
+                    break
+                end
+            end
+        end
+        return parts
+    end
+
+    local partsA, partsB = splitParts(strA), splitParts(strB)
+    for partIndex = 1, math_max(#partsA, #partsB) do
+        local valueA, valueB = partsA[partIndex], partsB[partIndex]
+        if valueA == nil then return true end
+        if valueB == nil then return false end
+        if type(valueA) == 'number' and type(valueB) == 'number' then
+            if valueA ~= valueB then return valueA < valueB end
+        else
+            local stringA, stringB = tostring_func(valueA), tostring_func(valueB)
+            if stringA ~= stringB then return stringA < stringB end
+        end
+    end
+    return false
 end

@@ -14,8 +14,10 @@ RequireFiles("Client/Components/IMGUIWidgets/", {
     "TextIMGUIWidget",
     "ListIMGUIWidget",
     "ListV2IMGUIWidget",
+    "KeybindingSearchBar",
     "KeybindingIMGUIWidget",
     "KeybindingV2IMGUIWidget",
+    "NativeKeybindingIMGUIWidget",
     "EventButtonIMGUIWidget",
     "WidgetFactory",
 })

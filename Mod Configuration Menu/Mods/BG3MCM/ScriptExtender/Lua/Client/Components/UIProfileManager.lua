@@ -30,7 +30,8 @@ local function getDeleteProfileButtonLabel(profile)
     if profile == "Default" then
         return Ext.Loca.GetTranslatedString("hfdf59b69495c4aeca03f38977a00a69d431c")
     else
-        local newString = VCString:UpdateLocalizedMessage("h75b86690333d4937a1737fe8daddde41ga10", profile)
+        local newString = VCString:InterpolateLocalizedMessage("h75b86690333d4937a1737fe8daddde41ga10", profile,
+        { updateHandle = true })
         return newString
     end
 end
