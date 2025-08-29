@@ -9,6 +9,11 @@ NetChannels.MCM_EMIT_ON_CLIENTS = "MCM_Emit_On_Clients"
 
 NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT = "MCM_Server_Send_Configs_To_Client"
 
+-- Generic chunked transfer channels (INIT -> CHUNK -> END)
+NetChannels.MCM_CHUNK_INIT = "MCM_Chunk_Init"
+NetChannels.MCM_CHUNK_PART = "MCM_Chunk_Part"
+NetChannels.MCM_CHUNK_END = "MCM_Chunk_End"
+
 NetChannels.MCM_CLIENT_REQUEST_CONFIGS = "MCM_Client_Request_Configs"
 NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE = "MCM_Client_Request_Set_Setting_Value"
 NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE = "MCM_Client_Request_Reset_Setting_Value"

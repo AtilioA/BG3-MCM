@@ -104,14 +104,31 @@ Ext.Events.KeyInput:Subscribe(handleKeyInput)
 -- end)
 
 --- SECTION: Net messages
-Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
-    local data = Ext.Json.Parse(payload)
-    local mods = data.mods
-    local profiles = data.profiles
-
+-- Common handler for configs payloads
+local function onConfigsReceived(mods, profiles)
     MCMProxy.GameState = "Running"
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(mods)
+end
+
+-- Register generic chunked listeners once and a handler
+if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners then
+    ChunkedNet.Client.RegisterNetListeners()
+    ChunkedNet.Client.RegisterHandler(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(jsonStr)
+        local ok, data = pcall(Ext.Json.Parse, jsonStr)
+        if ok and type(data) == "table" then
+            onConfigsReceived(data.mods, data.profiles)
+        end
+    end)
+end
+
+Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
+    local ok, data = pcall(Ext.Json.Parse, payload)
+    if not ok or type(data) ~= "table" then
+        MCMWarn(0, "Failed to parse configs payload")
+        return
+    end
+    onConfigsReceived(data.mods, data.profiles)
 end)
 
 Ext.RegisterNetListener(NetChannels.MCM_RELAY_TO_SERVERS, function(_, metapayload)

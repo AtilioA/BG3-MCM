@@ -34,8 +34,8 @@ function EHandlers.OnClientRequestConfigs(_channel, _payload, userID)
         MCMServer:LoadAndSendSettings()
         return
     else
-        Ext.ServerNet.PostMessageToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
-            Ext.Json.Stringify({ userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+        local payloadTable = { userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }
+        ChunkedNet.SendTableToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, payloadTable)
     end
 end
 
