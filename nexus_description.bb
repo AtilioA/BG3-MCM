@@ -1,12 +1,17 @@
-[size=3][b]Baldur's Gate 3 [color=#6d9eeb]Mod Configuration Menu[/color] ([color=#6d9eeb]MCM[/color]) provides an in-game menu through which mod users can configure mod settings.[/b][/size]
-It is a central location for mod configuration and can be accessed via the ESC menu or pressing the [i]Insert[/i] key (by default).
+[size=3][b]Baldur's Gate 3 [color=#6d9eeb]Mod Configuration Menu[/color] ([color=#6d9eeb]MCM[/color]) provides an in-game menu through which mod users can configure mod settings and hotkeys.[/b]
+It is a central location for mod configuration and can be accessed via the main and ESC menus, or pressing the [i]Insert[/i] key (by default).
 
-Are you a mod author? Check the [url=https://wiki.bg3.community/Tutorials/Mod-Frameworks/mod-configuration-menu]documentation for integrating mods with the MCM[/url]; it's a simple process and there are a lot of features you definitely want to hear about!
+[/size][size=2]Are you a mod author? Check the [url=https://wiki.bg3.community/Tutorials/Mod-Frameworks/mod-configuration-menu]documentation for integrating mods with the MCM[/url]; it's a simple process and there are a lot of features you definitely want to hear about![/size][size=3]
 
-[color=#6d9eeb][size=5][b]Features[/b][/size][/color]
-[list]
+[/size][center][size=3]If you'd like to support MCM and my other mods, consider supporting me on Patreon; every bit helps!
+[/size][url=https://patreon.com/Volitio?utm_source=join_link&utm_campaign=creatorshare_creator]
+[/url][img]https://i.imgur.com/MBOhOZl.png[/img][url=https://patreon.com/Volitio?utm_source=join_link&utm_campaign=creatorshare_creator]﻿[/url]﻿[/center]
+[center]Here's [b]MCM 1.33[/b] in action, showcasing profiles, keybindings, and mod pages:
+[size=3][b][img]https://i.imgur.com/PGuMLG3.gif[/img]﻿[/b][/size][/center][color=#6d9eeb][size=5][b]Features[/b][/size][/color][list]
 [*][b]Configuration made easy[/b]: MCM provides a simple and intuitive way to change mods' settings. No need to manually edit JSON files - although still allowed, just like in the old days!
 [*] [b]Instant setting saving and loading[/b]: Unlike the traditional way of handling settings, MCM-integrated mods update settings in real-time as they are changed, without requiring save reloads or SE commands;
+[*][b]Load order health checking[/b]: MCM also checks your load order for missing/outdated dependencies and mods with invalid UUIDs.
+[*][b]Keybinding management[/b]: easily assign keyboard bindings directly from the MCM window, with built-in conflict resolution.
 [*][b]UI agnostic[/b]: MCM's core configuration code is designed to work independently of IMGUI. This means that even if IMGUI support were to be completely removed, MCM would still work. [b]Users who can't see the current UI will still be able to use MCM's under-the-hood benefits to manage their settings, and also edit them through JSON files[/b].
 [*] [b]Save-safe[/b]: MCM does not write anything to your save files - all modifications are done in-memory and then saved to JSON files. MCM can also be safely uninstalled without affecting your save files at any time, provided any mods that use it are disabled or uninstalled as well;
 [*] [b]Multiple profiles[/b]: MCM allows you to manage multiple configuration profiles, so you can have different settings for different playthroughs/characters;
@@ -16,22 +21,24 @@ Are you a mod author? Check the [url=https://wiki.bg3.community/Tutorials/Mod-Fr
 [*] [b]Robust[/b]: MCM has dozens of automated tests to ensure it works as expected, without halting;
 [*] [b]Localization support[/b]: MCM allows you to view settings in your preferred language, if translations are provided by mod authors/translators;
 [/list]
+[line]
 [color=#6d9eeb][size=5][b]Installation[/b][/size][/color]
-[b]Installation is essentially the same as any other pak mod[/b] and can be performed with new and existing saves:
+[b][size=3]Installation is the same as any other pak mod[/size][/b] and can be performed with new and existing saves:
 [list=1]
 [*]In [url=https://github.com/LaughingLeader/BG3ModManager]Baldur's Gate 3 Mod Manager[/url], (or use Vortex at your own discretion), install/enable the Script Extender (SE) by clicking on the 'Tools' tab at the top left of the program and selecting 'Download and Extract the Script Extender'. [b]Alternatively,[size=2][size=2] press CTRL+SHIFT+ALT+T while BG3MM's window is focused;[/size][/size][/b]
 [*]Import this mod's .zip file into the Mod Manager, then drag the mod from the right panel of the Mod Manager to the left panel; make sure to [b]drag it to the top of your load order[/b], as it needs to be placed above any mods that rely on this framework;
 [*]Save and export your load order. MCM will now automatically pick up and be available to any mods that may use it.
 [/list]
-You will see a button for MCM in the ESC menu in-game. It can also be opened with the INSERT key by default.[size=4][b]
+[size=3]You should then see a button for MCM in the ESC menu in-game. It can also be opened with the INSERT key by default.[b]
+[/b]You may also update MCM at any point[/size][size=4],unless stated otherwise. [/size][size=4][b]
 [/b][/size][b]
-UI support in SE has been significantly improved since launch, but you may still face some issues that are beyond my control.[/b] If you don't see the MCM window, you can try these things:
+UI/IMGUI support in SE has been significantly improved since launch, but you may still face some issues that are beyond my control.[/b] If you don't see the MCM window, you can try these things:
 [list=1]
 [*]restart your game ([color=#e06666][b]don't alt-tab before reaching the main menu[/b][/color]);
 [*]disable overlays (Discord/AMD/NVIDIA/OBS/etc);
-[*]switch to Vulkan.
+[*]toggle the rendering API to Vulkan/DX11.
 [/list]
-Older GPUs (from before ~2016) tend to have issues with the Script Extender's IMGUI implementation pre v18 (v18 has been released already), and I can't help with that. Even if you still have issues with it, MCM will continue working as a config/JSON manager even if the window does not appear.[line]
+[color=#6aa84f][size=4][b]Even if you still have issues with IMGUI, MCM will continue working as a config/JSON manager in the background if its window does not appear.[/b][/size][/color][line]
 I have updated most of my mods to be integrated with MCM:
 [list]
 [*][size=2][size=2][size=2][url=https://www.nexusmods.com/baldursgate3/mods/9701]Mod Uninstaller[/url]﻿[/size][/size][/size]
@@ -47,12 +54,11 @@ I have updated most of my mods to be integrated with MCM:
 [*][size=2][size=2][b][size=4][url=https://www.nexusmods.com/baldursgate3/mods/7035][size=4][size=2]Auto Send Read Books To Camp[/size][/size][/url]﻿[/size][/b][/size][/size]
 [/list][size=2][size=2]As a demonstration, their MCM settings will also be localized in PT-BR 🇧🇷.[/size]
 
-[size=2]Consider [b]politely asking[/b] authors of mods that use the Script Extender to integrate with MCM![/size]
-[/size]Here's MCM (older 1.0 version) in action with Fararagi's [url=https://www.nexusmods.com/baldursgate3/mods/2861]Configurable Movement Speed[/url] (pretend you can read the menu in this heavily-compressed GIF):
-[img]https://i.imgur.com/yDEouAG.gif[/img]﻿[line]
+[/size][size=3]Consider [b]politely asking[/b] authors of mods that use the Script Extender to integrate with MCM![/size][line]
 [size=4][b]Reports & requests[/b][/size]
-It [i]works[/i] in multiplayer, but it is recommended to decide on one player to do all the changes, preferably the host.
-Please report any other issues using the [b]Bugs[/b] tab.
+[size=3]MCM 1.30+ greatly improved multiplayer compatibility. If you still face problems, however, let the host manage settings. Connecting players do not need to have the same MCM settings to engage in multiplayer.
+[/size]
+Please report issues using the [b]Bugs[/b] tab.
 Suggestions are welcome in the [b]Forum[/b] or [b]Posts[/b] tab.
 
 [size=4][b]Files location[/b][/size]
@@ -72,10 +78,10 @@ Individual user settings can be located in the [font=Courier New]BG3MCM\Profiles
     │   ├───AutoSendFoodToCamp
     │   │       settings.json
     │   └───WaypointInsideEmeraldGrove
-    │           settings.json[/spoiler]
-[b][size=4]Special thanks[/size][/b]
-Similar to my experience with [url=https://www.nexusmods.com/baldursgate3/mods/8295]ISF[/url], I'd like to thank the foundational work of [url=https://www.nexusmods.com/baldursgate3/users/21094599]Focus[/url]﻿ and [url=https://www.nexusmods.com/baldursgate3/users/244952?tab=user+files]Nells[/url]﻿/[url=https://github.com/BG3-Community-Library-Team/]Community Library team[/url]. While applied to a lesser extent in this context, their insights throughout ISF have made this (initially) month-long endeavor a much less daunting task. I will be forever grateful for their open-source contributions to the Baldur's Gate 3 modding scene. Of course, none of this would be possible without the work put into Script Extender & LSLib by [url=https://github.com/Norbyte/]Norbyte[/url]﻿ and his responsiveness to feedback and troubleshooting. It was a pleasure working asynchronously with you, gentlemen 🎩👌.
-Also, a shoutout to [url=https://www.nexusmods.com/baldursgate3/users/64167336?tab=user+files]Fallen[/url] for alpha testing this mod, to [url=https://next.nexusmods.com/profile/skiz/mods?gameId=3474]Skiz[/url] for being in the IMGUI trenches with me, to [url=https://next.nexusmods.com/profile/Aahz07/about-me?gameId=3474]Aahz[/url] for some help with the dreaded state management involving client-side UI and porting vanilla icons for usage inside IMGUI, to the [url=https://www.nexusmods.com/fallout4/mods/21497]F4MCM[/url] team for inspiration, to [url=https://next.nexusmods.com/profile/MattifusP/]MattifusP[/url]﻿ for the contributions on GitHub and to many others in the modding community that shared support!
+    │           settings.json[/spoiler][b][size=4][line]
+Special thanks[/size][/b]
+Similar to my experience with [url=https://www.nexusmods.com/baldursgate3/mods/8295]ISF[/url], I'd like to thank the foundational work of [url=https://www.nexusmods.com/baldursgate3/users/21094599]Focus[/url]﻿ and [url=https://www.nexusmods.com/baldursgate3/users/244952?tab=user+files]Nells[/url]﻿/[url=https://github.com/BG3-Community-Library-Team/]Community Library team[/url]. While applied to a lesser extent in this context, their insights throughout ISF have made this endeavor a much less daunting task. I will be forever grateful for their open-source contributions to the Baldur's Gate 3 modding scene. Of course, none of this would be possible without the work put into Script Extender & LSLib by [url=https://github.com/Norbyte/]Norbyte[/url]﻿ and his responsiveness to feedback and troubleshooting. It was a pleasure working asynchronously with you, gentlemen 🎩👌.
+Also, a shoutout to [url=https://www.nexusmods.com/baldursgate3/users/64167336?tab=user+files]Fallen[/url] for alpha testing this mod, to [url=https://next.nexusmods.com/profile/skiz/mods?gameId=3474]Skiz[/url] for being in the IMGUI trenches with me, to [url=https://next.nexusmods.com/profile/Aahz07/about-me?gameId=3474]Aahz[/url] for some help with sidebar design and implementation (also [url=https://next.nexusmods.com/profile/osirisofinternet/mods?gameId=3474]osirisofinternet[/url]) with detaching windows, state management involving client-side UI (adapting ReactiveX for SE, etc), and porting vanilla icons for usage inside IMGUI, to the [url=https://www.nexusmods.com/fallout4/mods/21497]F4MCM[/url] team for inspiration, to [url=https://next.nexusmods.com/profile/MattifusP/]MattifusP[/url]﻿ and [url=https://next.nexusmods.com/profile/Valeriede]Valeriede[/url] for the contributions on GitHub and to many many others in the modding community that shared support and/or donated!
 [size=4][b]
 Source Code
 [/b][/size]The source code is available on [url=https://github.com/AtilioA/BG3-MCM/]GitHub[/url] or by unpacking the .pak file. Endorse on Nexus and give it a star on GitHub if you liked it!
@@ -97,7 +103,11 @@ Source Code
 [size=2][url=https://www.nexusmods.com/baldursgate3/mods/9701]Mod Uninstaller[/url]﻿ - allows uninstalling mods that add items/statuses[/size]
 [size=2][url=https://www.nexusmods.com/baldursgate3/mods/9162]Mod Configuration Menu[/url]﻿ - [/size][/size]offers a graphical interface for easy management of mod settings[size=2]
 [url=https://www.nexusmods.com/baldursgate3/mods/8295]AV Item Shipment Framework[/url]﻿ - allows authors to easily send items to player/camp chests
-[url=https://www.nexusmods.com/baldursgate3/mods/7676]Volition Cabinet[/url]﻿ - library mod for my other mods
-[/size][size=2][size=2]
+[url=https://www.nexusmods.com/baldursgate3/mods/7676]Volition Cabinet[/url]﻿ - library mod for my other mods[/size][size=2][size=2]
+
 [/size][url=https://ko-fi.com/volitio]   [img]https://raw.githubusercontent.com/doodlum/nexusmods-widgets/main/Ko-fi_40px_60fps.png[/img]
- [/url][/size][url=https://discord.gg/bg3mods]   [img]https://i.imgur.com/hOoJ9Yl.png[/img][/url][/center]
+[/url][/size]
+[b]BTC[/b]: bc1quankq2ep9yh3ekl2p7d39y4a2ca2shvycseeul
+[b]BCH[/b]: qq8mr3rcrsju3ceftdnxjm0fezcrzgvj8vd7yyapms
+[b]XMR:[/b] 8AmcntGtEsjG5KmH1frBpBQeqvy33FFvnCm8bQaV4WKH2piKtMikF8kGgNrueFqpCcCx4mo9axrEE9MFXPJ643mnFGrjnSh
+[url=https://discord.gg/bg3mods]   [img]https://i.imgur.com/hOoJ9Yl.png[/img][/url][/center]
