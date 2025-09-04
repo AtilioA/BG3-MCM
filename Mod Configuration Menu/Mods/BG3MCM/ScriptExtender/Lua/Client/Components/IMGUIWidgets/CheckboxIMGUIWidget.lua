@@ -23,6 +23,19 @@ function CheckboxIMGUIWidget:_addTitleText(group, titleText)
     if not titleText or titleText == "" then return end
 
     local checkboxTitleText = group:AddText(titleText)
+    
+    checkboxTitleText.OnClick = function()
+        self.Widget.Checked = not self.Widget.Checked
+    end
+
+    checkboxTitleText.OnHoverEnter = function()
+        self.Widget:SetColor("FrameBg", UIStyle.UnofficialColors.BoxHoverColor)
+    end
+
+    checkboxTitleText.OnHoverLeave = function()
+        self.Widget:SetColor("FrameBg", UIStyle.UnofficialColors.BoxColor)
+    end
+
     checkboxTitleText.TextWrapPos = 0
     checkboxTitleText.SameLine = true
 end

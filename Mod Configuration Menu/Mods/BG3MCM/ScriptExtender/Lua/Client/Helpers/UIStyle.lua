@@ -1,12 +1,11 @@
 UIStyle = {}
 -- Thanks Aahz for the original code
 
-local BoxColor = Color.NormalizedRGBA(46, 38, 38, 1)
-local BoxHoverColor = Color.NormalizedRGBA(97, 66, 54, 0.78);
-local BoxActiveColor = Color.NormalizedRGBA(30.60, 204, 237.15, 0.33)
-
 UIStyle.UnofficialColors = {
     ["TooltipBorder"] = Color.HEXToRGBA("#99724c"),
+    ["BoxColor"] = Color.NormalizedRGBA(46, 38, 38, 1),
+    ["BoxHoverColor"] = Color.NormalizedRGBA(97, 66, 54, 0.78),
+    ["BoxActiveColor"] = Color.NormalizedRGBA(30.60, 204, 237.15, 0.33),
 }
 
 UIStyle.Colors = {
@@ -18,11 +17,11 @@ UIStyle.Colors = {
     ["CheckMark"] = Color.NormalizedRGBA(219, 201, 173, 0.78),
     ["ChildBg"] = Color.NormalizedRGBA(31, 28, 28, 0.4),
     ["DragDropTarget"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
-    ["FrameBg"] = BoxColor,
-    ["FrameBgActive"] = BoxActiveColor,
-    ["FrameBgHovered"] = BoxHoverColor,
+    ["FrameBg"] = UIStyle.UnofficialColors.BoxColor,
+    ["FrameBgActive"] = UIStyle.UnofficialColors.BoxActiveColor,
+    ["FrameBgHovered"] = UIStyle.UnofficialColors.BoxHoverColor,
     ["Header"] = Color.NormalizedRGBA(92, 76, 69, 0.76),
-    ["HeaderActive"] = BoxActiveColor,
+    ["HeaderActive"] = UIStyle.UnofficialColors.BoxActiveColor,
     ["HeaderHovered"] = Color.NormalizedRGBA(105, 71, 56, 0.86),
     ["MenuBarBg"] = Color.NormalizedRGBA(18, 18, 18, 0.47),
     ["ModalWindowDimBg"] = Color.NormalizedRGBA(46, 38, 38, 0.73),
@@ -35,20 +34,20 @@ UIStyle.Colors = {
     ["PlotLinesHovered"] = Color.NormalizedRGBA(105, 71, 56, 1.0),
     ["PopupBg"] = Color.HEXToRGBA("#1A1A1A"),
     ["ResizeGrip"] = Color.NormalizedRGBA(242, 209, 153, 0.15),
-    ["ResizeGripActive"] = BoxActiveColor,
-    ["ResizeGripHovered"] = BoxHoverColor,
-    ["ScrollbarBg"] = BoxColor,
+    ["ResizeGripActive"] = UIStyle.UnofficialColors.BoxActiveColor,
+    ["ResizeGripHovered"] = UIStyle.UnofficialColors.BoxHoverColor,
+    ["ScrollbarBg"] = UIStyle.UnofficialColors.BoxColor,
     ["ScrollbarGrab"] = Color.NormalizedRGBA(92, 76, 69, 0.76),
-    ["ScrollbarGrabActive"] = BoxActiveColor,
+    ["ScrollbarGrabActive"] = UIStyle.UnofficialColors.BoxActiveColor,
     ["ScrollbarGrabHovered"] = Color.NormalizedRGBA(120, 89, 71, 0.86),
-    ["Separator"] = BoxColor,
-    ["SeparatorActive"] = BoxActiveColor,
-    ["SeparatorHovered"] = BoxHoverColor,
+    ["Separator"] = UIStyle.UnofficialColors.BoxColor,
+    ["SeparatorActive"] = UIStyle.UnofficialColors.BoxActiveColor,
+    ["SeparatorHovered"] = UIStyle.UnofficialColors.BoxHoverColor,
     ["SliderGrab"] = Color.NormalizedRGBA(242, 209, 153, 0.14),
     ["SliderGrabActive"] = Color.NormalizedRGBA(133, 133, 64, 0.3),
-    ["Tab"] = BoxColor,
-    ["TabActive"] = BoxActiveColor,
-    ["TabHovered"] = BoxHoverColor,
+    ["Tab"] = UIStyle.UnofficialColors.BoxColor,
+    ["TabActive"] = UIStyle.UnofficialColors.BoxActiveColor,
+    ["TabHovered"] = UIStyle.UnofficialColors.BoxHoverColor,
     ["TableBorderLight"] = Color.NormalizedRGBA(143, 117, 66, 0.78),
     ["TableBorderStrong"] = Color.NormalizedRGBA(168, 94, 23, 0.78),
     ["TableHeaderBg"] = Color.NormalizedRGBA(184, 158, 110, 0.47),
@@ -60,7 +59,7 @@ UIStyle.Colors = {
     ["TextDisabled"] = Color.NormalizedRGBA(219, 201, 173, 0.18),
     ["TextSelectedBg"] = Color.NormalizedRGBA(145, 54, 54, 0.43),
     ["TitleBg"] = Color.NormalizedRGBA(18, 18, 18, 1.0),
-    ["TitleBgActive"] = BoxColor,
+    ["TitleBgActive"] = UIStyle.UnofficialColors.BoxColor,
     ["TitleBgCollapsed"] = Color.NormalizedRGBA(13, 13, 13, 0.75),
     ["WindowBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
 }
