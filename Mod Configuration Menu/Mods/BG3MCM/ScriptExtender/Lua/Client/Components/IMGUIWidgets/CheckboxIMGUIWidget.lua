@@ -13,19 +13,24 @@ function CheckboxIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     local opts = setting:GetOptions() or {}
     if opts["InlineTitle"] ~= false then
-        instance:_addTitleText(group, setting:GetLocaName() or setting:GetId())
+        instance:_addTitleText(group, setting, modUUID)
     end
 
     return instance
 end
 
-function CheckboxIMGUIWidget:_addTitleText(group, titleText)
-    if not titleText or titleText == "" then return end
+--- Adds a title text to the checkbox that can be clicked to toggle the checkbox.
+---@param group any
+---@param setting BlueprintSetting
+---@param modUUID string
+function CheckboxIMGUIWidget:_addTitleText(group, setting, modUUID)
+    local titleText = setting:GetLocaName() or setting:GetId()
+    if titleText == "" then return end
 
     local checkboxTitleText = group:AddText(titleText)
-    
+
     checkboxTitleText.OnClick = function()
-        self.Widget.Checked = not self.Widget.Checked
+        IMGUIAPI:SetSettingValue(setting.Id, not self.Widget.Checked, modUUID)
     end
 
     checkboxTitleText.OnHoverEnter = function()
