@@ -125,6 +125,10 @@ end
 --- Ensures the MCM window is within the viewport bounds
 --- @return boolean True if window was repositioned, false otherwise
 function MCMRendering:EnsureWindowVisible()
+    if not MCM_WINDOW then
+        return false
+    end
+
     -- Define margin from screen edges
     local SCREEN_MARGIN = 30
     local DEFAULT_WINDOW_POSITION = { 10, 10 }
@@ -144,11 +148,6 @@ function MCMRendering:EnsureWindowVisible()
 
     -- Get viewport dimensions
     local viewportSize = Ext.IMGUI.GetViewportSize()
-
-    -- Early return if window doesn't exist
-    if not MCM_WINDOW then
-        return false
-    end
 
     local shouldReset = false
 
@@ -172,6 +171,20 @@ function MCMRendering:EnsureWindowVisible()
     end
 
     return false
+end
+
+--- Ensure the MCM window is focused under the right conditions
+function MCMRendering:EnsureWindowFocused()
+    if not MCM_WINDOW then
+        return
+    end
+
+    -- If not in controller mode, don't focus the window
+    if Ext.Utils.GetGlobalSwitches().ControllerMode == 0 then
+        return
+    end
+
+    MCM_WINDOW:SetFocus()
 end
 
 --- Create the main IMGUI window for MCM

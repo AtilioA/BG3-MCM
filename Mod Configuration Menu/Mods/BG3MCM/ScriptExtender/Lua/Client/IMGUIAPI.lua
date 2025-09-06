@@ -121,6 +121,9 @@ function IMGUIAPI:OpenMCMWindow(playSound)
 
     MCM_WINDOW.Visible = true
     MCM_WINDOW.Open = true
+
+    MCMClientState:EnsureWindowFocused()
+
     ModEventManager:Emit(EventChannels.MCM_WINDOW_OPENED, {
         playSound = playSound
     }, true)
