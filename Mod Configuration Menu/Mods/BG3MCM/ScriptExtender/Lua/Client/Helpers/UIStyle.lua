@@ -15,7 +15,7 @@ UIStyle.Colors = {
     ["ButtonActive"] = Color.NormalizedRGBA(183, 122, 81, 0.7),
     ["ButtonHovered"] = Color.NormalizedRGBA(163, 102, 71, 0.5),
     ["CheckMark"] = Color.NormalizedRGBA(219, 201, 173, 0.78),
-    ["ChildBg"] = Color.NormalizedRGBA(31, 28, 28, 0.4),
+    ["ChildBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
     ["DragDropTarget"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
     ["FrameBg"] = UIStyle.UnofficialColors.BoxColor,
     ["FrameBgActive"] = UIStyle.UnofficialColors.BoxActiveColor,
@@ -61,7 +61,7 @@ UIStyle.Colors = {
     ["TitleBg"] = Color.NormalizedRGBA(18, 18, 18, 1.0),
     ["TitleBgActive"] = UIStyle.UnofficialColors.BoxColor,
     ["TitleBgCollapsed"] = Color.NormalizedRGBA(13, 13, 13, 0.75),
-    ["WindowBg"] = Color.NormalizedRGBA(31, 28, 28, 1.0),
+    ["WindowBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
 }
 
 UIStyle.Styles = {
