@@ -116,7 +116,6 @@ function DualPaneController:InitWithWindow(window)
         self.menuScrollChildWindow.Visible = false
         self.mainLayoutTable.ColumnDefs[1].Width = TARGET_WIDTH_COLLAPSED
         self.menuScrollChildWindow:SetStyle("Alpha", 0)
-        if self.mainLayoutTable.SetStyle then self.mainLayoutTable:SetStyle("CellPadding", 0) end
     end
 
     -- Attach hover listeners initially (menu is expanded by default unless collapsed_by_default is true)
@@ -136,6 +135,9 @@ function DualPaneController:initLayout()
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     self.mainLayoutTable:AddColumn("Content", "WidthStretch")
 
+    if self.mainLayoutTable.SetStyle then
+        self.mainLayoutTable:SetStyle("CellPadding", 2)
+    end
     local row = self.mainLayoutTable:AddRow()
     local menuCell = row:AddCell()
     local contentCell = row:AddCell()
@@ -285,10 +287,6 @@ function DualPaneController:Expand()
     self.currentAnimation = "expand"
     HeaderActionsInstance:UpdateToggleButtons(false)
     self.menuScrollChildWindow.Visible = true
-    -- Restore padding to default when expanding
-    if self.mainLayoutTable.SetStyle and UIStyle.Styles.CellPadding ~= nil then
-        self.mainLayoutTable:SetStyle("CellPadding", UIStyle.Styles.CellPadding)
-    end
     -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
     local targetWidth = self.lastExpandedWidth or TARGET_WIDTH_EXPANDED
 
@@ -316,11 +314,6 @@ function DualPaneController:Collapse()
         self:AttachHoverListeners()
         self.currentAnimation = nil
     end)
-    
-    -- Remove table cell padding to avoid any leftover whitespace when collapsed
-    if self.mainLayoutTable.SetStyle then
-    self.mainLayoutTable:SetStyle("CellPadding", 0)
-    end
 end
 
 -- Toggle the sidebar, canceling any in-progress animation if needed.
