@@ -34,6 +34,23 @@ local function handleKeyInput(e)
     end
 end
 
+local function handleCloseMCMKey()
+    IMGUIAPI:CloseMCMWindow(true)
+end
+
+local function handleControllerInput(e)
+    -- NOTE: Hardcoded close MCM key
+    if e.Event == "KeyDown" and e.Pressed then
+        if e.Button == "Start" then
+            handleEscapeKey()
+            handleCloseMCMKey()
+            return
+        end
+
+        return
+    end
+end
+
 --- SECTION: Ext events
 Ext.Events.GameStateChanged:Subscribe(function(e)
     MCMProxy.GameState = e.ToState
@@ -65,6 +82,7 @@ Ext.Events.ResetCompleted:Subscribe(function()
 end)
 
 Ext.Events.KeyInput:Subscribe(handleKeyInput)
+Ext.Events.ControllerButtonInput:Subscribe(handleControllerInput)
 
 -- Ext.Events.MouseButtonInput:Subscribe(function(e)
 --     _D(e)

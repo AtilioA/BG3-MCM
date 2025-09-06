@@ -93,7 +93,7 @@ local function handleMCMButtonPress(button, hasServer)
     local revertTime = 15000
     local isMessageUpdated = false
 
-    button:Subscribe("PreviewMouseDown", function(a, b)
+    local function onPointerDown(a, b)
         pressCount = pressCount + 1
         if pressCount > pressLimit then
             MCMWarn(0,
@@ -112,7 +112,10 @@ local function handleMCMButtonPress(button, hasServer)
         MCMPrint(1,
             "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
         IMGUIAPI:ToggleMCMWindow(false)
-    end)
+    end
+
+    button:Subscribe("PreviewMouseLeftButtonDown", onPointerDown)
+    -- button:Subscribe("PreviewTouchDown", onPointerDown)
 end
 
 function Noesis:HandleGameMenuMCMButtonPress(button)
