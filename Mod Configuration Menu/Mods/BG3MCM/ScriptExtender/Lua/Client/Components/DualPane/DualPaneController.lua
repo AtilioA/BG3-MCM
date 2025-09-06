@@ -41,7 +41,7 @@ ICON_DETACH = "ico_popup_d"
 -- Get proportion of screen size based on working number for 4K
 -- TODO: Generate dynamic expanded target when SE adds support for calculating text width
 TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[1] / (3840 / 500)
-TARGET_WIDTH_COLLAPSED = 5
+TARGET_WIDTH_COLLAPSED = 0
 STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
 HOVER_DELAY_MS = 5000
@@ -116,6 +116,7 @@ function DualPaneController:InitWithWindow(window)
         self.menuScrollChildWindow.Visible = false
         self.mainLayoutTable.ColumnDefs[1].Width = TARGET_WIDTH_COLLAPSED
         self.menuScrollChildWindow:SetStyle("Alpha", 0)
+        if self.mainLayoutTable.SetStyle then self.mainLayoutTable:SetStyle("CellPadding", 0) end
     end
 
     -- Attach hover listeners initially (menu is expanded by default unless collapsed_by_default is true)
@@ -284,7 +285,10 @@ function DualPaneController:Expand()
     self.currentAnimation = "expand"
     HeaderActionsInstance:UpdateToggleButtons(false)
     self.menuScrollChildWindow.Visible = true
-
+    -- Restore padding to default when expanding
+    if self.mainLayoutTable.SetStyle and UIStyle.Styles.CellPadding ~= nil then
+        self.mainLayoutTable:SetStyle("CellPadding", UIStyle.Styles.CellPadding)
+    end
     -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
     local targetWidth = self.lastExpandedWidth or TARGET_WIDTH_EXPANDED
 
@@ -305,7 +309,6 @@ function DualPaneController:Collapse()
 
     self.currentAnimation = "collapse"
     HeaderActionsInstance:UpdateToggleButtons(true)
-
     self:animateSidebar(TARGET_WIDTH_COLLAPSED, 0, "collapse", function()
         self.menuScrollChildWindow.Visible = false
         self.isCollapsed = true
@@ -313,6 +316,11 @@ function DualPaneController:Collapse()
         self:AttachHoverListeners()
         self.currentAnimation = nil
     end)
+    
+    -- Remove table cell padding to avoid any leftover whitespace when collapsed
+    if self.mainLayoutTable.SetStyle then
+    self.mainLayoutTable:SetStyle("CellPadding", 0)
+    end
 end
 
 -- Toggle the sidebar, canceling any in-progress animation if needed.
