@@ -47,6 +47,10 @@ local function handleControllerInput(e)
             return
         end
 
+        if IMGUIAPI:IsMCMWindowOpen() then
+            e:PreventAction()
+        end
+
         return
     end
 end

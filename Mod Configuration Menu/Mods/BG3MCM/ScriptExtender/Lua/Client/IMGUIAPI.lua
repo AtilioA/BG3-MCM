@@ -103,6 +103,10 @@ function IMGUIAPI:ResetSettingValue(settingId, modUUID)
     MCMProxy:ResetSettingValue(settingId, modUUID)
 end
 
+function IMGUIAPI:IsMCMWindowOpen()
+    return MCM_WINDOW and MCM_WINDOW.Open == true and MCM_WINDOW.Visible == true
+end
+
 --- Opens the MCM window.
 --- @param playSound boolean Whether to play a sound effect when opening the window.
 function IMGUIAPI:OpenMCMWindow(playSound)
@@ -144,7 +148,7 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
         return
     end
 
-    if MCM_WINDOW.Open == true then
+    if self:IsMCMWindowOpen() then
         self:CloseMCMWindow(playSound)
     else
         -- Ensure window is in visible area before showing it
