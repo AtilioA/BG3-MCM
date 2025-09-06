@@ -9,7 +9,7 @@ UIStyle.UnofficialColors = {
 }
 
 UIStyle.Colors = {
-    ["Border"] = Color.NormalizedRGBA(61, 38, 20, 0.2),
+    ["Border"] = Color.NormalizedRGBA(61, 38, 20, 0.66),
     ["BorderShadow"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
     ["Button"] = Color.NormalizedRGBA(117, 102, 74, 0.5),
     ["ButtonActive"] = Color.NormalizedRGBA(183, 122, 81, 0.7),
@@ -61,7 +61,7 @@ UIStyle.Colors = {
     ["TitleBg"] = Color.NormalizedRGBA(18, 18, 18, 1.0),
     ["TitleBgActive"] = UIStyle.UnofficialColors.BoxColor,
     ["TitleBgCollapsed"] = Color.NormalizedRGBA(13, 13, 13, 0.75),
-    ["WindowBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
+    ["WindowBg"] = Color.NormalizedRGBA(31, 28, 28, 1.0),
 }
 
 UIStyle.Styles = {
