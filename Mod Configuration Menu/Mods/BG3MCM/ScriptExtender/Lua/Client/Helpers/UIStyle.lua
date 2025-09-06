@@ -61,7 +61,7 @@ UIStyle.Colors = {
     ["TitleBg"] = Color.NormalizedRGBA(18, 18, 18, 1.0),
     ["TitleBgActive"] = UIStyle.UnofficialColors.BoxColor,
     ["TitleBgCollapsed"] = Color.NormalizedRGBA(13, 13, 13, 0.75),
-    ["WindowBg"] = Color.NormalizedRGBA(31, 28, 28, 1.0),
+    ["WindowBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
 }
 
 UIStyle.Styles = {
