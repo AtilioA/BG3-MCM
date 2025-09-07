@@ -23,7 +23,8 @@ function KeybindingV2IMGUIWidget:new(group)
         InputEventSubscriptions = {},
         DynamicElements = {
             ModHeaders = {},
-            NoResultsText = nil
+            NoResultsText = nil,
+            ModPageHintText = nil
         }
     }
     instance.PressedKeys = {}
@@ -149,10 +150,20 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 
     self:SortFilteredActions()
 
+    -- Add hint text before rendering MCM keybindings (no native keybindings here)
+    if #self.Widget.FilteredActions > 0 then
+        local hintText = group:AddText("Right-click drop-downs to open respective mod page")
+        hintText.TextWrapPos = 0
+        self.Widget.DynamicElements.ModPageHintText = hintText
+    end
+
     for _, mod in ipairs(self.Widget.FilteredActions) do
         local modHeader = group:AddCollapsingHeader(MCMClientState:GetModName(mod.ModUUID))
         modHeader.DefaultOpen = true
         modHeader.IDContext = mod.ModName .. "_CollapsingHeader"
+        modHeader.OnRightClick = function()
+            IMGUIAPI:OpenModPage(nil, mod.ModUUID, true)
+        end
         self:RenderKeybindingTable(modHeader, mod)
         table.insert(self.Widget.DynamicElements.ModHeaders, modHeader)
     end
@@ -577,6 +588,10 @@ function KeybindingV2IMGUIWidget:ClearDynamicElements()
     if self.Widget.DynamicElements.NoResultsText then
         self.Widget.DynamicElements.NoResultsText:Destroy()
         self.Widget.DynamicElements.NoResultsText = nil
+    end
+    if self.Widget.DynamicElements.ModPageHintText then
+        self.Widget.DynamicElements.ModPageHintText:Destroy()
+        self.Widget.DynamicElements.ModPageHintText = nil
     end
 end
 
