@@ -152,7 +152,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 
     -- Add hint text before rendering MCM keybindings (no native keybindings here)
     if #self.Widget.FilteredActions > 0 then
-        local hintText = group:AddText("Right-click drop-downs to open respective mod page")
+        local hintText = group:AddText(Ext.Loca.GetTranslatedString("haafdc7e359944b89905c4d536bfed7cda1gf"))
         hintText.TextWrapPos = 0
         self.Widget.DynamicElements.ModPageHintText = hintText
     end

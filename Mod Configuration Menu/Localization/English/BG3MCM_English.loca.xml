@@ -157,7 +157,7 @@
     <content contentuid="h4e0e208daa6a439ca5ba95a668a7ac36d882" version="1">Hide the sidebar.&lt;br&gt;You can also toggle it with [1].</content>
     <content contentuid="hbb483085e7f04700beb8cc5bf94a98b4g6ac" version="1">Expand the sidebar containing keybindings, mods, etc.&lt;br&gt;You can also toggle it with [1].</content>
     <content contentuid="h5270f62d04b243b6b9ea0473bd610aa72b0e" version="1">Detach mod content to a separate window</content>
-    <content contentuid="hd3bbec3b1be2455986b5da92492f445d4296" version="1">No keybindings found.</content>
+    <content contentuid="hd3bbec3b1be2455986b5da92492f445d4296" version="1">No mod keybindings found.</content>
     <content contentuid="h508b792738634a4f88639bd379f12e601e96" version="1">Restore last used subtab</content>
     <content contentuid="hff55f0470579497788e9e048f207f1097809" version="1">When opening MCM (after loading a save), automatically restore the last used mod page.</content>
     <content contentuid="h77422890f2f5433486d6e9990a950c91g061" version="1">Restore last used page</content>
@@ -563,4 +563,5 @@
     <content contentuid="hdbcd16c5f55e4e9c800e7284ebef8b0f5372" version="1">This mod has one or more assigned hotkeys.&lt;br&gt;Click to open Hotkeys.</content>
     <content contentuid="hef97155533604ba6adf42a09c666469c0c4c" version="1">Vanilla/Native keybindings are read-only. This UI does not update when you change them in-game.</content>
     <content contentuid="h692c5bc059d841ccba0bc66c92f5bb09e53g" version="1">Vanilla keybindings</content>
+    <content contentuid="haafdc7e359944b89905c4d536bfed7cda1gf" version="1">Right-click dropdowns to open mod settings</content>
 </contentList>
