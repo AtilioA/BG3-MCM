@@ -67,7 +67,7 @@ UIStyle.Colors = {
 UIStyle.Styles = {
     ["Alpha"]                   = 1.0,
     ["ButtonTextAlign"]         = 0.5, -- vec2?
-    ["CellPadding"]             = 4,   -- vec2?
+    ["CellPadding"]             = 4.0,   -- vec2?
     ["ChildBorderSize"]         = 1.0,
     ["ChildRounding"]           = 4.0,
     ["DisabledAlpha"]           = 0.5,
@@ -91,7 +91,7 @@ UIStyle.Styles = {
     ["TabRounding"]             = 6.0,
     ["WindowBorderSize"]        = 2,
     ["WindowMinSize"]           = 32.0, -- vec2?
-    -- ["WindowPadding"]           = { 10.0, 8.0 },
+    ["WindowPadding"]           = 6.0,
     ["WindowRounding"]          = 4.0,
     ["WindowTitleAlign"]        = 0.5, -- vec2?
 }
