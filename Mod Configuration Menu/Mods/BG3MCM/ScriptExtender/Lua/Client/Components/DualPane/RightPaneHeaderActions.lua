@@ -61,7 +61,7 @@ function HeaderActions:New(parent)
     end
 
     -- Keybinding indicator: shows when current mod has assigned hotkeys.
-    self.keybindingsIndicator = self:CreateActionButton("[Hotkeys]", nil,
+    self.keybindingsIndicator = self:CreateActionButton("[" .. Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") .. "]", nil,
         Ext.Loca.GetTranslatedString("hdbcd16c5f55e4e9c800e7284ebef8b0f5372"), 1)
     self.keybindingsIndicator.SameLine = true
     self.keybindingsIndicator.Disabled = false
