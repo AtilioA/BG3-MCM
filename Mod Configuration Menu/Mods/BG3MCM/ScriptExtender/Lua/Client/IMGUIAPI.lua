@@ -180,7 +180,7 @@ function IMGUIAPI:OpenModPage(tabName, modUUID, shouldEmitEvent)
         return
     end
 
-    DualPane:OpenModPage(tabName, modUUID, shouldEmitEvent)
+    DualPane:OpenModPage(modUUID, tabName, shouldEmitEvent)
 end
 
 -- --- Send a message to the server to set a profile
