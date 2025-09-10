@@ -60,10 +60,11 @@ function EnumIMGUIWidget:setOnChangeCallback(setting, modUUID)
 end
 
 function EnumIMGUIWidget:UpdateCurrentValue(value)
-    for i, option in ipairs(self.Widget.Options) do
-        if option == value then
+    -- Match by the underlying option value
+    for i, label in ipairs(self.optionsLabels) do
+        if self.Widget.UserData.OptionsLookup[label] == value then
             self.Widget.SelectedIndex = i - 1
-            break
+            return
         end
     end
 end
