@@ -46,7 +46,8 @@ end
 ---@param group ExtuiGroup The IMGUI group to render into
 function KeybindingSearchBar:Render(group)
     group:AddSpacing()
-    group:AddText(Ext.Loca.GetTranslatedString("h2f1eda98ddb949d09792e1e1bc45ecddg446"))
+    local searchLabel = group:AddText(Ext.Loca.GetTranslatedString("h2f1eda98ddb949d09792e1e1bc45ecddg446"))
+    searchLabel.SameLine = true
 
     local searchInput = group:AddInputText("", self._searchText)
     searchInput.IDContext = "SearchInput"
@@ -54,6 +55,7 @@ function KeybindingSearchBar:Render(group)
     searchInput.OnChange = function(input)
         self:SetSearchText(input.Text)
     end
+    searchInput.SameLine = true
 
     group:AddSeparator()
 
