@@ -18,6 +18,29 @@
                     "SectionName": "Interface preferences",
                     "Settings": [
                         {
+                            "Id": "font_family",
+                            "Name": "Font family",
+                            "Type": "enum",
+                            "Default": "",
+                            "Tooltip": "Select the font family to use.",
+                            "Options": {
+                                "Choices": [
+                                    "",
+                                    "Inter-Regular",
+                                    "OpenDyslexic"
+                                ]
+                            },
+                            "Handles": {
+                                "NameHandle": "hcf014b47a26b49aea4bd79866dc8f964dfg5",
+                                "TooltipHandle": "hf587b45ae8714886851fa1fd555455985e21",
+                                "ChoicesHandles": [
+                                    "h49debc27a18f46c88019e4b14873abe342gd",
+                                    "h05a14fc966bf404cb9dcf17ed31499eb130a",
+                                    "h6e67df8d41ed4712907ffbbcb84c7b73785b"
+                                ]
+                            }
+                        },
+                        {
                             "Id": "font_size",
                             "Name": "Font size",
                             "Type": "enum",
@@ -53,10 +76,10 @@
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",
                             "Default": true,
-                            "Description": "Open the MCM window when the game starts.",
+                            "Tooltip": "Open the MCM window when the game starts.",
                             "Handles": {
                                 "NameHandle": "h76a89ee330464e30b1b9a01de85cbd0042a6",
-                                "DescriptionHandle": "h0d8762f0ceb645608a64b684e581f7a72d67"
+                                "TooltipHandle": "h0d8762f0ceb645608a64b684e581f7a72d67"
                             }
                         },
                         {

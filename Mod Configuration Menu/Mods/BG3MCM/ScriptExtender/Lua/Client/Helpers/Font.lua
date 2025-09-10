@@ -1,16 +1,44 @@
 Font = {}
 
-FONT_SIZE_OPTIONS = {
-    "Tiny",
-    "Small",
-    "Medium",
-    "Default",
-    "Large",
-    "Big"
+-- Key-value map of logical size -> numeric value (px)
+Font.FONT_SIZE_OPTIONS = {
+    Tiny = 24.0,
+    Small = 28.0,
+    Medium = 32.0,
+    Default = 36.0,
+    Large = 40.0,
+    Big = 44.0
 }
 
+-- Stable order for stepping operations (smallest to largest)
+local FONT_SIZE_ORDER = { "Tiny", "Small", "Medium", "Default", "Large", "Big" }
+
+-- Helpers
+local function _normalizeSizeKey(fontSize)
+    if fontSize == nil then return nil end
+    local t = type(fontSize)
+    if t == "number" then
+        -- If a raw number is provided, try to map it back to a key
+        for k, v in pairs(Font.FONT_SIZE_OPTIONS) do
+            if v == fontSize then
+                return k
+            end
+        end
+        return nil
+    end
+
+    local s = tostring(fontSize)
+    -- Accept both TitleCase ("Tiny") and lowercase ("tiny")
+    s = string.lower(s)
+    return VCString.ToTitleCase(s)
+end
+
 function Font.GetFontSizeOptions()
-    return FONT_SIZE_OPTIONS
+    local out = {}
+    for _, key in ipairs(FONT_SIZE_ORDER) do
+        out[#out + 1] = VCString.ToTitleCase(key)
+    end
+    return out
 end
 
 function Font.IsValidFontSize(fontSize)
@@ -18,29 +46,29 @@ function Font.IsValidFontSize(fontSize)
         return false
     end
 
-    return table.contains(FONT_SIZE_OPTIONS, fontSize)
+    local key = _normalizeSizeKey(fontSize)
+    if key == nil then return false end
+    return Font.FONT_SIZE_OPTIONS[key] ~= nil
 end
 
-function Font.GetBiggerFontSize(fontSize, steps)
-    if not Font.IsValidFontSize(fontSize) then
-        return nil
+function Font.GetSizeValue(fontSize)
+    local key = _normalizeSizeKey(fontSize)
+    if key and Font.FONT_SIZE_OPTIONS[key] then
+        return Font.FONT_SIZE_OPTIONS[key]
     end
 
-    steps = steps or 1
-    local currentIndex = table.indexOf(FONT_SIZE_OPTIONS, fontSize)
-    local targetIndex = math.min(currentIndex + steps, #FONT_SIZE_OPTIONS)
-
-    return FONT_SIZE_OPTIONS[targetIndex]
+    if type(fontSize) == "number" then
+        return fontSize
+    end
+    return nil
 end
 
-function Font.GetSmallerFontSize(fontSize, steps)
-    if not Font.IsValidFontSize(fontSize) then
-        return nil
+-- Compose a font resource name by appending the size key
+function Font.GetFontNameWithSizeSuffix(fontFamily, fontSize)
+    if fontFamily == nil then return nil end
+    local size = _normalizeSizeKey(fontSize)
+    if size == nil then
+        return tostring(fontFamily)
     end
-
-    steps = steps or 1
-    local currentIndex = table.indexOf(FONT_SIZE_OPTIONS, fontSize)
-    local targetIndex = math.max(currentIndex - steps, 1)
-
-    return FONT_SIZE_OPTIONS[targetIndex]
+    return string.format("%s%s", tostring(fontFamily), VCString.ToTitleCase(size))
 end

@@ -38,17 +38,11 @@ function IMGUIWidget:GetIconSizes(multiplier)
     -- "Medium" is our reference size (32.0f)
     local referenceSize = 32
 
-    if currentFontSize then
-        local fontSizes = {
-            ["Tiny"] = 24 / referenceSize,
-            ["Small"] = 28 / referenceSize,
-            ["Medium"] = 32 / referenceSize,
-            ["Default"] = 36 / referenceSize,
-            ["Large"] = 40 / referenceSize,
-            ["Big"] = 44 / referenceSize
-        }
-
-        fontSizeScaling = fontSizes[currentFontSize] or 1.0
+    if currentFontSize and Font and Font.GetSizeValue then
+        local sizeValue = Font.GetSizeValue(currentFontSize)
+        if sizeValue then
+            fontSizeScaling = sizeValue / referenceSize
+        end
     end
 
     local iconSize = baseIconSize * fontSizeScaling * multiplier

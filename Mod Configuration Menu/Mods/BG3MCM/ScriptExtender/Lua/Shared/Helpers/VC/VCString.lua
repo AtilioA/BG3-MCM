@@ -311,3 +311,8 @@ function VCString.NaturalOrderCompare(strA, strB)
     end
     return false
 end
+
+function VCString.ToTitleCase(str)
+    if str == nil or str == "" then return str end
+    return string.upper(string.sub(str, 1, 1)) .. string.sub(str, 2)
+end

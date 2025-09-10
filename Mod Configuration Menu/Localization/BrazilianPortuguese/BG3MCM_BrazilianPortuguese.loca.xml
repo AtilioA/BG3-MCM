@@ -116,7 +116,7 @@
     <content contentuid="h5bce8e943b4f4effa9f3b5f44caf244360ea" version="1">Sobre o MCM - licença</content>
     <content contentuid="h2c396610bbc24069bf3ee724d868fad5g2e7" version="1">Licença</content>
     <content contentuid="h63f26391dd0c4953b167c927ce04240057c7" version="1">O código do BG3MCM é licenciado sob AGPLv3. Para detalhes, consulte o link do GitHub na descrição do mod.</content>
-    <content contentuid="h9f85429a1ac84568b1c53940d5f28bc1a2e6" version="1">O BG3MCM incorpora código do Compatibility Framework, BG3ModManager e Volition Cabinet, todos licenciados sob a Licença MIT. Além disso, o BG3SE é licenciado sob a Licença MIT com uma Cláusula de Commons adicionada. Cópias dessas licenças estão incluídas nas seções apropriadas do código deste mod.</content>
+    <content contentuid="h9f85429a1ac84568b1c53940d5f28bc1a2e6" version="1">O BG3MCM incorpora código do Compatibility Framework, BG3ModManager e Volition Cabinet, todos licenciados sob a Licença MIT. Além disso, o BG3SE é licenciado sob a Licença MIT com uma Cláusula de Commons adicionada. Fontes Open Dyslexic e Inter são licenciadas sob a Licença SIL-OFL. Cópias dessas licenças estão incluídas nas seções apropriadas do código deste mod.</content>
     <content contentuid="hd006c103dba44c48bb3826b5dbbe3f6133b1" version="1">Autores de mods e tradutores podem habilitar Donation Points para quaisquer mods que utilizem este framework como dependência e podem usar livremente exemplos fornecidos para ajudar a construir a integração com este mod.</content>
     <content contentuid="h445fe7fd555e480f9090a0203b1d0a0811g7" version="1">Os termos de licenciamento no Nexus complementam essas permissões. Em casos de sobreposição, o mais rigoroso dos dois termos de licenciamento deve se aplicar.</content>
     <content contentuid="h4fbe91cade4c4f2f904e55bf12b3ec22egfc" version="1">Agradeço a Norbyte, LaughingLeader, Focus e a equipe CL por disponibilizarem seu código sob licenças tão abertas e permissivas, permitindo uma colaboração contínua na comunidade de modding!</content>
@@ -267,4 +267,9 @@
     <content contentuid="hef97155533604ba6adf42a09c666469c0c4c" version="1">Atalhos de teclado nativos/vanilla são modo-leitura apenas. Esta interface não atualiza quando você altera-os no jogo.</content>
     <content contentuid="h692c5bc059d841ccba0bc66c92f5bb09e53g" version="1">Atalhos de teclado nativos</content>
     <content contentuid="haafdc7e359944b89905c4d536bfed7cda1gf" version="1">Clique nos drop-downs para abrir as configurações do mod</content>
+    <content contentuid="h49debc27a18f46c88019e4b14873abe342gd" version="1">Padrão</content>
+    <content contentuid="h6e67df8d41ed4712907ffbbcb84c7b73785b" version="1">Open Dyslexic</content>
+    <content contentuid="h05a14fc966bf404cb9dcf17ed31499eb130a" version="1">Inter</content>
+    <content contentuid="hcf014b47a26b49aea4bd79866dc8f964dfg5" version="1">Nome da fonte</content>
+    <content contentuid="hf587b45ae8714886851fa1fd555455985e21" version="1">Selecione a fonte para usar.</content>
 </contentList>

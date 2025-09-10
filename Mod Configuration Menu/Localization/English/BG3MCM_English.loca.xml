@@ -119,7 +119,7 @@
     <content contentuid="h5bce8e943b4f4effa9f3b5f44caf244360ea" version="1">About MCM - License</content>
     <content contentuid="h2c396610bbc24069bf3ee724d868fad5g2e7" version="1">License</content>
     <content contentuid="h63f26391dd0c4953b167c927ce04240057c7" version="1">BG3MCM's code is licensed under AGPLv3. For details, refer to the GitHub link in the mod description.</content>
-    <content contentuid="h9f85429a1ac84568b1c53940d5f28bc1a2e6" version="1">BG3MCM incorporates code from the Compatibility Framework, BG3ModManager, and Volition Cabinet, all of which are licensed under the MIT License. Additionally, BG3SE is licensed under the MIT License with an added Commons Clause. Copies of these licenses are included in the appropriate sections of this mod's code.</content>
+    <content contentuid="h9f85429a1ac84568b1c53940d5f28bc1a2e6" version="1">BG3MCM incorporates code from the Compatibility Framework, BG3ModManager, and Volition Cabinet, all of which are licensed under the MIT License. Additionally, BG3SE is licensed under the MIT License with an added Commons Clause. Open Dyslexic and Inter fonts are licensed under the SIL-OFL. Copies of these licenses are included in the appropriate sections of this mod's code.</content>
     <content contentuid="hd006c103dba44c48bb3826b5dbbe3f6133b1" version="1">Mod authors and translators may enable donation points for any mods using this framework as a dependency, and may freely use examples provided to help build integration with this mod.</content>
     <content contentuid="h445fe7fd555e480f9090a0203b1d0a0811g7" version="1">The licensing terms on Nexus complement these permissions. In cases of overlap, the stricter of the two licensing terms should apply.</content>
     <content contentuid="h4fbe91cade4c4f2f904e55bf12b3ec22egfc" version="1">I extend my gratitude to Norbyte, LaughingLeader, Focus and the CL team for making their code available under such open and permissive licenses, enabling seamless collaboration across the modding community!</content>
@@ -564,4 +564,9 @@
     <content contentuid="hef97155533604ba6adf42a09c666469c0c4c" version="1">Vanilla/Native keybindings are read-only. This UI does not update when you change them in-game.</content>
     <content contentuid="h692c5bc059d841ccba0bc66c92f5bb09e53g" version="1">Vanilla keybindings</content>
     <content contentuid="haafdc7e359944b89905c4d536bfed7cda1gf" version="1">Right-click dropdowns to open mod settings</content>
+    <content contentuid="h49debc27a18f46c88019e4b14873abe342gd" version="1">Default</content>
+    <content contentuid="h6e67df8d41ed4712907ffbbcb84c7b73785b" version="1">Open Dyslexic</content>
+    <content contentuid="h05a14fc966bf404cb9dcf17ed31499eb130a" version="1">Inter</content>
+    <content contentuid="hcf014b47a26b49aea4bd79866dc8f964dfg5" version="1">Font family</content>
+    <content contentuid="hf587b45ae8714886851fa1fd555455985e21" version="1">Select the font to use.</content>
 </contentList>

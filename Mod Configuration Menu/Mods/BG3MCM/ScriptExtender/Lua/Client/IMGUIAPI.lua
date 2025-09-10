@@ -24,6 +24,10 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
         MCMClientState:SetMCMFontSize(value)
     end
 
+    if settingId == 'font_family' then
+        MCMClientState:SetMCMFontFamily(value)
+    end
+
     -- if settingId == "toggle_mcm_sidebar_keybinding" then
     --     InitHandles:UpdateMCMSidebarKeybindingHandle()
     -- end
