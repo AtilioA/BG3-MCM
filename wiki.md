@@ -56,7 +56,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [Client vs. Server execution](#client-vs-server-execution)
     - [Inserting custom UI elements](#inserting-custom-ui-elements)
     - [Defining lists](#defining-lists)
-      - [Inserting Search Results for ListV2 settings](#inserting-search-results-for-listv2-settings)
+      - [Inserting suggestions for ListV2 settings](#inserting-suggestions-for-listv2-settings)
   - [Listening to MCM events](#listening-to-mcm-events)
   - [How validation works](#how-validation-works)
   - [Localization support](#localization-support)
@@ -372,7 +372,7 @@ These methods operate on `list_v2` settings.
 | `MCM.List.GetRaw(listSettingId, modUUID?)` | Gets raw list setting data | ✅ | ✅ |
 | `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Checks if a specific item is enabled in a list | ✅ | ✅ |
 | `MCM.List.SetEnabled(listSettingId, itemName, enabled, modUUID?, shouldEmitEvent?)` | Sets the enabled state of a list item | ✅ | ✅ |
-| `MCM.List.InsertSearchResults(listSettingId, searchResults, modUUID?)` | Inserts suggestion/search results below the input of a `list_v2` widget | ✅ | ❌ |
+| `MCM.List.InsertSuggestions(listSettingId, suggestions, modUUID?)` | Inserts suggestions below the input of a `list_v2` widget | ✅ | ❌ |
 
 #### Window and tab APIs
 
@@ -559,20 +559,20 @@ MCM 1.17 introduced `list_v2` to supersede the now deprecated `list` input type.
 
 `MCM.List` contains useful methods for dealing with `list_v2` settings.
 
-#### Inserting Search Results for ListV2 settings
+#### Inserting suggestions for ListV2 settings
 
-The `InsertSearchResults` method in the `MCM.List` table allows mod authors to insert suggestions/'search results' into a `list_v2` setting. This is particularly useful for providing users with dynamic suggestions based on their input as they type in the add input field of the setting.
+The `InsertSuggestions` method in the `MCM.List` table allows mod authors to insert suggestions/'search results' into a `list_v2` setting. This is particularly useful for providing users with dynamic suggestions based on their input as they type in the add input field of the setting.
 
 
 Example: insert suggestions `a`, `b`, `c`, `aba`, `acaca`, and `abaca` into the `ignore_weapons` `list_v2` setting for the mod UUID `1c132ec4-4cd2-4c40-aeb9-ff6ee0467da8` (Auto Send Food To Camp):
 
 ```lua
 -- Client context only
-MCM.List.InsertSearchResults("ignore_weapons", {"a","b","c","aba","acaca","abaca"}, "1c132ec4-4cd2-4c40-aeb9-ff6ee0467da8")
+MCM.List.InsertSuggestions("ignore_weapons", {"a","b","c","aba","acaca","abaca"}, "1c132ec4-4cd2-4c40-aeb9-ff6ee0467da8")
 ```
 
 - **listSettingId**: The string with the ID of the `list_v2` setting to receive the suggestions.
-- **searchResults**: Table of strings to show as suggestions.
+- **suggestions**: Table of strings to show as suggestions.
 - **modUUID?**: Optional. Defaults to the current mod; pass a specific UUID to target another mod's UI. Must have the setting corresponding to `listSettingId` in its blueprint.
 
 ![mcm_suggestions.png](/mcm_suggestions.png)
