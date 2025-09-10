@@ -216,9 +216,9 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
     end
 
     -- Create a collapsible header for native keybindings
-    local nativeHeader = group:AddCollapsingHeader("h692c5bc059d841ccba0bc66c92f5bb09e53g")
+    local nativeHeader = group:AddCollapsingHeader(Ext.Loca.GetTranslatedString("h692c5bc059d841ccba0bc66c92f5bb09e53g"))
     nativeHeader.DefaultOpen = false
-    nativeHeader:AddText("hef97155533604ba6adf42a09c666469c0c4c")
+    nativeHeader:AddText(Ext.Loca.GetTranslatedString("hef97155533604ba6adf42a09c666469c0c4c"))
     table.insert(self.Widget.DynamicElements.ModHeaders, nativeHeader)
 
     -- Sort and render categories
