@@ -148,6 +148,21 @@ local function createMCMAPIMethods(originalModUUID)
 
             -- Update the setting
             return MCMInstance.Set(listSettingId, setting, modUUID, shouldEmitEvent)
+        end,
+
+        --- Insert search suggestions for a list_v2 setting
+        ---@param listSettingId string The ID of the list setting
+        ---@param searchResults string[] Table of suggestion strings to display below the input
+        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@return boolean success True if the operation was executed on client, false on server
+        InsertSearchResults = function(listSettingId, searchResults, modUUID)
+            if not modUUID then modUUID = originalModUUID end
+            if type(searchResults) ~= "table" then
+                MCMWarn(0, "Invalid 'searchResults' for MCM.List.InsertSearchResults; expected table of strings")
+                return false
+            end
+            IMGUIAPI:InsertListV2Suggestions(listSettingId, searchResults, modUUID)
+            return true
         end
     }
 
