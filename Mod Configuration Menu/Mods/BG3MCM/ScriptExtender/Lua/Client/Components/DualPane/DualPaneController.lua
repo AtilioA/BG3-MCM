@@ -434,6 +434,94 @@ function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent,
     self:UnselectTabAfterDelay(targetTab)
 end
 
+function DualPaneController:_getContentGroup(identifier)
+    return self.rightPane and self.rightPane.contentGroups and self.rightPane.contentGroups[identifier] or nil
+end
+
+function DualPaneController:_findKeybindingsGroup(hotkeysGroup)
+    if not hotkeysGroup or not hotkeysGroup.Children then return nil end
+    for _, child in ipairs(hotkeysGroup.Children) do
+        if child and child.IDContext == "MCM Keybindings" then
+            return child
+        end
+    end
+
+    for _, child in ipairs(hotkeysGroup.Children) do
+        if child and child.Children then
+            for _, sub in ipairs(child.Children) do
+                if sub and sub.IDContext and string.find(sub.IDContext, "_CollapsingHeader", 1, true) then
+                    return child
+                end
+            end
+        end
+    end
+    return nil
+end
+
+function DualPaneController:_computeTargetHeaderId(modUUID)
+    if not modUUID or not MCMClientState or not MCMClientState.GetModName then
+        return nil, nil
+    end
+    local modName = MCMClientState:GetModName(modUUID)
+    if modName and modName ~= "" then
+        return modName .. "_CollapsingHeader", modName
+    end
+    return nil, modName
+end
+
+function DualPaneController:_toggleCollapsingHeaders(group, targetHeaderId, modName)
+    if not group or not group.Children then return end
+    for _, elem in ipairs(group.Children) do
+        if elem and elem.IDContext and string.find(elem.IDContext, "_CollapsingHeader", 1, true) then
+            MCMDebug(0, "Found collapsing header: " .. elem.IDContext)
+            local isTarget = (targetHeaderId ~= nil) and (elem.IDContext == targetHeaderId)
+            if isTarget and elem.Label == modName then
+                elem.IDContext = modName .. "#" .. math.random(1, 1000)
+            end
+            elem.DefaultOpen = isTarget
+            elem.Selected = isTarget
+        end
+    end
+end
+
+-- Open the Hotkeys page and focus the collapsing header for a given mod (if provided)
+---@param modUUID string|nil Optional mod UUID to focus in the Hotkeys page; defaults to current mod
+function DualPaneController:OpenKeybindingsPage(modUUID)
+    -- Resolve target mod UUID
+    if not modUUID and self.rightPane and self.rightPane.currentMod then
+        modUUID = self.rightPane.currentMod.modUUID
+    end
+
+    if IMGUIAPI and IMGUIAPI.OpenMCMWindow then
+        IMGUIAPI:OpenMCMWindow(true)
+    end
+
+    self:OpenModPage(ClientGlobals.MCM_HOTKEYS, nil, false, nil, true)
+
+    -- Locate the Hotkeys content group and Keybindings group
+    local hotkeysGroup = self:_getContentGroup(ClientGlobals.MCM_HOTKEYS)
+    if not hotkeysGroup or not hotkeysGroup.Children then
+        MCMDebug(0, "Hotkeys content group not found or has no children; cannot focus collapsing header.")
+        return
+    end
+
+    local mcmBindingsGroup = self:_findKeybindingsGroup(hotkeysGroup)
+    if not mcmBindingsGroup or not mcmBindingsGroup.Children then
+        MCMDebug(0, "MCM Keybindings group not found or empty; cannot focus collapsing header.")
+        return
+    end
+
+    -- Compute target header and toggle the appropriate collapsing header
+    local targetHeaderId, modName = self:_computeTargetHeaderId(modUUID)
+    if not targetHeaderId then
+        return
+    end
+    self:_toggleCollapsingHeaders(mcmBindingsGroup, targetHeaderId, modName)
+
+    -- Respect auto-collapse/expand preferences for the sidebar
+    self:HandleSidebarStateChange(nil)
+end
+
 -- FIXME: Here or on Mod Uninstaller: not triggering tab callback for some reason even if event is emitted
 -- Sets the visible frame for a mod UUID
 ---@param modUUID string The UUID of the mod to show

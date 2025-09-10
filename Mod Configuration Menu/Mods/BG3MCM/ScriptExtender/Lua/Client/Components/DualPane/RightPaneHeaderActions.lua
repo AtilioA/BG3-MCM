@@ -73,8 +73,8 @@ function HeaderActions:New(parent)
 
         -- Navigate to the Hotkeys page
         -- TODO: focus the mod
-        if DualPane and DualPane.OpenModPage then
-            DualPane:OpenModPage(ClientGlobals.MCM_HOTKEYS)
+        if DualPane and DualPane.OpenKeybindingsPage then
+            DualPane:OpenKeybindingsPage(modUUID)
         end
     end
 
