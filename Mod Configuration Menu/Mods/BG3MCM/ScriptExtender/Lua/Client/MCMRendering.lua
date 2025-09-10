@@ -63,7 +63,7 @@ end
 
 function MCMRendering:GetMCMFontSize()
     if not MCM_WINDOW then return end
-    return MCM_WINDOW.Font
+    return MCMClientState:GetClientStateValue("font_size", ModuleUUID)
 end
 
 function MCMRendering:GetMCMFontFamily()
@@ -72,16 +72,17 @@ function MCMRendering:GetMCMFontFamily()
     return family
 end
 
+function MCMRendering:SetFont(font)
+    if not MCM_WINDOW then return end
+    MCM_WINDOW.Font = font
+end
+
 function MCMRendering:SetMCMFontSize(size)
     if not MCM_WINDOW then return end
     if not size then return end
 
     local family = self:GetMCMFontFamily()
-    if Font and Font.GetFontNameWithSizeSuffix then
-        MCM_WINDOW.Font = Font.GetFontNameWithSizeSuffix(family, size)
-    else
-        MCM_WINDOW.Font = tostring(size)
-    end
+    self:SetFont(Font.GetFontNameWithSizeSuffix(family, size))
 end
 
 function MCMRendering:SetMCMFontFamily(family)
@@ -89,11 +90,7 @@ function MCMRendering:SetMCMFontFamily(family)
     if not family then return end
 
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
-    if Font and Font.GetFontNameWithSizeSuffix then
-        MCM_WINDOW.Font = Font.GetFontNameWithSizeSuffix(family, sizeSetting)
-    else
-        MCM_WINDOW.Font = tostring(sizeSetting)
-    end
+    self:SetFont(Font.GetFontNameWithSizeSuffix(family, sizeSetting))
 end
 
 function MCMRendering:GetModName(modUUID)
@@ -232,11 +229,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
     local family = MCMClientState:GetClientStateValue("font_family", ModuleUUID) or ""
-    if Font and Font.GetFontNameWithSizeSuffix then
-        MCM_WINDOW.Font = Font.GetFontNameWithSizeSuffix(family, sizeSetting)
-    else
-        MCM_WINDOW.Font = tostring(sizeSetting)
-    end
+    self:SetFont(Font.GetFontNameWithSizeSuffix(family, sizeSetting))
 
     MCM_WINDOW.AlwaysAutoResize = false
 
