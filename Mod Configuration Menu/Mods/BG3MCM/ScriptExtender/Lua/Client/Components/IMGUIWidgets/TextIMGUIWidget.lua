@@ -5,7 +5,7 @@ function TextIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = TextIMGUIWidget })
 
     instance.Widget = group:AddInputText("", initialValue)
-    instance.Widget.OnChange = function(value)
+    instance.Widget.OnDeactivate = function(value)
         IMGUIAPI:SetSettingValue(setting.Id, value.Text, modUUID)
     end
 
