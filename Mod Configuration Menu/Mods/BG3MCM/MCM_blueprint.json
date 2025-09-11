@@ -22,7 +22,7 @@
                             "Name": "Font family",
                             "Type": "enum",
                             "Default": "",
-                            "Tooltip": "Select the font family to use.",
+                            "Tooltip": "Select the font family to use.\nNote this currently does not affect custom windows created by mod authors.",
                             "Options": {
                                 "Choices": [
                                     "",
@@ -68,26 +68,6 @@
                                     "h88ee680058a748d29f6a173ae38205621g58",
                                     "h0216f2c4d63f4915b25cd7f24b8396e3aff1",
                                     "ha93072e1b30e40ad9461191e5635882dbc2e"
-                                ]
-                            }
-                        },
-                        {
-                            "Id": "apply_font_to_other_windows",
-                            "Name": "Apply font styling to other windows",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Tooltip": "Apply the font settings to windows created by other mods.",
-                            "Handles": {
-                                "NameHandle": "hbadbecf8d8f149af8ceaa61c606f3539dd45",
-                                "TooltipHandle": "ha0754485dddb46b5902f09bfb426ecbd1367"
-                            },
-                            "VisibleIf": {
-                                "Conditions": [
-                                    {
-                                        "SettingId": "font_family",
-                                        "Operator": "!=",
-                                        "ExpectedValue": ""
-                                    }
                                 ]
                             }
                         },
