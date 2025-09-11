@@ -8,8 +8,8 @@ MCMPrinter = Printer:New {
     DebugLevel = Config:GetCurrentDebugLevel(),
     LogLevels = {
         print = true,
-        debug = true,
-        info = true,
+        debug = false,
+        info = false,
         warn = true
     }
 }
@@ -20,8 +20,8 @@ function Printer:UpdateLogLevels()
         return
     end
     MCMPrinter.LogLevels = {
-        print = MCMAPI:GetSettingValue("log_level_print", ModuleUUID) ~= false,
-        debug = MCMAPI:GetSettingValue("log_level_debug", ModuleUUID) == true,
+        print = MCMAPI:GetSettingValue("log_level_print", ModuleUUID) ~= false, -- Enabled by default (opt-out)
+        debug = MCMAPI:GetSettingValue("log_level_debug", ModuleUUID) == true, -- Disabled by default (opt-in)
         info = MCMAPI:GetSettingValue("log_level_info", ModuleUUID) == true,
         warn = MCMAPI:GetSettingValue("log_level_warn", ModuleUUID) ~= false
     }
