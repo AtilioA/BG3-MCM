@@ -273,4 +273,6 @@
     <content contentuid="hcf014b47a26b49aea4bd79866dc8f964dfg5" version="1">Nome da fonte</content>
     <content contentuid="hf587b45ae8714886851fa1fd555455985e21" version="1">Selecione a fonte para usar.</content>
     <content contentuid="h37e3d35cef6a43468bb71a253982d5634de8" version="1">O texto é salvo apenas quando você clica fora do campo.</content>
+    <content contentuid="hbadbecf8d8f149af8ceaa61c606f3539dd45" version="1">Aplicar estilo de fonte para outras janelas</content>
+    <content contentuid="ha0754485dddb46b5902f09bfb426ecbd1367" version="1">Aplica as configurações de fonte para as janelas criadas por outros mods.</content>
 </contentList>

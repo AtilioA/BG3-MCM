@@ -72,6 +72,26 @@
                             }
                         },
                         {
+                            "Id": "apply_font_to_other_windows",
+                            "Name": "Apply font styling to other windows",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Tooltip": "Apply the font settings to windows created by other mods.",
+                            "Handles": {
+                                "NameHandle": "hbadbecf8d8f149af8ceaa61c606f3539dd45",
+                                "TooltipHandle": "ha0754485dddb46b5902f09bfb426ecbd1367"
+                            },
+                            "VisibleIf": {
+                                "Conditions": [
+                                    {
+                                        "SettingId": "font_family",
+                                        "Operator": "!=",
+                                        "ExpectedValue": ""
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "Id": "open_on_start",
                             "Name": "Open MCM window on start",
                             "Type": "checkbox",
