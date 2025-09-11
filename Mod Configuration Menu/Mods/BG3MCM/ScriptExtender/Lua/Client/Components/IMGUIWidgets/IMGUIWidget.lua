@@ -76,6 +76,13 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
         if options and options.InlineTitle == false then
             self:CreateTitle(group, widgetName)
         end
+    elseif settingType == "event_button" then
+        -- For event_button, avoid duplicate text: if neither Label nor Icon are provided, do not create a separate title.
+        local hasLabel = EventButtonIMGUIWidget:HasLabel(setting)
+        local hasIcon = EventButtonIMGUIWidget:HasIcon(setting)
+        if hasLabel or hasIcon then
+            self:CreateTitle(group, widgetName)
+        end
     else
         self:CreateTitle(group, widgetName)
     end

@@ -37,15 +37,40 @@ local function localize(handle, fallbackText)
     return fallbackText
 end
 
-function EventButtonIMGUIWidget:GetButtonLabel()
-    local setting = self.Widget.Setting
+function EventButtonIMGUIWidget:HasLabel(setting)
+    if not setting then
+        setting = self.Widget.Setting
+    end
+    local options = setting:GetOptions() or {}
+    return type(options.Label) == "string" and options.Label ~= ""
+end
+
+function EventButtonIMGUIWidget:HasIcon(setting)
+    if not setting then
+        setting = self.Widget.Setting
+    end
+    local options = setting:GetOptions() or {}
+    return options.Icon and type(options.Icon.Name) == "string" and options.Icon.Name ~= ""
+end
+
+function EventButtonIMGUIWidget:GetButtonLabel(setting)
+    if not setting then
+        setting = self.Widget.Setting
+    end
     local options = setting:GetOptions() or {}
     local handles = setting:GetHandles() or {}
 
-    local rawLabel = options.Label
-    if rawLabel == "" or rawLabel == nil then
-        rawLabel = setting:GetLocaName()
+    local hasLabel = self:HasLabel(setting)
+    local hasIcon = self:HasIcon(setting)
+
+    -- Fallback label is the localized name or the setting ID if localization is missing
+    local fallbackLabel = setting:GetLocaName()
+    if fallbackLabel == nil or fallbackLabel == "" then
+        fallbackLabel = setting:GetId()
     end
+
+    -- If no label and no icon, use the setting name/ID directly for the button
+    local rawLabel = hasLabel and options.Label or fallbackLabel
 
     if handles.EventButtonHandles and handles.EventButtonHandles.LabelHandle then
         return localize(handles.EventButtonHandles.LabelHandle, rawLabel)
