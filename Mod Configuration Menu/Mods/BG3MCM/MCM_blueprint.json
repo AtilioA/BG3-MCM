@@ -318,17 +318,6 @@
                             }
                         },
                         {
-                            "Id": "enable_npakm_check",
-                            "Name": "Warn about NPAKM",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Description": "Warns if incompatible No Press Any Key Menu version is detected in the load order.",
-                            "Handles": {
-                                "NameHandle": "h0386d12fd1774adcab7d6d40bc8dcc403182",
-                                "DescriptionHandle": "h545b1baf66324fc28c0c726d7c016e73a3c9"
-                            }
-                        },
-                        {
                             "Id": "enable_modconflicts_check",
                             "Name": "Warn about mod conflicts",
                             "Type": "checkbox",
@@ -348,6 +337,17 @@
                             "Handles": {
                                 "NameHandle": "h0b200012c87d4a2e8173a15243ee0355ace1",
                                 "DescriptionHandle": "h5611eef852e342ed932b47cb0cedfa51g66e"
+                            }
+                        },
+                        {
+                            "Id": "enable_npakm_check",
+                            "Name": "Warn about NPAKM",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Warns if incompatible No Press Any Key Menu version is detected in the load order.",
+                            "Handles": {
+                                "NameHandle": "h0386d12fd1774adcab7d6d40bc8dcc403182",
+                                "DescriptionHandle": "h545b1baf66324fc28c0c726d7c016e73a3c9"
                             }
                         }
                     ]
@@ -424,7 +424,7 @@
                             "Id": "log_level_debug",
                             "Name": "Enable debug logs",
                             "Type": "checkbox",
-                            "Default": true,
+                            "Default": false,
                             "Tooltip": "Enable debug logs (yellow)",
                             "Handles": {
                                 "NameHandle": "h193e8c23d2504cef9a0002baacbdb6a7c923",
