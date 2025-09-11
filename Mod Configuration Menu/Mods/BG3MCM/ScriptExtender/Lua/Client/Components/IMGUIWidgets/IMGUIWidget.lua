@@ -296,6 +296,7 @@ end
 
 function IMGUIWidget:SetupTooltip(widget, setting)
     if setting:GetTooltip() == nil or setting:GetTooltip() == "" then
+        MCMDebug(2, "No tooltip found for setting: " .. setting:GetId())
         return
     end
     local tooltipText = setting:GetTooltip()
@@ -306,7 +307,8 @@ function IMGUIWidget:SetupTooltip(widget, setting)
     if translatedTooltip ~= nil and translatedTooltip ~= "" then
         tooltipText = translatedTooltip
     end
-    MCMRendering:AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
+
+    return MCMRendering:AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
 end
 
 --- Add a slightly faded description text below the widget

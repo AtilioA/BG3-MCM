@@ -18,6 +18,22 @@ function TextIMGUIWidget:new(group, setting, initialValue, modUUID)
     return instance
 end
 
+function TextIMGUIWidget:SetupTooltip(widget, setting)
+    local tt = IMGUIWidget:SetupTooltip(widget, setting)
+
+    if not tt then
+        return
+    end
+
+    if not table.isEmpty(tt.Children) then
+        local tooltipSeparator = tt:AddSeparator()
+        tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
+    end
+
+    local localizedText = Ext.Loca.GetTranslatedString("h37e3d35cef6a43468bb71a253982d5634de8")
+    tt:AddText(localizedText)
+end
+
 function TextIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Text = value
 end

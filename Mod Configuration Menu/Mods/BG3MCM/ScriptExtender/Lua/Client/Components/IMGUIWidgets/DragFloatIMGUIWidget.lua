@@ -19,14 +19,19 @@ function DragFloatIMGUIWidget:GetOnChangeValue(value)
 end
 
 function DragFloatIMGUIWidget:SetupTooltip(widget, setting)
-    local localizedText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
-        string.format("%.2f", setting.Options.Min), string.format("%.2f", setting.Options.Max))
-
-    local tooltipId = setting.Id .. "_TOOLTIP"
-    local tt = MCMRendering:AddTooltip(widget, localizedText, tooltipId)
+    local tt = IMGUIWidget:SetupTooltip(widget, setting)
     if not tt then
         return
     end
+
+    if not table.isEmpty(tt.Children) then
+        local tooltipSeparator = tt:AddSeparator()
+        tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
+    end
+
+    local localizedText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
+        string.format("%.2f", setting.Options.Min), string.format("%.2f", setting.Options.Max))
+    tt:AddText(localizedText)
 
     if not table.isEmpty(tt.Children) then
         local tooltipSeparator = tt:AddSeparator()

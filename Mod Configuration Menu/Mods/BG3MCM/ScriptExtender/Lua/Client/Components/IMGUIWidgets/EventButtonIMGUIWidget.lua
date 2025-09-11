@@ -451,13 +451,7 @@ function EventButtonIMGUIWidget:UpdateFeedback(message, feedbackType, duration)
 end
 
 function EventButtonIMGUIWidget:SetupTooltip()
-    local tooltipText = self.Widget.Setting:GetTooltip()
-    if not tooltipText or tooltipText == "" then
-        return
-    end
-    local tooltipId = self.Widget.Setting.Id .. "_TOOLTIP"
-
-    local tt = MCMRendering:AddTooltip(self.Widget.Button, tooltipText, tooltipId)
+    local tt = IMGUIWidget:SetupTooltip(self.Widget.Button, self.Widget.Setting)
     if not tt then
         return
     end
