@@ -214,7 +214,7 @@
     <content contentuid="h0386d12fd1774adcab7d6d40bc8dcc403182" version="1">Warn about NPAKM</content>
     <content contentuid="h51d62ec178ef42339febafa360593169dccc" version="1">Warn about mod conflicts</content>
     <content contentuid="h0b200012c87d4a2e8173a15243ee0355ace1" version="1">Warn about MCM precedence</content>
-    <content contentuid="hbc82ae3470f942bd843e33ae6e7498908935" version="1">MCM will scan your load order for potential issues and display visual warnings in the main menu if any are found.&lt;br&gt;It is recommended to keep all checks enabled. Most of these issues would cause problems for some of your mods.&lt;br&gt;Warnings can be disabled in an individual basis as they appear.</content>
+    <content contentuid="hbc82ae3470f942bd843e33ae6e7498908935" version="1">MCM will scan your load order for potential issues and display visual warnings in the main menu if any are found.&lt;br&gt;It is recommended to keep all checks enabled. Most of these issues could cause problems for some of your mods.&lt;br&gt;Warnings can be disabled in an individual basis as they appear.</content>
     <content contentuid="ha639028d9ca54b76a72e88059e3d24acd9a7" version="1">Yes</content>
     <content contentuid="h2f7a7913be50404cbbdd9878ee774cca2113" version="1">No</content>
     <content contentuid="he43ef9b250584bc2840b8b291c73e4b53cb4" version="1">Cancel</content>
