@@ -43,7 +43,7 @@ function EventButtonIMGUIWidget:GetButtonLabel()
     local handles = setting:GetHandles() or {}
 
     local rawLabel = options.Label
-    if rawLabel == "" then
+    if rawLabel == "" or rawLabel == nil then
         rawLabel = setting:GetLocaName()
     end
 
