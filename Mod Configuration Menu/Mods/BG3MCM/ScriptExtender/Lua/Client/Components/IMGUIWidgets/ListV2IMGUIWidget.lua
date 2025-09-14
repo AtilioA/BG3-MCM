@@ -608,18 +608,12 @@ function ListV2IMGUIWidget:AddInputAndAddButton2()
     addButton.SameLine = true
     addButton.OnClick = function()
         xpcall(function()
-            -- Dumb IMGUI bug workaround (yes, it's a bug, don't cope)
-            if not newElementName or newElementName == "" then return end
-
-            local newElement = { name = newElementName, enabled = true }
-            table.insert(self.Widget.Elements, 1, newElement)
-            self:UpdateSettings()
-            self:FilterElements()
-            self:Refresh()
-
-            -- Reset input after adding
-            textInput.Text = ""
-            newElementName = ""
+            local ok = self:TryAddElement(newElementName)
+            if ok then
+                -- Reset input after adding
+                textInput.Text = ""
+                newElementName = ""
+            end
         end, function(err)
             MCMDebug(1, "Error adding new element: " .. tostring(err))
         end)
@@ -685,16 +679,12 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     addButton.SameLine = true
     addButton.OnClick = function()
         xpcall(function()
-            -- Dumb IMGUI bug workaround (yes, it's a bug, don't cope)
-            local newElement = { name = self.Widget.NewElementName, enabled = true }
-            table.insert(self.Widget.Elements, 1, newElement)
-            self:UpdateSettings()
-            self:FilterElements()
-            self:Refresh()
-
-            -- Reset input after adding
-            self.Widget.NewElementInput.Text = ""
-            self.Widget.NewElementName = ""
+            local ok = self:TryAddElement(self.Widget.NewElementName)
+            if ok then
+                -- Reset input after adding
+                self.Widget.NewElementInput.Text = ""
+                self.Widget.NewElementName = ""
+            end
         end, function(err)
             MCMDebug(1, "Error adding new element: " .. tostring(err))
         end)
@@ -771,14 +761,10 @@ function ListV2IMGUIWidget:RenderSearchResultRow(imguiTable, result)
     end
 
     addButton.OnClick = function()
-        if self:ElementExists(result) then
+        local ok, reason = self:TryAddElement(result)
+        if not ok and reason == "duplicate" then
             addButton.Disabled = true
             addButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("h35a4dfd6f3a54dc6a1ba9a4c90a4355a6ce6"))
-        else
-            table.insert(self.Widget.Elements, { name = result, enabled = true })
-            self:UpdateSettings()
-            self:FilterElements()
-            self:Refresh()
         end
     end
     addButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("h134c0b997c2c47b8a2fcb8975e164bd71e24"))
@@ -912,6 +898,29 @@ function ListV2IMGUIWidget:ElementExists(name)
         end
     end
     return false
+end
+
+--- Normalizes a proposed element name (trims whitespace)
+---@param name any
+---@return string trimmedName
+function ListV2IMGUIWidget:NormalizeName(name)
+    local s = tostring(name or "")
+    return s:gsub("^%s*(.-)%s*$", "%1")
+end
+
+--- Attempts to add an element to the list after validation (non-empty, non-duplicate)
+---@param name any
+---@return boolean ok, string|nil reason
+function ListV2IMGUIWidget:TryAddElement(name)
+    local trimmed = self:NormalizeName(name)
+    if trimmed == "" then return false, "empty" end
+    if self:ElementExists(trimmed) then return false, "duplicate" end
+
+    table.insert(self.Widget.Elements, 1, { name = trimmed, enabled = true })
+    self:UpdateSettings()
+    self:FilterElements()
+    self:Refresh()
+    return true, "added"
 end
 
 ---Clears all child elements from an IMGUI group
