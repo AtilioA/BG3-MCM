@@ -199,8 +199,8 @@ ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
     end
 end)
 
-MCMAPI.configsLoaded:Subscribe(function(configsLoaded)
-    if not configsLoaded then
+MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
+    if not ConfigsLoaded then
         return
     end
 

@@ -73,8 +73,8 @@ function SubscribedEvents.SubscribeToEvents()
 
     Ext.Events.SessionLoaded:Subscribe(EHandlers.OnSessionLoaded)
 
-    MCMAPI.configsLoaded:Subscribe(function(configsLoaded)
-        if not configsLoaded then
+    MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
+        if not ConfigsLoaded then
             return
         end
         MCMPrinter:UpdateLogLevels()

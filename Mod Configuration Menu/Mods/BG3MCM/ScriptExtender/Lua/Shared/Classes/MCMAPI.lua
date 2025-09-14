@@ -5,7 +5,7 @@ local RX = {
 ---@class MCMAPI: MetaClass
 ---@field private mods table<string, table> A table of modUUIDs that has a table of blueprints and settings for each mod
 ---@field private profiles table<string, table> A table of profile data
----@field private configsLoaded ReplaySubject
+---@field private ConfigsLoaded ReplaySubject
 
 ---@class MCMAPI
 --- The MCM (Mod Configuration Menu) class is the main entry point for interacting with the Mod Configuration Menu system.
@@ -21,7 +21,7 @@ local RX = {
 MCMAPI = _Class:Create("MCMAPI", nil, {
     mods = {},
     profiles = {},
-    configsLoaded = RX.ReplaySubject.Create(1)
+    ConfigsLoaded = RX.ReplaySubject.Create(1)
 })
 
 --- Loads the profile manager and the configurations for all mods.
@@ -29,7 +29,7 @@ MCMAPI = _Class:Create("MCMAPI", nil, {
 function MCMAPI:LoadConfigs()
     self.mods = ModConfig:GetSettings()
     self.profiles = ModConfig:GetProfiles()
-    self.configsLoaded:OnNext(true)
+    self.ConfigsLoaded:OnNext(true)
     MCMSuccess(0, "Finished loading MCM blueprints")
 end
 
