@@ -57,32 +57,11 @@ end
 
 --- SECTION: Ext events
 Ext.Events.GameStateChanged:Subscribe(function(e)
-    MCMProxy.GameState = e.ToState
-
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
         MCMAPI:LoadConfigs()
         MCMClientState:LoadMods(MCMAPI.mods)
         Noesis:MonitorMainMenuButtonPress()
     end
-end)
-
-Ext.Events.ResetCompleted:Subscribe(function()
-    -- MCMProxy.GameState = "Running"
-
-    -- This doesn't even work, event does not fire during the main menu :shrug:
-    if MCMProxy.IsMainMenu() then
-        MCMAPI:LoadConfigs()
-        MCMClientState:LoadMods(MCMAPI.mods)
-    else
-        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
-            message = "Client reset has completed. Requesting MCM settings from server."
-        }))
-    end
-
-    if not MCM_WINDOW then
-        return
-    end
-    MCM_WINDOW.Visible = true
 end)
 
 Ext.Events.KeyInput:Subscribe(handleKeyInput)
@@ -128,7 +107,6 @@ Ext.Events.ControllerButtonInput:Subscribe(handleControllerInput)
 --- SECTION: Net messages
 -- Common handler for configs payloads
 local function onConfigsReceived(mods, profiles)
-    MCMProxy.GameState = "Running"
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(mods)
 end

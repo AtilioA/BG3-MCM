@@ -19,31 +19,19 @@ function MCMProxy:Initialize()
     self.GameStateSubject = RX.BehaviorSubject.Create(self.GameState)
 
     Ext.Events.GameStateChanged:Subscribe(function(e)
-        MCMProxy.GameState = e.ToState
-
         -- Emit the state change through our reactive subject
         if self.GameStateSubject then
-            self.GameStateSubject:OnNext(MCMProxy.GameState)
+            self.GameStateSubject:OnNext(e.ToState)
         end
 
-        MCMDebug(1, "GameState changed to " .. tostring(MCMProxy.GameState))
+        MCMDebug(1, "GameState changed to " .. tostring(e.ToState))
     end)
 end
 
 ---Check if the game is in the main menu
 ---@return boolean
 function MCMProxy.IsMainMenu()
-    local gameState = MCMProxy.GameState
-
-    if not gameState and Ext.Net.IsHost then
-        return not Ext.Net.IsHost()
-    end
-
-    if gameState == 'Menu' then
-        return true
-    end
-
-    return false
+    return Ext.Utils.GetGameState() == Ext.Enums.ClientGameState["Menu"]
 end
 
 --- Load mod configurations

@@ -10,6 +10,16 @@ RequireFiles("Client/", {
 
 local LoadOrderHealthCheckToggles = require("Shared/Helpers/LoadOrderHealthCheck/LoadOrderHealthCheckToggles")
 
-Ext.Events.GameStateChanged:Subscribe(function(e)
-    LoadOrderHealthCheckToggles:RunAllChecks(e)
-end)
+local function initClientMCM()
+    if MCMProxy.IsMainMenu() then
+        LoadOrderHealthCheckToggles:RunAllChecks(e)
+        MCMAPI:LoadConfigs()
+        MCMClientState:LoadMods(MCMAPI.mods)
+    else
+        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
+            message = "Client reset has completed. Requesting MCM settings from server."
+        }))
+    end
+end
+
+-- initClientMCM()

@@ -197,8 +197,8 @@ local function shouldTriggerBinding(e, binding)
     end
 
     -- Check if we should block the keybinding when level is not started
-    if binding.blockIfLevelNotStarted and MCMProxy.GameState == 'Menu' then
-        MCMPrint(1, "Keybinding blocked because level not started: " .. binding.actionName)
+    if binding.blockIfLevelNotStarted and MCMProxy.IsMainMenu() then
+        MCMPrint(2, "Keybinding blocked because level not started: " .. binding.actionName)
         return false
     end
 
