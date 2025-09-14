@@ -58,9 +58,7 @@ end
 --- SECTION: Ext events
 Ext.Events.GameStateChanged:Subscribe(function(e)
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
-        MCMAPI:LoadConfigs()
-        MCMClientState:LoadMods(MCMAPI.mods)
-        Noesis:MonitorMainMenuButtonPress()
+        InitClientMCM()
     end
 end)
 
@@ -121,6 +119,10 @@ if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners t
         end
     end)
 end
+
+Ext.Events.ResetCompleted:Subscribe(function()
+    InitClientMCM()
+end)
 
 Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
     local ok, data = pcall(Ext.Json.Parse, payload)
