@@ -196,7 +196,7 @@
                                     "Key": "ESCAPE",
                                     "ModifierKeys": []
                                 },
-                                "Enabled": false
+                                "Enabled": true
                             },
                             "Description": "Set the keybinding for closing MCM's window.",
                             "Handles": {
