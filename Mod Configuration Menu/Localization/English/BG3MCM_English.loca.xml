@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentList>
     <!-- Temporary handle in case MCM is inactive -->
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Your load order is likely being reset. Make sure you have SE and saved + exported your load order.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid UUIDs.&#x0a;Use BG3MM 1.0.12.9+ to identify load order problems.&#x0a;</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Your load order is likely being reset. Use BG3MM 1.0.12.9+ to identify load order problems.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid UUIDs.&#x0a;Make sure you have SE and saved + exported your load order.&#x0a;</content>
     <!-- IMGUI window name -->
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
     <!-- Used for some buttons (can be overridden during runtime to display advice) -->
