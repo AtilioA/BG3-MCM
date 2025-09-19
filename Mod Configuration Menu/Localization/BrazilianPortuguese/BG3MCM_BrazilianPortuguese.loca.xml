@@ -36,7 +36,7 @@
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Printar avisos de descontinuação para mods com código desatualizado.&lt;br&gt;Eles ainda serão exibidos se o modo desenvolvedor estiver ativado.</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Printar avisos de descontinuação</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Depuração</content>
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;MCM está 'inativo' na sua load order. Certifique-se de ter salvo e exportado sua load order.&#x0a;Problemas podem ser causados pelo uso do gerenciador de mods nativo do jogo ou mods com UUIDs inválidos.&#x0a;BG3MM 1.0.12.8+ identifica problemas na load order. Isso NÃO aparecerá se o MCM estiver ativo.&#x0a;</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Sua load order provavelmente está sendo resetada. Certifique-se de ter salvo e exportado sua load order.&#x0a;Problemas podem ser causados pelo uso do gerenciador de mods nativo do jogo ou mods com UUIDs inválidos.&#x0a;BG3MM 1.0.12.9+ identifica problemas na load order.</content>
     <content contentuid="h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f" version="1">Não mostrar novamente</content>
     <content contentuid="h9b0d0bba0bf64006a6dd8ed86a4d5353a3d8" version="1">Pesquisar por nome:</content>
     <content contentuid="h17e2c93763d54f3f9b5da8722d09cf90fab9" version="1">Marque para habilitar a lista, desmarque para desabilitá-la, sem remover/desabilitar nenhum elemento.</content>
