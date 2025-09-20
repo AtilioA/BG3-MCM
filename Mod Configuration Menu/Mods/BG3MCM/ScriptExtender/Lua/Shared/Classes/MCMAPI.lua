@@ -245,7 +245,7 @@ end
 --- Set the value of a configuration setting
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
----@param modUUID GUIDSTRING The UUID of the mod
+---@param modUUID string The UUID of the mod
 ---@param shouldEmitEvent? boolean Whether to emit an event
 ---@return boolean success True if the setting was successfully updated
 function MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)

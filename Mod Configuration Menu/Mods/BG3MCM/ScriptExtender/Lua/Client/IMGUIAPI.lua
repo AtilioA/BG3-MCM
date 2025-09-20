@@ -15,7 +15,7 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     if not MCM_WINDOW then
         return
     end
-    
+
     if settingId == 'font_size' then
         MCMClientState:SetMCMFontSize(value)
     end
@@ -34,7 +34,6 @@ end
 ---@param tabName string The name of the tab to be inserted
 ---@param tabCallback function The callback function to create the tab
 ---@return nil
----REVIEW: review this when refactoring server/client code, and potentially make this smarter by postponing the insertion until the client has finished initializing
 function IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
     if not self.insertedTabs[modUUID] then
         self.insertedTabs[modUUID] = {}

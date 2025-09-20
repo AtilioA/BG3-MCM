@@ -2,8 +2,57 @@
 
 local warnedDeprecation = {}
 
+-- Table to track which methods are client-only
+local CLIENT_ONLY_METHODS = {
+    -- Client-only methods
+    ['Keybinding.SetCallback'] = true,
+    ['EventButton.IsEnabled'] = true,
+    ['EventButton.ShowFeedback'] = true,
+    ['EventButton.RegisterCallback'] = true,
+    ['EventButton.UnregisterCallback'] = true,
+    ['EventButton.SetDisabled'] = true,
+    ['OpenMCMWindow'] = true,
+    ['CloseMCMWindow'] = true,
+    ['OpenModPage'] = true,
+    ['InsertModMenuTab'] = true,
+    ['SetKeybindingCallback'] = true
+}
+
+--- Helper function to handle client-only method calls on the server
+---@param methodPath string The full path of the method (e.g., 'EventButton.SetDisabled')
+---@return function - A function that throws an error if called on the server
+local function createClientOnlyStub(methodPath)
+    return function(...)
+        if Ext.IsServer() then
+            error(string.format(
+                "MCM API Error: Method '%s' is client-side only and cannot be called from the server context. " ..
+                "Please ensure this method is only called from client-side code.", methodPath), 2)
+        end
+        return nil
+    end
+end
+
+local function injectClientOnlyStubs(modTable, originalModUUID)
+    if Ext.IsServer() then
+        for methodPath, _ in pairs(CLIENT_ONLY_METHODS) do
+            local parts = {}
+            for part in string.gmatch(methodPath, "([^.]+)") do
+                table.insert(parts, part)
+            end
+
+            local target = modTable.MCM
+            for i = 1, #parts - 1 do
+                target[parts[i]] = target[parts[i]] or {}
+                target = target[parts[i]]
+            end
+
+            target[parts[#parts]] = createClientOnlyStub(methodPath)
+        end
+    end
+end
+
 --- Helper function to show a deprecation warning once per mod and method
----@param modUUID GUIDSTRING The UUID of the mod showing the warning
+---@param modUUID string - The UUID of the mod showing the warning
 ---@param methodName string The name of the deprecated method
 ---@param message string The deprecation message
 local function showDeprecationWarning(modUUID, methodName, message)
@@ -17,7 +66,7 @@ local function showDeprecationWarning(modUUID, methodName, message)
 end
 
 -- Create the API methods that will be injected into each mod's MCM table
----@param originalModUUID GUIDSTRING The UUID of the mod that will receive these methods
+---@param originalModUUID string The UUID of the mod that will receive these methods
 ---@return table MCMInstance The table containing all API methods
 local function createMCMAPIMethods(originalModUUID)
     local MCMInstance = {}
@@ -26,7 +75,7 @@ local function createMCMAPIMethods(originalModUUID)
 
     --- Get the value of a setting
     ---@param settingId string The ID of the setting to retrieve
-    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return any The value of the setting, or nil if not found
     MCMInstance.Get = function(settingId, modUUID)
         if not modUUID then modUUID = originalModUUID end
@@ -36,7 +85,7 @@ local function createMCMAPIMethods(originalModUUID)
     --- Set the value of a setting
     ---@param settingId string The ID of the setting to set
     ---@param value any The value to set
-    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@param shouldEmitEvent? boolean Whether to emit a setting changed event
     ---@return boolean success True if the setting was successfully updated
     MCMInstance.Set = function(settingId, value, modUUID, shouldEmitEvent)
@@ -49,7 +98,7 @@ local function createMCMAPIMethods(originalModUUID)
     MCMInstance.Keybinding = {
         --- Get a human-readable string representation of a keybinding
         ---@param settingId string The ID of the keybinding setting
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param modUUID? string Optional mod UUID, defaults to current mod
         ---@return string The formatted keybinding string (e.g., "[Ctrl] + [C]")
         Get = function(settingId, modUUID)
             if not modUUID then modUUID = originalModUUID end
@@ -58,7 +107,7 @@ local function createMCMAPIMethods(originalModUUID)
 
         --- Get the raw keybinding data
         ---@param settingId string The ID of the keybinding setting
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param modUUID? string Optional mod UUID, defaults to current mod
         ---@return table|nil The raw keybinding data structure or nil if not found
         GetRaw = function(settingId, modUUID)
             if not modUUID then modUUID = originalModUUID end
@@ -70,7 +119,7 @@ local function createMCMAPIMethods(originalModUUID)
     MCMInstance.List = {
         --- Get a table of enabled items in a list setting
         ---@param listSettingId string The ID of the list setting
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param modUUID? string Optional mod UUID, defaults to current mod
         ---@return table<string, boolean> enabledItems - A table where keys are enabled item names and values are true
         GetEnabled = function(listSettingId, modUUID)
             if not modUUID then modUUID = originalModUUID end
@@ -88,7 +137,7 @@ local function createMCMAPIMethods(originalModUUID)
 
         --- Get the raw list setting data
         ---@param listSettingId string The ID of the list setting
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param modUUID? string Optional mod UUID, defaults to current mod
         ---@return table|nil The raw list setting data or nil if not found
         GetRaw = function(listSettingId, modUUID)
             if not modUUID then modUUID = originalModUUID end
@@ -98,7 +147,7 @@ local function createMCMAPIMethods(originalModUUID)
         --- Check if a specific item is enabled in a list setting
         ---@param listSettingId string The ID of the list setting
         ---@param itemName string The name of the item to check
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param modUUID? string Optional mod UUID, defaults to current mod
         ---@return boolean enabled - True if the item is enabled, false otherwise
         IsEnabled = function(listSettingId, itemName, modUUID)
             if not modUUID then modUUID = originalModUUID end
@@ -117,7 +166,7 @@ local function createMCMAPIMethods(originalModUUID)
         ---@param listSettingId string The ID of the list setting
         ---@param itemName string The name of the item to update
         ---@param enabled boolean Whether the item should be enabled
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param modUUID? string Optional mod UUID, defaults to current mod
         ---@param shouldEmitEvent? boolean Whether to emit a setting changed event (default: true)
         ---@return boolean success True if the update was successful
         SetEnabled = function(listSettingId, itemName, enabled, modUUID, shouldEmitEvent)
@@ -153,7 +202,7 @@ local function createMCMAPIMethods(originalModUUID)
         --- Insert search suggestions for a list_v2 setting
         ---@param listSettingId string The ID of the list setting
         ---@param suggestions string[] Table of suggestion strings to display below the input field
-        ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+        ---@param modUUID? string Optional mod UUID, defaults to current mod
         ---@return boolean success True if the operation was executed on client, false on server
         InsertSuggestions = function(listSettingId, suggestions, modUUID)
             if not modUUID then modUUID = originalModUUID end
@@ -182,33 +231,32 @@ local function createMCMAPIMethods(originalModUUID)
     return MCMInstance
 end
 
--- Create client-side API methods (only available on the client)
----@param originalModUUID GUIDSTRING The UUID of the mod that will receive these methods
+-- Create API methods that are available in both contexts
+---@param originalModUUID string The UUID of the mod that will receive these methods
 ---@param modTable table The mod table to inject the methods into
-local function createClientAPIMethods(originalModUUID, modTable)
-    if Ext.IsServer() then return end
-
+local function createAPIMethods(originalModUUID, modTable)
     if not modTable then return end
     if not modTable.MCM then
         modTable.MCM = {}
     end
 
-    if not modTable.MCM.Keybinding then
-        modTable.MCM.Keybinding = {}
-    end
+    -- Initialize sub-tables if they don't exist
+    modTable.MCM.Keybinding = modTable.MCM.Keybinding or {}
+    modTable.MCM.EventButton = modTable.MCM.EventButton or {}
+
+    -- Keybinding.SetCallback
+    ---@param settingId string The ID of the keybinding setting
+    ---@param callback function The callback function to be called when the keybinding is pressed
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
+    ---@return nil
     modTable.MCM.Keybinding['SetCallback'] = function(settingId, callback, modUUID)
         if not modUUID then modUUID = originalModUUID end
-
         InputCallbackManager.SetKeybindingCallback(modUUID, settingId, callback)
     end
 
-    -- Client-side EventButton methods
-    if not modTable.MCM.EventButton then
-        modTable.MCM.EventButton = {}
-    end
     --- Check if an event button is enabled (client only)
     ---@param buttonId string The ID of the event button
-    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean|nil isEnabled True if enabled, false if disabled, nil if button not found
     modTable.MCM.EventButton['IsEnabled'] = function(buttonId, modUUID)
         if not modUUID then modUUID = originalModUUID end
@@ -241,7 +289,7 @@ local function createClientAPIMethods(originalModUUID, modTable)
     --- Register a callback function for an event button
     ---@param buttonId string The ID of the event button
     ---@param callback function The callback function to execute when the button is clicked
-    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the callback was registered successfully
     modTable.MCM.EventButton['RegisterCallback'] = function(buttonId, callback, modUUID)
         if not modUUID then modUUID = originalModUUID end
@@ -261,7 +309,7 @@ local function createClientAPIMethods(originalModUUID, modTable)
 
     --- Unregister a callback function for an event button
     ---@param buttonId string The ID of the event button
-    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the callback was unregistered successfully
     modTable.MCM.EventButton['UnregisterCallback'] = function(buttonId, modUUID)
         if not modUUID then modUUID = originalModUUID end
@@ -283,7 +331,7 @@ local function createClientAPIMethods(originalModUUID, modTable)
     ---@param buttonId string The ID of the event button
     ---@param disabled boolean Whether the button should be disabled
     ---@param tooltipText? string Optional tooltip text to show when disabled
-    ---@param modUUID? GUIDSTRING Optional mod UUID, defaults to current mod
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the state was updated successfully
     modTable.MCM.EventButton['SetDisabled'] = function(buttonId, disabled, tooltipText, modUUID)
         if not modUUID then modUUID = originalModUUID end
@@ -307,6 +355,7 @@ local function createClientAPIMethods(originalModUUID, modTable)
         return success
     end
 
+    -- Deprecated SetKeybindingCallback
     modTable.MCM['SetKeybindingCallback'] = function(settingId, callback, modUUID)
         if not modUUID then modUUID = originalModUUID end
         showDeprecationWarning(originalModUUID, "SetKeybindingCallback",
@@ -314,50 +363,48 @@ local function createClientAPIMethods(originalModUUID, modTable)
         return modTable.MCM.Keybinding.SetCallback(settingId, callback, modUUID)
     end
 
-    -- -- Function to register callbacks for event_button widgets
-    -- if not modTable.MCM.EventButton then
-    --     modTable.MCM.EventButton = {}
-    -- end
-    -- modTable.MCM.EventButton['SetCallback'] = function(settingId, callback, modUUID)
-    --     if not modUUID then modUUID = originalModUUID end
+    -- Client-only methods
 
-    --     local success = MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
-
-    --     if not success then
-    --         MCMWarn(0,
-    --             string.format("Failed to register event button callback for setting '%s' in mod '%s'", settingId, modUUID))
-    --     else
-    --         MCMDebug(1,
-    --             string.format("Successfully registered event button callback for setting '%s' in mod '%s'", settingId,
-    --                 modUUID))
-    --     end
-
-    --     return success
-    -- end
-
+    --- Open the MCM window
+    ---@return nil
     modTable.MCM['OpenMCMWindow'] = function()
         IMGUIAPI:OpenMCMWindow(true)
     end
 
+    --- Close the MCM window
+    ---@return nil
     modTable.MCM['CloseMCMWindow'] = function()
         IMGUIAPI:CloseMCMWindow(true)
     end
 
+    --- Open a mod page in the MCM
+    ---@param tabName string The name of the tab to open
+    ---@param modUUID? string The UUID of the mod, defaults to current mod
+    ---@param shouldEmitEvent? boolean Whether to emit the mod page open event, defaults to true
+    ---@return nil
     modTable.MCM['OpenModPage'] = function(tabName, modUUID, shouldEmitEvent)
         if not modUUID then modUUID = originalModUUID end
         IMGUIAPI:OpenModPage(tabName, modUUID, shouldEmitEvent)
     end
 
+    --- Insert a new tab for a mod in the MCM
+    ---@param tabName string The name of the tab to be inserted
+    ---@param tabCallback function The callback function to create the tab
+    ---@param modUUID? string The UUID of the mod, defaults to current mod
+    ---@return nil
     modTable.MCM['InsertModMenuTab'] = function(tabName, tabCallback, modUUID)
         if not modUUID then modUUID = originalModUUID end
         IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
     end
+
+    -- Inject client-only method stubs for server context
+    injectClientOnlyStubs(modTable, originalModUUID)
 end
 
 -- Public API
 local MCMAPIMethods = {
     createMCMAPIMethods = createMCMAPIMethods,
-    createClientAPIMethods = createClientAPIMethods
+    createAPIMethods = createAPIMethods
 }
 
 return MCMAPIMethods

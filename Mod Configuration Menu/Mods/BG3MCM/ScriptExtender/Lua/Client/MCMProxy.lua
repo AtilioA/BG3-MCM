@@ -53,9 +53,10 @@ end
 
 --- Insert a mod menu tab
 ---@param self MCMProxy
----@param modUUID string
----@param tabName string
----@param tabCallback function?
+---@param modUUID string The UUID of the mod
+---@param tabName string The name of the tab to be inserted
+---@param tabCallback function The callback function to create the tab
+---@return nil
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback)
     if not self.GameStateSubject then
         self:Initialize()
@@ -172,7 +173,8 @@ function MCMProxy:RegisterMCMKeybindings()
     end)
     MCMAPI:RegisterEventButtonCallback(ModuleUUID, "EventButtonExample2", function()
         _D("Hello2")
-        EventButtonRegistry.ShowFeedback(ModuleUUID, "EventButtonExample2", "Warning: This is a warning message!", "warning", 3000)
+        EventButtonRegistry.ShowFeedback(ModuleUUID, "EventButtonExample2", "Warning: This is a warning message!",
+        "warning", 3000)
     end)
 
     -- MCMAPI:SetEventButtonDisabled(ModuleUUID, "EventButtonExample2", true, "Disabled via API")

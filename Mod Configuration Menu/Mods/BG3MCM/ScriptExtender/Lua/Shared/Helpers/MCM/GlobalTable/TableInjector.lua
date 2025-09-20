@@ -41,7 +41,7 @@ local function injectMCMToModTable(originalModUUID)
 
     MCMPrint(2, "Mod table name: " .. modTableName)
     local MCMInstance = injectSharedMCMTable(modTable, originalModUUID)
-    MCMAPIMethods.createClientAPIMethods(originalModUUID, modTable)
+    MCMAPIMethods.createAPIMethods(originalModUUID, modTable)
 
     modTable.MCM = MCMInstance
     MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. originalModUUID)
