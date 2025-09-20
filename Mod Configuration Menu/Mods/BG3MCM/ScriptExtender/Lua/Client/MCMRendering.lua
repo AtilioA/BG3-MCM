@@ -277,17 +277,6 @@ function MCMRendering:CreateMainIMGUIWindow()
     return true
 end
 
-function MCMRendering:SetActiveWindowAlpha(bool)
-    VCTimer:OnTime(100, function()
-        if bool then
-            MCM_WINDOW:SetStyle("Alpha", 1)
-            MCM_WINDOW.Visible = bool
-        else
-            MCM_WINDOW:SetStyle("Alpha", 0.67)
-        end
-    end)
-end
-
 function MCMRendering:NotifyMCMWindowReady()
     ModEventManager:Emit(EventChannels.MCM_WINDOW_READY, {})
 end

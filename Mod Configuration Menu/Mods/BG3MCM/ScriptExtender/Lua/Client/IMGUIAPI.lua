@@ -15,11 +15,7 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     if not MCM_WINDOW then
         return
     end
-
-    if settingId == "dynamic_opacity" and value == false then
-        MCMClientState:SetActiveWindowAlpha(true)
-    end
-
+    
     if settingId == 'font_size' then
         MCMClientState:SetMCMFontSize(value)
     end

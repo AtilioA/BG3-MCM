@@ -221,28 +221,3 @@ MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
 end)
 
 -- SECTION: Noesis events
--- REFACTOR: these should be in a separate file or something
-local function dynamicOpacityWrapper(func)
-    return MCMUtils:ConditionalWrapper(function()
-        return MCMClientState:GetClientStateValue("dynamic_opacity", ModuleUUID)
-    end, func)
-end
-
--- Thanks to Hippo0o for this idea
-local function onMouseEnter()
-    if not MCM_WINDOW then
-        return
-    end
-    -- windowVisible(false)
-    MCMClientState:SetActiveWindowAlpha(false)
-end
-
-local function onMouseLeave()
-    if not MCM_WINDOW then
-        return
-    end
-    -- windowVisible(true)
-    MCMClientState:SetActiveWindowAlpha(true)
-end
-Ext.UI.GetRoot():Subscribe("MouseEnter", dynamicOpacityWrapper(onMouseEnter))
-Ext.UI.GetRoot():Subscribe("MouseLeave", dynamicOpacityWrapper(onMouseLeave))
