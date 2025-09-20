@@ -66,8 +66,8 @@ function MCMRendering:GetMCMFontSize()
     return MCMClientState:GetClientStateValue("font_size", ModuleUUID)
 end
 
-function MCMRendering:GetMCMFontFamily()
-    local family = MCMClientState:GetClientStateValue("font_family", ModuleUUID)
+function MCMRendering:GetMCMTypeface()
+    local family = MCMClientState:GetClientStateValue("typeface", ModuleUUID)
     if family == nil then return "" end
     return family
 end
@@ -81,11 +81,11 @@ function MCMRendering:SetMCMFontSize(size)
     if not MCM_WINDOW then return end
     if not size then return end
 
-    local family = self:GetMCMFontFamily()
+    local family = self:GetMCMTypeface()
     self:SetFont(Font.GetFontNameWithSizeSuffix(family, size))
 end
 
-function MCMRendering:SetMCMFontFamily(family)
+function MCMRendering:SetMCMTypeface(family)
     if not MCM_WINDOW then return end
     if not family then return end
 
@@ -228,7 +228,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
-    local family = MCMClientState:GetClientStateValue("font_family", ModuleUUID) or ""
+    local family = MCMClientState:GetClientStateValue("typeface", ModuleUUID) or ""
     self:SetFont(Font.GetFontNameWithSizeSuffix(family, sizeSetting))
 
     MCM_WINDOW.AlwaysAutoResize = false

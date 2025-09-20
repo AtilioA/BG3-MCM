@@ -64,11 +64,11 @@ function Font.GetSizeValue(fontSize)
 end
 
 -- Compose a font resource name by appending the size key
-function Font.GetFontNameWithSizeSuffix(fontFamily, fontSize)
-    if fontFamily == nil then return nil end
+function Font.GetFontNameWithSizeSuffix(typeface, fontSize)
+    if typeface == nil then return nil end
     local size = _normalizeSizeKey(fontSize)
     if size == nil then
-        return tostring(fontFamily)
+        return tostring(typeface)
     end
-    return string.format("%s%s", tostring(fontFamily), VCString.ToTitleCase(size))
+    return string.format("%s%s", tostring(typeface), VCString.ToTitleCase(size))
 end
