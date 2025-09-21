@@ -22,11 +22,37 @@ local function injectSharedMCMTable(modTable, originalModUUID)
     return modTable.MCM
 end
 
+
+-- Expose MCM API methods in the BG3MCM global table
+---@param mcmTable table The MCM table with API methods to expose
+local function exposeMCMInGlobals(mcmTable)
+    if not _G.Mods or not _G.Mods.BG3MCM then return end
+
+    -- Copy all MCM API methods to Mods.BG3MCM
+    for key, value in pairs(mcmTable) do
+        if type(value) == "function" then
+            _G.Mods.BG3MCM[key] = value
+        end
+    end
+
+    -- Handle nested tables like MCM.List, MCM.EventButton, etc.
+    local function copyNestedTables(source, target)
+        for k, v in pairs(source) do
+            if type(v) == "table" and not target[k] then
+                target[k] = {}
+                copyNestedTables(v, target[k])
+            elseif type(v) == "function" and not target[k] then
+                target[k] = v
+            end
+        end
+    end
+
+    copyNestedTables(mcmTable, _G.Mods.BG3MCM)
+end
+
 -- Main function to inject MCM into the mod table
 ---@param originalModUUID GUIDSTRING The UUID of the mod to inject MCM into
 local function injectMCMToModTable(originalModUUID)
-    if originalModUUID == ModuleUUID then return end
-
     -- Ensure MetatableInjection is loaded
     if not MetatableInjection then
         MetatableInjection = Ext.Require("Shared/Helpers/MCM/GlobalTable/MetatableInjection.lua")
@@ -44,6 +70,7 @@ local function injectMCMToModTable(originalModUUID)
     MCMAPIMethods.createAPIMethods(originalModUUID, modTable)
 
     modTable.MCM = MCMInstance
+
     MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. originalModUUID)
 end
 
@@ -53,6 +80,11 @@ function Initialize()
     if not MetatableInjection then
         MetatableInjection = Ext.Require("Shared/Helpers/MCM/GlobalTable/MetatableInjection.lua")
     end
+
+    -- Expose the BG3MCM API in the global table as well for console purposes
+    local bg3mcmInstance = MCMAPIMethods.createMCMAPIMethods(ModuleUUID)
+    MCMAPIMethods.createAPIMethods(ModuleUUID, { MCM = bg3mcmInstance })
+    exposeMCMInGlobals(bg3mcmInstance)
 
     -- Initialize the reverse lookup table with existing Config.json files
     MetatableInjection.initializeReverseLookupTable(ModUUIDToModTableName)

@@ -75,6 +75,8 @@ local function setupModsMetatable()
         end
     }
 
+    TableInjector.injectMCMToModTable(ModuleUUID)
+
     if not getmetatable(Mods) then
         setmetatable(Mods, modsMetatable)
         MCMPrint(1, "Metatable for Mods table has been set.")
