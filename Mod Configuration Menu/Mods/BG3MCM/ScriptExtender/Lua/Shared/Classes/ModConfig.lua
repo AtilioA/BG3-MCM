@@ -390,10 +390,6 @@ function ModConfig:SubmitBlueprint(data, modUUID)
     local modBlueprint = self.mods[modUUID].blueprint
     ModConfig:CheckMCMDependency(modUUID, modBlueprint)
 
-    -- WIP/test
-    -- xpcall(function() injectMCMToModTable(modUUID) end,
-    --     function(err) MCMWarn(0, "Error injecting MCM to mod table: " .. tostring(err)) end)
-
     MCMSuccess(2, "Blueprint for mod '" .. Ext.Mod.GetMod(modUUID).Info.Name .. "' is ready to be used.")
 end
 
