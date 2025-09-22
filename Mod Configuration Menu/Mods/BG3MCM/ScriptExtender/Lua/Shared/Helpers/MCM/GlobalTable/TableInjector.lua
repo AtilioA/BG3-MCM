@@ -67,7 +67,7 @@ local function injectMCMToModTable(originalModUUID)
 
     MCMPrint(2, "Mod table name: " .. modTableName)
     local MCMInstance = injectSharedMCMTable(modTable, originalModUUID)
-    MCMAPIMethods.createAPIMethods(originalModUUID, modTable)
+    MCMAPIMethods.createMCMAPIMethods(originalModUUID, modTable)
 
     modTable.MCM = MCMInstance
 
@@ -83,7 +83,6 @@ function Initialize()
 
     -- Expose the BG3MCM API in the global table as well for console purposes
     local bg3mcmInstance = MCMAPIMethods.createMCMAPIMethods(ModuleUUID)
-    MCMAPIMethods.createAPIMethods(ModuleUUID, { MCM = bg3mcmInstance })
     exposeMCMInGlobals(bg3mcmInstance)
 
     -- Initialize the reverse lookup table with existing Config.json files
