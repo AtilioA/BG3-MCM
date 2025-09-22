@@ -1,4 +1,4 @@
 RequireFiles("Shared/DynamicSettings/Services/", {
-  "SettingsService",
-  "StorageManager"
+--   "SettingsService",
+--   "StorageManager"
 })
