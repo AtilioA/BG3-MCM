@@ -173,13 +173,13 @@ function MCMServer:DeleteProfile(profileName)
 end
 
 function MCMServer:LoadAndSendSettings()
-    MCMDebug(1, "Reloading MCM configs...")
+    MCMDebug(1, "Loading MCM configs...")
     MCMAPI:LoadConfigs()
 
-    Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({
+    ChunkedNet.SendJSONToAll(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {
         mods = MCMAPI.mods,
         profiles = MCMAPI.profiles
-    }))
+    })
 end
 
 --- Load configs and send to a specific user (for new clients)
@@ -192,20 +192,20 @@ function MCMServer:LoadAndSendSettingsToUser(userID)
         MCMAPI:LoadConfigs()
     end
 
-    Ext.ServerNet.PostMessageToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
-        Ext.Json.Stringify({ userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }))
+    ChunkedNet.SendJSONToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
+        { userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles })
     -- Ext.ServerNet.PostMessageToUser(327681, Mods.BG3MCM.NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({ userID = userID, mods = Mods.BG3MCM.MCMAPI.mods, profiles = Mods.BG3MCM.MCMAPI.profiles }))
 end
 
 --- Reset all settings for a mod to their default values
 -- -@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
 -- function MCMServer:ResetAllSettings(modUUID)
---     local modBlueprint = MCMAPI.blueprints[modUUID]
---     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
+    -- local modBlueprint = MCMAPI:GetModBlueprint(modUUID)
+    -- local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
---     ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
---     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
+    -- ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
+    -- Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
+    --     Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
 -- UNUSED since profile management currently calls shared code
@@ -238,7 +238,7 @@ end
 -- Get the current MCM profile's name
 --@return string The name of the current profile
 function MCMServer:GetCurrentProfile()
-    Ext.Net.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CURRENT_PROFILE,
+    Ext.ServerNet.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CURRENT_PROFILE,
         Ext.Json.Stringify({ profileName = ModConfig.profileManager:GetCurrentProfile() }))
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
     return ModConfig.profileManager:GetCurrentProfile()
@@ -254,9 +254,9 @@ end
 
 --     if setting then
 --         local isValid = DataPreprocessing:ValidateSetting(setting, value)
---         if not isValid then
---             MCMWarn(0,
---                 "Invalid value for setting '" .. settingId .. "' (" .. tostring(value) .. "). Value will not be saved.")
+--     if not isValid then
+--         MCMWarn(0,
+--             "Invalid value for setting '" .. settingId .. "' (" .. tostring(value) .. "). Value will not be saved.")
 --         end
 --         return isValid
 --     else
