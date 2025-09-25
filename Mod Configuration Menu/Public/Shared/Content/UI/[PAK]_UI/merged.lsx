@@ -5,6 +5,17 @@
 		<node id="TextureBank">
 			<children>
 				<node id="Resource">
+					<attribute id="ID" type="FixedString" value="8c5ca6dd-427a-4c76-917f-f65e7c5b8931" />
+					<attribute id="Localized" type="bool" value="False" />
+					<attribute id="Name" type="LSString" value="UIOrigin_Portraits" />
+					<attribute id="SRGB" type="bool" value="False" />
+					<attribute id="SourceFile" type="LSString" value="Public/Shared/Assets/Textures/Icons/UIOrigin_Portraits.dds" />
+					<attribute id="Streaming" type="bool" value="True" />
+					<attribute id="Template" type="FixedString" value="Icons_Items" />
+					<attribute id="Type" type="int32" value="0" />
+					<attribute id="_OriginalFileVersion_" type="int64" value="144115188075855873" />
+				</node>
+				<node id="Resource">
 					<attribute id="ID" type="FixedString" value="0bd41a42-f0a6-4fd7-82b0-dfffd6245049" />
 					<attribute id="Localized" type="bool" value="False" />
 					<attribute id="Name" type="LSString" value="UIBasic24-96" />
