@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <save>
-  <version major="4" minor="8" revision="0" build="10" />
+  <version major="4" minor="8" revision="0" build="500" />
   <region id="Config">
     <node id="root">
       <children>
-        <node id="Dependencies" />
         <node id="Conflicts" />
+        <node id="Dependencies" />
         <node id="ModuleInfo">
           <attribute id="Author" type="LSString" value="Volitio" />
           <attribute id="CharacterCreationLevelName" type="FixedString" value="" />
@@ -19,6 +19,7 @@
           <attribute id="Name" type="FixedString" value="Mod Configuration Menu" />
           <attribute id="NumPlayers" type="uint8" value="4" />
           <attribute id="PhotoBooth" type="FixedString" value="" />
+          <attribute id="PublishHandle" type="uint64" value="0" />
           <attribute id="StartupLevelName" type="FixedString" value="" />
           <attribute id="Tags" type="LSString" value="UI;Configuration;Framework;API" />
           <attribute id="Type" type="FixedString" value="Add-on" />
