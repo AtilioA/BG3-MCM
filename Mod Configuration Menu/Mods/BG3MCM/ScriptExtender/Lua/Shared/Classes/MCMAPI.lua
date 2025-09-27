@@ -221,7 +221,7 @@ function MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modUUID)
             local modInfo = Ext.Mod.GetMod(modUUID).Info
             local closestMatch, distance = VCString:FindClosestMatch(settingId, self:GetSettingsIDs(modSettingsTable),
                 false)
-            if closestMatch and distance < 8 then
+            if closestMatch and distance < 9 then
                 MCMWarn(0,
                     "Setting '" ..
                     settingId ..
