@@ -36,7 +36,7 @@
     <content contentuid="h38c503feb8094c3aae3839b16ea3a74ff1ad" version="1">About MCM</content>
     <content contentuid="h75ea4d095c1f46dda375abaf9d79cbb51cc7" version="1">Licenses</content>
     <content contentuid="h45722336fcb04208a1b46356190835bb2d86" version="1">UI tips</content>
-    <content contentuid="h99e6c7f6eb9c43238ca27a89bb45b9690607" version="1">This tab might have content that is not available in the main menu.</content>
+    <content contentuid="h99e6c7f6eb9c43238ca27a89bb45b9690607" version="1">This tab may contain content that is not available in the main menu.&lt;br&gt;Please load a save first.</content>
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Print deprecation warnings for mods with outdated code.&lt;br&gt;They will still be printed if developer mode is enabled (logic OR).</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Print deprecation warnings</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Debug</content>
