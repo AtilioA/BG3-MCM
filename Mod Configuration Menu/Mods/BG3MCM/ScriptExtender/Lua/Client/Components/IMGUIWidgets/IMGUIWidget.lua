@@ -45,7 +45,7 @@ function IMGUIWidget:GetIconSizes(multiplier)
         end
     end
 
-    local iconSize = baseIconSize * fontSizeScaling * multiplier
+    local iconSize = 32 * fontSizeScaling
     return { iconSize, iconSize }
 end
 

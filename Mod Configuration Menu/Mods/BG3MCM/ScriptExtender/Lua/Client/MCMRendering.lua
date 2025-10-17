@@ -222,6 +222,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     local modVersion = MCMUtils.FormatModVersion(ModuleUUID)
     ---@class ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
+    MCM_WINDOW.Scaling = "Scaled"
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
     local family = MCMClientState:GetClientStateValue("typeface", ModuleUUID) or ""
     self:SetFont(Font.GetFontNameWithSizeSuffix(family, sizeSetting))
@@ -469,6 +470,7 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
         sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
     end
 
+    -- FIXME: handles are being misobtained somehow
     if sectionDescription and sectionDescription ~= "" then
         local sectionDescriptionText = sectionDescription
         local translatedDescription = Ext.Loca.GetTranslatedString(section:GetHandles().DescriptionHandle)
