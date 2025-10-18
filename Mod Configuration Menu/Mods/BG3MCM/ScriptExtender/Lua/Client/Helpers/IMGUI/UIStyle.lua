@@ -96,13 +96,4 @@ UIStyle.Styles = {
     ["WindowTitleAlign"]        = 0.5, -- vec2?
 }
 
-function UIStyle:ApplyDefaultStylesToIMGUIElement(element)
-    for k, v in pairs(self.Colors) do
-        element:SetColor(k, v)
-    end
-    for k, v in pairs(self.Styles) do
-        element:SetStyle(k, v)
-    end
-end
-
 return UIStyle

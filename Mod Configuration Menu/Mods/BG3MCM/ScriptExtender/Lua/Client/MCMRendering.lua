@@ -243,7 +243,7 @@ function MCMRendering:CreateMainIMGUIWindow()
 
     MCM_WINDOW.AlwaysAutoResize = false
 
-    UIStyle:ApplyDefaultStylesToIMGUIElement(MCM_WINDOW)
+    IMGUIHelpers:ApplyDefaultStylesToIMGUIElement(MCM_WINDOW)
 
     local minWidth, minHeight = table.unpack(self:GetMCMWindowSizeConstraints())
     MCM_WINDOW:SetStyle("WindowMinSize", minWidth, minHeight)

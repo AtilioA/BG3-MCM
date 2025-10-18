@@ -68,3 +68,15 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
 
     return imguiObjectTooltip
 end
+
+
+--- Apply default styles to an IMGUI element
+---@param element ExtuiStyledRenderable
+function IMGUIHelpers:ApplyDefaultStylesToIMGUIElement(element)
+    for k, v in pairs(UIStyle.Colors) do
+        element:SetColor(k, v)
+    end
+    for k, v in pairs(UIStyle.Styles) do
+        element:SetStyle(k, v)
+    end
+end
