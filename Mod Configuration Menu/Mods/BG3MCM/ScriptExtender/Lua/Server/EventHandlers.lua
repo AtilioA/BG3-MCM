@@ -17,7 +17,7 @@ end
 local function loadSettingsAndWarn()
     MCMServer:LoadAndSendSettings()
     ModEventManager:IssueDeprecationWarning()
-    VCTimer:OnTicks(5, warnAboutNPAKM)
+    VCTimer:OnTicks(4, warnAboutNPAKM)
 end
 
 function EHandlers.SavegameLoaded()
