@@ -354,7 +354,29 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
         return false
     end
 
+    -- Set default Step values if not provided
+    self:SetDefaultStepForSlider(setting)
+
     return true
+end
+
+--- Sets default Step value for slider settings if not provided
+---@param setting BlueprintSetting The setting to set default Step for
+function BlueprintPreprocessing:SetDefaultStepForSlider(setting)
+    local opts = setting:GetOptions()
+    if not opts then
+        return
+    end
+
+    -- Only set default if Step is not already defined
+    if opts.Step == nil then
+        local settingType = setting:GetType()
+        if settingType == "slider_int" or settingType == "drag_int" then
+            opts.Step = 1
+        elseif settingType == "slider_float" or settingType == "drag_float" then
+            opts.Step = 0.1
+        end
+    end
 end
 
 --- Validates the options for an event_button setting
