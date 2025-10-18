@@ -204,6 +204,7 @@ Following are the main components of the MCM Schema. Don't stress over this too 
     - `Options`: Additional parameters that tailor the setting's behavior, applicable to certain types like `enum`, `radio`, sliders and drags. This includes:
       - `Choices`: The options to be made available for `enum` and `radio` types.
       - `Min` and `Max`: Boundary values for types such as `slider`/`drag`.
+      - `Step`: The increment/decrement step for `slider`/`drag` buttons. Defaults to `1` for `slider_int` and `0.1` for `slider_float`.
       - `Multiline`: Whether the text input should be multiline, used for `text` type.
     - `VisibleIf`: Allows defining a simple boolean expression that determines the visibility of a setting (also tab or section) based on the values of other settings.
 
