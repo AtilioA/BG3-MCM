@@ -74,14 +74,14 @@ function BlueprintPreprocessing:CheckValidIDs(blueprint)
 end
 
 --- Validate the structure of the blueprint data
----@param blueprint table The blueprint data to validate
+---@param blueprint Blueprint The blueprint data to validate
 ---@return boolean True if the blueprint data is correct, false otherwise
 function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
     --- Check if blueprint has at least one tab
-    local hasTabs = blueprint.Tabs and #blueprint.Tabs > 0
+    local hasTabs = blueprint:GetTabs() and #blueprint:GetTabs() > 0
 
     --- Check if blueprint has at least one setting
-    local hasSettings = blueprint.Settings and #blueprint.Settings > 0
+    local hasSettings = blueprint:GetSettings() and #blueprint:GetSettings() > 0
 
     --- Check if blueprint does NOT have both tabs and settings
     if not hasTabs and not hasSettings then
@@ -103,7 +103,7 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
 
     --- Check if blueprint does NOT have sections directly at the top level
     --- TODO: remove this stupid design decision, sections should be allowed at the top level. This was not possible before the 1.7 layout though.
-    local hasSections = blueprint.Sections and #blueprint.Sections > 0
+    local hasSections = blueprint:GetSections() and #blueprint:GetSections() > 0
     if hasSections then
         MCMWarn(0,
             "Sections found directly in blueprint for mod '" ..
@@ -243,7 +243,7 @@ end
 
 -- REFACTOR: this is way uglier and repetitive than it needs to be. Especially since we have validation functions for each type already. However, I'm too tired to refactor this. It is just validation, it is kinda fine.
 --- Validate the setting data in the blueprint (e.g.: ensure that all IDs are unique, default values are valid, etc.)
----@param blueprint table The blueprint data to validate
+---@param blueprint Blueprint The blueprint data to validate
 function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
     local isValid = true
     local blueprintSettingsDefinitions = blueprint:GetAllSettings()
@@ -280,7 +280,17 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                     return false
                 end
             end
+
+            -- Validate VisibleIf for the setting
+            if not self:ValidateVisibleIf(setting:GetVisibleIf(), blueprint, "Setting", setting:GetId()) then
+                return false
+            end
         end
+    end
+
+    -- Validate VisibleIf for tabs
+    if not self:ValidateTabsVisibleIf(blueprint) then
+        return false
     end
 
     return isValid
@@ -289,7 +299,11 @@ end
 function BlueprintPreprocessing:ValidateCheckboxSetting(setting)
     local opts = setting:GetOptions() or {}
     if opts["InlineTitle"] ~= nil and type(opts["InlineTitle"]) ~= "boolean" then
-        MCMWarn(0, "Checkbox setting '" .. setting:GetId() .. "' has Options.InlineTitle of type '" .. type(opts["InlineTitle"]) .. "'. It must be a boolean (true/false) if present.")
+        MCMWarn(0,
+            "Checkbox setting '" ..
+            setting:GetId() ..
+            "' has Options.InlineTitle of type '" ..
+            type(opts["InlineTitle"]) .. "'. It must be a boolean (true/false) if present.")
     end
     return true
 end
@@ -377,10 +391,11 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
             end
             if options.Icon.Size ~= nil then
                 if type(options.Icon.Size) ~= "table"
-                   or type(options.Icon.Size.Width) ~= "number"
-                   or type(options.Icon.Size.Height) ~= "number" then
+                    or type(options.Icon.Size.Width) ~= "number"
+                    or type(options.Icon.Size.Height) ~= "number" then
                     MCMWarn(0,
-                        "Options.Icon.Size for event_button setting '" .. settingId .. "' must be a table with numeric Width and Height fields. " ..
+                        "Options.Icon.Size for event_button setting '" ..
+                        settingId .. "' must be a table with numeric Width and Height fields. " ..
                         "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                     isValid = false
                 end
@@ -510,6 +525,246 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
+    return true
+end
+
+--- Validates VisibleIf conditions for all tabs and their nested sections
+---@param blueprint Blueprint The blueprint data
+---@return boolean True if all VisibleIf conditions are valid, false otherwise
+function BlueprintPreprocessing:ValidateTabsVisibleIf(blueprint)
+    local function validateTabRecursive(tab)
+        -- Validate the tab's VisibleIf
+        if not self:ValidateVisibleIf(tab:GetVisibleIf(), blueprint, "Tab", tab:GetId()) then
+            return false
+        end
+
+        -- Validate nested tabs
+        if tab.GetTabs then
+            local nestedTabs = tab:GetTabs()
+            if nestedTabs then
+                for _, nestedTab in ipairs(nestedTabs) do
+                    if not validateTabRecursive(nestedTab) then
+                        return false
+                    end
+                end
+            end
+        end
+
+        -- Validate sections
+        if tab.GetSections then
+            local sections = tab:GetSections()
+            if sections then
+                for _, section in ipairs(sections) do
+                    if not self:ValidateVisibleIf(section:GetVisibleIf(), blueprint, "Section", section:GetId()) then
+                        return false
+                    end
+                    -- Validate nested tabs in sections
+                    if section.GetTabs then
+                        local sectionTabs = section:GetTabs()
+                        if sectionTabs then
+                            for _, sectionTab in ipairs(sectionTabs) do
+                                if not validateTabRecursive(sectionTab) then
+                                    return false
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        return true
+    end
+
+    local tabs = blueprint:GetTabs()
+    if tabs then
+        for _, tab in ipairs(tabs) do
+            if not validateTabRecursive(tab) then
+                return false
+            end
+        end
+    end
+
+    return true
+end
+
+--- Validates a VisibleIf condition group
+---@param visibleIf table|nil The VisibleIf condition group to validate
+---@param blueprint Blueprint The blueprint data for reference
+---@param elementType string The type of element ("Setting", "Tab", "Section")
+---@param elementId string The ID of the element being validated
+---@return boolean True if the VisibleIf is valid or nil, false otherwise
+function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementType, elementId)
+    -- VisibleIf is optional, so nil/empty is valid
+    if not visibleIf or visibleIf == "" or (type(visibleIf) == "table" and next(visibleIf) == nil) then
+        return true
+    end
+
+    -- Validate that VisibleIf is a table
+    if type(visibleIf) ~= "table" then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has invalid VisibleIf (not a table). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate LogicalOperator if present
+    if visibleIf.LogicalOperator ~= nil then
+        if type(visibleIf.LogicalOperator) ~= "string" then
+            MCMWarn(0,
+                elementType .. " '" .. elementId .. "' has invalid VisibleIf.LogicalOperator (not a string). " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+        if visibleIf.LogicalOperator ~= "and" and visibleIf.LogicalOperator ~= "or" then
+            MCMWarn(0,
+                elementType .. " '" .. elementId .. "' has invalid VisibleIf.LogicalOperator ('" ..
+                visibleIf.LogicalOperator .. "'). Must be 'and' or 'or'. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+    end
+
+    -- Validate Conditions array
+    if not visibleIf.Conditions then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf without Conditions array. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if type(visibleIf.Conditions) ~= "table" then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (not an array). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if #visibleIf.Conditions == 0 then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has empty VisibleIf.Conditions array. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate each condition
+    for i, condition in ipairs(visibleIf.Conditions) do
+        if not self:ValidateVisibilityCondition(condition, blueprint, elementType, elementId, i) then
+            return false
+        end
+    end
+
+    return true
+end
+
+--- Validates a single visibility condition
+---@param condition table The condition to validate
+---@param blueprint Blueprint The blueprint data for reference
+---@param elementType string The type of element ("Setting", "Tab", "Section")
+---@param elementId string The ID of the element being validated
+---@param conditionIndex number The index of the condition in the array
+---@return boolean True if the condition is valid, false otherwise
+function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint, elementType, elementId, conditionIndex)
+    if type(condition) ~= "table" then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has invalid condition #" .. conditionIndex ..
+            " in VisibleIf.Conditions (not a table). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate SettingId
+    if not condition.SettingId then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " missing SettingId. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if type(condition.SettingId) ~= "string" or condition.SettingId == "" then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " with invalid SettingId (not a non-empty string). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate that the referenced setting exists
+    local allSettings = blueprint:GetAllSettings()
+    local settingExists = false
+    if allSettings then
+        for _, setting in pairs(allSettings) do
+            if setting:GetId() == condition.SettingId then
+                settingExists = true
+                break
+            end
+        end
+    end
+
+    if not settingExists then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " referencing non-existent SettingId '" .. condition.SettingId .. "'. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate Operator
+    if not condition.Operator then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " missing Operator. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if type(condition.Operator) ~= "string" then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " with invalid Operator (not a string). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    local validOperators = { "==", "!=", ">", "<", ">=", "<=" }
+    local operatorValid = false
+    for _, validOp in ipairs(validOperators) do
+        if condition.Operator == validOp then
+            operatorValid = true
+            break
+        end
+    end
+
+    if not operatorValid then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " with invalid Operator '" .. condition.Operator .. "'. " ..
+            "Must be one of: ==, !=, >, <, >=, <=. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- Validate ExpectedValue
+    if condition.ExpectedValue == nil then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " missing ExpectedValue. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    -- According to schema, ExpectedValue must be string or boolean
+    local expectedValueType = type(condition.ExpectedValue)
+    if expectedValueType ~= "string" and expectedValueType ~= "boolean" and expectedValueType ~= "number" then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " with invalid ExpectedValue type ('" .. expectedValueType .. "'). " ..
+            "Must be string, boolean, or number. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
     return true
 end
 
@@ -815,7 +1070,7 @@ function BlueprintPreprocessing:BlueprintMinIsLessThanMaxForSlider(setting)
 end
 
 --- Sanitizes blueprint data by removing elements without SchemaVersions and converting string booleans
----@param blueprint table The blueprint data to sanitize
+---@param blueprint Blueprint The blueprint data to sanitize
 ---@param modUUID string The mod's unique identifier
 function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
     self.currentmodUUID = modUUID
