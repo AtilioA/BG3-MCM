@@ -46,14 +46,14 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
             settingId .. " (" .. tostring(value) .. "). Value will not be saved."
         MCMWarn(1, errorMessage)
 
-        -- Notify the client with the current value of the setting, so it can update its UI
-        ModEventManager:Emit(EventChannels.MCM_SETTING_SAVED, {
+        -- Notify clients with the current value of the setting, so they can update its UI
+        ModEventManager:Emit(EventChannels.MCM_INTERNAL_SETTING_SAVED, {
             modUUID = modUUID,
             settingId = settingId,
-            value = value,
-            oldValue = value,
+            value = oldValue,
+            oldValue = oldValue,
             error = errorMessage
-        })
+        }, true)
         return
     end
 
@@ -200,12 +200,12 @@ end
 --- Reset all settings for a mod to their default values
 -- -@param modUUID? GUIDSTRING The UUID of the mod. When not provided, the settings for the current mod are reset (ModuleUUID is used)
 -- function MCMServer:ResetAllSettings(modUUID)
-    -- local modBlueprint = MCMAPI:GetModBlueprint(modUUID)
-    -- local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
+-- local modBlueprint = MCMAPI:GetModBlueprint(modUUID)
+-- local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
-    -- ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
-    -- Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
-    --     Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
+-- ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
+-- Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
+--     Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
 -- UNUSED since profile management currently calls shared code
