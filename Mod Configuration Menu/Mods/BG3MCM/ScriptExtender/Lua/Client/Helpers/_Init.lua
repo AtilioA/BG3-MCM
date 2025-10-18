@@ -1,6 +1,6 @@
 RequireFiles("Client/Helpers/", {
     "Font",
-    "LoadFonts",
+    "IMGUI",
     "VisibilityManager/_Init",
     "EventButtons/_Init",
     "Keybindings/_Init",

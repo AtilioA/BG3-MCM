@@ -115,7 +115,8 @@ function RightPane:InsertTab(modUUID, tabName, callback)
             MCMError(0,
                 "Callback failed for mod " ..
                 Ext.Mod.GetMod(modUUID).Info.Name ..
-                ": " .. err .. traceback .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+                ": " ..
+                err .. traceback .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         end)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
@@ -182,7 +183,11 @@ local function createDetachedWindow(name)
     local detachedWindow = Ext.IMGUI.NewWindow(name)
     local minSize = Ext.IMGUI.GetViewportSize()
     detachedWindow:SetStyle("WindowMinSize", minSize[1] / 6, minSize[2] / 6)
-    detachedWindow.Font = MCMClientState:GetMCMFontSize()
+
+    -- Get user's font settings and ensure font is loaded
+    local family, size = MCMRendering:GetMCMFont()
+    IMGUIHelpers.SetFont(detachedWindow, family, size)
+
     return detachedWindow
 end
 

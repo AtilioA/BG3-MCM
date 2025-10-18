@@ -67,27 +67,42 @@ function MCMRendering:GetMCMTypeface()
     return family
 end
 
-function MCMRendering:SetFont(font)
-    if not MCM_WINDOW then return end
-    MCM_WINDOW.Font = font
+function MCMRendering:SetFont(family, size)
+    IMGUIHelpers.SetFont(MCM_WINDOW, family, size)
 end
 
+--- Returns the current font family and size
+--- @return string|nil - The font family
+--- @return string|nil - The font size
+function MCMRendering:GetMCMFont()
+    return self:GetMCMTypeface(), self:GetMCMFontSize()
+end
+
+--- Sets the font size for the MCM window
+--- @param size string|nil The font size
 function MCMRendering:SetMCMFontSize(size)
     if not MCM_WINDOW then return end
     if not size then return end
 
     local family = self:GetMCMTypeface()
-    self:SetFont(Font.GetFontNameWithSizeSuffix(family, size))
+
+    self:SetFont(family, size)
 end
 
+--- Sets the font family for the MCM window
+--- @param family string|nil The font family
 function MCMRendering:SetMCMTypeface(family)
     if not MCM_WINDOW then return end
     if not family then return end
 
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
-    self:SetFont(Font.GetFontNameWithSizeSuffix(family, sizeSetting))
+
+    self:SetFont(family, sizeSetting)
 end
 
+--- Returns the name of the mod with the given UUID
+--- @param modUUID string The UUID of the mod
+--- @return string|nil The name of the mod, or nil if the mod is not found
 function MCMRendering:GetModName(modUUID)
     if not modUUID then
         return nil
@@ -225,7 +240,8 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW.Scaling = "Scaled"
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
     local family = MCMClientState:GetClientStateValue("typeface", ModuleUUID) or ""
-    self:SetFont(Font.GetFontNameWithSizeSuffix(family, sizeSetting))
+
+    self:SetFont(family, sizeSetting)
 
     MCM_WINDOW.AlwaysAutoResize = false
 
