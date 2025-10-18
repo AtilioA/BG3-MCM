@@ -38,7 +38,9 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
         IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
     end
     instance.Widget.SameLine = true
-
+    instance.Widget.AlwaysClamp = true
+    instance.Widget.ClampOnInput = true
+    
     -- Increment button
     instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", 1,
         VCString:InterpolateLocalizedMessage("heed976f6e50046c2a583040d9abb6ce6c8g1", setting:GetLocaName()))
