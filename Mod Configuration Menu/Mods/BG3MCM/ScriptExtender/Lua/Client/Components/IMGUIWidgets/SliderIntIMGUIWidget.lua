@@ -5,6 +5,9 @@ SliderIntIMGUIWidget = _Class:Create("SliderIntIMGUIWidget", IMGUIWidget)
 function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = SliderIntIMGUIWidget })
 
+    -- Get step value from options, default to 1 if not specified
+    local step = setting.Options.Step or 1
+
     -- Helper function to create increment/decrement buttons
     local function createIncrementButton(label, icon, increment, tooltip)
         local button = group:AddImageButton(label, icon, IMGUIWidget:GetIconSizes())
@@ -29,7 +32,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     end
 
     -- Decrement button
-    instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -1,
+    instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -step,
         VCString:InterpolateLocalizedMessage("h0dab893ad8cc4f1a93e417c7524addecggc4", setting:GetLocaName()))
 
     -- Actual slider
@@ -42,7 +45,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     instance.Widget.ClampOnInput = true
     
     -- Increment button
-    instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", 1,
+    instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", step,
         VCString:InterpolateLocalizedMessage("heed976f6e50046c2a583040d9abb6ce6c8g1", setting:GetLocaName()))
     instance.NextButton.SameLine = true
 
