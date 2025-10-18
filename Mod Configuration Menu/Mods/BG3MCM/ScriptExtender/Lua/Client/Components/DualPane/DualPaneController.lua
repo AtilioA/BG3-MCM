@@ -14,6 +14,13 @@
 ---@field userHasInteracted boolean
 ---@field hoverSubscription any
 ---@field currentAnimationState string|nil
+---@field currentAnimation any
+---@field menuScrollChildWindow ExtuiChildWindow
+---@field contentScrollChildWindow ExtuiChildWindow
+---@field mainLayoutTable ExtuiTable
+---@field menuCell ExtuiTableCell
+---@field contentCell ExtuiTableCell
+---@field lastExpandedWidth number
 DualPaneController = _Class:Create("DualPaneController", nil, {
     window = nil,
     leftPane = nil,
@@ -40,7 +47,7 @@ ICON_DETACH = "ico_popup_d"
 
 -- Get proportion of screen size based on working number for 4K
 -- TODO: Generate dynamic expanded target when SE adds support for calculating text width
-TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[1] / (3840 / 500)
+TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[2] / 4
 TARGET_WIDTH_COLLAPSED = 0
 STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
@@ -51,6 +58,11 @@ HeaderActionsInstance = nil
 local RX = {
     TimerScheduler = Ext.Require("Lib/reactivex/schedulers/timerscheduler.lua")
 }
+
+-- Might expand later for custom menu width
+local function GetMenuColumnWidth()
+    return TARGET_WIDTH_EXPANDED
+end
 
 -- Helper: Check if collapse or fade should be skipped due to detached right pane
 function DualPaneController:_shouldSkipCollapseOrFade()
@@ -109,7 +121,7 @@ function DualPaneController:InitWithWindow(window)
     self.userHasInteracted = false
     self.hoverSubscription = nil
     self.currentAnimation = nil
-    self.lastExpandedWidth = TARGET_WIDTH_EXPANDED
+    self.lastExpandedWidth = GetMenuColumnWidth()
 
     -- Initialize the UI state based on the collapsed setting
     if startCollapsed then
@@ -124,12 +136,6 @@ function DualPaneController:InitWithWindow(window)
 end
 
 function DualPaneController:initLayout()
-    local function GetMenuColumnWidth()
-        return Ext.IMGUI.GetViewportSize()[2] / 4.8
-    end
-    local function GetContentColumnWidth()
-        return Ext.IMGUI.GetViewportSize()[1]
-    end
 
     self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
@@ -288,7 +294,7 @@ function DualPaneController:Expand()
     HeaderActionsInstance:UpdateToggleButtons(false)
     self.menuScrollChildWindow.Visible = true
     -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
-    local targetWidth = self.lastExpandedWidth or TARGET_WIDTH_EXPANDED
+    local targetWidth = self.lastExpandedWidth or GetMenuColumnWidth()
 
     self:animateSidebar(targetWidth, 1, "expand", function()
         self.isCollapsed = false
