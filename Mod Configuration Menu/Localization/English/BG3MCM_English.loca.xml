@@ -126,9 +126,11 @@
     <content contentuid="h1fe5d3876dd04389b53f1c4d808d2d02gfce" version="1">More Information</content>
     <content contentuid="h449f8e9c50fe497e8584a92dc227759a1d5d" version="1">For more details, visit the MCM page on Nexus.</content>
     <content contentuid="h1574a7787caa4e5f933e2f03125a539c1139" version="1">Hotkeys</content>
+    <!-- SLIDERS -->
+    <content contentuid="h0dab893ad8cc4f1a93e417c7524addecggc4" version="1">Decrease the '[1]' value by [2]</content>
+    <content contentuid="heed976f6e50046c2a583040d9abb6ce6c8g1" version="1">Increase the '[1]' value by [2]</content>
+    <!-- INT -->
     <content contentuid="h9cc3f92986d24e3e8c1b86eb80023a2b015c" version="1">Increase the '[1]' value by 1</content>
-    <content contentuid="h0dab893ad8cc4f1a93e417c7524addecggc4" version="1">Decrease the '[1]' value by 1</content>
-    <content contentuid="heed976f6e50046c2a583040d9abb6ce6c8g1" version="1">Increase the '[1]' value by 1</content>
     <content contentuid="h9d240caa7bbe4ef482d21f1e691b0597a38g" version="1">Decrease the '[1]' value by 1</content>
     <content contentuid="h3914d63b7ccb425f950cea47eca955ad9788" version="1">Min: [1].&lt;br&gt;Max: [2].</content>
     <content contentuid="h0dfee4b6ba51423da77eaa53e1961ade059f" version="1">CTRL + click to input value manually.</content>

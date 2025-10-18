@@ -8,32 +8,17 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     -- Get step value from options, default to 1 if not specified
     local step = setting.Options.Step or 1
 
-    -- Helper function to create increment/decrement buttons
-    local function createIncrementButton(label, icon, increment, tooltip)
-        local button = group:AddImageButton(label, icon, IMGUIWidget:GetIconSizes())
-
-        -- MCMDebug(1, Ext.DumpExport(button))
-        if not button.Image or button.Image.Icon == "" then
-            button:Destroy()
-            button = group:AddButton(label)
-        end
-
-        button.IDContext = (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
-        button.OnClick = function()
-            local newValue = math.max(setting.Options.Min,
-                math.min(setting.Options.Max, instance.Widget.Value[1] + increment))
-            instance:UpdateCurrentValue(newValue)
-            IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
-        end
-        if tooltip then
-            IMGUIHelpers.AddTooltip(button, tooltip, "ButtonTooltip_" .. setting.Id)
-        end
-        return button
-    end
-
     -- Decrement button
-    instance.PreviousButton = createIncrementButton(" < ", "input_slider_arrowL_d", -step,
-        VCString:InterpolateLocalizedMessage("h0dab893ad8cc4f1a93e417c7524addecggc4", setting:GetLocaName()))
+    instance.PreviousButton = WidgetHelpers.CreateSliderStepButton(
+        group,
+        setting.Id,
+        -step,
+        VCString:InterpolateLocalizedMessage("h0dab893ad8cc4f1a93e417c7524addecggc4", setting:GetLocaName(), step),
+        setting.Options.Min,
+        setting.Options.Max,
+        function() return instance.Widget.Value[1] end,
+        function(newValue) IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID) end
+    )
 
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
@@ -43,10 +28,18 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     instance.Widget.SameLine = true
     instance.Widget.AlwaysClamp = true
     instance.Widget.ClampOnInput = true
-    
+
     -- Increment button
-    instance.NextButton = createIncrementButton(" > ", "input_slider_arrowR_d", step,
-        VCString:InterpolateLocalizedMessage("heed976f6e50046c2a583040d9abb6ce6c8g1", setting:GetLocaName()))
+    instance.NextButton = WidgetHelpers.CreateSliderStepButton(
+        group,
+        setting.Id,
+        step,
+        VCString:InterpolateLocalizedMessage("heed976f6e50046c2a583040d9abb6ce6c8g1", setting:GetLocaName(), step),
+        setting.Options.Min,
+        setting.Options.Max,
+        function() return instance.Widget.Value[1] end,
+        function(newValue) IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID) end
+    )
     instance.NextButton.SameLine = true
 
     return instance

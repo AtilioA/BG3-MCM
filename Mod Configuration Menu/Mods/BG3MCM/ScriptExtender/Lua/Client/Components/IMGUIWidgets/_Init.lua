@@ -1,4 +1,5 @@
 RequireFiles("Client/Components/IMGUIWidgets/", {
+    "WidgetsHelpers",
     "IMGUIWidget",
     "ColorPickerIMGUIWidget",
     "ColorEditIMGUIWidget",

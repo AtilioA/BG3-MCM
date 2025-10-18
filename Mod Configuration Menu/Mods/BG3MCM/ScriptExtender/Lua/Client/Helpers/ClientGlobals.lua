@@ -3,6 +3,9 @@ ClientGlobals = {}
 -- UI Icons
 ClientGlobals.RESET_SETTING_BUTTON_ICON = "ico_randomize_d"
 
+ClientGlobals.DECREMENT_BUTTON_ICON = "input_slider_arrowL_d"
+ClientGlobals.INCREMENT_BUTTON_ICON = "input_slider_arrowR_d"
+
 -- Special page IDs
 ClientGlobals.MCM_HOTKEYS = "MCM_HOTKEYS"
 ClientGlobals.MCM_PROFILES = "MCM_PROFILES"
