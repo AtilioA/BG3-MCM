@@ -23,7 +23,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
             IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
         end
         if tooltip then
-            MCMRendering:AddTooltip(button, tooltip, "ButtonTooltip_" .. setting.Id)
+            IMGUIHelpers.AddTooltip(button, tooltip, "ButtonTooltip_" .. setting.Id)
         end
         return button
     end

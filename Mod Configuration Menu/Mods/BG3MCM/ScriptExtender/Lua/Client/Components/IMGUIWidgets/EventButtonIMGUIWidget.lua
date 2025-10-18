@@ -316,7 +316,7 @@ function EventButtonIMGUIWidget:DisableButton(button, tooltipText)
     -- if self._feedbackTooltip then
     --     self._feedbackTooltip:Destroy()
     -- end
-    self._feedbackTooltip = MCMRendering:AddTooltip(button, tooltipText, self.Widget.ModUUID)
+    self._feedbackTooltip = IMGUIHelpers.AddTooltip(button, tooltipText, self.Widget.ModUUID)
 end
 
 --- Enables the button and removes any tooltip

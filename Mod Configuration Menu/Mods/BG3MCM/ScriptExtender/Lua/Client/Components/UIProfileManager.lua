@@ -31,7 +31,7 @@ local function getDeleteProfileButtonLabel(profile)
         return Ext.Loca.GetTranslatedString("hfdf59b69495c4aeca03f38977a00a69d431c")
     else
         local newString = VCString:InterpolateLocalizedMessage("h75b86690333d4937a1737fe8daddde41ga10", profile,
-        { updateHandle = true })
+            { updateHandle = true })
         return newString
     end
 end
@@ -137,7 +137,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
     profileButton.Disabled = newProfileName.Text == ""
 
     -- Add tooltip to the input field
-    MCMRendering:AddTooltip(profileButton, "Profile names cannot contain: < > : \" / \\ | ? *", ModuleUUID)
+    IMGUIHelpers.AddTooltip(profileButton, "Profile names cannot contain: < > : \" / \\ | ? *", ModuleUUID)
 
     -- Store the original button text for later restoration
     local originalButtonText = profileButton.Label

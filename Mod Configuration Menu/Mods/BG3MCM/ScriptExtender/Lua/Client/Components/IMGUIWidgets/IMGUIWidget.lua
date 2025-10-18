@@ -274,7 +274,7 @@ function IMGUIWidget:AddResetButton(group, setting, modUUID)
 
     local tooltipText = VCString:InterpolateLocalizedMessage("h132d4b2d4cd044c8a3956a77f7e3499d0737", self._defaultValue)
 
-    MCMRendering:AddTooltip(resetButton, tooltipText,
+    IMGUIHelpers.AddTooltip(resetButton, tooltipText,
         modUUID .. "_" .. "ResetButton_" .. setting:GetId() .. "_TOOLTIP")
 
     -- Override the OnClick handler to update internal values after reset
@@ -315,7 +315,7 @@ function IMGUIWidget:SetupTooltip(widget, setting)
         tooltipText = translatedTooltip
     end
 
-    return MCMRendering:AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
+    return IMGUIHelpers.AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
 end
 
 --- Add a slightly faded description text below the widget

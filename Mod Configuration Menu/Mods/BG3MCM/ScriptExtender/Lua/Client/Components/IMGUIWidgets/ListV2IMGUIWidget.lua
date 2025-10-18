@@ -93,7 +93,7 @@ function ListV2IMGUIWidget:RenderHeader()
     -- Enable/disable entire list
     local enabledCheckbox = headerGroup:AddCheckbox(Ext.Loca.GetTranslatedString("h4ffde733fba3492387caa52d9c585d57f177"))
     enabledCheckbox.IDContext = self.Widget.ModUUID .. "_EnableCheckbox_" .. self.Widget.Setting.Id
-    MCMRendering:AddTooltip(enabledCheckbox, Ext.Loca.GetTranslatedString("h17e2c93763d54f3f9b5da8722d09cf90fab9"),
+    IMGUIHelpers.AddTooltip(enabledCheckbox, Ext.Loca.GetTranslatedString("h17e2c93763d54f3f9b5da8722d09cf90fab9"),
         self.Widget.ModUUID .. "_EnableCheckbox_TOOLTIP")
     enabledCheckbox.Checked = self.Widget.Enabled
     enabledCheckbox.OnChange = function(checkbox)
@@ -152,7 +152,7 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     local confirmButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hb2adccb2f863414991f8475d5b394dbb5f65"))
     confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
-    MCMRendering:AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("he9e1eaf8a127430bba164fd001b3131aa5c1"),
+    IMGUIHelpers.AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("he9e1eaf8a127430bba164fd001b3131aa5c1"),
         self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id .. "_TOOLTIP")
     confirmButton.OnClick = function()
         self.Widget.Elements = {}
@@ -169,7 +169,7 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     local cancelButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "h3481631a19f94c1181c338b3ce88cfff5805"))
     cancelButton.IDContext = self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id
-    MCMRendering:AddTooltip(cancelButton, Ext.Loca.GetTranslatedString("h390af8814d814ef89fd24feb697262452agc"),
+    IMGUIHelpers.AddTooltip(cancelButton, Ext.Loca.GetTranslatedString("h390af8814d814ef89fd24feb697262452agc"),
         self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id .. "_TOOLTIP")
     cancelButton.OnClick = function()
         self.Widget.ConfirmationPopup:Destroy()
@@ -318,7 +318,7 @@ function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
         -- TODO: make it localizable with string interpolation
         "Click to disable '" .. element.name .. "' (without removing it from the list)" or
         "Click to enable '" .. element.name .. "' (without removing it from the list)"
-    MCMRendering:AddTooltip(enabledCheckbox, tooltipText,
+    IMGUIHelpers.AddTooltip(enabledCheckbox, tooltipText,
         self.Widget.ModUUID .. "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled then
@@ -346,7 +346,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     end
     moveUpButton.OnClick = function() self:MoveElement(indexInElements, 'up') end
     -- TODO: make it localizable with string interpolation
-    MCMRendering:AddTooltip(moveUpButton, "Move '" .. element.name .. "' up in the list",
+    IMGUIHelpers.AddTooltip(moveUpButton, "Move '" .. element.name .. "' up in the list",
         self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     -- Move down button
@@ -361,7 +361,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     end
     moveDownButton.OnClick = function() self:MoveElement(indexInElements, 'down') end
     -- TODO: make it localizable with string interpolation
-    MCMRendering:AddTooltip(moveDownButton, "Move '" .. element.name .. "' down in the list",
+    IMGUIHelpers.AddTooltip(moveDownButton, "Move '" .. element.name .. "' down in the list",
         self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled then
@@ -408,7 +408,7 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
     end
 
     -- TODO: make it localizable with string interpolation
-    MCMRendering:AddTooltip(removeButton, "Remove '" .. element.name .. "' from the list",
+    IMGUIHelpers.AddTooltip(removeButton, "Remove '" .. element.name .. "' from the list",
         self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled then
@@ -1039,7 +1039,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     local confirmButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hc22c8995c3d34cb69b677e2c52a7ec3a4691"))
     confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
-    MCMRendering:AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("h6ca43c8ed1ec4292af8c51472528c21ed0gd"),
+    IMGUIHelpers.AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("h6ca43c8ed1ec4292af8c51472528c21ed0gd"),
         self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id .. "_TOOLTIP")
     confirmButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), ModUUID)
@@ -1058,7 +1058,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     local cancelButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "h8886849a4a674633a14df972d408cb71d012"))
     cancelButton.IDContext = self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting.Id
-    MCMRendering:AddTooltip(cancelButton, Ext.Loca.GetTranslatedString("hdf197961585844d394b3e372417ac6fd66eg"),
+    IMGUIHelpers.AddTooltip(cancelButton, Ext.Loca.GetTranslatedString("hdf197961585844d394b3e372417ac6fd66eg"),
         self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting.Id .. "_TOOLTIP")
     cancelButton.OnClick = function()
         self.Widget.ResetConfirmationPopup:Destroy()

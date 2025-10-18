@@ -33,7 +33,7 @@ function LeftPane:CreateMenuButton(text, description, uuid)
             DualPane:ToggleSidebar()
         end
     end
-    MCMRendering:AddTooltip(button, description, "MenuButton_" .. text .. "_" .. uuid .. "_TOOLTIP")
+    IMGUIHelpers.AddTooltip(button, description, "MenuButton_" .. text .. "_" .. uuid .. "_TOOLTIP")
     return button
 end
 

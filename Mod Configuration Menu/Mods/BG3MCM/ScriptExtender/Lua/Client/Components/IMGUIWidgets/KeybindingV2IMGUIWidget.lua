@@ -192,7 +192,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- Enabled checkbox cell.
             local enabledCell = row:AddCell()
             local enabledCheckbox = enabledCell:AddCheckbox("")
-            MCMRendering:AddTooltip(enabledCheckbox,
+            IMGUIHelpers.AddTooltip(enabledCheckbox,
                 Ext.Loca.GetTranslatedString(
                     "h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09"),
                 mod.ModName .. "_Enabled_" .. action.ActionId .. "_TOOLTIP")
@@ -222,7 +222,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
             end
 
-            MCMRendering:AddTooltip(nameText,
+            IMGUIHelpers.AddTooltip(nameText,
                 VCString:ReplaceBrWithNewlines(action.Tooltip ~= "" and action.Tooltip or action.Description),
                 mod.ModName .. "_ActionName_" .. action.ActionId .. "_TOOLTIP")
 
@@ -239,7 +239,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 self:StartListeningForInput(mod, action, "KeyboardMouse", kbButton)
             end
             -- kbButton.SameLine = true
-            MCMRendering:AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
+            IMGUIHelpers.AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
                 mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
 
             -- Reset button cell.
@@ -257,7 +257,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- Hide reset button if the binding is set to default
             resetButton.Visible = not self:IsDefaultBinding(action)
 
-            MCMRendering:AddTooltip(resetButton,
+            IMGUIHelpers.AddTooltip(resetButton,
                 VCString:InterpolateLocalizedMessage(
                     "h497bb04f93734d52a265956df140e77a7add",
                     KeyPresentationMapping:GetKBViewKey(action.DefaultKeyboardMouseBinding),

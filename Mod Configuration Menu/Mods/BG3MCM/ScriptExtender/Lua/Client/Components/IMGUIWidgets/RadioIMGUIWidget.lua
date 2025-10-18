@@ -74,7 +74,7 @@ function RadioIMGUIWidget:SetupTooltip(widget, setting)
     local tooltipId = setting.Id .. "_TOOLTIP"
 
     for _, button in ipairs(radioOptions) do
-        local tt = MCMRendering:AddTooltip(button, tooltipText, tooltipId)
+        local tt = IMGUIHelpers.AddTooltip(button, tooltipText, tooltipId)
         if not tt then
             return
         end

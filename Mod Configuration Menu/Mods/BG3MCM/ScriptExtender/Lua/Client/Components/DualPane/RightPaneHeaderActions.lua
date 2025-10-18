@@ -61,7 +61,8 @@ function HeaderActions:New(parent)
     end
 
     -- Keybinding indicator: shows when current mod has assigned hotkeys.
-    self.keybindingsIndicator = self:CreateActionButton("[" .. Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") .. "]", nil,
+    self.keybindingsIndicator = self:CreateActionButton(
+    "[" .. Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") .. "]", nil,
         Ext.Loca.GetTranslatedString("hdbcd16c5f55e4e9c800e7284ebef8b0f5372"), 1)
     self.keybindingsIndicator.SameLine = true
     self.keybindingsIndicator.Disabled = false
@@ -101,7 +102,7 @@ function HeaderActions:CreateActionButton(text, icon, tooltip, multiplier)
     end
 
     button.IDContext = "HeaderAction_" .. text .. "_BUTTON"
-    MCMRendering:AddTooltip(button, tooltip, "HeaderAction_" .. text)
+    IMGUIHelpers.AddTooltip(button, tooltip, "HeaderAction_" .. text)
     return button
 end
 
@@ -182,5 +183,5 @@ function HeaderActions:UpdateKeybindingIndicator(modUUID)
 
     -- local modName = (MCMClientState and MCMClientState.GetModName and MCMClientState:GetModName(modUUID)) or modUUID
     -- local tooltip = string.format("%s has %d assigned hotkey%s. Click to open Hotkeys.", tostring(modName), nActions, nActions == 1 and "" or "s")
-    -- MCMRendering:AddTooltip(self.keybindingsIndicator, tooltip, "HeaderAction_[Hotkeys]")
+    -- IMGUIHelpers.AddTooltip(self.keybindingsIndicator, tooltip, "HeaderAction_[Hotkeys]")
 end
