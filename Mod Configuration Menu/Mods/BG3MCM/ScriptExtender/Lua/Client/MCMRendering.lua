@@ -501,7 +501,7 @@ end
 ---@param setting BlueprintSetting The setting to create a widget for
 ---@param modSettings table<string, table> The settings for the mod
 ---@param modUUID string The UUID of the mod
----@return ExtuiStyledRenderable
+---@return ExtuiStyledRenderable|nil
 function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUUID)
     if setting:GetType() == "keybinding_v2" then return nil end
 

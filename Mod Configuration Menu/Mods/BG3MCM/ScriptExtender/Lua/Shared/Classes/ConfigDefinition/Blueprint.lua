@@ -6,6 +6,7 @@
 ---@field private ModDescription? string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Settings? BlueprintSetting[]
+---@field private Sections? BlueprintSection[]
 ---@field private Handles? table
 Blueprint = _Class:Create("Blueprint", nil, {
     ModUUID = nil,
@@ -14,6 +15,8 @@ Blueprint = _Class:Create("Blueprint", nil, {
     SchemaVersion = nil,
     Optional = false,
     Tabs = {},
+    Sections = {},
+    Settings = {},
     Handles = {}
 })
 
@@ -89,6 +92,17 @@ function Blueprint:GetSettings()
     return self.Settings
 end
 
+--- Returns the sections of the blueprint, if any.
+---@return BlueprintSection[] sections The sections of the blueprint
+---@return nil - If there are no sections
+function Blueprint:GetSections()
+    return self.Sections
+end
+
+function Blueprint:SetSections(value)
+    self.Sections = value
+end
+
 function Blueprint:SetSettings(value)
     self.Settings = value
 end
@@ -106,6 +120,8 @@ function Blueprint:New(options)
     self.ModDescription = options.ModDescription or nil
     self.Handles = options.Handles or nil
     self.Tabs = {}
+    self.Sections = {}
+    self.Settings = {}
 
     -- Call BlueprintSection constructor for each section
     if options.Tabs then
@@ -118,6 +134,12 @@ function Blueprint:New(options)
         for _, settingOptions in ipairs(options.Settings) do
             local setting = BlueprintSetting:New(settingOptions)
             table.insert(self.Settings, setting)
+        end
+    elseif options.Sections then
+        self.Sections = {}
+        for _, sectionOptions in ipairs(options.Sections) do
+            local section = BlueprintSection:New(sectionOptions)
+            table.insert(self.Sections, section)
         end
     end
 
@@ -134,7 +156,7 @@ function Blueprint:AddSection(name, description)
         sectionDescription = description
     })
 
-    table.insert(self.Tabs, section)
+    table.insert(self.Sections, section)
 
     return section
 end
