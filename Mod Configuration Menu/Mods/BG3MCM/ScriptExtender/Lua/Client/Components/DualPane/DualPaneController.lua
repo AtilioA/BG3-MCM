@@ -53,6 +53,7 @@ STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
 HOVER_DELAY_MS = 5000
 
+--- @type HeaderActions|nil
 HeaderActionsInstance = nil
 
 local RX = {
@@ -136,7 +137,6 @@ function DualPaneController:InitWithWindow(window)
 end
 
 function DualPaneController:initLayout()
-
     self.mainLayoutTable = self.window:AddTable("MainLayout", 2)
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     self.mainLayoutTable:AddColumn("Content", "WidthStretch")

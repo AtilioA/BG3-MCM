@@ -3,6 +3,14 @@
 -- Manages the header action buttons independently.
 --------------------------------------------
 
+---@class HeaderActions
+---@field group ExtuiGroup
+---@field expandBtn ExtuiButton
+---@field collapseBtn ExtuiButton
+---@field detachBtn ExtuiButton
+---@field reattachBtn ExtuiButton
+---@field keybindingsIndicator ExtuiButton
+---@field _kbSubscription any
 HeaderActions = {}
 HeaderActions.__index = HeaderActions
 
