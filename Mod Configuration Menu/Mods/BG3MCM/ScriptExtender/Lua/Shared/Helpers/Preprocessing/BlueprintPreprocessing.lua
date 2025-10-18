@@ -354,6 +354,10 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
         return false
     end
 
+    if not self:BlueprintStepShouldBeNonZeroNumber(setting) then
+        return false
+    end
+
     -- Set default Step values if not provided
     self:SetDefaultStepForSlider(setting)
 
@@ -981,6 +985,18 @@ function BlueprintPreprocessing:BlueprintDefaultShouldBeWithinRange(setting)
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
+    end
+    return true
+end
+
+function BlueprintPreprocessing:BlueprintStepShouldBeNonZeroNumber(setting)
+    if setting.Options and setting.Options.Step and (type(setting.Options.Step) ~= "number" or setting.Options.Step == 0) then
+        MCMWarn(0,
+            "Step value for setting '" ..
+            setting.Id ..
+            "' must be a non-zero number. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
     end
     return true
 end
