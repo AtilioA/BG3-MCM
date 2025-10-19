@@ -47,7 +47,7 @@ ICON_DETACH = "ico_popup_d"
 
 -- Get proportion of screen size based on working number for 4K
 -- TODO: Generate dynamic expanded target when SE adds support for calculating text width
-TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[2] / 4
+TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[2] / 3.9
 TARGET_WIDTH_COLLAPSED = 0
 STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
