@@ -116,13 +116,14 @@ function Font.EnsureFontLoaded(typeface, fontSize)
         return false
     end
 
+    local sizeValue = Font.FONT_SIZE_OPTIONS[sizeKey]
+    -- local _successDefaultOverride = Ext.IMGUI.LoadFont("Default", fontPath, sizeValue)
+
     -- Check if already loaded
     if loadedFonts[fullFontName] then
         return true
     end
 
-    -- Load the font
-    local sizeValue = Font.FONT_SIZE_OPTIONS[sizeKey]
     MCMDebug(2, "Loading font: " .. fullFontName .. " from " .. fontPath .. " at size " .. tostring(sizeValue))
     local successLoad = Ext.IMGUI.LoadFont(fullFontName, fontPath, sizeValue)
 

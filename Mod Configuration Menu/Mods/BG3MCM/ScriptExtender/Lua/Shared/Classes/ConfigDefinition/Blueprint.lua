@@ -57,7 +57,7 @@ function Blueprint:GetModDescription()
     if self.Handles and self.Handles.DescriptionHandle then
         local translatedDescription = Ext.Loca.GetTranslatedString(self.Handles.DescriptionHandle)
         if translatedDescription and translatedDescription ~= "" then
-            return translatedDescription
+            return VCString:ReplaceBrWithNewlines(translatedDescription)
         end
     end
 
