@@ -23,7 +23,7 @@ local function findNoesisElementByName(element, name)
     return nil
 end
 
-function Noesis:FindWidgetChild(widgetName, name)
+function Noesis:FindWidgetChild(widgetName)
     local root = Ext.UI.GetRoot():Find("ContentRoot")
     if not root then
         MCMError(0, "ContentRoot not found")
@@ -34,7 +34,7 @@ function Noesis:FindWidgetChild(widgetName, name)
         for i = 1, root.ChildrenCount do
             local widget = root:Child(i)
             if widget.Name == widgetName then
-                return findNoesisElementByName(widget, name)
+                return findNoesisElementByName(widget, widgetName)
             end
         end
         return nil
