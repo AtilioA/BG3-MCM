@@ -103,8 +103,21 @@ Ext.Events.ControllerButtonInput:Subscribe(handleControllerInput)
 -- end)
 
 --- SECTION: Net messages
+local _hasReceivedConfigPayload = nil
+
+local function invalidateConfigPayloadCache()
+    _hasReceivedConfigPayload = nil
+end
+
 -- Common handler for configs payloads
 local function onConfigsReceived(mods, profiles)
+    if _hasReceivedConfigPayload and _hasReceivedConfigPayload == true then
+        MCMDebug(1, "Received duplicate MCM config payload; skipping redundant client initialization")
+        return
+    end
+
+    _hasReceivedConfigPayload = true
+
     MCMAPI:LoadConfigs()
     MCMClientState:LoadMods(mods)
 end
@@ -121,6 +134,7 @@ if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners t
 end
 
 Ext.Events.ResetCompleted:Subscribe(function()
+    invalidateConfigPayloadCache()
     InitClientMCM()
 end)
 

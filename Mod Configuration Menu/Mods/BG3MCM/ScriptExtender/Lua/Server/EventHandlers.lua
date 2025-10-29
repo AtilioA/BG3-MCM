@@ -15,7 +15,13 @@ local function warnAboutNPAKM()
 end
 
 local function loadSettingsAndWarn()
+    if MCMServer:HasSentInitialConfig() then
+        MCMDebug(2, "Initial MCM config already sent; skipping redundant broadcast")
+        return
+    end
+
     MCMServer:LoadAndSendSettings()
+
     ModEventManager:IssueDeprecationWarning()
     VCTimer:OnTicks(4, warnAboutNPAKM)
 end

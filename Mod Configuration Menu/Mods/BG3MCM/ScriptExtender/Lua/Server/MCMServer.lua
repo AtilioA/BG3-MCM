@@ -1,5 +1,19 @@
 ---@class MCMServer
-MCMServer = _Class:Create("MCMServer", nil, {})
+MCMServer = _Class:Create("MCMServer", nil, {
+    hasSentInitialConfig = false
+})
+
+function MCMServer:HasSentInitialConfig()
+    return self.hasSentInitialConfig == true
+end
+
+function MCMServer:SetHasSentInitialConfig(value)
+    self.hasSentInitialConfig = value and true or false
+end
+
+function MCMServer:ResetInitialConfigGuard()
+    self.hasSentInitialConfig = false
+end
 
 --- Loads the profile manager and the configurations for all mods.
 ---@return nil
@@ -173,13 +187,19 @@ function MCMServer:DeleteProfile(profileName)
 end
 
 function MCMServer:LoadAndSendSettings()
+    if self:HasSentInitialConfig() then
+        MCMDebug(1, "MCM has already sent initial config. Skipping...")
+        return
+    end
+
     MCMDebug(1, "Loading MCM configs...")
     MCMAPI:LoadConfigs()
-
     ChunkedNet.SendJSONToAll(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {
         mods = MCMAPI.mods,
         profiles = MCMAPI.profiles
     })
+
+    self:SetHasSentInitialConfig(true)
 end
 
 --- Load configs and send to a specific user (for new clients)

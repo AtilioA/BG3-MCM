@@ -336,11 +336,6 @@ end
 --         Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
-function MCMAPI:LoadAndSendSettings()
-    MCMDebug(1, "Reloading MCM configs...")
-    self:LoadConfigs()
-end
-
 --- Registers a callback for an event button
 ---@param modUUID string The UUID of the mod
 ---@param settingId string The ID of the event button setting
