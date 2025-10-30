@@ -407,10 +407,10 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
     local tabName = blueprintTab:GetLocaName()
     local tabDescription = blueprintTab:GetTabDescription()
     local imguiTab = modTabs:AddTabItem(tabName)
-    imguiTab.IDContext = DualPaneController:GenerateTabId(modUUID, blueprintTab:GetTabName())
+    imguiTab.IDContext = DualPaneController:GenerateTabId(modUUID, blueprintTab:GetId())
     imguiTab.UserData = {
         tabId = blueprintTab:GetId(),
-        tabName = blueprintTab:GetTabName()
+        tabName = blueprintTab:GetId()
     }
 
     if tabDescription and tabDescription ~= "" then
