@@ -99,7 +99,7 @@ function RightPane:CreateTab(modUUID, tabName)
     return tab
 end
 
-function RightPane:InsertTab(modUUID, tabName, callback)
+function RightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
     local tab = self:CreateTab(modUUID, tabName)
     if not tab then return nil end
 
@@ -120,7 +120,8 @@ function RightPane:InsertTab(modUUID, tabName, callback)
         end)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
-            tabName = tabName
+            tabName = tabName,
+            skipDisclaimer = skipDisclaimer
         })
     end
     return tab
