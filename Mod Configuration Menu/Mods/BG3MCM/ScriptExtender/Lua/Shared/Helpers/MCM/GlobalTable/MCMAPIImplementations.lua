@@ -92,6 +92,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@field tabName string
 ---@field tabCallback function
 ---@field modUUID? string
+---@field skipDisclaimer? boolean
 
 ---@alias MCMEmptyArgs {}
 
@@ -532,7 +533,7 @@ end
 ---@param args MCMInsertModMenuTabArgs
 ---@return nil
 local function InsertModMenuTab_Impl(args)
-    IMGUIAPI:InsertModMenuTab(args.modUUID, args.tabName, args.tabCallback)
+    IMGUIAPI:InsertModMenuTab(args.modUUID, args.tabName, args.tabCallback, args.skipDisclaimer)
 end
 
 --- Create client-only methods
@@ -570,10 +571,11 @@ function MCMAPIImplementations.addClientOnlyMethods(MCMInstance, originalModUUID
     ---@param tabName string|MCMInsertModMenuTabArgs The name of the tab to be inserted, or an argument table
     ---@param tabCallback function The callback function to create the tab
     ---@param modUUID? string The UUID of the mod, defaults to current mod
+    ---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
     ---@return nil
     MCMInstance.InsertModMenuTab = MCMAPIUtils.WithFlexibleArgs(
         InsertModMenuTab_Impl,
-        { "tabName", "tabCallback", "modUUID" },
+        { "tabName", "tabCallback", "modUUID", "skipDisclaimer" },
         { modUUID = originalModUUID }
     )
 end

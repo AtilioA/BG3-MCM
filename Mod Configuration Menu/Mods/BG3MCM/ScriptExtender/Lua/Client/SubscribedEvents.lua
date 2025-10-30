@@ -200,9 +200,10 @@ ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
     local modUUID = data.modUUID
     local tabName = data.tabName
     local tabCallback = data.tabCallback
+    local skipDisclaimer = data.skipDisclaimer
 
     -- Update the MCMRendering to include the new tab
-    IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback)
+    IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer)
 end)
 
 ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)

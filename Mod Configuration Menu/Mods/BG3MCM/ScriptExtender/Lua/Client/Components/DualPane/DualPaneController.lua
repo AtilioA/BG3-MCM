@@ -362,8 +362,8 @@ function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimer
     return tab, disclaimerElement
 end
 
-function DualPaneController:InsertModTab(modUUID, tabName, callback)
-    return self.rightPane:InsertTab(modUUID, tabName, callback)
+function DualPaneController:InsertModTab(modUUID, tabName, callback, skipDisclaimer)
+    return self.rightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
 end
 
 -- Helper to find tab by identifier in a mod's tab bar
