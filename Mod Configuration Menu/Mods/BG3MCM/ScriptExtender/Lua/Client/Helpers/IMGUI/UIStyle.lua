@@ -74,7 +74,7 @@ UIStyle.Styles = {
     ["FrameBorderSize"]         = 0.0,
     ["FramePadding"]            = 4.0, -- vec2?
     ["FrameRounding"]           = 3.0,
-    ["GrabMinSize"]             = 16.0,
+    ["GrabMinSize"]             = 20.0,
     ["GrabRounding"]            = 4.0,
     ["IndentSpacing"]           = 21.0,
     ["ItemInnerSpacing"]        = 4.0, -- vec2?
@@ -91,7 +91,7 @@ UIStyle.Styles = {
     ["TabRounding"]             = 6.0,
     ["WindowBorderSize"]        = 2,
     ["WindowMinSize"]           = 32.0, -- vec2?
-    ["WindowPadding"]           = 6.0,
+    ["WindowPadding"]           = 3.0,
     ["WindowRounding"]          = 4.0,
     ["WindowTitleAlign"]        = 0.5, -- vec2?
 }
