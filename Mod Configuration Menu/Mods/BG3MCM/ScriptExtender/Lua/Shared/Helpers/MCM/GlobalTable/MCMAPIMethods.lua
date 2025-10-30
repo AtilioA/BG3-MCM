@@ -1,7 +1,7 @@
 -- Contains the API methods that will be injected into the MCM table
 
 local MCMAPIImplementations = Ext.Require(
-    "Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/MCM/GlobalTable/MCMAPIImplementations.lua")
+    "Shared/Helpers/MCM/GlobalTable/MCMAPIImplementations.lua")
 
 local MCMAPIMethods = {}
 

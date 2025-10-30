@@ -1,7 +1,7 @@
 -- MCM API Implementations
 -- Contains the core implementations of all MCM API methods
 
-local MCMAPIUtils = Ext.Require("Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/MCM/GlobalTable/MCMAPIUtils.lua")
+local MCMAPIUtils = Ext.Require("Shared/Helpers/MCM/GlobalTable/MCMAPIUtils.lua")
 
 local MCMAPIImplementations = {}
 
