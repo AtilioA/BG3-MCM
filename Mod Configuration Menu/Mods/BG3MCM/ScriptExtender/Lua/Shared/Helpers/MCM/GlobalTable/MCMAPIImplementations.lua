@@ -1,7 +1,7 @@
 -- MCM API Implementations
 -- Contains the core implementations of all MCM API methods
 
-local MCMAPIUtils = require("Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/MCM/GlobalTable/MCMAPIUtils")
+local MCMAPIUtils = Ext.Require("Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/MCM/GlobalTable/MCMAPIUtils.lua")
 
 local MCMAPIImplementations = {}
 
@@ -21,15 +21,89 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
     ['SetKeybindingCallback'] = true
 }
 
+---@class MCMGetArgs
+---@field settingId string
+---@field modUUID? string
+
+---@class MCMSetArgs
+---@field settingId string
+---@field value any
+---@field modUUID? string
+---@field shouldEmitEvent? boolean
+
+---@class MCMKeybindingGetArgs
+---@field settingId string
+---@field modUUID? string
+
+---@class MCMKeybindingSetCallbackArgs
+---@field settingId string
+---@field callback function
+---@field modUUID? string
+
+---@class MCMListGetArgs
+---@field listSettingId string
+---@field modUUID? string
+
+---@class MCMListIsEnabledArgs
+---@field listSettingId string
+---@field itemName string
+---@field modUUID? string
+
+---@class MCMListSetEnabledArgs
+---@field listSettingId string
+---@field itemName string
+---@field enabled boolean
+---@field modUUID? string
+---@field shouldEmitEvent? boolean
+
+---@class MCMListInsertSuggestionsArgs
+---@field listSettingId string
+---@field suggestions string[]
+---@field modUUID? string
+
+---@class MCMEventButtonStateArgs
+---@field buttonId string
+---@field modUUID? string
+
+---@class MCMEventButtonFeedbackArgs
+---@field buttonId string
+---@field message string
+---@field feedbackType string
+---@field modUUID? string
+---@field durationInMs? number
+
+---@class MCMEventButtonCallbackArgs
+---@field buttonId string
+---@field callback function
+---@field modUUID? string
+
+---@class MCMEventButtonSetDisabledArgs
+---@field buttonId string
+---@field disabled boolean
+---@field tooltipText? string
+---@field modUUID? string
+
+---@class MCMOpenModPageArgs
+---@field tabName string
+---@field modUUID? string
+---@field shouldEmitEvent? boolean
+
+---@class MCMInsertModMenuTabArgs
+---@field tabName string
+---@field tabCallback function
+---@field modUUID? string
+
+---@alias MCMEmptyArgs {}
+
 --- Implementation: Get the value of a setting
----@param args table Arguments table
+---@param args MCMGetArgs
 ---@return any The value of the setting, or nil if not found
 local function Get_Impl(args)
     return MCMAPI:GetSettingValue(args.settingId, args.modUUID)
 end
 
 --- Implementation: Set the value of a setting
----@param args table Arguments table
+---@param args MCMSetArgs
 ---@return boolean success True if the setting was successfully updated
 local function Set_Impl(args)
     return MCMAPI:SetSettingValue(args.settingId, args.value, args.modUUID, args.shouldEmitEvent)
@@ -42,7 +116,7 @@ function MCMAPIImplementations.createCoreMethods(originalModUUID)
     local MCMInstance = {}
 
     --- Get the value of a setting
-    ---@param settingId string|table The ID of the setting to retrieve, or a table of arguments
+    ---@param settingId string|MCMGetArgs The ID of the setting to retrieve, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return any The value of the setting, or nil if not found
     MCMInstance.Get = MCMAPIUtils.WithFlexibleArgs(
@@ -52,7 +126,7 @@ function MCMAPIImplementations.createCoreMethods(originalModUUID)
     )
 
     --- Set the value of a setting
-    ---@param settingId string|table The ID of the setting to set, or a table of arguments
+    ---@param settingId string|MCMSetArgs The ID of the setting to set, or an argument table
     ---@param value any The value to set
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@param shouldEmitEvent? boolean Whether to emit a setting changed event
@@ -67,21 +141,21 @@ function MCMAPIImplementations.createCoreMethods(originalModUUID)
 end
 
 --- Implementation: Get a human-readable string representation of a keybinding
----@param args table Arguments table
+---@param args MCMKeybindingGetArgs
 ---@return string The formatted keybinding string
 local function KeybindingGet_Impl(args)
     return KeyPresentationMapping:GetViewKeyForSetting(args.settingId, args.modUUID)
 end
 
 --- Implementation: Get the raw keybinding data
----@param args table Arguments table
+---@param args MCMKeybindingGetArgs
 ---@return table|nil The raw keybinding data structure or nil if not found
 local function KeybindingGetRaw_Impl(args)
     return MCMAPI:GetSettingValue(args.settingId, args.modUUID)
 end
 
 --- Implementation: Set a callback for keybinding
----@param args table Arguments table
+---@param args MCMKeybindingSetCallbackArgs
 ---@return nil
 local function KeybindingSetCallback_Impl(args)
     InputCallbackManager.SetKeybindingCallback(args.modUUID, args.settingId, args.callback)
@@ -94,7 +168,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
     local KeybindingAPI = {}
 
     --- Get a human-readable string representation of a keybinding
-    ---@param settingId string|table The ID of the keybinding setting, or a table of arguments
+    ---@param settingId string|MCMKeybindingGetArgs The ID of the keybinding setting, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return string The formatted keybinding string (e.g., "[Ctrl] + [C]")
     KeybindingAPI.Get = MCMAPIUtils.WithFlexibleArgs(
@@ -104,7 +178,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
     )
 
     --- Get the raw keybinding data
-    ---@param settingId string|table The ID of the keybinding setting, or a table of arguments
+    ---@param settingId string|MCMKeybindingGetArgs The ID of the keybinding setting, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return table|nil The raw keybinding data structure or nil if not found
     KeybindingAPI.GetRaw = MCMAPIUtils.WithFlexibleArgs(
@@ -114,7 +188,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
     )
 
     --- Set a callback for keybinding
-    ---@param settingId string|table The ID of the keybinding setting, or a table of arguments
+    ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
     ---@param callback function The callback function to be called when the keybinding is pressed
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
@@ -128,7 +202,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
 end
 
 --- Implementation: Get a table of enabled items in a list setting
----@param args table Arguments table
+---@param args MCMListGetArgs
 ---@return table<string, boolean> enabledItems
 local function ListGetEnabled_Impl(args)
     local setting = MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
@@ -144,14 +218,14 @@ local function ListGetEnabled_Impl(args)
 end
 
 --- Implementation: Get the raw list setting data
----@param args table Arguments table
+---@param args MCMListGetArgs
 ---@return table|nil The raw list setting data or nil if not found
 local function ListGetRaw_Impl(args)
     return MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
 end
 
 --- Implementation: Check if a specific item is enabled in a list setting
----@param args table Arguments table
+---@param args MCMListIsEnabledArgs
 ---@return boolean enabled
 local function ListIsEnabled_Impl(args)
     local setting = MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
@@ -166,7 +240,7 @@ local function ListIsEnabled_Impl(args)
 end
 
 --- Implementation: Set the enabled state of an item in a list setting
----@param args table Arguments table
+---@param args MCMListSetEnabledArgs
 ---@return boolean success
 local function ListSetEnabled_Impl(args)
     local setting = MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
@@ -198,7 +272,7 @@ local function ListSetEnabled_Impl(args)
 end
 
 --- Implementation: Insert search suggestions for a list_v2 setting
----@param args table Arguments table
+---@param args MCMListInsertSuggestionsArgs
 ---@return boolean success
 local function ListInsertSuggestions_Impl(args)
     if type(args.suggestions) ~= "table" then
@@ -216,7 +290,7 @@ function MCMAPIImplementations.createListAPI(originalModUUID)
     local ListAPI = {}
 
     --- Get a table of enabled items in a list setting
-    ---@param listSettingId string|table The ID of the list setting, or a table of arguments
+    ---@param listSettingId string|MCMListGetArgs The ID of the list setting, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return table<string, boolean> enabledItems - A table where keys are enabled item names and values are true
     ListAPI.GetEnabled = MCMAPIUtils.WithFlexibleArgs(
@@ -226,7 +300,7 @@ function MCMAPIImplementations.createListAPI(originalModUUID)
     )
 
     --- Get the raw list setting data
-    ---@param listSettingId string|table The ID of the list setting, or a table of arguments
+    ---@param listSettingId string|MCMListGetArgs The ID of the list setting, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return table|nil The raw list setting data or nil if not found
     ListAPI.GetRaw = MCMAPIUtils.WithFlexibleArgs(
@@ -236,7 +310,7 @@ function MCMAPIImplementations.createListAPI(originalModUUID)
     )
 
     --- Check if a specific item is enabled in a list setting
-    ---@param listSettingId string|table The ID of the list setting, or a table of arguments
+    ---@param listSettingId string|MCMListIsEnabledArgs The ID of the list setting, or an argument table
     ---@param itemName string The name of the item to check
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean enabled - True if the item is enabled, false otherwise
@@ -247,7 +321,7 @@ function MCMAPIImplementations.createListAPI(originalModUUID)
     )
 
     --- Set the enabled state of an item in a list setting
-    ---@param listSettingId string|table The ID of the list setting, or a table of arguments
+    ---@param listSettingId string|MCMListSetEnabledArgs The ID of the list setting, or an argument table
     ---@param itemName string The name of the item to update
     ---@param enabled boolean Whether the item should be enabled
     ---@param modUUID? string Optional mod UUID, defaults to current mod
@@ -260,7 +334,7 @@ function MCMAPIImplementations.createListAPI(originalModUUID)
     )
 
     --- Insert search suggestions for a list_v2 setting
-    ---@param listSettingId string|table The ID of the list setting, or a table of arguments
+    ---@param listSettingId string|MCMListInsertSuggestionsArgs The ID of the list setting, or an argument table
     ---@param suggestions string[] Table of suggestion strings to display below the input field
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the operation was executed on client, false on server
@@ -274,7 +348,7 @@ function MCMAPIImplementations.createListAPI(originalModUUID)
 end
 
 --- Implementation: Check if an event button is enabled
----@param args table Arguments table
+---@param args MCMEventButtonStateArgs
 ---@return boolean|nil isEnabled
 local function EventButtonIsEnabled_Impl(args)
     local isDisabled = MCMAPI:IsEventButtonDisabled(tostring(args.modUUID), args.buttonId)
@@ -285,14 +359,15 @@ local function EventButtonIsEnabled_Impl(args)
 end
 
 --- Implementation: Show feedback message for an event button
----@param args table Arguments table
+---@param args MCMEventButtonFeedbackArgs
 ---@return boolean success
 local function EventButtonShowFeedback_Impl(args)
-    return MCMAPI:ShowEventButtonFeedback(tostring(args.modUUID), args.buttonId, args.message, args.feedbackType, args.durationInMs)
+    return MCMAPI:ShowEventButtonFeedback(tostring(args.modUUID), args.buttonId, args.message, args.feedbackType,
+        args.durationInMs)
 end
 
 --- Implementation: Register a callback function for an event button
----@param args table Arguments table
+---@param args MCMEventButtonCallbackArgs
 ---@return boolean success
 local function EventButtonRegisterCallback_Impl(args)
     if Ext.IsServer() then return false end
@@ -310,7 +385,7 @@ local function EventButtonRegisterCallback_Impl(args)
 end
 
 --- Implementation: Unregister a callback function for an event button
----@param args table Arguments table
+---@param args MCMEventButtonStateArgs
 ---@return boolean success
 local function EventButtonUnregisterCallback_Impl(args)
     if Ext.IsServer() then return false end
@@ -328,10 +403,11 @@ local function EventButtonUnregisterCallback_Impl(args)
 end
 
 --- Implementation: Set the disabled state of an event button
----@param args table Arguments table
+---@param args MCMEventButtonSetDisabledArgs
 ---@return boolean success
 local function EventButtonSetDisabled_Impl(args)
     if Ext.IsServer() then return false end
+
 
     local success = MCMAPI:SetEventButtonDisabled(args.modUUID, args.buttonId, args.disabled, args.tooltipText)
     if not success then
@@ -359,7 +435,7 @@ function MCMAPIImplementations.createEventButtonAPI(originalModUUID)
     }
 
     --- Check if an event button is enabled (client only)
-    ---@param buttonId string|table The ID of the event button, or a table of arguments
+    ---@param buttonId string|MCMEventButtonStateArgs The ID of the event button, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean|nil isEnabled True if enabled, false if disabled, nil if button not found
     EventButtonAPI.IsEnabled = MCMAPIUtils.WithFlexibleArgs(
@@ -369,7 +445,7 @@ function MCMAPIImplementations.createEventButtonAPI(originalModUUID)
     )
 
     --- Show feedback message for an event button (client only)
-    ---@param buttonId string|table The ID of the event button, or a table of arguments
+    ---@param buttonId string|MCMEventButtonFeedbackArgs The ID of the event button, or an argument table
     ---@param message string The feedback message to display
     ---@param feedbackType string The type of feedback ("success", "error", "info", "warning")
     ---@param modUUID? string The UUID of the mod that owns the button (defaults to current mod)
@@ -382,7 +458,7 @@ function MCMAPIImplementations.createEventButtonAPI(originalModUUID)
     )
 
     --- Register a callback function for an event button
-    ---@param buttonId string|table The ID of the event button, or a table of arguments
+    ---@param buttonId string|MCMEventButtonCallbackArgs The ID of the event button, or an argument table
     ---@param callback function The callback function to execute when the button is clicked
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the callback was registered successfully
@@ -393,7 +469,7 @@ function MCMAPIImplementations.createEventButtonAPI(originalModUUID)
     )
 
     --- Unregister a callback function for an event button
-    ---@param buttonId string|table The ID of the event button, or a table of arguments
+    ---@param buttonId string|MCMEventButtonStateArgs The ID of the event button, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the callback was unregistered successfully
     EventButtonAPI.UnregisterCallback = MCMAPIUtils.WithFlexibleArgs(
@@ -403,7 +479,7 @@ function MCMAPIImplementations.createEventButtonAPI(originalModUUID)
     )
 
     --- Set the disabled state of an event button
-    ---@param buttonId string|table The ID of the event button, or a table of arguments
+    ---@param buttonId string|MCMEventButtonSetDisabledArgs The ID of the event button, or an argument table
     ---@param disabled boolean Whether the button should be disabled
     ---@param tooltipText? string Optional tooltip text to show when disabled
     ---@param modUUID? string Optional mod UUID, defaults to current mod
@@ -432,28 +508,28 @@ function MCMAPIImplementations.addDeprecatedMethods(MCMInstance, modUUID)
 end
 
 --- Implementation: Open the MCM window
----@param args table Arguments table
+---@param args MCMEmptyArgs
 ---@return nil
 local function OpenMCMWindow_Impl(args)
     IMGUIAPI:OpenMCMWindow(true)
 end
 
 --- Implementation: Close the MCM window
----@param args table Arguments table
+---@param args MCMEmptyArgs
 ---@return nil
 local function CloseMCMWindow_Impl(args)
     IMGUIAPI:CloseMCMWindow(true)
 end
 
 --- Implementation: Open a mod page in the MCM
----@param args table Arguments table
+---@param args MCMOpenModPageArgs
 ---@return nil
 local function OpenModPage_Impl(args)
     IMGUIAPI:OpenModPage(args.tabName, args.modUUID, args.shouldEmitEvent)
 end
 
 --- Implementation: Insert a new tab for a mod in the MCM
----@param args table Arguments table
+---@param args MCMInsertModMenuTabArgs
 ---@return nil
 local function InsertModMenuTab_Impl(args)
     IMGUIAPI:InsertModMenuTab(args.modUUID, args.tabName, args.tabCallback)
@@ -480,7 +556,7 @@ function MCMAPIImplementations.addClientOnlyMethods(MCMInstance, originalModUUID
     )
 
     --- Open a mod page in the MCM
-    ---@param tabName string|table The name of the tab to open, or a table of arguments
+    ---@param tabName string|MCMOpenModPageArgs The name of the tab to open, or an argument table
     ---@param modUUID? string The UUID of the mod, defaults to current mod
     ---@param shouldEmitEvent? boolean Whether to emit the mod page open event, defaults to true
     ---@return nil
@@ -491,7 +567,7 @@ function MCMAPIImplementations.addClientOnlyMethods(MCMInstance, originalModUUID
     )
 
     --- Insert a new tab for a mod in the MCM
-    ---@param tabName string|table The name of the tab to be inserted, or a table of arguments
+    ---@param tabName string|MCMInsertModMenuTabArgs The name of the tab to be inserted, or an argument table
     ---@param tabCallback function The callback function to create the tab
     ---@param modUUID? string The UUID of the mod, defaults to current mod
     ---@return nil
