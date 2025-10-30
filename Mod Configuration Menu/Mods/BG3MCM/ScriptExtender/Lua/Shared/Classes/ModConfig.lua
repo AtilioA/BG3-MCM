@@ -360,10 +360,15 @@ function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
     end
 
     -- Remove any settings that are not in the valid set
-    for key in pairs(settings) do
+    for key, value in pairs(settings) do
         if not validSettings[key] then
-            MCMWarn(2, "Removing deprecated setting: " .. key)
-            settings[key] = nil
+            -- Keep empty tables
+            if type(value) == "table" and next(value) == nil then
+                -- Do nothing
+            else
+                MCMWarn(2, "Removing deprecated setting: " .. key)
+                settings[key] = nil
+            end
         end
     end
 end
