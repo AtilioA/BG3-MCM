@@ -235,4 +235,6 @@ MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
     end)
 end)
 
--- SECTION: Noesis events
+if Ext.Debug.IsDeveloperMode() then
+    InitClientMCM()
+end
