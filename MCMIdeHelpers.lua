@@ -113,6 +113,7 @@
 ---@field EventButton MCMEventButtonAPI Event button-related methods (client-only)
 ---@field OpenMCMWindow fun():nil Open the MCM window (client-only)
 ---@field CloseMCMWindow fun():nil Close the MCM window (client-only)
+---@field InsertModMenuTab fun(tabNameOrArgs:string|MCMInsertModMenuTabArgs, tabCallback?:fun(tab:any), modUUID?:string, skipDisclaimer?:boolean):nil Insert a new tab into the MCM (client-only)
 ---@field OpenModPage fun(tabNameOrArgs:string|MCMOpenModPageArgs, modUUID?:string, shouldEmitEvent?:boolean):nil Open a mod page in the MCM (client-only)
 
 ---@type MCMTable Table containing the MCM public API exposed to each mod.
