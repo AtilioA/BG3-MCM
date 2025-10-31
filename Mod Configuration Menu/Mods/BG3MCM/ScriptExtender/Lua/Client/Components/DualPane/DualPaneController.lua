@@ -156,7 +156,7 @@ function DualPaneController:initLayout()
     self.contentScrollChildWindow = contentWindow:AddChildWindow("ContentScrollChildWindow")
 end
 
-local function normalizeString(str)
+function DualPaneController:NormalizeTabName(str)
     if not str or str == "" then
         return ""
     end
@@ -166,9 +166,9 @@ end
 
 local function isMatchingTab(modUUID, identifier, tab)
     local storedId = tab.UserData and tab.UserData.tabId or ""
-    local normalizedIdentifier = normalizeString(identifier)
+    local normalizedIdentifier = DualPaneController:NormalizeTabName(identifier)
     local normalizedTabIdSuffix = storedId:sub(#modUUID + 2)
-    local normalizedStoredName = normalizeString(tab.UserData and tab.UserData.tabName or "")
+    local normalizedStoredName = DualPaneController:NormalizeTabName(tab.UserData and tab.UserData.tabName or "")
 
     return normalizedTabIdSuffix == normalizedIdentifier
         or normalizedStoredName == normalizedIdentifier
@@ -176,7 +176,7 @@ local function isMatchingTab(modUUID, identifier, tab)
 end
 
 function DualPaneController:GenerateTabId(modUUID, tabName)
-    return modUUID .. "_" .. normalizeString(tabName)
+    return modUUID .. "_" .. self:NormalizeTabName(tabName)
 end
 
 -- Attach hover listeners to either the menuScrollChildWindow (if expanded/visible) or the expand button (if collapsed)

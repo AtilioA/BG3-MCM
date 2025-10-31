@@ -70,6 +70,71 @@ function RightPane:GetModGroup(modUUID)
     return self.contentGroups[modUUID]
 end
 
+---@param tab ExtuiTabItem|nil
+---@param targetId string
+---@param targetName string
+---@return boolean
+local function doesTabMatchCriteria(tab, targetId, targetName)
+    if not tab then return false end
+
+    local normalizedTargetId = DualPaneController:NormalizeTabName(targetId)
+    local normalizedTargetName = DualPaneController:NormalizeTabName(targetName)
+    local hasTargetId = normalizedTargetId ~= ""
+    local hasTargetName = normalizedTargetName ~= ""
+
+    if not hasTargetId and not hasTargetName then
+        return false
+    end
+
+    local candidateId = DualPaneController:NormalizeTabName(tab.IDContext)
+    if hasTargetId and candidateId == normalizedTargetId then
+        return true
+    end
+
+    local userData = tab.UserData
+    if type(userData) == "table" then
+        -- Compare stored tab ID and name with target ID and name
+        local storedId = DualPaneController:NormalizeTabName(userData.tabId)
+        if storedId ~= "" then
+            if hasTargetId and storedId == normalizedTargetId then
+                return true
+            end
+
+            if hasTargetName and storedId == normalizedTargetName then
+                return true
+            end
+        end
+
+        local storedName = DualPaneController:NormalizeTabName(userData.tabName)
+        if storedName ~= "" then
+            if hasTargetName and storedName == normalizedTargetName then
+                return true
+            end
+
+            if hasTargetId and storedName == normalizedTargetId then
+                return true
+            end
+        end
+    end
+
+    -- Compare label value with target name
+    if hasTargetName then
+        local labelValue = nil
+        if type(tab.UserData.tabName) == "string" then
+            labelValue = tab.UserData.tabName
+        elseif type(tab.UserData.tabId) == "string" then
+            labelValue = tab.UserData.tabId
+        end
+
+        local normalizedLabel = DualPaneController:NormalizeTabName(labelValue)
+        if normalizedLabel ~= "" and normalizedLabel == normalizedTargetName then
+            return true
+        end
+    end
+
+    return false
+end
+
 function RightPane:CreateTab(modUUID, tabName)
     local group = self:GetModGroup(modUUID)
     local modTabBar = self:GetModTabBar(modUUID)
@@ -77,7 +142,7 @@ function RightPane:CreateTab(modUUID, tabName)
 
     local tabId = DualPaneController:GenerateTabId(modUUID, tabName)
     for _, existingTab in ipairs(modTabBar.Children) do
-        if existingTab.IDContext == tabId then
+        if doesTabMatchCriteria(existingTab, tabId, tabName) then
             return existingTab
         end
     end
