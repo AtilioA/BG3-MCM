@@ -57,7 +57,6 @@ end
 ---@param tabName string The name of the tab to be inserted
 ---@param tabCallback function The callback function to create the tab
 ---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
---TODO: fix skipDisclaimer not totally working
 ---@return nil
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer)
     if not self.GameStateSubject then
@@ -78,16 +77,8 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer
                     end
 
                     if skipDisclaimer == true then
-                        -- Skip disclaimer and render tab content immediately
-                        MCMClientState.UIReady:Subscribe(function(ready)
-                            if ready and subscription and not subscription._unsubscribed then
-                                DualPane:InsertModTab(modUUID, tabName, tabCallback, skipDisclaimer)
-                                subscription = nil
-                            end
-                        end)
+                        DualPane:InsertModTab(modUUID, tabName, tabCallback, skipDisclaimer)
                     else
-                        -- _P("Adding disclaimer for " ..
-                        --     tostring(modUUID) .. " - " .. tostring(tabName) .. " - " .. tostring(skipDisclaimer))
                         -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
                         if disclaimerTab or disclaimerElement then return end
                         disclaimerTab, disclaimerElement = DualPane:CreateTabWithDisclaimer(
