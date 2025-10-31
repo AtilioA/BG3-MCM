@@ -148,6 +148,9 @@ The `MCM_blueprint.json` file is how you specify your mod's configuration defini
 
 The MCM Schema dictates how you should structure your blueprint file, and you can [get it from GitHub](https://github.com/AtilioA/BG3-MCM/blob/main/.vscode/schema.json).
 
+> You can also get the [MCM IDE Helpers from GitHub](https://github.com/AtilioA/BG3-MCM/blob/main/MCMIdeHelpers.lua).
+{.is-info}
+
 This schema file can be used to **write and validate** your `MCM_blueprint.json` file, as it will help enforcing the intended structure of the MCM Schema in your blueprint file, ensuring that it is correctly formatted and adheres to it.
 
 ##### IDE support
