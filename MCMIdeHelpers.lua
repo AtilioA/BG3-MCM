@@ -1,7 +1,7 @@
 --- @meta
 --- @diagnostic disable
 
---- Aggregated EmmyLua annotations for the Mod Configuration Menu (MCM) public API.
+--- Aggregated EmmyLua annotations for the Mod Configuration Menu (MCM) public API (version 1.38+).
 
 ---@class MCMGetArgs
 ---@field settingId string The ID of the setting to retrieve
