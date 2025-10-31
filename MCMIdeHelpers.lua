@@ -5,75 +5,75 @@
 
 ---@class MCMGetArgs
 ---@field settingId string The ID of the setting to retrieve
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMSetArgs
 ---@field settingId string The ID of the setting to update
 ---@field value any The new value to set
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 ---@field shouldEmitEvent? boolean Whether to emit a setting changed event
 
 ---@class MCMKeybindingGetArgs
 ---@field settingId string The ID of the keybinding setting
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMKeybindingSetCallbackArgs
 ---@field settingId string The ID of the keybinding setting
 ---@field callback fun(modUUID:string?, settingId:string) Callback function invoked when the keybinding is pressed
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMListGetArgs
 ---@field listSettingId string The ID of the list setting
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMListIsEnabledArgs
 ---@field listSettingId string The ID of the list setting
 ---@field itemName string The name of the item to check
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMListSetEnabledArgs
 ---@field listSettingId string The ID of the list setting
 ---@field itemName string The name of the item to update
 ---@field enabled boolean Whether the item should be enabled
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 ---@field shouldEmitEvent? boolean Whether to emit a setting changed event
 
 ---@class MCMListInsertSuggestionsArgs
 ---@field listSettingId string The ID of the list_v2 setting
 ---@field suggestions string[] Table of suggestion strings to display
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMEventButtonStateArgs
 ---@field buttonId string The ID of the event button
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMEventButtonFeedbackArgs
 ---@field buttonId string The ID of the event button
 ---@field message string The feedback message to display
 ---@field feedbackType MCMEventButtonFeedbackType The type of feedback (success, error, info, warning)
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 ---@field durationInMs? number Duration to display feedback in milliseconds (default: 5000)
 
 ---@class MCMEventButtonCallbackArgs
 ---@field buttonId string The ID of the event button
 ---@field callback fun(buttonId:string, modUUID:string?) Callback function invoked when the button is clicked
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMEventButtonSetDisabledArgs
 ---@field buttonId string The ID of the event button
 ---@field disabled boolean Whether the button should be disabled
 ---@field tooltipText? string Optional tooltip text to show when disabled
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMOpenModPageArgs
 ---@field tabName string The name of the tab to open
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 ---@field shouldEmitEvent? boolean Whether to emit the mod page open event
 
 ---@class MCMInsertModMenuTabArgs
----@field tabName string The name of the tab to be inserted
+---@field tabName string The name of the tab to be inserted/add content to
 ---@field tabCallback fun(tab:any) Callback function to create the tab content
----@field modUUID? string Optional mod UUID, defaults to current mod
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 ---@field skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately
 
 ---@alias MCMEmptyArgs {}
@@ -114,9 +114,6 @@
 ---@field OpenMCMWindow fun():nil Open the MCM window (client-only)
 ---@field CloseMCMWindow fun():nil Close the MCM window (client-only)
 ---@field OpenModPage fun(tabNameOrArgs:string|MCMOpenModPageArgs, modUUID?:string, shouldEmitEvent?:boolean):nil Open a mod page in the MCM (client-only)
----@field SetKeybindingCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(modUUID:string?, settingId:string), modUUID?:string):nil Deprecated: use Keybinding.SetCallback instead
----@field GetList fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table<string, boolean> Deprecated: use List.GetEnabled instead
----@field SetListElement fun(listSettingIdOrArgs:string|MCMListSetEnabledArgs, itemName?:string, enabled?:boolean, modUUID?:string, shouldEmitEvent?:boolean):boolean Deprecated: use List.SetEnabled instead
 
 ---@type MCMTable Table containing the MCM public API exposed to each mod.
 MCM = {
@@ -124,3 +121,121 @@ MCM = {
     List = {},
     EventButton = { FeedbackTypes = {} }
 }
+
+--- @class MCM_Setting_Saved_Payload
+--- @field modUUID string The UUID of the mod
+--- @field settingId string The ID of the setting
+--- @field oldValue any The old value of the setting
+--- @field value any The new value of the setting
+
+--- @class MCM_Setting_Reset_Payload
+--- @field modUUID string The UUID of the mod
+--- @field settingId string The ID of the setting
+--- @field defaultValue any The default value of the setting
+
+--- Note: still unused by MCM
+--- @class MCM_Dynamic_Setting_Saved_Payload
+--- @field modUUID string The UUID of the mod
+--- @field key string The key ('id'/'name') of the setting
+--- @field oldValue any The old value of the setting
+--- @field value any The new value of the setting
+--- @field storageType string The type of storage ("ModVar", "ModConfig", etc.)
+
+--- @class MCM_Profile_Created_Payload
+--- @field profileName string The name of the created profile
+--- @field newSettings table<string, table<string, any>> The settings of the new profile
+
+--- @class MCM_Profile_Activated_Payload
+--- @field profileName string The name of the active profile
+
+--- @class MCM_Profile_Deleted_Payload
+--- @field profileName string The name of the deleted profile
+
+--- @class MCM_Mod_Tab_Added_Payload
+--- @field modUUID string The UUID of the mod that owns the tab
+--- @field tabName string The name of the tab added
+
+--- @class MCM_Mod_Tab_Activated_Payload
+--- @field modUUID string The UUID of the mod that owns the menu
+
+--- @class MCM_Mod_Subtab_Activated_Payload
+--- @field modUUID string The UUID of the mod that owns the tab
+--- @field subtabName string The name of the activated subtab
+
+--- @class MCM_Window_Ready_Payload
+--- @field MCM_WINDOW ExtuiWindow The main window/root IMGUI object of MCM
+
+--- @class MCM_Window_Opened_Payload
+--- @field playSound boolean Whether a sound should be played when the window opens
+
+--- @class MCM_Window_Closed_Payload
+--- @field playSound boolean Whether a sound should be played when the window closes
+
+--- @class MCM_Event_Button_Clicked_Payload
+--- @field modUUID string The UUID of the mod
+--- @field settingId string The ID of the event button setting
+
+--- @class ModEvent_MCM_Setting_Saved
+--- @field Subscribe fun(self: ModEvent_MCM_Setting_Saved, callback: fun(payload: MCM_Setting_Saved_Payload))
+
+--- @class ModEvent_MCM_Setting_Reset
+--- @field Subscribe fun(self: ModEvent_MCM_Setting_Reset, callback: fun(payload: MCM_Setting_Reset_Payload))
+
+--- @class ModEvent_MCM_Dynamic_Setting_Saved
+--- @field Subscribe fun(self: ModEvent_MCM_Dynamic_Setting_Saved, callback: fun(payload: MCM_Dynamic_Setting_Saved_Payload))
+
+-- - @class ModEvent_MCM_Profile_Created
+-- - @field Subscribe fun(self: ModEvent_MCM_Profile_Created, callback: fun(payload: MCM_Profile_Created_Payload))
+
+--- @class ModEvent_MCM_Profile_Activated
+--- @field Subscribe fun(self: ModEvent_MCM_Profile_Activated, callback: fun(payload: MCM_Profile_Activated_Payload))
+
+-- - @class ModEvent_MCM_Profile_Deleted
+-- - @field Subscribe fun(self: ModEvent_MCM_Profile_Deleted, callback: fun(payload: MCM_Profile_Deleted_Payload))
+
+--- @class ModEvent_MCM_Mod_Tab_Added
+--- @field Subscribe fun(self: ModEvent_MCM_Mod_Tab_Added, callback: fun(payload: MCM_Mod_Tab_Added_Payload))
+
+--- @class ModEvent_MCM_Mod_Tab_Activated
+--- @field Subscribe fun(self: ModEvent_MCM_Mod_Tab_Activated, callback: fun(payload: MCM_Mod_Tab_Activated_Payload))
+
+--- @class ModEvent_MCM_Mod_Subtab_Activated
+--- @field Subscribe fun(self: ModEvent_MCM_Mod_Subtab_Activated, callback: fun(payload: MCM_Mod_Subtab_Activated_Payload))
+
+--- @class ModEvent_MCM_Window_Ready
+--- @field Subscribe fun(self: ModEvent_MCM_Window_Ready, callback: fun(payload: MCM_Window_Ready_Payload))
+
+--- @class ModEvent_MCM_Window_Opened
+--- @field Subscribe fun(self: ModEvent_MCM_Window_Opened, callback: fun(payload: MCM_Window_Opened_Payload))
+
+--- @class ModEvent_MCM_Window_Closed
+--- @field Subscribe fun(self: ModEvent_MCM_Window_Closed, callback: fun(payload: MCM_Window_Closed_Payload))
+
+--- @class ModEvent_MCM_Event_Button_Clicked
+--- @field Subscribe fun(self: ModEvent_MCM_Event_Button_Clicked, callback: fun(payload: MCM_Event_Button_Clicked_Payload))
+
+--- @class ModEvent_Generic
+--- @field Subscribe fun(self: ModEvent_Generic, callback: fun(payload: any))
+
+--- @class BG3MCM_ModEvents
+--- @field MCM_Setting_Saved ModEvent_MCM_Setting_Saved
+--- @field MCM_Internal_Setting_Saved ModEvent_Generic
+--- @field MCM_Dynamic_Setting_Saved ModEvent_MCM_Dynamic_Setting_Saved
+--- @field MCM_Setting_Reset ModEvent_MCM_Setting_Reset
+--- @field MCM_Profile_Created ModEvent_MCM_Profile_Created
+--- @field MCM_Profile_Activated ModEvent_MCM_Profile_Activated
+--- @field MCM_Profile_Deleted ModEvent_MCM_Profile_Deleted
+--- @field MCM_Mod_Tab_Added ModEvent_MCM_Mod_Tab_Added
+--- @field MCM_Mod_Tab_Activated ModEvent_MCM_Mod_Tab_Activated
+--- @field MCM_Mod_Subtab_Activated ModEvent_MCM_Mod_Subtab_Activated
+--- @field MCM_Window_Ready ModEvent_MCM_Window_Ready
+--- @field MCM_Window_Opened ModEvent_MCM_Window_Opened
+--- @field MCM_Window_Closed ModEvent_MCM_Window_Closed
+--- @field MCM_Keybindings_Loaded ModEvent_Generic
+--- @field MCM_Event_Button_Clicked ModEvent_MCM_Event_Button_Clicked
+
+--- @class ExtModEvents
+--- @field BG3MCM BG3MCM_ModEvents
+
+--- @type ExtModEvents
+Ext.ModEvents = Ext.ModEvents or {}
