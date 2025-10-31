@@ -1,7 +1,7 @@
 --- @meta
 --- @diagnostic disable
 
---- Aggregated EmmyLua annotations for the Mod Configuration Menu (MCM) public API (version 1.38+).
+--- Aggregated EmmyLua annotations for the Mod Configuration Menu (MCM) public API.
 
 ---@class MCMGetArgs
 ---@field settingId string The ID of the setting to retrieve
@@ -86,38 +86,37 @@
 ---@field WARNING "warning" Warning feedback type
 
 ---@class MCMKeybindingAPI Keybinding-related API methods
----@field Get fun(args:MCMKeybindingGetArgs):string Get a human-readable keybinding string (e.g., "[Ctrl] + [C]")
----@field GetRaw fun(args:MCMKeybindingGetArgs):table|nil Get the raw keybinding data structure
----@field SetCallback fun(args:MCMKeybindingSetCallbackArgs):nil Register a callback for when the keybinding is pressed
+---@field Get fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):string Get a human-readable keybinding string (e.g., "[Ctrl] + [C]")
+---@field GetRaw fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):table|nil Get the raw keybinding data structure
+---@field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(modUUID:string?, settingId:string), modUUID?:string):nil Register a callback for when the keybinding is pressed
 
 ---@class MCMListAPI List setting-related API methods
----@field GetEnabled fun(args:MCMListGetArgs):table<string, boolean> Get all enabled items in a list setting
----@field GetRaw fun(args:MCMListGetArgs):table|nil Get the raw list setting data structure
----@field IsEnabled fun(args:MCMListIsEnabledArgs):boolean Check if a specific item is enabled
----@field SetEnabled fun(args:MCMListSetEnabledArgs):boolean Update the enabled state of an item
----@field InsertSuggestions fun(args:MCMListInsertSuggestionsArgs):boolean Insert search suggestions for a list_v2 setting
+---@field GetEnabled fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table<string, boolean> Get all enabled items in a list setting
+---@field GetRaw fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table|nil Get the raw list setting data structure
+---@field IsEnabled fun(listSettingIdOrArgs:string|MCMListIsEnabledArgs, itemName?:string, modUUID?:string):boolean Check if a specific item is enabled
+---@field SetEnabled fun(listSettingIdOrArgs:string|MCMListSetEnabledArgs, itemName?:string, enabled?:boolean, modUUID?:string, shouldEmitEvent?:boolean):boolean Update the enabled state of an item
+---@field InsertSuggestions fun(listSettingIdOrArgs:string|MCMListInsertSuggestionsArgs, suggestions?:string[], modUUID?:string):boolean Insert search suggestions for a list_v2 setting
 
 ---@class MCMEventButtonAPI Event button-related API methods (client-only)
 ---@field FeedbackTypes MCMEventButtonFeedbackTypes Predefined feedback type constants
----@field IsEnabled fun(args:MCMEventButtonStateArgs):boolean|nil Check if an event button is enabled
----@field ShowFeedback fun(args:MCMEventButtonFeedbackArgs):boolean Display a feedback message on an event button
----@field RegisterCallback fun(args:MCMEventButtonCallbackArgs):boolean Register a callback for button clicks
----@field UnregisterCallback fun(args:MCMEventButtonStateArgs):boolean Unregister a button click callback
----@field SetDisabled fun(args:MCMEventButtonSetDisabledArgs):boolean Enable or disable an event button
+---@field IsEnabled fun(buttonIdOrArgs:string|MCMEventButtonStateArgs, modUUID?:string):boolean|nil Check if an event button is enabled
+---@field ShowFeedback fun(buttonIdOrArgs:string|MCMEventButtonFeedbackArgs, message?:string, feedbackType?:MCMEventButtonFeedbackType, modUUID?:string, durationInMs?:number):boolean Display a feedback message on an event button
+---@field RegisterCallback fun(buttonIdOrArgs:string|MCMEventButtonCallbackArgs, callback?:fun(buttonId:string, modUUID:string?), modUUID?:string):boolean Register a callback for button clicks
+---@field UnregisterCallback fun(buttonIdOrArgs:string|MCMEventButtonStateArgs, modUUID?:string):boolean Unregister a button click callback
+---@field SetDisabled fun(buttonIdOrArgs:string|MCMEventButtonSetDisabledArgs, disabled?:boolean, tooltipText?:string, modUUID?:string):boolean Enable or disable an event button
 
 ---@class MCMTable Table containing the Mod Configuration Menu (MCM) public API exposed to each mod.
----@field Get fun(args:MCMGetArgs):any Get the value of a setting
----@field Set fun(args:MCMSetArgs):boolean Set the value of a setting
+---@field Get fun(settingIdOrArgs:string|MCMGetArgs, modUUID?:string):any Get the value of a setting
+---@field Set fun(settingIdOrArgs:string|MCMSetArgs, value?:any, modUUID?:string, shouldEmitEvent?:boolean):boolean Set the value of a setting
 ---@field Keybinding MCMKeybindingAPI Keybinding-related methods
 ---@field List MCMListAPI List setting-related methods
 ---@field EventButton MCMEventButtonAPI Event button-related methods (client-only)
 ---@field OpenMCMWindow fun():nil Open the MCM window (client-only)
 ---@field CloseMCMWindow fun():nil Close the MCM window (client-only)
----@field OpenModPage fun(args:MCMOpenModPageArgs):nil Open a mod page in the MCM (client-only)
----@field InsertModMenuTab fun(args:MCMInsertModMenuTabArgs):nil Insert a new tab into the mod menu (client-only)
----@field SetKeybindingCallback fun(args:MCMKeybindingSetCallbackArgs):nil Deprecated: use Keybinding.SetCallback instead
----@field GetList fun(args:MCMListGetArgs):table<string, boolean> Deprecated: use List.GetEnabled instead
----@field SetListElement fun(args:MCMListSetEnabledArgs):boolean Deprecated: use List.SetEnabled instead
+---@field OpenModPage fun(tabNameOrArgs:string|MCMOpenModPageArgs, modUUID?:string, shouldEmitEvent?:boolean):nil Open a mod page in the MCM (client-only)
+---@field SetKeybindingCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(modUUID:string?, settingId:string), modUUID?:string):nil Deprecated: use Keybinding.SetCallback instead
+---@field GetList fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table<string, boolean> Deprecated: use List.GetEnabled instead
+---@field SetListElement fun(listSettingIdOrArgs:string|MCMListSetEnabledArgs, itemName?:string, enabled?:boolean, modUUID?:string, shouldEmitEvent?:boolean):boolean Deprecated: use List.SetEnabled instead
 
 ---@type MCMTable Table containing the MCM public API exposed to each mod.
 MCM = {
