@@ -113,7 +113,7 @@ end
 function Printer:PrintTest(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
-        if self.DebugLevel > 1 then
+        if self.DebugLevel > 0 then
             s = string.format("[%s][%s%s][%s]: ", self.Prefix, "TEST-", debugLevel, self.Machine)
         else
             s = string.format("[%s][%s%s][%s]: ", self.Prefix, "TEST-", debugLevel, self.Machine)
@@ -137,7 +137,7 @@ end
 function Printer:PrintWarning(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
-        if self.DebugLevel > 1 then
+        if self.DebugLevel > 0 then
             s = string.format("[%s][%s][%s]: ", self.Prefix, "WARN", self.Machine)
         else
             s = string.format("[%s][%s][%s]: ", self.Prefix, "WARN", self.Machine)
@@ -161,7 +161,7 @@ end
 function Printer:PrintError(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
-        if self.DebugLevel > 1 then
+        if self.DebugLevel > 0 then
             s = string.format("[%s][%s][%s]: ", self.Prefix, "ERROR", self.Machine)
         else
             s = string.format("[%s][%s][%s]: ", self.Prefix, "ERROR", self.Machine)
@@ -185,7 +185,7 @@ end
 function Printer:PrintDeprecation(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
-        if self.DebugLevel > 1 then
+        if self.DebugLevel > 0 then
             s = string.format("[%s][%s][%s]: ", self.Prefix, "DEPRECATION", self.Machine)
         else
             s = string.format("[%s][%s][%s]: ", self.Prefix, "DEPRECATION", self.Machine)
@@ -209,7 +209,7 @@ end
 function Printer:PrintDebug(debugLevel, ...)
     if self.DebugLevel >= (debugLevel and tonumber(debugLevel) or 0) then
         local s
-        if self.DebugLevel > 1 then
+        if self.DebugLevel > 0 then
             s = string.format("[%s][%s%s][%s]: ", self.Prefix, "DEBUG-", debugLevel, self.Machine)
         else
             s = string.format("[%s][%s%s][%s]: ", self.Prefix, "DEBUG-", debugLevel, self.Machine)
