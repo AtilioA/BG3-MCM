@@ -185,14 +185,14 @@ MCM = {
 --- @class ModEvent_MCM_Dynamic_Setting_Saved
 --- @field Subscribe fun(self: ModEvent_MCM_Dynamic_Setting_Saved, callback: fun(payload: MCM_Dynamic_Setting_Saved_Payload))
 
--- - @class ModEvent_MCM_Profile_Created
--- - @field Subscribe fun(self: ModEvent_MCM_Profile_Created, callback: fun(payload: MCM_Profile_Created_Payload))
+--- @class ModEvent_MCM_Profile_Created
+--- @field Subscribe fun(self: ModEvent_MCM_Profile_Created, callback: fun(payload: MCM_Profile_Created_Payload))
 
 --- @class ModEvent_MCM_Profile_Activated
 --- @field Subscribe fun(self: ModEvent_MCM_Profile_Activated, callback: fun(payload: MCM_Profile_Activated_Payload))
 
--- - @class ModEvent_MCM_Profile_Deleted
--- - @field Subscribe fun(self: ModEvent_MCM_Profile_Deleted, callback: fun(payload: MCM_Profile_Deleted_Payload))
+--- @class ModEvent_MCM_Profile_Deleted
+--- @field Subscribe fun(self: ModEvent_MCM_Profile_Deleted, callback: fun(payload: MCM_Profile_Deleted_Payload))
 
 --- @class ModEvent_MCM_Mod_Tab_Added
 --- @field Subscribe fun(self: ModEvent_MCM_Mod_Tab_Added, callback: fun(payload: MCM_Mod_Tab_Added_Payload))
@@ -223,9 +223,9 @@ MCM = {
 --- @field MCM_Internal_Setting_Saved ModEvent_Generic
 --- @field MCM_Dynamic_Setting_Saved ModEvent_MCM_Dynamic_Setting_Saved
 --- @field MCM_Setting_Reset ModEvent_MCM_Setting_Reset
---- @field MCM_Profile_Created ModEvent_MCM_Profile_Created
+-- - @field MCM_Profile_Created ModEvent_MCM_Profile_Created
 --- @field MCM_Profile_Activated ModEvent_MCM_Profile_Activated
---- @field MCM_Profile_Deleted ModEvent_MCM_Profile_Deleted
+-- - @field MCM_Profile_Deleted ModEvent_MCM_Profile_Deleted
 --- @field MCM_Mod_Tab_Added ModEvent_MCM_Mod_Tab_Added
 --- @field MCM_Mod_Tab_Activated ModEvent_MCM_Mod_Tab_Activated
 --- @field MCM_Mod_Subtab_Activated ModEvent_MCM_Mod_Subtab_Activated
