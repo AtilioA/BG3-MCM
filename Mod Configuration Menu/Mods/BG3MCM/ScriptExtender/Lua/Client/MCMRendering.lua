@@ -212,6 +212,15 @@ function MCMRendering:EnsureWindowFocused()
         return
     end
 
+    NotificationManager:CreateIMGUINotification('mcm_gamepad_onboarding', 'info',
+        "Gamepad MCM overhaul",
+        "Welcome to MCM!\nGamepad has been overhauled:\n- START closes MCM,\n- SELECT/BACK opens the sidebar,\n- L1/LB and R1/RB switches tabs.\nHappy modding!",
+        {
+            displayOnceOnly = true,
+            -- dontShowAgainButtonCountdownInSec = 5,
+            dontShowAgainButton = false,
+            duration = 20,
+        }, ModuleUUID)
     MCM_WINDOW:SetFocus()
 end
 
