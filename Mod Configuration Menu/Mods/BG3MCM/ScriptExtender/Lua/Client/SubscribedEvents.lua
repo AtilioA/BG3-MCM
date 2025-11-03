@@ -27,8 +27,8 @@ local function handleMCMGameMenuSearch(controller)
 
         Ext.UI.RegisterType("GameMenuMCMButtonDC", {
             CustomEvent = { Type = "Command" },
-        }, "gui::DCGameMenu")
-        local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC", MCMButton.DataContext)
+        })
+        local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC")
         ctx.CustomEvent:SetHandler(function()
             IMGUIAPI:ToggleMCMWindow(false)
         end)
