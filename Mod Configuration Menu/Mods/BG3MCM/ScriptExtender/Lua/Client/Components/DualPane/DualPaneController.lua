@@ -293,6 +293,7 @@ function DualPaneController:Expand()
     self.currentAnimation = "expand"
     HeaderActionsInstance:UpdateToggleButtons(false)
     self.menuScrollChildWindow.Visible = true
+    self.menuScrollChildWindow:SetFocus()
     -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
     local targetWidth = self.lastExpandedWidth or GetMenuColumnWidth()
 
@@ -392,6 +393,7 @@ end
 ---@param shouldOpenWindow boolean|nil If true, opens the MCM window
 function DualPaneController:ActivateTab(modUUID, targetTab, shouldOpenWindow)
     targetTab.SetSelected = true
+    self.rightPane:FocusModContentChildWindow()
     ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
         modUUID = modUUID,
         tabName = targetTab.UserData.tabName
@@ -544,6 +546,8 @@ function DualPaneController:SetVisibleFrame(modUUID, shouldEmitEvent)
     if shouldEmitEvent and (not MCMProxy.IsMainMenu() or modUUID == ModuleUUID) then
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ACTIVATED, { modUUID = modUUID }, true)
     end
+
+    self.rightPane:FocusModContentChildWindow()
 end
 
 -- Helper called from LeftPane buttons.

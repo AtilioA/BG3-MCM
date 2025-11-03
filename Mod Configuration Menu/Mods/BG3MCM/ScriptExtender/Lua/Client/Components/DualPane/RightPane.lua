@@ -4,7 +4,7 @@
 --------------------------------------------
 
 ---@class RightPane
----@field parent ExtuiStyledRenderable
+---@field parent ExtUiChildWindow
 ---@field contentGroups table
 ---@field detachedWindows table
 ---@field currentMod table<string, any>
@@ -26,6 +26,13 @@ function RightPane:New(parent)
     -- Will hold the currently active mod group info
     self.currentMod = { group = nil, modUUID = nil }
     return self
+end
+
+--- Focuses the first focusable element in a tab's content
+function RightPane:FocusModContentChildWindow()
+    if not self.parent then return end
+    self.parent:SetFocus()
+    return true
 end
 
 function RightPane:CreateModGroup(modUUID, modName, modDescription)
@@ -155,6 +162,9 @@ function RightPane:CreateTab(modUUID, tabName)
 
     tab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
+
+        self:FocusModContentChildWindow()
+
         ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
             modUUID = modUUID,
             tabName = tabName
