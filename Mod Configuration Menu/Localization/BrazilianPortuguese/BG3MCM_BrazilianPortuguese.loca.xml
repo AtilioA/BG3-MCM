@@ -132,7 +132,7 @@
     <content contentuid="h3914d63b7ccb425f950cea47eca955ad9788" version="1">Min: [1].&lt;br&gt;Max: [2].</content>
     <content contentuid="h0dfee4b6ba51423da77eaa53e1961ade059f" version="1">CTRL + clique para inserir o valor manualmente.</content>
     <content contentuid="hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d" version="1">Reinicia a máquina virtual Lua do servidor e do cliente.</content>
-    <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua</content>
+    <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua (Server &amp; Client)</content>
     <content contentuid="hd4e656a649c14e638ab1cb4380ad714746ea" version="1">O atalho [1] está vinculado a mais de uma ação.&lt;br&gt;Abra o MCM e redefina as teclas em conflito.</content>
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Esse atalho deve ser habilitado?&lt;br&gt;Desabilitá-lo irá impedir que ele seja acionado se a combinação de teclas for pressionada.</content>
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Defina o atalho para fechar a janela do MCM.</content>
@@ -278,4 +278,8 @@
     <content contentuid="hbadbecf8d8f149af8ceaa61c606f3539dd45" version="1">Aplicar estilo de fonte para outras janelas.&lt;br&gt;Note que isso atualmente não afeta janelas criadas por outros mods.</content>
     <content contentuid="ha0754485dddb46b5902f09bfb426ecbd1367" version="1">Aplica as configurações de fonte para as janelas criadas por outros mods.</content>
     <content contentuid="ha01f9dde75564cd7902c5056f1f3d03ba1ea" version="1">Atenção: a funcionalidade de atalhos de teclado só funciona com teclados.</content>
+    <content contentuid="he0bae6ed370f481cac73d3eb515e12a0gg35" version="1">Reiniciar Lua (Server)</content>
+    <content contentuid="h9d0b2ab058c949eda1871604cba0083bd4c1" version="1">Reinicializa a máquina virtual de Lua do lado do server.</content>
+    <content contentuid="h2b1ab8b215ff4918bd9f9319d52a1fb33460" version="1">Reiniciar Lua (Client)</content>
+    <content contentuid="hf82a99a351d14f99b76dfe7e0f7acfc65dgf" version="1">Reinicializa a máquina virtual de Lua do lado do client.</content>
 </contentList>
