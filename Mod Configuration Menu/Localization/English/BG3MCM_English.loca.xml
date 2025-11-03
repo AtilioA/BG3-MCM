@@ -565,7 +565,7 @@
     <content contentuid="hdbcd16c5f55e4e9c800e7284ebef8b0f5372" version="1">This mod has one or more assigned hotkeys.&lt;br&gt;Click to open Hotkeys.</content>
     <content contentuid="hef97155533604ba6adf42a09c666469c0c4c" version="1">Vanilla/Native keybindings are read-only. This UI does not update when you change them in-game.</content>
     <content contentuid="h692c5bc059d841ccba0bc66c92f5bb09e53g" version="1">Vanilla keybindings</content>
-    <content contentuid="haafdc7e359944b89905c4d536bfed7cda1gf" version="1">Right-click dropdowns to open mod settings</content>
+    <content contentuid="haafdc7e359944b89905c4d536bfed7cda1gf" version="1">Right-click dropdowns to open mod settings:</content>
     <content contentuid="h49debc27a18f46c88019e4b14873abe342gd" version="1">Default</content>
     <content contentuid="h6e67df8d41ed4712907ffbbcb84c7b73785b" version="1">Open Dyslexic</content>
     <content contentuid="h05a14fc966bf404cb9dcf17ed31499eb130a" version="1">Inter</content>
@@ -574,4 +574,5 @@
     <content contentuid="h37e3d35cef6a43468bb71a253982d5634de8" version="1">Text is saved when you click outside the field.</content>
     <content contentuid="hbadbecf8d8f149af8ceaa61c606f3539dd45" version="1">Apply font styling to other windows.&lt;br&gt;Note this currently does not affect custom windows created by mod authors.</content>
     <content contentuid="ha0754485dddb46b5902f09bfb426ecbd1367" version="1">Apply the font settings to windows created by other mods.</content>
+    <content contentuid="ha01f9dde75564cd7902c5056f1f3d03ba1ea" version="1">Note: the Keybindings feature only works for keyboard input.</content>
 </contentList>

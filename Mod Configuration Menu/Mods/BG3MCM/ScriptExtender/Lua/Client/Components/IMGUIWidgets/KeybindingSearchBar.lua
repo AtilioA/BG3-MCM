@@ -46,7 +46,7 @@ end
 ---@param group ExtuiGroup The IMGUI group to render into
 function KeybindingSearchBar:Render(group)
     group:AddSpacing()
-    group:AddText("Note: the Keybindings feature only works for keyboard input.")
+    group:AddText(Ext.Loca.GetTranslatedString("ha01f9dde75564cd7902c5056f1f3d03ba1ea"))
     group:AddSpacing()
     local searchLabel = group:AddText(Ext.Loca.GetTranslatedString("h2f1eda98ddb949d09792e1e1bc45ecddg446"))
     searchLabel.SameLine = true
