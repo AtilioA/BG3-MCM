@@ -7,5 +7,6 @@ RequireFiles("Client/Helpers/", {
     "Noesis",
     "Restoration/_Init",
     "NativeKeybindingsTranslator",
-    "InitHandles"
+    "InitHandles",
+    "Gamepad"
 })

@@ -208,7 +208,7 @@ function MCMRendering:EnsureWindowFocused()
     end
 
     -- If not in controller mode, don't focus the window
-    if Ext.Utils.GetGlobalSwitches().ControllerMode == 0 then
+    if not Gamepad.IsEntityControllerMode(_C()) then
         return
     end
 
