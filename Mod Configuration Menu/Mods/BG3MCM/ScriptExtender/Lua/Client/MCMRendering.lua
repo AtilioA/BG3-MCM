@@ -152,7 +152,7 @@ end
 
 --- Ensures the MCM window is within the viewport bounds
 --- @return boolean True if window was repositioned, false otherwise
-function MCMRendering:EnsureWindowVisible()
+function MCMRendering:EnsureWindowIsWithinViewport()
     if not MCM_WINDOW then
         return false
     end
@@ -266,7 +266,7 @@ function MCMRendering:CreateMainIMGUIWindow()
 
     MCM_WINDOW.NoFocusOnAppearing = true
 
-    self:EnsureWindowVisible()
+    self:EnsureWindowIsWithinViewport()
 
     MCM_WINDOW.Visible = shouldOpenOnStart
     MCM_WINDOW.Open = shouldOpenOnStart

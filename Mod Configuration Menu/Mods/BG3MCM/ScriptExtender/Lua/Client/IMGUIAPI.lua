@@ -117,7 +117,7 @@ function IMGUIAPI:OpenMCMWindow(playSound)
     end
 
     -- Ensure window is in visible area before showing it
-    MCMClientState:EnsureWindowVisible()
+    MCMClientState:EnsureWindowIsWithinViewport()
 
     MCM_WINDOW.Visible = true
     MCM_WINDOW.Open = true
@@ -155,7 +155,7 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
         self:CloseMCMWindow(playSound)
     else
         -- Ensure window is in visible area before showing it
-        MCMClientState:EnsureWindowVisible()
+        MCMClientState:EnsureWindowIsWithinViewport()
         self:OpenMCMWindow(playSound)
     end
 
