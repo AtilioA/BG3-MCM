@@ -1,57 +1,15 @@
-local isSearchingForMCMButton = false
+local _hasReceivedConfigPayload = nil
 
---- Handles search of MCM button on game menu.
---- @param controller boolean - Whether to search for the button on controller UI or not
-local function handleMCMGameMenuSearch(controller)
-    if isSearchingForMCMButton then
-        return
-    end
-
-    isSearchingForMCMButton = true
-    VCTimer:CallWithInterval(function()
-        local MCMButton = nil
-        if controller then
-            MCMButton = Noesis:FindMCMGameMenuButton_c()
-        else
-            MCMButton = Noesis:FindMCMGameMenuButton()
-        end
-        if not MCMButton then
-            MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
-            return nil
-        end
-        isSearchingForMCMButton = false
-        -- if hasRegisteredGameMenuHandler then
-        --     MCMWarn(0, "GameMenuMCMButtonDC already registered. Skipping registration.")
-        --     return true
-        -- end
-
-        Ext.UI.RegisterType("GameMenuMCMButtonDC", {
-            CustomEvent = { Type = "Command" },
-        })
-        local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC")
-        ctx.CustomEvent:SetHandler(function()
-            IMGUIAPI:ToggleMCMWindow(false)
-        end)
-        MCMButton.DataContext = ctx
-
-        -- Kept for troubleshooting purposes (shows warning)
-        Noesis:HandleGameMenuMCMButtonPress(MCMButton)
-
-        return MCMButton
-    end, 100, 1000)
-
-    -- Reset the flag after the total time in case no button was found
-    Ext.Timer.WaitFor(1000, function()
-        isSearchingForMCMButton = false
-    end)
+local function invalidateConfigPayloadCache()
+    _hasReceivedConfigPayload = nil
 end
 
 local function handleStartKey()
-    handleMCMGameMenuSearch(true)
+    Noesis:MonitorMCMGameMenuButtonPress(true)
 end
 
 local function handleEscapeKey()
-    handleMCMGameMenuSearch(false)
+    Noesis:MonitorMCMGameMenuButtonPress(false)
 end
 
 local function handleKeyInput(e)
@@ -97,6 +55,7 @@ end
 --- SECTION: Ext events
 Ext.Events.GameStateChanged:Subscribe(function(e)
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
+        invalidateConfigPayloadCache()
         InitClientMCM()
     end
 end)
@@ -141,14 +100,8 @@ Ext.Events.ControllerButtonInput:Subscribe(handleControllerInput)
 --     _D(e)
 -- end)
 
---- SECTION: Net messages
-local _hasReceivedConfigPayload = nil
-
-local function invalidateConfigPayloadCache()
-    _hasReceivedConfigPayload = nil
-end
-
 -- Common handler for configs payloads
+-- REFACTOR: consolidate with InitClientMCM
 local function onConfigsReceived(mods, profiles)
     if _hasReceivedConfigPayload and _hasReceivedConfigPayload == true then
         MCMDebug(1, "Received duplicate MCM config payload; skipping redundant client initialization")
