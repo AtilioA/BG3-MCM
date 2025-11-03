@@ -72,13 +72,21 @@ end
 local function handleControllerInput(e)
     -- NOTE: Hardcoded close MCM key
     if e.Event == "KeyDown" and e.Pressed then
+        -- Handle Start button for menu navigation
         if e.Button == "Start" then
             handleStartKey()
             handleCloseMCMKey()
             return
         end
 
+        -- If MCM window is open, let the GamepadInputHandler handle most inputs
         if IMGUIAPI:IsMCMWindowOpen() then
+            -- Allow Back, LeftShoulder, and RightShoulder to be handled by GamepadInputHandler
+            if e.Button == "Back" or e.Button == "LeftShoulder" or e.Button == "RightShoulder" then
+                return
+            end
+
+            -- For other buttons, prevent default action to avoid interfering with MCM UI
             e:PreventAction()
         end
 

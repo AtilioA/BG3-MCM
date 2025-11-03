@@ -8,5 +8,5 @@ RequireFiles("Client/Helpers/", {
     "Restoration/_Init",
     "NativeKeybindingsTranslator",
     "InitHandles",
-    "Gamepad"
+    "Gamepad/_Init"
 })
