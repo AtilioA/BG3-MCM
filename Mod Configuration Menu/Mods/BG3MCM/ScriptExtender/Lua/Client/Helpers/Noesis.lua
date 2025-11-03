@@ -60,7 +60,17 @@ function Noesis:FindMCMGameMenuButton()
     end
 end
 
-function Noesis:FindMCMainMenuButton()
+function Noesis:FindMCMGameMenuButton_c()
+    local target = Noesis:FindWidgetChild("GameMenu_c", "MCMButton")
+    if target then
+        MCMDebug(3, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
+        return target
+    else
+        -- MCMDebug(1, "MCMButton not found")
+    end
+end
+
+function Noesis:FindMCMMainMenuButton()
     local target = Noesis:FindWidgetChild("MainMenu", "MCMMainMenuButton")
     if target then
         MCMDebug(1, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
@@ -108,12 +118,13 @@ local function handleMCMButtonPress(button, hasServer)
             Ext.Timer.WaitFor(timeWindow, function()
                 pressCount = 0
             end)
+            MCMPrint(1,
+                "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
         end
-        MCMPrint(1,
-            "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-        IMGUIAPI:ToggleMCMWindow(false)
+        -- IMGUIAPI:ToggleMCMWindow(false)
     end
 
+    -- Unsubscribes automatically after the lifetime expires
     button:Subscribe("PreviewMouseLeftButtonDown", onPointerDown)
     -- button:Subscribe("PreviewTouchDown", onPointerDown)
 end
@@ -128,13 +139,23 @@ end
 
 function Noesis:MonitorMainMenuButtonPress()
     VCTimer:ExecuteWithIntervalUntilCondition(function()
-        local mainMenuButton = Noesis:FindMCMainMenuButton()
-        if not mainMenuButton then
+        local mainMenu = Noesis:FindWidgetChild("MainMenu", "MainMenu")
+        local mainMenuButton = Noesis:FindMCMMainMenuButton()
+        if not mainMenuButton or not mainMenu then
             MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
             return false
         end
 
+        Ext.UI.RegisterType("MainMenuDC", {
+            OpenMCMOptions = { Type = "Command" }
+        }, "gui::DCMainMenu")
+
+        local ctx = Ext.UI.Instantiate("se::MainMenuDC", mainMenu.DataContext)
+        ctx.OpenMCMOptions:SetHandler(function() print("yo continue?") end)
+        mainMenu.DataContext = ctx
+
         self:HandleMainMenuMCMButtonPress(mainMenuButton)
+
         return mainMenuButton ~= nil
     end, 2000, function() return not MCMProxy:IsMainMenu() end)
 end

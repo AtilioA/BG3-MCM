@@ -1,19 +1,42 @@
 local isSearchingForMCMButton = false
 
-local function handleEscapeKey()
+--- Handles search of MCM button on game menu.
+--- @param controller boolean - Whether to search for the button on controller UI or not
+local function handleMCMGameMenuSearch(controller)
     if isSearchingForMCMButton then
         return
     end
 
     isSearchingForMCMButton = true
     VCTimer:CallWithInterval(function()
-        local MCMButton = Noesis:FindMCMGameMenuButton()
+        local MCMButton = nil
+        if controller then
+            MCMButton = Noesis:FindMCMGameMenuButton_c()
+        else
+            MCMButton = Noesis:FindMCMGameMenuButton()
+        end
         if not MCMButton then
             MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
             return nil
         end
-        Noesis:HandleGameMenuMCMButtonPress(MCMButton)
         isSearchingForMCMButton = false
+        -- if hasRegisteredGameMenuHandler then
+        --     MCMWarn(0, "GameMenuMCMButtonDC already registered. Skipping registration.")
+        --     return true
+        -- end
+
+        Ext.UI.RegisterType("GameMenuMCMButtonDC", {
+            CustomEvent = { Type = "Command" },
+        }, "gui::DCGameMenu")
+        local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC", MCMButton.DataContext)
+        ctx.CustomEvent:SetHandler(function()
+            IMGUIAPI:ToggleMCMWindow(false)
+        end)
+        MCMButton.DataContext = ctx
+
+        -- Kept for troubleshooting purposes (shows warning)
+        Noesis:HandleGameMenuMCMButtonPress(MCMButton)
+
         return MCMButton
     end, 100, 1000)
 
@@ -21,6 +44,14 @@ local function handleEscapeKey()
     Ext.Timer.WaitFor(1000, function()
         isSearchingForMCMButton = false
     end)
+end
+
+local function handleStartKey()
+    handleMCMGameMenuSearch(true)
+end
+
+local function handleEscapeKey()
+    handleMCMGameMenuSearch(false)
 end
 
 local function handleKeyInput(e)
@@ -42,7 +73,7 @@ local function handleControllerInput(e)
     -- NOTE: Hardcoded close MCM key
     if e.Event == "KeyDown" and e.Pressed then
         if e.Button == "Start" then
-            handleEscapeKey()
+            handleStartKey()
             handleCloseMCMKey()
             return
         end

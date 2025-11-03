@@ -24,7 +24,7 @@ function MCMProxy:Initialize()
             self.GameStateSubject:OnNext(e.ToState)
         end
 
-        MCMDebug(1, "GameState changed to " .. tostring(e.ToState))
+        MCMDebug(2, "GameState changed to " .. tostring(e.ToState))
     end)
 end
 
