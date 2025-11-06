@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentList>
     <!-- Temporary handle in case MCM is inactive -->
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Your load order is likely being reset. Use BG3MM 1.0.12.9+ to identify load order problems.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid UUIDs.&#x0a;Make sure you have SE and saved + exported your load order.&#x0a;</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Your load order is likely being reset. Use BG3MM 1.0.12.9+ to identify load order problems.&#x0a;Issues may stem from using the in-game mod manager or mods with invalid meta.lsx.&#x0a;Make sure you have SE and saved + exported your load order.&#x0a;</content>
     <!-- IMGUI window name -->
     <content contentuid="hae2bbc06g288dg43dagb3a5g967fa625c769" version="1">Mod Configuration Menu</content>
     <!-- Used for some buttons (can be overridden during runtime to display advice) -->
@@ -150,8 +150,8 @@
     <content contentuid="h41e2dbf1773848eca2001fde456cca4d0156" version="1">You're using 'No Press Any Key Menu' without the MCM compatibility patch.&lt;br&gt;Your main menu may not display the MCM button correctly.&lt;br&gt;&lt;br&gt;Please replace it with the patched version from Caites' mod page.</content>
     <content contentuid="he1d69e96b7e44957b6d9373635ef69100180" version="1">Dependency issue detected: '[1]' depends on '[2]'.</content>
     <content contentuid="h0acfde6fg6f34g4904g8526g6f1e1c0865e3" version="1">Conflict issue detected: '[1]' conflicts with '[2]'</content>
-    <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">Mod '[1]' has an invalid UUID ([2]).&lt;br&gt;This mod may cause your load order to reset.&lt;br&gt;Delete the pak file for this mod or look for an update.&lt;br&gt;You may downgrade to Patch 6 or 7 and use Mod Uninstaller to try to remove this mod if you can't load a save without this mod.</content>
-    <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Your load order has a mod with an invalid UUID ([1] [2])</content>
+    <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">Mod '[1]' has an invalid meta.lsx/UUID ([2]).&lt;br&gt;This mod may cause your load order to reset.&lt;br&gt;Delete the pak file for this mod or look for an update.&lt;br&gt;You may downgrade to Patch 6 or 7 and use Mod Uninstaller to try to remove this mod if you can't load a save without this mod.</content>
+    <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Your load order has a mod with an invalid meta.lsx/UUID ([1] [2])</content>
     <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Can't check dependency '[1]' for mod '[2]' because it has no version information.&lt;br&gt;This doesn't impact functionality, but please contact [3] to update the meta.lsx file for '[4]'.&lt;br&gt;The version node might have an outdated ID (it should be Version64).</content>
     <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">Mod '[1]' requires '[2]' version [3] or higher, but loaded version is [4].&lt;br&gt;Please update [2].</content>
     <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">Mod '[1]' requires dependency '[2]', which is not loaded.&lt;br&gt;Please install [2].</content>
@@ -204,14 +204,14 @@
     <content contentuid="hddf4673450d344dc924bc6210f17ea62544g" version="1">Enable warning logs (orange-red)</content>
     <content contentuid="h695e89a6bc5e4064b183454101463d0e3g4e" version="1">Mod '[1]' uses MCM but is loaded before MCM itself.&lt;br&gt;This may cause issues.&lt;br&gt;Please move '[2]' after MCM in your load order.</content>
     <content contentuid="hbb05ad5f055141f5846365e1d6175ae74fb4" version="1">Load order precedence: load MCM before '[1]'</content>
-    <content contentuid="h22531fbba80a4aa5a046c3bbfd55c373g923" version="1">Warns if any mod in the load order has an invalid or missing UUID.</content>
+    <content contentuid="h22531fbba80a4aa5a046c3bbfd55c373g923" version="1">Warns if any mod in the load order has an invalid meta.lsx file.</content>
     <content contentuid="hae5d939989a4461997798b892d7dc34366c4" version="1">Warns if there are missing or outdated load order dependencies.</content>
     <content contentuid="h545b1baf66324fc28c0c726d7c016e73a3c9" version="1">Warns if incompatible No Press Any Key Menu version is detected in the load order.</content>
     <content contentuid="h01582783e20d43bfba15142da3f8a22adf42" version="1">Warns if there are mod conflicts in the load order.</content>
     <content contentuid="h5611eef852e342ed932b47cb0cedfa51g66e" version="1">Warns if MCM is not placed before dependent mods in the load order.</content>
     <content contentuid="hc8d418eb08b243dca7827e5a873295d34d9b" version="1">Load order check</content>
     <content contentuid="h9e33c60be1134adaa0256000af3a4a142c08" version="1">Health check toggle</content>
-    <content contentuid="h1fd4e620b15146b79d30f01768ceb27581gg" version="1">Warn about invalid UUIDs</content>
+    <content contentuid="h1fd4e620b15146b79d30f01768ceb27581gg" version="1">Warn about invalid meta.lsx files</content>
     <content contentuid="hea337fe67fb44c6d9e2870b524bdcdc9e8bg" version="1">Warn about load order dependencies</content>
     <content contentuid="h0386d12fd1774adcab7d6d40bc8dcc403182" version="1">Warn about NPAKM</content>
     <content contentuid="h51d62ec178ef42339febafa360593169dccc" version="1">Warn about mod conflicts</content>

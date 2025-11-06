@@ -285,15 +285,16 @@
                     },
                     "Settings": [
                         {
-                            "Id": "enable_invalid_uuids_check",
-                            "Name": "Warn about invalid UUIDs",
+                            "Id": "enable_invalid_meta_check",
+                            "Name": "Warn about invalid meta.lsx files",
                             "Type": "checkbox",
                             "Default": true,
-                            "Description": "Warns if any mod in the load order has an invalid or missing UUID.",
+                            "Description": "Warns if any mod in the load order has an invalid meta.lsx file (invalid UUID, etc).",
                             "Handles": {
                                 "NameHandle": "h1fd4e620b15146b79d30f01768ceb27581gg",
                                 "DescriptionHandle": "h22531fbba80a4aa5a046c3bbfd55c373g923"
-                            }
+                            },
+                            "OldId": "enable_invalid_uuids_check"
                         },
                         {
                             "Id": "enable_loadorder_dependencies_check",

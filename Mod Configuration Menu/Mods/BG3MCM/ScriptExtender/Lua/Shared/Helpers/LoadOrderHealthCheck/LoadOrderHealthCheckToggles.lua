@@ -6,7 +6,7 @@ function LoadOrderHealthCheckToggles:RunAllChecks(e)
     if not e or not e.ToState then return end
     if e.ToState ~= Ext.Enums.ClientGameState["Menu"] then return end
 
-    local shouldCheckInvalidUUIDs = MCMAPI:GetSettingValue("enable_invalid_uuids_check", ModuleUUID)
+    local shouldCheckInvalidUUIDs = MCMAPI:GetSettingValue("enable_invalid_meta_check", ModuleUUID)
     if shouldCheckInvalidUUIDs then
         LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
     end

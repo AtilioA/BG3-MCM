@@ -36,7 +36,7 @@
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Printar avisos de descontinuação para mods com código desatualizado.&lt;br&gt;Eles ainda serão exibidos se o modo desenvolvedor estiver ativado.</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Printar avisos de descontinuação</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Depuração</content>
-    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Sua load order provavelmente está sendo resetada. BG3MM 1.0.12.9+ identifica problemas na load order.&#x0a;Problemas podem ser causados pelo uso do gerenciador de mods nativo do jogo ou mods com UUIDs inválidos.&#x0a;Certifique-se de ter o SE e ter salvo e exportado sua load order.</content>
+    <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Sua load order provavelmente está sendo resetada. BG3MM 1.0.12.9+ identifica problemas na load order.&#x0a;Problemas podem ser causados pelo uso do gerenciador de mods nativo do jogo ou mods com meta.lsx/UUID inválido.&#x0a;Certifique-se de ter o SE e ter salvo e exportado sua load order.</content>
     <content contentuid="h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f" version="1">Não mostrar novamente</content>
     <content contentuid="h9b0d0bba0bf64006a6dd8ed86a4d5353a3d8" version="1">Pesquisar por nome:</content>
     <content contentuid="h17e2c93763d54f3f9b5da8722d09cf90fab9" version="1">Marque para habilitar a lista, desmarque para desabilitá-la, sem remover/desabilitar nenhum elemento.</content>
@@ -148,8 +148,8 @@
     <content contentuid="he1d69e96b7e44957b6d9373635ef69100180" version="1">Problema de dependência detectado: [1] depende de [2]</content>
     <content contentuid="h0acfde6fg6f34g4904g8526g6f1e1c0865e3" version="1">Problema de conflito detectado: [1] conflita com [2]</content>
     <content contentuid="h729585d6g09c1g48cfg8290ga2e761cc46bf" version="1">Mod '[1]' declara um conflito com o mod '[2]', mas '[2]' está ativo. Por favor, resolva este conflito desabilitando um deles, ou procure patches de compatibilidade.</content>
-    <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">O mod '[1]' tem um UUID inválido ([2]).&lt;br&gt;Este mod impedirá que sua load order funcione corretamente.&lt;br&gt;Por favor, exclua o arquivo pak deste mod ou procure uma atualização.&lt;br&gt;Você pode reverter para o Patch 6 ou 7 e usar o Mod Uninstaller para tentar remover este mod se não conseguir carregar um save sem este mod.</content>
-    <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Sua load order tem um mod com um UUID inválido ([1] [2])</content>
+    <content contentuid="h7b007dd3e4cb4a978d05af7938aa3a5bf14g" version="1">O mod '[1]' tem um meta.lsx/UUID inválido ([2]).&lt;br&gt;Este mod impedirá que sua load order funcione corretamente.&lt;br&gt;Por favor, exclua o arquivo pak deste mod ou procure uma atualização.&lt;br&gt;Você pode reverter para o Patch 6 ou 7 e usar o Mod Uninstaller para tentar remover este mod se não conseguir carregar um save sem este mod.</content>
+    <content contentuid="h5a5567961e334edab3671aaf24c2cabfafef" version="1">Sua load order tem um mod com arquivo meta.lsx inválido ([1] [2])</content>
     <content contentuid="h5ab91d6d4bd04b9696355aa0c34b5be63740" version="1">Não é possível verificar a dependência '[1]' para o mod '[2]' porque não possui informações de versão.&lt;br&gt;Isso não impacta a funcionalidade, mas por favor, entre em contato com [3] para atualizar o arquivo meta.lsx para '[4]'.&lt;br&gt;O node de versão pode ter um ID desatualizado (deve ser Version64).</content>
     <content contentuid="h1c39894da62148389dbf1bddaf761a4bf56f" version="1">O mod '[1]' requer '[2]' versão [3] ou superior, mas a versão carregada é [4].&lt;br&gt;Por favor, atualize [2].</content>
     <content contentuid="h81ddeda4ecc14ac3a2c27dbaaea487be2ge7" version="1">O mod '[1]' requer a dependência '[2]', que não está carregada.&lt;br&gt;Por favor, instale [2].</content>
@@ -240,14 +240,14 @@
     <content contentuid="h11c49d334a6d429eb1fa26da1379390a5333" version="1">General</content>
     <content contentuid="h695e89a6bc5e4064b183454101463d0e3g4e" version="1">O mod '[1]' usa MCM mas está carregado antes do próprio MCM.&lt;br&gt;Isso pode causar problemas.&lt;br&gt;Por favor, mova '[2]' para depois do MCM na sua load order.</content>
     <content contentuid="hbb05ad5f055141f5846365e1d6175ae74fb4" version="1">Precedência na load order: carregue o MCM antes de '[1]'</content>
-    <content contentuid="h22531fbba80a4aa5a046c3bbfd55c373g923" version="1">Avisa se algum mod na load order tem um UUID inválido ou ausente.</content>
+    <content contentuid="h22531fbba80a4aa5a046c3bbfd55c373g923" version="1">Avisa se algum mod na load order tem um arquivo meta.lsx inválido.</content>
     <content contentuid="hae5d939989a4461997798b892d7dc34366c4" version="1">Avisa se há dependências ausentes ou desatualizadas na load order.</content>
     <content contentuid="h545b1baf66324fc28c0c726d7c016e73a3c9" version="1">Avisa se uma versão incompatível do No Press Any Key Menu for detectada na load order.</content>
     <content contentuid="h01582783e20d43bfba15142da3f8a22adf42" version="1">Avisa se há conflitos de mods na load order.</content>
     <content contentuid="h5611eef852e342ed932b47cb0cedfa51g66e" version="1">Avisa se o MCM não estiver posicionado antes dos mods dependentes na load order.</content>
     <content contentuid="hc8d418eb08b243dca7827e5a873295d34d9b" version="1">Verificações de load order</content>
     <content contentuid="h9e33c60be1134adaa0256000af3a4a142c08" version="1">Verificações de integridade de load order</content>
-    <content contentuid="h1fd4e620b15146b79d30f01768ceb27581gg" version="1">Avisar sobre UUIDs inválidos</content>
+    <content contentuid="h1fd4e620b15146b79d30f01768ceb27581gg" version="1">Avisar sobre arquivos meta.lsx inválidos</content>
     <content contentuid="hea337fe67fb44c6d9e2870b524bdcdc9e8bg" version="1">Avisar sobre dependências na load order</content>
     <content contentuid="h0386d12fd1774adcab7d6d40bc8dcc403182" version="1">Avisar sobre NPAKM</content>
     <content contentuid="h51d62ec178ef42339febafa360593169dccc" version="1">Avisar sobre conflitos de mods</content>
