@@ -208,8 +208,10 @@ function MCMRendering:EnsureWindowFocused()
     end
 
     -- If not in controller mode, don't focus the window
-    -- FIXME: this won't work in the main menu
-    if not Gamepad.IsEntityControllerMode(_C()) then
+    if MCMProxy.IsMainMenu() and not Gamepad.IsPlayerUsingGamepad() then
+        return
+    elseif not Gamepad.IsEntityControllerMode(_C()) then
+        -- Note: this won't work in the main menu; entity is only available in game
         return
     end
 

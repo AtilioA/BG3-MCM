@@ -73,7 +73,6 @@ function GamepadInputHandler:GetActiveTabIndex(tabBar)
 
     for index, tab in ipairs(tabBar.Children) do
         if tab.SetSelected == true then
-            _P("Found:" .. index)
             return index, tab
         end
     end

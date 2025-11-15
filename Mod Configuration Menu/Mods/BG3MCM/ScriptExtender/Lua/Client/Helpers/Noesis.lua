@@ -51,7 +51,15 @@ function Noesis:FindWidgetChild(widgetName, name)
     end
 end
 
-function Noesis:FindMCMGameMenuButton()
+function Noesis:FindMCMGameMenuButton(isController)
+    if isController then
+        return Noesis:FindMCMGameMenuButton_c()
+    else
+        return Noesis:FindMCMGameMenuButton_k()
+    end
+end
+
+function Noesis:FindMCMGameMenuButton_k()
     local target = Noesis:FindWidgetChild("GameMenu", "MCMButton")
     if target then
         MCMDebug(3, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
@@ -71,8 +79,27 @@ function Noesis:FindMCMGameMenuButton_c()
     end
 end
 
-function Noesis:FindMCMMainMenuButton()
+function Noesis:FindMCMMainMenuButton(isController)
+    _D("isController: " .. tostring(isController))
+    if isController then
+        return Noesis:FindMCMMainMenuButton_c()
+    else
+        return Noesis:FindMCMMainMenuButton_k()
+    end
+end
+
+function Noesis:FindMCMMainMenuButton_k()
     local target = Noesis:FindWidgetChild("MainMenu", "MCMMainMenuButton")
+    if target then
+        MCMDebug(1, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
+        return target
+    else
+        MCMDebug(1, "MCMMainMenuButton not found")
+    end
+end
+
+function Noesis:FindMCMMainMenuButton_c()
+    local target = Noesis:FindWidgetChild("MainMenu_c", "MCMMainMenuButton")
     if target then
         MCMDebug(1, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
         return target
@@ -139,8 +166,8 @@ function Noesis:HandleMainMenuMCMButtonPress(button)
 end
 
 --- Handles search of MCM button on game menu.
---- @param controller boolean - Whether to search for the button on controller UI or not
-function Noesis:MonitorMCMGameMenuButtonPress(controller)
+--- @param isController boolean - Whether to search for the button on controller UI or not
+function Noesis:MonitorMCMGameMenuButtonPress(isController)
     if isSearchingForMCMButton then
         return
     end
@@ -148,11 +175,7 @@ function Noesis:MonitorMCMGameMenuButtonPress(controller)
     isSearchingForMCMButton = true
     VCTimer:CallWithInterval(function()
         local MCMButton = nil
-        if controller then
-            MCMButton = Noesis:FindMCMGameMenuButton_c()
-        else
-            MCMButton = Noesis:FindMCMGameMenuButton()
-        end
+        MCMButton = Noesis:FindMCMGameMenuButton(isController)
         if not MCMButton then
             MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
             return nil
@@ -186,7 +209,9 @@ end
 
 function Noesis:MonitorMainMenuButtonPress()
     VCTimer:ExecuteWithIntervalUntilCondition(function()
-        local mainMenuButton = Noesis:FindMCMMainMenuButton()
+        local isController = Gamepad.IsHostUsingGamepad()
+
+        local mainMenuButton = Noesis:FindMCMMainMenuButton(isController)
         if not mainMenuButton then
             MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
             return false
@@ -194,10 +219,12 @@ function Noesis:MonitorMainMenuButtonPress()
 
         Ext.UI.RegisterType("MainMenuMCMButtonDC", {
             CustomEvent = { Type = "Command" }
-        }, "gui::DCMainMenu")
+        })
 
-        local ctx = Ext.UI.Instantiate("se::MainMenuMCMButtonDC", mainMenuButton.DataContext)
-        ctx.CustomEvent:SetHandler(function() IMGUIAPI:ToggleMCMWindow(false) end)
+        local ctx = Ext.UI.Instantiate("se::MainMenuMCMButtonDC")
+        ctx.CustomEvent:SetHandler(function()
+            IMGUIAPI:ToggleMCMWindow(false)
+        end)
         mainMenuButton.DataContext = ctx
 
         self:HandleMainMenuMCMButtonPress(mainMenuButton)
