@@ -579,4 +579,6 @@
     <content contentuid="h9d0b2ab058c949eda1871604cba0083bd4c1" version="1">Reinitializes the server Lua VM.</content>
     <content contentuid="h2b1ab8b215ff4918bd9f9319d52a1fb33460" version="1">Reset Lua (Client)</content>
     <content contentuid="hf82a99a351d14f99b76dfe7e0f7acfc65dgf" version="1">Reinitializes the client Lua VM.</content>
+    <content contentuid="h0309afa0d6ad410380557d1d911b61f4dg98" version="1">MCM gamepad overhaul</content>
+    <content contentuid="hfd59a213843e4116a1d716a2a8840cd408dc" version="1">Welcome to MCM 1.38+!&lt;br&gt;Gamepad navigation has been overhauled:&lt;br&gt;- START closes MCM,&lt;br&gt;- SELECT/BACK opens the sidebar,&lt;br&gt;- L1/LB and R1/RB switches tabs.&lt;br&gt;Happy modding!</content>
 </contentList>

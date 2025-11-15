@@ -216,8 +216,8 @@ function MCMRendering:EnsureWindowFocused()
     end
 
     NotificationManager:CreateIMGUINotification('mcm_gamepad_onboarding', 'info',
-        "Gamepad MCM overhaul",
-        "Welcome to MCM!\nGamepad has been overhauled:\n- START closes MCM,\n- SELECT/BACK opens the sidebar,\n- L1/LB and R1/RB switches tabs.\nHappy modding!",
+        VCString:ReplaceBrWithNewlines(Ext.Loca.GetTranslatedString("h0309afa0d6ad410380557d1d911b61f4dg98")),
+        VCString:ReplaceBrWithNewlines(Ext.Loca.GetTranslatedString("hfd59a213843e4116a1d716a2a8840cd408dc")),
         {
             displayOnceOnly = true,
             -- dontShowAgainButtonCountdownInSec = 5,

@@ -227,6 +227,6 @@ MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
     end)
 end)
 
-if Ext.Debug.IsDeveloperMode() then
-    InitClientMCM()
-end
+-- if Ext.Debug.IsDeveloperMode() then
+--     InitClientMCM()
+-- end
