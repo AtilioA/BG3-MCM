@@ -34,8 +34,7 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
         MCMWarn(1, "Tried to add a tooltip to a nil object")
         return nil
     end
-    if not tooltipText then
-        tooltipText = ""
+    if not tooltipText or tooltipText == "" then
         return nil
     end
     if not uuid then

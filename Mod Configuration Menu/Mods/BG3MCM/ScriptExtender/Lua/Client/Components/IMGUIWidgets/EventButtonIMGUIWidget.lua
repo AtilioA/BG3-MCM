@@ -198,7 +198,6 @@ function EventButtonIMGUIWidget:HandleButtonClick()
         if settingHandles.EventButtonHandles and settingHandles.EventButtonHandles.ConfirmDialogHandles then
             cdHandles = settingHandles.EventButtonHandles.ConfirmDialogHandles
         end
-        _D(cdHandles)
         title = localize(cdHandles.TitleHandle,
             confirmOptions.Title or localize("h652b98e111884533a0ec00fd94ecc386f717", "Confirm action"))
         message = localize(cdHandles.MessageHandle,
