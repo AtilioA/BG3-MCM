@@ -23,7 +23,7 @@ NotificationRegistry = _Class:Create("NotificationRegistry", nil, {
 ---@param title string The title to search for
 ---@return NotificationManager|nil
 function NotificationRegistry:FindByTitle(title)
-    for notification, _ in pairs(self._activeNotifications) do
+    for i, notification in pairs(self._activeNotifications) do
         if notification and type(notification) == "table" and notification.title == title then
             return notification
         end
