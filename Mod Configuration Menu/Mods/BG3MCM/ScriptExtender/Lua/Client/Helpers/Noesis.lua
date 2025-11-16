@@ -80,7 +80,6 @@ function Noesis:FindMCMGameMenuButton_c()
 end
 
 function Noesis:FindMCMMainMenuButton(isController)
-    _D("isController: " .. tostring(isController))
     if isController then
         return Noesis:FindMCMMainMenuButton_c()
     else
