@@ -6,6 +6,10 @@ end
 
 function Gamepad.IsPlayerUsingGamepad(playerIndex)
     local inputManager = Ext.Input.GetInputManager()
+    if not inputManager then
+        MCMWarn(1, "inputManager is nil")
+        return false
+    end
     playerIndex = playerIndex or 0 -- Default to host/player 1 (index 0)
 
     -- Check if player has a device assigned
