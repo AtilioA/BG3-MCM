@@ -152,8 +152,7 @@ local function handleMCMButtonPress(button, hasServer)
     end
 
     -- Unsubscribes automatically after the lifetime expires
-    button:Subscribe("PreviewMouseLeftButtonDown", onPointerDown)
-    -- button:Subscribe("PreviewTouchDown", onPointerDown)
+    button:Subscribe("MouseLeftButtonDown", onPointerDown)
 end
 
 function Noesis:HandleGameMenuMCMButtonPress(button)
