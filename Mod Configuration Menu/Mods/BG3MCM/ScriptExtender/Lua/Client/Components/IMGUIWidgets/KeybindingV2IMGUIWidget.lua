@@ -97,7 +97,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
                     KeyboardMouseBinding = binding.keyboardBinding or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
                     Description = binding.description,
-                    ShouldConflict = binding.shouldConflict,
+                    AllowConflict = binding.allowConflict,
                     Tooltip = binding.tooltip
                 })
             end
@@ -207,7 +207,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                     Keyboard =
                         action.KeyboardMouseBinding,
                     Enabled = checkbox.Checked,
-                    ShouldConflict = action.ShouldConflict
+                    AllowConflict = action.AllowConflict
                 })
                 self:RefreshUI()
             end
@@ -245,22 +245,22 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             IMGUIHelpers.AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
                 mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
 
-            -- ShouldConflict checkbox cell.
+            -- AllowConflict checkbox cell.
             local conflictCell = row:AddCell()
-            local conflictCheckbox = conflictCell:AddCheckbox("Allow overlap")
+            local conflictCheckbox = conflictCell:AddCheckbox("Ignore conflict")
 
             IMGUIHelpers.AddTooltip(conflictCheckbox,
                 "Allow this keybinding to overlap with others without triggering a conflict warning.",
                 mod.ModName .. "_Conflict_" .. action.ActionId .. "_TOOLTIP")
 
-            conflictCheckbox.Checked = action.ShouldConflict == false
+            conflictCheckbox.Checked = action.AllowConflict == true
             conflictCheckbox.IDContext = mod.ModName .. "_Conflict_" .. action.ActionId
             conflictCheckbox.OnChange = function(checkbox)
-                action.ShouldConflict = not checkbox.Checked
+                action.AllowConflict = checkbox.Checked
                 self:StoreKeybinding(mod, action, {
                     Keyboard = action.KeyboardMouseBinding,
                     Enabled = action.Enabled,
-                    ShouldConflict = action.ShouldConflict
+                    AllowConflict = action.AllowConflict
                 })
                 self:RefreshUI()
             end
@@ -446,7 +446,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     local conflictAction = KeybindingConflictService:CheckForConflicts({
         Key = keybinding.Key or keybinding,
         ModifierKeys = keybinding.ModifierKeys or {},
-        ShouldConflict = action.ShouldConflict
+        AllowConflict = action.AllowConflict
     }, modData, action, inputType)
     if conflictAction then
         -- TODO: reduce duplication with KeybindingV2IMGUIWidget
@@ -461,7 +461,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
     local newPayload = KeybindingsRegistry.BuildKeyboardPayload(keybinding, currentBinding.Enabled)
-    newPayload.ShouldConflict = action.ShouldConflict
+    newPayload.AllowConflict = action.AllowConflict
 
     xpcall(function()
         if self:StoreKeybinding(modData, action, newPayload) then

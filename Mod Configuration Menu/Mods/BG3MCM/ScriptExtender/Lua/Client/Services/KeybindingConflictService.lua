@@ -61,11 +61,11 @@ function KeybindingConflictService:CheckActionForConflict(keybinding, action, ac
     end
 
     -- Check if either the existing action or the new keybinding allows conflicts
-    if action.shouldConflict == false then
+    if action.allowConflict == true then
         return nil
     end
 
-    if type(keybinding) == "table" and keybinding.ShouldConflict == false then
+    if type(keybinding) == "table" and keybinding.AllowConflict == true then
         return nil
     end
 

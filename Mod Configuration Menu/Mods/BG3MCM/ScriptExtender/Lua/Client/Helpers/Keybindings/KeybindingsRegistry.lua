@@ -96,7 +96,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 description = action.Description,
                 isDeveloperOnly = Fallback.Value(action.IsDeveloperOnly, false),
                 tooltip = action.Tooltip,
-                shouldConflict = Fallback.Value(action.ShouldConflict, true),
+                allowConflict = Fallback.Value(action.AllowConflict, false),
                 -- Compute the visibility flag (for UI listing)
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
             }
@@ -147,9 +147,9 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates, shouldEmi
         bindingEntry.enabled = updates.Enabled
     end
 
-    -- Update shouldConflict state if provided.
-    if updates.ShouldConflict ~= nil then
-        bindingEntry.shouldConflict = updates.ShouldConflict
+    -- Update allowConflict state if provided.
+    if updates.AllowConflict ~= nil then
+        bindingEntry.allowConflict = updates.AllowConflict
     end
 
     -- Persist the updated binding.
@@ -284,19 +284,19 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         -- Filter out bindings that are allowed to conflict
         local conflictingBindings = {}
         for _, binding in ipairs(triggered) do
-            if binding.shouldConflict then
+            if not binding.allowConflict then
                 table.insert(conflictingBindings, binding)
             end
         end
 
         -- If I disable conflict for Action B, I expect it to run alongside Action A without warning.
-        -- So, if we have multiple triggered bindings, we only report a conflict if we have > 1 bindings AND all of them have shouldConflict = true.
-        -- If even one of them has shouldConflict = false, we assume the user intended this overlap.
+        -- So, if we have multiple triggered bindings, we only report a conflict if we have > 1 bindings AND all of them have allowConflict = false.
+        -- If even one of them has allowConflict = true, we assume the user intended this overlap.
 
         local actualConflicts = {}
         local allEnforceConflict = true
         for _, binding in ipairs(triggered) do
-            if not binding.shouldConflict then
+            if binding.allowConflict then
                 allEnforceConflict = false
                 break
             end
