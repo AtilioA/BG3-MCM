@@ -59,6 +59,10 @@ function KeybindingsUI.GetAllKeybindings()
                         setting.Default and setting.Default.Enabled,
                         true
                     )
+                    local shouldConflict = Fallback_Value(
+                        currentBinding and currentBinding.ShouldConflict,
+                        true
+                    )
 
                     ---@type table
                     local action = {
@@ -96,6 +100,10 @@ function KeybindingsUI.GetAllKeybindings()
                         IsDeveloperOnly = Fallback_Value(
                             setting.Options and setting.Options.IsDeveloperOnly,
                             false
+                        ),
+                        ShouldConflict = Fallback_Value(
+                            setting.Options and setting.Options.ShouldConflict,
+                            true
                         )
                     }
 

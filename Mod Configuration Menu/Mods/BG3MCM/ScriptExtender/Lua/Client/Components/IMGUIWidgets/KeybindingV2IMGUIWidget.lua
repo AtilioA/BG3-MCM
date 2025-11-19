@@ -97,6 +97,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
                     KeyboardMouseBinding = binding.keyboardBinding or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING,
                     DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
                     Description = binding.description,
+                    ShouldConflict = binding.shouldConflict,
                     Tooltip = binding.tooltip
                 })
             end
@@ -174,16 +175,17 @@ end
 ---@param mod table The mod data containing actions to render
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     xpcall(function()
-        local columns = 3 -- Changed from 3 to 5 to add the enabled column.
+        local columns = 4 -- Changed from 3 to 4 to add the conflict column.
         local imguiTable = modGroup:AddTable("", columns)
         imguiTable.BordersOuter = true
         imguiTable.BordersInner = true
         imguiTable.RowBg = true
 
-        -- Define the columns: Enabled, Action, Description, Keybinding, and Reset.
+        -- Define the columns: Enabled, Action, Description, Keybinding, Conflict, and Reset.
         imguiTable:AddColumn("Enabled", "WidthFixed", 100)
         imguiTable:AddColumn("Action", "WidthStretch")
         imguiTable:AddColumn("Keybinding", "WidthStretch")
+        imguiTable:AddColumn("Conflict", "WidthFixed", 270)
         -- imguiTable:AddColumn("Reset", "WidthFixed", 50)
 
         for _, action in ipairs(mod.Actions) do
@@ -204,7 +206,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 self:StoreKeybinding(mod, action, {
                     Keyboard =
                         action.KeyboardMouseBinding,
-                    Enabled = checkbox.Checked
+                    Enabled = checkbox.Checked,
+                    ShouldConflict = action.ShouldConflict
                 })
                 self:RefreshUI()
             end
@@ -241,6 +244,26 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- kbButton.SameLine = true
             IMGUIHelpers.AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
                 mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
+
+            -- ShouldConflict checkbox cell.
+            local conflictCell = row:AddCell()
+            local conflictCheckbox = conflictCell:AddCheckbox("Allow overlap")
+
+            IMGUIHelpers.AddTooltip(conflictCheckbox,
+                "Allow this keybinding to overlap with others without triggering a conflict warning.",
+                mod.ModName .. "_Conflict_" .. action.ActionId .. "_TOOLTIP")
+
+            conflictCheckbox.Checked = action.ShouldConflict == false
+            conflictCheckbox.IDContext = mod.ModName .. "_Conflict_" .. action.ActionId
+            conflictCheckbox.OnChange = function(checkbox)
+                action.ShouldConflict = not checkbox.Checked
+                self:StoreKeybinding(mod, action, {
+                    Keyboard = action.KeyboardMouseBinding,
+                    Enabled = action.Enabled,
+                    ShouldConflict = action.ShouldConflict
+                })
+                self:RefreshUI()
+            end
 
             -- Reset button cell.
             -- local resetCell = row:AddCell()
@@ -420,7 +443,11 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     self.Widget.CurrentListeningAction = nil
     self:UnregisterInputEvents()
 
-    local conflictAction = KeybindingConflictService:CheckForConflicts(keybinding, modData, action, inputType)
+    local conflictAction = KeybindingConflictService:CheckForConflicts({
+        Key = keybinding.Key or keybinding,
+        ModifierKeys = keybinding.ModifierKeys or {},
+        ShouldConflict = action.ShouldConflict
+    }, modData, action, inputType)
     if conflictAction then
         -- TODO: reduce duplication with KeybindingV2IMGUIWidget
         local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
@@ -434,6 +461,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
     local newPayload = KeybindingsRegistry.BuildKeyboardPayload(keybinding, currentBinding.Enabled)
+    newPayload.ShouldConflict = action.ShouldConflict
 
     xpcall(function()
         if self:StoreKeybinding(modData, action, newPayload) then

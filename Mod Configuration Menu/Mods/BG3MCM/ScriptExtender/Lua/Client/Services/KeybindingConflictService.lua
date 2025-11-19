@@ -59,6 +59,16 @@ function KeybindingConflictService:CheckActionForConflict(keybinding, action, ac
     if isEmptyBinding(keybinding) then
         return nil
     end
+
+    -- Check if either the existing action or the new keybinding allows conflicts
+    if action.shouldConflict == false then
+        return nil
+    end
+
+    if type(keybinding) == "table" and keybinding.ShouldConflict == false then
+        return nil
+    end
+
     if self:AreKeybindingsEqual(keybinding, action.keyboardBinding) then
         return {
             ActionName = action.actionName,

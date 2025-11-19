@@ -96,6 +96,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 description = action.Description,
                 isDeveloperOnly = Fallback.Value(action.IsDeveloperOnly, false),
                 tooltip = action.Tooltip,
+                shouldConflict = Fallback.Value(action.ShouldConflict, true),
                 -- Compute the visibility flag (for UI listing)
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
             }
@@ -144,6 +145,11 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates, shouldEmi
     -- Update enabled state if provided.
     if updates.Enabled ~= nil then
         bindingEntry.enabled = updates.Enabled
+    end
+
+    -- Update shouldConflict state if provided.
+    if updates.ShouldConflict ~= nil then
+        bindingEntry.shouldConflict = updates.ShouldConflict
     end
 
     -- Persist the updated binding.
@@ -275,16 +281,51 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     end
 
     if #triggered > 1 then
-        local binding = triggered[1]
-        local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
-        MCMWarn(0, "Keybinding conflict detected for: " .. keybindingStr)
+        -- Filter out bindings that are allowed to conflict
+        local conflictingBindings = {}
+        for _, binding in ipairs(triggered) do
+            if binding.shouldConflict then
+                table.insert(conflictingBindings, binding)
+            end
+        end
 
-        -- TODO: reduce duplication with KeybindingV2IMGUIWidget
-        local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
-            binding.actionName)
-        local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb", keybindingStr,
-            binding.actionName)
-        KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
+        -- If I disable conflict for Action B, I expect it to run alongside Action A without warning.
+        -- So, if we have multiple triggered bindings, we only report a conflict if we have > 1 bindings AND all of them have shouldConflict = true.
+        -- If even one of them has shouldConflict = false, we assume the user intended this overlap.
+
+        local actualConflicts = {}
+        local allEnforceConflict = true
+        for _, binding in ipairs(triggered) do
+            if not binding.shouldConflict then
+                allEnforceConflict = false
+                break
+            end
+        end
+
+        if allEnforceConflict then
+            local binding = triggered[1]
+            local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
+            MCMWarn(0, "Keybinding conflict detected for: " .. keybindingStr)
+
+            -- TODO: reduce duplication with KeybindingV2IMGUIWidget
+            local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
+                binding.actionName)
+            local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb", keybindingStr,
+                binding.actionName)
+            KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
+        else
+             -- No conflict warning, execute all callbacks
+             for _, binding in ipairs(triggered) do
+                if binding.keyboardCallback then
+                    xpcall(function()
+                        binding.keyboardCallback(e)
+                    end, function(err)
+                        MCMError(0, "Error in keyboard callback: " .. tostring(err))
+                    end)
+                end
+            end
+            return
+        end
     elseif #triggered == 1 then
         local binding = triggered[1]
         if binding.keyboardCallback then
