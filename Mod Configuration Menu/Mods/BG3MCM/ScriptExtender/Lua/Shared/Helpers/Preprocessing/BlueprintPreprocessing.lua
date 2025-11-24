@@ -952,7 +952,25 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             return false
         end
 
-        for _, element in ipairs(setting.Default.elements) do
+        -- Normalize uppercase keys to lowercase
+        if setting.Default["Elements"] ~= nil and setting.Default["elements"] == nil then
+            setting.Default["elements"] = setting.Default["Elements"]
+            setting.Default["Elements"] = nil
+        end
+        if setting.Default["Enabled"] ~= nil and setting.Default["enabled"] == nil then
+            setting.Default["enabled"] = setting.Default["Enabled"]
+            setting.Default["Enabled"] = nil
+        end
+
+        local elements = setting.Default.elements
+        if type(elements) ~= "table" then
+            elements = setting.Default.Elements
+        end
+        local enabled = setting.Default.enabled
+        if enabled == nil then
+            enabled = setting.Default.Enabled
+        end
+        for _, element in ipairs(elements) do
             if type(element) ~= "table" or not element.name or type(element.name) ~= "string" or element.name == "" then
                 MCMWarn(0,
                     "Element " ..
