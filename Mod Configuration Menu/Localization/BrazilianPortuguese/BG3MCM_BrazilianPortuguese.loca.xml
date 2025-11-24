@@ -84,7 +84,7 @@
     <content contentuid="h8509840fdfe4453b800fd84957a50800gacb" version="1">Tecla [1] conflita para ação '[2]'</content>
     <content contentuid="h919dc9b46db144ed8c330d1abb728459aea3" version="1">Conflito de atalho de tecla com a ação: [1]</content>
     <content contentuid="hb20ef6573e4b42329222dcae8e6809c9ab0c" version="1">Atalhos de teclado</content>
-    <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Ajuda &amp; solução de problemas</content>
+    <content contentuid="hbdd48c8cba3e4c31931f1647cb5d73c813ef" version="1">Ajuda e solução de problemas</content>
     <content contentuid="h361dd694cca74b30a87f02d035e35dcac0d4" version="1">Solução e relato de problemas</content>
     <content contentuid="hafec095716ec4208b2319d24b3c230d969d4" version="1">A implementação do IMGUI do Script Extender (SE) ainda está em constante desenvolvimento. Se você estiver tendo problemas:</content>
     <content contentuid="h11f519e028834967a79753cfe1e6cae28726" version="1">Desative sobreposições (Nvidia/AMD/Discord, etc);</content>
@@ -132,7 +132,7 @@
     <content contentuid="h3914d63b7ccb425f950cea47eca955ad9788" version="1">Min: [1].&lt;br&gt;Max: [2].</content>
     <content contentuid="h0dfee4b6ba51423da77eaa53e1961ade059f" version="1">CTRL + clique para inserir o valor manualmente.</content>
     <content contentuid="hfaf078ca60fc4a60b68a038ca3b2dc2b3d6d" version="1">Reinicia a máquina virtual Lua do servidor e do cliente.</content>
-    <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua (Server &amp; Client)</content>
+    <content contentuid="hf4378b0d0a444adf974ddb7c5316e111dfc3" version="1">Reiniciar Lua (Server and Client)</content>
     <content contentuid="hd4e656a649c14e638ab1cb4380ad714746ea" version="1">O atalho [1] está vinculado a mais de uma ação.&lt;br&gt;Abra o MCM e redefina as teclas em conflito.</content>
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Esse atalho deve ser habilitado?&lt;br&gt;Desabilitá-lo irá impedir que ele seja acionado se a combinação de teclas for pressionada.</content>
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Defina o atalho para fechar a janela do MCM.</content>
