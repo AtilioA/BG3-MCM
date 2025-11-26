@@ -95,11 +95,6 @@ Ext.Events.ControllerButtonInput:Subscribe(handleControllerInput)
 --     -- end
 -- end)
 
--- TODO: add controller support
--- Ext.Events.ControllerButtonInput:Subscribe(function(e)
---     _D(e)
--- end)
-
 -- Common handler for configs payloads
 -- REFACTOR: consolidate with InitClientMCM
 local function onConfigsReceived(mods, profiles)

@@ -21,6 +21,8 @@ end
 
 function LeftPane:CreateMenuButton(text, description, uuid)
     local button = self.parent:AddButton(text)
+    button.Size = { -1, 50 }
+    button:SetStyle("ButtonTextAlign", -1)
     button.IDContext = "MenuButton_" .. text .. "_" .. uuid
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     button.OnClick = function()
