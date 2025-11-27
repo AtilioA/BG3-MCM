@@ -214,6 +214,9 @@ function Noesis:MonitorMainMenuButtonPress()
             MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
             return false
         end
+        if MCM.Get("hide_main_menu_mcm_button") then
+            mainMenuButton:SetProperty("Visibility", "Collapsed")
+        end
 
         Ext.UI.RegisterType("MainMenuMCMButtonDC", {
             CustomEvent = { Type = "Command" }

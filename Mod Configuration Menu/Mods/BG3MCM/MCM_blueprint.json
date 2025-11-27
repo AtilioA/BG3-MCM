@@ -197,6 +197,29 @@
                     "Handles": {
                         "NameHandle": "h38caa4e657a746509697741417cc96049f52"
                     }
+                },
+                {
+                    "SectionId": "advanced_settings",
+                    "SectionName": "Advanced settings",
+                    "Settings": [
+                        {
+                            "Id": "hide_main_menu_mcm_button",
+                            "Name": "Hide main menu MCM button",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Hide the button that opens the MCM window in the main menu.",
+                            "Handles": {
+                                "NameHandle": "hd0d22e7238af4415bbab1cb58d0118ea5759",
+                                "DescriptionHandle": "h83a20893c0454583b0919d29d4a292c8ae5a"
+                            }
+                        }
+                    ],
+                    "Handles": {
+                        "NameHandle": "h58020bcb72504ef3a6fad23cdb3819d6gg3d"
+                    },
+                    "Options": {
+                        "IsCollapsible": true
+                    }
                 }
             ]
         },
