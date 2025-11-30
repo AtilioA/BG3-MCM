@@ -175,7 +175,7 @@ end
 ---@param mod table The mod data containing actions to render
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     xpcall(function()
-        local columns = 4 -- Changed from 3 to 4 to add the conflict column.
+        local columns = 3 -- todo: Change from 3 to 4 to add the conflict column.
         local imguiTable = modGroup:AddTable("", columns)
         imguiTable.BordersOuter = true
         imguiTable.BordersInner = true
@@ -185,8 +185,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         imguiTable:AddColumn("Enabled", "WidthFixed", 100)
         imguiTable:AddColumn("Action", "WidthStretch")
         imguiTable:AddColumn("Keybinding", "WidthStretch")
-        imguiTable:AddColumn("Conflict", "WidthFixed", 270)
-        -- imguiTable:AddColumn("Reset", "WidthFixed", 50)
+        -- imguiTable:AddColumn("Conflict", "WidthFixed", 270)
 
         for _, action in ipairs(mod.Actions) do
             local row = imguiTable:AddRow()
@@ -246,24 +245,24 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
 
             -- AllowConflict checkbox cell.
-            local conflictCell = row:AddCell()
-            local conflictCheckbox = conflictCell:AddCheckbox("Ignore conflict")
+            -- local conflictCell = row:AddCell()
+            -- local conflictCheckbox = conflictCell:AddCheckbox("Ignore conflict")
 
-            IMGUIHelpers.AddTooltip(conflictCheckbox,
-                "Allow this keybinding to overlap with others without triggering a conflict warning.",
-                mod.ModName .. "_Conflict_" .. action.ActionId .. "_TOOLTIP")
+            -- IMGUIHelpers.AddTooltip(conflictCheckbox,
+            --     "Allow this keybinding to overlap with others without triggering a conflict warning.",
+            --     mod.ModName .. "_Conflict_" .. action.ActionId .. "_TOOLTIP")
 
-            conflictCheckbox.Checked = action.AllowConflict == true
-            conflictCheckbox.IDContext = mod.ModName .. "_Conflict_" .. action.ActionId
-            conflictCheckbox.OnChange = function(checkbox)
-                action.AllowConflict = checkbox.Checked
-                self:StoreKeybinding(mod, action, {
-                    Keyboard = action.KeyboardMouseBinding,
-                    Enabled = action.Enabled,
-                    AllowConflict = action.AllowConflict
-                })
-                self:RefreshUI()
-            end
+            -- conflictCheckbox.Checked = action.AllowConflict == true
+            -- conflictCheckbox.IDContext = mod.ModName .. "_Conflict_" .. action.ActionId
+            -- conflictCheckbox.OnChange = function(checkbox)
+            --     action.AllowConflict = checkbox.Checked
+            --     self:StoreKeybinding(mod, action, {
+            --         Keyboard = action.KeyboardMouseBinding,
+            --         Enabled = action.Enabled,
+            --         AllowConflict = action.AllowConflict
+            --     })
+            --     self:RefreshUI()
+            -- end
 
             -- Reset button cell.
             -- local resetCell = row:AddCell()
