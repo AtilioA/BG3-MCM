@@ -163,7 +163,7 @@ function RightPane:CreateTab(modUUID, tabName)
     tab.OnActivate = function()
         MCMDebug(3, "Activating tab " .. tabName)
 
-        self:FocusModContentChildWindow()
+        -- self:FocusModContentChildWindow()
 
         ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
             modUUID = modUUID,
