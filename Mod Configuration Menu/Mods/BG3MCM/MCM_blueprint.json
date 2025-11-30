@@ -219,6 +219,15 @@
                     },
                     "Options": {
                         "IsCollapsible": true
+                    },
+                    "VisibleIf": {
+                        "Conditions": [
+                            {
+                                "ExpectedValue": "2",
+                                "SettingId": "debug_level",
+                                "Operator": ">="
+                            }
+                        ]
                     }
                 }
             ]
