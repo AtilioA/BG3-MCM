@@ -140,7 +140,7 @@
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Should this keybinding be enabled?&lt;br&gt;Disabling it will prevent it from firing if the keybinding is pressed.</content>
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Set the keybinding for closing MCM's window.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Close MCM window</content>
-    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Sidebar behavior</content>
+    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Sidebar settings</content>
     <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).</content>
     <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Enable automatic sidebar collapse</content>
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Enable expansion on icon hover</content>
@@ -584,4 +584,6 @@
     <content contentuid="h58020bcb72504ef3a6fad23cdb3819d6gg3d" version="1">Advanced settings</content>
     <content contentuid="hd0d22e7238af4415bbab1cb58d0118ea5759" version="1">Hide main menu MCM button</content>
     <content contentuid="h83a20893c0454583b0919d29d4a292c8ae5a" version="1">Hide the button that opens the MCM window in the main menu.</content>
+    <content contentuid="h7e2260907ca24449ac99f48ba8c149c6d6bf" version="1">Sidebar width</content>
+    <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">The width of the sidebar in pixels.&lt;br&gt;Since the sidebar is dynamic, its expanded width can only be statically defined (IMGUI limitation)&lt;br&gt;This will only take effect after re-expanding the sidebar.</content>
 </contentList>

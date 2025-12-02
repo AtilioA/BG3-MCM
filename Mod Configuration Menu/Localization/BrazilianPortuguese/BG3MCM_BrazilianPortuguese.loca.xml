@@ -137,7 +137,7 @@
     <content contentuid="h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09" version="1">Esse atalho deve ser habilitado?&lt;br&gt;Desabilitá-lo irá impedir que ele seja acionado se a combinação de teclas for pressionada.</content>
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Defina o atalho para fechar a janela do MCM.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Fechar janela do MCM</content>
-    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Comportamento da barra lateral</content>
+    <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Configurações da barra lateral</content>
     <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">Ativar colapso automático da barra lateral.&lt;br&gt;Quando ativado, a barra lateral será colapsada com base na inatividade ou em outros gatilhos de colapso.</content>
     <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Ativar colapso automático da barra lateral</content>
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Expandir barra ao passar o mouse no ícone de menu</content>
@@ -287,4 +287,6 @@
     <content contentuid="h58020bcb72504ef3a6fad23cdb3819d6gg3d" version="1">Configurações avançadas</content>
     <content contentuid="hd0d22e7238af4415bbab1cb58d0118ea5759" version="1">Esconder botão do MCM no menu principal</content>
     <content contentuid="h83a20893c0454583b0919d29d4a292c8ae5a" version="1">Esconder o botão que abre a janela do MCM no menu principal.</content>
+    <content contentuid="h7e2260907ca24449ac99f48ba8c149c6d6bf" version="1">Largura da barra lateral</content>
+    <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">A largura da barra lateral em pixels.&lt;br&gt;Como a barra lateral é dinâmica, sua largura expandida só pode ser definida estaticamente (limitação do IMGUI)&lt;br&gt;Isso só terá efeito após re-expandir a barra lateral.</content>
 </contentList>

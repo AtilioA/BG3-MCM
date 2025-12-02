@@ -47,7 +47,9 @@ ICON_DETACH = "ico_popup_d"
 
 -- Get proportion of screen size based on working number for 4K
 -- TODO: Generate dynamic expanded target when SE adds support for calculating text width
-TARGET_WIDTH_EXPANDED = Ext.IMGUI.GetViewportSize()[2] / 3.7
+TARGET_WIDTH_EXPANDED = function()
+    return MCM.Get("sidebar_width")
+end
 TARGET_WIDTH_COLLAPSED = 0
 STEP_DELAY = 1 / 60
 STEP_FACTOR = 0.1
@@ -62,7 +64,7 @@ local RX = {
 
 -- Might expand later for custom menu width
 local function GetMenuColumnWidth()
-    return TARGET_WIDTH_EXPANDED
+    return TARGET_WIDTH_EXPANDED()
 end
 
 -- Helper: Check if collapse or fade should be skipped due to detached right pane
@@ -295,7 +297,8 @@ function DualPaneController:Expand()
     self.menuScrollChildWindow.Visible = true
     self.menuScrollChildWindow:SetFocus()
     -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
-    local targetWidth = self.lastExpandedWidth or GetMenuColumnWidth()
+    -- local targetWidth = self.lastExpandedWidth or GetMenuColumnWidth()
+    local targetWidth = TARGET_WIDTH_EXPANDED()
 
     self:animateSidebar(targetWidth, 1, "expand", function()
         self.isCollapsed = false

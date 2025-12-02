@@ -242,7 +242,7 @@
                 {
                     "SectionId": "sidebar_settings",
                     "SectionDescription": "By default, the sidebar automatically expands when hovering the icon, and will collapse when opening a mod page.\nYou can also manually toggle it with CAPSLOCK.",
-                    "SectionName": "Sidebar behavior",
+                    "SectionName": "Sidebar settings",
                     "Settings": [
                         {
                             "Id": "enable_hover",
@@ -290,6 +290,21 @@
                             "Handles": {
                                 "NameHandle": "h3dafbcac8ffe4c7b9ca391520326dbb65984",
                                 "DescriptionHandle": "h4db8c7a1952847eda028173a74dc5e166ea5"
+                            }
+                        },
+                        {
+                            "Id": "sidebar_width",
+                            "Name": "Sidebar width",
+                            "Type": "slider_int",
+                            "Default": 390,
+                            "Options": {
+                                "Min": 200,
+                                "Max": 600
+                            },
+                            "Description": "The width of the sidebar in pixels.\nSince the sidebar is dynamic, its expanded width can only be statically defined (IMGUI limitation)\nThis will only take effect after re-expanding the sidebar.",
+                            "Handles": {
+                                "NameHandle": "h7e2260907ca24449ac99f48ba8c149c6d6bf",
+                                "DescriptionHandle": "h57d43b08f0974d2683202bc8737416da4740"
                             }
                         }
                     ],
