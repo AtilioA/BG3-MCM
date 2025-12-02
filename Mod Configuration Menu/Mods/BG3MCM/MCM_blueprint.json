@@ -293,6 +293,21 @@
                             }
                         },
                         {
+                            "Id": "animation_duration",
+                            "Name": "Sidebar animation duration (ms)",
+                            "Type": "slider_int",
+                            "Default": 250,
+                            "Options": {
+                                "Min": 0,
+                                "Max": 2000
+                            },
+                            "Description": "The duration of the sidebar animation in milliseconds.",
+                            "Handles": {
+                                "NameHandle": "h2e2fee5757724d0bb36dc9406bbac89539a1",
+                                "DescriptionHandle": "h306ab94b54e949a8b6dfac9f474e5cd7a91g"
+                            }
+                        },
+                        {
                             "Id": "sidebar_width",
                             "Name": "Sidebar width",
                             "Type": "slider_int",

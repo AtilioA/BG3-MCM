@@ -51,8 +51,6 @@ TARGET_WIDTH_EXPANDED = function()
     return MCM.Get("sidebar_width")
 end
 TARGET_WIDTH_COLLAPSED = 0
-STEP_DELAY = 1 / 60
-STEP_FACTOR = 0.1
 HOVER_DELAY_MS = 5000
 
 --- @type HeaderActions|nil
@@ -62,9 +60,12 @@ local RX = {
     TimerScheduler = Ext.Require("Lib/reactivex/schedulers/timerscheduler.lua")
 }
 
--- Might expand later for custom menu width
+function GetAnimationDuration()
+    return MCM.Get("animation_duration")
+end
+
 local function GetMenuColumnWidth()
-    return TARGET_WIDTH_EXPANDED()
+    return MCM.Get("sidebar_width")
 end
 
 -- Helper: Check if collapse or fade should be skipped due to detached right pane
@@ -77,30 +78,43 @@ end
 -- It stops if the current animation state no longer matches the expected state.
 function DualPaneController:animateSidebar(targetWidth, targetAlpha, expectedState, onComplete)
     local colDef = self.mainLayoutTable.ColumnDefs[1]
-    local currentWidth = colDef.Width
-    local currentAlpha = self.menuScrollChildWindow:GetStyle("Alpha") or 0
+
+    -- Capture starting state
+    local startWidth = colDef.Width
+    local startAlpha = self.menuScrollChildWindow:GetStyle("Alpha")
+    local startTime = Ext.Timer.MonotonicTime()
 
     local function step()
+        -- Guard: Stop if state changed (user clicked something else)
         if self.currentAnimation ~= expectedState then
             return
         end
 
-        local widthDelta = math.abs(currentWidth - targetWidth)
-        local alphaDelta = math.abs(currentAlpha - targetAlpha)
-        if widthDelta > 0.5 or alphaDelta > 0.01 then
-            currentWidth = currentWidth + (targetWidth - currentWidth) * STEP_FACTOR
-            colDef.Width = currentWidth
+        local now = Ext.Timer.MonotonicTime()
+        local elapsed = now - startTime
 
-            currentAlpha = currentAlpha + (targetAlpha - currentAlpha) * STEP_FACTOR
-            self.menuScrollChildWindow:SetStyle("Alpha", currentAlpha)
+        -- Calculate progress (0.0 to 1.0)
+        local progress = math.min(elapsed / GetAnimationDuration(), 1.0)
 
-            Ext.Timer.WaitFor(STEP_DELAY, step)
+        -- Apply easing
+        local t = Animation.EaseOutQuad(progress)
+
+        -- Update width and alpha
+        colDef.Width = Animation.Lerp(startWidth, targetWidth, t)
+
+        self.menuScrollChildWindow:SetStyle("Alpha", Animation.Lerp(startAlpha, targetAlpha, t))
+
+        if progress < 1.0 then
+            -- Schedule next frame (0 delay waits for next tick)
+            Ext.Timer.WaitFor(0, step)
         else
+            -- Ensure exact final values
             colDef.Width = targetWidth
             self.menuScrollChildWindow:SetStyle("Alpha", targetAlpha)
             if onComplete then onComplete() end
         end
     end
+
     step()
 end
 
@@ -155,6 +169,8 @@ function DualPaneController:initLayout()
     HeaderActionsInstance = HeaderActions:New(contentWindow)
 
     self.menuScrollChildWindow = menuCell:AddChildWindow("MenuScrollChildWindow")
+    -- Important to set as, by default, the style (alpha) would be unknown when calling GetStyle
+    self.menuScrollChildWindow:SetStyle("Alpha", 1)
     self.contentScrollChildWindow = contentWindow:AddChildWindow("ContentScrollChildWindow")
 end
 
@@ -221,7 +237,8 @@ function DualPaneController:AttachHoverListeners()
     end
 end
 
--- Gradually fade the menuScrollChildWindow's alpha to a target value over a given duration (in seconds)
+-- Gradually fade the menuScrollChildWindow's alpha to a target value over a given duration (in seconds).
+-- Used for auto collapse.
 function DualPaneController:FadeSidebarOutAlpha(durationInS)
     local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
     if not enabledAutoCollapse then return end
@@ -229,15 +246,16 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
     -- Prevent fade out if the right pane content is detached
     if self:_shouldSkipCollapseOrFade() then
         MCMDebug(3, "Right pane is detached, skipping sidebar fade out.")
-        self.menuScrollChildWindow:SetStyle("Alpha", 1) -- Ensure alpha is fully visible
+        self.menuScrollChildWindow:SetStyle("Alpha", 1)
         return
     end
 
     local targetAlpha = 0.33
     self.menuScrollChildWindow:SetStyle("Alpha", 0.8)
+
     local startAlpha = self.menuScrollChildWindow:GetStyle("Alpha")
-    local steps = durationInS / STEP_DELAY
-    local alphaStep = (startAlpha - targetAlpha) / steps
+    local durationMs = durationInS * 1000
+    local startTime = Ext.Timer.MonotonicTime()
 
     local function stepFade()
         -- If the user re-enters before fade-out completes, cancel further fade steps.
@@ -245,13 +263,18 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
             return
         end
 
-        local currentAlpha = self.menuScrollChildWindow:GetStyle("Alpha") or startAlpha
-        if currentAlpha > targetAlpha then
-            local newAlpha = math.max(targetAlpha, currentAlpha - alphaStep)
-            self.menuScrollChildWindow:SetStyle("Alpha", newAlpha)
-            if newAlpha > targetAlpha then
-                Ext.Timer.WaitFor(STEP_DELAY, stepFade)
-            end
+        local now = Ext.Timer.MonotonicTime()
+        local elapsed = now - startTime
+        local progress = math.min(elapsed / durationMs, 1.0)
+
+        -- Calculate new Alpha
+        local currentAlpha = Animation.Lerp(startAlpha, targetAlpha, progress)
+        self.menuScrollChildWindow:SetStyle("Alpha", currentAlpha)
+
+        if progress < 1.0 then
+            Ext.Timer.WaitFor(0, stepFade)
+        else
+            self.menuScrollChildWindow:SetStyle("Alpha", targetAlpha)
         end
     end
 
@@ -298,7 +321,7 @@ function DualPaneController:Expand()
     self.menuScrollChildWindow:SetFocus()
     -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
     -- local targetWidth = self.lastExpandedWidth or GetMenuColumnWidth()
-    local targetWidth = TARGET_WIDTH_EXPANDED()
+    local targetWidth = GetMenuColumnWidth()
 
     self:animateSidebar(targetWidth, 1, "expand", function()
         self.isCollapsed = false
