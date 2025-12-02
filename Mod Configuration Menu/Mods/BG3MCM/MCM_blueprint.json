@@ -296,10 +296,10 @@
                             "Id": "animation_duration",
                             "Name": "Sidebar animation duration (ms)",
                             "Type": "slider_int",
-                            "Default": 250,
+                            "Default": 200,
                             "Options": {
                                 "Min": 0,
-                                "Max": 2000
+                                "Max": 1000
                             },
                             "Description": "The duration of the sidebar animation in milliseconds.",
                             "Handles": {
