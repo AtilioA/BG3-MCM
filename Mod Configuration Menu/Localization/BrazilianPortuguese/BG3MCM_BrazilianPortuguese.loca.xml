@@ -288,5 +288,5 @@
     <content contentuid="hd0d22e7238af4415bbab1cb58d0118ea5759" version="1">Esconder botão do MCM no menu principal</content>
     <content contentuid="h83a20893c0454583b0919d29d4a292c8ae5a" version="1">Esconder o botão que abre a janela do MCM no menu principal.</content>
     <content contentuid="h7e2260907ca24449ac99f48ba8c149c6d6bf" version="1">Largura da barra lateral</content>
-    <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">A largura da barra lateral em pixels.&lt;br&gt;Como a barra lateral é dinâmica, sua largura expandida só pode ser definida estaticamente (limitação do IMGUI)&lt;br&gt;Isso só terá efeito após re-expandir a barra lateral.</content>
+    <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">A largura da barra lateral em pixels.&lt;br&gt;Como a barra lateral é dinâmica, sua largura expandida só pode ser definida estaticamente (limitação do IMGUI).&lt;br&gt;Isso só terá efeito após re-expandir a barra lateral.</content>
 </contentList>

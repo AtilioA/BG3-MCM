@@ -585,5 +585,5 @@
     <content contentuid="hd0d22e7238af4415bbab1cb58d0118ea5759" version="1">Hide main menu MCM button</content>
     <content contentuid="h83a20893c0454583b0919d29d4a292c8ae5a" version="1">Hide the button that opens the MCM window in the main menu.</content>
     <content contentuid="h7e2260907ca24449ac99f48ba8c149c6d6bf" version="1">Sidebar width</content>
-    <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">The width of the sidebar in pixels.&lt;br&gt;Since the sidebar is dynamic, its expanded width can only be statically defined (IMGUI limitation)&lt;br&gt;This will only take effect after re-expanding the sidebar.</content>
+    <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">The width of the sidebar in pixels.&lt;br&gt;Since the sidebar is dynamic, its expanded width can only be statically defined (IMGUI limitation).&lt;br&gt;This will only take effect after re-expanding the sidebar.</content>
 </contentList>
