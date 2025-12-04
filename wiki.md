@@ -1,11 +1,12 @@
 # Mod Configuration Menu documentation
 
-Baldur's Gate 3 Mod Configuration Menu (`BG3MCM` or MCM) is a mod framework that provides a centralized in-game UI, enabling players to intuitively manage mod settings and/or custom UIs defined by mod authors. It provides an API for registering configuration menus and manipulating persistent user preferences via checkboxes, numbers, text inputs, lists, combos/dropdowns, radio buttons, sliders, color pickers, keybindings, etc.
+Baldur's Gate 3 Mod Configuration Menu (`BG3MCM` or MCM) is a mod framework created by [Volitio](https://next.nexusmods.com/profile/Volitio) that provides a centralized in-game UI, enabling players to intuitively manage mod settings and/or custom UIs defined by mod authors. It provides an API for registering configuration menus and manipulating persistent user preferences via checkboxes, numbers, text inputs, lists, combos/dropdowns, radio buttons, sliders, color pickers, keybindings, etc.
 
 Most importantly, **it allows authors to have a robust JSON-like configuration experience without spending hours writing a configuration system, and it's easy enough to integrate** that even novice modders can quickly add support for it in their own mods.
 
 This documentation is aimed at mod authors who want to integrate their mods with MCM. If you are a player looking to use MCM to configure mods, please refer to the [Nexus Mods page](https://www.nexusmods.com/baldursgate3/mods/9162 'MCM on Nexus Mods') for instructions. This documentation provides a centralized and thorough guide on the concepts behind MCM, the features it provides to mod authors, and how to integrate MCM into your mod.
 You can also use the table of contents below to navigate to a desired section.
+**You may also use this [custom GPT](https://chatgpt.com/g/g-69095e14686481918fb288289170e87b-mcmgpt) to ask questions about MCM.**
 
 ## Quick-start guide
 
@@ -20,7 +21,7 @@ If you're looking to quickly integrate MCM into your mod, here's the process at 
 > [Auto Send Food To Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp/blob/main/Auto%20Send%20Food%20To%20Camp/Mods/AutoSendFoodToCamp/MCM_blueprint.json)
 > [Smart Autosaving](https://github.com/AtilioA/BG3-smart-autosaving/blob/main/Smart%20Autosaving/Mods/SmartAutosaving/MCM_blueprint.json)
 > [MCM demo](#mcm-demo) (as of MCM 1.23)
-An LLM is likely able to adapt them into a different blueprint, especially if you also provide it MCM's [blueprint schema](https://raw.githubusercontent.com/AtilioA/BG3-MCM/refs/heads/main/.vscode/schema.json) for context.
+An [LLM](https://chatgpt.com/g/g-69095e14686481918fb288289170e87b-mcmgpt) is likely able to adapt them into a different blueprint, especially if you also provide it MCM's [blueprint schema](https://raw.githubusercontent.com/AtilioA/BG3-MCM/refs/heads/main/.vscode/schema.json) for context.
 {.is-success}
 
 **That's it for a basic integration**! MCM will warn you about mistakes in your code or blueprint file.
