@@ -399,6 +399,20 @@ The following functions are deprecated and should be replaced with the new API:
 - `MCM.SetListElement` → Use `MCM.List.SetEnabled`
 - `MCM.SetKeybindingCallback` → Use `MCM.Keybinding.SetCallback`
 
+#### Table-based arguments
+Starting with **MCM version 1.38+**, this **API supports table-based arguments** as a better alternative to positional arguments. This pattern makes function calls more readable and self-documenting, is easier to skip optional parameters without placeholder `nil` values, allows new optional parameters to be added without breaking existing code, and has better autocomplete when using [MCMIdeHelpers](https://github.com/AtilioA/BG3-MCM/blob/main/MCMIdeHelpers.lua). Example:
+
+```lua
+MCM.EventButton.ShowFeedback({
+    buttonId = "my_button",
+    message = "Action completed successfully!",
+    feedbackType = "success",       -- or use MCM.EventButton.FeedbackTypes.SUCCESS
+    modUUID = "optional-mod-uuid",  -- Optional, will default to your mod UUID
+    durationInMs = 5000             -- Optional, already defaults to 5000
+})
+```
+
+
 ### Using values from MCM
 
 Mod authors can access the values set by the player through the MCM API from anywhere in their mod's code.
