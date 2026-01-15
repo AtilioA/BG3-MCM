@@ -30,7 +30,7 @@ end
 ---@param moduleUUID string The UUID of the module
 ---@param key string The key to read
 ---@return any value The raw Lua value or nil if not set
-function ModVarAdapter:GetValue(moduleUUID, key)
+function ModVarAdapter:GetValue(key, moduleUUID)
     local vars = Ext.Vars.GetModVariables(moduleUUID)
     if not vars then
         return nil
@@ -40,11 +40,11 @@ function ModVarAdapter:GetValue(moduleUUID, key)
     return v
 end
 
---- Write a ModVar for (moduleUUID, key). If value==nil, remove that variable.
----@param moduleUUID string The UUID of the module
+--- Write a ModVar for (key, value, moduleUUID). If value==nil, remove that variable.
 ---@param key string The key to write
 ---@param value any The value to write (nil to delete)
-function ModVarAdapter:SetValue(moduleUUID, key, value)
+---@param moduleUUID string The UUID of the module
+function ModVarAdapter:SetValue(key, value, moduleUUID)
     local ok, err = pcall(function()
         local vars = Ext.Vars.GetModVariables(moduleUUID)
         if not vars then

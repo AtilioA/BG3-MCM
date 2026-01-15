@@ -75,3 +75,4 @@ tasks.json
 tasks/
 .task*
 .roo*
+.agent/

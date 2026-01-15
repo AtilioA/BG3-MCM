@@ -63,6 +63,7 @@ function MCMAPIMethods.createMCMAPIMethods(originalModUUID, modTable)
     MCMInstance.Keybinding = MCMAPIImplementations.createKeybindingAPI(originalModUUID)
     MCMInstance.List = MCMAPIImplementations.createListAPI(originalModUUID)
     MCMInstance.EventButton = MCMAPIImplementations.createEventButtonAPI(originalModUUID)
+    MCMInstance.Store = MCMAPIImplementations.createStoreAPI(originalModUUID)
 
     -- Add deprecated methods for backward compatibility
     MCMAPIImplementations.addDeprecatedMethods(MCMInstance, originalModUUID)

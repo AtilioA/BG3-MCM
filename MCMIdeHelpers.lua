@@ -105,12 +105,39 @@
 ---@field UnregisterCallback fun(buttonIdOrArgs:string|MCMEventButtonStateArgs, modUUID?:string):boolean Unregister a button click callback
 ---@field SetDisabled fun(buttonIdOrArgs:string|MCMEventButtonSetDisabledArgs, disabled?:boolean, tooltipText?:string, modUUID?:string):boolean Enable or disable an event button
 
+---@class MCMStoreRegisterArgs
+---@field varName string The name/key of the variable to register
+---@field default? any The default value for the variable
+---@field type? string Optional type hint ("boolean", "number", "string", "table")
+---@field storageType? string ("JSON", etc coming soon)
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+
+---@class MCMStoreGetArgs
+---@field varName string The name/key of the variable to retrieve
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+
+---@class MCMStoreSetArgs
+---@field varName string The name/key of the variable to set
+---@field value any The value to set
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+
+---@class MCMStoreGetAllArgs
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+---@field storageType? string Optional storage type, defaults to "Json"
+
+---@class MCMStoreAPI Store API for JSON persistence of non-blueprint settings
+---@field Register fun(varNameOrArgs:string|MCMStoreRegisterArgs, default?:any, type?:string, storageType?:string, modUUID?:string):boolean Register a variable for JSON persistence
+---@field Get fun(varNameOrArgs:string|MCMStoreGetArgs, modUUID?:string):any Get a stored value
+---@field Set fun(varNameOrArgs:string|MCMStoreSetArgs, value?:any, modUUID?:string):boolean Set a stored value
+---@field GetAll fun(modUUIDOrArgs?:string|MCMStoreGetAllArgs):table<string, any> Get all stored values for this mod
+
 ---@class MCMTable Table containing the Mod Configuration Menu (MCM) public API exposed to each mod.
 ---@field Get fun(settingIdOrArgs:string|MCMGetArgs, modUUID?:string):any Get the value of a setting
 ---@field Set fun(settingIdOrArgs:string|MCMSetArgs, value?:any, modUUID?:string, shouldEmitEvent?:boolean):boolean Set the value of a setting
 ---@field Keybinding MCMKeybindingAPI Keybinding-related methods
 ---@field List MCMListAPI List setting-related methods
 ---@field EventButton MCMEventButtonAPI Event button-related methods (client-only)
+---@field Store MCMStoreAPI Store API for JSON persistence of non-blueprint settings
 ---@field OpenMCMWindow fun():nil Open the MCM window (client-only)
 ---@field CloseMCMWindow fun():nil Close the MCM window (client-only)
 ---@field InsertModMenuTab fun(tabNameOrArgs:string|MCMInsertModMenuTabArgs, tabCallback?:fun(tab:any), modUUID?:string, skipDisclaimer?:boolean):nil Insert a new tab into the MCM (client-only)
@@ -120,7 +147,8 @@
 MCM = {
     Keybinding = {},
     List = {},
-    EventButton = { FeedbackTypes = {} }
+    EventButton = { FeedbackTypes = {} },
+    Store = {}
 }
 
 --- @class MCM_Setting_Saved_Payload

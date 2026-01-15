@@ -380,6 +380,50 @@ These methods operate on `list_v2` settings.
 | `MCM.List.SetEnabled(listSettingId, itemName, enabled, modUUID?, shouldEmitEvent?)` | Sets the enabled state of a list item | ✅ | ✅ |
 | `MCM.List.InsertSuggestions(listSettingId, suggestions, modUUID?)` | Inserts suggestions below the input of a `list_v2` widget | ✅ | ❌ |
 
+#### Store API
+
+The Store API is a work-in-progress feature that allows mods to persist custom key-value data using JSON files without needing to define a blueprint. This is useful for storing non-configurable data like user preferences, cache state, or any data that doesn't fit the blueprint system.
+
+> • The Store API is a work-in-progress feature and may change in the future.
+{.is-warning}
+
+| Function | Description | Client | Server |
+|----------|-------------|:------:|:------:|
+| `MCM.Store.Register(varName, default?, modUUID?)` | Registers a variable for JSON persistence. If no stored value exists, writes the default. | ✅ | ✅ |
+| `MCM.Store.Get(varName, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
+| `MCM.Store.Set(varName, value, modUUID?)` | Sets a stored value | ✅ | ✅ |
+| `MCM.Store.GetAll(modUUID?)` | Gets all stored key-value pairs for the mod | ✅ | ✅ |
+
+<details>
+<summary>Store API usage example</summary>
+
+```lua
+-- Register variables at mod initialization (e.g., in BootstrapShared.lua)
+MCM.Store.Register("last_opened_tab", "General")
+MCM.Store.Register("user_favorites", {})
+MCM.Store.Register({ varName = "session_count", default = 0 })
+
+-- Get values anywhere in your code
+local lastTab = MCM.Store.Get("last_opened_tab")  -- Returns "General" if never set
+local count = MCM.Store.Get("session_count")
+
+-- Set values - automatically persisted to JSON
+MCM.Store.Set("last_opened_tab", "Advanced")
+MCM.Store.Set("session_count", count + 1)
+
+-- Table-based arguments are also supported
+MCM.Store.Set({ varName = "user_favorites", value = { "item1", "item2" } })
+
+-- Get all stored data
+local allData = MCM.Store.GetAll()
+for key, value in pairs(allData) do
+    print(key, value)
+end
+```
+
+</details>
+
+
 #### Window and tab APIs
 
 These methods operate on the MCM window, and can be used to control the opening and closing of MCM, as well as opening a specific mod's tab.

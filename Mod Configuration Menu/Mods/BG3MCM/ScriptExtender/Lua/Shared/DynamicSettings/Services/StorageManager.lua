@@ -44,11 +44,9 @@ local function discoverModConfig(moduleUUID)
     return
 end
 
---- Initialize the storage backends and register adapters
+--- Initialize the storage backends
 function StorageManager.Initialize()
-    -- Register all storage adapters
-    AdapterFactory.Initialize()
-    MCMDebug(1, "Storage adapters initialized")
+    MCMDebug(1, "Storage backend systems initialized")
 end
 
 --- Run discovery for all modules and all storage types

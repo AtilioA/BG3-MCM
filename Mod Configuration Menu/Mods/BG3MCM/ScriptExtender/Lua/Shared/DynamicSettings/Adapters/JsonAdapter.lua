@@ -36,7 +36,8 @@ function SettingsFile:_generatePath()
     name = name:gsub("[\\/:*?\"<>|]", "_")
 
     -- REFACTOR: allow proper Profile integration
-    return Ext.Mod.GetMod(self.ModuleUUID).Info.Directory .. "Profiles/Default/" .. directory .. "/" .. name .. ".json"
+    return Ext.Mod.GetMod(ModuleUUID).Info.Directory ..
+        "/Profiles/Default/" .. directory .. "/" .. "dynamic_settings.json"
 end
 
 --- Loads the file from disk if not already loaded.
@@ -114,10 +115,10 @@ function JsonStorageManager:GetValue(key, moduleUUID)
 end
 
 --- Write the raw Lua value
----@param moduleUUID string
 ---@param key string
 ---@param value any
-function JsonStorageManager:SetValue(key, moduleUUID, value)
+---@param moduleUUID string
+function JsonStorageManager:SetValue(key, value, moduleUUID)
     if not moduleUUID then return end
     local handler = self:_getFileHandler(moduleUUID)
     handler:Set(key, value)
