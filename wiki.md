@@ -389,9 +389,9 @@ The Store API is a work-in-progress feature that allows mods to persist custom k
 
 | Function | Description | Client | Server |
 |----------|-------------|:------:|:------:|
-| `MCM.Store.Register(varName, default?, modUUID?)` | Registers a variable for JSON persistence. If no stored value exists, writes the default. | ✅ | ✅ |
-| `MCM.Store.Get(varName, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
-| `MCM.Store.Set(varName, value, modUUID?)` | Sets a stored value | ✅ | ✅ |
+| `MCM.Store.Register(var, default?, modUUID?)` | Registers a variable for JSON persistence. If no stored value exists, writes the default. | ✅ | ✅ |
+| `MCM.Store.Get(var, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
+| `MCM.Store.Set(var, value, modUUID?)` | Sets a stored value | ✅ | ✅ |
 | `MCM.Store.GetAll(modUUID?)` | Gets all stored key-value pairs for the mod | ✅ | ✅ |
 
 <details>
@@ -401,7 +401,7 @@ The Store API is a work-in-progress feature that allows mods to persist custom k
 -- Register variables at mod initialization (e.g., in BootstrapShared.lua)
 MCM.Store.Register("last_opened_tab", "General")
 MCM.Store.Register("user_favorites", {})
-MCM.Store.Register({ varName = "session_count", default = 0 })
+MCM.Store.Register({ var = "session_count", default = 0 })
 
 -- Get values anywhere in your code
 local lastTab = MCM.Store.Get("last_opened_tab")  -- Returns "General" if never set
@@ -412,7 +412,7 @@ MCM.Store.Set("last_opened_tab", "Advanced")
 MCM.Store.Set("session_count", count + 1)
 
 -- Table-based arguments are also supported
-MCM.Store.Set({ varName = "user_favorites", value = { "item1", "item2" } })
+MCM.Store.Set({ var = "user_favorites", value = { "item1", "item2" } })
 
 -- Get all stored data
 local allData = MCM.Store.GetAll()

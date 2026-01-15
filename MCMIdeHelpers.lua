@@ -106,27 +106,28 @@
 ---@field SetDisabled fun(buttonIdOrArgs:string|MCMEventButtonSetDisabledArgs, disabled?:boolean, tooltipText?:string, modUUID?:string):boolean Enable or disable an event button
 
 ---@class MCMStoreRegisterArgs
----@field varName string The name/key of the variable to register
+---@field var string The name/key of the variable to register
 ---@field default? any The default value for the variable
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
----@field storageType? string ("JSON", etc coming soon)
+---@field storage? string Optional storage type ("json", etc.), defaults to "json". Only json storage is implemented at the moment
+---@field validate? fun(value: any): (boolean, string)? Optional validation function
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMStoreGetArgs
----@field varName string The name/key of the variable to retrieve
+---@field var string The name/key of the variable to retrieve
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMStoreSetArgs
----@field varName string The name/key of the variable to set
+---@field var string The name/key of the variable to set
 ---@field value any The value to set
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMStoreGetAllArgs
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
----@field storageType? string Optional storage type, defaults to "Json"
+---@field storage? string Optional storage type, defaults to "json". Only json storage is implemented at the moment
 
 ---@class MCMStoreAPI Store API for JSON persistence of non-blueprint settings
----@field Register fun(varNameOrArgs:string|MCMStoreRegisterArgs, default?:any, type?:string, storageType?:string, modUUID?:string):boolean Register a variable for JSON persistence
+---@field Register fun(varOrArgs:string|MCMStoreRegisterArgs, default?:any, type?:string, storage?:string, modUUID?:string):boolean Register a variable for JSON persistence
 ---@field Get fun(varNameOrArgs:string|MCMStoreGetArgs, modUUID?:string):any Get a stored value
 ---@field Set fun(varNameOrArgs:string|MCMStoreSetArgs, value?:any, modUUID?:string):boolean Set a stored value
 ---@field GetAll fun(modUUIDOrArgs?:string|MCMStoreGetAllArgs):table<string, any> Get all stored values for this mod
@@ -168,7 +169,7 @@ MCM = {
 --- @field key string The key ('id'/'name') of the setting
 --- @field oldValue any The old value of the setting
 --- @field value any The new value of the setting
---- @field storageType string The type of storage ("ModVar", "ModConfig", etc.)
+--- @field storage string The type of storage ("ModVar", "ModConfig", etc.)
 
 --- @class MCM_Profile_Created_Payload
 --- @field profileName string The name of the created profile
