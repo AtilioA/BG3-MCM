@@ -52,31 +52,33 @@ local function coerceAndValidate(entry, rawValue)
     if entry.type then
         if entry.type == "boolean" then
             if type(rawValue) ~= "boolean" then
-                MCMWarn(0, "Expected boolean, got " .. type(rawValue))
+                error("Expected boolean, got " .. type(rawValue))
             end
-            return rawValue
         elseif entry.type == "number" then
             if type(rawValue) ~= "number" then
-                MCMWarn(0, "Expected number, got " .. type(rawValue))
+                error("Expected number, got " .. type(rawValue))
             end
-            return rawValue
         elseif entry.type == "table" then
             if type(rawValue) ~= "table" then
-                MCMWarn(0, "Expected table, got " .. type(rawValue))
+                error("Expected table, got " .. type(rawValue))
             end
-            return rawValue
         elseif entry.type == "string" then
             if type(rawValue) ~= "string" then
-                MCMWarn(0, "Expected string, got " .. type(rawValue))
+                error("Expected string, got " .. type(rawValue))
             end
-            return rawValue
         else
             MCMWarn(0, "Unknown promoted type: " .. tostring(entry.type))
         end
-    else
-        -- No promotion: return whatever SE stored (any Lua type)
-        return rawValue
     end
+
+    if entry.validate and rawValue ~= nil then
+        local ok, errMsg = entry.validate(rawValue)
+        if not ok then
+            error("Validation failed: " .. (errMsg or "unknown error"))
+        end
+    end
+
+    return rawValue
 end
 
 --- REGISTER: One-step registration of a variable with type and default value.
@@ -313,9 +315,15 @@ function SettingsService.Get(moduleUUID, varName, storageType)
 
     local ok, val = pcall(coerceAndValidate, entry, raw)
     if not ok then
-        MCMWarn(0, ("Get: coercion failed for %s:%s in %s: %s"):format(
-            moduleUUID, varName, storageType, val))
-        return entry.default
+        MCMWarn(0,
+            ("Get: Validation/Coercion failed for %s (%s) for type %s: %s. Reverting setting value to default: %s.")
+            :format(
+                moduleUUID, varName, storageType, val, entry.default))
+
+        -- REVIEW: if default is not defined, should we return nil?
+        -- If it's defined as nil, we should return nil...
+        val = entry.default
+        adapter:SetValue(varName, val, moduleUUID)
     end
 
     return val
@@ -441,27 +449,37 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
     end
 
     local entry = bucket[varName]
-    if entry.validate and newValue ~= nil then
-        local ok, errMsg = entry.validate(newValue)
-        if not ok then
-            MCMWarn(0, ("Validation failed for %s:%s in %s: %s"):format(
-                moduleUUID, varName, storageType, errMsg))
-            return false
-        end
-    end
-
     local val = newValue
-    if newValue ~= nil then
-        local ok, coerced = pcall(coerceAndValidate, entry, newValue)
-        if not ok then
-            MCMWarn(0, ("Set: coercion failed for %s:%s in %s: %s"):format(
-                moduleUUID, varName, storageType, coerced))
-            return false
-        end
-        val = coerced
-    end
-
     local adapter = AdapterFactory.GetAdapter(storageType)
+
+    -- Validate and coerce. If fails, revert to default.
+    local ok, result = pcall(coerceAndValidate, entry, newValue)
+    if not ok then
+        MCMWarn(0, ("Set: Validation/Coercion failed for %s (%s) in %s: %s. Reverting to default: %s."):format(
+            moduleUUID, varName, storageType, result, entry.default))
+
+        -- REVIEW: if default is not defined, should we return nil?
+        -- If it's defined as nil, we should return nil...
+        if entry.default ~= nil then
+            val = entry.default
+            adapter:SetValue(varName, val, moduleUUID)
+
+            -- Emit a setting saved event for the correction
+            ModEventManager:Emit(
+                EventChannels.MCM_DYNAMIC_SETTING_SAVED,
+                {
+                    modUUID     = moduleUUID,
+                    key         = varName,
+                    storageType = storageType,
+                    oldValue    = newValue, -- The bad value that was attempted
+                    value       = val       -- The default value it was reverted to
+                },
+                true
+            )
+        end
+        return false
+    end
+    val = result
 
     --FIXME: deepcopy oldValue since it may be a table
     local oldValue = adapter:GetValue(varName, moduleUUID)
