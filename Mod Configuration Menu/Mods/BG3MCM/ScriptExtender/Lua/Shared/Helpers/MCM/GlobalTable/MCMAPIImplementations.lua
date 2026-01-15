@@ -96,8 +96,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 
 ---@alias MCMEmptyArgs {}
 
----@class MCMStoreRegisterArgs
----@field var string The name/key of the variable to register
+---@class MCMStoreRegisterOptions
 ---@field default? any The default value for the variable
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
 ---@field storage? string Optional storage type ("Json", etc.), defaults to "Json"
@@ -612,22 +611,27 @@ local SettingsService = require("Shared/DynamicSettings/Services/SettingsService
 local DEFAULT_STORAGE_TYPE = "Json"
 
 --- Implementation: Register a variable for persistence
----@param args MCMStoreRegisterArgs
+---@param varName string The variable name
+---@param options? MCMStoreRegisterOptions The options for the variable
+---@param modUUID string The UUID of the mod (from the MCM instance)
 ---@return boolean success
-local function Store_Register_Impl(args)
-    if not args.var then
-        MCMWarn(0, "MCM.Store.Register: var is required")
+local function Store_RegisterVar_Impl(varName, options, modUUID)
+    if not varName then
+        MCMWarn(0, "MCM.Store.RegisterVar: variable name is required")
         return false
     end
 
-    local storage = args.storage or DEFAULT_STORAGE_TYPE
+    options = options or {}
+    local storage = options.storage or DEFAULT_STORAGE_TYPE
+    local finalModUUID = options.modUUID or modUUID
+
     local definition = {
-        type = args.type,
-        default = args.default,
-        validate = args.validate
+        type = options.type,
+        default = options.default,
+        validate = options.validate
     }
 
-    return SettingsService.Register(args.modUUID, args.var, storage, definition)
+    return SettingsService.Register(finalModUUID, varName, storage, definition)
 end
 
 --- Implementation: Get a stored value
@@ -669,15 +673,12 @@ function MCMAPIImplementations.createStoreAPI(originalModUUID)
     local StoreAPI = {}
 
     --- Register a variable for persistence
-    ---@param varOrArgs string|MCMStoreRegisterArgs The variable name, or an argument table
-    ---@param default? any The default value for the variable
-    ---@param modUUID? string Optional mod UUID, defaults to current mod
+    ---@param varName string The variable name
+    ---@param options? MCMStoreRegisterOptions The options for the variable
     ---@return boolean success True if the variable was registered successfully
-    StoreAPI.Register = MCMAPIUtils.WithFlexibleArgs(
-        Store_Register_Impl,
-        { "var", "default", "modUUID" },
-        { modUUID = originalModUUID }
-    )
+    function StoreAPI.RegisterVar(varName, options)
+        return Store_RegisterVar_Impl(varName, options, originalModUUID)
+    end
 
     --- Get a stored value
     ---@param varOrArgs string|MCMStoreGetArgs The variable name, or an argument table

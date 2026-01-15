@@ -105,13 +105,12 @@
 ---@field UnregisterCallback fun(buttonIdOrArgs:string|MCMEventButtonStateArgs, modUUID?:string):boolean Unregister a button click callback
 ---@field SetDisabled fun(buttonIdOrArgs:string|MCMEventButtonSetDisabledArgs, disabled?:boolean, tooltipText?:string, modUUID?:string):boolean Enable or disable an event button
 
----@class MCMStoreRegisterArgs
----@field var string The name/key of the variable to register
+---@class MCMStoreRegisterOptions
 ---@field default? any The default value for the variable
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
 ---@field storage? string Optional storage type ("json", etc.), defaults to "json". Only json storage is implemented at the moment
 ---@field validate? fun(value: any): (boolean, string)? Optional validation function
----@field modUUID? string Optional mod UUID, defaults to caller mod
+---@field modUUID? string Optional mod UUID, override for the default mod UUID
 
 ---@class MCMStoreGetArgs
 ---@field var string The name/key of the variable to retrieve
@@ -127,7 +126,7 @@
 ---@field storage? string Optional storage type, defaults to "json". Only json storage is implemented at the moment
 
 ---@class MCMStoreAPI Store API for JSON persistence of non-blueprint settings
----@field Register fun(varOrArgs:string|MCMStoreRegisterArgs, default?:any, type?:string, storage?:string, modUUID?:string):boolean Register a variable for JSON persistence
+---@field registervar fun(varName:string, options?:MCMStoreRegisterOptions):boolean Register a variable for JSON persistence
 ---@field Get fun(varNameOrArgs:string|MCMStoreGetArgs, modUUID?:string):any Get a stored value
 ---@field Set fun(varNameOrArgs:string|MCMStoreSetArgs, value?:any, modUUID?:string):boolean Set a stored value
 ---@field GetAll fun(modUUIDOrArgs?:string|MCMStoreGetAllArgs):table<string, any> Get all stored values for this mod
