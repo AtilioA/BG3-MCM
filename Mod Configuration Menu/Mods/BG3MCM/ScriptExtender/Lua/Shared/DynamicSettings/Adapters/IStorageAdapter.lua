@@ -8,7 +8,7 @@ local IStorageAdapter = {}
 ---@param moduleUUID string The UUID of the module
 ---@param key string The key to read
 ---@return any value The raw Lua value or nil if not set
-function IStorageAdapter:GetValue(moduleUUID, key)
+function IStorageAdapter:GetValue(key, moduleUUID)
     MCMError(0, "IStorageAdapter:GetValue() not implemented")
 end
 
@@ -17,7 +17,7 @@ end
 ---@param moduleUUID string The UUID of the module
 ---@param key string The key to write
 ---@param value any The value to write (nil to delete)
-function IStorageAdapter:SetValue(moduleUUID, key, value)
+function IStorageAdapter:SetValue(key, value, moduleUUID)
     MCMError(0, "IStorageAdapter:SetValue() not implemented")
 end
 

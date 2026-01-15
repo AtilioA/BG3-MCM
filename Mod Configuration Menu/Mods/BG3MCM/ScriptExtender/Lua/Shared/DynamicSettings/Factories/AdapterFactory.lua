@@ -7,11 +7,14 @@ local AdapterFactory = {
 
 local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
 local ModConfigAdapter = require("Shared/DynamicSettings/Adapters/ModConfigAdapter")
+local JsonAdapter = require("Shared/DynamicSettings/Adapters/JsonAdapter")
 
 --- Call once (e.g. in SessionLoading) to register each adapter class.
 function AdapterFactory.Initialize()
+    -- REVIEW: use enum for storage types?
     AdapterFactory.adapters["ModVar"]    = ModVarAdapter
     AdapterFactory.adapters["ModConfig"] = ModConfigAdapter
+    AdapterFactory.adapters["Json"]      = JsonAdapter
     -- Later, to add other storage types:
     -- AdapterFactory.adapters["LocalSettings"] = LocalSettingsAdapter
 end
