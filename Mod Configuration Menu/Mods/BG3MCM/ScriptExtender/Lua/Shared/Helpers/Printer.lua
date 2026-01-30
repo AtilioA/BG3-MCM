@@ -23,7 +23,8 @@ function Printer:UpdateLogLevels()
         print = MCMAPI:GetSettingValue("log_level_print", ModuleUUID) ~= false, -- Enabled by default (opt-out)
         debug = MCMAPI:GetSettingValue("log_level_debug", ModuleUUID) == true, -- Disabled by default (opt-in)
         info = MCMAPI:GetSettingValue("log_level_info", ModuleUUID) == true,
-        warn = MCMAPI:GetSettingValue("log_level_warn", ModuleUUID) ~= false
+        warn = MCMAPI:GetSettingValue("log_level_warn", ModuleUUID) ~= false,
+        success = MCMAPI:GetSettingValue("log_level_success", ModuleUUID) ~= false
     }
 end
 
@@ -66,7 +67,7 @@ function MCMInfo(debugLevel, ...)
 end
 
 function MCMSuccess(debugLevel, ...)
-    if not shouldLog("print") then return end
+    if not shouldLog("success") then return end
     MCMPrinter:SetFontColor(50, 255, 100) -- Green
     MCMPrinter:Print(debugLevel, ...)
 end
