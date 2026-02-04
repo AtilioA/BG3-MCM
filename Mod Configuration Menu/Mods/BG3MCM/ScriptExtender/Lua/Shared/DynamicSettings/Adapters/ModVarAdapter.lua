@@ -1,5 +1,6 @@
 -- Concrete implementation of IStorageAdapter for ScriptExtender's ModVars.
 -- Supports full SE parameter compatibility and automatic nested table dirty/sync.
+-- NOTE: Actual value access is deferred until SessionLoaded event.
 
 local IStorageAdapter = require("Shared/DynamicSettings/Adapters/IStorageAdapter")
 
@@ -11,6 +12,13 @@ ModVarAdapter.__index = ModVarAdapter
 -- Track registered variables per module to avoid duplicate registrations
 -- Structure: _registered[moduleUUID][varName] = true
 ModVarAdapter._registered = {}
+
+-- Track if SessionLoaded has fired
+ModVarAdapter._sessionLoaded = false
+
+-- Queue for pending operations before SessionLoaded
+-- Structure: { { type = "get"|"set", key = ..., moduleUUID = ..., storageConfig = ..., value = ..., callback = ... }, ... }
+ModVarAdapter._pendingOperations = {}
 
 -- Default SE ModVar configuration values
 -- These match SE defaults but with MCM-specific overrides for Client and SyncToClient
@@ -26,6 +34,28 @@ ModVarAdapter.DEFAULTS = {
     SyncOnWrite = false,
     DontCache = false
 }
+
+-- Subscribe to SessionLoaded to process pending operations
+Ext.Events.SessionLoaded:Subscribe(function()
+    ModVarAdapter._sessionLoaded = true
+    MCMDebug(1, "ModVarAdapter: SessionLoaded fired, processing " .. #ModVarAdapter._pendingOperations .. " pending operations")
+
+    -- Process all pending operations.
+    -- REVIEW? maybe use ReactiveX for this?
+    for _, op in ipairs(ModVarAdapter._pendingOperations) do
+        if op.type == "get" then
+            local value = ModVarAdapter:_doGetValue(op.key, op.moduleUUID, op.storageConfig)
+            if op.callback then
+                op.callback(value)
+            end
+        elseif op.type == "set" then
+            ModVarAdapter:_doSetValue(op.key, op.value, op.moduleUUID, op.storageConfig)
+        end
+    end
+
+    -- Clear the queue
+    ModVarAdapter._pendingOperations = {}
+end)
 
 --- Ensure a ModVar is registered with SE if not already registered.
 --- Uses exact SE parameter names for compatibility.
@@ -69,12 +99,12 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
     end
 end
 
---- Read a ModVar for this moduleUUID and key. Returns raw Lua value or nil.
+--- Internal: Actually perform the GetValue operation (assumes SessionLoaded has fired)
 ---@param key string The key to read
 ---@param moduleUUID string The UUID of the module
 ---@param storageConfig? table Optional SE configuration parameters
 ---@return any value The raw Lua value or nil if not set
-function ModVarAdapter:GetValue(key, moduleUUID, storageConfig)
+function ModVarAdapter:_doGetValue(key, moduleUUID, storageConfig)
     -- Ensure the variable is registered before reading to avoid SE indexing errors
     self:EnsureRegistered(key, moduleUUID, storageConfig)
 
@@ -87,13 +117,39 @@ function ModVarAdapter:GetValue(key, moduleUUID, storageConfig)
     return v
 end
 
---- Write a ModVar for (key, value, moduleUUID). If value==nil, remove that variable.
---- Automatically handles nested table dirty/sync.
+--- Read a ModVar for this moduleUUID and key. Returns raw Lua value or nil.
+--- NOTE: If called before SessionLoaded, returns nil immediately and the actual
+--- value will be available via callback if provided.
+---@param key string The key to read
+---@param moduleUUID string The UUID of the module
+---@param storageConfig? table Optional SE configuration parameters
+---@param callback? function Optional callback(value) called when value is actually retrieved
+---@return any value The raw Lua value or nil if not set (may be nil if before SessionLoaded)
+function ModVarAdapter:GetValue(key, moduleUUID, storageConfig, callback)
+    -- If SessionLoaded hasn't fired yet, queue the operation and return nil
+    if not self._sessionLoaded then
+        MCMDebug(2, string.format("ModVarAdapter:GetValue('%s') called before SessionLoaded, queuing operation", key))
+        table.insert(self._pendingOperations, {
+            type = "get",
+            key = key,
+            moduleUUID = moduleUUID,
+            storageConfig = storageConfig,
+            callback = callback
+        })
+        return nil
+    end
+
+    -- SessionLoaded has fired, execute immediately
+    return self:_doGetValue(key, moduleUUID, storageConfig)
+end
+
+--- Internal: Actually perform the SetValue operation (assumes SessionLoaded has fired)
 ---@param key string The key to write
 ---@param value any The value to write (nil to delete)
 ---@param moduleUUID string The UUID of the module
 ---@param storageConfig? table Optional SE configuration parameters
-function ModVarAdapter:SetValue(key, value, moduleUUID, storageConfig)
+function ModVarAdapter:_doSetValue(key, value, moduleUUID, storageConfig)
+    -- FIXME: not persisting
     -- Ensure the variable is registered before writing
     self:EnsureRegistered(key, moduleUUID, storageConfig)
 
@@ -117,11 +173,37 @@ function ModVarAdapter:SetValue(key, value, moduleUUID, storageConfig)
             Ext.Vars.SyncModVariables(moduleUUID)
         end
         -- Otherwise sync happens on next tick (SyncOnTick = true by default)
+        MCMDebug(1, "ModVarAdapter:SetValue() - Set value for '" .. key .. "' to '" .. tostring(value) .. "' for module " .. moduleUUID)
     end)
 
     if not ok then
         MCMWarn(0, "ModVarAdapter:SetValue() failed: " .. tostring(err))
     end
+end
+
+--- Write a ModVar for (key, value, moduleUUID). If value==nil, remove that variable.
+--- Automatically handles nested table dirty/sync.
+--- NOTE: If called before SessionLoaded, the operation is queued and executed after SessionLoaded.
+---@param key string The key to write
+---@param value any The value to write (nil to delete)
+---@param moduleUUID string The UUID of the module
+---@param storageConfig? table Optional SE configuration parameters
+function ModVarAdapter:SetValue(key, value, moduleUUID, storageConfig)
+    -- If SessionLoaded hasn't fired yet, queue the operation
+    if not self._sessionLoaded then
+        MCMDebug(2, string.format("ModVarAdapter:SetValue('%s') called before SessionLoaded, queuing operation", key))
+        table.insert(self._pendingOperations, {
+            type = "set",
+            key = key,
+            value = value,
+            moduleUUID = moduleUUID,
+            storageConfig = storageConfig
+        })
+        return
+    end
+
+    -- SessionLoaded has fired, execute immediately
+    self:_doSetValue(key, value, moduleUUID, storageConfig)
 end
 
 return ModVarAdapter
