@@ -112,9 +112,10 @@ end
 -- Register generic chunked listeners once and a handler
 if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners then
     ChunkedNet.Client.RegisterNetListeners()
-    ChunkedNet.Client.RegisterHandler(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(jsonStr)
-        local ok, data = pcall(Ext.Json.Parse, jsonStr)
-        if ok and type(data) == "table" then
+    -- Register handler using the channel name string (not the object) for consistency with chunk metadata
+    ChunkedNet.Client.RegisterHandler("MCM_Server_Send_Configs_To_Client", function(jsonStr)
+        local data = jsonStr
+        if type(data) == "table" then
             onConfigsReceived(data.mods, data.profiles)
         end
     end)
@@ -125,28 +126,46 @@ Ext.Events.ResetCompleted:Subscribe(function()
     InitClientMCM()
 end)
 
-Ext.RegisterNetListener(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(_, payload)
-    local ok, data = pcall(Ext.Json.Parse, payload)
-    if not ok or type(data) ~= "table" then
-        MCMWarn(0, "Failed to parse configs payload")
+-- Handle direct (non-chunked) config messages
+NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT:SetHandler(function(data)
+    if not data or type(data) ~= "table" then
+        MCMWarn(0, "Failed to parse configs payload - invalid data")
         return
     end
     onConfigsReceived(data.mods, data.profiles)
 end)
 
-Ext.RegisterNetListener(NetChannels.MCM_RELAY_TO_SERVERS, function(_, metapayload)
-    local data = Ext.Json.Parse(metapayload)
-    Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
+NetChannels.MCM_RELAY_TO_SERVERS:SetHandler(function(data)
+    if not data or not data.channel then
+        MCMWarn(0, "Invalid relay data received")
+        return
+    end
+
+    -- Forward to server using the appropriate NetChannel
+    local targetChannel = NetChannels[data.channel]
+    if targetChannel and targetChannel.SendToServer then
+        targetChannel:SendToServer(data.payload)
+    else
+        MCMWarn(0, "Unknown channel for relay: " .. tostring(data.channel))
+    end
 end)
 
-Ext.RegisterNetListener(NetChannels.MCM_EMIT_ON_CLIENTS, function(_, payload)
-    local data = Ext.Json.Parse(payload)
+NetChannels.MCM_EMIT_ON_CLIENTS:SetHandler(function(data)
+    if not data or not data.eventName then
+        MCMWarn(0, "Invalid emit data received - missing eventName")
+        return
+    end
+
     local eventName = data.eventName
     local eventData = data.eventData
 
     MCMDebug(1, "Emitting event " .. eventName .. " on clients as well.")
 
-    Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
+    if Ext.ModEvents['BG3MCM'] and Ext.ModEvents['BG3MCM'][eventName] then
+        Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
+    else
+        MCMWarn(0, "Event '" .. eventName .. "' not registered")
+    end
 end)
 
 ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)

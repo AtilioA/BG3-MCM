@@ -24,9 +24,18 @@ function InitClientMCM()
         return
     else
         -- In-game: request configs from server, client will update via net listeners
-        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
-            message = "Client reset has completed. Requesting MCM settings from server."
-        }))
+        NetChannels.MCM_CLIENT_REQUEST_CONFIGS:RequestToServer(
+            { message = "Client reset has completed. Requesting MCM settings from server." },
+            function(response)
+                if response.success then
+                    MCMDebug(1, "Successfully requested configs from server after reset")
+                else
+                    MCMWarn(0,
+                        "Failed to request configs from server after reset: " ..
+                        (response.error or "Unknown error"))
+                end
+            end
+        )
     end
 
     _initialized = true

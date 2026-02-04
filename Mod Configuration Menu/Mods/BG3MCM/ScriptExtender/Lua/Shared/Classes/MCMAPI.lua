@@ -318,11 +318,11 @@ function MCMAPI:ResetSettingValue(settingId, modUUID, clientRequest)
             Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
     else
         self:SetSettingValue(settingId, defaultValue, modUUID, not shouldEmitEvent)
-        -- Ext.Net.BroadcastMessage(EventChannels.MCM_SETTING_RESET, Ext.Json.Stringify({
+        -- NetChannels.MCM_SETTING_RESET:Broadcast({
         --     modUUID = modUUID,
         --     settingId = settingId,
         --     defaultValue = defaultValue
-        -- }))
+        -- })
     end
 end
 
@@ -332,8 +332,10 @@ end
 --     local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
 --     ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
---     Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
---         Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
+--     NetChannels.MCM_RELAY_TO_SERVERS:Broadcast({
+--         channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET,
+--         payload = { modUUID = modUUID, settings = defaultSettings }
+--     })
 -- end
 
 --- Registers a callback for an event button

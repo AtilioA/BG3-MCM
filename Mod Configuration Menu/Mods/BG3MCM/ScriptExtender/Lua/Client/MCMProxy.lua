@@ -45,9 +45,16 @@ function MCMProxy:LoadConfigs()
     if self:IsMainMenu() then
         loadConfigs()
     else
-        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_CONFIGS, Ext.Json.Stringify({
-            message = "Requesting MCM settings from server."
-        }))
+        NetChannels.MCM_CLIENT_REQUEST_CONFIGS:RequestToServer(
+            { message = "Requesting MCM settings from server." },
+            function(response)
+                if response.success then
+                    MCMDebug(1, "Successfully requested configs from server: " .. (response.message or ""))
+                else
+                    MCMWarn(0, "Failed to request configs from server: " .. (response.error or "Unknown error"))
+                end
+            end
+        )
     end
 end
 
@@ -128,13 +135,23 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldE
             setUIValue(value)
         end
     else
-        -- Send to server
-        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE, Ext.Json.Stringify({
-            modUUID = modUUID,
-            settingId = settingId,
-            value = value
-        }))
-        -- Check if server updated the setting
+        NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE:RequestToServer(
+            {
+                modUUID = modUUID,
+                settingId = settingId,
+                value = value
+            },
+            function(response)
+                if response.success then
+                    MCMDebug(1, "Successfully set setting " .. settingId .. " on server")
+                    -- UI update is handled via ModEventManager subscription below
+                else
+                    MCMWarn(0, "Failed to set setting " .. settingId .. ": " .. (response.error or "Unknown error"))
+                end
+            end
+        )
+
+        -- Check if server updated the setting (subscribe to mod event)
         ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
             if data.modUUID ~= modUUID or data.settingId ~= settingId then
                 return
@@ -156,11 +173,79 @@ function MCMProxy:ResetSettingValue(settingId, modUUID)
         MCMAPI:ResetSettingValue(settingId, modUUID)
         MCMClientState:SetClientStateValue(settingId, MCMAPI:GetSettingValue(settingId, modUUID), modUUID)
     else
-        -- Send to server
-        Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE, Ext.Json.Stringify({
-            modUUID = modUUID,
-            settingId = settingId
-        }))
+        NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE:RequestToServer(
+            {
+                modUUID = modUUID,
+                settingId = settingId
+            },
+            function(response)
+                if response.success then
+                    MCMDebug(1, "Successfully reset setting " .. settingId .. " on server")
+                else
+                    MCMWarn(0, "Failed to reset setting " .. settingId .. ": " .. (response.error or "Unknown error"))
+                end
+            end
+        )
+    end
+end
+
+--- Create a new profile
+---@param profileName string The name of the profile to create
+function MCMProxy:CreateProfile(profileName)
+    if MCMProxy.IsMainMenu() then
+        -- Handle locally
+        MCMAPI:CreateProfile(profileName)
+    else
+        NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE:RequestToServer(
+            { profileName = profileName },
+            function(response)
+                if response.success then
+                    MCMDebug(1, "Successfully created profile " .. profileName)
+                else
+                    MCMWarn(0, "Failed to create profile " .. profileName .. ": " .. (response.error or "Unknown error"))
+                end
+            end
+        )
+    end
+end
+
+--- Set the active profile
+---@param profileName string The name of the profile to set
+function MCMProxy:SetProfile(profileName)
+    if MCMProxy.IsMainMenu() then
+        -- Handle locally
+        MCMAPI:SetProfile(profileName)
+    else
+        NetChannels.MCM_CLIENT_REQUEST_SET_PROFILE:RequestToServer(
+            { profileName = profileName },
+            function(response)
+                if response.success then
+                    MCMDebug(1, "Successfully set profile to " .. profileName)
+                else
+                    MCMWarn(0, "Failed to set profile to " .. profileName .. ": " .. (response.error or "Unknown error"))
+                end
+            end
+        )
+    end
+end
+
+--- Delete a profile
+---@param profileName string The name of the profile to delete
+function MCMProxy:DeleteProfile(profileName)
+    if MCMProxy.IsMainMenu() then
+        -- Handle locally
+        MCMAPI:DeleteProfile(profileName)
+    else
+        NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE:RequestToServer(
+            { profileName = profileName },
+            function(response)
+                if response.success then
+                    MCMDebug(1, "Successfully deleted profile " .. profileName)
+                else
+                    MCMWarn(0, "Failed to delete profile " .. profileName .. ": " .. (response.error or "Unknown error"))
+                end
+            end
+        )
     end
 end
 

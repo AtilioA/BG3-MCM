@@ -25,11 +25,15 @@ local function emitModEvent(eventName, eventData, bothContexts)
     local function relayModEventEmissionToOtherContext(eventName, eventData)
         xpcall(function()
             if Ext.IsServer() then
-                Ext.Net.BroadcastMessage(NetChannels.MCM_EMIT_ON_CLIENTS,
-                    Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
+                NetChannels.MCM_EMIT_ON_CLIENTS:Broadcast({
+                    eventName = eventName,
+                    eventData = eventData
+                })
             elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
-                Ext.Net.PostMessageToServer(NetChannels.MCM_EMIT_ON_SERVER,
-                    Ext.Json.Stringify({ eventName = eventName, eventData = eventData }))
+                NetChannels.MCM_EMIT_ON_SERVER:SendToServer({
+                    eventName = eventName,
+                    eventData = eventData
+                })
             end
         end, function(err)
             MCMWarn(0, "Error while emitting mod event: " .. tostring(err))
@@ -55,6 +59,8 @@ local function emitModEvent(eventName, eventData, bothContexts)
     end
 end
 
+--- Kept for backwards compatibility with old mods using deprecated NetMessage API
+--- Uses legacy NetMessage for public API compatibility only
 local function broadcastDeprecatedNetMessage(eventName, eventData)
     local function createMetapayload(eventName, payload)
         return Ext.Json.Stringify({
@@ -73,11 +79,13 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
         -- Always be prepared for the worst
         xpcall(function()
             if Ext.IsServer() then
+                -- Keep using legacy NetMessage for backwards compatibility
                 Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
-                Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS, metapayload)
+                Ext.Net.BroadcastMessage(NetChannels._LEGACY.MCM_RELAY_TO_SERVERS, metapayload)
             elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
+                -- Keep using legacy NetMessage for backwards compatibility
                 Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
-                Ext.Net.PostMessageToServer(NetChannels.MCM_RELAY_TO_CLIENTS, metapayload)
+                Ext.Net.PostMessageToServer(NetChannels._LEGACY.MCM_RELAY_TO_CLIENTS, metapayload)
             end
         end, function(err)
             MCMWarn(0, "Error while broadcasting or posting net message: " .. tostring(err))

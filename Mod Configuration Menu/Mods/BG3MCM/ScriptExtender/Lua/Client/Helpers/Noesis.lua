@@ -138,8 +138,7 @@ local function handleMCMButtonPress(button, hasServer)
             updateButtonMessage(Ext.Loca.GetTranslatedString("h354808a337024c99b6149d5d1b11934bd36e"),
                 revertTime, isMessageUpdated)
             if hasServer then
-                Ext.Net.PostMessageToServer(NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION,
-                    Ext.Json.Stringify({}))
+                NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION:SendToServer({})
             end
         else
             Ext.Timer.WaitFor(timeWindow, function()
