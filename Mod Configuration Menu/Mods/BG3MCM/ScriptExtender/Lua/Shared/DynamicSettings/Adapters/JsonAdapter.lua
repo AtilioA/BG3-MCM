@@ -113,10 +113,11 @@ function JsonStorageManager:_getFileHandler(uuid)
 end
 
 --- Read the raw Lua value
----@param moduleUUID string
 ---@param key string
+---@param moduleUUID string
+---@param storageConfig? table Optional storage-specific configuration
 ---@return any
-function JsonStorageManager:GetValue(key, moduleUUID)
+function JsonStorageManager:GetValue(key, moduleUUID, storageConfig)
     if not moduleUUID then return nil end
     local handler = self:_getFileHandler(moduleUUID)
     return handler:Get(key)

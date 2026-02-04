@@ -16,11 +16,11 @@ ModVarAdapter._registered = {}
 -- These match SE defaults but with MCM-specific overrides for Client and SyncToClient
 ModVarAdapter.DEFAULTS = {
     Server = true,
-    Client = true, -- MCM override: need client visibility for UI
+    Client = true,            -- MCM override: need client visibility for UI
     WriteableOnServer = true,
-    WriteableOnClient = false,
-    Persistent = true,   -- Save-aware by default
-    SyncToClient = true, -- MCM override: sync settings to client UI
+    WriteableOnClient = true, -- MCM override: need client writeability for UI
+    Persistent = true,        -- Save-aware by default
+    SyncToClient = true,      -- MCM override: sync settings to client UI
     SyncToServer = false,
     SyncOnTick = true,
     SyncOnWrite = false,
@@ -32,7 +32,8 @@ ModVarAdapter.DEFAULTS = {
 ---@param varName string The variable name to register
 ---@param moduleUUID string The module UUID
 ---@param storageConfig? table Optional SE configuration parameters
-function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig)
+---@param skipBroadcast? boolean Internal use to prevent loops
+function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skipBroadcast)
     -- Initialize tracking for this module if needed
     if not self._registered[moduleUUID] then
         self._registered[moduleUUID] = {}
@@ -52,13 +53,31 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig)
 
     MCMDebug(2, string.format("ModVarAdapter: Registered '%s' for module %s with config: %s",
         varName, moduleUUID, Ext.Json.Stringify(config)))
+
+    -- Broadcast registration to other contexts
+    if not skipBroadcast and NetChannels and NetChannels.MCM_ENSURE_MODVAR_REGISTERED then
+        local payload = {
+            varName = varName,
+            moduleUUID = moduleUUID,
+            storageConfig = storageConfig
+        }
+        if Ext.IsServer() then
+            NetChannels.MCM_ENSURE_MODVAR_REGISTERED:Broadcast(payload)
+        else
+            NetChannels.MCM_ENSURE_MODVAR_REGISTERED:SendToServer(payload)
+        end
+    end
 end
 
 --- Read a ModVar for this moduleUUID and key. Returns raw Lua value or nil.
 ---@param key string The key to read
 ---@param moduleUUID string The UUID of the module
+---@param storageConfig? table Optional SE configuration parameters
 ---@return any value The raw Lua value or nil if not set
-function ModVarAdapter:GetValue(key, moduleUUID)
+function ModVarAdapter:GetValue(key, moduleUUID, storageConfig)
+    -- Ensure the variable is registered before reading to avoid SE indexing errors
+    self:EnsureRegistered(key, moduleUUID, storageConfig)
+
     local vars = Ext.Vars.GetModVariables(moduleUUID)
     if not vars then
         return nil

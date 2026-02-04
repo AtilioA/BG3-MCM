@@ -168,6 +168,15 @@ NetChannels.MCM_EMIT_ON_CLIENTS:SetHandler(function(data)
     end
 end)
 
+NetChannels.MCM_ENSURE_MODVAR_REGISTERED:SetHandler(function(data)
+    if not data or not data.varName or not data.moduleUUID then
+        return
+    end
+
+    local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
+    ModVarAdapter:EnsureRegistered(data.varName, data.moduleUUID, data.storageConfig, true)
+end)
+
 ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)
     local modUUID = payload.modUUID
     local settingId = payload.settingId

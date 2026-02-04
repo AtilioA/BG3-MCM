@@ -30,10 +30,11 @@ end
 
 --- Read the raw Lua value (boolean/number/string/table/etc.) for (moduleUUID, key).
 --- Returns nil if the variable is not set.
----@param moduleUUID string The UUID of the module
 ---@param key string The key to read
+---@param moduleUUID string The UUID of the module
+---@param storageConfig? table Optional storage-specific configuration (e.g., SE ModVar parameters)
 ---@return any value The raw Lua value or nil if not set
-function IStorageAdapter:GetValue(key, moduleUUID)
+function IStorageAdapter:GetValue(key, moduleUUID, storageConfig)
     MCMError(0, "IStorageAdapter:GetValue() not implemented")
 end
 

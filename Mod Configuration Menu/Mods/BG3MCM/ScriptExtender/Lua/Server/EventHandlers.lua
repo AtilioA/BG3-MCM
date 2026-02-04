@@ -3,6 +3,8 @@ EHandlers = {}
 EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
 EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
+local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
+
 local function warnAboutNPAKM()
     if LoadOrderHealthCheck and LoadOrderHealthCheck.ShouldWarnAboutNPAKM and LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then
         local host = Osi.GetHostCharacter()
@@ -41,7 +43,7 @@ end
 ---@return table Response with success status
 function EHandlers.OnClientRequestConfigs(data, userID)
     MCMDebug(1, "Received MCM settings request from user: " .. tostring(userID))
-    
+
     if not MCMAPI.mods or not MCMAPI.profiles then
         MCMServer:LoadAndSendSettings()
         return { success = true, message = "Loading configurations..." }
@@ -75,12 +77,12 @@ function EHandlers.OnClientRequestSetSettingValue(data, userID)
     local ok, err = pcall(function()
         MCMServer:SetSettingValue(settingId, value, modUUID)
     end)
-    
+
     if not ok then
         MCMError(0, "Failed to set setting value: " .. tostring(err))
         return { success = false, error = tostring(err) }
     end
-    
+
     return { success = true, data = { settingId = settingId, value = value, modUUID = modUUID } }
 end
 
@@ -101,12 +103,12 @@ function EHandlers.OnClientRequestResetSettingValue(data, userID)
     local ok, err = pcall(function()
         MCMServer:ResetSettingValue(settingId, modUUID)
     end)
-    
+
     if not ok then
         MCMError(0, "Failed to reset setting value: " .. tostring(err))
         return { success = false, error = tostring(err) }
     end
-    
+
     return { success = true, data = { settingId = settingId, modUUID = modUUID } }
 end
 
@@ -131,12 +133,12 @@ function EHandlers.OnClientRequestSetProfile(data, userID)
     local ok, result = pcall(function()
         return MCMServer:SetProfile(profileName)
     end)
-    
+
     if not ok then
         MCMError(0, "Failed to set profile: " .. tostring(result))
         return { success = false, error = tostring(result) }
     end
-    
+
     return { success = result, data = { profileName = profileName } }
 end
 
@@ -156,12 +158,12 @@ function EHandlers.OnClientRequestCreateProfile(data, userID)
     local ok, result = pcall(function()
         return MCMServer:CreateProfile(profileName)
     end)
-    
+
     if not ok then
         MCMError(0, "Failed to create profile: " .. tostring(result))
         return { success = false, error = tostring(result) }
     end
-    
+
     return { success = result, data = { profileName = profileName } }
 end
 
@@ -181,12 +183,12 @@ function EHandlers.OnClientRequestDeleteProfile(data, userID)
     local ok, result = pcall(function()
         return MCMServer:DeleteProfile(profileName)
     end)
-    
+
     if not ok then
         MCMError(0, "Failed to delete profile: " .. tostring(result))
         return { success = false, error = tostring(result) }
     end
-    
+
     return { success = result, data = { profileName = profileName } }
 end
 
@@ -246,7 +248,7 @@ end
 ---@return table Response with success status
 function EHandlers.OnUserSpamMCMButton(data, userID)
     MCMDebug(1, "User is spamming MCM button; showing troubleshooting notification")
-    
+
     local userCharacter = MCMUtils:GetUserCharacter(userID)
     if userCharacter then
         local MCMModVars = Ext.Vars.GetModVariables(ModuleUUID)
@@ -268,7 +270,7 @@ function EHandlers.OnRelayToClients(data, userID)
     if not data or not data.channel or not data.payload then
         return { success = false, error = "Invalid relay data: missing channel or payload" }
     end
-    
+
     -- Use NetChannel to broadcast to clients
     local targetChannel = NetChannels[data.channel]
     if targetChannel then
@@ -288,7 +290,7 @@ function EHandlers.OnEmitOnServer(data, userID)
     if not data or not data.eventName then
         return { success = false, error = "Invalid emit data: missing eventName" }
     end
-    
+
     local eventName = data.eventName
     local eventData = data.eventData
 
@@ -301,12 +303,30 @@ function EHandlers.OnEmitOnServer(data, userID)
             error("Event '" .. eventName .. "' not registered")
         end
     end)
-    
+
     if not ok then
         MCMWarn(0, "Failed to emit event: " .. tostring(err))
         return { success = false, error = tostring(err) }
     end
-    
+
+    return { success = true }
+end
+
+--- Handle synchronization of ModVar registration
+---@param data table Request data with varName, moduleUUID, storageConfig
+---@param userID number The user ID of the requesting client
+---@return table Response with success status
+function EHandlers.OnEnsureModVarRegistered(data, userID)
+    local varName = data.varName
+    local moduleUUID = data.moduleUUID
+    local storageConfig = data.storageConfig
+
+    if not varName or not moduleUUID then
+        return { success = false, error = "Missing varName or moduleUUID" }
+    end
+
+    ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, true)
+
     return { success = true }
 end
 

@@ -127,7 +127,7 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
     -- If no value exists yet, write the default
     local adapter = AdapterFactory.GetAdapter(storageType)
     if adapter then
-        local raw = adapter:GetValue(varName, moduleUUID)
+        local raw = adapter:GetValue(varName, moduleUUID, definition.storageConfig)
         if raw == nil and definition.default ~= nil then
             adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
         end
@@ -258,13 +258,15 @@ function SettingsService.PromoteVariable(moduleUUID, varName, storageType, defin
 
     -- Immediately write default if no value exists
     local adapter                 = AdapterFactory.GetAdapter(storageType)
-    local raw                     = adapter:GetValue(varName, moduleUUID)
-    if raw == nil and definition.default ~= nil then
-        adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
-    else
-        local ok, _val = pcall(coerceAndValidate, bucket[varName], raw)
-        if not ok then
+    if adapter then
+        local raw = adapter:GetValue(varName, moduleUUID, definition.storageConfig)
+        if raw == nil and definition.default ~= nil then
             adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
+        else
+            local ok, _val = pcall(coerceAndValidate, bucket[varName], raw)
+            if not ok then
+                adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
+            end
         end
     end
 end
@@ -307,7 +309,7 @@ function SettingsService.Get(moduleUUID, varName, storageType)
 
     local entry = bucket[varName]
     local adapter = AdapterFactory.GetAdapter(storageType)
-    local raw = adapter:GetValue(varName, moduleUUID)
+    local raw = adapter and adapter:GetValue(varName, moduleUUID, entry.storageConfig) or nil
 
     -- If nil, return registered default
     if raw == nil then
@@ -327,7 +329,9 @@ function SettingsService.Get(moduleUUID, varName, storageType)
         -- REVIEW: if default is not defined, should we return nil?
         -- If it's defined as nil, we should return nil...
         val = entry.default
-        adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
+        if adapter then
+            adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
+        end
     end
 
     return val
@@ -352,18 +356,20 @@ function SettingsService.GetAll(moduleUUID)
     for storageType, bucket in pairs(modSchema) do
         result[storageType] = {}
         local adapter = AdapterFactory.GetAdapter(storageType)
-        for varName, entry in pairs(bucket) do
-            local raw = adapter:GetValue(varName, moduleUUID)
-            if raw ~= nil then
-                local ok, val = pcall(coerceAndValidate, entry, raw)
-                if ok then
-                    result[storageType][varName] = val
-                else
-                    MCMWarn(0, ("GetAll: coercion failed for %s:%s in %s: %s"):format(
-                        moduleUUID, varName, storageType, val))
+        if adapter then
+            for varName, entry in pairs(bucket) do
+                local raw = adapter:GetValue(varName, moduleUUID, entry.storageConfig)
+                if raw ~= nil then
+                    local ok, val = pcall(coerceAndValidate, entry, raw)
+                    if ok then
+                        result[storageType][varName] = val
+                    else
+                        MCMWarn(0, ("GetAll: coercion failed for %s:%s in %s: %s"):format(
+                            moduleUUID, varName, storageType, val))
+                    end
+                elseif entry.default ~= nil then
+                    result[storageType][varName] = entry.default
                 end
-            elseif entry.default ~= nil then
-                result[storageType][varName] = entry.default
             end
         end
     end
@@ -398,15 +404,17 @@ function SettingsService.GetAllForStorageType(moduleUUID, storageType)
 
     local result = {}
     local adapter = AdapterFactory.GetAdapter(storageType)
-    for varName, entry in pairs(bucket) do
-        local raw = adapter:GetValue(varName, moduleUUID)
-        if raw ~= nil then
-            local ok, val = pcall(coerceAndValidate, entry, raw)
-            if ok then
-                result[varName] = val
+    if adapter then
+        for varName, entry in pairs(bucket) do
+            local raw = adapter:GetValue(varName, moduleUUID, entry.storageConfig)
+            if raw ~= nil then
+                local ok, val = pcall(coerceAndValidate, entry, raw)
+                if ok then
+                    result[varName] = val
+                end
+            elseif entry.default ~= nil then
+                result[varName] = entry.default
             end
-        elseif entry.default ~= nil then
-            result[varName] = entry.default
         end
     end
 
@@ -464,7 +472,7 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
 
         -- REVIEW: if default is not defined, should we return nil?
         -- If it's defined as nil, we should return nil...
-        if entry.default ~= nil then
+        if entry.default ~= nil and adapter then
             val = entry.default
             adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
 
@@ -486,8 +494,10 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
     val = result
 
     --FIXME: deepcopy oldValue since it may be a table
-    local oldValue = adapter:GetValue(varName, moduleUUID)
-    adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
+    local oldValue = adapter and adapter:GetValue(varName, moduleUUID, entry.storageConfig) or nil
+    if adapter then
+        adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
+    end
 
     -- Emit a setting saved event for any listeners
     ModEventManager:Emit(

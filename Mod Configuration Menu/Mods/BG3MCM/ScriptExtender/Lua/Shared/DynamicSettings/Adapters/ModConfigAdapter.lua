@@ -8,10 +8,11 @@ setmetatable(ModConfigAdapter, { __index = IStorageAdapter })
 ModConfigAdapter.__index = ModConfigAdapter
 
 --- Future: replace with something like Ext.ModConfig.GetValue(key,moduleUUID)
----@param moduleUUID string The UUID of the module
 ---@param key string The key to read
+---@param moduleUUID string The UUID of the module
+---@param storageConfig? table Optional storage-specific configuration
 ---@return any value The raw Lua value or nil if not set
-function ModConfigAdapter:GetValue(key, moduleUUID)
+function ModConfigAdapter:GetValue(key, moduleUUID, storageConfig)
     MCMError(0, "ModConfigAdapter:GetValue(): ModConfig not available yet.")
 end
 

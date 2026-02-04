@@ -9,6 +9,7 @@ netEventsRegistry:register("MCM_Client_Request_Configs", NetCommand:new(EHandler
 --- Net message handler to relay messages to other clients (backwards support for deprecated net message usage)
 netEventsRegistry:register("MCM_Relay_To_Clients", NetCommand:new(EHandlers.OnRelayToClients))
 netEventsRegistry:register("MCM_Emit_On_Server", NetCommand:new(EHandlers.OnEmitOnServer))
+netEventsRegistry:register("MCM_Ensure_ModVar_Registered", NetCommand:new(EHandlers.OnEnsureModVarRegistered))
 
 --- Net message handlers for when the (IMGUI) client opens or closes the MCM window
 modEventRegistry:register(EventChannels.MCM_WINDOW_OPENED, EHandlers.OnUserOpenedWindow)
@@ -54,14 +55,15 @@ local function wireRequestHandlers()
         [NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE] = "MCM_Client_Request_Delete_Profile",
         [NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION] = "MCM_Client_Show_Troubleshooting_Notification",
     }
-    
+
     -- Map fire-and-forget channel objects to their registry keys
     -- These channels do not expect a response (cross-context event emission)
     local fireAndForgetChannels = {
         [NetChannels.MCM_RELAY_TO_CLIENTS] = "MCM_Relay_To_Clients",
         [NetChannels.MCM_EMIT_ON_SERVER] = "MCM_Emit_On_Server",
+        [NetChannels.MCM_ENSURE_MODVAR_REGISTERED] = "MCM_Ensure_ModVar_Registered",
     }
-    
+
     -- Wire up request/reply handlers
     for channel, registryKey in pairs(requestReplyChannels) do
         local command = netEventsRegistry.commands[registryKey]
@@ -74,11 +76,11 @@ local function wireRequestHandlers()
                     MCMError(0, "NetChannel handler error for " .. registryKey .. ": " .. tostring(err))
                     return { success = false, error = tostring(err) }
                 end)
-                
+
                 if not ok then
                     return { success = false, error = tostring(result) }
                 end
-                
+
                 -- Ensure response has standard structure
                 if type(result) == "table" and result.success ~= nil then
                     return result
@@ -88,7 +90,7 @@ local function wireRequestHandlers()
             end)
         end
     end
-    
+
     -- Wire up fire-and-forget handlers
     for channel, registryKey in pairs(fireAndForgetChannels) do
         local command = netEventsRegistry.commands[registryKey]
