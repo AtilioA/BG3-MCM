@@ -89,9 +89,17 @@ end
 -- Manages multiple file handlers, keyed by UUID.
 -- =============================================================================
 
+local IStorageAdapter = require("Shared/DynamicSettings/Adapters/IStorageAdapter")
+
 ---@class JsonStorageManager : IStorageAdapter
-local JsonStorageManager = {
-    _cache = {} -- table<string, SettingsFile>
+local JsonStorageManager = {}
+setmetatable(JsonStorageManager, { __index = IStorageAdapter })
+JsonStorageManager.__index = JsonStorageManager
+JsonStorageManager._cache = {} -- table<string, SettingsFile>
+
+-- Default configuration for JSON storage
+JsonStorageManager.DEFAULTS = {
+    -- AutoSave = true?
 }
 
 ---Internal helper to retrieve or create the file handler for a UUID
@@ -121,11 +129,22 @@ end
 ---@param storageConfig? table Optional storage configuration (unused for JSON)
 function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)
     if not moduleUUID then return end
+
     local handler = self:_getFileHandler(moduleUUID)
-    handler:Set(key, value)
+
+    -- Merge defaults with provided config using IStorageAdapter logic
+    local config = self:ResolveConfig(storageConfig)
+
+    -- Write value to memory
+    handler:Load()
+    if value == nil then
+        handler.Data[key] = nil
+    else
+        handler.Data[key] = value
+    end
 end
 
---- Force save all loaded files (useful if AutoSave is disabled)
+--- Force save all loaded files
 function JsonStorageManager:SaveAll()
     for _, handler in pairs(self._cache) do
         handler:Save()

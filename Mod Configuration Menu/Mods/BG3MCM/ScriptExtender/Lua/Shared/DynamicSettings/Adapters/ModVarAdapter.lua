@@ -43,16 +43,8 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig)
         return
     end
 
-    -- Merge user config with defaults
-    local config = {}
-    for k, v in pairs(self.DEFAULTS) do
-        config[k] = v
-    end
-    if storageConfig then
-        for k, v in pairs(storageConfig) do
-            config[k] = v
-        end
-    end
+    -- Merge user config with defaults using IStorageAdapter logic
+    local config = self:ResolveConfig(storageConfig)
 
     -- Register with SE
     Ext.Vars.RegisterModVariable(moduleUUID, varName, config)

@@ -2,6 +2,31 @@
 
 ---@class IStorageAdapter
 local IStorageAdapter = {}
+IStorageAdapter.__index = IStorageAdapter
+
+-- Default configuration (override in subclasses)
+IStorageAdapter.DEFAULTS = {}
+
+--- Merge provided configuration with adapter defaults.
+---@param providedConfig? table User-provided configuration
+---@return table config The complete configuration with defaults applied
+function IStorageAdapter:ResolveConfig(providedConfig)
+    local config = {}
+
+    -- Apply defaults first
+    for k, v in pairs(self.DEFAULTS) do
+        config[k] = v
+    end
+
+    -- Override with user config
+    if providedConfig then
+        for k, v in pairs(providedConfig) do
+            config[k] = v
+        end
+    end
+
+    return config
+end
 
 --- Read the raw Lua value (boolean/number/string/table/etc.) for (moduleUUID, key).
 --- Returns nil if the variable is not set.
