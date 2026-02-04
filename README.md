@@ -16,6 +16,7 @@ Mod authors can easily integrate their mods with MCM on their own, providing a c
 - **Error reduction**: Validates settings' values to minimize user errors.
 - **Uncluttered UI**: Consolidates mod settings into a single, dynamic and configurable interface, with smart sidebar and detach functionalities.
 - **Save-safe**: Modifications are done in-memory and saved to JSON files, leaving save files untouched.
+- **Versatile persistence**: Settings are managed in-memory and can be stored in external JSON files or directly within save files via ScriptExtender ModVars.
 - **Localization support**: Displays strings in the user's preferred languages if translations are provided.
 - **Multiple profiles**: Able to manage different settings for various playthroughs, and even export/restore them.
 

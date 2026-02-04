@@ -382,16 +382,19 @@ These methods operate on `list_v2` settings.
 
 #### Store API
 
-The Store API is a work-in-progress feature that allows mods to persist custom key-value data using JSON files without needing to define a blueprint. This is useful for storing non-configurable data like user preferences, cache state, or any data that doesn't fit the blueprint system.
+The Store API allows mods to persist custom key-value data independently of the blueprint system. Starting with **MCM 1.40+**, it supports multiple storage backends, including Script Extender's ModVars (save-scoped) and JSON files (global).
 
-> • The Store API is a work-in-progress feature and may change in the future.
-{.is-warning}
+The JSON storage allows saving values to JSON files without needing to define a blueprint. This is useful for storing save-independent data like user preferences and cache state.
+
+> • **ModVar storage is the default**, ensuring variables are unique to each save file.
+> • The Store API is type-safe and supports custom validation.
+{.is-info}
 
 | Function | Description | Client | Server |
 |----------|-------------|:------:|:------:|
-| `MCM.Store.Register(var, default?, modUUID?)` | Registers a variable for JSON persistence. If no stored value exists, writes the default. | ✅ | ✅ |
+| `MCM.Store.RegisterVar(var, options?)` | Registers a variable with type constraints and defaults. | ✅ | ✅ |
 | `MCM.Store.Get(var, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
-| `MCM.Store.Set(var, value, modUUID?)` | Sets a stored value | ✅ | ✅ |
+| `MCM.Store.Set(var, value, modUUID?)` | Sets a stored value with automatic persistence | ✅ | ✅ |
 | `MCM.Store.GetAll(modUUID?)` | Gets all stored key-value pairs for the mod | ✅ | ✅ |
 
 <details>
@@ -399,26 +402,32 @@ The Store API is a work-in-progress feature that allows mods to persist custom k
 
 ```lua
 -- Register variables at mod initialization (e.g., in BootstrapShared.lua)
-MCM.Store.Register("last_opened_tab", "General")
-MCM.Store.Register("user_favorites", {})
-MCM.Store.Register({ var = "session_count", default = 0 })
+-- Defaults to 'modvar' storage (save-scoped)
+MCM.Store.RegisterVar("difficulty_level", {
+    type = "number",
+    default = 1,
+    validate = function(v) return v > 0 end
+})
 
--- Get values anywhere in your code
-local lastTab = MCM.Store.Get("last_opened_tab")  -- Returns "General" if never set
-local count = MCM.Store.Get("session_count")
+-- Register with specific SE ModVar parameters
+MCM.Store.RegisterVar("player_class_custom", {
+    default = "None",
+    storage = "modvar",
+    storageConfig = {
+        SyncToClient = true, -- (default)
+        Persistent = true -- (default)
+    }
+})
 
--- Set values - automatically persisted to JSON
-MCM.Store.Set("last_opened_tab", "Advanced")
-MCM.Store.Set("session_count", count + 1)
+-- Register for global (JSON) persistence
+MCM.Store.RegisterVar("last_opened_mod", {
+    default = "",
+    storage = "json"
+})
 
--- Table-based arguments are also supported
-MCM.Store.Set({ var = "user_favorites", value = { "item1", "item2" } })
-
--- Get all stored data
-local allData = MCM.Store.GetAll()
-for key, value in pairs(allData) do
-    print(key, value)
-end
+-- Get and Set values
+local difficulty = MCM.Store.Get("difficulty_level")
+MCM.Store.Set("difficulty_level", difficulty + 1)
 ```
 
 </details>
