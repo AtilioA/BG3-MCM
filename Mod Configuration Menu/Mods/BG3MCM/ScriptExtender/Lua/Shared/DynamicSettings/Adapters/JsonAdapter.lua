@@ -118,7 +118,8 @@ end
 ---@param key string
 ---@param value any
 ---@param moduleUUID string
-function JsonStorageManager:SetValue(key, value, moduleUUID)
+---@param storageConfig? table Optional storage configuration (unused for JSON)
+function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)
     if not moduleUUID then return end
     local handler = self:_getFileHandler(moduleUUID)
     handler:Set(key, value)

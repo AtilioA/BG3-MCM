@@ -14,10 +14,11 @@ end
 
 --- Write the raw Lua value (boolean/number/string/table/etc.) for (moduleUUID, key).
 --- If value == nil, nullify the variable.
----@param moduleUUID string The UUID of the module
 ---@param key string The key to write
 ---@param value any The value to write (nil to delete)
-function IStorageAdapter:SetValue(key, value, moduleUUID)
+---@param moduleUUID string The UUID of the module
+---@param storageConfig? table Optional storage-specific configuration (e.g., SE ModVar parameters)
+function IStorageAdapter:SetValue(key, value, moduleUUID, storageConfig)
     MCMError(0, "IStorageAdapter:SetValue() not implemented")
 end
 

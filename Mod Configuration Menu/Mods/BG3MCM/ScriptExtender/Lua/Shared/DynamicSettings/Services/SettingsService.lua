@@ -7,6 +7,7 @@ local AdapterFactory = require("Shared/DynamicSettings/Factories/AdapterFactory"
 ---@field default any The default value for the variable
 ---@field validate fun(value: any): (boolean, string)? Optional validation function
 ---@field storageType string The storage type for this variable
+---@field storageConfig table|nil Optional storage-specific configuration (e.g., SE ModVar parameters)
 
 ---@class StorageBucket
 ---@field [string] VariableEntry Map of variable names to their entries
@@ -86,7 +87,7 @@ end
 ---@param moduleUUID string The UUID of the module
 ---@param varName string The name of the variable
 ---@param storageType string The type of storage ("ModVar", "ModConfig", "Json", etc.)
----@param definition? table { type=<"boolean"|"number"|"string"|"table">|nil, default=<any>|nil, validate=<fn>|nil }
+---@param definition? table { type=<"boolean"|"number"|"string"|"table">|nil, default=<any>|nil, validate=<fn>|nil, storageConfig=<table>|nil }
 ---@return boolean success True if registered successfully
 function SettingsService.Register(moduleUUID, varName, storageType, definition)
     if not moduleUUID then
@@ -113,7 +114,8 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
         type = definition.type,
         default = definition.default,
         validate = definition.validate,
-        storageType = storageType
+        storageType = storageType,
+        storageConfig = definition.storageConfig
     }
 
     -- Track storage type for quick lookup
@@ -127,7 +129,7 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
     if adapter then
         local raw = adapter:GetValue(varName, moduleUUID)
         if raw == nil and definition.default ~= nil then
-            adapter:SetValue(varName, definition.default, moduleUUID)
+            adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
         end
     else
         MCMWarn(0, ("Register: No adapter found for storage type '%s'"):format(storageType))
@@ -195,10 +197,11 @@ function SettingsService.RegisterDiscoveredVariable(moduleUUID, varName, storage
     end
 
     bucket[varName] = {
-        type        = nil, -- will be set if/when user promotes
-        default     = nil,
-        validate    = nil,
-        storageType = storageType
+        type          = nil, -- will be set if/when user promotes
+        default       = nil,
+        validate      = nil,
+        storageType   = storageType,
+        storageConfig = nil
     }
 
     -- Track storage type for quick lookup
@@ -248,19 +251,20 @@ function SettingsService.PromoteVariable(moduleUUID, varName, storageType, defin
     end
 
     -- Assign metadata
-    bucket[varName].type     = definition.type
-    bucket[varName].default  = definition.default
-    bucket[varName].validate = definition.validate
+    bucket[varName].type          = definition.type
+    bucket[varName].default       = definition.default
+    bucket[varName].validate      = definition.validate
+    bucket[varName].storageConfig = definition.storageConfig
 
     -- Immediately write default if no value exists
-    local adapter            = AdapterFactory.GetAdapter(storageType)
-    local raw                = adapter:GetValue(varName, moduleUUID)
+    local adapter                 = AdapterFactory.GetAdapter(storageType)
+    local raw                     = adapter:GetValue(varName, moduleUUID)
     if raw == nil and definition.default ~= nil then
-        adapter:SetValue(varName, definition.default, moduleUUID)
+        adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
     else
         local ok, _val = pcall(coerceAndValidate, bucket[varName], raw)
         if not ok then
-            adapter:SetValue(varName, definition.default, moduleUUID)
+            adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
         end
     end
 end
@@ -323,7 +327,7 @@ function SettingsService.Get(moduleUUID, varName, storageType)
         -- REVIEW: if default is not defined, should we return nil?
         -- If it's defined as nil, we should return nil...
         val = entry.default
-        adapter:SetValue(varName, val, moduleUUID)
+        adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
     end
 
     return val
@@ -462,7 +466,7 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
         -- If it's defined as nil, we should return nil...
         if entry.default ~= nil then
             val = entry.default
-            adapter:SetValue(varName, val, moduleUUID)
+            adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
 
             -- Emit a setting saved event for the correction
             ModEventManager:Emit(
@@ -483,7 +487,7 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
 
     --FIXME: deepcopy oldValue since it may be a table
     local oldValue = adapter:GetValue(varName, moduleUUID)
-    adapter:SetValue(varName, val, moduleUUID)
+    adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
 
     -- Emit a setting saved event for any listeners
     ModEventManager:Emit(
