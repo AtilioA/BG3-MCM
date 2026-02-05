@@ -424,7 +424,7 @@ If you need structured input, consider `list_v2` or multiple settings instead of
 
 #### keybinding_v2
 
-- **Renders as**: Hotkey configuration that appears in the MCM Hotkeys section.
+- **Renders as**: Hotkey configuration that appears in MCM's Hotkeys page.
 - **Best for**: Configurable actions that need keybindings.
 - **Required fields**: `Default` (object with `Keyboard` and/or `Mouse` config, optionally `Enabled`).
 - **Optional fields**:
