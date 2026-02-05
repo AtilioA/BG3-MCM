@@ -44,6 +44,22 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
         - [IDE support](#ide-support)
         - [Schema main components](#schema-main-components)
         - [VisibleIf (Conditional visibility)](#visibleif-conditional-visibility)
+      - [Widget reference](#widget-reference)
+        - [int](#int)
+        - [float](#float)
+        - [checkbox](#checkbox)
+        - [text](#text)
+        - [enum](#enum)
+        - [radio](#radio)
+        - [slider_int](#slider_int)
+        - [slider_float](#slider_float)
+        - [drag_int](#drag_int)
+        - [drag_float](#drag_float)
+        - [list_v2](#list_v2)
+        - [color_picker](#color_picker)
+        - [color_edit](#color_edit)
+        - [keybinding_v2](#keybinding_v2)
+        - [event_button](#event_button)
   - [MCM API functions](#mcm-api-functions)
       - [Core API](#core-api)
       - [EventButton API](#eventbutton-api)
@@ -290,6 +306,149 @@ Notes and limitations:
 ```
 
 </details>
+
+### Widget reference
+
+This section summarizes each supported `Type` in `MCM_blueprint.json`, cross-referenced against the schema. It focuses on widget behavior, required vs. optional fields, and per-widget options. For schema setup in your editor, see [IDE support](#ide-support). Dedicated sections for keybindings and lists are available below.
+
+Note: All widget types require at least one of `Description` or `Tooltip`.
+
+#### int
+
+- **Renders as**: Integer input field.
+- **Best for**: Whole-number values like counts.
+- **Required fields**: `Default` (integer).
+- **Options**: None.
+- **Caveats**: Non-integer input will be rejected or coerced to an integer.
+
+#### float
+
+- **Renders as**: Float input field.
+- **Best for**: Decimal values such as percentages or multipliers.
+- **Required fields**: `Default` (number).
+- **Options**: None.
+- **Caveats**: Value should be a number; avoid using for discrete choices that belong in `enum`/`radio`.
+
+#### checkbox
+
+- **Renders as**: Standard on/off checkbox.
+- **Best for**: Boolean toggles.
+- **Required fields**: `Default` (boolean).
+- **Options**: None.
+- **Caveats**: Prefer for simple on/off features.
+
+#### text
+
+- **Renders as**: Single-line text input by default.
+- **Best for**: Short user-provided strings.
+- **Required fields**: `Default` (string).
+- **Optional fields**:
+  - `Options.Multiline`: When `true`, the input renders as a multi-line text box instead of a single line.
+
+If you need structured input, consider `list_v2` or multiple settings instead of parsing free-form text.
+
+#### enum
+
+- **Renders as**: Dropdown list.
+- **Best for**: Selecting exactly one choice from a longer list.
+- **Required fields**: `Default` (string); `Options.Choices` (array of strings, minimum 1).
+- **Options**: None beyond `Choices`.
+- **Caveats**: `Default` should match one of the `Choices` to avoid validation warnings.
+
+#### radio
+
+- **Renders as**: Radio buttons (only one can be selected).
+- **Best for**: Small, visible sets of choices.
+- **Required fields**: `Default` (string); `Options.Choices` (array of strings, minimum 1).
+- **Options**: None beyond `Choices`.
+- **Caveats**: Use `enum` for long lists; `radio` is best for a short, visible set.
+
+#### slider_int
+
+- **Renders as**: Integer slider.
+- **Best for**: Choosing a whole-number value within a range.
+- **Required fields**: `Default` (integer); `Options.Min` and `Options.Max` (numbers).
+- **Optional fields**:
+  - `Options.Step`: Increment for the slider buttons (default `1`).
+
+#### slider_float
+
+- **Renders as**: Float slider.
+- **Best for**: Choosing a decimal value within a range.
+- **Required fields**: `Default` (number); `Options.Min` and `Options.Max` (numbers).
+- **Optional fields**:
+  - `Options.Step`: Increment for the slider buttons (default `0.1`).
+
+#### drag_int
+
+- **Renders as**: Draggable integer input.
+- **Required fields**: `Default` (integer); `Options.Min` and `Options.Max` (numbers).
+- **Options**: None beyond `Min`/`Max`.
+
+#### drag_float
+
+- **Renders as**: Draggable float input.
+- **Required fields**: `Default` (number); `Options.Min` and `Options.Max` (numbers).
+- **Options**: None beyond `Min`/`Max`.
+
+#### list_v2
+
+- **Renders as**: Modern list editor that replaced the deprecated `list` type. Provides a text input for adding items, per-item enable toggles, and optional search.
+- **Best for**: Managing collections (allow/deny lists, presets, etc.).
+- **Required fields**: `Default` (object). In practice, defaults are expected to follow the list format used by MCM (`Enabled` and an `Elements` array of `{ name, enabled }` entries).
+- **Optional fields**:
+  - `Options.PageSize`: Items shown per page (integer; schema bounds 5–20, defaults to 10 in schema examples).
+  - `Options.ShowSearchBar`: When `true`, shows a search bar for filtering items.
+  - `Options.ReadOnly`: When `true`, disables adding/removing items while still allowing toggles.
+  - `Options.AllowReordering`: When `true`, enables drag-to-reorder in the list UI.
+  - `Options.Suggestions`: Array of strings shown as suggestions while typing (can also be injected dynamically via `MCM.List.InsertSuggestions`).
+- **Caveats**:
+  - MCM automatically migrates old `list` settings to `list_v2` when the setting ID stays the same. Plan for this if you previously used `list`.
+  - For advanced behaviors (like dynamic suggestions), see the [list section](#defining-lists) and the `MCM.List` API.
+
+#### color_picker
+
+- **Renders as**: Full color picker with a square picker area plus RGBA input fields.
+- **Best for**: Choosing colors with both visual and numeric control.
+- **Required fields**: `Default` (array of numbers, typically RGBA in the 0–1 range).
+- **Options**: None.
+- **Caveats**: Ensure your mod code expects an array (not a hex string).
+
+#### color_edit
+
+- **Renders as**: Compact color editor showing only RGBA fields.
+- **Best for**: Quick numeric tweaks to RGBA values.
+- **Required fields**: `Default` (array of numbers, typically RGBA in the 0–1 range).
+- **Options**: None.
+- **Caveats**: Same data shape as `color_picker`; only the UI differs.
+
+#### keybinding_v2
+
+- **Renders as**: Hotkey configuration that appears in the MCM Hotkeys section.
+- **Best for**: Configurable actions that need keybindings.
+- **Required fields**: `Default` (object with `Keyboard` and/or `Mouse` config, optionally `Enabled`).
+- **Optional fields**:
+  - `Options.ShouldTriggerOnKeyDown`: Trigger when the key is pressed (default `true`).
+  - `Options.ShouldTriggerOnKeyUp`: Trigger when the key is released (default `false`).
+  - `Options.ShouldTriggerOnRepeat`: Trigger repeatedly while held (default `false`).
+  - `Options.IsDeveloperOnly`: Hide unless developer mode is enabled (default `false`).
+  - `Options.BlockIfLevelNotStarted`: Block in menus before the level starts (default `false`).
+  - `Options.PreventAction`: When `true`, blocks the game's original action (default `true`).
+- **Caveats**:
+  - Hotkeys do nothing unless you register a callback with `MCM.Keybinding.SetCallback`; see [Adding a keybinding](#adding-a-keybinding).
+  - Mouse buttons are not yet supported.
+
+#### event_button
+
+- **Renders as**: Button that triggers a Lua callback when clicked.
+- **Best for**: One-off actions rather than stored values.
+- **Optional fields**:
+  - `Default`: Not applicable (buttons don't store values).
+  - `Options.ConfirmDialog`: Confirmation dialog config with `Title`, `Message`, `ConfirmText`, `CancelText` (all required if provided).
+  - `Options.Cooldown`: Seconds between clicks (`-1` for infinite cooldown, `0`/undefined for none).
+  - `Options.Icon`: Icon config (`Name` required, optional `Size` with `Width`/`Height`).
+  - `Options.Label`: Override the button label text.
+- **Caveats**: Ensure your mod registers the button callback in code (see the EventButton API) or the click will have no effect.
 
 ## MCM API functions
 
