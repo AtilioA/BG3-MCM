@@ -341,7 +341,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     elseif #triggered == 1 then
         local binding = triggered[1]
         local callback = nil
-        
+
         -- Determine which callback to use based on event type
         if e.Event == "KeyDown" then
             callback = binding.keyDownCallback or binding.keyboardCallback
@@ -350,11 +350,11 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         else
             callback = binding.keyboardCallback
         end
-        
+
         if callback then
             MCMPrint(1,
                 "Dispatching keyboard callback for mod '" ..
-                binding.modUUID .. "', action '" .. binding.actionName .. "' (event: " .. e.Event .. ").")
+                binding.modUUID .. "', action '" .. binding.actionName .. "'.")
             xpcall(function()
                 callback(e)
             end, function(err)
