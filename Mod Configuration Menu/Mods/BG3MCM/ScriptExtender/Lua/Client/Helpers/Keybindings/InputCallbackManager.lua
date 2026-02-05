@@ -17,10 +17,11 @@ InputCallbackManager.KeybindingsLoadedSubject = RX.ReplaySubject.Create(1)
 ---@param modUUID string The mod's unique identifier.
 ---@param actionId string The key of the action.
 ---@param callback function The callback to invoke when that keybinding is triggered.
-function InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback)
+---@param eventType? string Optional event type: "KeyDown", "KeyUp", or nil for both (backward compatible)
+function InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback, eventType)
     -- Queue the registration of callbacks for later processing.
     table.insert(InputCallbackManager._PendingKeybindingCallbacks,
-        { modUUID = modUUID, actionId = actionId, callback = callback })
+        { modUUID = modUUID, actionId = actionId, callback = callback, eventType = eventType })
 
     -- Subscribe to the KeybindingsLoadedSubject to register pending callbacks when keybindings are loaded.
     -- if InputCallbackManager._KeybindingsLoadedSubscribed then return end
@@ -31,7 +32,7 @@ function InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback)
 
         -- Once keybindings are loaded, register all pending callbacks.
         for _, entry in ipairs(InputCallbackManager._PendingKeybindingCallbacks) do
-            local success = InputCallbackManager.RegisterKeybinding(entry.modUUID, entry.actionId, entry.callback)
+            local success = InputCallbackManager.RegisterKeybinding(entry.modUUID, entry.actionId, entry.callback, entry.eventType)
             if success then
                 MCMPrint(2,
                     string.format("Registered keybinding callback for action '%s' (mod '%s')", entry.actionId,
@@ -45,6 +46,22 @@ function InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback)
         -- Clear the pending queue after processing.
         InputCallbackManager._PendingKeybindingCallbacks = {}
     end)
+end
+
+--- Registers a keybinding callback for KeyDown events only.
+---@param modUUID string The mod's unique identifier.
+---@param actionId string The key of the action.
+---@param callback function The callback to invoke when the key is pressed down.
+function InputCallbackManager.SetKeyDownCallback(modUUID, actionId, callback)
+    InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback, "KeyDown")
+end
+
+--- Registers a keybinding callback for KeyUp events only.
+---@param modUUID string The mod's unique identifier.
+---@param actionId string The key of the action.
+---@param callback function The callback to invoke when the key is released.
+function InputCallbackManager.SetKeyUpCallback(modUUID, actionId, callback)
+    InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback, "KeyUp")
 end
 
 --- Initializes the manager: subscribes to global events and routes them into RX streams.
@@ -64,8 +81,9 @@ end
 --- @param modUUID string
 --- @param actionId string
 --- @param callback function
-function InputCallbackManager.RegisterKeybinding(modUUID, actionId, callback)
-    return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "KeyboardMouse", callback)
+--- @param eventType? string Optional event type: "KeyDown", "KeyUp", or nil for both
+function InputCallbackManager.RegisterKeybinding(modUUID, actionId, callback, eventType)
+    return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "KeyboardMouse", callback, eventType)
 end
 
 --- Unregisters the keyboard callback.

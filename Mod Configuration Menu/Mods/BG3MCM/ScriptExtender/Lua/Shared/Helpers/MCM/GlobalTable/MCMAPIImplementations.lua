@@ -176,11 +176,25 @@ local function KeybindingGetRaw_Impl(args)
     return MCMAPI:GetSettingValue(args.settingId, args.modUUID)
 end
 
---- Implementation: Set a callback for keybinding
+--- Implementation: Set a callback for keybinding (fires on both KeyDown and KeyUp)
 ---@param args MCMKeybindingSetCallbackArgs
 ---@return nil
 local function KeybindingSetCallback_Impl(args)
     InputCallbackManager.SetKeybindingCallback(args.modUUID, args.settingId, args.callback)
+end
+
+--- Implementation: Set a callback for KeyDown events only
+---@param args MCMKeybindingSetCallbackArgs
+---@return nil
+local function KeybindingSetKeyDownCallback_Impl(args)
+    InputCallbackManager.SetKeyDownCallback(args.modUUID, args.settingId, args.callback)
+end
+
+--- Implementation: Set a callback for KeyUp events only
+---@param args MCMKeybindingSetCallbackArgs
+---@return nil
+local function KeybindingSetKeyUpCallback_Impl(args)
+    InputCallbackManager.SetKeyUpCallback(args.modUUID, args.settingId, args.callback)
 end
 
 --- Create the Keybinding API methods
@@ -209,13 +223,35 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
         { modUUID = originalModUUID }
     )
 
-    --- Set a callback for keybinding
+    --- Set a callback for keybinding (fires on both KeyDown and KeyUp events)
     ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
-    ---@param callback function The callback function to be called when the keybinding is pressed
+    ---@param callback function The callback function to be called when the keybinding is triggered
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
     KeybindingAPI.SetCallback = MCMAPIUtils.WithFlexibleArgs(
         KeybindingSetCallback_Impl,
+        { "settingId", "callback", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    --- Set a callback for KeyDown events only
+    ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
+    ---@param callback function The callback function to be called when the key is pressed down
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
+    ---@return nil
+    KeybindingAPI.SetKeyDownCallback = MCMAPIUtils.WithFlexibleArgs(
+        KeybindingSetKeyDownCallback_Impl,
+        { "settingId", "callback", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    --- Set a callback for KeyUp events only
+    ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
+    ---@param callback function The callback function to be called when the key is released
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
+    ---@return nil
+    KeybindingAPI.SetKeyUpCallback = MCMAPIUtils.WithFlexibleArgs(
+        KeybindingSetKeyUpCallback_Impl,
         { "settingId", "callback", "modUUID" },
         { modUUID = originalModUUID }
     )

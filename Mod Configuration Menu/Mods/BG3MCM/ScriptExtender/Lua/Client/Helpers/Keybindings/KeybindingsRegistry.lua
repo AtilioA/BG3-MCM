@@ -162,7 +162,12 @@ end
 --- Registers a callback for a given binding.
 --- Note that this uses the full registry (not the filtered view) so that callbacks
 --- can be attached even for actions that are invisible in the UI.
-function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, callback)
+---@param modUUID string The UUID of the mod
+---@param actionId string The ID of the action
+---@param inputType string The input type (e.g., "KeyboardMouse")
+---@param callback function The callback function
+---@param eventType? string Optional event type: "KeyDown", "KeyUp", or nil for both (backward compatible)
+function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, callback, eventType)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
         MCMWarn(0, string.format("No binding found to register callback for mod '%s', action '%s'.", modUUID, actionId))
@@ -170,7 +175,14 @@ function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, call
     end
 
     if inputType == "KeyboardMouse" then
-        modTable[actionId].keyboardCallback = callback
+        if eventType == "KeyDown" then
+            modTable[actionId].keyDownCallback = callback
+        elseif eventType == "KeyUp" then
+            modTable[actionId].keyUpCallback = callback
+        else
+            -- Backward compatible: set both to the same callback
+            modTable[actionId].keyboardCallback = callback
+        end
     end
 
     -- It is not necessary to update the registry when registering a callback
@@ -328,12 +340,23 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         end
     elseif #triggered == 1 then
         local binding = triggered[1]
-        if binding.keyboardCallback then
+        local callback = nil
+        
+        -- Determine which callback to use based on event type
+        if e.Event == "KeyDown" then
+            callback = binding.keyDownCallback or binding.keyboardCallback
+        elseif e.Event == "KeyUp" then
+            callback = binding.keyUpCallback or binding.keyboardCallback
+        else
+            callback = binding.keyboardCallback
+        end
+        
+        if callback then
             MCMPrint(1,
                 "Dispatching keyboard callback for mod '" ..
-                binding.modUUID .. "', action '" .. binding.actionName .. "'.")
+                binding.modUUID .. "', action '" .. binding.actionName .. "' (event: " .. e.Event .. ").")
             xpcall(function()
-                binding.keyboardCallback(e)
+                callback(e)
             end, function(err)
                 local traceback = ""
                 if debug and type(debug.traceback) == "function" then
