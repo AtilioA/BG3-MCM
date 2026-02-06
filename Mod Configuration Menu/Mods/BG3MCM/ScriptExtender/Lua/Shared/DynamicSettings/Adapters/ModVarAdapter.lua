@@ -35,6 +35,29 @@ ModVarAdapter.DEFAULTS = {
     DontCache = false
 }
 
+--- Returns true when running on client while in main menu.
+--- Net sends are invalid in this state because there is no host to receive them.
+---@return boolean
+local function isClientMainMenu()
+    if not Ext.IsClient() then
+        return false
+    end
+
+    if MCMProxy and MCMProxy.IsMainMenu then
+        local ok, isMenu = pcall(MCMProxy.IsMainMenu)
+        if ok then
+            return isMenu == true
+        end
+    end
+
+    local ok, state = pcall(Ext.Utils.GetGameState)
+    if ok and Ext.Enums and Ext.Enums.ClientGameState then
+        return state == Ext.Enums.ClientGameState["Menu"]
+    end
+
+    return false
+end
+
 -- Subscribe to SessionLoaded to process pending operations
 Ext.Events.SessionLoaded:Subscribe(function()
     ModVarAdapter._sessionLoaded = true
@@ -93,6 +116,9 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
         }
         if Ext.IsServer() then
             NetChannels.MCM_ENSURE_MODVAR_REGISTERED:Broadcast(payload)
+        elseif isClientMainMenu() then
+            MCMDebug(3,
+                string.format("ModVarAdapter: Skipping server registration relay for '%s' while in main menu", varName))
         else
             NetChannels.MCM_ENSURE_MODVAR_REGISTERED:SendToServer(payload)
         end
