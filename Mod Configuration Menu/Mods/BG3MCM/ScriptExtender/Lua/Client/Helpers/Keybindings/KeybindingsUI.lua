@@ -101,10 +101,7 @@ function KeybindingsUI.GetAllKeybindings()
                             setting.Options and setting.Options.IsDeveloperOnly,
                             false
                         ),
-                        AllowConflict = Fallback_Value(
-                            setting.Options and setting.Options.AllowConflict,
-                            false
-                        )
+                        AllowConflict = allowConflict
                     }
 
                     table.insert(modKeybindings.Actions, action)
