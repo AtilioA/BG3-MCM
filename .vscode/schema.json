@@ -1035,6 +1035,11 @@
                                                 "type": "boolean",
                                                 "description": "When true (default), the keybinding will prevent the original game action. When false, allows the original action to occur (i.e. the key event will 'fall through').",
                                                 "default": true
+                                            },
+                                            "AllowConflict": {
+                                                "type": "boolean",
+                                                "description": "Whether this keybinding should conflict with other keybindings. Default: true",
+                                                "default": true
                                             }
                                         },
                                         "additionalProperties": false,

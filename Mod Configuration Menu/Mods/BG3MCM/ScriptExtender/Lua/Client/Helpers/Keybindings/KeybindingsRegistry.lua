@@ -301,20 +301,18 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
             end
         end
 
-        -- If I disable conflict for Action B, I expect it to run alongside Action A without warning.
-        -- So, if we have multiple triggered bindings, we only report a conflict if we have > 1 bindings AND all of them have allowConflict = false.
-        -- If even one of them has allowConflict = true, we assume the user intended this overlap.
+        -- Conflict logic: for n overlapping keybindings, n-1 need allowConflict=true for no warning.
+        -- Example: 2 overlapping need 1 with allowConflict, 3 overlapping need 2 with allowConflict.
 
-        local actualConflicts = {}
-        local allEnforceConflict = true
+        local allowConflictCount = 0
         for _, binding in ipairs(triggered) do
             if binding.allowConflict then
-                allEnforceConflict = false
-                break
+                allowConflictCount = allowConflictCount + 1
             end
         end
 
-        if allEnforceConflict then
+        -- Show warning if fewer than n-1 have allowConflict (i.e., at least 2 don't have it)
+        if allowConflictCount < #triggered - 1 then
             local binding = triggered[1]
             local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
             MCMWarn(0, "Keybinding conflict detected for: " .. keybindingStr)

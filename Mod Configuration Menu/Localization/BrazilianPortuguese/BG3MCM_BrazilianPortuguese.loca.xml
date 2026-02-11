@@ -291,4 +291,6 @@
     <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">A largura da barra lateral em pixels.&lt;br&gt;Como a barra lateral é dinâmica, sua largura expandida só pode ser definida estaticamente (limitação do IMGUI).&lt;br&gt;Isso só terá efeito após re-expandir a barra lateral.</content>
     <content contentuid="h2e2fee5757724d0bb36dc9406bbac89539a1" version="1">Duração da animação da barra lateral (ms)</content>
     <content contentuid="h306ab94b54e949a8b6dfac9f474e5cd7a91g" version="1">Duração da animação da barra lateral em milissegundos.</content>
+    <content contentuid="ha7dbcb7a64404859b1f9c8a6efa96b304d06" version="1">Ignorar conflito</content>
+    <content contentuid="h35a1d92d0e8e404f906a4b087020f9e6g3dg" version="1">Permitir que esta tecla de atalho se sobreponha a outras sem acionar um aviso de conflito.</content>
 </contentList>

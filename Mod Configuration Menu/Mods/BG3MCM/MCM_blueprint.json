@@ -173,7 +173,9 @@
                             "Options": {
                                 "ShouldTriggerOnRepeat": false,
                                 "ShouldTriggerOnKeyUp": false,
-                                "ShouldTriggerOnKeyDown": true
+                                "ShouldTriggerOnKeyDown": true,
+                                "PreventAction": false,
+                                "AllowConflict": true
                             }
                         },
                         {
