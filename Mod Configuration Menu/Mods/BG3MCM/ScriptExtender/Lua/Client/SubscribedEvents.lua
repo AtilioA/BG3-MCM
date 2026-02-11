@@ -109,15 +109,35 @@ local function onConfigsReceived(mods, profiles)
     MCMClientState:LoadMods(mods)
 end
 
+local function parseTablePayload(payload, errorMessage)
+    if type(payload) == "table" then
+        return payload
+    end
+
+    if type(payload) == "string" then
+        local ok, data = pcall(Ext.Json.Parse, payload)
+        if ok and type(data) == "table" then
+            return data
+        end
+    end
+
+    if errorMessage then
+        MCMWarn(0, errorMessage)
+    end
+
+    return nil
+end
+
 -- Register generic chunked listeners once and a handler
 if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners then
     ChunkedNet.Client.RegisterNetListeners()
     -- Register handler using the channel name string (not the object) for consistency with chunk metadata
-    ChunkedNet.Client.RegisterHandler("MCM_Server_Send_Configs_To_Client", function(jsonStr)
-        local data = jsonStr
-        if type(data) == "table" then
-            onConfigsReceived(data.mods, data.profiles)
+    ChunkedNet.Client.RegisterHandler("MCM_Server_Send_Configs_To_Client", function(payload)
+        local data = parseTablePayload(payload, "Failed to parse chunked configs payload")
+        if not data then
+            return
         end
+        onConfigsReceived(data.mods, data.profiles)
     end)
 end
 
@@ -127,27 +147,39 @@ Ext.Events.ResetCompleted:Subscribe(function()
 end)
 
 -- Handle direct (non-chunked) config messages
-NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT:SetHandler(function(data)
-    if not data or type(data) ~= "table" then
-        MCMWarn(0, "Failed to parse configs payload - invalid data")
+NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT:SetHandler(function(payload)
+    local data = parseTablePayload(payload, "Failed to parse configs payload - invalid data")
+    if not data then
         return
     end
     onConfigsReceived(data.mods, data.profiles)
 end)
 
-NetChannels.MCM_RELAY_TO_SERVERS:SetHandler(function(data)
+local function forwardRelayToServer(data)
     if not data or not data.channel then
         MCMWarn(0, "Invalid relay data received")
         return
     end
 
-    -- Forward to server using the appropriate NetChannel
-    local targetChannel = NetChannels[data.channel]
-    if targetChannel and targetChannel.SendToServer then
-        targetChannel:SendToServer(data.payload)
-    else
-        MCMWarn(0, "Unknown channel for relay: " .. tostring(data.channel))
+    if data.payload == nil then
+        data.payload = {}
     end
+
+    Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
+end
+
+NetChannels.MCM_RELAY_TO_SERVERS:SetHandler(function(data)
+    forwardRelayToServer(data)
+end)
+
+-- Backwards compatibility for deprecated NetMessage relay path
+Ext.RegisterNetListener(NetChannels._LEGACY.MCM_RELAY_TO_SERVERS, function(_, metapayload)
+    local data = parseTablePayload(metapayload, "Invalid legacy relay payload received")
+    if not data then
+        return
+    end
+
+    forwardRelayToServer(data)
 end)
 
 NetChannels.MCM_EMIT_ON_CLIENTS:SetHandler(function(data)

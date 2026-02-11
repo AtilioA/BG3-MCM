@@ -267,19 +267,17 @@ end
 ---@param userID number The user ID of the requesting client
 ---@return table Response with success status
 function EHandlers.OnRelayToClients(data, userID)
-    if not data or not data.channel or not data.payload then
-        return { success = false, error = "Invalid relay data: missing channel or payload" }
+    if not data or not data.channel then
+        return { success = false, error = "Invalid relay data: missing channel" }
     end
 
-    -- Use NetChannel to broadcast to clients
-    local targetChannel = NetChannels[data.channel]
-    if targetChannel then
-        targetChannel:Broadcast(data.payload)
-        return { success = true }
-    else
-        MCMWarn(0, "Unknown channel for relay: " .. tostring(data.channel))
-        return { success = false, error = "Unknown channel: " .. tostring(data.channel) }
+    if data.payload == nil then
+        data.payload = {}
     end
+
+    -- Keep deprecated relay compatibility by forwarding raw NetMessages.
+    Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
+    return { success = true }
 end
 
 --- Handle emit on server (cross-context event emission)

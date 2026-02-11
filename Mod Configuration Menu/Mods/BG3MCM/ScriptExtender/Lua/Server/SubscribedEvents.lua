@@ -53,7 +53,6 @@ local function wireRequestHandlers()
         [NetChannels.MCM_CLIENT_REQUEST_SET_PROFILE] = "MCM_Client_Request_Set_Profile",
         [NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE] = "MCM_Client_Request_Create_Profile",
         [NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE] = "MCM_Client_Request_Delete_Profile",
-        [NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION] = "MCM_Client_Show_Troubleshooting_Notification",
     }
 
     -- Map fire-and-forget channel objects to their registry keys
@@ -61,6 +60,7 @@ local function wireRequestHandlers()
     local fireAndForgetChannels = {
         [NetChannels.MCM_RELAY_TO_CLIENTS] = "MCM_Relay_To_Clients",
         [NetChannels.MCM_EMIT_ON_SERVER] = "MCM_Emit_On_Server",
+        [NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION] = "MCM_Client_Show_Troubleshooting_Notification",
         [NetChannels.MCM_ENSURE_MODVAR_REGISTERED] = "MCM_Ensure_ModVar_Registered",
     }
 
@@ -107,6 +107,23 @@ local function wireRequestHandlers()
     end
 end
 
+local function registerLegacyRelayListeners()
+    local relayCommand = netEventsRegistry.commands["MCM_Relay_To_Clients"]
+    if not relayCommand then
+        return
+    end
+
+    Ext.RegisterNetListener(NetChannels._LEGACY.MCM_RELAY_TO_CLIENTS, function(_, metapayload, peerId)
+        local ok, data = pcall(Ext.Json.Parse, metapayload)
+        if not ok or type(data) ~= "table" then
+            MCMWarn(0, "Invalid legacy relay payload received on server")
+            return
+        end
+
+        relayCommand:execute(data, peerId)
+    end)
+end
+
 local function registerModEventListeners(registry)
     for eventName, handler in pairs(registry) do
         ModEventManager:Subscribe(eventName, handler)
@@ -137,6 +154,7 @@ function SubscribedEvents.SubscribeToEvents()
     end)
 
     wireRequestHandlers()
+    registerLegacyRelayListeners()
     registerModEventListeners(modEventRegistry)
 end
 

@@ -35,20 +35,25 @@ end
 -- Server-side: send a JSON string to a specific user, chunking if too large
 -- targetChannel can be either a NetChannel object or a string channel name
 function ChunkedNet.SendJSONToUser(userID, targetChannel, jsonStr)
-  -- REVIEW: no need to serialize?
-  -- if type(jsonStr) ~= "string" then
-    -- jsonStr = Ext.Json.Stringify(jsonStr)
-  -- end
+  if type(jsonStr) ~= "string" then
+    jsonStr = Ext.Json.Stringify(jsonStr)
+  end
 
   -- Resolve targetChannel to a channel object
   local channelObj = targetChannel
   local channelName = targetChannel
   if type(targetChannel) == "string" then
     channelObj = NetChannels[targetChannel]
+    channelName = targetChannel
   else
     -- Extract channel name from channel object for serialization
     -- NetChannel objects have a Name property
     channelName = targetChannel.Name or tostring(targetChannel)
+  end
+
+  if not channelObj then
+    MCMError(0, "ChunkedNet.SendJSONToUser: channel '" .. tostring(targetChannel) .. "' was not found")
+    return
   end
 
   if #jsonStr <= ChunkedNet.DIRECT_THRESHOLD_BYTES then
@@ -92,9 +97,8 @@ end
 
 -- Server-side: convenience to send a table (will be JSON stringified first)
 function ChunkedNet.SendTableToUser(userID, targetChannel, tbl)
-  -- No need to serialize?
-  -- local json = Ext.Json.Stringify(tbl)
-  return ChunkedNet.SendJSONToUser(userID, targetChannel, tbl)
+  local json = Ext.Json.Stringify(tbl)
+  return ChunkedNet.SendJSONToUser(userID, targetChannel, json)
 end
 
 -- Server-side: broadcast a JSON string to all clients, chunking if too large
@@ -112,6 +116,11 @@ function ChunkedNet.SendJSONToAll(targetChannel, jsonStr)
   else
     -- Extract channel name from channel object for serialization
     channelName = targetChannel.Name or tostring(targetChannel)
+  end
+
+  if not channelObj then
+    MCMError(0, "ChunkedNet.SendJSONToAll: channel '" .. tostring(targetChannel) .. "' was not found")
+    return
   end
 
   if #jsonStr <= ChunkedNet.DIRECT_THRESHOLD_BYTES then
