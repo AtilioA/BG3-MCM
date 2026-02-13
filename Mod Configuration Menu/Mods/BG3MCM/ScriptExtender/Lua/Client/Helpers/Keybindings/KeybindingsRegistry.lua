@@ -97,6 +97,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 isDeveloperOnly = Fallback.Value(action.IsDeveloperOnly, false),
                 tooltip = action.Tooltip,
                 allowConflict = Fallback.Value(action.AllowConflict, false),
+                skipCallback = Fallback.Value(action.SkipCallback, false),
                 -- Compute the visibility flag (for UI listing)
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
             }
@@ -366,7 +367,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
                     "Keyboard callback failed for mod '" .. modName .. "', action '" .. tostring(binding.actionName) ..
                     "': " .. tostring(err) .. traceback .. "\nPlease contact " .. (mod and mod.Info and mod.Info.Author) .. " about this issue.")
             end)
-        else
+        elseif not binding.skipCallback then
             MCMWarn(0,
                 "No keyboard callback found for mod '" .. binding.modUUID .. "', action '" .. binding.actionName .. "'.")
         end

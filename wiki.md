@@ -43,30 +43,32 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [The MCM Schema](#the-mcm-schema)
         - [IDE support](#ide-support)
         - [Schema main components](#schema-main-components)
-        - [VisibleIf (Conditional visibility)](#visibleif-conditional-visibility)
-      - [Widget reference](#widget-reference)
-        - [int](#int)
-        - [float](#float)
-        - [checkbox](#checkbox)
-        - [text](#text)
-        - [enum](#enum)
-        - [radio](#radio)
-        - [slider_int](#slider_int)
-        - [slider_float](#slider_float)
-        - [drag_int](#drag_int)
-        - [drag_float](#drag_float)
-        - [list_v2](#list_v2)
-        - [color_picker](#color_picker)
-        - [color_edit](#color_edit)
-        - [keybinding_v2](#keybinding_v2)
-        - [event_button](#event_button)
+      - [VisibleIf: Conditional visibility](#visibleif-conditional-visibility)
+    - [Widget reference](#widget-reference)
+      - [int](#int)
+      - [float](#float)
+      - [checkbox](#checkbox)
+      - [text](#text)
+      - [enum](#enum)
+      - [radio](#radio)
+      - [slider\_int](#slider_int)
+      - [slider\_float](#slider_float)
+      - [drag\_int](#drag_int)
+      - [drag\_float](#drag_float)
+      - [list\_v2](#list_v2)
+      - [color\_picker](#color_picker)
+      - [color\_edit](#color_edit)
+      - [keybinding\_v2](#keybinding_v2)
+      - [event\_button](#event_button)
   - [MCM API functions](#mcm-api-functions)
       - [Core API](#core-api)
       - [EventButton API](#eventbutton-api)
       - [Keybinding API](#keybinding-api)
       - [List API](#list-api)
-      - [Window and Tab API (Client only)](#window-and-tab-api-client-only)
+      - [Store API](#store-api)
+      - [Window and tab APIs](#window-and-tab-apis)
       - [Deprecated Functions](#deprecated-functions)
+      - [Table-based arguments](#table-based-arguments)
     - [Using values from MCM](#using-values-from-mcm)
     - [Adding a keybinding](#adding-a-keybinding)
       - [Defining a keybinding](#defining-a-keybinding)
@@ -468,7 +470,6 @@ As of version 1.14+, MCM introduces a global `MCM` table (can be called anywhere
 
 #### EventButton API
 
-
 <details>
 <summary>Blueprint example</summary>
 
@@ -591,7 +592,6 @@ MCM.Store.Set("difficulty_level", difficulty + 1)
 
 </details>
 
-
 #### Window and tab APIs
 
 These methods operate on the MCM window, and can be used to control the opening and closing of MCM, as well as opening a specific mod's tab.
@@ -612,6 +612,7 @@ The following functions are deprecated and should be replaced with the new API:
 - `MCM.SetKeybindingCallback` → Use `MCM.Keybinding.SetCallback`
 
 #### Table-based arguments
+
 Starting with **MCM version 1.38+**, this **API supports table-based arguments** as a better alternative to positional arguments. This pattern makes function calls more readable and self-documenting, is easier to skip optional parameters without placeholder `nil` values, allows new optional parameters to be added without breaking existing code, and has better autocomplete when using [MCMIdeHelpers](https://github.com/AtilioA/BG3-MCM/blob/main/MCMIdeHelpers.lua). Example:
 
 ```lua
@@ -623,7 +624,6 @@ MCM.EventButton.ShowFeedback({
     durationInMs = 5000             -- Optional, already defaults to 5000
 })
 ```
-
 
 ### Using values from MCM
 
@@ -727,6 +727,7 @@ Available `Options`:
 | `ShouldTriggerOnRepeat` | `false` | Continuously triggers the callback while the key is held down. |
 | `IsDeveloperOnly` | `false` | Whether to hide this keybinding if developer mode is disabled. |
 | `BlockIfLevelNotStarted` | `false` | Prevents the keybinding from triggering when the game level has not started yet. This is useful for actions that should only be available in-game, not in the main menu. |
+| `SkipCallback` | `false` | When `true`, MCM won't expect or warn about missing callbacks. Use this when your mod handles input via its own polling instead of relying on registering your callbacks through MCM. |
 
 These options are not mutually exclusive, meaning authors can use any combination of them. For example, setting `ShouldTriggerOnRepeat` to `true` allows an action to repeat continuously while the key is held, which may be useful for certain keybindings. Note that the `Options` object is entirely optional and may be omitted if the default behavior is sufficient for the keybinding's needs.
 
@@ -794,7 +795,6 @@ MCM 1.17 introduced `list_v2` to supersede the now deprecated `list` input type.
 #### Inserting suggestions for ListV2 settings
 
 The `InsertSuggestions` method in the `MCM.List` table allows mod authors to insert suggestions/'search results' into a `list_v2` setting. This is particularly useful for providing users with dynamic suggestions based on their input as they type in the add input field of the setting.
-
 
 Example: insert suggestions `a`, `b`, `c`, `aba`, `acaca`, and `abaca` into the `ignore_weapons` `list_v2` setting for the mod UUID `1c132ec4-4cd2-4c40-aeb9-ff6ee0467da8` (Auto Send Food To Camp):
 

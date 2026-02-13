@@ -551,6 +551,15 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
+
+    if setting.Options and setting.Options.SkipCallback ~= nil and type(setting.Options.SkipCallback) ~= "boolean" then
+        MCMWarn(0,
+            "Options.SkipCallback for keybinding_v2 setting '" ..
+            setting.Id ..
+            "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
     return true
 end
 

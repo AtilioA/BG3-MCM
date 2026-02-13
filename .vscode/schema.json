@@ -1040,6 +1040,11 @@
                                                 "type": "boolean",
                                                 "description": "Whether this keybinding should conflict with other keybindings. Default: true",
                                                 "default": true
+                                            },
+                                            "SkipCallback": {
+                                                "type": "boolean",
+                                                "description": "Whether to skip checking for an existing callback for this keybinding. Default: false",
+                                                "default": true
                                             }
                                         },
                                         "additionalProperties": false,
