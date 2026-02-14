@@ -52,6 +52,7 @@ function ProfileService:CreateProfile(profileName)
     local success, errorMsg = MCMAPI:CreateProfile(profileName)
     if not success then
         if not errorMsg or errorMsg == "" then
+            -- LOCA TODO
             errorMsg = "Failed to create profile"
         end
         return false, errorMsg
@@ -63,6 +64,7 @@ function ProfileService:CreateProfile(profileName)
     -- Set the new profile as active
     local setSuccess = self:SetProfile(profileName)
     if not setSuccess then
+        -- LOCA TODO
         return false, "Profile created but failed to activate"
     end
 

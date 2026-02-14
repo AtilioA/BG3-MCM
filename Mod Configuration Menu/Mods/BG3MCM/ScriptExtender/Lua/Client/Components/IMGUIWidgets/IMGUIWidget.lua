@@ -267,6 +267,7 @@ function IMGUIWidget:AddResetButton(group, setting, modUUID)
         IMGUIWidget:GetIconSizes())
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()
+        -- LOCA TODO
         resetButton = group:AddButton("[Reset]")
     end
 

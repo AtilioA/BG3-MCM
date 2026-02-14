@@ -10,12 +10,14 @@ function KeybindingIMGUIWidget:new(group, setting, initialValue, modUUID)
     }
 
     -- Create the combo box for the modifier
+    -- LOCA TODO
     group:AddText("Modifier (optional)")
     instance.Widget.ModifierWidget = group:AddCombo("", initialValue.Modifier or "")
     instance.Widget.ModifierWidget.IDContext = setting.Id .. "_Modifier"
     instance.Widget.ModifierWidget.Options = SDLKeys.Modifiers
 
     -- Create the combo box for the scan code
+    -- LOCA TODO
     group:AddText("Key")
     instance.Widget.ScanCodeWidget = group:AddCombo("", initialValue.ScanCode or "")
     instance.Widget.ScanCodeWidget.IDContext = setting.Id .. "_ScanCode"

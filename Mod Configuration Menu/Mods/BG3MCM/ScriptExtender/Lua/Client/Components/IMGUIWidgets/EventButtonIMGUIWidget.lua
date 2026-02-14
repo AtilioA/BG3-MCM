@@ -199,13 +199,17 @@ function EventButtonIMGUIWidget:HandleButtonClick()
             cdHandles = settingHandles.EventButtonHandles.ConfirmDialogHandles
         end
         title = localize(cdHandles.TitleHandle,
+            -- LOCA TODO - fallback needs proper handle
             confirmOptions.Title or localize("h652b98e111884533a0ec00fd94ecc386f717", "Confirm action"))
         message = localize(cdHandles.MessageHandle,
+            -- LOCA TODO - fallback needs proper handle
             confirmOptions.Message or
             localize("h6cea07ecefe545ddaf13f4259fa75a6b2400", "Are you sure you want to proceed?"))
         okLabel = localize(cdHandles.ConfirmTextHandle,
+            -- LOCA TODO - fallback needs proper handle
             confirmOptions.ConfirmText or localize("hf03356ba46684764b32d26ff28d3e709af5a", "OK"))
         cancelLabel = localize(cdHandles.CancelTextHandle,
+            -- LOCA TODO - fallback needs proper handle
             confirmOptions.CancelText or localize("he43ef9b250584bc2840b8b291c73e4b53cb4", "Cancel"))
 
         -- Show confirmation dialog via service
@@ -253,6 +257,7 @@ function EventButtonIMGUIWidget:TriggerCallback()
         -- Permanent disable when Cooldown == -1 (disable until reload/reset)
         local cooldown = self:GetCooldown()
         if cooldown == -1 then
+            -- LOCA TODO
             self:DisableButton(self.Widget.Button, "Action disabled until reload/reset")
         end
     else

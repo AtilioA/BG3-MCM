@@ -14,6 +14,7 @@ function DialogService:Confirm(modUUID, key, parentGroup, title, message, onOk, 
     local id = modUUID .. "_" .. key
     local box = self.cache[id]
     if not box then
+        -- LOCA TODO - fallback needs proper handle
         box = MessageBox:Create(
             title or "Confirm",
             message or "",

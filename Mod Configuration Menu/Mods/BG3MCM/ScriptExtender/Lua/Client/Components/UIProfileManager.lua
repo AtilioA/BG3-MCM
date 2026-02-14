@@ -137,6 +137,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
     profileButton.Disabled = newProfileName.Text == ""
 
     -- Add tooltip to the input field
+    -- LOCA TODO
     IMGUIHelpers.AddTooltip(profileButton, "Profile names cannot contain: < > : \" / \\ | ? *", ModuleUUID)
 
     -- Store the original button text for later restoration
@@ -163,6 +164,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
 
         -- Check for empty name
         if profileName == "" then
+            -- LOCA TODO - needs proper handle, currently using plain string
             showError(Ext.Loca.GetTranslatedString("Name cannot be empty"))
             return
         end
@@ -185,6 +187,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
                 end
 
                 -- Show success feedback
+                -- LOCA TODO
                 profileButton.Label = "Created!"
                 profileButton.Disabled = true
                 profileButton:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
@@ -197,6 +200,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
             end
         else
             -- Show the error message from the ProfileService
+            -- LOCA TODO
             showError(errorMessage or "Creation failed")
         end
     end

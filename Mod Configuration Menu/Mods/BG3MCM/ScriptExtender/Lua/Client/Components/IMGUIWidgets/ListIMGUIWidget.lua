@@ -33,10 +33,12 @@ function ListIMGUIWidget:RenderList()
 
         if not removeButton.Image or removeButton.Image.Icon == "" then
             removeButton:Destroy()
+            -- LOCA TODO
             removeButton = buttonCell:AddButton("[X]")
         end
 
         local tooltip = removeButton:Tooltip()
+        -- LOCA TODO VCString:InterpolateLocalizedMessage
         tooltip:AddText("Remove '" .. value .. "' from the list")
         removeButton.OnClick = function()
             table.remove(self.Widget.List, i)
@@ -59,12 +61,15 @@ function ListIMGUIWidget:AddInputAndAddButton()
     textInput.OnChange = function(newValue)
         newText = newValue.Text
         if newText and newText ~= "" and addButton then
+            -- LOCA TODO
             addButton.Label = "Add to the list"
         else
+            -- LOCA TODO
             addButton.Label = "Type a new value to add to the list"
         end
     end
 
+    -- LOCA TODO
     addButton = self.Widget.InputGroup:AddButton("Type a new value to add to the list")
     addButton.OnClick = function()
         if newText ~= "" then
@@ -108,8 +113,10 @@ end
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
 function ListIMGUIWidget:AddResetButton(group, setting, modUUID)
+    -- LOCA TODO
     local resetButton = group:AddButton("[Reset list]")
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
+    -- LOCA TODO
     resetButton:Tooltip():AddText("Reset this list to its default values")
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)

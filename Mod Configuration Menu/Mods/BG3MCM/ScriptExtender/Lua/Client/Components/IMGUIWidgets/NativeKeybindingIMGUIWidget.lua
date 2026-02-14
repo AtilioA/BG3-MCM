@@ -51,6 +51,7 @@ end
 function NativeKeybindingIMGUIWidget:SortCategoriesByTranslatedName(categories)
     local sortedCategories = {}
     for _, category in ipairs(categories) do
+        -- LOCA TODO
         local catName = "Uncategorized"
         if category.CategoryName and category.CategoryName ~= "" then
             catName = NativeKeybindingsTranslator.GetCategoryString(category.CategoryName) or category.CategoryName
@@ -159,7 +160,9 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
         imguiTable.RowBg = true
 
         -- Define the columns
+        -- LOCA TODO
         imguiTable:AddColumn("Action", "WidthStretch")
+        -- LOCA TODO
         imguiTable:AddColumn("Keybinding", "WidthStretch")
 
         -- Render sorted actions
@@ -187,6 +190,7 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
     end, function(err)
         if not categoryHeader then return end
         MCMError(0, "Error rendering category " .. tostring(catName) .. ": " .. tostring(err))
+        -- LOCA TODO VCString:InterpolateLocalizedMessage
         local errorText = categoryHeader:AddText("Error: " .. tostring(err))
         errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
     end)
@@ -207,6 +211,7 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
 
     -- Show message if no keybindings found
     if not categories or #categories == 0 then
+        -- LOCA TODO VCString:InterpolateLocalizedMessage
         local msg = (self.Widget.SearchText and self.Widget.SearchText ~= "") and
             ("No native keybindings found for '" .. self.Widget.SearchText .. "'.") or
             "No native keybindings found."

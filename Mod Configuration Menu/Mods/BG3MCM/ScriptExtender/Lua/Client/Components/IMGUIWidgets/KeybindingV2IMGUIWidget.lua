@@ -197,9 +197,13 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         imguiTable.RowBg = true
 
         -- Define the columns: Enabled, Action, Description, Keybinding, Conflict, and Reset.
+        -- LOCA TODO
         imguiTable:AddColumn("Enabled", "WidthFixed", 80)
+        -- LOCA TODO
         imguiTable:AddColumn("Action", "WidthStretch")
+        -- LOCA TODO
         imguiTable:AddColumn("Keybinding", "WidthStretch")
+        -- LOCA TODO
         imguiTable:AddColumn("Conflict", "WidthFixed", 100)
 
         for _, action in ipairs(mod.Actions) do
@@ -327,6 +331,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
         MCMError(0, "Error in RenderKeybindingTable: " .. tostring(err))
 
+        -- LOCA TODO VCString:InterpolateLocalizedMessage
         local errorText = modGroup:AddText("Error in RenderKeybindingTable: " .. tostring(err))
         errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
     end)
