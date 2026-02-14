@@ -134,6 +134,7 @@ function KeybindingsUI.GetNativeKeybindings()
     if not native or not native.Public then return result end
     local byCategory = {}
     for _, kBinding in ipairs(native.Public) do
+        -- LOCA TODO
         local category = kBinding.CategoryName or "Uncategorized"
         byCategory[category] = byCategory[category] or {}
         table_insert(byCategory[category], kBinding)
