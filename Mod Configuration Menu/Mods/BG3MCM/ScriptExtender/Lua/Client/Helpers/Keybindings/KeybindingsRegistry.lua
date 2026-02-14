@@ -47,6 +47,16 @@ function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled)
     }
 end
 
+function KeybindingsRegistry.BuildMousePayload(binding, currentEnabled)
+    return {
+        Mouse = {
+            Button = binding.Button or 0,
+            ModifierKeys = binding.ModifierKeys or {}
+        },
+        Enabled = currentEnabled
+    }
+end
+
 --- Determines if a developer-only action should be included based on the provided options.
 --- @param action table The action to evaluate for inclusion.
 --- @param options ActionFilterOptions|nil The options that may affect inclusion.
@@ -84,9 +94,12 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 actionName = action.ActionName,
                 actionId = action.ActionId,
                 keyboardBinding = Fallback.Value(action.KeyboardMouseBinding, { Key = "", ModifierKeys = { "NONE" } }),
+                mouseBinding = Fallback.Value(action.MouseBinding, { Button = 0, ModifierKeys = {} }),
                 enabled = Fallback.Value(action.Enabled, true),
                 defaultKeyboardBinding = Fallback.Value(action.DefaultKeyboardMouseBinding,
                     { Key = "", ModifierKeys = { "NONE" } }),
+                defaultMouseBinding = Fallback.Value(action.DefaultMouseBinding,
+                    { Button = 0, ModifierKeys = {} }),
                 defaultEnabled = Fallback.Value(action.DefaultEnabled, true),
                 shouldTriggerOnRepeat = Fallback.Value(action.ShouldTriggerOnRepeat, false),
                 shouldTriggerOnKeyUp = Fallback.Value(action.ShouldTriggerOnKeyUp, false),
@@ -143,6 +156,11 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates, shouldEmi
     -- Update keyboard binding if provided.
     if updates.Keyboard ~= nil then
         bindingEntry.keyboardBinding = updates.Keyboard
+    end
+
+    -- Update mouse binding if provided.
+    if updates.Mouse ~= nil then
+        bindingEntry.mouseBinding = updates.Mouse
     end
 
     -- Update enabled state if provided.

@@ -560,6 +560,69 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
+
+    local default = setting.Default
+    if default and type(default) == "table" then
+        local hasKeyboard = default.Keyboard and type(default.Keyboard) == "table" and 
+            default.Keyboard.Key and default.Keyboard.Key ~= ""
+        local hasMouse = default.Mouse and type(default.Mouse) == "table" and
+            default.Mouse.Button and type(default.Mouse.Button) == "number" and default.Mouse.Button > 0
+        
+        if hasKeyboard and hasMouse then
+            MCMWarn(0,
+                "Keybinding_v2 setting '" .. setting.Id ..
+                "' cannot have both Keyboard and Mouse defaults. Use one or the other. Please contact " ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+        
+        if default.Mouse then
+            if type(default.Mouse) ~= "table" then
+                MCMWarn(0,
+                    "Default.Mouse for keybinding_v2 setting '" .. setting.Id ..
+                    "' must be a table. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+            
+            if default.Mouse.Button == nil or type(default.Mouse.Button) ~= "number" then
+                MCMWarn(0,
+                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting.Id ..
+                    "' must be a number. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+            
+            if default.Mouse.Button < 1 or default.Mouse.Button > 10 then
+                MCMWarn(0,
+                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting.Id ..
+                    "' must be between 1 and 10. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+            
+            if default.Mouse.ModifierKeys then
+                if type(default.Mouse.ModifierKeys) ~= "table" then
+                    MCMWarn(0,
+                        "Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting.Id ..
+                        "' must be a table. Please contact " ..
+                        Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    return false
+                end
+                for _, mod in ipairs(default.Mouse.ModifierKeys) do
+                    if type(mod) ~= "string" or not table.contains(SDLKeys.Modifiers, mod) then
+                        MCMWarn(0,
+                            "Invalid modifier '" .. tostring(mod) ..
+                            "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting.Id ..
+                            "'. Valid modifiers are: " .. table.concat(SDLKeys.Modifiers, ", ") ..
+                            ". Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                        return false
+                    end
+                end
+            end
+        end
+    end
+    
     return true
 end
 
@@ -911,42 +974,45 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 return false
             end
 
-            if not (type(setting.Default["Keyboard"]) == "table") then
+            local hasKeyboard = setting.Default["Keyboard"] ~= nil and type(setting.Default["Keyboard"]) == "table"
+            local hasMouse = setting.Default["Mouse"] ~= nil and type(setting.Default["Mouse"]) == "table"
+            
+            if not hasKeyboard and not hasMouse then
                 MCMWarn(0,
                     "Default value for setting '" ..
                     setting.Id ..
-                    "' must be a table containing a 'Keyboard' table. Please contact " ..
+                    "' must contain either a 'Keyboard' or 'Mouse' table. Please contact " ..
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
             end
 
-            -- Validate Keyboard configuration
-            local keyboard = setting.Default["Keyboard"]
-            local key = keyboard.Key
-            if type(key) ~= "string" or (key ~= "" and not table.contains(SDLKeys.ScanCodes, key)) then
-                MCMWarn(0,
-                    "Invalid key '" ..
-                    key .. "' in Keyboard.Key for setting '" .. setting.Id .. "'. Valid keys are: " ..
-                    table.concat(SDLKeys.ScanCodes, ", "))
-                return false
-            end
-
-            -- Validate ModifierKeys if provided
-            if keyboard.ModifierKeys then
-                if type(keyboard.ModifierKeys) ~= "table" then
+            if hasKeyboard then
+                local keyboard = setting.Default["Keyboard"]
+                local key = keyboard.Key
+                if type(key) ~= "string" or (key ~= "" and not table.contains(SDLKeys.ScanCodes, key)) then
                     MCMWarn(0,
-                        "Keyboard.ModifierKeys must be a table. Please contact " ..
-                        Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                        "Invalid key '" ..
+                        key .. "' in Keyboard.Key for setting '" .. setting.Id .. "'. Valid keys are: " ..
+                        table.concat(SDLKeys.ScanCodes, ", "))
                     return false
                 end
-                for _, mod in ipairs(keyboard.ModifierKeys) do
-                    if type(mod) ~= "string" or (mod ~= "" and not table.contains(SDLKeys.Modifiers, mod)) then
+
+                if keyboard.ModifierKeys then
+                    if type(keyboard.ModifierKeys) ~= "table" then
                         MCMWarn(0,
-                            "Invalid modifier '" ..
-                            mod ..
-                            "' in Keyboard.ModifierKeys for setting '" .. setting.Id .. "'. Valid modifiers are: " ..
-                            table.concat(SDLKeys.Modifiers, ", "))
+                            "Keyboard.ModifierKeys must be a table. Please contact " ..
+                            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                         return false
+                    end
+                    for _, mod in ipairs(keyboard.ModifierKeys) do
+                        if type(mod) ~= "string" or (mod ~= "" and not table.contains(SDLKeys.Modifiers, mod)) then
+                            MCMWarn(0,
+                                "Invalid modifier '" ..
+                                mod ..
+                                "' in Keyboard.ModifierKeys for setting '" .. setting.Id .. "'. Valid modifiers are: " ..
+                                table.concat(SDLKeys.Modifiers, ", "))
+                            return false
+                        end
                     end
                 end
             end

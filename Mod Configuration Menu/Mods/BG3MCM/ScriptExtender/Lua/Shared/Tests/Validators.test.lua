@@ -11,6 +11,9 @@ TestSuite.RegisterTests("Setting validators", {
     "TestValidateDragFloatSetting",
     "TestValidateColorPickerSetting",
     "TestValidateColorEditSetting",
+    "TestValidateKeybindingV2Keyboard",
+    "TestValidateKeybindingV2Mouse",
+    "TestValidateKeybindingV2XOR",
 })
 
 function TestValidateIntSetting()
@@ -296,5 +299,112 @@ function TestNonExistentSetting()
     })
 
     local isValid, message = DataPreprocessing:ValidateSetting(setting, "unknown")
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateKeybindingV2Keyboard()
+    local setting = BlueprintSetting:New({
+        Id = "test-kb-binding",
+        Type = "keybinding_v2",
+        Default = {
+            Keyboard = { Key = "INSERT", ModifierKeys = {} },
+            Enabled = true
+        }
+    })
+
+    local isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "INSERT", ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "A", ModifierKeys = { "LCTRL", "LSHIFT" } },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "", ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+end
+
+function TestValidateKeybindingV2Mouse()
+    local setting = BlueprintSetting:New({
+        Id = "test-mouse-binding",
+        Type = "keybinding_v2",
+        Default = {
+            Mouse = { Button = 1, ModifierKeys = {} },
+            Enabled = true
+        }
+    })
+
+    local isValid = KeybindingV2Validator.Validate(setting, {
+        Mouse = { Button = 1, ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Mouse = { Button = 3, ModifierKeys = { "LCTRL" } },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Mouse = { Button = 10, ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Mouse = { Button = 0, ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Mouse = { Button = 11, ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateKeybindingV2XOR()
+    local setting = BlueprintSetting:New({
+        Id = "test-xor-binding",
+        Type = "keybinding_v2",
+        Default = {
+            Keyboard = { Key = "INSERT", ModifierKeys = {} },
+            Enabled = true
+        }
+    })
+
+    local isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "INSERT", ModifierKeys = {} },
+        Mouse = { Button = 1, ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertFalse(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "", ModifierKeys = {} },
+        Mouse = { Button = 1, ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "A", ModifierKeys = {} },
+        Mouse = { Button = 0, ModifierKeys = {} },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
+        Enabled = true
+    })
     TestSuite.AssertFalse(isValid)
 end

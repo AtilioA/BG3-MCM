@@ -100,6 +100,8 @@ function KeybindingV2IMGUIWidget:FilterActions()
                         DefaultEnabled = binding.defaultEnabled,
                         KeyboardMouseBinding = binding.keyboardBinding or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING,
                         DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
+                        MouseBinding = binding.mouseBinding or { Button = 0, ModifierKeys = {} },
+                        DefaultMouseBinding = binding.defaultMouseBinding or { Button = 0, ModifierKeys = {} },
                         Description = binding.description,
                         AllowConflict = binding.allowConflict,
                         Tooltip = binding.tooltip,
@@ -249,8 +251,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
             -- Keybinding cell.
             local kbCell = row:AddCell()
-            local kbButton = kbCell:AddButton(KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
-                ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING)
+            local bindingLabel = self:GetBindingLabel(action)
+            local kbButton = kbCell:AddButton(bindingLabel)
             kbButton:SetColor("Button", Color.NormalizedRGBA(18, 18, 18, 0.8))
             kbButton:SetColor("ButtonActive", Color.NormalizedRGBA(18, 18, 18, 1))
             kbButton:SetColor("ButtonHovered", Color.NormalizedRGBA(18, 18, 18, 0.5))
@@ -302,7 +304,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             IMGUIHelpers.AddTooltip(resetButton,
                 VCString:InterpolateLocalizedMessage(
                     "h497bb04f93734d52a265956df140e77a7add",
-                    KeyPresentationMapping:GetKBViewKey(action.DefaultKeyboardMouseBinding),
+                    self:GetDefaultBindingLabel(action),
                     { updateHandle = false }
                 ),
                 mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
@@ -355,6 +357,9 @@ function KeybindingV2IMGUIWidget:RegisterInputEvents()
     self.Widget.InputEventSubscriptions = {
         KeyInput = Ext.Events.KeyInput:Subscribe(function(e)
             self:HandleKeyInput(e)
+        end),
+        MouseButtonInput = Ext.Events.MouseButtonInput:Subscribe(function(e)
+            self:HandleMouseInput(e)
         end)
     }
 end
@@ -393,16 +398,16 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             e:StopPropagation()
             return
         elseif e.Key == "BACKSPACE" then
-            -- Remove/clear the binding.
+            -- Remove/clear both keyboard and mouse bindings.
             local modData = self.Widget.CurrentListeningAction.Mod
             local action = self.Widget.CurrentListeningAction.Action
-            local inputType = self.Widget.CurrentListeningAction.InputType
 
             self.Widget.ListeningForInput = false
             self.Widget.CurrentListeningAction = nil
             self:UnregisterInputEvents()
 
-            KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, { Keyboard = "" }, true)
+            KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, 
+                { Keyboard = "", Mouse = { Button = 0, ModifierKeys = {} } }, true)
             return
         end
 
@@ -440,13 +445,26 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
     end
 end
 
--- ---Handles mouse input events
--- ---@param e table The mouse input event
--- function KeybindingV2IMGUIWidget:HandleMouseInput(e)
---     if not self.Widget.ListeningForInput or not e.Pressed then return end
---     local button = "Mouse" .. tostring(e.Button)
---     self:AssignKeybinding(button)
--- end
+---Handles mouse input events
+---@param e table The mouse input event
+function KeybindingV2IMGUIWidget:HandleMouseInput(e)
+    if not self.Widget.ListeningForInput or not e.Pressed then return end
+    
+    local modifierKeys = {}
+    if self.AllPressedKeys then
+        for pressedKey, _ in pairs(self.AllPressedKeys) do
+            if KeybindingManager:IsActiveModifier(pressedKey) then
+                table.insert(modifierKeys, pressedKey)
+            end
+        end
+    end
+    
+    local mouseBinding = {
+        Button = e.Button,
+        ModifierKeys = modifierKeys
+    }
+    self:AssignMouseBinding(mouseBinding)
+end
 
 ---Assigns a keybinding to the current action
 ---@param keybinding table The keybinding to assign (string for mouse, table for keyboard)
@@ -501,30 +519,113 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     end)
 end
 
+---Assigns a mouse binding to the current action
+---@param mouseBinding table The mouse binding to assign { Button: number, ModifierKeys: string[] }
+function KeybindingV2IMGUIWidget:AssignMouseBinding(mouseBinding)
+    if not self.Widget.CurrentListeningAction then
+        return
+    end
+
+    local modData = self.Widget.CurrentListeningAction.Mod
+    local action = self.Widget.CurrentListeningAction.Action
+    local buttonElement = self.Widget.CurrentListeningAction.Button
+
+    self.Widget.ListeningForInput = false
+    self.Widget.CurrentListeningAction = nil
+    self:UnregisterInputEvents()
+
+    self.PressedKeys = {}
+    self.AllPressedKeys = {}
+
+    local registry = KeybindingsRegistry.GetFilteredRegistry()
+    local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
+
+    local newPayload = KeybindingsRegistry.BuildMousePayload(mouseBinding, currentBinding.Enabled)
+    newPayload.AllowConflict = action.AllowConflict
+
+    xpcall(function()
+        if self:StoreKeybinding(modData, action, newPayload) then
+            buttonElement.Label = KeyPresentationMapping:GetMouseViewKey(mouseBinding) or
+                ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
+            buttonElement.Disabled = false
+        else
+            MCMError(0, "Failed to update mouse binding in registry for mod '" ..
+                modData.ModName .. "', action '" .. action.ActionId .. "'.")
+        end
+    end, function(err)
+        MCMError(0, "Error in AssignMouseBinding: " .. tostring(err))
+    end)
+end
+
 ---Cancels the current keybinding operation
 function KeybindingV2IMGUIWidget:CancelKeybinding()
     if self.Widget.CurrentListeningAction then
         local buttonElement = self.Widget.CurrentListeningAction.Button
         local action = self.Widget.CurrentListeningAction.Action
-        local inputType = self.Widget.CurrentListeningAction.InputType
 
         self.Widget.ListeningForInput = false
         self.Widget.CurrentListeningAction = nil
         self:UnregisterInputEvents()
 
-        if inputType == "KeyboardMouse" then
-            buttonElement.Label = KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding) or
-                ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
-        end
+        buttonElement.Label = self:GetBindingLabel(action)
         buttonElement.Disabled = false
     end
+end
+
+---Gets the display label for a binding (keyboard or mouse)
+---@param action table The action containing binding data
+---@return string The display label
+function KeybindingV2IMGUIWidget:GetBindingLabel(action)
+    if action.MouseBinding and action.MouseBinding.Button and action.MouseBinding.Button > 0 then
+        return KeyPresentationMapping:GetMouseViewKey(action.MouseBinding)
+            or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
+    end
+    return KeyPresentationMapping:GetKBViewKey(action.KeyboardMouseBinding)
+        or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
+end
+
+---Gets the display label for a default binding (keyboard or mouse)
+---@param action table The action containing default binding data
+---@return string The display label
+function KeybindingV2IMGUIWidget:GetDefaultBindingLabel(action)
+    if action.DefaultMouseBinding and action.DefaultMouseBinding.Button and action.DefaultMouseBinding.Button > 0 then
+        return KeyPresentationMapping:GetMouseViewKey(action.DefaultMouseBinding)
+            or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
+    end
+    return KeyPresentationMapping:GetKBViewKey(action.DefaultKeyboardMouseBinding)
+        or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
 end
 
 ---Checks if a keybinding is set to its default value
 ---@param action table The action to check
 ---@return boolean True if the binding is set to its default value, false otherwise
 function KeybindingV2IMGUIWidget:IsDefaultBinding(action)
-    return KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding, action.DefaultKeyboardMouseBinding)
+    local kbEqual = KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding, action.DefaultKeyboardMouseBinding)
+    local mouseEqual = self:AreMouseBindingsEqual(action.MouseBinding, action.DefaultMouseBinding)
+    return kbEqual and mouseEqual
+end
+
+---Checks if two mouse bindings are equal
+---@param binding1 table|nil The first mouse binding
+---@param binding2 table|nil The second mouse binding
+---@return boolean True if equal, false otherwise
+function KeybindingV2IMGUIWidget:AreMouseBindingsEqual(binding1, binding2)
+    if not binding1 and not binding2 then return true end
+    if not binding1 or not binding2 then return false end
+    
+    local button1 = binding1.Button or 0
+    local button2 = binding2.Button or 0
+    if button1 ~= button2 then return false end
+    
+    local mods1 = binding1.ModifierKeys or {}
+    local mods2 = binding2.ModifierKeys or {}
+    if #mods1 ~= #mods2 then return false end
+    
+    for _, mod in ipairs(mods1) do
+        if not table.contains(mods2, mod) then return false end
+    end
+    
+    return true
 end
 
 ---Compares two keybindings for equality after normalization
@@ -612,8 +713,15 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     local registry = KeybindingsRegistry.GetFilteredRegistry()
     local binding = registry[modUUID] and registry[modUUID][actionId]
     if binding then
-        local resetKeybinding = binding.defaultKeyboardBinding
-        local resetPayload = KeybindingsRegistry.BuildKeyboardPayload(resetKeybinding, binding.defaultEnabled)
+        local resetPayload
+        
+        if binding.defaultMouseBinding and binding.defaultMouseBinding.Button and binding.defaultMouseBinding.Button > 0 then
+            resetPayload = KeybindingsRegistry.BuildMousePayload(binding.defaultMouseBinding, binding.defaultEnabled)
+        else
+            local resetKeybinding = binding.defaultKeyboardBinding
+            resetPayload = KeybindingsRegistry.BuildKeyboardPayload(resetKeybinding, binding.defaultEnabled)
+        end
+        
         local success = KeybindingsRegistry.UpdateBinding(modUUID, actionId, resetPayload, true)
         if not success then
             MCMError(0,

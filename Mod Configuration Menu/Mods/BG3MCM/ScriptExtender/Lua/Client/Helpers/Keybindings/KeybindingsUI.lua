@@ -41,6 +41,7 @@ function KeybindingsUI.GetAllKeybindings()
                 if setting:GetType() == "keybinding_v2" then
                     local currentBinding = modData.settingsValues and modData.settingsValues[settingId]
                     local keyboardBinding = nil
+                    local mouseBinding = nil
 
                     if currentBinding and currentBinding.Keyboard then
                         keyboardBinding = currentBinding.Keyboard
@@ -51,6 +52,17 @@ function KeybindingsUI.GetAllKeybindings()
                             { Key = "", ModifierKeys = { "NONE" } }
                         )
                         MCMDebug(1, "Falling back to default keyboard binding for setting: " .. settingId)
+                    end
+
+                    if currentBinding and currentBinding.Mouse then
+                        mouseBinding = currentBinding.Mouse
+                        MCMDebug(2, "Using saved mouse binding for setting: " .. settingId)
+                    else
+                        mouseBinding = Fallback_Value(
+                            setting.Default and setting.Default.Mouse,
+                            { Button = 0, ModifierKeys = {} }
+                        )
+                        MCMDebug(1, "Falling back to default mouse binding for setting: " .. settingId)
                     end
 
                     local description = setting.GetDescription and setting:GetDescription() or ""
@@ -73,11 +85,16 @@ function KeybindingsUI.GetAllKeybindings()
                         ActionId = setting.Id or "",
                         ActionName = (setting.GetLocaName and setting:GetLocaName()) or "",
                         KeyboardMouseBinding = keyboardBinding,
+                        MouseBinding = mouseBinding,
                         DefaultEnabled = defaultEnabled,
                         Enabled = enabled,
                         DefaultKeyboardMouseBinding = Fallback_Value(
                             setting.Default and setting.Default.Keyboard,
                             { Key = "", ModifierKeys = { "NONE" } }
+                        ),
+                        DefaultMouseBinding = Fallback_Value(
+                            setting.Default and setting.Default.Mouse,
+                            { Button = 0, ModifierKeys = {} }
                         ),
                         Description = description,
                         Tooltip = tooltip,
