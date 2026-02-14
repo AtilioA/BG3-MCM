@@ -153,6 +153,15 @@ function BlueprintSetting:GetHandles()
     return self.Handles
 end
 
+function BlueprintSetting:GetSortOrder()
+    return self.Options and self.Options.SortOrder
+end
+
+function BlueprintSetting:SetSortOrder(value)
+    self.Options = self.Options or {}
+    self.Options.SortOrder = value
+end
+
 function BlueprintSetting:SetName(value)
     self.Name = value
 end

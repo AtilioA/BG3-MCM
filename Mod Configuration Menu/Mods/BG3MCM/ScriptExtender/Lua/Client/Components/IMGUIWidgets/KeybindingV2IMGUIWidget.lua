@@ -74,32 +74,38 @@ function KeybindingV2IMGUIWidget:FilterActions()
     local registry = KeybindingsRegistry.GetFilteredRegistry()
 
     for modUUID, actions in pairs(registry) do
+        local sortMode = actions._keybindingSortMode or "alphabetical"
         local modName = MCMClientState:GetModName(modUUID)
-        if not modName then modName = "MISSING_NAME" end
+        if not modName then
+            MCMWarn(0, string.format("Mod name not found for UUID: %s", modUUID))
+            modName = "MISSING_NAME"
+        end
         local filteredActions = {}
         for actionId, binding in pairs(actions) do
-            local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
-            local matchesActionName = VCString:FuzzyMatch(binding.actionName:upper(), searchText)
-            -- local matchesDescription = VCString:FuzzyMatch(binding.description:upper(), searchText)
-            local matchesTooltip = VCString:FuzzyMatch(binding.tooltip:upper(), searchText)
-            local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
-                VCString:FuzzyMatch(binding.keyboardBinding.Key:upper(), searchText) and
-                binding.keyboardBinding.ModifierKeys
-            local matchesPresentationKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
-                VCString:FuzzyMatch(KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding):upper(), searchText)
-            if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesPresentationKeyboard or matchesTooltip then
-                table.insert(filteredActions, {
-                    ModUUID = modUUID,
-                    ActionName = binding.actionName,
-                    ActionId = actionId,
-                    Enabled = binding.enabled,
-                    DefaultEnabled = binding.defaultEnabled,
-                    KeyboardMouseBinding = binding.keyboardBinding or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING,
-                    DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
-                    Description = binding.description,
-                    AllowConflict = binding.allowConflict,
-                    Tooltip = binding.tooltip
-                })
+            if actionId ~= "_keybindingSortMode" then
+                local matchesModName = VCString:FuzzyMatch(modName:upper(), searchText)
+                local matchesActionName = VCString:FuzzyMatch(binding.actionName:upper(), searchText)
+                local matchesTooltip = VCString:FuzzyMatch(binding.tooltip:upper(), searchText)
+                local matchesKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
+                    VCString:FuzzyMatch(binding.keyboardBinding.Key:upper(), searchText) and
+                    binding.keyboardBinding.ModifierKeys
+                local matchesPresentationKeyboard = binding.keyboardBinding and binding.keyboardBinding.Key and
+                    VCString:FuzzyMatch(KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding):upper(), searchText)
+                if searchText == "" or matchesModName or matchesActionName or matchesKeyboard or matchesPresentationKeyboard or matchesTooltip then
+                    table.insert(filteredActions, {
+                        ModUUID = modUUID,
+                        ActionName = binding.actionName,
+                        ActionId = actionId,
+                        Enabled = binding.enabled,
+                        DefaultEnabled = binding.defaultEnabled,
+                        KeyboardMouseBinding = binding.keyboardBinding or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING,
+                        DefaultKeyboardMouseBinding = binding.defaultKeyboardBinding,
+                        Description = binding.description,
+                        AllowConflict = binding.allowConflict,
+                        Tooltip = binding.tooltip,
+                        SortOrder = binding.sortOrder
+                    })
+                end
             end
         end
 
@@ -107,7 +113,8 @@ function KeybindingV2IMGUIWidget:FilterActions()
             table.insert(filteredMods, {
                 ModName = modName,
                 ModUUID = modUUID,
-                Actions = filteredActions
+                Actions = filteredActions,
+                KeybindingSortMode = sortMode
             })
         end
     end
@@ -117,7 +124,6 @@ end
 
 ---Sorts the filtered actions with MCM first, then alphabetically by mod name
 function KeybindingV2IMGUIWidget:SortFilteredActions()
-    -- Sort mods: MCM comes first, then alphabetically by mod name.
     table.sort(self.Widget.FilteredActions, function(a, b)
         if a.ModUUID == ModuleUUID then
             return true
@@ -130,11 +136,20 @@ function KeybindingV2IMGUIWidget:SortFilteredActions()
         end
     end)
 
-    -- For each mod, sort its actions by ActionName.
+    -- For each mod, sort its actions by ActionName or index.
     for _, mod in ipairs(self.Widget.FilteredActions) do
-        table.sort(mod.Actions, function(a, b)
-            return a.ActionName < b.ActionName
-        end)
+        local sortMode = mod.KeybindingSortMode or "alphabetical"
+        if sortMode == "blueprint_order" then
+            table.sort(mod.Actions, function(a, b)
+                local orderA = a.SortOrder or math.huge
+                local orderB = b.SortOrder or math.huge
+                return orderA < orderB
+            end)
+        else
+            table.sort(mod.Actions, function(a, b)
+                return a.ActionName < b.ActionName
+            end)
+        end
     end
 end
 
@@ -247,7 +262,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- AllowConflict checkbox cell.
             local conflictCell = row:AddCell()
             local conflictCheckbox = conflictCell:AddCheckbox(Ext.Loca.GetTranslatedString(
-            "ha7dbcb7a64404859b1f9c8a6efa96b304d06"))
+                "ha7dbcb7a64404859b1f9c8a6efa96b304d06"))
 
             IMGUIHelpers.AddTooltip(conflictCheckbox,
                 Ext.Loca.GetTranslatedString("h35a1d92d0e8e404f906a4b087020f9e6g3dg"),

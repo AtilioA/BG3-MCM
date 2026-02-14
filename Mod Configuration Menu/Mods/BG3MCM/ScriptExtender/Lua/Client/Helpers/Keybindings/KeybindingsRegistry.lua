@@ -73,11 +73,11 @@ end
 --- This function always registers the actions (so that callbacks can be attached),
 --- but marks each action with a 'visible' flag for listing purposes.
 function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
-    -- Default behavior: include developer keybindings only if developer mode is enabled.
     options = options or { includeDeveloper = Ext.Debug.IsDeveloperMode() }
 
     for _, mod in ipairs(modKeybindings) do
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
+        registry[mod.ModUUID]._keybindingSortMode = mod.KeybindingSortMode or "alphabetical"
         for _, action in ipairs(mod.Actions) do
             registry[mod.ModUUID][action.ActionId] = {
                 modUUID = mod.ModUUID,
@@ -98,7 +98,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 tooltip = action.Tooltip,
                 allowConflict = Fallback.Value(action.AllowConflict, false),
                 skipCallback = Fallback.Value(action.SkipCallback, false),
-                -- Compute the visibility flag (for UI listing)
+                sortOrder = action.SortOrder,
                 visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
             }
         end
@@ -113,9 +113,11 @@ function KeybindingsRegistry.GetFilteredRegistry(options)
     options = options or { includeDeveloper = Ext.Debug.IsDeveloperMode() }
     local filtered = {}
     for modUUID, actions in pairs(registry) do
+        local sortMode = actions._keybindingSortMode or "alphabetical"
         for actionId, binding in pairs(actions) do
-            if binding.visible then
+            if actionId ~= "_keybindingSortMode" and binding.visible then
                 filtered[modUUID] = filtered[modUUID] or {}
+                filtered[modUUID]._keybindingSortMode = sortMode
                 filtered[modUUID][actionId] = binding
             end
         end
@@ -396,4 +398,14 @@ end
 --- Returns the full registry table.
 function KeybindingsRegistry.GetRegistry()
     return registry
+end
+
+--- Returns the keybinding sort mode for a given mod.
+---@param modUUID string The UUID of the mod
+---@return string The sort mode ("alphabetical" or "blueprint_order")
+function KeybindingsRegistry.GetKeybindingSortMode(modUUID)
+    if not modUUID or not registry[modUUID] then
+        return "alphabetical"
+    end
+    return registry[modUUID]._keybindingSortMode or "alphabetical"
 end

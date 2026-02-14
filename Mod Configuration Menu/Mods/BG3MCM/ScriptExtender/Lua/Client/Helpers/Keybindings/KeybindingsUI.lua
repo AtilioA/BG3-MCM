@@ -30,7 +30,11 @@ function KeybindingsUI.GetAllKeybindings()
     for modUUID, modData in pairs(MCMClientState.mods) do
         local blueprint = modData.blueprint
         if blueprint then
-            local modKeybindings = { ModUUID = modUUID, Actions = {} }
+            local modKeybindings = { 
+                ModUUID = modUUID, 
+                Actions = {},
+                KeybindingSortMode = blueprint:GetKeybindingSortMode() or "alphabetical"
+            }
             local allSettings = blueprint:GetAllSettings()
 
             for settingId, setting in pairs(allSettings) do
@@ -105,7 +109,8 @@ function KeybindingsUI.GetAllKeybindings()
                         SkipCallback = Fallback_Value(
                             setting.Options and setting.Options.SkipCallback,
                             false
-                        )
+                        ),
+                        SortOrder = setting.GetSortOrder and setting:GetSortOrder()
                     }
 
                     table.insert(modKeybindings.Actions, action)

@@ -8,6 +8,7 @@
 ---@field private Settings? BlueprintSetting[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Handles? table
+---@field private KeybindingSortMode string
 Blueprint = _Class:Create("Blueprint", nil, {
     ModUUID = nil,
     ModName = nil,
@@ -17,7 +18,8 @@ Blueprint = _Class:Create("Blueprint", nil, {
     Tabs = {},
     Sections = {},
     Settings = {},
-    Handles = {}
+    Handles = {},
+    KeybindingSortMode = "alphabetical"
 })
 
 function Blueprint:GetModUUID()
@@ -30,6 +32,10 @@ end
 
 function Blueprint:GetOptional()
     return self.Optional
+end
+
+function Blueprint:GetKeybindingSortMode()
+    return self.KeybindingSortMode
 end
 
 function Blueprint:GetModName()
@@ -119,11 +125,11 @@ function Blueprint:New(options)
     self.ModName = options.ModName or nil
     self.ModDescription = options.ModDescription or nil
     self.Handles = options.Handles or nil
+    self.KeybindingSortMode = options.KeybindingSortMode or "alphabetical"
     self.Tabs = {}
     self.Sections = {}
     self.Settings = {}
 
-    -- Call BlueprintSection constructor for each section
     if options.Tabs then
         for _, tabOptions in ipairs(options.Tabs) do
             local tab = BlueprintTab:New(tabOptions)
@@ -131,8 +137,16 @@ function Blueprint:New(options)
         end
     elseif options.Settings then
         self.Settings = {}
-        for _, settingOptions in ipairs(options.Settings) do
-            local setting = BlueprintSetting:New(settingOptions)
+        for idx, settingOptions in ipairs(options.Settings) do
+            local opts = settingOptions
+            local existingSortOrder = settingOptions.Options and settingOptions.Options.SortOrder
+            if existingSortOrder == nil then
+                opts = {}
+                for k, v in pairs(settingOptions) do opts[k] = v end
+                opts.Options = opts.Options or {}
+                opts.Options.SortOrder = idx
+            end
+            local setting = BlueprintSetting:New(opts)
             table.insert(self.Settings, setting)
         end
     elseif options.Sections then
@@ -177,6 +191,25 @@ function Blueprint:GetAllSettings()
     end
 
     return allSettings
+end
+
+--- Get all settings as an ordered array, preserving blueprint order.
+--- This is useful for keybindings where order matters.
+---@return BlueprintSetting[]
+function Blueprint:GetAllSettingsOrdered()
+    local settings = {}
+
+    for _, setting in ipairs(self.Settings or {}) do
+        table.insert(settings, setting)
+    end
+
+    for _, tab in ipairs(self.Tabs or {}) do
+        for _, setting in ipairs(tab:GetAllSettings() or {}) do
+            table.insert(settings, setting)
+        end
+    end
+
+    return settings
 end
 
 --- Retrieve the default value for a setting by name
