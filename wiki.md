@@ -353,16 +353,24 @@ If you need structured input, consider `list_v2` or multiple settings instead of
 
 - **Renders as**: Dropdown list.
 - **Best for**: Selecting exactly one choice from a longer list.
-- **Required fields**: `Default` (string); `Options.Choices` (array of strings, minimum 1).
-- **Options**: None beyond `Choices`.
-- **Caveats**: `Default` should match one of the `Choices` to avoid validation warnings.
+- **Required fields**: `Default` (string).
+- **Options**:
+  - `Options.Choices`: Array of strings.
+  - `Options.DynamicChoices`: When `true`, runtime updates through `MCM.Choices` are enabled and `Options.Choices` may be omitted or empty.
+  - `Options.AllowEmptyValue`: When `true`, the empty string (`""`) is considered valid.
+- **Caveats**:
+  - If `DynamicChoices` is not enabled, `Default` should match one of `Options.Choices`.
+  - If choices are empty at runtime, MCM shows a disabled "No options" entry until choices are provided.
 
 #### radio
 
 - **Renders as**: Radio buttons (only one can be selected).
 - **Best for**: Small, visible sets of choices.
-- **Required fields**: `Default` (string); `Options.Choices` (array of strings, minimum 1).
-- **Options**: None beyond `Choices`.
+- **Required fields**: `Default` (string).
+- **Options**:
+  - `Options.Choices`: Array of strings.
+  - `Options.DynamicChoices`: When `true`, runtime updates through `MCM.Choices` are enabled and `Options.Choices` may be omitted or empty.
+  - `Options.AllowEmptyValue`: When `true`, the empty string (`""`) is considered valid.
 - **Caveats**: Use `enum` for long lists; `radio` is best for a short, visible set.
 
 #### slider_int
@@ -428,7 +436,9 @@ If you need structured input, consider `list_v2` or multiple settings instead of
 
 - **Renders as**: Hotkey configuration that appears in MCM's Hotkeys page.
 - **Best for**: Configurable actions that need keybindings.
-- **Required fields**: `Default` (object with `Keyboard` and/or `Mouse` config, optionally `Enabled`).
+- **Required fields**: `Default` (object with `Keyboard` OR `Mouse` config, optionally `Enabled`). Note: Keyboard and Mouse are mutually exclusive.
+- **Keyboard binding format**: `{ "Key": "INSERT", "ModifierKeys": [] }`
+- **Mouse binding format**: `{ "Button": 1, "ModifierKeys": ["LCTRL"] }` where Button is 1-10 (1=left, 2=right, 3=middle, 4=back, 5=forward, etc.)
 - **Optional fields**:
   - `Options.ShouldTriggerOnKeyDown`: Trigger when the key is pressed (default `true`).
   - `Options.ShouldTriggerOnKeyUp`: Trigger when the key is released (default `false`).
@@ -438,7 +448,7 @@ If you need structured input, consider `list_v2` or multiple settings instead of
   - `Options.PreventAction`: When `true`, blocks the game's original action (default `true`).
 - **Caveats**:
   - Hotkeys do nothing unless you register a callback with `MCM.Keybinding.SetCallback`; see [Adding a keybinding](#adding-a-keybinding).
-  - Mouse buttons are not yet supported.
+  - You can only have one binding type (Keyboard OR Mouse), not both.
 
 #### event_button
 
@@ -467,6 +477,31 @@ As of version 1.14+, MCM introduces a global `MCM` table (can be called anywhere
 |----------|-------------|:------:|:------:|
 | `MCM.Get(settingId, modUUID?)` | Gets the value of a setting | ✅ | ✅ |
 | `MCM.Set(settingId, value, modUUID?, shouldEmitEvent?)` | Sets the value of a setting | ✅ | ✅ |
+
+#### Choices API
+
+These methods operate on `enum`/`radio` settings that define `Options.DynamicChoices = true`.
+
+| Function | Description | Client | Server |
+|----------|-------------|:------:|:------:|
+| `MCM.Choices.Set(settingId, choices, modUUID?)` | Sets runtime choices for a setting | ✅ | ❌ |
+| `MCM.Choices.Get(settingId, modUUID?)` | Gets effective choices (runtime override or blueprint) | ✅ | ❌ |
+| `MCM.Choices.Reset(settingId, modUUID?)` | Clears runtime override and reverts to blueprint choices | ✅ | ❌ |
+
+> Runtime choices are currently client-side.
+{.is-info}
+
+#### Validation API
+
+These methods let mods register runtime validation callbacks for blueprint settings.
+
+| Function | Description | Client | Server |
+|----------|-------------|:------:|:------:|
+| `MCM.Validation.Register(settingId, validator, modUUID?)` | Registers a validator callback `(value, setting, modUUID) -> boolean, message?` | ✅ | ✅ |
+| `MCM.Validation.Unregister(settingId, modUUID?)` | Removes a registered validator callback | ✅ | ✅ |
+
+> Only one custom validator can be registered per setting. If registration finds the current value invalid, MCM immediately tries to correct it to the setting default. If correction is not possible, registration fails with a hard warning.
+{.is-info}
 
 #### EventButton API
 
@@ -928,6 +963,12 @@ MCM performs validation checks when:
   - Loading settings from a JSON file (+ e.g., switching between profiles);
   - Setting values programmatically through the API;
   - Processing user input from the UI.
+
+Additional validation behavior:
+
+- If a setting has a runtime validator registered via `MCM.Validation.Register`, the callback runs after base type validation.
+- For `enum`/`radio` settings with `Options.DynamicChoices = true`, runtime choices from `MCM.Choices` are used as the source of truth.
+- During profile/settings load, dynamic enum/radio values are preserved when choices are temporarily unavailable or changed at runtime.
 
 >• Settings not present in the blueprint will be removed from the settings JSON file;
 >• Invalid settings values will be replaced with their respective default value as specified in the blueprint;
