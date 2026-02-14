@@ -8,6 +8,9 @@ local MCMAPIImplementations = {}
 -- Table to track which methods are client-only (used by the factory)
 MCMAPIImplementations.CLIENT_ONLY_METHODS = {
     -- Client-only methods
+    ['Choices.Set'] = true,
+    ['Choices.Get'] = true,
+    ['Choices.Reset'] = true,
     ['Keybinding.SetCallback'] = true,
     ['EventButton.IsEnabled'] = true,
     ['EventButton.ShowFeedback'] = true,
@@ -117,6 +120,28 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
 ---@field storage? string Optional storage type to get values for, defaults to "modvar"
 
+---@class MCMChoicesSetArgs
+---@field settingId string
+---@field choices string[]
+---@field modUUID? string
+
+---@class MCMChoicesGetArgs
+---@field settingId string
+---@field modUUID? string
+
+---@class MCMChoicesResetArgs
+---@field settingId string
+---@field modUUID? string
+
+---@class MCMValidationRegisterArgs
+---@field settingId string
+---@field validator function
+---@field modUUID? string
+
+---@class MCMValidationUnregisterArgs
+---@field settingId string
+---@field modUUID? string
+
 --- Implementation: Get the value of a setting
 ---@param args MCMGetArgs
 ---@return any The value of the setting, or nil if not found
@@ -160,6 +185,90 @@ function MCMAPIImplementations.createCoreMethods(originalModUUID)
     )
 
     return MCMInstance
+end
+
+--- Implementation: Set runtime choices for enum/radio settings
+---@param args MCMChoicesSetArgs
+---@return boolean
+local function ChoicesSet_Impl(args)
+    return MCMAPI:SetSettingChoices(args.settingId, args.choices, args.modUUID)
+end
+
+--- Implementation: Get effective choices for enum/radio settings
+---@param args MCMChoicesGetArgs
+---@return string[]|nil
+local function ChoicesGet_Impl(args)
+    local choices = MCMAPI:GetSettingChoices(args.settingId, args.modUUID)
+    return choices
+end
+
+--- Implementation: Clear runtime override choices for enum/radio settings
+---@param args MCMChoicesResetArgs
+---@return boolean
+local function ChoicesReset_Impl(args)
+    return MCMAPI:ResetSettingChoices(args.settingId, args.modUUID)
+end
+
+--- Create the Choices API methods
+---@param originalModUUID string The UUID of the mod that will receive these methods
+---@return table ChoicesAPI
+function MCMAPIImplementations.createChoicesAPI(originalModUUID)
+    local ChoicesAPI = {}
+
+    ChoicesAPI.Set = MCMAPIUtils.WithFlexibleArgs(
+        ChoicesSet_Impl,
+        { "settingId", "choices", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    ChoicesAPI.Get = MCMAPIUtils.WithFlexibleArgs(
+        ChoicesGet_Impl,
+        { "settingId", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    ChoicesAPI.Reset = MCMAPIUtils.WithFlexibleArgs(
+        ChoicesReset_Impl,
+        { "settingId", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    return ChoicesAPI
+end
+
+--- Implementation: Register a custom validator for a blueprint setting
+---@param args MCMValidationRegisterArgs
+---@return boolean
+local function ValidationRegister_Impl(args)
+    return MCMAPI:RegisterSettingValidator(args.settingId, args.validator, args.modUUID)
+end
+
+--- Implementation: Unregister a custom validator for a blueprint setting
+---@param args MCMValidationUnregisterArgs
+---@return boolean
+local function ValidationUnregister_Impl(args)
+    return MCMAPI:UnregisterSettingValidator(args.settingId, args.modUUID)
+end
+
+--- Create the Validation API methods
+---@param originalModUUID string The UUID of the mod that will receive these methods
+---@return table ValidationAPI
+function MCMAPIImplementations.createValidationAPI(originalModUUID)
+    local ValidationAPI = {}
+
+    ValidationAPI.Register = MCMAPIUtils.WithFlexibleArgs(
+        ValidationRegister_Impl,
+        { "settingId", "validator", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    ValidationAPI.Unregister = MCMAPIUtils.WithFlexibleArgs(
+        ValidationUnregister_Impl,
+        { "settingId", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    return ValidationAPI
 end
 
 --- Implementation: Get a human-readable string representation of a keybinding

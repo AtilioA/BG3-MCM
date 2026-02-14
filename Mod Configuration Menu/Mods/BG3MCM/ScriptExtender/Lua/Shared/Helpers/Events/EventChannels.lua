@@ -18,6 +18,13 @@ EventChannels.MCM_INTERNAL_SETTING_SAVED = "MCM_Internal_Setting_Saved"
 --- @return string storageType The type of storage ("ModVar", "ModConfig", etc.)
 EventChannels.MCM_DYNAMIC_SETTING_SAVED = "MCM_Dynamic_Setting_Saved"
 
+--- Fired when enum/radio choices are updated at runtime.
+--- @return string modUUID The UUID of the mod
+--- @return string settingId The ID of the enum/radio setting
+--- @return string[] choices The effective choice values
+--- @return boolean isRuntimeOverride Whether the active choices come from runtime override
+EventChannels.MCM_SETTING_OPTIONS_UPDATED = "MCM_Setting_Options_Updated"
+
 --- Fired when a setting is reset to its default value.
 --- @return string modUUID The UUID of the mod
 --- @return string settingId The ID of the setting
@@ -80,6 +87,7 @@ local function RegisterModEvents()
     local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
 
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_SAVED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_OPTIONS_UPDATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_RESET)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_CREATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_ACTIVATED)

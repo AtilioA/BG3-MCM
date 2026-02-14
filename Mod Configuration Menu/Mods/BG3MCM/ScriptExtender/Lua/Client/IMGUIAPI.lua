@@ -76,6 +76,30 @@ function IMGUIAPI:InsertListV2Suggestions(settingId, suggestions, modUUID)
     widget.Widget.instance:RenderSearchResults()
 end
 
+---@param settingId string
+---@param choices string[]
+---@param modUUID string
+---@param isRuntimeOverride? boolean
+---@return boolean
+function IMGUIAPI:UpdateSettingChoices(settingId, choices, modUUID, isRuntimeOverride)
+    local widget = self:findWidgetForSetting(settingId, modUUID)
+    if not widget then
+        MCMDebug(2,
+            "IMGUIAPI:UpdateSettingChoices - Widget not found for settingId: " ..
+            tostring(settingId) .. " and modUUID: " .. tostring(modUUID))
+        return false
+    end
+
+    if not widget.UpdateChoices then
+        MCMDebug(2,
+            "IMGUIAPI:UpdateSettingChoices - Widget does not implement UpdateChoices for settingId: " ..
+            tostring(settingId))
+        return false
+    end
+
+    return widget:UpdateChoices(choices, isRuntimeOverride)
+end
+
 --- Send a message to the server to update a setting value
 ---@param settingId string The ID of the setting to update
 ---@param value any The new value of the setting

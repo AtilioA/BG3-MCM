@@ -38,8 +38,8 @@ SettingValidators = {
     ["list_v2"] = function(setting, value)
         return ListV2Validator.Validate(setting, value)
     end,
-    ["enum"] = function(setting, value)
-        return EnumValidator.Validate(setting, value)
+    ["enum"] = function(setting, value, validationContext)
+        return EnumValidator.Validate(setting, value, validationContext)
     end,
     ["slider_int"] = function(setting, value)
         return SliderIntValidator.Validate(setting, value)
@@ -53,8 +53,8 @@ SettingValidators = {
     ["drag_float"] = function(setting, value)
         return DragFloatValidator.Validate(setting, value)
     end,
-    ["radio"] = function(setting, value)
-        return RadioValidator.Validate(setting, value)
+    ["radio"] = function(setting, value, validationContext)
+        return RadioValidator.Validate(setting, value, validationContext)
     end,
     ["color_picker"] = function(setting, value)
         return ColorValidator.Validate(setting, value)

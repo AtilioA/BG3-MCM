@@ -52,6 +52,8 @@ function MCMAPIMethods.createMCMAPIMethods(originalModUUID, modTable)
     MCMInstance.Keybinding = MCMInstance.Keybinding or {}
     MCMInstance.EventButton = MCMInstance.EventButton or {}
     MCMInstance.List = MCMInstance.List or {}
+    MCMInstance.Choices = MCMInstance.Choices or {}
+    MCMInstance.Validation = MCMInstance.Validation or {}
 
     -- Create and inject core methods
     local coreMethods = MCMAPIImplementations.createCoreMethods(originalModUUID)
@@ -62,6 +64,8 @@ function MCMAPIMethods.createMCMAPIMethods(originalModUUID, modTable)
     -- Create and inject API modules
     MCMInstance.Keybinding = MCMAPIImplementations.createKeybindingAPI(originalModUUID)
     MCMInstance.List = MCMAPIImplementations.createListAPI(originalModUUID)
+    MCMInstance.Choices = MCMAPIImplementations.createChoicesAPI(originalModUUID)
+    MCMInstance.Validation = MCMAPIImplementations.createValidationAPI(originalModUUID)
     MCMInstance.EventButton = MCMAPIImplementations.createEventButtonAPI(originalModUUID)
     MCMInstance.Store = MCMAPIImplementations.createStoreAPI(originalModUUID)
 

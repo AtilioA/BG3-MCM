@@ -243,6 +243,14 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
     IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
 end)
 
+ModEventManager:Subscribe(EventChannels.MCM_SETTING_OPTIONS_UPDATED, function(data)
+    if not data or not data.settingId or not data.modUUID then
+        return
+    end
+
+    IMGUIAPI:UpdateSettingChoices(data.settingId, data.choices or {}, data.modUUID, data.isRuntimeOverride)
+end)
+
 ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
     local modUUID = data.modUUID
     local tabName = data.tabName

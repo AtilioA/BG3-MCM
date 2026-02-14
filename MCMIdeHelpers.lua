@@ -108,7 +108,7 @@
 ---@class MCMStoreRegisterOptions
 ---@field default? any The default value for the variable
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
----@field storage? string Optional storage type ("json", etc.), defaults to "json". Only json storage is implemented at the moment
+---@field storage? string Optional storage type ("modvar", "json"), defaults to "modvar"
 ---@field validate? fun(value: any): (boolean, string)? Optional validation function
 ---@field modUUID? string Optional mod UUID, override for the default mod UUID
 
@@ -123,7 +123,29 @@
 
 ---@class MCMStoreGetAllArgs
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
----@field storage? string Optional storage type, defaults to "json". Only json storage is implemented at the moment
+---@field storage? string Optional storage type, defaults to "modvar"
+
+---@class MCMChoicesSetArgs
+---@field settingId string The ID of the enum/radio setting
+---@field choices string[] Runtime choice values
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+
+---@class MCMChoicesGetArgs
+---@field settingId string The ID of the enum/radio setting
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+
+---@class MCMChoicesResetArgs
+---@field settingId string The ID of the enum/radio setting
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+
+---@class MCMValidationRegisterArgs
+---@field settingId string The ID of the blueprint setting
+---@field validator fun(value:any, setting:any, modUUID:string): (boolean, string?) Validation callback
+---@field modUUID? string Optional mod UUID, defaults to caller mod
+
+---@class MCMValidationUnregisterArgs
+---@field settingId string The ID of the blueprint setting
+---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMStoreAPI Store API for JSON persistence of non-blueprint settings
 ---@field registervar fun(varName:string, options?:MCMStoreRegisterOptions):boolean Register a variable for JSON persistence
@@ -131,11 +153,22 @@
 ---@field Set fun(varNameOrArgs:string|MCMStoreSetArgs, value?:any, modUUID?:string):boolean Set a stored value
 ---@field GetAll fun(modUUIDOrArgs?:string|MCMStoreGetAllArgs):table<string, any> Get all stored values for this mod
 
+---@class MCMChoicesAPI Runtime choices API for enum/radio settings (client-only)
+---@field Set fun(settingIdOrArgs:string|MCMChoicesSetArgs, choices?:string[], modUUID?:string):boolean Set runtime choices for a setting
+---@field Get fun(settingIdOrArgs:string|MCMChoicesGetArgs, modUUID?:string):string[]|nil Get effective choices for a setting
+---@field Reset fun(settingIdOrArgs:string|MCMChoicesResetArgs, modUUID?:string):boolean Reset runtime choices to blueprint defaults
+
+---@class MCMValidationAPI Runtime custom validators for blueprint settings
+---@field Register fun(settingIdOrArgs:string|MCMValidationRegisterArgs, validator?:fun(value:any, setting:any, modUUID:string):(boolean, string?), modUUID?:string):boolean Register a custom validator
+---@field Unregister fun(settingIdOrArgs:string|MCMValidationUnregisterArgs, modUUID?:string):boolean Unregister a custom validator
+
 ---@class MCMTable Table containing the Mod Configuration Menu (MCM) public API exposed to each mod.
 ---@field Get fun(settingIdOrArgs:string|MCMGetArgs, modUUID?:string):any Get the value of a setting
 ---@field Set fun(settingIdOrArgs:string|MCMSetArgs, value?:any, modUUID?:string, shouldEmitEvent?:boolean):boolean Set the value of a setting
 ---@field Keybinding MCMKeybindingAPI Keybinding-related methods
 ---@field List MCMListAPI List setting-related methods
+---@field Choices MCMChoicesAPI Runtime enum/radio choices methods (client-only)
+---@field Validation MCMValidationAPI Runtime custom validator methods
 ---@field EventButton MCMEventButtonAPI Event button-related methods (client-only)
 ---@field Store MCMStoreAPI Store API for JSON persistence of non-blueprint settings
 ---@field OpenMCMWindow fun():nil Open the MCM window (client-only)
@@ -147,6 +180,8 @@
 MCM = {
     Keybinding = {},
     List = {},
+    Choices = {},
+    Validation = {},
     EventButton = { FeedbackTypes = {} },
     Store = {}
 }
@@ -204,11 +239,20 @@ MCM = {
 --- @field modUUID string The UUID of the mod
 --- @field settingId string The ID of the event button setting
 
+--- @class MCM_Setting_Options_Updated_Payload
+--- @field modUUID string The UUID of the mod
+--- @field settingId string The ID of the enum/radio setting
+--- @field choices string[] The effective choices for the setting
+--- @field isRuntimeOverride boolean Whether choices come from runtime override
+
 --- @class ModEvent_MCM_Setting_Saved
 --- @field Subscribe fun(self: ModEvent_MCM_Setting_Saved, callback: fun(payload: MCM_Setting_Saved_Payload))
 
 --- @class ModEvent_MCM_Setting_Reset
 --- @field Subscribe fun(self: ModEvent_MCM_Setting_Reset, callback: fun(payload: MCM_Setting_Reset_Payload))
+
+--- @class ModEvent_MCM_Setting_Options_Updated
+--- @field Subscribe fun(self: ModEvent_MCM_Setting_Options_Updated, callback: fun(payload: MCM_Setting_Options_Updated_Payload))
 
 --- @class ModEvent_MCM_Dynamic_Setting_Saved
 --- @field Subscribe fun(self: ModEvent_MCM_Dynamic_Setting_Saved, callback: fun(payload: MCM_Dynamic_Setting_Saved_Payload))
@@ -251,6 +295,7 @@ MCM = {
 --- @field MCM_Internal_Setting_Saved ModEvent_Generic
 --- @field MCM_Dynamic_Setting_Saved ModEvent_MCM_Dynamic_Setting_Saved
 --- @field MCM_Setting_Reset ModEvent_MCM_Setting_Reset
+--- @field MCM_Setting_Options_Updated ModEvent_MCM_Setting_Options_Updated
 -- - @field MCM_Profile_Created ModEvent_MCM_Profile_Created
 --- @field MCM_Profile_Activated ModEvent_MCM_Profile_Activated
 -- - @field MCM_Profile_Deleted ModEvent_MCM_Profile_Deleted

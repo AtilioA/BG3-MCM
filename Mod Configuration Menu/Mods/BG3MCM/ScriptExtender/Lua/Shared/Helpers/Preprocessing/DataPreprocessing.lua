@@ -6,9 +6,15 @@ DataPreprocessing = _Class:Create("HelperDataPreprocessing", nil)
 --- Validate the settings based on the blueprint and collect any invalid settings
 ---@param blueprint Blueprint The blueprint data
 ---@param settings BlueprintSetting The settings data
+---@param validationContext? table Optional validation context shared by all settings
 ---@return boolean, string[] True if all settings are valid, and a list of invalid settings' IDs
-function DataPreprocessing:ValidateSettings(blueprint, settings)
+function DataPreprocessing:ValidateSettings(blueprint, settings, validationContext)
     local invalidSettings = {}
+    validationContext = validationContext or {}
+
+    if not validationContext.modUUID and blueprint and blueprint.GetModUUID then
+        validationContext.modUUID = blueprint:GetModUUID()
+    end
 
     local BlueprintTabs = blueprint:GetTabs()
     local BlueprintSettings = blueprint:GetSettings()
@@ -19,7 +25,7 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
             if #tab:GetSections() > 0 then
                 for _, section in ipairs(tab:GetSections()) do
                     for _, setting in ipairs(section:GetSettings()) do
-                        if not self:ValidateSetting(setting, settings[setting:GetId()]) then
+                        if not self:ValidateSetting(setting, settings[setting:GetId()], validationContext) then
                             table.insert(invalidSettings, setting:GetId())
                         end
                     end
@@ -27,7 +33,7 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
             else
                 -- Validate settings directly in the tab
                 for _, setting in ipairs(tab:GetSettings()) do
-                    if not self:ValidateSetting(setting, settings[setting:GetId()]) then
+                    if not self:ValidateSetting(setting, settings[setting:GetId()], validationContext) then
                         table.insert(invalidSettings, setting:GetId())
                     end
                 end
@@ -37,7 +43,7 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
 
     if BlueprintSettings then
         for _, setting in ipairs(BlueprintSettings) do
-            if not self:ValidateSetting(setting, settings[setting:GetId()]) then
+            if not self:ValidateSetting(setting, settings[setting:GetId()], validationContext) then
                 table.insert(invalidSettings, setting:GetId())
             end
         end
@@ -49,8 +55,11 @@ end
 --- Validate a single setting based on its type
 ---@param setting BlueprintSetting The setting to validate
 ---@param value any The value of the setting
+---@param validationContext? table Optional validation context
 ---@return boolean True if the setting is valid, false otherwise
-function DataPreprocessing:ValidateSetting(setting, value)
+function DataPreprocessing:ValidateSetting(setting, value, validationContext)
+    validationContext = validationContext or {}
+
     local validator = SettingValidators[setting:GetType()]
     MCMDebug(2,
         "Validating setting: " ..
@@ -58,16 +67,29 @@ function DataPreprocessing:ValidateSetting(setting, value)
         " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
 
     if not validator then
+        local modUUID = validationContext.modUUID or BlueprintPreprocessing.currentmodUUID
+        local modAuthor = "the mod author"
+        local modName = "unknown mod"
+        if modUUID and Ext.Mod.GetMod(modUUID) and Ext.Mod.GetMod(modUUID).Info then
+            modAuthor = Ext.Mod.GetMod(modUUID).Info.Author
+            modName = Ext.Mod.GetMod(modUUID).Info.Name
+        end
+
         MCMWarn(0,
             "No validator found for setting type: " ..
             setting:GetType() ..
             ". Please contact " ..
-            Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Author ..
-            " about this issue (mod " .. Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Name .. ").")
+            modAuthor ..
+            " about this issue (mod " .. modName .. ").")
         return false
     end
 
-    if not validator(setting, value) then
+    if not validator(setting, value, validationContext) then
+        return false
+    end
+
+    local modUUID = validationContext.modUUID
+    if MCMSettingRuntimeRegistry and not MCMSettingRuntimeRegistry:ValidateWithCustomValidator(modUUID, setting, value) then
         return false
     end
 
@@ -79,7 +101,12 @@ end
 ---@param config table<string, any> All the settings for the mod as a flat table of settingId -> value pairs
 ---@return nil - The config table is updated in place
 function DataPreprocessing:ValidateAndFixSettings(blueprint, config)
-    local isValid, invalidSettings = DataPreprocessing:ValidateSettings(blueprint, config)
+    local validationContext = {
+        modUUID = blueprint and blueprint.GetModUUID and blueprint:GetModUUID() or nil,
+        allowStaleDynamicChoice = true,
+    }
+
+    local isValid, invalidSettings = DataPreprocessing:ValidateSettings(blueprint, config, validationContext)
     DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
 
     return config

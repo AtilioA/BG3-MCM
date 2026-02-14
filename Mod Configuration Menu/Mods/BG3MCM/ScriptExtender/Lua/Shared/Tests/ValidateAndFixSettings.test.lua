@@ -3,6 +3,7 @@ TestSuite.RegisterTests("ValidateAndFixSettings", {
     "ShouldFixInvalidSettingInsideTab",
     "ShouldFixInvalidSettingsInsideTab",
     "ShouldFixInvalidSettingInsideTabSection",
+    "ShouldPreserveDynamicEnumValueWhenChoicesChanged",
 })
 
 function ShouldFixInvalidSettingsAtRootLevel()
@@ -153,4 +154,36 @@ function ShouldFixInvalidSettingInsideTabSection()
     local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
     TestSuite.AssertEquals(fixedConfig["setting-1"], true)
+end
+
+function ShouldPreserveDynamicEnumValueWhenChoicesChanged()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local settingId = "setting-dynamic-enum"
+
+    local blueprint = Blueprint:New({
+        ModUUID = modUUID,
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = settingId,
+                Type = "enum",
+                Default = "option-1",
+                Options = {
+                    DynamicChoices = true,
+                    Choices = { "option-1", "option-2" }
+                }
+            })
+        }
+    })
+
+    local config = {
+        [settingId] = "stale-option"
+    }
+
+    MCMSettingRuntimeRegistry:SetChoices(modUUID, settingId, { "option-2" })
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+    TestSuite.AssertEquals(fixedConfig[settingId], "stale-option")
+
+    MCMSettingRuntimeRegistry:ResetChoices(modUUID, settingId)
 end

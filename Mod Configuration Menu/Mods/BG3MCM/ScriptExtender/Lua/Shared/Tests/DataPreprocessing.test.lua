@@ -37,6 +37,9 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "BlueprintShouldHaveOptionsForRadio",
     "BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings",
     "BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings",
+    "BlueprintDynamicEnumCanOmitChoices",
+    "BlueprintDynamicRadioCanOmitChoices",
+    "BlueprintDynamicChoiceFlagsShouldBeBoolean",
     "BlueprintShouldHaveMinAndMaxForSlider",
     "BlueprintMinAndMaxForSliderShouldBeNumbers",
     "BlueprintMinShouldBeLessThanMaxForSlider",
@@ -956,4 +959,69 @@ function SectionsCanHaveEitherSectionNameOrName()
     TestSuite.AssertNotNil(validSection1)
     TestSuite.AssertNotNil(validSection2)
     TestSuite.AssertNil(invalidSection)
+end
+
+function BlueprintDynamicEnumCanOmitChoices()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-dynamic-enum",
+                Type = "enum",
+                Default = "option-1",
+                Options = {
+                    DynamicChoices = true
+                }
+            }
+        }
+    })
+
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function BlueprintDynamicRadioCanOmitChoices()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-dynamic-radio",
+                Type = "radio",
+                Default = "option-1",
+                Options = {
+                    DynamicChoices = true
+                }
+            }
+        }
+    })
+
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function BlueprintDynamicChoiceFlagsShouldBeBoolean()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-invalid-dynamic-flags",
+                Type = "enum",
+                Default = "option-1",
+                Options = {
+                    DynamicChoices = "true",
+                    AllowEmptyValue = "false",
+                    Choices = { "option-1" }
+                }
+            }
+        }
+    })
+
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
 end

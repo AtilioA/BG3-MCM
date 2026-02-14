@@ -309,6 +309,10 @@ function BlueprintPreprocessing:ValidateCheckboxSetting(setting)
 end
 
 function BlueprintPreprocessing:ValidateEnumSetting(setting)
+    if not self:ValidateDynamicChoiceFlags(setting) then
+        return false
+    end
+
     if not self:BlueprintShouldHaveOptionsForEnum(setting) then
         return false
     end
@@ -321,11 +325,42 @@ function BlueprintPreprocessing:ValidateEnumSetting(setting)
 end
 
 function BlueprintPreprocessing:ValidateRadioSetting(setting)
+    if not self:ValidateDynamicChoiceFlags(setting) then
+        return false
+    end
+
     if not self:BlueprintShouldHaveOptionsForRadio(setting) then
         return false
     end
 
     if not self:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting) then
+        return false
+    end
+
+    return true
+end
+
+---@param setting BlueprintSetting
+---@return boolean
+function BlueprintPreprocessing:IsDynamicChoicesEnabled(setting)
+    local options = setting:GetOptions() or {}
+    return options.DynamicChoices == true
+end
+
+---@param setting BlueprintSetting
+---@return boolean
+function BlueprintPreprocessing:ValidateDynamicChoiceFlags(setting)
+    local options = setting:GetOptions() or {}
+
+    if options.DynamicChoices ~= nil and type(options.DynamicChoices) ~= "boolean" then
+        MCMWarn(0,
+            "Options.DynamicChoices for setting '" .. setting:GetId() .. "' must be a boolean.")
+        return false
+    end
+
+    if options.AllowEmptyValue ~= nil and type(options.AllowEmptyValue) ~= "boolean" then
+        MCMWarn(0,
+            "Options.AllowEmptyValue for setting '" .. setting:GetId() .. "' must be a boolean.")
         return false
     end
 
@@ -1095,6 +1130,10 @@ function BlueprintPreprocessing:BlueprintStepShouldBeNonZeroNumber(setting)
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
+    if self:IsDynamicChoicesEnabled(setting) then
+        return true
+    end
+
     if not setting.Options or not setting.Options.Choices or #setting.Options.Choices == 0 then
         MCMWarn(0,
             "Enum setting '" ..
@@ -1116,6 +1155,10 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
+    if self:IsDynamicChoicesEnabled(setting) then
+        return true
+    end
+
     if not setting.Options or not setting.Options.Choices or #setting.Options.Choices == 0 then
         MCMWarn(0,
             "Radio setting '" .. setting.Id .. "' must have 'Options.Choices' defined.")
@@ -1125,6 +1168,10 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
 end
 
 function BlueprintPreprocessing:BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings(setting)
+    if self:IsDynamicChoicesEnabled(setting) and (not setting.Options or setting.Options.Choices == nil) then
+        return true
+    end
+
     if setting.Options and setting.Options.Choices then
         for _, choice in ipairs(setting.Options.Choices) do
             if type(choice) ~= "string" then
@@ -1138,6 +1185,10 @@ function BlueprintPreprocessing:BlueprintOptionsForEnumShouldHaveAChoicesArrayOf
 end
 
 function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting)
+    if self:IsDynamicChoicesEnabled(setting) and (not setting.Options or setting.Options.Choices == nil) then
+        return true
+    end
+
     if not setting.Options or not setting.Options.Choices then
         MCMWarn(0,
             "Radio setting '" ..

@@ -14,6 +14,10 @@ TestSuite.RegisterTests("Setting validators", {
     "TestValidateKeybindingV2Keyboard",
     "TestValidateKeybindingV2Mouse",
     "TestValidateKeybindingV2XOR",
+    "TestValidateDynamicEnumPreservesStaleValueDuringLoad",
+    "TestValidateDynamicEnumAllowEmptyValue",
+    "TestValidateSettingWithCustomValidator",
+    "TestRegisterCustomValidatorOnlyOnce",
 })
 
 function TestValidateIntSetting()
@@ -407,4 +411,111 @@ function TestValidateKeybindingV2XOR()
         Enabled = true
     })
     TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateDynamicEnumPreservesStaleValueDuringLoad()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local settingId = "test-dynamic-enum-preserve"
+    local setting = BlueprintSetting:New({
+        Id = settingId,
+        Type = "enum",
+        Default = "option-1",
+        Options = {
+            DynamicChoices = true,
+            Choices = { "option-1", "option-2" }
+        }
+    })
+
+    MCMSettingRuntimeRegistry:SetChoices(modUUID, settingId, { "option-2" })
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, "option-1", {
+        modUUID = modUUID,
+        allowStaleDynamicChoice = true,
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, "option-1", {
+        modUUID = modUUID,
+    })
+    TestSuite.AssertFalse(isValid)
+
+    MCMSettingRuntimeRegistry:ResetChoices(modUUID, settingId)
+end
+
+function TestValidateDynamicEnumAllowEmptyValue()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local settingId = "test-dynamic-enum-empty"
+    local setting = BlueprintSetting:New({
+        Id = settingId,
+        Type = "enum",
+        Default = "",
+        Options = {
+            DynamicChoices = true,
+            AllowEmptyValue = true,
+            Choices = {}
+        }
+    })
+
+    MCMSettingRuntimeRegistry:SetChoices(modUUID, settingId, {})
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, "", {
+        modUUID = modUUID,
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, "option-1", {
+        modUUID = modUUID,
+    })
+    TestSuite.AssertFalse(isValid)
+
+    MCMSettingRuntimeRegistry:ResetChoices(modUUID, settingId)
+end
+
+function TestValidateSettingWithCustomValidator()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local settingId = "test-custom-validator"
+    local setting = BlueprintSetting:New({
+        Id = settingId,
+        Type = "text",
+        Default = "default"
+    })
+
+    MCMSettingRuntimeRegistry:RegisterValidator(modUUID, settingId, function(value)
+        if value == "blocked" then
+            return false, "blocked value"
+        end
+        return true
+    end)
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, "allowed", { modUUID = modUUID })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, "blocked", { modUUID = modUUID })
+    TestSuite.AssertFalse(isValid)
+
+    MCMSettingRuntimeRegistry:UnregisterValidator(modUUID, settingId)
+end
+
+function TestRegisterCustomValidatorOnlyOnce()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local settingId = "test-custom-validator-single-registration"
+
+    local validatorA = function()
+        return true
+    end
+
+    local validatorB = function()
+        return true
+    end
+
+    local didRegister = MCMSettingRuntimeRegistry:RegisterValidator(modUUID, settingId, validatorA)
+    TestSuite.AssertTrue(didRegister)
+
+    local didRegisterSame = MCMSettingRuntimeRegistry:RegisterValidator(modUUID, settingId, validatorA)
+    TestSuite.AssertTrue(didRegisterSame)
+
+    local didRegisterDifferent = MCMSettingRuntimeRegistry:RegisterValidator(modUUID, settingId, validatorB)
+    TestSuite.AssertFalse(didRegisterDifferent)
+
+    MCMSettingRuntimeRegistry:UnregisterValidator(modUUID, settingId)
 end

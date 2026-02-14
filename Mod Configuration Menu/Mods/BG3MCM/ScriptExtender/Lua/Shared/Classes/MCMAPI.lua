@@ -132,6 +132,34 @@ function MCMAPI:GetModBlueprint(modUUID)
     end
 end
 
+---@param settingId string
+---@param modUUID string
+---@return BlueprintSetting|nil
+function MCMAPI:GetSettingDefinition(settingId, modUUID)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot retrieve setting definition.")
+        return nil
+    end
+
+    local blueprint = self:GetModBlueprint(modUUID)
+    if not blueprint then
+        MCMWarn(0, "Blueprint not found for mod '" .. modUUID .. "'.")
+        return nil
+    end
+
+    local setting = blueprint:GetAllSettings()[settingId]
+    if not setting then
+        MCMWarn(0,
+            "Setting '" ..
+            settingId ..
+            "' not found in the blueprint for mod '" ..
+            modUUID .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+        return nil
+    end
+
+    return setting
+end
+
 --- Check if a setting value is valid given the mod blueprint
 ---@param settingId string The id of the setting
 ---@param value any The value to check
@@ -142,29 +170,245 @@ function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
         return false
     end
 
-    local blueprint = self:GetModBlueprint(modUUID)
-    if not blueprint then
-        MCMWarn(0, "Blueprint not found for mod '" .. modUUID .. "'.")
-        return false
-    end
-
-    local setting = blueprint:GetAllSettings()[settingId]
+    local setting = self:GetSettingDefinition(settingId, modUUID)
     if not setting then
-        MCMWarn(0,
-            "Setting '" ..
-            settingId ..
-            "' not found in the blueprint for mod '" ..
-            modUUID .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return false
     end
 
-    local isValid = DataPreprocessing:ValidateSetting(setting, value)
+    local isValid = DataPreprocessing:ValidateSetting(setting, value, { modUUID = modUUID })
     if not isValid then
         MCMWarn(0,
             "Value " ..
             tostring(value) .. " is invalid for setting '" .. settingId .. "' in mod '" .. modUUID .. "'.")
     end
     return isValid
+end
+
+---@param settingId string
+---@param modUUID string
+---@return string[]|nil
+---@return boolean isRuntimeOverride
+function MCMAPI:GetSettingChoices(settingId, modUUID)
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot get setting choices.")
+        return nil, false
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot get setting choices.")
+        return nil, false
+    end
+
+    local setting = self:GetSettingDefinition(settingId, modUUID)
+    if not setting then
+        return nil, false
+    end
+
+    local choices, isRuntimeOverride = MCMSettingRuntimeRegistry:GetEffectiveChoices(setting, modUUID)
+    if type(choices) ~= "table" then
+        return {}, false
+    end
+
+    local clonedChoices = {}
+    for i, value in ipairs(choices) do
+        clonedChoices[i] = value
+    end
+
+    return clonedChoices, isRuntimeOverride == true
+end
+
+---@param settingId string
+---@param choices string[]
+---@param modUUID string
+---@return boolean
+function MCMAPI:SetSettingChoices(settingId, choices, modUUID)
+    if Ext.IsServer() then
+        MCMWarn(0, "MCM.SetSettingChoices is currently client-side only.")
+        return false
+    end
+
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Runtime choices will not be updated.")
+        return false
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Runtime choices will not be updated.")
+        return false
+    end
+
+    local setting = self:GetSettingDefinition(settingId, modUUID)
+    if not setting then
+        return false
+    end
+
+    local settingType = setting:GetType()
+    if settingType ~= "enum" and settingType ~= "radio" then
+        MCMWarn(0,
+            "Runtime choices are only supported for enum/radio settings. Received type '" ..
+            tostring(settingType) .. "' for setting '" .. settingId .. "'.")
+        return false
+    end
+
+    if not MCMSettingRuntimeRegistry:IsDynamicChoicesEnabled(setting) then
+        MCMWarn(0,
+            "Setting '" .. settingId .. "' does not have Options.DynamicChoices enabled. Runtime choices were ignored.")
+        return false
+    end
+
+    if not MCMSettingRuntimeRegistry:SetChoices(modUUID, settingId, choices) then
+        return false
+    end
+
+    local effectiveChoices, isRuntimeOverride = self:GetSettingChoices(settingId, modUUID)
+    ModEventManager:Emit(EventChannels.MCM_SETTING_OPTIONS_UPDATED, {
+        modUUID = modUUID,
+        settingId = settingId,
+        choices = effectiveChoices or {},
+        isRuntimeOverride = isRuntimeOverride == true
+    }, false)
+
+    return true
+end
+
+---@param settingId string
+---@param modUUID string
+---@return boolean
+function MCMAPI:ResetSettingChoices(settingId, modUUID)
+    if Ext.IsServer() then
+        MCMWarn(0, "MCM.ResetSettingChoices is currently client-side only.")
+        return false
+    end
+
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Runtime choices cannot be reset.")
+        return false
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Runtime choices cannot be reset.")
+        return false
+    end
+
+    local setting = self:GetSettingDefinition(settingId, modUUID)
+    if not setting then
+        return false
+    end
+
+    local settingType = setting:GetType()
+    if settingType ~= "enum" and settingType ~= "radio" then
+        MCMWarn(0,
+            "Runtime choices are only supported for enum/radio settings. Received type '" ..
+            tostring(settingType) .. "' for setting '" .. settingId .. "'.")
+        return false
+    end
+
+    if not MCMSettingRuntimeRegistry:IsDynamicChoicesEnabled(setting) then
+        MCMWarn(0,
+            "Setting '" .. settingId .. "' does not have Options.DynamicChoices enabled. Runtime choices were ignored.")
+        return false
+    end
+
+    MCMSettingRuntimeRegistry:ResetChoices(modUUID, settingId)
+
+    local effectiveChoices, isRuntimeOverride = self:GetSettingChoices(settingId, modUUID)
+    ModEventManager:Emit(EventChannels.MCM_SETTING_OPTIONS_UPDATED, {
+        modUUID = modUUID,
+        settingId = settingId,
+        choices = effectiveChoices or {},
+        isRuntimeOverride = isRuntimeOverride == true
+    }, false)
+
+    return true
+end
+
+---@param settingId string
+---@param callback function
+---@param modUUID string
+---@return boolean
+function MCMAPI:RegisterSettingValidator(settingId, callback, modUUID)
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot register custom setting validator.")
+        return false
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot register custom setting validator.")
+        return false
+    end
+
+    if type(callback) ~= "function" then
+        MCMWarn(0, "callback must be a function. Cannot register custom setting validator.")
+        return false
+    end
+
+    local setting = self:GetSettingDefinition(settingId, modUUID)
+    if not setting then
+        return false
+    end
+
+    local currentValue = self:GetSettingValue(settingId, modUUID)
+    local callbackOk, isCurrentValueValid, currentValidationMessage =
+        MCMSettingRuntimeRegistry:EvaluateValidatorCallback(callback, currentValue, setting, modUUID)
+
+    if callbackOk and isCurrentValueValid then
+        return MCMSettingRuntimeRegistry:RegisterValidator(modUUID, setting:GetId(), callback)
+    end
+
+    local defaultValue = setting:GetDefault()
+    local defaultCallbackOk, isDefaultValueValid, defaultValidationMessage =
+        MCMSettingRuntimeRegistry:EvaluateValidatorCallback(callback, defaultValue, setting, modUUID)
+
+    if not defaultCallbackOk or not isDefaultValueValid then
+        MCMWarn(0,
+            "Hard warning: Cannot register validator for setting '" ..
+            settingId ..
+            "' because current value and default value are not valid under the validator. " ..
+            "Current value: " .. tostring(currentValue) .. ". " ..
+            "Current reason: " .. tostring(currentValidationMessage) .. ". " ..
+            "Default value: " .. tostring(defaultValue) .. ". " ..
+            "Default reason: " .. tostring(defaultValidationMessage) .. ".")
+        return false
+    end
+
+    if not MCMSettingRuntimeRegistry:RegisterValidator(modUUID, setting:GetId(), callback) then
+        return false
+    end
+
+    local didSetDefaultValue = self:SetSettingValue(settingId, defaultValue, modUUID, true)
+    if not didSetDefaultValue then
+        MCMSettingRuntimeRegistry:UnregisterValidator(modUUID, setting:GetId())
+
+        MCMWarn(0,
+            "Hard warning: Failed to auto-correct current value for setting '" ..
+            settingId ..
+            "' after validator registration. Validator registration was rolled back.")
+        return false
+    end
+
+    MCMWarn(0,
+        "Current value for setting '" ..
+        settingId ..
+        "' failed validator checks during registration and was reset to default value.")
+
+    return true
+end
+
+---@param settingId string
+---@param modUUID string
+---@return boolean
+function MCMAPI:UnregisterSettingValidator(settingId, modUUID)
+    if not settingId then
+        MCMWarn(0, "settingId is nil. Cannot unregister custom setting validator.")
+        return false
+    end
+
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot unregister custom setting validator.")
+        return false
+    end
+
+    return MCMSettingRuntimeRegistry:UnregisterValidator(modUUID, settingId)
 end
 
 --- Get the value of a configuration setting
