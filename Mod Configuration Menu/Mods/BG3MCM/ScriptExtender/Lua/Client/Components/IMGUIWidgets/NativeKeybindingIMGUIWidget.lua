@@ -51,8 +51,7 @@ end
 function NativeKeybindingIMGUIWidget:SortCategoriesByTranslatedName(categories)
     local sortedCategories = {}
     for _, category in ipairs(categories) do
-        -- LOCA TODO
-        local catName = "Uncategorized"
+        local catName = Ext.Loca.GetTranslatedString("hf3ff49ff1f6745f3baab4ed65795b61a300b") or "Uncategorized"
         if category.CategoryName and category.CategoryName ~= "" then
             catName = NativeKeybindingsTranslator.GetCategoryString(category.CategoryName) or category.CategoryName
         end
@@ -160,10 +159,10 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
         imguiTable.RowBg = true
 
         -- Define the columns
-        -- LOCA TODO
-        imguiTable:AddColumn("Action", "WidthStretch")
-        -- LOCA TODO
-        imguiTable:AddColumn("Keybinding", "WidthStretch")
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3") or "Action",
+            "WidthStretch")
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134") or "Keybinding",
+            "WidthStretch")
 
         -- Render sorted actions
         for _, item in ipairs(sortedActions) do
@@ -190,8 +189,8 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
     end, function(err)
         if not categoryHeader then return end
         MCMError(0, "Error rendering category " .. tostring(catName) .. ": " .. tostring(err))
-        -- LOCA TODO VCString:InterpolateLocalizedMessage
-        local errorText = categoryHeader:AddText("Error: " .. tostring(err))
+        local errorText = categoryHeader:AddText(VCString:InterpolateLocalizedMessage("hfd82935321af4ad0b327de79a102776acf5f",
+            tostring(err)))
         errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
     end)
 end
@@ -211,9 +210,9 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
 
     -- Show message if no keybindings found
     if not categories or #categories == 0 then
-        -- LOCA TODO VCString:InterpolateLocalizedMessage
         local msg = (self.Widget.SearchText and self.Widget.SearchText ~= "") and
-            ("No native keybindings found for '" .. self.Widget.SearchText .. "'.") or
+            VCString:InterpolateLocalizedMessage("h57485812cafd494fb9760145f24a4545529e", self.Widget.SearchText) or
+            Ext.Loca.GetTranslatedString("h8b7aadb821514fb2afdd0f2e6f5db0a4c17g") or
             "No native keybindings found."
         local noResults = group:AddText(msg)
         self.Widget.DynamicElements.NoResultsText = noResults

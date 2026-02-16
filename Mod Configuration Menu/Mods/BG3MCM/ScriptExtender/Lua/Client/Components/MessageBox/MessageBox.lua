@@ -32,8 +32,7 @@ MessageBox = {}
 ---@return MessageBox
 function MessageBox:Create(title, message, mode, modUUID, contextId)
     local instance = {
-        -- LOCA TODO - fallback needs proper handle
-        Title = title or "Confirmation",
+        Title = title or Ext.Loca.GetTranslatedString("h652b98e111884533a0ec00fd94ecc386f717") or "Confirmation",
         Message = message or "",
         Mode = mode or MessageBoxMode.Ok,
         PopupGroup = nil,
@@ -178,7 +177,6 @@ end
 ---Adds an OK button to the popup
 ---@return any The button object
 function MessageBox:AddOkButton()
-    -- LOCA TODO - fallback needs proper handle
     local buttonText = self.OkLabel or Ext.Loca.GetTranslatedString("hf03356ba46684764b32d26ff28d3e709af5a") or "OK"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_OkButton"
@@ -196,7 +194,6 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddCancelButton(sameLine)
-    -- LOCA TODO - fallback needs proper handle
     local buttonText = self.CancelLabel or Ext.Loca.GetTranslatedString("he43ef9b250584bc2840b8b291c73e4b53cb4") or
         "Cancel"
     local button = self.PopupDialog:AddButton(buttonText)
@@ -216,7 +213,6 @@ end
 ---Adds a Yes button to the popup
 ---@return any The button object
 function MessageBox:AddYesButton()
-    -- LOCA TODO - fallback needs proper handle
     local buttonText = self.YesLabel or Ext.Loca.GetTranslatedString("ha639028d9ca54b76a72e88059e3d24acd9a7") or "Yes"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_YesButton"
@@ -233,7 +229,6 @@ end
 ---@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
 function MessageBox:AddNoButton(sameLine)
-    -- LOCA TODO - fallback needs proper handle
     local buttonText = self.NoLabel or Ext.Loca.GetTranslatedString("h2f7a7913be50404cbbdd9878ee774cca2113") or "No"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_NoButton"

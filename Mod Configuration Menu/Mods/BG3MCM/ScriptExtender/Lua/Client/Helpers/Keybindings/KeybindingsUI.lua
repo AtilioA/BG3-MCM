@@ -151,8 +151,8 @@ function KeybindingsUI.GetNativeKeybindings()
     if not native or not native.Public then return result end
     local byCategory = {}
     for _, kBinding in ipairs(native.Public) do
-        -- LOCA TODO
-        local category = kBinding.CategoryName or "Uncategorized"
+        local category = kBinding.CategoryName or Ext.Loca.GetTranslatedString("hf3ff49ff1f6745f3baab4ed65795b61a300b")
+            or "Uncategorized"
         byCategory[category] = byCategory[category] or {}
         table_insert(byCategory[category], kBinding)
     end
@@ -184,9 +184,7 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
     -- Create a dedicated "Hotkeys" menu section using the new interface
     local success, hotkeysGroup = pcall(function()
         return dualPane:AddMenuSectionWithContent(
-            -- LOCA TODO - fallback needs proper handle
             Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c") or "Hotkeys",
-            -- LOCA TODO - fallback needs proper handle
             Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") or "Configure your keybindings here",
             ClientGlobals.MCM_HOTKEYS or "MCM_HOTKEYS"
         )

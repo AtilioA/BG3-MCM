@@ -590,4 +590,29 @@
     <content contentuid="h306ab94b54e949a8b6dfac9f474e5cd7a91g" version="1">The duration of the sidebar animation in milliseconds.</content>
     <content contentuid="ha7dbcb7a64404859b1f9c8a6efa96b304d06" version="1">Ignore conflict</content>
     <content contentuid="h35a1d92d0e8e404f906a4b087020f9e6g3dg" version="1">Allow this keybinding to overlap with others without triggering a conflict warning.</content>
+    <content contentuid="h67618b59e83a4e4a985b6c9ac6eaddc44097" version="1">Failed to create profile</content>
+    <content contentuid="h307fdf94464d4e4094cbd5a14524ff7a2aec" version="1">Profile created but failed to activate</content>
+    <content contentuid="h99661797e4a24133adbec51c43d5af9fbfea" version="1">Profile names cannot contain: &lt; &gt; : " / \ | ? *</content>
+    <content contentuid="hb3c02a4a05ef473cb392b1676825c591b669" version="1">Name cannot be empty</content>
+    <content contentuid="hb7ab5c14941a4ad2937bd55a042659951217" version="1">Created!</content>
+    <content contentuid="he60a94339e6f4b75849f0f12b58e1b88d907" version="1">Creation failed</content>
+    <content contentuid="hf3ff49ff1f6745f3baab4ed65795b61a300b" version="1">Uncategorized</content>
+    <content contentuid="hfd82935321af4ad0b327de79a102776acf5f" version="1">Error rendering category: [1]</content>
+    <content contentuid="h57485812cafd494fb9760145f24a4545529e" version="1">No native keybindings found for '[1]'.</content>
+    <content contentuid="h8b7aadb821514fb2afdd0f2e6f5db0a4c17g" version="1">No native keybindings found.</content>
+    <content contentuid="h5fbaa1934264475183db962866b0ffdda1d4" version="1">Click to disable '[1]' (without removing it from the list)</content>
+    <content contentuid="h939aa7402ac94d3a914df12627e0fcf7g6dd" version="1">Click to enable '[1]' (without removing it from the list)</content>
+    <content contentuid="he22ddc287c2d45b09f226b97c4325995aebe" version="1">Move '[1]' up in the list</content>
+    <content contentuid="hdd1c9c4bd6cb4c5bbb4a297c9074019cbdcf" version="1">Move '[1]' down in the list</content>
+    <content contentuid="hb5b5a421b3504260bcd72028b4311c4352a8" version="1">Remove '[1]' from the list</content>
+    <content contentuid="he13476240f764b7d909142a61c47883da0eb" version="1">Page [1] of [2][3] | [4]/[5] elements</content>
+    <content contentuid="ha7d3826dfe234bf3955d5b2306057c33gbc4" version="1">Enabled</content>
+    <content contentuid="hdf6d7d2620f041c2afc116ebf15accc1be5g" version="1">Conflict</content>
+    <content contentuid="hd8524a99cb1f41059b7e2aa9c543e68ad7g7" version="1">Error in RenderKeybindingTable: [1]</content>
+    <content contentuid="h88508a0d202548d39742531d1ecadb2e911e" version="1">Modifier (optional)</content>
+    <content contentuid="h494d0797cc724b3481b61f0f7f99b5d4b3gb" version="1">Key</content>
+    <content contentuid="hf19a6659055c484797ca4f7e0b60706eff45" version="1">Add to the list</content>
+    <content contentuid="hc51c15db9485404a8023ffcff47d58ee7b72" version="1">Type a new value to add to the list</content>
+    <content contentuid="ha0f6f33bf8ca456aa02f9dc8811b2c5a6324" version="1">Reset this list to its default values</content>
+    <content contentuid="h7e3aa28155fe43919d388881ea27a45d0a6b" version="1">Action disabled until reload/reset</content>
 </contentList>

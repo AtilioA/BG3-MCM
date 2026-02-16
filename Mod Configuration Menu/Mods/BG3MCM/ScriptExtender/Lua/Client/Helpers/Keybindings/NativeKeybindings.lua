@@ -258,8 +258,8 @@ function NativeKeybindings.GetByCategory()
     local function groupByCategory(kbList)
         local byCategory = {}
         for _, kb in ipairs(kbList) do
-            -- LOCA TODO
-            local category = kb.CategoryName or "Uncategorized"
+            local category = kb.CategoryName or Ext.Loca.GetTranslatedString("hf3ff49ff1f6745f3baab4ed65795b61a300b")
+                or "Uncategorized"
             if not byCategory[category] then
                 byCategory[category] = {}
             end

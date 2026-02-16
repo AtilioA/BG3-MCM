@@ -137,8 +137,9 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
     profileButton.Disabled = newProfileName.Text == ""
 
     -- Add tooltip to the input field
-    -- LOCA TODO
-    IMGUIHelpers.AddTooltip(profileButton, "Profile names cannot contain: < > : \" / \\ | ? *", ModuleUUID)
+    IMGUIHelpers.AddTooltip(profileButton,
+        Ext.Loca.GetTranslatedString("h99661797e4a24133adbec51c43d5af9fbfea") or
+        "Profile names cannot contain: < > : \" / \\ | ? *", ModuleUUID)
 
     -- Store the original button text for later restoration
     local originalButtonText = profileButton.Label
@@ -164,8 +165,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
 
         -- Check for empty name
         if profileName == "" then
-            -- LOCA TODO - needs proper handle, currently using plain string
-            showError(Ext.Loca.GetTranslatedString("Name cannot be empty"))
+            showError(Ext.Loca.GetTranslatedString("hb3c02a4a05ef473cb392b1676825c591b669") or "Name cannot be empty")
             return
         end
 
@@ -187,8 +187,7 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
                 end
 
                 -- Show success feedback
-                -- LOCA TODO
-                profileButton.Label = "Created!"
+                profileButton.Label = Ext.Loca.GetTranslatedString("hb7ab5c14941a4ad2937bd55a042659951217") or "Created!"
                 profileButton.Disabled = true
                 profileButton:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
 
@@ -200,8 +199,8 @@ function UIProfileManager:SetupCreateProfileButton(profileButton, newProfileName
             end
         else
             -- Show the error message from the ProfileService
-            -- LOCA TODO
-            showError(errorMessage or "Creation failed")
+            showError(errorMessage or Ext.Loca.GetTranslatedString("he60a94339e6f4b75849f0f12b58e1b88d907") or
+                "Creation failed")
         end
     end
 

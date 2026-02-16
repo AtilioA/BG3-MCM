@@ -199,14 +199,14 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         imguiTable.RowBg = true
 
         -- Define the columns: Enabled, Action, Description, Keybinding, Conflict, and Reset.
-        -- LOCA TODO
-        imguiTable:AddColumn("Enabled", "WidthFixed", 80)
-        -- LOCA TODO
-        imguiTable:AddColumn("Action", "WidthStretch")
-        -- LOCA TODO
-        imguiTable:AddColumn("Keybinding", "WidthStretch")
-        -- LOCA TODO
-        imguiTable:AddColumn("Conflict", "WidthFixed", 100)
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("ha7d3826dfe234bf3955d5b2306057c33gbc4") or "Enabled",
+            "WidthFixed", 80)
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3") or "Action",
+            "WidthStretch")
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134") or "Keybinding",
+            "WidthStretch")
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hdf6d7d2620f041c2afc116ebf15accc1be5g") or "Conflict",
+            "WidthFixed", 100)
 
         for _, action in ipairs(mod.Actions) do
             local row = imguiTable:AddRow()
@@ -333,8 +333,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
         MCMError(0, "Error in RenderKeybindingTable: " .. tostring(err))
 
-        -- LOCA TODO VCString:InterpolateLocalizedMessage
-        local errorText = modGroup:AddText("Error in RenderKeybindingTable: " .. tostring(err))
+        local errorText = modGroup:AddText(VCString:InterpolateLocalizedMessage("hd8524a99cb1f41059b7e2aa9c543e68ad7g7",
+            tostring(err)))
         errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
     end)
 end

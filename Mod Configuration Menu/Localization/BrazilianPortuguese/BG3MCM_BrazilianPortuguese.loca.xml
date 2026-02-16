@@ -293,4 +293,29 @@
     <content contentuid="h306ab94b54e949a8b6dfac9f474e5cd7a91g" version="1">Duração da animação da barra lateral em milissegundos.</content>
     <content contentuid="ha7dbcb7a64404859b1f9c8a6efa96b304d06" version="1">Ignorar conflito</content>
     <content contentuid="h35a1d92d0e8e404f906a4b087020f9e6g3dg" version="1">Permitir que esta tecla de atalho se sobreponha a outras sem acionar um aviso de conflito.</content>
+    <content contentuid="h67618b59e83a4e4a985b6c9ac6eaddc44097" version="1">Falha ao criar perfil</content>
+    <content contentuid="h307fdf94464d4e4094cbd5a14524ff7a2aec" version="1">Perfil criado, mas não foi possível ativá-lo</content>
+    <content contentuid="h99661797e4a24133adbec51c43d5af9fbfea" version="1">Nomes de perfil não podem conter: &lt; &gt; : " / \ | ? *</content>
+    <content contentuid="hb3c02a4a05ef473cb392b1676825c591b669" version="1">O nome não pode estar vazio</content>
+    <content contentuid="hb7ab5c14941a4ad2937bd55a042659951217" version="1">Criado!</content>
+    <content contentuid="he60a94339e6f4b75849f0f12b58e1b88d907" version="1">Falha na criação</content>
+    <content contentuid="hf3ff49ff1f6745f3baab4ed65795b61a300b" version="1">Sem categoria</content>
+    <content contentuid="hfd82935321af4ad0b327de79a102776acf5f" version="1">Erro ao renderizar categoria: [1]</content>
+    <content contentuid="h57485812cafd494fb9760145f24a4545529e" version="1">Nenhum atalho nativo encontrado para '[1]'.</content>
+    <content contentuid="h8b7aadb821514fb2afdd0f2e6f5db0a4c17g" version="1">Nenhum atalho nativo encontrado.</content>
+    <content contentuid="h5fbaa1934264475183db962866b0ffdda1d4" version="1">Clique para desativar '[1]' (sem removê-lo da lista)</content>
+    <content contentuid="h939aa7402ac94d3a914df12627e0fcf7g6dd" version="1">Clique para ativar '[1]' (sem removê-lo da lista)</content>
+    <content contentuid="he22ddc287c2d45b09f226b97c4325995aebe" version="1">Mover '[1]' para cima na lista</content>
+    <content contentuid="hdd1c9c4bd6cb4c5bbb4a297c9074019cbdcf" version="1">Mover '[1]' para baixo na lista</content>
+    <content contentuid="hb5b5a421b3504260bcd72028b4311c4352a8" version="1">Remover '[1]' da lista</content>
+    <content contentuid="he13476240f764b7d909142a61c47883da0eb" version="1">Página [1] de [2][3] | [4]/[5] elementos</content>
+    <content contentuid="ha7d3826dfe234bf3955d5b2306057c33gbc4" version="1">Ativado</content>
+    <content contentuid="hdf6d7d2620f041c2afc116ebf15accc1be5g" version="1">Conflito</content>
+    <content contentuid="hd8524a99cb1f41059b7e2aa9c543e68ad7g7" version="1">Erro em RenderKeybindingTable: [1]</content>
+    <content contentuid="h88508a0d202548d39742531d1ecadb2e911e" version="1">Modificador (opcional)</content>
+    <content contentuid="h494d0797cc724b3481b61f0f7f99b5d4b3gb" version="1">Tecla</content>
+    <content contentuid="hf19a6659055c484797ca4f7e0b60706eff45" version="1">Adicionar à lista</content>
+    <content contentuid="hc51c15db9485404a8023ffcff47d58ee7b72" version="1">Digite um novo valor para adicionar à lista</content>
+    <content contentuid="ha0f6f33bf8ca456aa02f9dc8811b2c5a6324" version="1">Resetar esta lista para seus valores padrão</content>
+    <content contentuid="h7e3aa28155fe43919d388881ea27a45d0a6b" version="1">Ação desativada até saveload</content>
 </contentList>

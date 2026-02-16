@@ -315,9 +315,8 @@ function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     end
 
     local tooltipText = element.enabled and
-        -- LOCA TODO VCString:InterpolateLocalizedMessage
-        "Click to disable '" .. element.name .. "' (without removing it from the list)" or
-        "Click to enable '" .. element.name .. "' (without removing it from the list)"
+        VCString:InterpolateLocalizedMessage("h5fbaa1934264475183db962866b0ffdda1d4", element.name) or
+        VCString:InterpolateLocalizedMessage("h939aa7402ac94d3a914df12627e0fcf7g6dd", element.name)
     IMGUIHelpers.AddTooltip(enabledCheckbox, tooltipText,
         self.Widget.ModUUID .. "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
@@ -345,8 +344,8 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
             "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveUpButton.OnClick = function() self:MoveElement(indexInElements, 'up') end
-    -- LOCA TODO VCString:InterpolateLocalizedMessage
-    IMGUIHelpers.AddTooltip(moveUpButton, "Move '" .. element.name .. "' up in the list",
+    IMGUIHelpers.AddTooltip(moveUpButton,
+        VCString:InterpolateLocalizedMessage("he22ddc287c2d45b09f226b97c4325995aebe", element.name),
         self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     -- Move down button
@@ -360,8 +359,8 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
             "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
     end
     moveDownButton.OnClick = function() self:MoveElement(indexInElements, 'down') end
-    -- LOCA TODO VCString:InterpolateLocalizedMessage
-    IMGUIHelpers.AddTooltip(moveDownButton, "Move '" .. element.name .. "' down in the list",
+    IMGUIHelpers.AddTooltip(moveDownButton,
+        VCString:InterpolateLocalizedMessage("hdd1c9c4bd6cb4c5bbb4a297c9074019cbdcf", element.name),
         self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled then
@@ -407,8 +406,8 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
         self:Refresh()
     end
 
-    -- LOCA TODO VCString:InterpolateLocalizedMessage
-    IMGUIHelpers.AddTooltip(removeButton, "Remove '" .. element.name .. "' from the list",
+    IMGUIHelpers.AddTooltip(removeButton,
+        VCString:InterpolateLocalizedMessage("hb5b5a421b3504260bcd72028b4311c4352a8", element.name),
         self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled then
@@ -535,9 +534,8 @@ function ListV2IMGUIWidget:GetPageText()
     local totalPages = math.ceil(totalElementCount / self.Widget.PageSize)
     self.Widget.CurrentPage = math.min(self.Widget.CurrentPage, totalPages)
 
-    -- LOCA TODO VCString:InterpolateLocalizedMessage
-    return string.format(
-        "Page %d of %d%s | %d/%d elements",
+    return VCString:InterpolateLocalizedMessage(
+        "he13476240f764b7d909142a61c47883da0eb",
         self.Widget.CurrentPage,
         totalPages,
         filterText,
@@ -1097,8 +1095,8 @@ function ListV2IMGUIWidget:RenderSearchResults()
 
     local searchResultsGroup = self.Widget.SearchResultsGroup
     -- Add "suggestions" collapsing header
-    -- LOCA TODO
-    local collapsibleHeader = searchResultsGroup:AddCollapsingHeader("Suggestions")
+    local collapsibleHeader = searchResultsGroup:AddCollapsingHeader(Ext.Loca.GetTranslatedString(
+        "h2e8476727f27406c813c00ae59dfd9d08543") or "Suggestions")
     collapsibleHeader.DefaultOpen = true
     collapsibleHeader.IDContext = self.Widget.ModUUID .. "_SearchResultsHeader_" .. self.Widget.Setting.Id
 

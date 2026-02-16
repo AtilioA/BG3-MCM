@@ -33,13 +33,12 @@ function ListIMGUIWidget:RenderList()
 
         if not removeButton.Image or removeButton.Image.Icon == "" then
             removeButton:Destroy()
-            -- LOCA TODO
-            removeButton = buttonCell:AddButton("[X]")
+            removeButton = buttonCell:AddButton(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0") or
+                "[X]")
         end
 
         local tooltip = removeButton:Tooltip()
-        -- LOCA TODO VCString:InterpolateLocalizedMessage
-        tooltip:AddText("Remove '" .. value .. "' from the list")
+        tooltip:AddText(VCString:InterpolateLocalizedMessage("hb5b5a421b3504260bcd72028b4311c4352a8", value))
         removeButton.OnClick = function()
             table.remove(self.Widget.List, i)
             IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.modUUID)
@@ -61,16 +60,15 @@ function ListIMGUIWidget:AddInputAndAddButton()
     textInput.OnChange = function(newValue)
         newText = newValue.Text
         if newText and newText ~= "" and addButton then
-            -- LOCA TODO
-            addButton.Label = "Add to the list"
+            addButton.Label = Ext.Loca.GetTranslatedString("hf19a6659055c484797ca4f7e0b60706eff45") or "Add to the list"
         else
-            -- LOCA TODO
-            addButton.Label = "Type a new value to add to the list"
+            addButton.Label = Ext.Loca.GetTranslatedString("hc51c15db9485404a8023ffcff47d58ee7b72") or
+                "Type a new value to add to the list"
         end
     end
 
-    -- LOCA TODO
-    addButton = self.Widget.InputGroup:AddButton("Type a new value to add to the list")
+    addButton = self.Widget.InputGroup:AddButton(Ext.Loca.GetTranslatedString("hc51c15db9485404a8023ffcff47d58ee7b72") or
+        "Type a new value to add to the list")
     addButton.OnClick = function()
         if newText ~= "" then
             -- TODO: remove this kludge
@@ -113,11 +111,11 @@ end
 ---@return nil
 ---@see IMGUIAPI:ResetSettingValue
 function ListIMGUIWidget:AddResetButton(group, setting, modUUID)
-    -- LOCA TODO
-    local resetButton = group:AddButton("[Reset list]")
+    local resetButton = group:AddButton(Ext.Loca.GetTranslatedString("hefc87cc64ef74547b4ccade4ff1676994d53") or
+        "[Reset list]")
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
-    -- LOCA TODO
-    resetButton:Tooltip():AddText("Reset this list to its default values")
+    resetButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("ha0f6f33bf8ca456aa02f9dc8811b2c5a6324") or
+        "Reset this list to its default values")
     resetButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), modUUID)
     end

@@ -52,8 +52,7 @@ function ProfileService:CreateProfile(profileName)
     local success, errorMsg = MCMAPI:CreateProfile(profileName)
     if not success then
         if not errorMsg or errorMsg == "" then
-            -- LOCA TODO
-            errorMsg = "Failed to create profile"
+            errorMsg = Ext.Loca.GetTranslatedString("h67618b59e83a4e4a985b6c9ac6eaddc44097") or "Failed to create profile"
         end
         return false, errorMsg
     end
@@ -64,8 +63,8 @@ function ProfileService:CreateProfile(profileName)
     -- Set the new profile as active
     local setSuccess = self:SetProfile(profileName)
     if not setSuccess then
-        -- LOCA TODO
-        return false, "Profile created but failed to activate"
+        return false,
+            Ext.Loca.GetTranslatedString("h307fdf94464d4e4094cbd5a14524ff7a2aec") or "Profile created but failed to activate"
     end
 
     return true, nil
