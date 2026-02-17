@@ -335,7 +335,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
     local moveCell = tableRow:AddCell()
 
     -- Move up button
-    local moveUpButton = moveCell:AddImageButton("", "panner_up_h", IMGUIWidget:GetIconSizes())
+    local moveUpButton = moveCell:AddImageButton("^", "panner_up_h", IMGUIWidget:GetIconSizes())
     moveUpButton.IDContext = self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not moveUpButton.Image or moveUpButton.Image.Icon == "" then
         moveUpButton:Destroy()
@@ -349,7 +349,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
         self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
     -- Move down button
-    local moveDownButton = moveCell:AddImageButton("", "panner_down_h", IMGUIWidget:GetIconSizes())
+    local moveDownButton = moveCell:AddImageButton("v", "panner_down_h", IMGUIWidget:GetIconSizes())
     moveDownButton.IDContext = self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name
     moveDownButton.SameLine = true
     if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
@@ -391,7 +391,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
     local removeCell = tableRow:AddCell()
-    local removeButton = removeCell:AddImageButton("", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
+    local removeButton = removeCell:AddImageButton("X", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
     removeButton.IDContext = self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name
     if not removeButton.Image or removeButton.Image.Icon == "" then
         removeButton:Destroy()
@@ -749,7 +749,7 @@ function ListV2IMGUIWidget:RenderSearchResultRow(imguiTable, result)
 
     -- Add button cell
     local addCell = tableRow:AddCell()
-    local addButton = addCell:AddImageButton("", "ico_plus_d", IMGUIWidget:GetIconSizes())
+    local addButton = addCell:AddImageButton("+", "ico_plus_d", IMGUIWidget:GetIconSizes())
     addButton.IDContext = self.Widget.ModUUID .. "_AddSearchResult_" .. self.Widget.Setting.Id .. "_" .. result
     if not addButton.Image or addButton.Image.Icon == "" then
         addButton:Destroy()

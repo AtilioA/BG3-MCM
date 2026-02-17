@@ -263,11 +263,12 @@ end
 ---@see IMGUIAPI:ResetSettingValue
 function IMGUIWidget:AddResetButton(group, setting, modUUID)
     -- Create the reset button
-    local resetButton = group:AddImageButton("[Reset]", ClientGlobals.RESET_SETTING_BUTTON_ICON,
+    local resetButton = group:AddImageButton(Ext.Loca.GetTranslatedString("h8be200f84a794856bf872e571f4410f19479"),
+        ClientGlobals.RESET_SETTING_BUTTON_ICON,
         IMGUIWidget:GetIconSizes())
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()
-        resetButton = group:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459") or "[Reset]")
+        resetButton = group:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459") or Ext.Loca.GetTranslatedString("h8be200f84a794856bf872e571f4410f19479"))
     end
 
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
