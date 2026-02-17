@@ -21,11 +21,13 @@ function HeaderActions:New(parent)
     self.group = parent:AddGroup("HeaderActions")
 
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
-    self.expandBtn = self:CreateActionButton("[Show mods]", ICON_TOGGLE_EXPAND,
+    self.expandBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("h9db97044cb044d15b12a4edf05f463154812"),
+        ICON_TOGGLE_EXPAND,
         VCString:InterpolateLocalizedMessage("hbb483085e7f04700beb8cc5bf94a98b4g6ac",
             KeyPresentationMapping:GetViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)), 1.5)
     self.expandBtn.SameLine = true
-    self.collapseBtn = self:CreateActionButton("[Hide mods]", ICON_TOGGLE_COLLAPSE,
+    self.collapseBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("h8f387f7585c44277893ec0714a67c13f4g18"),
+        ICON_TOGGLE_COLLAPSE,
         VCString:InterpolateLocalizedMessage("h4e0e208daa6a439ca5ba95a668a7ac36d882",
             KeyPresentationMapping:GetViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)), 1.5)
     self.collapseBtn.SameLine = true
@@ -43,7 +45,8 @@ function HeaderActions:New(parent)
     local dummy = self.group:AddDummy(15, 0)
     dummy.SameLine = true
 
-    self.detachBtn = self:CreateActionButton("[Detach]", ICON_DETACH,
+    self.detachBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("h861b52b0eba84565aa41b19875c087d1fea6"),
+        ICON_DETACH,
         Ext.Loca.GetTranslatedString("h5270f62d04b243b6b9ea0473bd610aa72b0e"), 1)
     self.detachBtn.SameLine = true
     self.detachBtn.OnClick = function()
@@ -55,7 +58,8 @@ function HeaderActions:New(parent)
         end
     end
 
-    self.reattachBtn = self:CreateActionButton("[Reattach]", "input_dropDownArrow_d",
+    self.reattachBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("he66f0182055744419b01312c1d04dc85e906"),
+        "input_dropDownArrow_d",
         Ext.Loca.GetTranslatedString("hc2133fbab6fb47a9a4f71e83a715780237e1"), 1.5)
     self.reattachBtn.SameLine = true
     self.reattachBtn.Visible = false
@@ -70,7 +74,7 @@ function HeaderActions:New(parent)
 
     -- Keybinding indicator: shows when current mod has assigned hotkeys.
     self.keybindingsIndicator = self:CreateActionButton(
-    "[" .. Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") .. "]", nil,
+        "[" .. Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") .. "]", nil,
         Ext.Loca.GetTranslatedString("hdbcd16c5f55e4e9c800e7284ebef8b0f5372"), 1)
     self.keybindingsIndicator.SameLine = true
     self.keybindingsIndicator.Disabled = false

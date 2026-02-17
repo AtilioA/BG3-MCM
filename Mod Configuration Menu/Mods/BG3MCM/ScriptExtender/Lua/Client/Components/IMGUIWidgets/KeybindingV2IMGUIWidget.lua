@@ -406,7 +406,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
             self.Widget.CurrentListeningAction = nil
             self:UnregisterInputEvents()
 
-            KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, 
+            KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId,
                 { Keyboard = "", Mouse = { Button = 0, ModifierKeys = {} } }, true)
             return
         end
@@ -449,7 +449,7 @@ end
 ---@param e table The mouse input event
 function KeybindingV2IMGUIWidget:HandleMouseInput(e)
     if not self.Widget.ListeningForInput or not e.Pressed then return end
-    
+
     local modifierKeys = {}
     if self.AllPressedKeys then
         for pressedKey, _ in pairs(self.AllPressedKeys) do
@@ -458,7 +458,7 @@ function KeybindingV2IMGUIWidget:HandleMouseInput(e)
             end
         end
     end
-    
+
     local mouseBinding = {
         Button = e.Button,
         ModifierKeys = modifierKeys
@@ -612,19 +612,19 @@ end
 function KeybindingV2IMGUIWidget:AreMouseBindingsEqual(binding1, binding2)
     if not binding1 and not binding2 then return true end
     if not binding1 or not binding2 then return false end
-    
+
     local button1 = binding1.Button or 0
     local button2 = binding2.Button or 0
     if button1 ~= button2 then return false end
-    
+
     local mods1 = binding1.ModifierKeys or {}
     local mods2 = binding2.ModifierKeys or {}
     if #mods1 ~= #mods2 then return false end
-    
+
     for _, mod in ipairs(mods1) do
         if not table.contains(mods2, mod) then return false end
     end
-    
+
     return true
 end
 
@@ -714,14 +714,14 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     local binding = registry[modUUID] and registry[modUUID][actionId]
     if binding then
         local resetPayload
-        
+
         if binding.defaultMouseBinding and binding.defaultMouseBinding.Button and binding.defaultMouseBinding.Button > 0 then
             resetPayload = KeybindingsRegistry.BuildMousePayload(binding.defaultMouseBinding, binding.defaultEnabled)
         else
             local resetKeybinding = binding.defaultKeyboardBinding
             resetPayload = KeybindingsRegistry.BuildKeyboardPayload(resetKeybinding, binding.defaultEnabled)
         end
-        
+
         local success = KeybindingsRegistry.UpdateBinding(modUUID, actionId, resetPayload, true)
         if not success then
             MCMError(0,

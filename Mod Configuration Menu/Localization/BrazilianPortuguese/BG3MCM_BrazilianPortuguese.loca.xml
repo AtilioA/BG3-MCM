@@ -318,4 +318,8 @@
     <content contentuid="hc51c15db9485404a8023ffcff47d58ee7b72" version="1">Digite um novo valor para adicionar à lista</content>
     <content contentuid="ha0f6f33bf8ca456aa02f9dc8811b2c5a6324" version="1">Resetar esta lista para seus valores padrão</content>
     <content contentuid="h7e3aa28155fe43919d388881ea27a45d0a6b" version="1">Ação desativada até saveload</content>
+    <content contentuid="h8f387f7585c44277893ec0714a67c13f4g18" version="1">[Esconder barra lateral]</content>
+    <content contentuid="h9db97044cb044d15b12a4edf05f463154812" version="1">[Mostrar barra lateral]</content>
+    <content contentuid="h861b52b0eba84565aa41b19875c087d1fea6" version="1">[Destacar]</content>
+    <content contentuid="he66f0182055744419b01312c1d04dc85e906" version="1">[Reconectar]</content>
 </contentList>
