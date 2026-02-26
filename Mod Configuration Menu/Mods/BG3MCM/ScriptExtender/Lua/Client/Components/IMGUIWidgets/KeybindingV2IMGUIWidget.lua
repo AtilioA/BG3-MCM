@@ -206,7 +206,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
         imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134") or "Keybinding",
             "WidthStretch")
         imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hdf6d7d2620f041c2afc116ebf15accc1be5g") or "Conflict",
-            "WidthFixed", 100)
+            "WidthFixed", 280)
 
         for _, action in ipairs(mod.Actions) do
             local row = imguiTable:AddRow()
