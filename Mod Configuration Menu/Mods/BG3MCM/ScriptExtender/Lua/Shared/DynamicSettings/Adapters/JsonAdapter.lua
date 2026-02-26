@@ -138,11 +138,12 @@ function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)
 
     -- Write value to memory
     handler:Load()
-    if value == nil then
-        handler.Data[key] = nil
-    else
-        handler.Data[key] = value
-    end
+    -- if value == nil then
+    --     handler.Data[key] = nil
+    -- else
+    --     handler.Data[key] = value
+    -- end
+    handler:Set(key, value)
 end
 
 --- Force save all loaded files

@@ -546,7 +546,7 @@ The Store API allows mods to persist custom key-value data independently of the 
 
 The JSON storage allows saving values to JSON files without needing to define a blueprint. This is useful for storing save-independent data like user preferences and cache state.
 
-> • **ModVar storage is the default**, ensuring variables are unique to each save file.
+> • **JSON storage is the default**, making Store values global across save files unless `storage = "modvar"` is specified. `modvar` is still a WIP.
 > • The Store API is type-safe and supports custom validation.
 {.is-info}
 
@@ -562,7 +562,7 @@ The JSON storage allows saving values to JSON files without needing to define a 
 
 ```lua
 -- Register variables at mod initialization (e.g., in BootstrapShared.lua)
--- Defaults to 'modvar' storage (save-scoped)
+-- Defaults to 'json' storage (global)
 MCM.Store.RegisterVar("difficulty_level", {
     type = "number",
     default = 1,

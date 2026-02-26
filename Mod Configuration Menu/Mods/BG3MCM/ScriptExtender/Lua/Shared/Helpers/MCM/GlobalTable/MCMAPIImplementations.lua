@@ -99,7 +99,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@class MCMStoreRegisterOptions
 ---@field default? any The default value for the variable
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
----@field storage? string Optional storage type ("modvar", "json"), defaults to "modvar"
+---@field storage? string Optional storage type ("modvar", "json"), defaults to "json"
 ---@field storageConfig? table Optional parameters (Server, Client, Persistent, SyncToClient, etc.)
 ---@field validate? fun(value: any): (boolean, string)? Optional validation function
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
@@ -115,7 +115,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 
 ---@class MCMStoreGetAllArgs
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
----@field storage? string Optional storage type to get values for, defaults to "modvar"
+---@field storage? string Optional storage type to get values for, defaults to "json"
 
 --- Implementation: Get the value of a setting
 ---@param args MCMGetArgs
@@ -645,7 +645,7 @@ end
 local SettingsService = require("Shared/DynamicSettings/Services/SettingsService")
 
 -- Default storage type for the Store API
-local DEFAULT_STORAGE_TYPE = "modvar"
+local DEFAULT_STORAGE_TYPE = "json"
 
 --- Implementation: Register a variable for persistence
 ---@param varName string The variable name
