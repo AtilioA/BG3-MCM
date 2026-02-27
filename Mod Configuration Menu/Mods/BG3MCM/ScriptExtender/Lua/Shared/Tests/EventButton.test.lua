@@ -1,11 +1,17 @@
 TestSuite.RegisterTests("Event Button Validation", {
     "TestValidEventButtonMinimal",
     "TestValidEventButtonWithCooldown",
+    "TestValidEventButtonWithoutIcon",
     "TestValidEventButtonWithIcon",
+    "TestValidEventButtonWithIconSize",
     "TestValidEventButtonWithConfirmDialog",
     "TestValidEventButtonWithAllOptions",
     "TestInvalidEventButtonCooldownType",
     "TestInvalidEventButtonIconType",
+    "TestInvalidEventButtonIconNameMissing",
+    "TestInvalidEventButtonIconNameEmpty",
+    "TestInvalidEventButtonIconSizeType",
+    "TestInvalidEventButtonIconSizeMissingFields",
     "TestInvalidEventButtonConfirmDialogType",
     "TestInvalidEventButtonConfirmDialogIncomplete",
     "TestInvalidEventButtonConfirmDialogFields",
@@ -38,18 +44,55 @@ function TestValidEventButtonWithCooldown()
     TestSuite.AssertTrue(isValid, "Event button with cooldown should be valid")
 end
 
+--- Test event button remains valid when Icon is omitted
+function TestValidEventButtonWithoutIcon()
+    local setting = BlueprintSetting:New({
+        Id = "test-event-button-no-icon",
+        Type = "event_button",
+        Options = {
+            Cooldown = 1.0,
+            Label = "Run Action"
+        }
+    })
+
+    local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    TestSuite.AssertTrue(isValid, "Event button without icon should be valid")
+end
+
 --- Test event button with valid icon
 function TestValidEventButtonWithIcon()
     local setting = BlueprintSetting:New({
         Id = "test-event-button-icon",
         Type = "event_button",
         Options = {
-            Icon = "Icon_Item_Scroll_01"
+            Icon = {
+                Name = "Icon_Item_Scroll_01"
+            }
         }
     })
 
     local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
     TestSuite.AssertTrue(isValid, "Event button with icon should be valid")
+end
+
+--- Test event button with valid icon and explicit size
+function TestValidEventButtonWithIconSize()
+    local setting = BlueprintSetting:New({
+        Id = "test-event-button-icon-size",
+        Type = "event_button",
+        Options = {
+            Icon = {
+                Name = "Icon_Item_Scroll_01",
+                Size = {
+                    Width = 20,
+                    Height = 20
+                }
+            }
+        }
+    })
+
+    local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    TestSuite.AssertTrue(isValid, "Event button with icon size should be valid")
 end
 
 --- Test event button with valid confirm dialog
@@ -78,7 +121,9 @@ function TestValidEventButtonWithAllOptions()
         Type = "event_button",
         Options = {
             Cooldown = 5.0,
-            Icon = "Icon_Item_Scroll_01",
+            Icon = {
+                Name = "Icon_Item_Scroll_01"
+            },
             ConfirmDialog = {
                 Title = "Confirm Action",
                 Message = "Are you sure you want to perform this action?",
@@ -117,7 +162,78 @@ function TestInvalidEventButtonIconType()
     })
 
     local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-    TestSuite.AssertFalse(isValid, "Event button with non-string icon should be invalid")
+    TestSuite.AssertFalse(isValid, "Event button with non-object icon should be invalid")
+end
+
+--- Test event button with icon object but missing Name
+function TestInvalidEventButtonIconNameMissing()
+    local setting = BlueprintSetting:New({
+        Id = "test-event-button-invalid-icon-name-missing",
+        Type = "event_button",
+        Options = {
+            Icon = {
+                Size = {
+                    Width = 20,
+                    Height = 20
+                }
+            }
+        }
+    })
+
+    local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    TestSuite.AssertFalse(isValid, "Event button with icon missing Name should be invalid")
+end
+
+--- Test event button with icon object and empty Name
+function TestInvalidEventButtonIconNameEmpty()
+    local setting = BlueprintSetting:New({
+        Id = "test-event-button-invalid-icon-name-empty",
+        Type = "event_button",
+        Options = {
+            Icon = {
+                Name = ""
+            }
+        }
+    })
+
+    local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    TestSuite.AssertFalse(isValid, "Event button with empty icon Name should be invalid")
+end
+
+--- Test event button with invalid icon size type
+function TestInvalidEventButtonIconSizeType()
+    local setting = BlueprintSetting:New({
+        Id = "test-event-button-invalid-icon-size-type",
+        Type = "event_button",
+        Options = {
+            Icon = {
+                Name = "Icon_Item_Scroll_01",
+                Size = "20x20"
+            }
+        }
+    })
+
+    local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    TestSuite.AssertFalse(isValid, "Event button with non-object icon Size should be invalid")
+end
+
+--- Test event button with icon size missing required numeric fields
+function TestInvalidEventButtonIconSizeMissingFields()
+    local setting = BlueprintSetting:New({
+        Id = "test-event-button-invalid-icon-size-fields",
+        Type = "event_button",
+        Options = {
+            Icon = {
+                Name = "Icon_Item_Scroll_01",
+                Size = {
+                    Width = 20
+                }
+            }
+        }
+    })
+
+    local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
+    TestSuite.AssertFalse(isValid, "Event button with incomplete icon Size should be invalid")
 end
 
 --- Test event button with invalid confirm dialog type
