@@ -6,71 +6,71 @@
     "properties": {
         "Optional": {
             "type": "boolean",
-            "description": "Whether the MCM usage is optional or not. Default is `false` and will warn if the meta.lsx is missing MCM as a dependency.",
-            "default": false
+            "default": false,
+            "markdownDescription": "Whether the MCM usage is optional or not. Default is `false` and will warn if the meta.lsx is missing MCM as a dependency."
         },
         "SchemaVersion": {
             "type": "integer",
             "oneOf": [
                 {
                     "const": 1,
-                    "description": "SchemaVersion 1 is used for all MCM blueprints that are built for MCM 1.0.0 and above (but not for MCM 2.0.0, if it ever exists)."
+                    "markdownDescription": "SchemaVersion 1 is used for all MCM blueprints that are built for MCM 1.0.0 and above (but not for MCM 2.0.0, if it ever exists)."
                 }
             ],
-            "description": "The version of the MCM schema that this file uses. This is used to ensure that the file is compatible with the version of MCM that is being used.\nDO NOT CHANGE THIS VALUE unless you know what you are doing. Use the version corresponding to the MCM version you are developing for.\nSchema versions will follow MCM's MAJOR versions: SchemaVersion 1 is used for MCM 1.0.0 and above, SchemaVersion 2 will be used for MCM 2.0.0 and above, and so on."
+            "markdownDescription": "The version of the MCM schema that this file uses. This is used to ensure that the file is compatible with the version of MCM that is being used.\nDO NOT CHANGE THIS VALUE unless you know what you are doing. Use the version corresponding to the MCM version you are developing for.\nSchema versions will follow MCM's MAJOR versions: `SchemaVersion` 1 is used for MCM 1.0.0 and above, `SchemaVersion` 2 will be used for MCM 2.0.0 and above, and so on."
         },
         "ModName": {
             "type": "string",
             "minLength": 1,
-            "description": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that historically had multiple names due to multiple versions.\nNote that you can always change your mod's name in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles.",
             "examples": [
                 "My Mod Name To Be Displayed On MCM"
-            ]
+            ],
+            "markdownDescription": "The name of the mod to use instead of its registered name. This can be useful for mods that have registered names that are not properly formatted or for mods that historically had multiple names due to multiple versions.\nNote that you can always change your mod's name in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles."
         },
         "ModDescription": {
             "type": [
                 "string",
                 "null"
             ],
-            "description": "The description of the mod to use instead of its registered description. This can be useful to hide the description or to provide a custom one for MCM.\nNote that you can always change your mod's description in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles.",
             "examples": [
                 "My Mod Description To Be Displayed On MCM"
-            ]
+            ],
+            "markdownDescription": "The description of the mod to use instead of its registered description. This can be useful to hide the description or to provide a custom one for MCM.\nNote that you can always change your mod's description in its meta.lsx file without repercussions.\nIf you want to only provide localization support, you can skip this and only define Handles."
         },
         "Handles": {
             "$ref": "#/definitions/TopLevelHandles",
-            "description": "Handles to localize the top-level mod's strings."
+            "markdownDescription": "Handles to localize the top-level mod's strings."
         },
         "KeybindingSortMode": {
             "type": "string",
             "oneOf": [
                 {
                     "const": "alphabetical",
-                    "description": "Sort keybindings alphabetically by action name (default)."
+                    "markdownDescription": "Sort keybindings alphabetically by action name (default)."
                 },
                 {
                     "const": "blueprint",
-                    "description": "Sort keybindings by blueprint order. Uses per-keybinding Options.SortOrder when set, otherwise declaration order."
+                    "markdownDescription": "Sort keybindings by blueprint declaration order."
                 }
             ],
             "default": "alphabetical",
-            "description": "Controls how keybindings are ordered in the Hotkeys page for this blueprint."
+            "markdownDescription": "Controls how keybindings are ordered in the Hotkeys page for this blueprint."
         },
         "Tabs": {
-            "description": "The tabs that will be displayed in the MCM menu.\nEach tab can contain either sections or settings.\nTabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
             "type": "array",
             "minItems": 1,
             "items": {
                 "$ref": "#/definitions/Tab"
-            }
+            },
+            "markdownDescription": "The tabs that will be displayed in the MCM menu.\nEach tab can contain either sections or settings.\nTabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window."
         },
         "Sections": {
-            "description": "The sections that will be displayed in the MCM menu.\nEach section can contain either tabs or settings.\nSections are displayed in the order that they are defined in this file.",
             "type": "array",
             "minItems": 1,
             "items": {
                 "$ref": "#/definitions/Section"
-            }
+            },
+            "markdownDescription": "The sections that will be displayed in the MCM menu.\nEach section can contain either tabs or settings.\nSections are displayed in the order that they are defined in this file."
         },
         "Settings": {
             "type": "array",
@@ -79,7 +79,7 @@
             "items": {
                 "$ref": "#/definitions/Setting"
             },
-            "description": "The list of sections to be displayed outside of any tabs in the MCM menu.\nIt is advised to use tabs and sections instead of settings at root level, as this can lead to an unorganized MCM menu."
+            "markdownDescription": "The list of sections to be displayed outside of any tabs in the MCM menu.\nIt is advised to use tabs and sections instead of settings at root level, as this can lead to an unorganized MCM menu."
         }
     },
     "required": [
@@ -106,27 +106,26 @@
         "Tab": {
             "type": "object",
             "additionalProperties": false,
-            "description": "A single tab in the MCM menu.",
             "properties": {
                 "TabName": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The name of the tab that will be displayed in the MCM menu, on the tab's button.\nWill be localized if a handle is provided."
+                    "markdownDescription": "The name of the tab that will be displayed in the MCM menu, on the tab's button.\nWill be localized if a handle is provided."
                 },
                 "TabId": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The unique identifier for the tab.\nThis value should be unique across all tabs in the blueprint."
+                    "markdownDescription": "The unique identifier for the tab.\nThis value should be unique across all tabs in the blueprint."
                 },
                 "TabDescription": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The description of the tab.\nWill be localized if a handle is provided.\nCurrently unused.",
-                    "$comment": "This might not be used at all, but it's here just in case."
+                    "$comment": "This might not be used at all, but it's here just in case.",
+                    "markdownDescription": "The description of the tab.\nWill be localized if a handle is provided.\nCurrently unused."
                 },
                 "VisibleIf": {
                     "$ref": "#/definitions/VisibilityCondition",
-                    "description": "Array of Conditions that determine the visibility of this tab.\nA Condition is an object with SettingId, Operator, and ExpectedValue."
+                    "markdownDescription": "Array of Conditions that determine the visibility of this tab.\nA Condition is an object with SettingId, Operator, and ExpectedValue."
                 },
                 "Tabs": {
                     "type": "array",
@@ -134,7 +133,7 @@
                     "items": {
                         "$ref": "#/definitions/Tab"
                     },
-                    "description": "The tabs that will be displayed within the tab. They provide a distinct visual separation in the MCM menu."
+                    "markdownDescription": "The tabs that will be displayed within the tab. They provide a distinct visual separation in the MCM menu."
                 },
                 "Sections": {
                     "type": "array",
@@ -142,7 +141,7 @@
                     "items": {
                         "$ref": "#/definitions/Section"
                     },
-                    "description": "The sections that will be displayed within the tab. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
+                    "markdownDescription": "The sections that will be displayed within the tab. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
                 },
                 "Settings": {
                     "type": "array",
@@ -151,11 +150,11 @@
                     "items": {
                         "$ref": "#/definitions/Setting"
                     },
-                    "description": "The settings that will be displayed within the tab."
+                    "markdownDescription": "The settings that will be displayed within the tab."
                 },
                 "Handles": {
                     "$ref": "#/definitions/TabHandles",
-                    "description": "Handles to localize the tab's strings."
+                    "markdownDescription": "Handles to localize the tab's strings."
                 }
             },
             "anyOf": [
@@ -178,7 +177,8 @@
             "required": [
                 "TabId",
                 "TabName"
-            ]
+            ],
+            "markdownDescription": "A single tab in the MCM menu."
         },
         "Setting": {
             "type": "object",
@@ -222,73 +222,7 @@
                                         "type": "array"
                                     }
                                 ],
-                                "description": "The default value is optional for event_button. It is not used."
-                            },
-                            "Options": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "properties": {
-                                    "Cooldown": {
-                                        "type": "number"
-                                    },
-                                    "Icon": {
-                                        "type": "object",
-                                        "additionalProperties": false,
-                                        "properties": {
-                                            "Name": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
-                                            "Size": {
-                                                "type": "object",
-                                                "additionalProperties": false,
-                                                "properties": {
-                                                    "Width": {
-                                                        "type": "number"
-                                                    },
-                                                    "Height": {
-                                                        "type": "number"
-                                                    }
-                                                },
-                                                "required": [
-                                                    "Width",
-                                                    "Height"
-                                                ]
-                                            }
-                                        },
-                                        "required": [
-                                            "Name"
-                                        ]
-                                    },
-                                    "Label": {
-                                        "type": "string",
-                                        "minLength": 1
-                                    },
-                                    "ConfirmDialog": {
-                                        "type": "object",
-                                        "additionalProperties": false,
-                                        "properties": {
-                                            "Title": {
-                                                "type": "string"
-                                            },
-                                            "Message": {
-                                                "type": "string"
-                                            },
-                                            "ConfirmText": {
-                                                "type": "string"
-                                            },
-                                            "CancelText": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "required": [
-                                            "Title",
-                                            "Message",
-                                            "ConfirmText",
-                                            "CancelText"
-                                        ]
-                                    }
-                                }
+                                "markdownDescription": "The default value is optional for event_button. It is not used."
                             }
                         }
                     },
@@ -321,7 +255,7 @@
                                         "type": "array"
                                     }
                                 ],
-                                "description": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid."
+                                "markdownDescription": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid."
                             }
                         }
                     }
@@ -344,17 +278,17 @@
                 "Id": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API.\nThis will be used in your code, so it still should be human-readable and descriptive."
+                    "markdownDescription": "The unique identifier for the setting, used to identify the setting in the code for both MCM and the mod consuming the API.\nThis will be used in your code, so it still should be human-readable and descriptive."
                 },
                 "OldId": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The former unique identifier for the setting, used in order to keep user value if changing Id for any reason.\nNot needed if you are not changing the Id of a setting."
+                    "markdownDescription": "The former unique identifier for the setting, used in order to keep user value if changing Id for any reason.\nNot needed if you are not changing the Id of a setting."
                 },
                 "Name": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The name of the setting as it will be displayed in the MCM menu.\nWill be localized if a handle is provided."
+                    "markdownDescription": "The name of the setting as it will be displayed in the MCM menu.\nWill be localized if a handle is provided."
                 },
                 "Type": {
                     "type": "string",
@@ -362,66 +296,66 @@
                     "oneOf": [
                         {
                             "const": "int",
-                            "description": "An input field for an integer value."
+                            "markdownDescription": "An input field for an integer value."
                         },
                         {
                             "const": "float",
-                            "description": "An input field for a floating-point number."
+                            "markdownDescription": "An input field for a floating-point number."
                         },
                         {
                             "const": "checkbox",
-                            "description": "A boolean checkbox."
+                            "markdownDescription": "A boolean checkbox."
                         },
                         {
                             "const": "text",
-                            "description": "A single-line string text input."
+                            "markdownDescription": "A single-line string text input."
                         },
                         {
                             "const": "list_v2",
-                            "description": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them. Replaces the deprecated 'list' type."
+                            "markdownDescription": "A versatile list of items accompanied by a text input field for adding new items, global and individual toggles, and search bar. If default values are provided, the list will be initialized with them. Replaces the deprecated 'list' type."
                         },
                         {
                             "const": "enum",
-                            "description": "An enumeration of predefined values, displayed as a dropdown list where only one value can be selected."
+                            "markdownDescription": "An enumeration of predefined values, displayed as a dropdown list where only one value can be selected."
                         },
                         {
                             "const": "slider_int",
-                            "description": "A slider for integer values; can be used for a range of values defined between a Min and Max value."
+                            "markdownDescription": "A slider for integer values; can be used for a range of values defined between a Min and Max value."
                         },
                         {
                             "const": "slider_float",
-                            "description": "A slider for floating-point values; can be used for a range of values defined between a Min and Max value."
+                            "markdownDescription": "A slider for floating-point values; can be used for a range of values defined between a Min and Max value."
                         },
                         {
                             "const": "drag_int",
-                            "description": "A draggable input for integer values."
+                            "markdownDescription": "A draggable input for integer values."
                         },
                         {
                             "const": "drag_float",
-                            "description": "A draggable input for floating-point values."
+                            "markdownDescription": "A draggable input for floating-point values."
                         },
                         {
                             "const": "radio",
-                            "description": "A set of radio buttons. Options passed in are mutually exclusive."
+                            "markdownDescription": "A set of radio buttons. Options passed in are mutually exclusive."
                         },
                         {
                             "const": "color_picker",
-                            "description": "A square color picker widget that allows the user to select a color with the mouse, while also having color fields for manual input."
+                            "markdownDescription": "A square color picker widget that allows the user to select a color with the mouse, while also having color fields for manual input."
                         },
                         {
                             "const": "color_edit",
-                            "description": "A color editor widget. Similar to a color picker, but with only the color fields displayed."
+                            "markdownDescription": "A color editor widget. Similar to a color picker, but with only the color fields displayed."
                         },
                         {
                             "const": "keybinding_v2",
-                            "description": "A keybinding/hotkey input, consisting of optional modifiers and a key, and listed in the 'Hotkeys' section of MCM. Replaces the deprecated 'keybinding' type. Remember to inject the hotkey functionality in your mod via the MCM API, otherwise the hotkeys will not do anything."
+                            "markdownDescription": "A keybinding/hotkey input, consisting of optional modifiers and a key, and listed in the 'Hotkeys' section of MCM. Replaces the deprecated 'keybinding' type.\nRemember to inject the hotkey functionality in your mod via the MCM API, otherwise the hotkeys will not do anything."
                         },
                         {
                             "const": "event_button",
-                            "description": "A button that executes a Lua function when clicked. The callback must be defined in the mod's code during runtime."
+                            "markdownDescription": "A button that executes a Lua function when clicked. The callback must be defined in the mod's code during runtime."
                         }
                     ],
-                    "description": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
+                    "markdownDescription": "The type of the setting, which determines which ImGui widget will be displayed in the MCM menu."
                 },
                 "Default": {
                     "anyOf": [
@@ -447,102 +381,29 @@
                             "type": "array"
                         }
                     ],
-                    "description": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid in the settings JSON."
+                    "markdownDescription": "The default value of the setting. It will be used for initialization and as a fallback if the current value is not found or invalid in the settings JSON."
                 },
                 "Tooltip": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The tooltip that will be displayed when the user hovers over the setting in the MCM menu. Will be localized if a handle is provided."
+                    "markdownDescription": "The tooltip that will be displayed when the user hovers over the setting in the MCM menu. Will be localized if a handle is provided."
                 },
                 "Description": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The description of the setting that will be displayed as text next to the ImGui widget in the MCM menu. Will be localized if a handle is provided."
+                    "markdownDescription": "The description of the setting that will be displayed as text next to the ImGui widget in the MCM menu. Will be localized if a handle is provided."
                 },
                 "Options": {
                     "type": "object",
-                    "properties": {
-                        "ConfirmDialog": {
-                            "type": "object",
-                            "properties": {
-                                "Title": {
-                                    "type": "string",
-                                    "description": "Title of the confirmation dialog"
-                                },
-                                "Message": {
-                                    "type": "string",
-                                    "description": "Message to display in the confirmation dialog"
-                                },
-                                "ConfirmText": {
-                                    "type": "string",
-                                    "description": "Text for the confirm button",
-                                    "default": "Confirm"
-                                },
-                                "CancelText": {
-                                    "type": "string",
-                                    "description": "Text for the cancel button",
-                                    "default": "Cancel"
-                                }
-                            },
-                            "required": [
-                                "Title",
-                                "Message"
-                            ],
-                            "description": "Configuration for the confirmation dialog that appears when the button is clicked. If not provided, no confirmation will be shown."
-                        },
-                        "Cooldown": {
-                            "type": [
-                                "number",
-                                "null"
-                            ],
-                            "minimum": -1,
-                            "description": "Cooldown duration in seconds before the button can be clicked again. -1 means infinite cooldown. 0 or undefined means no cooldown."
-                        },
-                        "Icon": {
-                            "type": "object",
-                            "properties": {
-                                "Name": {
-                                    "type": "string",
-                                    "description": "Name of the icon to display on the button. Must be a valid icon name from the game's icon set."
-                                },
-                                "Size": {
-                                    "type": "object",
-                                    "properties": {
-                                        "Width": {
-                                            "type": "number",
-                                            "description": "Width of the icon in pixels."
-                                        },
-                                        "Height": {
-                                            "type": "number",
-                                            "description": "Height of the icon in pixels."
-                                        }
-                                    },
-                                    "required": [
-                                        "Width",
-                                        "Height"
-                                    ],
-                                    "description": "Size of the icon in pixels."
-                                }
-                            },
-                            "required": [
-                                "Name"
-                            ],
-                            "description": "Icon configuration for the event_button, including Name and optional Size."
-                        },
-                        "Label": {
-                            "type": "string",
-                            "description": "Label for the button. Will be localized if a handle is provided."
-                        }
-                    },
-                    "description": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type). For event_button type, can include ConfirmDialog, Cooldown, Icon, and Label."
+                    "markdownDescription": "Additional options for the setting, depending on its type (e.g. choices for enum and radio types, min and max for slider type)."
                 },
                 "Handles": {
                     "$ref": "#/definitions/SettingHandles",
-                    "description": "Handles to localize the setting's strings."
+                    "markdownDescription": "Handles to localize the setting's strings."
                 },
                 "VisibleIf": {
                     "$ref": "#/definitions/VisibilityCondition",
-                    "description": "Array of Conditions that determine the visibility of this setting. A Condition is an object with SettingId, Operator, and ExpectedValue."
+                    "markdownDescription": "Array of Conditions that determine the visibility of this setting. A Condition is an object with SettingId, Operator, and ExpectedValue."
                 }
             },
             "if": {
@@ -569,12 +430,13 @@
                                 "items": {
                                     "type": "string"
                                 },
-                                "description": "The available set of choices for the enum/radio. Will be localized if handles are provided (ChoicesHandles)"
+                                "markdownDescription": "The available set of choices for the enum/radio. Will be localized if handles are provided (ChoicesHandles)"
                             }
                         },
                         "required": [
                             "Choices"
-                        ]
+                        ],
+                        "markdownDescription": "Additional options for this element."
                     }
                 }
             },
@@ -587,7 +449,8 @@
                                 "slider_float",
                                 "drag_int",
                                 "drag_float"
-                            ]
+                            ],
+                            "markdownDescription": "The setting type used by this conditional branch."
                         }
                     }
                 },
@@ -601,17 +464,18 @@
                             "properties": {
                                 "Min": {
                                     "type": "number",
-                                    "description": "The minimum value for the slider/drag."
+                                    "markdownDescription": "The minimum value for the slider/drag."
                                 },
                                 "Max": {
                                     "type": "number",
-                                    "description": "The maximum value for the slider/drag."
+                                    "markdownDescription": "The maximum value for the slider/drag."
                                 }
                             },
                             "required": [
                                 "Min",
                                 "Max"
-                            ]
+                            ],
+                            "markdownDescription": "Additional options for this element."
                         }
                     }
                 },
@@ -619,7 +483,8 @@
                     "if": {
                         "properties": {
                             "Type": {
-                                "const": "text"
+                                "const": "text",
+                                "markdownDescription": "The setting type used by this conditional branch."
                             }
                         }
                     },
@@ -630,9 +495,10 @@
                                 "properties": {
                                     "Multiline": {
                                         "type": "boolean",
-                                        "description": "Whether the text input should be multiline. Disabled by default."
+                                        "markdownDescription": "Whether the text input should be multiline. Disabled by default."
                                     }
-                                }
+                                },
+                                "markdownDescription": "Additional options for this element."
                             }
                         }
                     },
@@ -640,7 +506,8 @@
                         "if": {
                             "properties": {
                                 "Type": {
-                                    "const": "list_v2"
+                                    "const": "list_v2",
+                                    "markdownDescription": "The setting type used by this conditional branch."
                                 }
                             }
                         },
@@ -653,32 +520,33 @@
                                             "type": "integer",
                                             "minimum": 5,
                                             "maximum": 20,
-                                            "description": "The number of items to display in the list at once. Minimum 5, maximum 20. 5 by default.",
-                                            "default": 10
+                                            "default": 10,
+                                            "markdownDescription": "The number of items to display in the list at once. Minimum 5, maximum 20. 5 by default."
                                         },
                                         "ShowSearchBar": {
                                             "type": "boolean",
-                                            "description": "Whether to show a search bar in the list. Will search through all items and filter the list. Enabled by default.",
-                                            "default": false
+                                            "default": false,
+                                            "markdownDescription": "Whether to show a search bar in the list. Will search through all items and filter the list. Enabled by default."
                                         },
                                         "ReadOnly": {
                                             "type": "boolean",
-                                            "description": "Whether the list is read-only or not. This will disable the ability to add or remove items from the list. Disabled by default.",
-                                            "default": true
+                                            "default": true,
+                                            "markdownDescription": "Whether the list is read-only or not. This will disable the ability to add or remove items from the list. Disabled by default."
                                         },
                                         "AllowReordering": {
                                             "type": "boolean",
-                                            "description": "Whether the list allows reordering items UI. Disabled by default.",
-                                            "default": true
+                                            "default": true,
+                                            "markdownDescription": "Whether the list allows reordering items UI. Disabled by default."
                                         },
                                         "Suggestions": {
                                             "type": "array",
                                             "items": {
                                                 "type": "string"
                                             },
-                                            "description": "A list of suggestions that will be displayed when the user types in the input box."
+                                            "markdownDescription": "A list of suggestions that will be displayed when the user types in the input box."
                                         }
-                                    }
+                                    },
+                                    "markdownDescription": "Additional options for this element."
                                 }
                             }
                         },
@@ -686,393 +554,492 @@
                             "if": {
                                 "properties": {
                                     "Type": {
-                                        "const": "keybinding_v2"
+                                        "const": "event_button",
+                                        "markdownDescription": "The setting type used by this conditional branch."
                                     }
                                 }
                             },
                             "then": {
                                 "properties": {
-                                    "Default": {
-                                        "type": "object",
-                                        "properties": {
-                                            "Enabled": {
-                                                "type": "boolean",
-                                                "description": "Indicates if the keybinding is enabled."
-                                            },
-                                            "Keyboard": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "ModifierKeys": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "string",
-                                                            "enum": [
-                                                                "LCtrl",
-                                                                "LShift",
-                                                                "LAlt",
-                                                                "Meta"
-                                                            ]
-                                                        },
-                                                        "description": "Modifier keys for the keyboard binding.",
-                                                        "minItems": 0
-                                                    },
-                                                    "Key": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                            "",
-                                                            "UNKNOWN",
-                                                            "A",
-                                                            "B",
-                                                            "C",
-                                                            "D",
-                                                            "E",
-                                                            "F",
-                                                            "G",
-                                                            "H",
-                                                            "I",
-                                                            "J",
-                                                            "K",
-                                                            "L",
-                                                            "M",
-                                                            "N",
-                                                            "O",
-                                                            "P",
-                                                            "Q",
-                                                            "R",
-                                                            "S",
-                                                            "T",
-                                                            "U",
-                                                            "V",
-                                                            "W",
-                                                            "X",
-                                                            "Y",
-                                                            "Z",
-                                                            "NUM_1",
-                                                            "NUM_2",
-                                                            "NUM_3",
-                                                            "NUM_4",
-                                                            "NUM_5",
-                                                            "NUM_6",
-                                                            "NUM_7",
-                                                            "NUM_8",
-                                                            "NUM_9",
-                                                            "NUM_0",
-                                                            "RETURN",
-                                                            "ESCAPE",
-                                                            "BACKSPACE",
-                                                            "TAB",
-                                                            "SPACE",
-                                                            "MINUS",
-                                                            "EQUALS",
-                                                            "LEFTBRACKET",
-                                                            "RIGHTBRACKET",
-                                                            "BACKSLASH",
-                                                            "NONUSHASH",
-                                                            "SEMICOLON",
-                                                            "APOSTROPHE",
-                                                            "GRAVE",
-                                                            "COMMA",
-                                                            "PERIOD",
-                                                            "SLASH",
-                                                            "CAPSLOCK",
-                                                            "F1",
-                                                            "F2",
-                                                            "F3",
-                                                            "F4",
-                                                            "F5",
-                                                            "F6",
-                                                            "F7",
-                                                            "F8",
-                                                            "F9",
-                                                            "F10",
-                                                            "F11",
-                                                            "F12",
-                                                            "PRINTSCREEN",
-                                                            "SCROLLLOCK",
-                                                            "PAUSE",
-                                                            "INSERT",
-                                                            "HOME",
-                                                            "PAGEUP",
-                                                            "DEL",
-                                                            "END",
-                                                            "PAGEDOWN",
-                                                            "RIGHT",
-                                                            "LEFT",
-                                                            "DOWN",
-                                                            "UP",
-                                                            "NUMLOCKCLEAR",
-                                                            "KP_DIVIDE",
-                                                            "KP_MULTIPLY",
-                                                            "KP_MINUS",
-                                                            "KP_PLUS",
-                                                            "KP_ENTER",
-                                                            "KP_1",
-                                                            "KP_2",
-                                                            "KP_3",
-                                                            "KP_4",
-                                                            "KP_5",
-                                                            "KP_6",
-                                                            "KP_7",
-                                                            "KP_8",
-                                                            "KP_9",
-                                                            "KP_0",
-                                                            "KP_PERIOD",
-                                                            "NONUSBACKSLASH",
-                                                            "APPLICATION",
-                                                            "POWER",
-                                                            "KP_EQUALS",
-                                                            "F13",
-                                                            "F14",
-                                                            "F15",
-                                                            "F16",
-                                                            "F17",
-                                                            "F18",
-                                                            "F19",
-                                                            "F20",
-                                                            "F21",
-                                                            "F22",
-                                                            "F23",
-                                                            "F24",
-                                                            "EXECUTE",
-                                                            "HELP",
-                                                            "MENU",
-                                                            "SELECT",
-                                                            "STOP",
-                                                            "AGAIN",
-                                                            "UNDO",
-                                                            "CUT",
-                                                            "COPY",
-                                                            "PASTE",
-                                                            "FIND",
-                                                            "MUTE",
-                                                            "VOLUMEUP",
-                                                            "VOLUMEDOWN",
-                                                            "KP_COMMA",
-                                                            "KP_EQUALSAS400",
-                                                            "INTERNATIONAL1",
-                                                            "INTERNATIONAL2",
-                                                            "INTERNATIONAL3",
-                                                            "INTERNATIONAL4",
-                                                            "INTERNATIONAL5",
-                                                            "INTERNATIONAL6",
-                                                            "INTERNATIONAL7",
-                                                            "INTERNATIONAL8",
-                                                            "INTERNATIONAL9",
-                                                            "LANG1",
-                                                            "LANG2",
-                                                            "LANG3",
-                                                            "LANG4",
-                                                            "LANG5",
-                                                            "LANG6",
-                                                            "LANG7",
-                                                            "LANG8",
-                                                            "LANG9",
-                                                            "ALTERASE",
-                                                            "SYSREQ",
-                                                            "CANCEL",
-                                                            "CLEAR",
-                                                            "PRIOR",
-                                                            "RETURN2",
-                                                            "SEPARATOR",
-                                                            "KEY_OUT",
-                                                            "OPER",
-                                                            "CLEARAGAIN",
-                                                            "CRSEL",
-                                                            "EXSEL",
-                                                            "KP_00",
-                                                            "KP_000",
-                                                            "THOUSANDSSEPARATOR",
-                                                            "DECIMALSEPARATOR",
-                                                            "CURRENCYUNIT",
-                                                            "CURRENCYSUBUNIT",
-                                                            "KP_LEFTPAREN",
-                                                            "KP_RIGHTPAREN",
-                                                            "KP_LEFTBRACE",
-                                                            "KP_RIGHTBRACE",
-                                                            "KP_TAB",
-                                                            "KP_BACKSPACE",
-                                                            "KP_A",
-                                                            "KP_B",
-                                                            "KP_C",
-                                                            "KP_D",
-                                                            "KP_E",
-                                                            "KP_F",
-                                                            "KP_XOR",
-                                                            "KP_POWER",
-                                                            "KP_PERCENT",
-                                                            "KP_LESS",
-                                                            "KP_GREATER",
-                                                            "KP_AMPERSAND",
-                                                            "KP_DBLAMPERSAND",
-                                                            "KP_VERTICALBAR",
-                                                            "KP_DBLVERTICALBAR",
-                                                            "KP_COLON",
-                                                            "KP_HASH",
-                                                            "KP_SPACE",
-                                                            "KP_AT",
-                                                            "KP_EXCLAM",
-                                                            "KP_MEMSTORE",
-                                                            "KP_MEMRECALL",
-                                                            "KP_MEMCLEAR",
-                                                            "KP_MEMADD",
-                                                            "KP_MEMSUBTRACT",
-                                                            "KP_MEMMULTIPLY",
-                                                            "KP_MEMDIVIDE",
-                                                            "KP_PLUSMINUS",
-                                                            "KP_CLEAR",
-                                                            "KP_CLEARENTRY",
-                                                            "KP_BINARY",
-                                                            "KP_OCTAL",
-                                                            "KP_DECIMAL",
-                                                            "KP_HEXADECIMAL",
-                                                            "LCTRL",
-                                                            "LSHIFT",
-                                                            "LALT",
-                                                            "LGUI",
-                                                            "RCTRL",
-                                                            "RSHIFT",
-                                                            "RALT",
-                                                            "RGUI",
-                                                            "MODE",
-                                                            "AUDIONEXT",
-                                                            "AUDIOPREV",
-                                                            "AUDIOSTOP",
-                                                            "AUDIOPLAY",
-                                                            "AUDIOMUTE",
-                                                            "MEDIASELECT",
-                                                            "WWW",
-                                                            "MAIL",
-                                                            "CALCULATOR",
-                                                            "COMPUTER",
-                                                            "AC_SEARCH",
-                                                            "AC_HOME",
-                                                            "AC_BACK",
-                                                            "AC_FORWARD",
-                                                            "AC_STOP",
-                                                            "AC_REFRESH",
-                                                            "AC_BOOKMARKS",
-                                                            "BRIGHTNESSDOWN",
-                                                            "BRIGHTNESSUP",
-                                                            "DISPLAYSWITCH",
-                                                            "KBDILLUMTOGGLE",
-                                                            "KBDILLUMDOWN",
-                                                            "KBDILLUMUP",
-                                                            "EJECT",
-                                                            "SLEEP",
-                                                            "APP1",
-                                                            "APP2",
-                                                            "AUDIOREWIND",
-                                                            "AUDIOFASTFORWARD",
-                                                            "SOFTLEFT",
-                                                            "SOFTRIGHT",
-                                                            "CALL",
-                                                            "ENDCALL"
-                                                        ],
-                                                        "description": "Primary key for the keyboard binding. Listed in the enum"
-                                                    }
-                                                },
-                                                "anyOf": [
-                                                    {
-                                                        "required": [
-                                                            "Key"
-                                                        ]
-                                                    },
-                                                    {
-                                                        "required": [
-                                                            "ModifierKeys"
-                                                        ]
-                                                    }
-                                                ],
-                                                "additionalProperties": false
-                                            },
-                                            "Mouse": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "Button": {
-                                                        "type": "string",
-                                                        "pattern": "^[0-9]+$",
-                                                        "description": "Mouse button number for the mouse binding. NOT IMPLEMENTED."
-                                                    }
-                                                },
-                                                "required": [
-                                                    "Button"
-                                                ],
-                                                "additionalProperties": false
-                                            }
-                                        },
-                                        "anyOf": [
-                                            {
-                                                "oneOf": [
-                                                    {
-                                                        "required": [
-                                                            "Keyboard"
-                                                        ]
-                                                    },
-                                                    {
-                                                        "required": [
-                                                            "Mouse"
-                                                        ]
-                                                    }
-                                                ]
-                                            }
-                                        ],
-                                        "description": "Default keybinding configuration. Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence."
-                                    },
                                     "Options": {
                                         "type": "object",
-                                        "properties": {
-                                            "ShouldTriggerOnKeyDown": {
-                                                "type": "boolean",
-                                                "description": "Trigger the action when the key is pressed down. Default: true",
-                                                "default": true
-                                            },
-                                            "ShouldTriggerOnKeyUp": {
-                                                "type": "boolean",
-                                                "description": "Trigger the action when the key is released. Default: false",
-                                                "default": false
-                                            },
-                                            "ShouldTriggerOnRepeat": {
-                                                "type": "boolean",
-                                                "description": "Trigger the action repeatedly while the key is held down. Default: false",
-                                                "default": false
-                                            },
-                                            "IsDeveloperOnly": {
-                                                "type": "boolean",
-                                                "description": "Make this keybinding only visible if developer mode is enabled. Default: false",
-                                                "default": false
-                                            },
-                                            "BlockIfLevelNotStarted": {
-                                                "type": "boolean",
-                                                "description": "Prevent the keybinding from triggering when the game level has not started yet. Useful for actions that should only work in-game, not in the main menu. Default: false",
-                                                "default": false
-                                            },
-                                            "PreventAction": {
-                                                "type": "boolean",
-                                                "description": "When true (default), the keybinding will prevent the original game action. When false, allows the original action to occur (i.e. the key event will 'fall through').",
-                                                "default": true
-                                            },
-                                            "AllowConflict": {
-                                                "type": "boolean",
-                                                "description": "Whether this keybinding should conflict with other keybindings. Default: true",
-                                                "default": true
-                                            },
-                                            "SkipCallback": {
-                                                "type": "boolean",
-                                                "description": "Whether to skip checking for an existing callback for this keybinding. Default: false",
-                                                "default": true
-                                            }
-                                        },
                                         "additionalProperties": false,
-                                        "description": "Optional: Options for how the keybinding should behave."
+                                        "markdownDescription": "Additional options for `event_button` settings.",
+                                        "properties": {
+                                            "ConfirmDialog": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "required": [
+                                                    "Title",
+                                                    "Message"
+                                                ],
+                                                "markdownDescription": "Configuration for the confirmation dialog shown before the button callback runs. If omitted, no confirmation is shown.",
+                                                "properties": {
+                                                    "Title": {
+                                                        "type": "string",
+                                                        "markdownDescription": "Title of the confirmation dialog."
+                                                    },
+                                                    "Message": {
+                                                        "type": "string",
+                                                        "markdownDescription": "Message shown in the confirmation dialog."
+                                                    },
+                                                    "ConfirmText": {
+                                                        "type": "string",
+                                                        "default": "Confirm",
+                                                        "markdownDescription": "Text shown on the confirm button. Defaults to `Confirm`."
+                                                    },
+                                                    "CancelText": {
+                                                        "type": "string",
+                                                        "default": "Cancel",
+                                                        "markdownDescription": "Text shown on the cancel button. Defaults to `Cancel`."
+                                                    }
+                                                }
+                                            },
+                                            "Cooldown": {
+                                                "type": [
+                                                    "number",
+                                                    "null"
+                                                ],
+                                                "minimum": -1,
+                                                "markdownDescription": "Cooldown duration in seconds before the button can be clicked again. `-1` means infinite cooldown. `0` or `undefined` means no cooldown."
+                                            },
+                                            "Icon": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "required": [
+                                                    "Name"
+                                                ],
+                                                "markdownDescription": "Icon configuration for `event_button`, including `Name` and optional `Size`.",
+                                                "properties": {
+                                                    "Name": {
+                                                        "type": "string",
+                                                        "minLength": 1,
+                                                        "markdownDescription": "Name of the icon to display on the button. Must be a valid icon name from the game icon set."
+                                                    },
+                                                    "Size": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "required": [
+                                                            "Width",
+                                                            "Height"
+                                                        ],
+                                                        "markdownDescription": "Size of the icon in pixels.",
+                                                        "properties": {
+                                                            "Width": {
+                                                                "type": "number",
+                                                                "markdownDescription": "Width of the icon in pixels."
+                                                            },
+                                                            "Height": {
+                                                                "type": "number",
+                                                                "markdownDescription": "Height of the icon in pixels."
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "Label": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "markdownDescription": "Optional label for the button. If omitted, the setting name is used. Will be localized if a handle is provided."
+                                            }
+                                        }
                                     }
                                 }
                             },
-                            "else": {}
+                            "else": {
+                                "if": {
+                                    "properties": {
+                                        "Type": {
+                                            "const": "keybinding_v2",
+                                            "markdownDescription": "The setting type used by this conditional branch."
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "properties": {
+                                        "Default": {
+                                            "type": "object",
+                                            "properties": {
+                                                "Enabled": {
+                                                    "type": "boolean",
+                                                    "markdownDescription": "Indicates if the keybinding is enabled."
+                                                },
+                                                "Keyboard": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "ModifierKeys": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "LCtrl",
+                                                                    "LShift",
+                                                                    "LAlt",
+                                                                    "Meta"
+                                                                ]
+                                                            },
+                                                            "minItems": 0,
+                                                            "markdownDescription": "Modifier keys for the keyboard binding."
+                                                        },
+                                                        "Key": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "",
+                                                                "UNKNOWN",
+                                                                "A",
+                                                                "B",
+                                                                "C",
+                                                                "D",
+                                                                "E",
+                                                                "F",
+                                                                "G",
+                                                                "H",
+                                                                "I",
+                                                                "J",
+                                                                "K",
+                                                                "L",
+                                                                "M",
+                                                                "N",
+                                                                "O",
+                                                                "P",
+                                                                "Q",
+                                                                "R",
+                                                                "S",
+                                                                "T",
+                                                                "U",
+                                                                "V",
+                                                                "W",
+                                                                "X",
+                                                                "Y",
+                                                                "Z",
+                                                                "NUM_1",
+                                                                "NUM_2",
+                                                                "NUM_3",
+                                                                "NUM_4",
+                                                                "NUM_5",
+                                                                "NUM_6",
+                                                                "NUM_7",
+                                                                "NUM_8",
+                                                                "NUM_9",
+                                                                "NUM_0",
+                                                                "RETURN",
+                                                                "ESCAPE",
+                                                                "BACKSPACE",
+                                                                "TAB",
+                                                                "SPACE",
+                                                                "MINUS",
+                                                                "EQUALS",
+                                                                "LEFTBRACKET",
+                                                                "RIGHTBRACKET",
+                                                                "BACKSLASH",
+                                                                "NONUSHASH",
+                                                                "SEMICOLON",
+                                                                "APOSTROPHE",
+                                                                "GRAVE",
+                                                                "COMMA",
+                                                                "PERIOD",
+                                                                "SLASH",
+                                                                "CAPSLOCK",
+                                                                "F1",
+                                                                "F2",
+                                                                "F3",
+                                                                "F4",
+                                                                "F5",
+                                                                "F6",
+                                                                "F7",
+                                                                "F8",
+                                                                "F9",
+                                                                "F10",
+                                                                "F11",
+                                                                "F12",
+                                                                "PRINTSCREEN",
+                                                                "SCROLLLOCK",
+                                                                "PAUSE",
+                                                                "INSERT",
+                                                                "HOME",
+                                                                "PAGEUP",
+                                                                "DEL",
+                                                                "END",
+                                                                "PAGEDOWN",
+                                                                "RIGHT",
+                                                                "LEFT",
+                                                                "DOWN",
+                                                                "UP",
+                                                                "NUMLOCKCLEAR",
+                                                                "KP_DIVIDE",
+                                                                "KP_MULTIPLY",
+                                                                "KP_MINUS",
+                                                                "KP_PLUS",
+                                                                "KP_ENTER",
+                                                                "KP_1",
+                                                                "KP_2",
+                                                                "KP_3",
+                                                                "KP_4",
+                                                                "KP_5",
+                                                                "KP_6",
+                                                                "KP_7",
+                                                                "KP_8",
+                                                                "KP_9",
+                                                                "KP_0",
+                                                                "KP_PERIOD",
+                                                                "NONUSBACKSLASH",
+                                                                "APPLICATION",
+                                                                "POWER",
+                                                                "KP_EQUALS",
+                                                                "F13",
+                                                                "F14",
+                                                                "F15",
+                                                                "F16",
+                                                                "F17",
+                                                                "F18",
+                                                                "F19",
+                                                                "F20",
+                                                                "F21",
+                                                                "F22",
+                                                                "F23",
+                                                                "F24",
+                                                                "EXECUTE",
+                                                                "HELP",
+                                                                "MENU",
+                                                                "SELECT",
+                                                                "STOP",
+                                                                "AGAIN",
+                                                                "UNDO",
+                                                                "CUT",
+                                                                "COPY",
+                                                                "PASTE",
+                                                                "FIND",
+                                                                "MUTE",
+                                                                "VOLUMEUP",
+                                                                "VOLUMEDOWN",
+                                                                "KP_COMMA",
+                                                                "KP_EQUALSAS400",
+                                                                "INTERNATIONAL1",
+                                                                "INTERNATIONAL2",
+                                                                "INTERNATIONAL3",
+                                                                "INTERNATIONAL4",
+                                                                "INTERNATIONAL5",
+                                                                "INTERNATIONAL6",
+                                                                "INTERNATIONAL7",
+                                                                "INTERNATIONAL8",
+                                                                "INTERNATIONAL9",
+                                                                "LANG1",
+                                                                "LANG2",
+                                                                "LANG3",
+                                                                "LANG4",
+                                                                "LANG5",
+                                                                "LANG6",
+                                                                "LANG7",
+                                                                "LANG8",
+                                                                "LANG9",
+                                                                "ALTERASE",
+                                                                "SYSREQ",
+                                                                "CANCEL",
+                                                                "CLEAR",
+                                                                "PRIOR",
+                                                                "RETURN2",
+                                                                "SEPARATOR",
+                                                                "KEY_OUT",
+                                                                "OPER",
+                                                                "CLEARAGAIN",
+                                                                "CRSEL",
+                                                                "EXSEL",
+                                                                "KP_00",
+                                                                "KP_000",
+                                                                "THOUSANDSSEPARATOR",
+                                                                "DECIMALSEPARATOR",
+                                                                "CURRENCYUNIT",
+                                                                "CURRENCYSUBUNIT",
+                                                                "KP_LEFTPAREN",
+                                                                "KP_RIGHTPAREN",
+                                                                "KP_LEFTBRACE",
+                                                                "KP_RIGHTBRACE",
+                                                                "KP_TAB",
+                                                                "KP_BACKSPACE",
+                                                                "KP_A",
+                                                                "KP_B",
+                                                                "KP_C",
+                                                                "KP_D",
+                                                                "KP_E",
+                                                                "KP_F",
+                                                                "KP_XOR",
+                                                                "KP_POWER",
+                                                                "KP_PERCENT",
+                                                                "KP_LESS",
+                                                                "KP_GREATER",
+                                                                "KP_AMPERSAND",
+                                                                "KP_DBLAMPERSAND",
+                                                                "KP_VERTICALBAR",
+                                                                "KP_DBLVERTICALBAR",
+                                                                "KP_COLON",
+                                                                "KP_HASH",
+                                                                "KP_SPACE",
+                                                                "KP_AT",
+                                                                "KP_EXCLAM",
+                                                                "KP_MEMSTORE",
+                                                                "KP_MEMRECALL",
+                                                                "KP_MEMCLEAR",
+                                                                "KP_MEMADD",
+                                                                "KP_MEMSUBTRACT",
+                                                                "KP_MEMMULTIPLY",
+                                                                "KP_MEMDIVIDE",
+                                                                "KP_PLUSMINUS",
+                                                                "KP_CLEAR",
+                                                                "KP_CLEARENTRY",
+                                                                "KP_BINARY",
+                                                                "KP_OCTAL",
+                                                                "KP_DECIMAL",
+                                                                "KP_HEXADECIMAL",
+                                                                "LCTRL",
+                                                                "LSHIFT",
+                                                                "LALT",
+                                                                "LGUI",
+                                                                "RCTRL",
+                                                                "RSHIFT",
+                                                                "RALT",
+                                                                "RGUI",
+                                                                "MODE",
+                                                                "AUDIONEXT",
+                                                                "AUDIOPREV",
+                                                                "AUDIOSTOP",
+                                                                "AUDIOPLAY",
+                                                                "AUDIOMUTE",
+                                                                "MEDIASELECT",
+                                                                "WWW",
+                                                                "MAIL",
+                                                                "CALCULATOR",
+                                                                "COMPUTER",
+                                                                "AC_SEARCH",
+                                                                "AC_HOME",
+                                                                "AC_BACK",
+                                                                "AC_FORWARD",
+                                                                "AC_STOP",
+                                                                "AC_REFRESH",
+                                                                "AC_BOOKMARKS",
+                                                                "BRIGHTNESSDOWN",
+                                                                "BRIGHTNESSUP",
+                                                                "DISPLAYSWITCH",
+                                                                "KBDILLUMTOGGLE",
+                                                                "KBDILLUMDOWN",
+                                                                "KBDILLUMUP",
+                                                                "EJECT",
+                                                                "SLEEP",
+                                                                "APP1",
+                                                                "APP2",
+                                                                "AUDIOREWIND",
+                                                                "AUDIOFASTFORWARD",
+                                                                "SOFTLEFT",
+                                                                "SOFTRIGHT",
+                                                                "CALL",
+                                                                "ENDCALL"
+                                                            ],
+                                                            "markdownDescription": "Primary key for the keyboard binding. Listed in the enum"
+                                                        }
+                                                    },
+                                                    "anyOf": [
+                                                        {
+                                                            "required": [
+                                                                "Key"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "required": [
+                                                                "ModifierKeys"
+                                                            ]
+                                                        }
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "markdownDescription": "Configuration object for `Keyboard`."
+                                                },
+                                                "Mouse": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "Button": {
+                                                            "type": "string",
+                                                            "pattern": "^[0-9]+$",
+                                                            "markdownDescription": "Mouse button number for the mouse binding. NOT IMPLEMENTED."
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "Button"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "markdownDescription": "Configuration object for `Mouse`."
+                                                }
+                                            },
+                                            "anyOf": [
+                                                {
+                                                    "oneOf": [
+                                                        {
+                                                            "required": [
+                                                                "Keyboard"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "required": [
+                                                                "Mouse"
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "markdownDescription": "Default keybinding configuration. Keyboard and Mouse are mutually exclusive, and Keyboard takes precedence."
+                                        },
+                                        "Options": {
+                                            "type": "object",
+                                            "properties": {
+                                                "ShouldTriggerOnKeyDown": {
+                                                    "type": "boolean",
+                                                    "default": true,
+                                                    "markdownDescription": "Trigger the action when the key is pressed down. Default: `true`"
+                                                },
+                                                "ShouldTriggerOnKeyUp": {
+                                                    "type": "boolean",
+                                                    "default": false,
+                                                    "markdownDescription": "Trigger the action when the key is released. Default: `false`"
+                                                },
+                                                "ShouldTriggerOnRepeat": {
+                                                    "type": "boolean",
+                                                    "default": false,
+                                                    "markdownDescription": "Trigger the action repeatedly while the key is held down. Default: `false`"
+                                                },
+                                                "IsDeveloperOnly": {
+                                                    "type": "boolean",
+                                                    "default": false,
+                                                    "markdownDescription": "Make this keybinding only visible if developer mode is enabled. Default: `false`"
+                                                },
+                                                "BlockIfLevelNotStarted": {
+                                                    "type": "boolean",
+                                                    "default": false,
+                                                    "markdownDescription": "Prevent the keybinding from triggering when the game level has not started yet. Useful for actions that should only work in-game, not in the main menu. Default: `false`"
+                                                },
+                                                "PreventAction": {
+                                                    "type": "boolean",
+                                                    "default": true,
+                                                    "markdownDescription": "When `true` (default), the keybinding will prevent the original game action. When `false`, allows the original action to occur (i.e. the key event will 'fall through')."
+                                                },
+                                                "AllowConflict": {
+                                                    "type": "boolean",
+                                                    "default": true,
+                                                    "markdownDescription": "Whether this keybinding should conflict with other keybindings. Default: `true`"
+                                                },
+                                                "SkipCallback": {
+                                                    "type": "boolean",
+                                                    "default": true,
+                                                    "markdownDescription": "Whether to skip checking for an existing callback for this keybinding. Default: `false`"
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "markdownDescription": "Optional: Options for how the keybinding should behave."
+                                        }
+                                    }
+                                },
+                                "else": {}
+                            }
                         }
                     }
                 }
             },
-            "description": "A single setting in the MCM menu, which can be of various types for different input methods.",
             "examples": [
                 {
                     "Id": "IntSetting",
@@ -1296,7 +1263,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "markdownDescription": "A single setting in the MCM menu, which can be of various types for different input methods."
         },
         "Section": {
             "type": "object",
@@ -1305,17 +1273,17 @@
                 "SectionId": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The unique identifier for the section. This value should be unique across all sections in the blueprint."
+                    "markdownDescription": "The unique identifier for the section. This value should be unique across all sections in the blueprint."
                 },
                 "SectionName": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
+                    "markdownDescription": "The name of the section that will be displayed as a header in the MCM menu. Will be localized if a handle is provided."
                 },
                 "SectionDescription": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The description of the section that will be displayed as a description in the MCM menu. Will be localized if a handle is provided."
+                    "markdownDescription": "The description of the section that will be displayed as a description in the MCM menu. Will be localized if a handle is provided."
                 },
                 "Tabs": {
                     "type": "array",
@@ -1323,7 +1291,7 @@
                     "items": {
                         "$ref": "#/definitions/Tab"
                     },
-                    "description": "The tabs that will be displayed within the section. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
+                    "markdownDescription": "The tabs that will be displayed within the section. They provide a distinct visual separation in the MCM menu, with headers and optional descriptions."
                 },
                 "Settings": {
                     "type": "array",
@@ -1332,15 +1300,15 @@
                     "items": {
                         "$ref": "#/definitions/Setting"
                     },
-                    "description": "The settings that will be displayed within the section."
+                    "markdownDescription": "The settings that will be displayed within the section."
                 },
                 "Handles": {
                     "$ref": "#/definitions/SectionHandles",
-                    "description": "Handles to localize the section's strings."
+                    "markdownDescription": "Handles to localize the section's strings."
                 },
                 "VisibleIf": {
                     "$ref": "#/definitions/VisibilityCondition",
-                    "description": "Array of Conditions that determine the visibility of this section. Condition is an object with SettingId, Operator, and ExpectedValue."
+                    "markdownDescription": "Array of Conditions that determine the visibility of this section. Condition is an object with SettingId, Operator, and ExpectedValue."
                 },
                 "Options": {
                     "type": "object",
@@ -1348,10 +1316,11 @@
                     "properties": {
                         "IsCollapsible": {
                             "type": "boolean",
-                            "description": "Whether the section is collapsible or not.",
-                            "default": true
+                            "default": true,
+                            "markdownDescription": "Whether the section is collapsible or not."
                         }
-                    }
+                    },
+                    "markdownDescription": "Display options for the section."
                 }
             },
             "required": [
@@ -1370,7 +1339,7 @@
                     ]
                 }
             ],
-            "description": "A section within a tab in the MCM menu."
+            "markdownDescription": "A section within a tab in the MCM menu."
         },
         "TabHandles": {
             "type": "object",
@@ -1379,18 +1348,18 @@
                 "NameHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the name of the tab."
+                    "markdownDescription": "The handle to be used to localize the name of the tab."
                 },
                 "DescriptionHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the description of the tab."
+                    "markdownDescription": "The handle to be used to localize the description of the tab."
                 }
             },
             "required": [
                 "NameHandle"
             ],
-            "description": "Handles that can be used to localize tab strings."
+            "markdownDescription": "Handles that can be used to localize tab strings."
         },
         "TopLevelHandles": {
             "type": "object",
@@ -1399,18 +1368,18 @@
                 "NameHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the name of the mod."
+                    "markdownDescription": "The handle to be used to localize the name of the mod."
                 },
                 "DescriptionHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the description of the mod."
+                    "markdownDescription": "The handle to be used to localize the description of the mod."
                 }
             },
             "required": [
                 "NameHandle"
             ],
-            "description": "Handles that can be used to localize the top-level mod strings."
+            "markdownDescription": "Handles that can be used to localize the top-level mod strings."
         },
         "SectionHandles": {
             "type": "object",
@@ -1419,18 +1388,18 @@
                 "NameHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the name of the section."
+                    "markdownDescription": "The handle to be used to localize the name of the section."
                 },
                 "DescriptionHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the description of the section."
+                    "markdownDescription": "The handle to be used to localize the description of the section."
                 }
             },
             "required": [
                 "NameHandle"
             ],
-            "description": "A list of handles that can be used to localize a section."
+            "markdownDescription": "A list of handles that can be used to localize a section."
         },
         "SettingHandles": {
             "type": "object",
@@ -1439,17 +1408,17 @@
                 "NameHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the name of the setting."
+                    "markdownDescription": "The handle to be used to localize the name of the setting."
                 },
                 "DescriptionHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the description of the setting."
+                    "markdownDescription": "The handle to be used to localize the description of the setting."
                 },
                 "TooltipHandle": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "The handle to be used to localize the tooltip of the setting."
+                    "markdownDescription": "The handle to be used to localize the tooltip of the setting."
                 },
                 "ChoicesHandles": {
                     "type": "array",
@@ -1457,7 +1426,7 @@
                         "type": "string",
                         "minLength": 1
                     },
-                    "description": "Handles to be used to localize choices for enums/radios."
+                    "markdownDescription": "Handles to be used to localize choices for enums/radios."
                 },
                 "EventButtonHandles": {
                     "type": "object",
@@ -1466,7 +1435,7 @@
                         "LabelHandle": {
                             "type": "string",
                             "minLength": 1,
-                            "description": "The handle to be used to localize the label of the button."
+                            "markdownDescription": "The handle to be used to localize the label of the button."
                         },
                         "ConfirmDialogHandles": {
                             "type": "object",
@@ -1475,22 +1444,22 @@
                                 "TitleHandle": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "description": "The handle to be used to localize the title of the confirmation dialog."
+                                    "markdownDescription": "The handle to be used to localize the title of the confirmation dialog."
                                 },
                                 "MessageHandle": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "description": "The handle to be used to localize the message of the confirmation dialog."
+                                    "markdownDescription": "The handle to be used to localize the message of the confirmation dialog."
                                 },
                                 "ConfirmTextHandle": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "description": "The handle to be used to localize the confirm text of the confirmation dialog."
+                                    "markdownDescription": "The handle to be used to localize the confirm text of the confirmation dialog."
                                 },
                                 "CancelTextHandle": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "description": "The handle to be used to localize the cancel text of the confirmation dialog."
+                                    "markdownDescription": "The handle to be used to localize the cancel text of the confirmation dialog."
                                 }
                             },
                             "required": [
@@ -1498,15 +1467,17 @@
                                 "MessageHandle",
                                 "ConfirmTextHandle",
                                 "CancelTextHandle"
-                            ]
+                            ],
+                            "markdownDescription": "Handles used to localize confirmation dialog strings for `event_button`."
                         }
-                    }
+                    },
+                    "markdownDescription": "Handles used to localize `event_button`-specific strings."
                 }
             },
             "required": [
                 "NameHandle"
             ],
-            "description": "Handles that can be used to localize a setting."
+            "markdownDescription": "Handles that can be used to localize a setting."
         },
         "VisibilityCondition": {
             "type": "object",
@@ -1520,20 +1491,21 @@
                         "and",
                         "or"
                     ],
-                    "description": "The logical operator to use between the conditions. Defaults to 'and'."
+                    "markdownDescription": "The logical operator to use between the conditions. Defaults to `and`."
                 },
                 "Conditions": {
                     "type": "array",
                     "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/Condition"
-                    }
+                    },
+                    "markdownDescription": "List of conditions evaluated for visibility."
                 }
             },
             "required": [
                 "Conditions"
             ],
-            "description": "A boolean expression that determines the visibility of this element."
+            "markdownDescription": "A boolean expression that determines the visibility of this element."
         },
         "Condition": {
             "type": "object",
@@ -1541,37 +1513,37 @@
             "properties": {
                 "SettingId": {
                     "type": "string",
-                    "description": "The ID of the setting used for the comparison."
+                    "markdownDescription": "The ID of the setting used for the comparison."
                 },
                 "Operator": {
                     "type": "string",
                     "oneOf": [
                         {
                             "const": "==",
-                            "description": "Check if value of SettingId is equal to ExpectedValue"
+                            "markdownDescription": "Check if value of SettingId is equal to ExpectedValue"
                         },
                         {
                             "const": "!=",
-                            "description": "Check if value of SettingId is not equal to ExpectedValue"
+                            "markdownDescription": "Check if value of SettingId is not equal to ExpectedValue"
                         },
                         {
                             "const": ">",
-                            "description": "Check if value of SettingId is greater than ExpectedValue"
+                            "markdownDescription": "Check if value of SettingId is greater than ExpectedValue"
                         },
                         {
                             "const": "<",
-                            "description": "Check if value of SettingId is less than ExpectedValue"
+                            "markdownDescription": "Check if value of SettingId is less than ExpectedValue"
                         },
                         {
                             "const": ">=",
-                            "description": "Check if value of SettingId is greater than or equal to ExpectedValue"
+                            "markdownDescription": "Check if value of SettingId is greater than or equal to ExpectedValue"
                         },
                         {
                             "const": "<=",
-                            "description": "Check if value of SettingId is less than or equal to ExpectedValue"
+                            "markdownDescription": "Check if value of SettingId is less than or equal to ExpectedValue"
                         }
                     ],
-                    "description": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
+                    "markdownDescription": "The operator to use for the comparison, as in the following order: setting's value <OPERATOR> ExpectedValue."
                 },
                 "ExpectedValue": {
                     "anyOf": [
@@ -1582,7 +1554,7 @@
                             "type": "boolean"
                         }
                     ],
-                    "description": "The expected value of the setting specified by SettingId for this element to be visible."
+                    "markdownDescription": "The expected value of the setting specified by SettingId for this element to be visible."
                 }
             },
             "required": [
