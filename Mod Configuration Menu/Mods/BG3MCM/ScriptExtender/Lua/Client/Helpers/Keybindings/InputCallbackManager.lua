@@ -14,6 +14,7 @@ InputCallbackManager._PendingKeybindingCallbacks = {}
 InputCallbackManager.KeybindingsLoadedSubject = RX.ReplaySubject.Create(1)
 
 --- Registers a keybinding callback, queued for registration once keybindings are loaded.
+--- REVIEW: Maybe we don't want separate event type registrations. Still thinking about that.
 ---@param modUUID string The mod's unique identifier.
 ---@param actionId string The key of the action.
 ---@param callback function The callback to invoke when that keybinding is triggered.
