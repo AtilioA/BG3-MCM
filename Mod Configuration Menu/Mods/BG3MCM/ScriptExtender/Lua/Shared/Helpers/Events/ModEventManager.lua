@@ -17,6 +17,53 @@ local deprecatedEventNameMap = {
     MCM_Window_Closed = "MCM_User_Closed_Window"
 }
 
+local function createLegacyMetapayload(channel, payload)
+    return Ext.Json.Stringify({
+        channel = channel,
+        payload = payload
+    })
+end
+
+local function postLegacyNetMessageToServerAndClients(channel, payload)
+    if not channel then
+        MCMWarn(0, "Cannot send legacy net message with nil channel")
+        return false
+    end
+
+    if payload == nil then
+        payload = {}
+    end
+
+    local okPayload, payloadJson = pcall(Ext.Json.Stringify, payload)
+    if not okPayload then
+        MCMWarn(0, "Failed to serialize legacy payload for channel '" .. tostring(channel) .. "'")
+        return false
+    end
+
+    local okMeta, metapayload = pcall(createLegacyMetapayload, channel, payload)
+    if not okMeta then
+        MCMWarn(0, "Failed to serialize legacy metapayload for channel '" .. tostring(channel) .. "'")
+        return false
+    end
+
+    local sent = false
+    xpcall(function()
+        if Ext.IsServer() then
+            Ext.Net.BroadcastMessage(channel, payloadJson)
+            Ext.Net.BroadcastMessage(NetChannels._LEGACY.MCM_RELAY_TO_SERVERS, metapayload)
+            sent = true
+        elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
+            Ext.Net.PostMessageToServer(channel, payloadJson)
+            Ext.Net.PostMessageToServer(NetChannels._LEGACY.MCM_RELAY_TO_CLIENTS, metapayload)
+            sent = true
+        end
+    end, function(err)
+        MCMWarn(0, "Error while broadcasting or posting net message: " .. tostring(err))
+    end)
+
+    return sent
+end
+
 --- Emits a mod event with the given data in the given event name. If bothContexts is true, the event will be emitted in both contexts.
 --- @param eventName string The name of the event
 --- @param eventData table The data to pass with the event
@@ -62,36 +109,6 @@ end
 --- Kept for backwards compatibility with old mods using deprecated NetMessage API
 --- Uses legacy NetMessage for public API compatibility only
 local function broadcastDeprecatedNetMessage(eventName, eventData)
-    local function createMetapayload(eventName, payload)
-        return Ext.Json.Stringify({
-            channel = eventName,
-            payload = payload
-        })
-    end
-
-    local function postNetMessageToServerAndClients(metapayload)
-        local data = Ext.Json.Parse(metapayload)
-        if not data or not data.channel or not data.payload then
-            MCMWarn(0, "Invalid data received from metapayload.")
-            return
-        end
-
-        -- Always be prepared for the worst
-        xpcall(function()
-            if Ext.IsServer() then
-                -- Keep using legacy NetMessage for backwards compatibility
-                Ext.Net.BroadcastMessage(data.channel, Ext.Json.Stringify(data.payload))
-                Ext.Net.BroadcastMessage(NetChannels._LEGACY.MCM_RELAY_TO_SERVERS, metapayload)
-            elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
-                -- Keep using legacy NetMessage for backwards compatibility
-                Ext.Net.PostMessageToServer(data.channel, Ext.Json.Stringify(data.payload))
-                Ext.Net.PostMessageToServer(NetChannels._LEGACY.MCM_RELAY_TO_CLIENTS, metapayload)
-            end
-        end, function(err)
-            MCMWarn(0, "Error while broadcasting or posting net message: " .. tostring(err))
-        end)
-    end
-
     local function prepareNetData(eventData)
         if not eventData or table.isEmpty(eventData) then
             eventData = {}
@@ -111,14 +128,13 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
     ---
     local preparedNetData = prepareNetData(eventData)
     local deprecatedEventName = deprecatedEventNameMap[eventName] or eventName
-    local metapayload = createMetapayload(deprecatedEventName, preparedNetData)
 
     if Ext.IsServer() then
         MCMDeprecation(2, "Broadcasting deprecated net message: " .. deprecatedEventName)
-        postNetMessageToServerAndClients(metapayload)
+        postLegacyNetMessageToServerAndClients(deprecatedEventName, preparedNetData)
     elseif not MCMProxy.IsMainMenu() then
         MCMDeprecation(2, "Posting deprecated net message to server: " .. deprecatedEventName)
-        postNetMessageToServerAndClients(metapayload)
+        postLegacyNetMessageToServerAndClients(deprecatedEventName, preparedNetData)
     end
 end
 
@@ -214,6 +230,48 @@ function ModEventManager:IssueDeprecationWarning()
     end
 
     handleDeprecatedNetListeners(getDeprecatedNetListeners())
+end
+
+--- Send a legacy net message to the other context and clients (deprecated API compatibility)
+---@param channel string
+---@param payload table|any
+---@return boolean sent
+function ModEventManager:BroadcastLegacyNetMessage(channel, payload)
+    return postLegacyNetMessageToServerAndClients(channel, payload)
+end
+
+--- Send a legacy net message to a specific user (server-side only)
+---@param userID number
+---@param channel string
+---@param payload table|any
+---@return boolean sent
+function ModEventManager:SendLegacyNetMessageToUser(userID, channel, payload)
+    if not Ext.IsServer() then
+        return false
+    end
+
+    if not userID or not channel then
+        MCMWarn(0, "Cannot post legacy net message to user: missing userID or channel")
+        return false
+    end
+
+    if payload == nil then
+        payload = {}
+    end
+
+    local okPayload, payloadJson = pcall(Ext.Json.Stringify, payload)
+    if not okPayload then
+        MCMWarn(0, "Failed to serialize legacy user payload for channel '" .. tostring(channel) .. "'")
+        return false
+    end
+
+    local ok = xpcall(function()
+        Ext.ServerNet.PostMessageToUser(userID, channel, payloadJson)
+    end, function(err)
+        MCMWarn(0, "Error while posting legacy user net message: " .. tostring(err))
+    end)
+
+    return ok
 end
 
 --- Subscribe to a mod event

@@ -194,10 +194,13 @@ function MCMServer:LoadAndSendSettings()
 
     MCMDebug(1, "Loading MCM configs...")
     MCMAPI:LoadConfigs()
-    ChunkedNet.SendJSONToAll(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {
+    local payloadTable = {
         mods = MCMAPI.mods,
         profiles = MCMAPI.profiles
-    })
+    }
+
+    ChunkedNet.SendJSONToAll(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, payloadTable)
+    ModEventManager:BroadcastLegacyNetMessage(NetChannels._LEGACY.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {})
 
     self:SetHasSentInitialConfig(true)
 end
@@ -212,8 +215,10 @@ function MCMServer:LoadAndSendSettingsToUser(userID)
         MCMAPI:LoadConfigs()
     end
 
-    ChunkedNet.SendJSONToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT,
-        { userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles })
+    local payloadTable = { userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }
+
+    ChunkedNet.SendJSONToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, payloadTable)
+    ModEventManager:SendLegacyNetMessageToUser(userID, NetChannels._LEGACY.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {})
     -- Ext.ServerNet.PostMessageToUser(327681, Mods.BG3MCM.NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, Ext.Json.Stringify({ userID = userID, mods = Mods.BG3MCM.MCMAPI.mods, profiles = Mods.BG3MCM.MCMAPI.profiles }))
 end
 

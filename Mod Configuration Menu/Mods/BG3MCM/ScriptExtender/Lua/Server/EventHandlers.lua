@@ -48,10 +48,8 @@ function EHandlers.OnClientRequestConfigs(data, userID)
         MCMServer:LoadAndSendSettings()
         return { success = true, message = "Loading configurations..." }
     else
-        -- Use ChunkedNet to send the large payload back to the specific user
-        local payloadTable = { userID = userID, mods = MCMAPI.mods, profiles = MCMAPI.profiles }
-        ChunkedNet.SendTableToUser(userID, NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, payloadTable)
-        return { success = true, message = "Configurations sent via chunked transfer" }
+        MCMServer:LoadAndSendSettingsToUser(userID)
+        return { success = true, message = "Configurations sent to requesting user" }
     end
 end
 
