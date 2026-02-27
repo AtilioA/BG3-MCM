@@ -610,7 +610,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                     return false
                 end
                 for _, mod in ipairs(default.Mouse.ModifierKeys) do
-                    if type(mod) ~= "string" or not table.contains(SDLKeys.Modifiers, mod) then
+                    if not KeybindingManager:IsValidModifierKey(mod) then
                         MCMWarn(0,
                             "Invalid modifier '" .. tostring(mod) ..
                             "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting.Id ..
@@ -1005,10 +1005,10 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                         return false
                     end
                     for _, mod in ipairs(keyboard.ModifierKeys) do
-                        if type(mod) ~= "string" or (mod ~= "" and not table.contains(SDLKeys.Modifiers, mod)) then
+                        if not KeybindingManager:IsValidModifierKey(mod) then
                             MCMWarn(0,
                                 "Invalid modifier '" ..
-                                mod ..
+                                tostring(mod) ..
                                 "' in Keyboard.ModifierKeys for setting '" .. setting.Id .. "'. Valid modifiers are: " ..
                                 table.concat(SDLKeys.Modifiers, ", "))
                             return false

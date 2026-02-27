@@ -46,7 +46,7 @@ function KeybindingV2Validator.Validate(config, value)
                 return false
             end
             for _, mod in ipairs(keyboard.ModifierKeys) do
-                if type(mod) ~= "string" or not table.contains(SDLKeys.Modifiers, mod) then
+                if not KeybindingManager:IsValidModifierKey(mod) then
                     MCMWarn(0, "Validation failed: Invalid modifier key '" .. tostring(mod) .. "'.")
                     return false
                 end
@@ -73,7 +73,7 @@ function KeybindingV2Validator.Validate(config, value)
                 return false
             end
             for _, mod in ipairs(mouse.ModifierKeys) do
-                if type(mod) ~= "string" or not table.contains(SDLKeys.Modifiers, mod) then
+                if not KeybindingManager:IsValidModifierKey(mod) then
                     MCMWarn(0, "Validation failed: Invalid modifier key '" .. tostring(mod) .. "'.")
                     return false
                 end

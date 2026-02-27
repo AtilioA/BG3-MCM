@@ -12,6 +12,10 @@ TestSuite.RegisterTests("Setting validators", {
     "TestValidateColorPickerSetting",
     "TestValidateColorEditSetting",
     "TestValidateKeybindingV2Keyboard",
+    "TestValidateKeybindingV2KeyboardModifierVariants",
+    "TestValidateKeybindingV2MouseModifierVariants",
+    "TestValidateKeybindingV2InvalidModifier",
+    "TestValidateKeybindingV2InvalidModifierVariants",
     "TestValidateKeybindingV2Mouse",
     "TestValidateKeybindingV2XOR",
 })
@@ -325,10 +329,141 @@ function TestValidateKeybindingV2Keyboard()
     TestSuite.AssertTrue(isValid)
 
     isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "P", ModifierKeys = { "LCtrl", "LShift" } },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = KeybindingV2Validator.Validate(setting, {
         Keyboard = { Key = "", ModifierKeys = {} },
         Enabled = true
     })
     TestSuite.AssertTrue(isValid)
+end
+
+function TestValidateKeybindingV2KeyboardModifierVariants()
+    local setting = BlueprintSetting:New({
+        Id = "test-kb-binding-variants",
+        Type = "keybinding_v2",
+        Default = {
+            Keyboard = { Key = "INSERT", ModifierKeys = {} },
+            Enabled = true
+        }
+    })
+
+    local validModifierVariants = {
+        "LCTRL",
+        "LCtrl",
+        "lctrl",
+        "LSHIFT",
+        "LShift",
+        "lshift",
+        "RALT",
+        "ralt",
+        "NONE",
+        "none",
+        "LGUI",
+        "lgui",
+    }
+
+    for _, modifier in ipairs(validModifierVariants) do
+        local isValid = KeybindingV2Validator.Validate(setting, {
+            Keyboard = { Key = "P", ModifierKeys = { modifier } },
+            Enabled = true
+        })
+        TestSuite.AssertTrue(isValid, "Expected valid keyboard modifier variant: " .. tostring(modifier))
+    end
+
+    local mixedCaseComboIsValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "P", ModifierKeys = { "lctrl", "LShift" } },
+        Enabled = true
+    })
+    TestSuite.AssertTrue(mixedCaseComboIsValid)
+end
+
+function TestValidateKeybindingV2MouseModifierVariants()
+    local setting = BlueprintSetting:New({
+        Id = "test-mouse-binding-variants",
+        Type = "keybinding_v2",
+        Default = {
+            Mouse = { Button = 3, ModifierKeys = {} },
+            Enabled = true
+        }
+    })
+
+    local validModifierVariants = {
+        "LCTRL",
+        "LCtrl",
+        "lctrl",
+        "LSHIFT",
+        "LShift",
+        "lshift",
+        "RALT",
+        "ralt",
+        "NONE",
+        "none",
+    }
+
+    for _, modifier in ipairs(validModifierVariants) do
+        local isValid = KeybindingV2Validator.Validate(setting, {
+            Mouse = { Button = 3, ModifierKeys = { modifier } },
+            Enabled = true
+        })
+        TestSuite.AssertTrue(isValid, "Expected valid mouse modifier variant: " .. tostring(modifier))
+    end
+end
+
+function TestValidateKeybindingV2InvalidModifier()
+    local setting = BlueprintSetting:New({
+        Id = "test-kb-invalid-modifier",
+        Type = "keybinding_v2",
+        Default = {
+            Keyboard = { Key = "INSERT", ModifierKeys = {} },
+            Enabled = true
+        }
+    })
+
+    local isValid = KeybindingV2Validator.Validate(setting, {
+        Keyboard = { Key = "P", ModifierKeys = { "LCTRL_BAD" } },
+        Enabled = true
+    })
+
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateKeybindingV2InvalidModifierVariants()
+    local setting = BlueprintSetting:New({
+        Id = "test-kb-invalid-modifier-variants",
+        Type = "keybinding_v2",
+        Default = {
+            Keyboard = { Key = "INSERT", ModifierKeys = {} },
+            Enabled = true
+        }
+    })
+
+    local invalidModifierVariants = {
+        "LCTRL_BAD",
+        "CTRL",
+        "LeftCtrl",
+        "",
+        123,
+        true,
+        {},
+    }
+
+    for _, modifier in ipairs(invalidModifierVariants) do
+        local keyboardValid = KeybindingV2Validator.Validate(setting, {
+            Keyboard = { Key = "P", ModifierKeys = { modifier } },
+            Enabled = true
+        })
+        TestSuite.AssertFalse(keyboardValid, "Expected invalid keyboard modifier variant: " .. tostring(modifier))
+
+        local mouseValid = KeybindingV2Validator.Validate(setting, {
+            Mouse = { Button = 3, ModifierKeys = { modifier } },
+            Enabled = true
+        })
+        TestSuite.AssertFalse(mouseValid, "Expected invalid mouse modifier variant: " .. tostring(modifier))
+    end
 end
 
 function TestValidateKeybindingV2Mouse()

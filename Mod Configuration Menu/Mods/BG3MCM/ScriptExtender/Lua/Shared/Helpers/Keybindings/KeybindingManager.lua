@@ -4,6 +4,11 @@
 
 KeybindingManager = {}
 
+local validModifierKeys = {}
+for _, modifier in ipairs(SDLKeys.Modifiers or {}) do
+    validModifierKeys[tostring(modifier):upper()] = true
+end
+
 -- Only these modifiers are relevant
 local allowedActiveModifiers = {
     LSHIFT = true,
@@ -24,6 +29,16 @@ function KeybindingManager:IsActiveModifier(key)
     local normalizedKey = key:upper()
     local isActive = allowedActiveModifiers[normalizedKey] or false
     return isActive
+end
+
+---@param modifier any
+---@return boolean
+function KeybindingManager:IsValidModifierKey(modifier)
+    if type(modifier) ~= "string" then
+        return false
+    end
+
+    return validModifierKeys[modifier:upper()] == true
 end
 
 function KeybindingManager:IsModifierNull(modifier)

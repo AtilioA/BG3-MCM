@@ -3,6 +3,9 @@ TestSuite.RegisterTests("ValidateAndFixSettings", {
     "ShouldFixInvalidSettingInsideTab",
     "ShouldFixInvalidSettingsInsideTab",
     "ShouldFixInvalidSettingInsideTabSection",
+    "ShouldKeepValidKeybindingV2WithUppercaseModifier",
+    "ShouldKeepValidKeybindingV2WithModifierVariants",
+    "ShouldResetInvalidKeybindingV2Modifier",
 })
 
 function ShouldFixInvalidSettingsAtRootLevel()
@@ -153,4 +156,100 @@ function ShouldFixInvalidSettingInsideTabSection()
     local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
     TestSuite.AssertEquals(fixedConfig["setting-1"], true)
+end
+
+function ShouldKeepValidKeybindingV2WithUppercaseModifier()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = "open_cpf",
+                Type = "keybinding_v2",
+                Default = {
+                    Keyboard = { Key = "INSERT", ModifierKeys = {} },
+                    Enabled = true
+                }
+            })
+        }
+    })
+
+    local config = {
+        ["open_cpf"] = {
+            Keyboard = {
+                Key = "P",
+                ModifierKeys = { "LCTRL" }
+            },
+            Enabled = true
+        }
+    }
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+    TestSuite.AssertEquals(fixedConfig["open_cpf"].Keyboard.Key, "P")
+    TestSuite.AssertEquals(fixedConfig["open_cpf"].Keyboard.ModifierKeys[1], "LCTRL")
+end
+
+function ShouldKeepValidKeybindingV2WithModifierVariants()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = "open_cpf",
+                Type = "keybinding_v2",
+                Default = {
+                    Keyboard = { Key = "INSERT", ModifierKeys = {} },
+                    Enabled = true
+                }
+            })
+        }
+    })
+
+    local validModifierVariants = { "LCtrl", "lctrl", "LShift", "lshift", "RALT", "none" }
+
+    for _, modifier in ipairs(validModifierVariants) do
+        local config = {
+            ["open_cpf"] = {
+                Keyboard = {
+                    Key = "P",
+                    ModifierKeys = { modifier }
+                },
+                Enabled = true
+            }
+        }
+
+        local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+        TestSuite.AssertEquals(fixedConfig["open_cpf"].Keyboard.Key, "P")
+        TestSuite.AssertEquals(fixedConfig["open_cpf"].Keyboard.ModifierKeys[1], modifier)
+    end
+end
+
+function ShouldResetInvalidKeybindingV2Modifier()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = "open_cpf",
+                Type = "keybinding_v2",
+                Default = {
+                    Keyboard = { Key = "INSERT", ModifierKeys = {} },
+                    Enabled = true
+                }
+            })
+        }
+    })
+
+    local config = {
+        ["open_cpf"] = {
+            Keyboard = {
+                Key = "P",
+                ModifierKeys = { "LCTRL_BAD" }
+            },
+            Enabled = true
+        }
+    }
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+    TestSuite.AssertEquals(fixedConfig["open_cpf"].Keyboard.Key, "INSERT")
+    TestSuite.AssertEquals(#fixedConfig["open_cpf"].Keyboard.ModifierKeys, 0)
 end
