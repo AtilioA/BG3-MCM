@@ -79,7 +79,7 @@
             "items": {
                 "$ref": "#/definitions/Setting"
             },
-            "markdownDescription": "The list of sections to be displayed outside of any tabs in the MCM menu.\nIt is advised to use tabs and sections instead of settings at root level, as this can lead to an unorganized MCM menu."
+            "markdownDescription": "The list of settings to be displayed outside of any tabs in the MCM menu.\nIt is advised to use tabs and sections instead of settings at root level, as this can lead to an unorganized MCM menu."
         }
     },
     "required": [
@@ -597,11 +597,10 @@
                                             },
                                             "Cooldown": {
                                                 "type": [
-                                                    "number",
-                                                    "null"
+                                                    "number"
                                                 ],
                                                 "minimum": -1,
-                                                "markdownDescription": "Cooldown duration in seconds before the button can be clicked again. `-1` means infinite cooldown. `0` or `undefined` means no cooldown."
+                                                "markdownDescription": "Cooldown duration in seconds before the button can be clicked again. `-1` means infinite cooldown. `0` means no cooldown."
                                             },
                                             "Icon": {
                                                 "type": "object",
