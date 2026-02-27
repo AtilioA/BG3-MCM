@@ -141,7 +141,7 @@ function KeybindingV2IMGUIWidget:SortFilteredActions()
     -- For each mod, sort its actions by ActionName or index.
     for _, mod in ipairs(self.Widget.FilteredActions) do
         local sortMode = mod.KeybindingSortMode or "alphabetical"
-        if sortMode == "blueprint_order" then
+        if sortMode == "blueprint" then
             table.sort(mod.Actions, function(a, b)
                 local orderA = a.SortOrder or math.huge
                 local orderB = b.SortOrder or math.huge
@@ -600,7 +600,8 @@ end
 ---@param action table The action to check
 ---@return boolean True if the binding is set to its default value, false otherwise
 function KeybindingV2IMGUIWidget:IsDefaultBinding(action)
-    local kbEqual = KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding, action.DefaultKeyboardMouseBinding)
+    local kbEqual = KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding,
+    action.DefaultKeyboardMouseBinding)
     local mouseEqual = self:AreMouseBindingsEqual(action.MouseBinding, action.DefaultMouseBinding)
     return kbEqual and mouseEqual
 end

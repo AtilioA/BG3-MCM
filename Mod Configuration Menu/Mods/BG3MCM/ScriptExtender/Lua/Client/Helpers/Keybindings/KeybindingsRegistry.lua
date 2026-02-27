@@ -341,12 +341,13 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
             -- TODO: reduce duplication with KeybindingV2IMGUIWidget
             local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
                 binding.actionName)
-            local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb", keybindingStr,
+            local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb",
+                keybindingStr,
                 binding.actionName)
             KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
         else
-             -- No conflict warning, execute all callbacks
-             for _, binding in ipairs(triggered) do
+            -- No conflict warning, execute all callbacks
+            for _, binding in ipairs(triggered) do
                 if binding.keyboardCallback then
                     xpcall(function()
                         binding.keyboardCallback(e)
@@ -385,7 +386,9 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
                 local modName = (mod and mod.Info and mod.Info.Name) or tostring(binding.modUUID)
                 MCMError(0,
                     "Keyboard callback failed for mod '" .. modName .. "', action '" .. tostring(binding.actionName) ..
-                    "': " .. tostring(err) .. traceback .. "\nPlease contact " .. (mod and mod.Info and mod.Info.Author) .. " about this issue.")
+                    "': " ..
+                    tostring(err) ..
+                    traceback .. "\nPlease contact " .. (mod and mod.Info and mod.Info.Author) .. " about this issue.")
             end)
         elseif not binding.skipCallback then
             MCMWarn(0,
@@ -420,7 +423,7 @@ end
 
 --- Returns the keybinding sort mode for a given mod.
 ---@param modUUID string The UUID of the mod
----@return string The sort mode ("alphabetical" or "blueprint_order")
+---@return string The sort mode ("alphabetical" or "blueprint")
 function KeybindingsRegistry.GetKeybindingSortMode(modUUID)
     if not modUUID or not registry[modUUID] then
         return "alphabetical"

@@ -19,7 +19,7 @@ Blueprint = _Class:Create("Blueprint", nil, {
     Sections = {},
     Settings = {},
     Handles = {},
-    KeybindingSortMode = "alphabetical"
+    KeybindingSortMode = "blueprint"
 })
 
 function Blueprint:GetModUUID()
