@@ -518,6 +518,7 @@ function TestPreprocessData()
     local data = Blueprint:New({
         SchemaVersion = 1,
         ModName = "Test Mod",
+        KeybindingSortMode = "blueprint",
         Tabs = {
             {
                 TabId = "tab-1",
@@ -559,6 +560,7 @@ function TestPreprocessData()
     end
     TestSuite.AssertEquals(preprocessedData.SchemaVersion, 1)
     TestSuite.AssertEquals(preprocessedData.ModName, "Test Mod")
+    TestSuite.AssertEquals(preprocessedData.KeybindingSortMode, "blueprint")
     TestSuite.AssertEquals(#preprocessedData.Tabs, 1)
 
     local tab = preprocessedData.Tabs[1]

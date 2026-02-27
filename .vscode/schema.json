@@ -41,6 +41,21 @@
             "$ref": "#/definitions/TopLevelHandles",
             "description": "Handles to localize the top-level mod's strings."
         },
+        "KeybindingSortMode": {
+            "type": "string",
+            "oneOf": [
+                {
+                    "const": "alphabetical",
+                    "description": "Sort keybindings alphabetically by action name (default)."
+                },
+                {
+                    "const": "blueprint",
+                    "description": "Sort keybindings by blueprint order. Uses per-keybinding Options.SortOrder when set, otherwise declaration order."
+                }
+            ],
+            "default": "alphabetical",
+            "description": "Controls how keybindings are ordered in the Hotkeys page for this blueprint."
+        },
         "Tabs": {
             "description": "The tabs that will be displayed in the MCM menu.\nEach tab can contain either sections or settings.\nTabs are displayed in the order that they are defined in this file, in the top section of MCM's ImGui window.",
             "type": "array",

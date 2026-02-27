@@ -30,14 +30,15 @@ function KeybindingsUI.GetAllKeybindings()
     for modUUID, modData in pairs(MCMClientState.mods) do
         local blueprint = modData.blueprint
         if blueprint then
-            local modKeybindings = { 
-                ModUUID = modUUID, 
+            local modKeybindings = {
+                ModUUID = modUUID,
                 Actions = {},
                 KeybindingSortMode = blueprint:GetKeybindingSortMode() or "alphabetical"
             }
-            local allSettings = blueprint:GetAllSettings()
+            local allSettings = blueprint:GetAllSettingsOrdered()
 
-            for settingId, setting in pairs(allSettings) do
+            for settingIndex, setting in ipairs(allSettings) do
+                local settingId = setting:GetId()
                 if setting:GetType() == "keybinding_v2" then
                     local currentBinding = modData.settingsValues and modData.settingsValues[settingId]
                     local keyboardBinding = nil
@@ -82,7 +83,7 @@ function KeybindingsUI.GetAllKeybindings()
 
                     ---@type table
                     local action = {
-                        ActionId = setting.Id or "",
+                        ActionId = settingId or "",
                         ActionName = (setting.GetLocaName and setting:GetLocaName()) or "",
                         KeyboardMouseBinding = keyboardBinding,
                         MouseBinding = mouseBinding,
@@ -127,7 +128,7 @@ function KeybindingsUI.GetAllKeybindings()
                             setting.Options and setting.Options.SkipCallback,
                             false
                         ),
-                        SortOrder = setting.GetSortOrder and setting:GetSortOrder()
+                        SortOrder = (setting.GetSortOrder and setting:GetSortOrder()) or settingIndex
                     }
 
                     table.insert(modKeybindings.Actions, action)

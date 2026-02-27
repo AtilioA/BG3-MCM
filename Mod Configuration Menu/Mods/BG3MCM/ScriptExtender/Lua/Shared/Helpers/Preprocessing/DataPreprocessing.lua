@@ -185,6 +185,7 @@ function DataPreprocessing:PreprocessData(data, modUUID)
         Optional = data.Optional,
         ModName = data.ModName,
         ModDescription = data.ModDescription,
+        KeybindingSortMode = data.KeybindingSortMode,
         Handles = data.Handles,
         Tabs = {},
         Settings = {}

@@ -45,16 +45,8 @@ function BlueprintTab:New(options)
     end
 
     if options.Settings then
-        for idx, settingOptions in ipairs(options.Settings) do
-            local opts = settingOptions
-            local existingSortOrder = settingOptions.Options and settingOptions.Options.SortOrder
-            if existingSortOrder == nil then
-                opts = {}
-                for k, v in pairs(settingOptions) do opts[k] = v end
-                opts.Options = opts.Options or {}
-                opts.Options.SortOrder = idx
-            end
-            local setting = BlueprintSetting:New(opts)
+        for _, settingOptions in ipairs(options.Settings) do
+            local setting = BlueprintSetting:New(settingOptions)
             table.insert(self.Settings, setting)
         end
     end
