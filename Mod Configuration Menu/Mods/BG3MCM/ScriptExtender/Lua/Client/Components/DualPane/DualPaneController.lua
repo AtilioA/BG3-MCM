@@ -397,10 +397,17 @@ end
 ---@param modUUID string The UUID of the mod to find the tab in
 ---@param tabIdentifier string|nil The identifier of the tab to find
 ---@return ExtuiTabItem|nil tab The tab, or nil if not found
+local function isTablessSpecialPage(modUUID)
+    return modUUID == ClientGlobals.MCM_HOTKEYS
+        or modUUID == ClientGlobals.MCM_PROFILES
+end
+
 function DualPaneController:FindTab(modUUID, tabIdentifier)
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
-        MCMWarn(1, "Tab bar not found for mod " .. modUUID)
+        if not isTablessSpecialPage(modUUID) then
+            MCMWarn(1, "Tab bar not found for mod " .. modUUID)
+        end
         return nil
     end
     for _, tab in ipairs(modTabBar.Children) do
