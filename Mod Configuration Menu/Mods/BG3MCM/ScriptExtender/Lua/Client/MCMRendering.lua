@@ -370,6 +370,14 @@ end
 --- Create a new tab for a mod in the MCM
 ---@param modUUID string The UUID of the mod
 ---@return nil
+local function addConditionalSpacingDummy(parent, modUUID, visibleIf, height)
+    local dummy = parent:AddDummy(0, height)
+    if type(visibleIf) == "table" and visibleIf.Conditions then
+        VisibilityManager.registerCondition(modUUID, dummy, visibleIf)
+    end
+    return dummy
+end
+
 function MCMRendering:RenderMenuPageContent(modUUID)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
     local modBlueprint = self.mods[modUUID].blueprint
@@ -410,11 +418,18 @@ function MCMRendering:RenderMenuPageContent(modUUID)
         local settingGroups = {}
         for _, setting in ipairs(rootSettings) do
             local group = self:CreateModMenuSetting(uiGroupMod, setting, modSettings, modUUID)
-            if group then table.insert(settingGroups, group) end
+            if group then
+                table.insert(settingGroups, {
+                    group = group,
+                    visibleIf = setting:GetVisibleIf(),
+                })
+            end
         end
 
-        for i, group in ipairs(settingGroups) do
-            if i < #settingGroups then group:AddDummy(0, 10) end
+        for i, settingGroup in ipairs(settingGroups) do
+            if i < #settingGroups then
+                addConditionalSpacingDummy(settingGroup.group, modUUID, settingGroup.visibleIf, 10)
+            end
         end
     end
 
@@ -470,10 +485,17 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
         local settingGroups = {}
         for _, setting in ipairs(tabSettings) do
             local group = self:CreateModMenuSetting(imguiTab, setting, modSettings, modUUID)
-            if group then table.insert(settingGroups, group) end
+            if group then
+                table.insert(settingGroups, {
+                    group = group,
+                    visibleIf = setting:GetVisibleIf(),
+                })
+            end
         end
-        for i, group in ipairs(settingGroups) do
-            if i < #settingGroups then group:AddDummy(0, 10) end
+        for i, settingGroup in ipairs(settingGroups) do
+            if i < #settingGroups then
+                addConditionalSpacingDummy(settingGroup.group, modUUID, settingGroup.visibleIf, 10)
+            end
         end
     end
 end
@@ -487,7 +509,7 @@ end
 ---@return nil
 function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modSettings, modUUID)
     if sectionIndex > 1 then
-        modGroup:AddDummy(0, 5)
+        addConditionalSpacingDummy(modGroup, modUUID, section:GetVisibleIf(), 5)
     end
 
     local sectionName = section:GetLocaName()
@@ -531,10 +553,17 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
     local settingGroups = {}
     for _, setting in ipairs(section:GetSettings()) do
         local group = self:CreateModMenuSetting(sectionContentElement, setting, modSettings, modUUID)
-        if group then table.insert(settingGroups, group) end
+        if group then
+            table.insert(settingGroups, {
+                group = group,
+                visibleIf = setting:GetVisibleIf(),
+            })
+        end
     end
-    for i, group in ipairs(settingGroups) do
-        if i < #settingGroups then group:AddDummy(0, 10) end
+    for i, settingGroup in ipairs(settingGroups) do
+        if i < #settingGroups then
+            addConditionalSpacingDummy(settingGroup.group, modUUID, settingGroup.visibleIf, 10)
+        end
     end
 end
 
