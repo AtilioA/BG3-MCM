@@ -53,7 +53,7 @@ function BlueprintSetting:New(options)
         self.Type = ""
     end
 
-    self.VisibleIf = options.VisibleIf or {}
+    self.VisibleIf = options.VisibleIf or ""
 
     self.Default = options.Default
 

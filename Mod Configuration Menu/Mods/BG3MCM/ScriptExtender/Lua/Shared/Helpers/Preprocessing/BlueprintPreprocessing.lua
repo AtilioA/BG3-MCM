@@ -686,6 +686,47 @@ function BlueprintPreprocessing:ValidateTabsVisibleIf(blueprint)
     return true
 end
 
+local VisibleIfAllowedGroupKeys = {
+    LogicalOperator = true,
+    Conditions = true,
+}
+
+local VisibleIfAllowedConditionKeys = {
+    SettingId = true,
+    Operator = true,
+    ExpectedValue = true,
+}
+
+local VisibleIfAllowedOperators = {
+    ["=="] = true,
+    ["!="] = true,
+    [">"] = true,
+    ["<"] = true,
+    [">="] = true,
+    ["<="] = true,
+}
+
+---@param value table
+---@param allowed table<string, boolean>
+---@return boolean, string|nil
+local function hasOnlyAllowedKeys(value, allowed)
+    for key, _ in pairs(value) do
+        if type(key) ~= "string" or not allowed[key] then
+            return false, tostring(key)
+        end
+    end
+
+    return true, nil
+end
+
+---@param condition table
+---@return string
+local function buildVisibleIfConditionSignature(condition)
+    local expectedValueType = type(condition.ExpectedValue)
+    local expectedValue = tostring(condition.ExpectedValue)
+    return condition.SettingId .. "|" .. condition.Operator .. "|" .. expectedValueType .. "|" .. expectedValue
+end
+
 --- Validates a VisibleIf condition group
 ---@param visibleIf table|nil The VisibleIf condition group to validate
 ---@param blueprint Blueprint The blueprint data for reference
@@ -693,8 +734,8 @@ end
 ---@param elementId string The ID of the element being validated
 ---@return boolean True if the VisibleIf is valid or nil, false otherwise
 function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementType, elementId)
-    -- VisibleIf is optional, so nil/empty is valid
-    if not visibleIf or visibleIf == "" or (type(visibleIf) == "table" and next(visibleIf) == nil) then
+    -- VisibleIf is optional; empty string is used as the internal "not set" default
+    if visibleIf == nil or visibleIf == "" then
         return true
     end
 
@@ -702,6 +743,15 @@ function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementT
     if type(visibleIf) ~= "table" then
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has invalid VisibleIf (not a table). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    local onlyAllowedGroupKeys, invalidGroupKey = hasOnlyAllowedKeys(visibleIf, VisibleIfAllowedGroupKeys)
+    if not onlyAllowedGroupKeys then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has invalid VisibleIf field '" .. invalidGroupKey .. "'. " ..
+            "Only 'LogicalOperator' and 'Conditions' are allowed. " ..
             "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
@@ -745,11 +795,41 @@ function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementT
         return false
     end
 
+    local conditionCount = 0
+    for key, _ in pairs(visibleIf.Conditions) do
+        if type(key) ~= "number" or key < 1 or math.floor(key) ~= key then
+            MCMWarn(0,
+                elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (not an array). " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+        conditionCount = conditionCount + 1
+    end
+
+    if conditionCount ~= #visibleIf.Conditions then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (sparse array). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
     -- Validate each condition
+    local conditionSignatures = {}
     for i, condition in ipairs(visibleIf.Conditions) do
         if not self:ValidateVisibilityCondition(condition, blueprint, elementType, elementId, i) then
             return false
         end
+
+        local conditionSignature = buildVisibleIfConditionSignature(condition)
+        if conditionSignatures[conditionSignature] then
+            MCMWarn(0,
+                elementType .. " '" .. elementId .. "' has duplicate condition #" .. i ..
+                " in VisibleIf.Conditions. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        conditionSignatures[conditionSignature] = true
     end
 
     return true
@@ -767,6 +847,16 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has invalid condition #" .. conditionIndex ..
             " in VisibleIf.Conditions (not a table). " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    local onlyAllowedConditionKeys, invalidConditionKey = hasOnlyAllowedKeys(condition, VisibleIfAllowedConditionKeys)
+    if not onlyAllowedConditionKeys then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " with invalid field '" .. invalidConditionKey .. "'. " ..
+            "Only 'SettingId', 'Operator', and 'ExpectedValue' are allowed. " ..
             "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
@@ -825,16 +915,7 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
         return false
     end
 
-    local validOperators = { "==", "!=", ">", "<", ">=", "<=" }
-    local operatorValid = false
-    for _, validOp in ipairs(validOperators) do
-        if condition.Operator == validOp then
-            operatorValid = true
-            break
-        end
-    end
-
-    if not operatorValid then
+    if not VisibleIfAllowedOperators[condition.Operator] then
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
             " with invalid Operator '" .. condition.Operator .. "'. " ..
@@ -854,11 +935,11 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
 
     -- According to schema, ExpectedValue must be string or boolean
     local expectedValueType = type(condition.ExpectedValue)
-    if expectedValueType ~= "string" and expectedValueType ~= "boolean" and expectedValueType ~= "number" then
+    if expectedValueType ~= "string" and expectedValueType ~= "boolean" then
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
             " with invalid ExpectedValue type ('" .. expectedValueType .. "'). " ..
-            "Must be string, boolean, or number. " ..
+            "Must be string or boolean. " ..
             "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end

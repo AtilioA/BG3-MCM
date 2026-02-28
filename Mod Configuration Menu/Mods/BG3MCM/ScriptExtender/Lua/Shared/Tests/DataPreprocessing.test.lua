@@ -45,6 +45,13 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "BlueprintMinShouldBeLessThanMaxForSlider",
     "TestBlueprintVisibleIfRejectsUnknownSettingId",
     "TestBlueprintVisibleIfAllowsValidCondition",
+    "TestBlueprintVisibleIfRejectsEmptyConditionGroup",
+    "TestBlueprintVisibleIfRejectsAdditionalGroupFields",
+    "TestBlueprintVisibleIfRejectsAdditionalConditionFields",
+    "TestBlueprintVisibleIfRejectsNumberExpectedValue",
+    "TestBlueprintVisibleIfRejectsDuplicateConditions",
+    "TestBlueprintVisibleIfAllowsValidOrConditionGroup",
+    "TestBlueprintVisibleIfAllowsValidTabAndSectionConditions",
     "TestKeybindingV2OptionFlagsMustBeBoolean",
     "TestKeybindingV2MouseDefaultButtonBounds",
 
@@ -1017,6 +1024,249 @@ function TestBlueprintVisibleIfAllowsValidCondition()
                             SettingId = "master-toggle",
                             Operator = "==",
                             ExpectedValue = true,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfRejectsEmptyConditionGroup()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {}
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfRejectsAdditionalGroupFields()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = true,
+                        }
+                    },
+                    ExtraField = true,
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfRejectsAdditionalConditionFields()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = true,
+                            ExtraField = "nope",
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfRejectsNumberExpectedValue()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = 1,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfRejectsDuplicateConditions()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = true,
+                        },
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = true,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfAllowsValidOrConditionGroup()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "mode",
+                Type = "text",
+                Default = "expert",
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    LogicalOperator = "or",
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = true,
+                        },
+                        {
+                            SettingId = "mode",
+                            Operator = "==",
+                            ExpectedValue = "expert",
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfAllowsValidTabAndSectionConditions()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "main-tab",
+                TabName = "Main",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = true,
+                        }
+                    }
+                },
+                Settings = {
+                    {
+                        Id = "master-toggle",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                },
+                Sections = {
+                    {
+                        SectionId = "main-section",
+                        SectionName = "Main Section",
+                        VisibleIf = {
+                            Conditions = {
+                                {
+                                    SettingId = "master-toggle",
+                                    Operator = "==",
+                                    ExpectedValue = true,
+                                }
+                            }
+                        },
+                        Settings = {
+                            {
+                                Id = "inner-setting",
+                                Type = "text",
+                                Default = "ok",
+                            }
                         }
                     }
                 }
