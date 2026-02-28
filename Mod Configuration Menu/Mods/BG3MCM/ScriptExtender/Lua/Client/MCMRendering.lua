@@ -397,9 +397,24 @@ function MCMRendering:RenderMenuPageContent(modUUID)
         modInfoText.IDContext = modUUID .. "_FOOTER"
     end
 
-    -- Iterate over each tab in the mod blueprint to create a subtab for each
-    for _, tabInfo in ipairs(modBlueprint:GetTabs()) do
-        self:CreateModMenuSubTab(DualPane.rightPane:GetModTabBar(modUUID), tabInfo, modSettings, modUUID)
+    local blueprintTabs = modBlueprint:GetTabs() or {}
+    if #blueprintTabs > 0 then
+        -- Iterate over each tab in the mod blueprint to create a subtab for each
+        for _, tabInfo in ipairs(blueprintTabs) do
+            self:CreateModMenuSubTab(DualPane.rightPane:GetModTabBar(modUUID), tabInfo, modSettings, modUUID)
+        end
+    else
+        -- Render root settings directly when blueprint has no tabs
+        local rootSettings = modBlueprint:GetSettings() or {}
+        local settingGroups = {}
+        for _, setting in ipairs(rootSettings) do
+            local group = self:CreateModMenuSetting(uiGroupMod, setting, modSettings, modUUID)
+            if group then table.insert(settingGroups, group) end
+        end
+
+        for i, group in ipairs(settingGroups) do
+            if i < #settingGroups then group:AddDummy(0, 10) end
+        end
     end
 
     createModTabFooter()

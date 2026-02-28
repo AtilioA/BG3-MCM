@@ -135,13 +135,17 @@ function Blueprint:New(options)
             local tab = BlueprintTab:New(tabOptions)
             table.insert(self.Tabs, tab)
         end
-    elseif options.Settings then
+    end
+
+    if options.Settings then
         self.Settings = {}
         for _, settingOptions in ipairs(options.Settings) do
             local setting = BlueprintSetting:New(settingOptions)
             table.insert(self.Settings, setting)
         end
-    elseif options.Sections then
+    end
+
+    if options.Sections then
         self.Sections = {}
         for _, sectionOptions in ipairs(options.Sections) do
             local section = BlueprintSection:New(sectionOptions)
@@ -165,6 +169,15 @@ function Blueprint:AddSection(name, description)
     table.insert(self.Sections, section)
 
     return section
+end
+
+--- Add a new setting at blueprint root level.
+---@param settingOptions table
+---@return Blueprint
+function Blueprint:AddSetting(settingOptions)
+    local setting = BlueprintSetting:New(settingOptions)
+    table.insert(self.Settings, setting)
+    return self
 end
 
 function Blueprint:GetAllSettings()

@@ -93,6 +93,17 @@ function ModConfig:SaveSettingsForMod(modUUID)
     local settings = self.mods[modUUID].settingsValues
     local updatedSettings = {}
 
+    for _, setting in ipairs(blueprint:GetSettings() or {}) do
+        local settingId = setting:GetId()
+        if settingId then
+            local updatedSetting = settings[settingId]
+            if updatedSetting == nil then
+                updatedSetting = setting:GetDefault()
+            end
+            updatedSettings[settingId] = updatedSetting
+        end
+    end
+
     for _, tab in ipairs(blueprint:GetTabs()) do
         local tabId = tab.TabId
         if tabId then

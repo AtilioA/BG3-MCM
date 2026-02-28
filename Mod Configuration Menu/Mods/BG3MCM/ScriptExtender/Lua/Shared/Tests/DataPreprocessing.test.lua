@@ -5,6 +5,8 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintShouldntHaveSections",
     "TestBlueprintShouldntHaveTabsAndSettings",
     "TestBlueprintShouldHaveTabsOrSettings",
+    "TestBlueprintCanAddRootLevelSettingWithoutTabs",
+    "TestRootSettingsBlueprintIsValidThroughUsualPath",
     "TestBlueprintShouldHaveSettingsAtSomeLevel",
     "TestHasSchemaVersionsEntry",
     "TestPreprocessData",
@@ -61,46 +63,66 @@ TestSuite.RegisterTests("DataPreprocessing", {
     --- Broader blueprint integration tests?
 })
 
+local function preprocessAndSanitize(rawData, modUUID)
+    local preprocessedData = DataPreprocessing:PreprocessData(rawData, modUUID)
+    if not preprocessedData then
+        return nil, nil
+    end
+
+    local blueprint = Blueprint:New(preprocessedData)
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    return sanitizedBlueprint, blueprint
+end
+
 function TestSanitizeBlueprintWithSchemaVersion()
-    local blueprint = Blueprint:New({
+    local rawData = {
         SchemaVersion = 1,
-        Tabs = {
+        Settings = {
             {
-                TabId = "tab-1",
+                Id = "setting-1",
+                Name = "Setting 1",
+                Type = "checkbox",
+                Default = true,
             },
-            {
-                TabId = "tab-2",
-            },
-            {
-                TabId = "tab-3",
-            },
-        }
-    })
+        },
+    }
     local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
     TestSuite.AssertNotNil(sanitizedBlueprint)
 end
 
 function TestSanitizeBlueprintWithoutSchemaVersion()
-    local blueprint = Blueprint:New({
-    })
+    local rawData = {}
     local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
 
 function TestBlueprintShouldntHaveSections()
-    local blueprint = Blueprint:New({
+    local rawData = {
         SchemaVersion = 1,
-        Settings = {}
-    })
+        Sections = {
+            {
+                SectionId = "section-1",
+                SectionName = "Section 1",
+                Settings = {
+                    {
+                        Id = "setting-1",
+                        Name = "Setting 1",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        }
+    }
     local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -108,7 +130,7 @@ end
 function TestBlueprintShouldHaveTabsOrSettings()
     local modUUID = TestConstants.ModuleUUIDs[1]
 
-    local blueprintWithTabs = Blueprint:New({
+    local rawDataWithTabs = {
         SchemaVersion = 1,
         Tabs = {
             {
@@ -124,9 +146,9 @@ function TestBlueprintShouldHaveTabsOrSettings()
                 }
             },
         },
-    })
+    }
 
-    local blueprintWithSettings = Blueprint:New({
+    local rawDataWithSettings = {
         SchemaVersion = 1,
         Settings = {
             {
@@ -136,28 +158,95 @@ function TestBlueprintShouldHaveTabsOrSettings()
                 Default = true,
             },
         }
-    })
+    }
 
-    local sanitizedBlueprint1 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithTabs, modUUID)
-    local sanitizedBlueprint2 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithSettings, modUUID)
+    local sanitizedBlueprint1 = preprocessAndSanitize(rawDataWithTabs, modUUID)
+    local sanitizedBlueprint2 = preprocessAndSanitize(rawDataWithSettings, modUUID)
 
     TestSuite.AssertNotNil(sanitizedBlueprint1)
     TestSuite.AssertNotNil(sanitizedBlueprint2)
 end
 
-function TestBlueprintShouldntHaveTabsAndSettings()
-    local blueprint = Blueprint:New({
-        SchemaVersion = 1,
-        Tabs = {
-            TabId = "tab-1",
-        },
-        Settings = {
-            SettingId = "setting-1",
-        }
-    })
+function TestRootSettingsBlueprintIsValidThroughUsualPath()
     local modUUID = TestConstants.ModuleUUIDs[1]
+    local rawData = {
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "CheckboxSetting",
+                Name = "Checkbox Setting",
+                Type = "checkbox",
+                Default = true,
+                Tooltip = "This is a checkbox setting.",
+                Description = "This setting can be toggled on or off."
+            }
+        }
+    }
+
+    local sanitizedBlueprint, blueprint = preprocessAndSanitize(rawData, modUUID)
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+    TestSuite.AssertEquals(#blueprint:GetSettings(), 1)
+    TestSuite.AssertEquals(blueprint:GetSettings()[1]:GetId(), "CheckboxSetting")
+end
+
+function TestBlueprintCanAddRootLevelSettingWithoutTabs()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local rawData = {
+        SchemaVersion = 1,
+        Settings = {}
+    }
+
+    local _sanitizedBlueprint, blueprint = preprocessAndSanitize(rawData, modUUID)
+    TestSuite.AssertNotNil(blueprint)
+
+    blueprint:AddSetting({
+        Id = "root-setting",
+        Name = "Root Setting",
+        Type = "checkbox",
+        Default = true,
+    })
+
+    local rootSettings = blueprint:GetSettings()
+    TestSuite.AssertEquals(#rootSettings, 1)
+    TestSuite.AssertEquals(rootSettings[1]:GetId(), "root-setting")
+
+    local allSettings = blueprint:GetAllSettings()
+    TestSuite.AssertNotNil(allSettings["root-setting"])
+    TestSuite.AssertTrue(blueprint:RetrieveDefaultValueForSetting("root-setting") == true)
 
     local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function TestBlueprintShouldntHaveTabsAndSettings()
+    local rawData = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "tab-1",
+                TabName = "Main",
+                Settings = {
+                    {
+                        Id = "tab-setting-1",
+                        Name = "Tab Setting 1",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        },
+        Settings = {
+            {
+                Id = "root-setting-1",
+                Name = "Root Setting 1",
+                Type = "checkbox",
+                Default = true,
+            }
+        }
+    }
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
     TestSuite.AssertNil(sanitizedBlueprint)
 end
@@ -529,7 +618,7 @@ function TestHasSchemaVersionsEntry()
 end
 
 function TestPreprocessData()
-    local data = Blueprint:New({
+    local data = {
         SchemaVersion = 1,
         ModName = "Test Mod",
         KeybindingSortMode = "blueprint",
@@ -565,7 +654,7 @@ function TestPreprocessData()
                 }
             }
         }
-    })
+    }
 
     local preprocessedData = DataPreprocessing:PreprocessData(data, ModuleUUID)
 
