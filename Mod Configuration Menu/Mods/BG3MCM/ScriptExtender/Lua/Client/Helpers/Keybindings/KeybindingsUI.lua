@@ -58,12 +58,12 @@ function KeybindingsUI.GetAllKeybindings()
                     if currentBinding and currentBinding.Mouse then
                         mouseBinding = currentBinding.Mouse
                         MCMDebug(2, "Using saved mouse binding for setting: " .. settingId)
-                    else
-                        mouseBinding = Fallback_Value(
-                            setting.Default and setting.Default.Mouse,
-                            { Button = 0, ModifierKeys = {} }
-                        )
-                        MCMDebug(1, "Falling back to default mouse binding for setting: " .. settingId)
+                        -- else
+                        --     mouseBinding = Fallback_Value(
+                        --         setting.Default and setting.Default.Mouse,
+                        --         { Button = 0, ModifierKeys = {} }
+                        --     )
+                        --     MCMDebug(1, "Falling back to default mouse binding for setting: " .. settingId)
                     end
 
                     local description = setting.GetDescription and setting:GetDescription() or ""

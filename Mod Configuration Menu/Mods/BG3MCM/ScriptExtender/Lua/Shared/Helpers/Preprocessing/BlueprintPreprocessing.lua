@@ -120,7 +120,38 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
         return true
     end
 
+    if not self:ValidateTabStructure(blueprint:GetTabs()) then
+        return true
+    end
+
     return false
+end
+
+---@param tabs BlueprintTab[]|nil
+---@return boolean
+function BlueprintPreprocessing:ValidateTabStructure(tabs)
+    if tabs == nil then
+        return true
+    end
+
+    for _, tab in ipairs(tabs) do
+        if tab:GetTabName() == nil or tab:GetTabName() == "" then
+            MCMWarn(0,
+                "Tab '" .. tostring(tab:GetId()) .. "' in mod '" ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+                "' is missing a tab name. " ..
+                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            return false
+        end
+
+        local nestedTabs = tab.Tabs or {}
+
+        if not self:ValidateTabStructure(nestedTabs) then
+            return false
+        end
+    end
+
+    return true
 end
 
 --- Verify that all tabs in the blueprint have unique IDs
@@ -706,13 +737,6 @@ local VisibleIfAllowedOperators = {
     ["<="] = true,
 }
 
-local VisibleIfRelationalOperators = {
-    [">"] = true,
-    ["<"] = true,
-    [">="] = true,
-    ["<="] = true,
-}
-
 ---@param value table
 ---@param allowed table<string, boolean>
 ---@return boolean, string|nil
@@ -947,15 +971,6 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
             elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
             " with invalid ExpectedValue type ('" .. expectedValueType .. "'). " ..
             "Must be string, boolean, or number. " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    if VisibleIfRelationalOperators[condition.Operator] and expectedValueType ~= "number" then
-        MCMWarn(0,
-            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
-            " using operator '" .. condition.Operator .. "' with non-numeric ExpectedValue. " ..
-            "Operators >, <, >=, and <= require ExpectedValue to be a number. " ..
             "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end

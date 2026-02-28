@@ -1556,39 +1556,13 @@
                             "type": "number"
                         }
                     ],
-                    "markdownDescription": "The expected value of the setting specified by SettingId for this element to be visible. Use number for relational operators (>, <, >=, <=)."
+                    "markdownDescription": "The expected value of the setting specified by SettingId for this element to be visible. Use number for relational operators (>, <, >=, <=)"
                 }
             },
             "required": [
                 "SettingId",
                 "Operator",
                 "ExpectedValue"
-            ],
-            "allOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "Operator": {
-                                "enum": [
-                                    ">",
-                                    "<",
-                                    ">=",
-                                    "<="
-                                ]
-                            }
-                        },
-                        "required": [
-                            "Operator"
-                        ]
-                    },
-                    "then": {
-                        "properties": {
-                            "ExpectedValue": {
-                                "type": "number"
-                            }
-                        }
-                    }
-                }
             ]
         }
     }

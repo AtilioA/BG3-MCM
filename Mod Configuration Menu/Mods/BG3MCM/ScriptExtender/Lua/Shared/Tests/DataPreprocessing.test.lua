@@ -49,8 +49,8 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintVisibleIfRejectsAdditionalGroupFields",
     "TestBlueprintVisibleIfRejectsAdditionalConditionFields",
     "TestBlueprintVisibleIfAllowsNumberExpectedValue",
-    "TestBlueprintVisibleIfRejectsRelationalOperatorWithStringExpectedValue",
-    "TestBlueprintVisibleIfRejectsRelationalOperatorWithBooleanExpectedValue",
+    "TestBlueprintVisibleIfAllowsRelationalOperatorWithStringExpectedValue",
+    "TestBlueprintVisibleIfAllowsRelationalOperatorWithBooleanExpectedValue",
     "TestBlueprintVisibleIfAllowsRelationalOperatorWithNumberExpectedValue",
     "TestBlueprintVisibleIfRejectsDuplicateConditions",
     "TestBlueprintVisibleIfAllowsValidOrConditionGroup",
@@ -106,46 +106,43 @@ function TestBlueprintShouldntHaveSections()
 end
 
 function TestBlueprintShouldHaveTabsOrSettings()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
     local blueprintWithTabs = Blueprint:New({
         SchemaVersion = 1,
         Tabs = {
             {
                 TabId = "tab-1",
-            },
-            {
-                TabId = "tab-2",
-            },
-            {
-                TabId = "tab-3",
+                TabName = "Main",
+                Settings = {
+                    {
+                        Id = "setting-1",
+                        Name = "Setting 1",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
             },
         },
     })
-    local modUUID = TestConstants.ModuleUUIDs[1]
-
-    local sanitizedBlueprint1 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithTabs, modUUID)
 
     local blueprintWithSettings = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
             {
                 Id = "setting-1",
+                Name = "Setting 1",
+                Type = "checkbox",
+                Default = true,
             },
-            {
-                Id = "setting-2",
-            },
-            {
-                Id = "setting-3",
-            },
-
         }
     })
 
-    local modUUID2 = TestConstants.ModuleUUIDs[1]
+    local sanitizedBlueprint1 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithTabs, modUUID)
+    local sanitizedBlueprint2 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithSettings, modUUID)
 
-    local sanitizedBlueprint2 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithSettings, modUUID2)
-
-
-    TestSuite.AssertTrue(sanitizedBlueprint1 ~= nil and sanitizedBlueprint2 ~= nil)
+    TestSuite.AssertNotNil(sanitizedBlueprint1)
+    TestSuite.AssertNotNil(sanitizedBlueprint2)
 end
 
 function TestBlueprintShouldntHaveTabsAndSettings()
@@ -890,46 +887,142 @@ function TestBlueprintDefaultForDragShouldBeBetweenMinAndMax()
 end
 
 function TabsCanHaveEitherTabIdOrId()
-    local validTabData1 = {
-        TabId = "tab-1",
-        TabName = "Tab 1"
-    }
-    local validTabData2 = {
-        Id = "tab-2",
-        TabName = "Tab 2"
-    }
-    local invalidTabData = {
-        TabName = "Tab 3"
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
+    local rawDataWithTabId = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "tab-1",
+                TabName = "Tab 1",
+                Settings = {
+                    {
+                        Id = "setting-1",
+                        Name = "Setting 1",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        }
     }
 
-    local validTab1 = DataPreprocessing:RecursivePreprocess(validTabData1, TestConstants.ModuleUUIDs[1])
-    local validTab2 = DataPreprocessing:RecursivePreprocess(validTabData2, TestConstants.ModuleUUIDs[1])
-    local invalidTab = DataPreprocessing:RecursivePreprocess(invalidTabData, TestConstants.ModuleUUIDs[1])
+    local rawDataWithIdAlias = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                Id = "tab-2",
+                TabName = "Tab 2",
+                Settings = {
+                    {
+                        Id = "setting-2",
+                        Name = "Setting 2",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        }
+    }
+
+    local rawDataWithoutAnyTabId = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabName = "Tab 3",
+                Settings = {
+                    {
+                        Id = "setting-3",
+                        Name = "Setting 3",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        }
+    }
+
+    local blueprintWithTabId = Blueprint:New(DataPreprocessing:PreprocessData(rawDataWithTabId, modUUID))
+    local blueprintWithIdAlias = Blueprint:New(DataPreprocessing:PreprocessData(rawDataWithIdAlias, modUUID))
+    local invalidBlueprint = Blueprint:New(DataPreprocessing:PreprocessData(rawDataWithoutAnyTabId, modUUID))
+
+    local validTab1 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithTabId, modUUID)
+    local validTab2 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithIdAlias, modUUID)
+    local invalidTab = BlueprintPreprocessing:SanitizeBlueprint(invalidBlueprint, modUUID)
 
     TestSuite.AssertNotNil(validTab1)
     TestSuite.AssertNotNil(validTab2)
+    TestSuite.AssertEquals(blueprintWithIdAlias:GetTabs()[1]:GetId(), "tab-2")
     TestSuite.AssertNil(invalidTab)
 end
 
 function TabsCanHaveEitherTabNameOrName()
-    local validTabData1 = {
-        TabId = "tab-1",
-        TabName = "Tab 1"
-    }
-    local validTabData2 = {
-        TabId = "tab-2",
-        Name = "Tab 2"
-    }
-    local invalidTabData = {
-        TabId = "tab-3"
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
+    local rawDataWithTabName = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "tab-1",
+                TabName = "Tab 1",
+                Settings = {
+                    {
+                        Id = "setting-1",
+                        Name = "Setting 1",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        }
     }
 
-    local validTab1 = DataPreprocessing:RecursivePreprocess(validTabData1, TestConstants.ModuleUUIDs[1])
-    local validTab2 = DataPreprocessing:RecursivePreprocess(validTabData2, TestConstants.ModuleUUIDs[1])
-    local invalidTab = DataPreprocessing:RecursivePreprocess(invalidTabData, TestConstants.ModuleUUIDs[1])
+    local rawDataWithNameAlias = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "tab-2",
+                Name = "Tab 2",
+                Settings = {
+                    {
+                        Id = "setting-2",
+                        Name = "Setting 2",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        }
+    }
+
+    local rawDataWithoutAnyTabName = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "tab-3",
+                Settings = {
+                    {
+                        Id = "setting-3",
+                        Name = "Setting 3",
+                        Type = "checkbox",
+                        Default = true,
+                    }
+                }
+            }
+        }
+    }
+
+    local blueprintWithTabName = Blueprint:New(DataPreprocessing:PreprocessData(rawDataWithTabName, modUUID))
+    local blueprintWithNameAlias = Blueprint:New(DataPreprocessing:PreprocessData(rawDataWithNameAlias, modUUID))
+    local invalidBlueprint = Blueprint:New(DataPreprocessing:PreprocessData(rawDataWithoutAnyTabName, modUUID))
+
+    local validTab1 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithTabName, modUUID)
+    local validTab2 = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithNameAlias, modUUID)
+    local invalidTab = BlueprintPreprocessing:SanitizeBlueprint(invalidBlueprint, modUUID)
 
     TestSuite.AssertNotNil(validTab1)
     TestSuite.AssertNotNil(validTab2)
+    TestSuite.AssertEquals(blueprintWithNameAlias:GetTabs()[1]:GetTabName(), "Tab 2")
     TestSuite.AssertNil(invalidTab)
 end
 
@@ -1152,7 +1245,7 @@ function TestBlueprintVisibleIfAllowsNumberExpectedValue()
     TestSuite.AssertNotNil(sanitizedBlueprint)
 end
 
-function TestBlueprintVisibleIfRejectsRelationalOperatorWithStringExpectedValue()
+function TestBlueprintVisibleIfAllowsRelationalOperatorWithStringExpectedValue()
     local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
@@ -1179,10 +1272,10 @@ function TestBlueprintVisibleIfRejectsRelationalOperatorWithStringExpectedValue(
     })
 
     local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
-    TestSuite.AssertNil(sanitizedBlueprint)
+    TestSuite.AssertNotNil(sanitizedBlueprint)
 end
 
-function TestBlueprintVisibleIfRejectsRelationalOperatorWithBooleanExpectedValue()
+function TestBlueprintVisibleIfAllowsRelationalOperatorWithBooleanExpectedValue()
     local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
@@ -1209,7 +1302,7 @@ function TestBlueprintVisibleIfRejectsRelationalOperatorWithBooleanExpectedValue
     })
 
     local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
-    TestSuite.AssertNil(sanitizedBlueprint)
+    TestSuite.AssertNotNil(sanitizedBlueprint)
 end
 
 function TestBlueprintVisibleIfAllowsRelationalOperatorWithNumberExpectedValue()

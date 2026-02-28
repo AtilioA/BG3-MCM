@@ -111,9 +111,11 @@ end
 ---@param modUUID string The UUID of the mod that the item data belongs to.
 ---@return table - The preprocessed tab or section data.
 function DataPreprocessing:RecursivePreprocess(elementData, modUUID)
-    local processedData = {}
+    local processedData = {
+        Settings = {}
+    }
 
-    if elementData.TabName then
+    if elementData.TabName or elementData.Name then
         processedData = BlueprintTab:New({
             TabId = elementData.TabId or elementData.Id,
             TabName = elementData.TabName or elementData.Name,
