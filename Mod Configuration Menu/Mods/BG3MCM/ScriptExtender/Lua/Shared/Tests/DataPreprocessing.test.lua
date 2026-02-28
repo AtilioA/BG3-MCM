@@ -4,11 +4,14 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestSanitizeBlueprintWithoutSchemaVersion",
     "TestBlueprintShouldntHaveSections",
     "TestBlueprintShouldntHaveTabsAndSettings",
+    "TestBlueprintShouldHaveTabsOrSettings",
     "TestBlueprintShouldHaveSettingsAtSomeLevel",
+    "TestHasSchemaVersionsEntry",
+    "TestPreprocessData",
     "TabsCanHaveEitherTabIdOrId",
     "TabsCanHaveEitherTabNameOrName",
     "SectionsCanHaveEitherSectionIdOrId",
-    -- "SettingsCanHaveEitherSectionNameOrName",
+    "SectionsCanHaveEitherSectionNameOrName",
 
     --- Blueprint integrity validation
     -- IDs
@@ -40,6 +43,10 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "BlueprintShouldHaveMinAndMaxForSlider",
     "BlueprintMinAndMaxForSliderShouldBeNumbers",
     "BlueprintMinShouldBeLessThanMaxForSlider",
+    "TestBlueprintVisibleIfRejectsUnknownSettingId",
+    "TestBlueprintVisibleIfAllowsValidCondition",
+    "TestKeybindingV2OptionFlagsMustBeBoolean",
+    "TestKeybindingV2MouseDefaultButtonBounds",
 
     --- Broader blueprint integration tests?
 })
@@ -958,4 +965,155 @@ function SectionsCanHaveEitherSectionNameOrName()
     TestSuite.AssertNotNil(validSection1)
     TestSuite.AssertNotNil(validSection2)
     TestSuite.AssertNil(invalidSection)
+end
+
+function TestBlueprintVisibleIfRejectsUnknownSettingId()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "missing-setting",
+                            Operator = "==",
+                            ExpectedValue = true,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfAllowsValidCondition()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    LogicalOperator = "and",
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "==",
+                            ExpectedValue = true,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function TestKeybindingV2OptionFlagsMustBeBoolean()
+    local invalidBlueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "kb-setting",
+                Type = "keybinding_v2",
+                Default = {
+                    Keyboard = { Key = "A", ModifierKeys = {} },
+                    Enabled = true,
+                },
+                Options = {
+                    ShouldTriggerOnRepeat = "true",
+                }
+            }
+        }
+    })
+
+    local validBlueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "kb-setting",
+                Type = "keybinding_v2",
+                Default = {
+                    Keyboard = { Key = "A", ModifierKeys = {} },
+                    Enabled = true,
+                },
+                Options = {
+                    ShouldTriggerOnRepeat = true,
+                    IsDeveloperOnly = false,
+                    ShouldTriggerOnKeyUp = true,
+                    ShouldTriggerOnKeyDown = false,
+                    BlockIfLevelNotStarted = true,
+                    PreventAction = false,
+                    SkipCallback = false,
+                }
+            }
+        }
+    })
+
+    local invalidResult = BlueprintPreprocessing:SanitizeBlueprint(invalidBlueprint, TestConstants.ModuleUUIDs[1])
+    local validResult = BlueprintPreprocessing:SanitizeBlueprint(validBlueprint, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNil(invalidResult)
+    TestSuite.AssertNotNil(validResult)
+end
+
+function TestKeybindingV2MouseDefaultButtonBounds()
+    local validBlueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "kb-mouse-valid",
+                Type = "keybinding_v2",
+                Default = {
+                    Mouse = {
+                        Button = 1,
+                        ModifierKeys = { "LCTRL" },
+                    },
+                    Enabled = true,
+                }
+            }
+        }
+    })
+
+    local invalidBlueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "kb-mouse-invalid",
+                Type = "keybinding_v2",
+                Default = {
+                    Mouse = {
+                        Button = 0,
+                        ModifierKeys = {},
+                    },
+                    Enabled = true,
+                }
+            }
+        }
+    })
+
+    local validResult = BlueprintPreprocessing:SanitizeBlueprint(validBlueprint, TestConstants.ModuleUUIDs[1])
+    local invalidResult = BlueprintPreprocessing:SanitizeBlueprint(invalidBlueprint, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNotNil(validResult)
+    TestSuite.AssertNil(invalidResult)
 end

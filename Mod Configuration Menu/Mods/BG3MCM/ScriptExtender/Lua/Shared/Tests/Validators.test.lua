@@ -18,6 +18,9 @@ TestSuite.RegisterTests("Setting validators", {
     "TestValidateKeybindingV2InvalidModifierVariants",
     "TestValidateKeybindingV2Mouse",
     "TestValidateKeybindingV2XOR",
+    "TestValidateListV2Setting",
+    "TestValidateEventButtonSetting",
+    "TestNonExistentSetting",
 })
 
 function TestValidateIntSetting()
@@ -295,17 +298,6 @@ function TestValidateColorEditSetting()
     TestSuite.AssertFalse(isValid)
 end
 
-function TestNonExistentSetting()
-    local setting = BlueprintSetting:New({
-        Id = "non-existent",
-        Type = "unknown",
-        Default = "unknown",
-    })
-
-    local isValid, message = DataPreprocessing:ValidateSetting(setting, "unknown")
-    TestSuite.AssertFalse(isValid)
-end
-
 function TestValidateKeybindingV2Keyboard()
     local setting = BlueprintSetting:New({
         Id = "test-kb-binding",
@@ -541,5 +533,71 @@ function TestValidateKeybindingV2XOR()
     isValid = KeybindingV2Validator.Validate(setting, {
         Enabled = true
     })
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateListV2Setting()
+    local setting = BlueprintSetting:New({
+        Id = "test-list-v2",
+        Type = "list_v2",
+        Default = {
+            enabled = true,
+            elements = {}
+        }
+    })
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, {
+        enabled = true,
+        elements = {
+            {
+                name = "A",
+                enabled = true
+            }
+        }
+    })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, {
+        enabled = "yes",
+        elements = {}
+    })
+    TestSuite.AssertFalse(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, {
+        enabled = true,
+        elements = {
+            {
+                name = "",
+                enabled = true
+            }
+        }
+    })
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateEventButtonSetting()
+    local setting = BlueprintSetting:New({
+        Id = "test-event-button-setting",
+        Type = "event_button"
+    })
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, nil)
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, { metadata = "ok" })
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, "invalid")
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestNonExistentSetting()
+    local setting = BlueprintSetting:New({
+        Id = "non-existent",
+        Type = "unknown",
+        Default = "unknown",
+    })
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, "unknown")
     TestSuite.AssertFalse(isValid)
 end

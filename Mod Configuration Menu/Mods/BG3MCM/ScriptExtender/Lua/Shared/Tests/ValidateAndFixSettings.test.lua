@@ -6,6 +6,8 @@ TestSuite.RegisterTests("ValidateAndFixSettings", {
     "ShouldKeepValidKeybindingV2WithUppercaseModifier",
     "ShouldKeepValidKeybindingV2WithModifierVariants",
     "ShouldResetInvalidKeybindingV2Modifier",
+    "ShouldFixInvalidListV2Setting",
+    "ShouldKeepValidListV2Setting",
 })
 
 function ShouldFixInvalidSettingsAtRootLevel()
@@ -252,4 +254,88 @@ function ShouldResetInvalidKeybindingV2Modifier()
 
     TestSuite.AssertEquals(fixedConfig["open_cpf"].Keyboard.Key, "INSERT")
     TestSuite.AssertEquals(#fixedConfig["open_cpf"].Keyboard.ModifierKeys, 0)
+end
+
+function ShouldFixInvalidListV2Setting()
+    local defaultListValue = {
+        enabled = true,
+        elements = {
+            {
+                name = "Alpha",
+                enabled = true,
+            }
+        }
+    }
+
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = "list-v2-setting",
+                Type = "list_v2",
+                Default = defaultListValue,
+            })
+        }
+    })
+
+    local config = {
+        ["list-v2-setting"] = {
+            enabled = "true",
+            elements = {
+                {
+                    name = "Broken",
+                    enabled = true,
+                }
+            }
+        }
+    }
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+    TestSuite.AssertEquals(fixedConfig["list-v2-setting"], defaultListValue)
+end
+
+function ShouldKeepValidListV2Setting()
+    local defaultListValue = {
+        enabled = false,
+        elements = {
+            {
+                name = "Alpha",
+                enabled = false,
+            }
+        }
+    }
+
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = "list-v2-setting",
+                Type = "list_v2",
+                Default = defaultListValue,
+            })
+        }
+    })
+
+    local validListValue = {
+        enabled = true,
+        elements = {
+            {
+                name = "Alpha",
+                enabled = true,
+            },
+            {
+                name = "Beta",
+                enabled = false,
+            }
+        }
+    }
+
+    local config = {
+        ["list-v2-setting"] = validListValue,
+    }
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+    TestSuite.AssertEquals(fixedConfig["list-v2-setting"], validListValue)
 end
