@@ -6,4 +6,5 @@ RequireFiles("Shared/Tests/", {
     "Validators.test",
     "ModConfig.test",
     "EventButton.test",
+    "VisibilityManager.test",
 })

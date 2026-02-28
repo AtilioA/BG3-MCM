@@ -706,6 +706,13 @@ local VisibleIfAllowedOperators = {
     ["<="] = true,
 }
 
+local VisibleIfRelationalOperators = {
+    [">"] = true,
+    ["<"] = true,
+    [">="] = true,
+    ["<="] = true,
+}
+
 ---@param value table
 ---@param allowed table<string, boolean>
 ---@return boolean, string|nil
@@ -933,13 +940,22 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
         return false
     end
 
-    -- According to schema, ExpectedValue must be string or boolean
+    -- According to schema, ExpectedValue must be string, boolean, or number
     local expectedValueType = type(condition.ExpectedValue)
-    if expectedValueType ~= "string" and expectedValueType ~= "boolean" then
+    if expectedValueType ~= "string" and expectedValueType ~= "boolean" and expectedValueType ~= "number" then
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
             " with invalid ExpectedValue type ('" .. expectedValueType .. "'). " ..
-            "Must be string or boolean. " ..
+            "Must be string, boolean, or number. " ..
+            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
+    if VisibleIfRelationalOperators[condition.Operator] and expectedValueType ~= "number" then
+        MCMWarn(0,
+            elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
+            " using operator '" .. condition.Operator .. "' with non-numeric ExpectedValue. " ..
+            "Operators >, <, >=, and <= require ExpectedValue to be a number. " ..
             "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end

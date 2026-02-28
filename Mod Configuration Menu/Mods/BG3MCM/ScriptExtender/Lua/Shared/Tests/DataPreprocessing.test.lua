@@ -48,7 +48,10 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintVisibleIfRejectsEmptyConditionGroup",
     "TestBlueprintVisibleIfRejectsAdditionalGroupFields",
     "TestBlueprintVisibleIfRejectsAdditionalConditionFields",
-    "TestBlueprintVisibleIfRejectsNumberExpectedValue",
+    "TestBlueprintVisibleIfAllowsNumberExpectedValue",
+    "TestBlueprintVisibleIfRejectsRelationalOperatorWithStringExpectedValue",
+    "TestBlueprintVisibleIfRejectsRelationalOperatorWithBooleanExpectedValue",
+    "TestBlueprintVisibleIfAllowsRelationalOperatorWithNumberExpectedValue",
     "TestBlueprintVisibleIfRejectsDuplicateConditions",
     "TestBlueprintVisibleIfAllowsValidOrConditionGroup",
     "TestBlueprintVisibleIfAllowsValidTabAndSectionConditions",
@@ -1119,7 +1122,7 @@ function TestBlueprintVisibleIfRejectsAdditionalConditionFields()
     TestSuite.AssertNil(sanitizedBlueprint)
 end
 
-function TestBlueprintVisibleIfRejectsNumberExpectedValue()
+function TestBlueprintVisibleIfAllowsNumberExpectedValue()
     local blueprint = Blueprint:New({
         SchemaVersion = 1,
         Settings = {
@@ -1146,7 +1149,97 @@ function TestBlueprintVisibleIfRejectsNumberExpectedValue()
     })
 
     local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfRejectsRelationalOperatorWithStringExpectedValue()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = ">",
+                            ExpectedValue = "1",
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
     TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfRejectsRelationalOperatorWithBooleanExpectedValue()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = "<=",
+                            ExpectedValue = true,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function TestBlueprintVisibleIfAllowsRelationalOperatorWithNumberExpectedValue()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "master-toggle",
+                Type = "checkbox",
+                Default = true,
+            },
+            {
+                Id = "dependent-setting",
+                Type = "text",
+                Default = "ok",
+                VisibleIf = {
+                    Conditions = {
+                        {
+                            SettingId = "master-toggle",
+                            Operator = ">=",
+                            ExpectedValue = 1,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNotNil(sanitizedBlueprint)
 end
 
 function TestBlueprintVisibleIfRejectsDuplicateConditions()
