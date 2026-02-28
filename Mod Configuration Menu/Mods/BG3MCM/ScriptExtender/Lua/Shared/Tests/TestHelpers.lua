@@ -64,8 +64,65 @@ function TestSuite.RegisterTests(category, tests)
     end
 end
 
----Runs all the registered tests.
-function TestSuite.RunTests()
+---Builds a lookup table for requested test names.
+---@param testNames? string[]
+---@return table<string, boolean>|nil, string[]
+local function BuildRequestedTestsLookup(testNames)
+    local requestedTestsLookup = nil
+    local requestedTests = {}
+
+    if type(testNames) == "table" and #testNames > 0 then
+        requestedTestsLookup = {}
+        for _, testName in ipairs(testNames) do
+            if type(testName) == "string" and testName ~= "" then
+                requestedTestsLookup[testName] = true
+                table.insert(requestedTests, testName)
+            end
+        end
+
+        if next(requestedTestsLookup) == nil then
+            requestedTestsLookup = nil
+        end
+    end
+
+    return requestedTestsLookup, requestedTests
+end
+
+---@param tests string[]
+---@param requestedTestsLookup table<string, boolean>|nil
+---@param matchedTestsLookup table<string, boolean>
+---@param failedTestNames string[]
+---@return number, number, number
+local function RunCategoryTests(tests, requestedTestsLookup, matchedTestsLookup, failedTestNames)
+    local categoryPassed = 0
+    local categoryFailed = 0
+    local testsToRun = {}
+
+    for _, test in ipairs(tests) do
+        if requestedTestsLookup == nil or requestedTestsLookup[test] then
+            table.insert(testsToRun, test)
+            matchedTestsLookup[test] = true
+        end
+    end
+
+    for _, test in ipairs(testsToRun) do
+        local testHasPassed = TestSuite.RunTest(test, _G[test])
+        if testHasPassed then
+            categoryPassed = categoryPassed + 1
+        else
+            categoryFailed = categoryFailed + 1
+            table.insert(failedTestNames, test)
+        end
+    end
+
+    return #testsToRun, categoryPassed, categoryFailed
+end
+
+---@param testNames? string[] Optional list of test names to run
+function TestSuite.RunTests(testNames)
+    local requestedTestsLookup, requestedTests = BuildRequestedTestsLookup(testNames)
+    local matchedTestsLookup = {}
+
     local totalTests = 0
     local totalPassed = 0
     local totalFailed = 0
@@ -74,33 +131,53 @@ function TestSuite.RunTests()
     Ext.Utils.Print("--- STARTING TESTS ---")
 
     for category, tests in pairs(TestSuite.RegisteredTests) do
-        local categoryPassed = 0
-        local categoryFailed = 0
-        Ext.Utils.Print("  -- Category: " .. category)
-        for i, test in ipairs(tests) do
-            totalTests = totalTests + 1
-            local testHasPassed = TestSuite.RunTest(test, _G[test])
-            if testHasPassed then
-                categoryPassed = categoryPassed + 1
-                totalPassed = totalPassed + 1
-            else
-                categoryFailed = categoryFailed + 1
-                totalFailed = totalFailed + 1
-                table.insert(failedTestNames, test)
+        local hasTestsInCategory = false
+        for _, test in ipairs(tests) do
+            if requestedTestsLookup == nil or requestedTestsLookup[test] then
+                hasTestsInCategory = true
+                break
             end
         end
 
-        -- Print the passed and failed test indicators for the category
-        local passedTestIndicator = string.rep("\x1b[38;2;21;255;81m■\x1b[0m", categoryPassed)
-        if passedTestIndicator == 0 then
-            passedTestIndicator = "0"
+        if hasTestsInCategory then
+            Ext.Utils.Print("  -- Category: " .. category)
+
+            local testsRunCount, categoryPassed, categoryFailed = RunCategoryTests(
+                tests,
+                requestedTestsLookup,
+                matchedTestsLookup,
+                failedTestNames
+            )
+
+            totalTests = totalTests + testsRunCount
+            totalPassed = totalPassed + categoryPassed
+            totalFailed = totalFailed + categoryFailed
+
+            -- Print the passed and failed test indicators for the category
+            local passedTestIndicator = string.rep("\x1b[38;2;21;255;81m■\x1b[0m", categoryPassed)
+            if categoryPassed == 0 then
+                passedTestIndicator = "0"
+            end
+            local failedTestIndicator = string.rep("\x1b[38;2;255;10;40m■\x1b[0m", categoryFailed)
+            if categoryFailed == 0 then
+                failedTestIndicator = "0"
+            end
+            Ext.Utils.Print("  Passed: " .. passedTestIndicator)
+            Ext.Utils.Print("  Failed: " .. failedTestIndicator .. "\n")
         end
-        local failedTestIndicator = string.rep("\x1b[38;2;255;10;40m■\x1b[0m", categoryFailed)
-        if categoryFailed == 0 then
-            failedTestIndicator = "0"
+    end
+
+    if requestedTestsLookup ~= nil then
+        local missingTests = {}
+        for _, requestedTest in ipairs(requestedTests) do
+            if not matchedTestsLookup[requestedTest] then
+                table.insert(missingTests, requestedTest)
+            end
         end
-        Ext.Utils.Print("  Passed: " .. passedTestIndicator)
-        Ext.Utils.Print("  Failed: " .. failedTestIndicator .. "\n")
+
+        if #missingTests > 0 then
+            Ext.Utils.PrintWarning("Requested test(s) not found: " .. table.concat(missingTests, ", "))
+        end
     end
 
     Ext.Utils.Print("--- FINISHING TESTS ---")
@@ -113,6 +190,11 @@ function TestSuite.RunTests()
         totalTests, totalPassed, totalFailed, totalFailed > 0 and " - " .. table.concat(failedTestNames, ", ") or ""
     )
     Ext.Utils.Print(testSuiteSummary)
+end
+
+---@param testNames string[]
+function TestSuite.RunTestsByNames(testNames)
+    TestSuite.RunTests(testNames)
 end
 
 ---Asserts that the given expression is true.
