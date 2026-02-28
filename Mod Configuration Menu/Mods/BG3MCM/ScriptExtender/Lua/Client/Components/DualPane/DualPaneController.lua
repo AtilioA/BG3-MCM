@@ -405,7 +405,7 @@ end
 function DualPaneController:FindTab(modUUID, tabIdentifier)
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
-        if not isTablessSpecialPage(modUUID) then
+        if tabIdentifier and tabIdentifier ~= "" and not isTablessSpecialPage(modUUID) then
             MCMWarn(1, "Tab bar not found for mod " .. modUUID)
         end
         return nil

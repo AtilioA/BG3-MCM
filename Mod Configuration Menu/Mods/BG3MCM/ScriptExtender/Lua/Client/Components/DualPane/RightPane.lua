@@ -35,7 +35,8 @@ function RightPane:FocusModContentChildWindow()
     return true
 end
 
-function RightPane:CreateModGroup(modUUID, modName, modDescription)
+---@param hasTabBar? boolean
+function RightPane:CreateModGroup(modUUID, modName, modDescription, hasTabBar)
     local group = self.parent:AddGroup(modUUID)
     local modNameWidget = group:AddSeparatorText(modName)
     group.UserData = group.UserData or {}
@@ -48,8 +49,11 @@ function RightPane:CreateModGroup(modUUID, modName, modDescription)
     self.contentGroups[modUUID] = group
     self.currentMod = { group = group, modUUID = modUUID }
 
-    local modTabBar = group:AddTabBar(modUUID .. "_TABS")
-    modTabBar.IDContext = modUUID .. "_TABS"
+    if hasTabBar ~= false then
+        local modTabBar = group:AddTabBar(modUUID .. "_TABS")
+        modTabBar.IDContext = modUUID .. "_TABS"
+    end
+
     return group
 end
 

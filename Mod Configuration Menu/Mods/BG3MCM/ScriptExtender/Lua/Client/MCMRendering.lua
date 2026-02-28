@@ -374,10 +374,12 @@ function MCMRendering:RenderMenuPageContent(modUUID)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
     local modBlueprint = self.mods[modUUID].blueprint
     local modSettings = self.mods[modUUID].settingsValues
+    local blueprintTabs = modBlueprint:GetTabs() or {}
+    local hasBlueprintTabs = #blueprintTabs > 0
     local uiGroupMod = DualPane.rightPane:GetModGroup(modUUID)
     if not uiGroupMod then
         uiGroupMod = DualPane.rightPane:CreateModGroup(modUUID, modBlueprint:GetModName(),
-            modBlueprint:GetModDescription())
+            modBlueprint:GetModDescription(), hasBlueprintTabs)
     end
 
     -- Footer-like text with mod information
@@ -397,8 +399,7 @@ function MCMRendering:RenderMenuPageContent(modUUID)
         modInfoText.IDContext = modUUID .. "_FOOTER"
     end
 
-    local blueprintTabs = modBlueprint:GetTabs() or {}
-    if #blueprintTabs > 0 then
+    if hasBlueprintTabs then
         -- Iterate over each tab in the mod blueprint to create a subtab for each
         for _, tabInfo in ipairs(blueprintTabs) do
             self:CreateModMenuSubTab(DualPane.rightPane:GetModTabBar(modUUID), tabInfo, modSettings, modUUID)
