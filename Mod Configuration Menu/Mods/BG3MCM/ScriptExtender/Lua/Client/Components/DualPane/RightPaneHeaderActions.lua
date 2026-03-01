@@ -74,7 +74,7 @@ function HeaderActions:New(parent)
 
     -- Keybinding indicator: shows when current mod has assigned hotkeys.
     self.keybindingsIndicator = self:CreateActionButton(
-        "[" .. Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") .. "]", nil,
+        '[' .. Ext.Loca.GetTranslatedString("hc4b1b51egaec4g4a29g9c3egf175645b417c") .. ']', nil,
         Ext.Loca.GetTranslatedString("hdbcd16c5f55e4e9c800e7284ebef8b0f5372"), 1)
     self.keybindingsIndicator.SameLine = true
     self.keybindingsIndicator.Disabled = false
@@ -183,6 +183,16 @@ function HeaderActions:UpdateKeybindingIndicator(modUUID)
     if not hasAssigned then
         self.keybindingsIndicator.Visible = false
         return
+    end
+
+    -- Generate acronym from mod name and set button label
+    local modName = MCMClientState:GetModName(modUUID) or modUUID
+    if modName ~= "" then
+        local acronym = VCString:GenerateAcronym(modName)
+        local label = VCString:InterpolateLocalizedMessage("h1574a7787caa4e5f933e2f03125a539c1139", acronym)
+        self.keybindingsIndicator.Label = label
+    else
+        self.keybindingsIndicator.Label = "[Hotkeys]"
     end
 
     -- If we have assigned hotkeys, show the indicator and ensure tooltip is informative

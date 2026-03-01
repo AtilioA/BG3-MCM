@@ -316,3 +316,46 @@ function VCString.ToTitleCase(str)
     if str == nil or str == "" then return str end
     return string.upper(string.sub(str, 1, 1)) .. string.sub(str, 2)
 end
+
+--- Generates an acronym/abbreviation from a mod name.
+---@param name string The mod name to shorten
+---@return string - The generated acronym
+function VCString:GenerateAcronym(name)
+    if not name or name == "" then return "" end
+
+    local clean_name = name:gsub("[>']", ""):match("^%s*(.-)%s*$") or ""
+
+    -- If the name is already short or fully uppercase (e.g. "CCEE", "REL_SE"), return as-is
+    if #clean_name <= 5 or clean_name == clean_name:upper() then
+        return clean_name
+    end
+
+    -- Normalize separators
+    clean_name = clean_name:gsub("[-_]", " ")
+    -- Split camelCase words
+    clean_name = clean_name:gsub("(%a)(%A)", "%1 %2"):gsub("(%a)(%A)", "%1 %2")
+
+    -- Split the name into individual words
+    local words = {}
+    for word in clean_name:gmatch("%S+") do
+        table.insert(words, word)
+    end
+
+    -- If only one word remains after splitting, return it as-is (e.g. "Scribe")
+    if #words == 1 then
+        return words[1]
+    end
+
+    -- Build the acronym by taking the first letter of each word
+    local acronym = ""
+    for _, word in ipairs(words) do
+        if word == word:upper() and #word > 1 then
+            acronym = acronym .. word
+        else
+            local firstChar = word:sub(1, 1)
+            acronym = acronym .. firstChar:upper()
+        end
+    end
+
+    return acronym
+end

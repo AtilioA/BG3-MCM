@@ -126,7 +126,9 @@
     <content contentuid="h4fbe91cade4c4f2f904e55bf12b3ec22egfc" version="1">I extend my gratitude to Norbyte, LaughingLeader, Focus and the CL team for making their code available under such open and permissive licenses, enabling seamless collaboration across the modding community!</content>
     <content contentuid="h1fe5d3876dd04389b53f1c4d808d2d02gfce" version="1">More Information</content>
     <content contentuid="h449f8e9c50fe497e8584a92dc227759a1d5d" version="1">For more details, visit the MCM page on Nexus.</content>
-    <content contentuid="h1574a7787caa4e5f933e2f03125a539c1139" version="1">Manage mod hotkeys</content>
+    <content contentuid="h68e7c491c9ff4a02b2b099889c482fc323a0" version="1">Configure hotkeys</content>
+    <content contentuid="h1574a7787caa4e5f933e2f03125a539c1139" version="1">[Manage [1] hotkeys]</content>
+    <content contentuid="hc4b1b51egaec4g4a29g9c3egf175645b417c" version="1">Hotkeys</content>
     <!-- SLIDERS -->
     <content contentuid="h0dab893ad8cc4f1a93e417c7524addecggc4" version="1">Decrease the '[1]' value by [2]</content>
     <content contentuid="heed976f6e50046c2a583040d9abb6ce6c8g1" version="1">Increase the '[1]' value by [2]</content>

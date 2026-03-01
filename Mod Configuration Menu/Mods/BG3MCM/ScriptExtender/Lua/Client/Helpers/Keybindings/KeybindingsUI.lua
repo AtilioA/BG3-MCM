@@ -185,8 +185,8 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
     -- Create a dedicated "Hotkeys" menu section using the new interface
     local success, hotkeysGroup = pcall(function()
         return dualPane:AddMenuSectionWithContent(
-            Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c") or "Hotkeys",
-            Ext.Loca.GetTranslatedString("h1574a7787caa4e5f933e2f03125a539c1139") or "Configure your keybindings here",
+            Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"),
+            Ext.Loca.GetTranslatedString("h68e7c491c9ff4a02b2b099889c482fc323a0"),
             ClientGlobals.MCM_HOTKEYS or "MCM_HOTKEYS"
         )
     end)
