@@ -20,13 +20,28 @@ local function applyOpenOnStartFirstRunMigration()
         return
     end
 
-    local success = MCMAPI:SetSettingValue("open_on_start", false, ModuleUUID, false)
-    if not success then
-        MCMWarn(0, "Failed to disable open_on_start during first-run migration")
+    if not MCMClientState or not MCMClientState.UIReady then
+        MCMWarn(0, "UIReady unavailable; skipping open_on_start first-run migration")
         return
     end
 
-    MCM.Store.Set("open_on_start_first_run_handled", true)
+    local subscription
+    subscription = MCMClientState.UIReady:Subscribe(function(isReady)
+        if not isReady then
+            return
+        end
+
+        local success = MCM.Set({ settingId = "open_on_start", value = false, shouldEmitEvent = true })
+        if not success then
+            MCMWarn(0, "Failed to disable open_on_start during first-run migration")
+            return
+        end
+
+        MCM.Store.Set({ var = "open_on_start_first_run_handled", value = true })
+        if subscription and not subscription._unsubscribed then
+            subscription:Unsubscribe()
+        end
+    end)
 end
 
 --- Initialize Client MCM once
@@ -43,7 +58,6 @@ function InitClientMCM()
 
         MCMAPI:LoadConfigs()
         MCMClientState:LoadMods(MCMAPI.mods)
-        applyOpenOnStartFirstRunMigration()
         Noesis:MonitorMainMenuButtonPress()
     elseif _initialized then
         MCMDebug(1, "Client MCM already initialized, not reinitializing.")
@@ -63,6 +77,8 @@ function InitClientMCM()
             end
         )
     end
+
+    applyOpenOnStartFirstRunMigration()
 
     _initialized = true
 end
