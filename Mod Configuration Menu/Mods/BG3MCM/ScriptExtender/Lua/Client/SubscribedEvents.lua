@@ -58,6 +58,10 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
         invalidateConfigPayloadCache()
         InitClientMCM()
     end
+
+    if e.ToState == Ext.Enums.ClientGameState["Running"] then
+        InitClientMCM()
+    end
 end)
 
 Ext.Events.KeyInput:Subscribe(handleKeyInput)
