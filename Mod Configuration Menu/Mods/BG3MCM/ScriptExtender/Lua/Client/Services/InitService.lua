@@ -16,6 +16,12 @@ local function applyOpenOnStartFirstRunMigration()
         storage = "json"
     })
 
+    if MCM.Get({ settingId = "open_on_start" }) == false then
+        MCMDebug(1, "open_on_start is already false, marking first-run migration as handled")
+        MCM.Store.Set({ var = "open_on_start_first_run_handled", value = true })
+        return
+    end
+
     if MCM.Store.Get("open_on_start_first_run_handled") == true then
         return
     end
