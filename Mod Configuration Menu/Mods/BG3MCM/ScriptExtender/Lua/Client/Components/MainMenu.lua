@@ -1,4 +1,7 @@
+-- REFACTOR: use localization wrapper
+
 MainMenu = {}
+
 
 function MainMenu.CreateMainMenu()
     local function CreateHelpTroubleshootingPopup()
@@ -34,6 +37,11 @@ function MainMenu.CreateMainMenu()
             Ext.Loca.GetTranslatedString("h90617d43407c4d5d99fe26d08f47934abg89"))
         uiNotShowingBT:SetColor("Text", Color.HEXToRGBA("#FF2323"))
 
+        helpTroubleshootingPopup:AddSeparatorText(Ext.Loca.GetTranslatedString("hc8d418eb08b243dca7827e5a873295d34d9b"))
+        local text3 = helpTroubleshootingPopup:AddText(VCString:ReplaceBrWithNewlines(Ext.Loca.GetTranslatedString(
+            "hbc82ae3470f942bd843e33ae6e7498908935")))
+        text3.TextWrapPos = 0
+
         helpTroubleshootingPopup:AddSeparatorText(Ext.Loca.GetTranslatedString("h1fe5d3876dd04389b53f1c4d808d2d02gfce"))
         local text2 = helpTroubleshootingPopup:AddText(Ext.Loca.GetTranslatedString(
             "h449f8e9c50fe497e8584a92dc227759a1d5d"))
@@ -43,11 +51,12 @@ function MainMenu.CreateMainMenu()
     end
 
     local function CreateHelpUIPopup()
-        local helpPopupUI = MCM_WINDOW:AddPopup(Ext.Loca.GetTranslatedString("ha41e66cbd942447c808e6bd19f0ff635f69e"))
+        local helpPopupUI = MCM_WINDOW:AddPopup(Ext.Loca.GetTranslatedString(
+            "ha41e66cbd942447c808e6bd19f0ff635f69e"))
+
         helpPopupUI:AddSeparatorText(Ext.Loca.GetTranslatedString("h504a5f8e7f544190b496bcde61c78dcb7ba6"))
         local text1 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
             "hfadac6e330134b9ba8e5e2f1a16cf77cd3bg"))
-        text1.TextWrapPos = 0
         local text2 = helpPopupUI:AddText(Ext.Loca.GetTranslatedString(
             "h54470141a99c47ba95e92f57da1100de5467"))
         text2.TextWrapPos = 0
@@ -80,7 +89,7 @@ function MainMenu.CreateMainMenu()
         local modAuthor = MCMModInfo.Author
         local modVersion = table.concat(MCMModInfo.ModVersion, ".")
         aboutPopupGeneral:AddSeparatorText(VCString:InterpolateLocalizedMessage("h4a0ed3db05bb46c59094f7d5be8e90fa09d2",
-        modVersion, modAuthor))
+            modVersion, modAuthor))
         -- local aboutPopupDescription = MCM_WINDOW:AddPopup("About MCM - Description")
         -- aboutPopupGeneral:AddSeparatorText("Description")
         aboutPopupGeneral:AddText(
