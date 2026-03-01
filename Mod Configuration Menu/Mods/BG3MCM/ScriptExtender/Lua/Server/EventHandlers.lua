@@ -42,7 +42,7 @@ end
 ---@param userID number The user ID of the requesting client
 ---@return table Response with success status
 function EHandlers.OnClientRequestConfigs(data, userID)
-    MCMDebug(1, "Received MCM settings request from user: " .. tostring(userID))
+    MCMDebug(2, "Received MCM settings request from user: " .. tostring(userID))
 
     if not MCMAPI.mods or not MCMAPI.profiles then
         MCMServer:LoadAndSendSettings()

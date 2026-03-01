@@ -61,7 +61,7 @@ end
 -- Subscribe to SessionLoaded to process pending operations
 Ext.Events.SessionLoaded:Subscribe(function()
     ModVarAdapter._sessionLoaded = true
-    MCMDebug(1, "ModVarAdapter: SessionLoaded fired, processing " .. #ModVarAdapter._pendingOperations .. " pending operations")
+    MCMDebug(2, "ModVarAdapter: SessionLoaded fired, processing " .. #ModVarAdapter._pendingOperations .. " pending operations")
 
     -- Process all pending operations.
     -- REVIEW? maybe use ReactiveX for this?
