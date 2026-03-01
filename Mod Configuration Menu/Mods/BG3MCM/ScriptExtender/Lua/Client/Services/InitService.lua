@@ -4,6 +4,31 @@ local LoadOrderHealthCheckToggles = require("Shared/Helpers/LoadOrderHealthCheck
 
 local _initialized = false
 
+local function applyOpenOnStartFirstRunMigration()
+    if not MCM.Store then
+        MCMWarn(0, "Store API unavailable; skipping open_on_start first-run migration")
+        return
+    end
+
+    MCM.Store.RegisterVar("open_on_start_first_run_handled", {
+        type = "boolean",
+        default = false,
+        storage = "json"
+    })
+
+    if MCM.Store.Get("open_on_start_first_run_handled") == true then
+        return
+    end
+
+    local success = MCMAPI:SetSettingValue("open_on_start", false, ModuleUUID, false)
+    if not success then
+        MCMWarn(0, "Failed to disable open_on_start during first-run migration")
+        return
+    end
+
+    MCM.Store.Set("open_on_start_first_run_handled", true)
+end
+
 --- Initialize Client MCM once
 function InitClientMCM()
     if MCMProxy.IsMainMenu() then
@@ -18,6 +43,7 @@ function InitClientMCM()
 
         MCMAPI:LoadConfigs()
         MCMClientState:LoadMods(MCMAPI.mods)
+        applyOpenOnStartFirstRunMigration()
         Noesis:MonitorMainMenuButtonPress()
     elseif _initialized then
         MCMDebug(1, "Client MCM already initialized, not reinitializing.")
