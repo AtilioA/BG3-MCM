@@ -94,6 +94,9 @@ function MainMenu.CreateMainMenu()
         aboutPopupGeneral:AddText(
             Ext.Loca.GetTranslatedString(
                 "ha3e6f6909b9744fcb28a1be741580718eebc"))
+        aboutPopupGeneral:AddText(
+            Ext.Loca.GetTranslatedString(
+                "hb2dd4c5e114345a384b9eb030586faf5bbfg"))
         return aboutPopupGeneral
     end
 
