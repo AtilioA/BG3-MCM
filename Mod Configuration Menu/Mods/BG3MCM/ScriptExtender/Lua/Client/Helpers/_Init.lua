@@ -5,6 +5,7 @@ RequireFiles("Client/Helpers/", {
     "EventButtons/_Init",
     "Keybindings/_Init",
     "ClientGlobals",
+    "OpenOnStartHelper",
     "Noesis",
     "Restoration/_Init",
     "NativeKeybindingsTranslator",

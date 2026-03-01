@@ -261,10 +261,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW:SetStyle("WindowMinSize", minWidth, minHeight)
     MCM_WINDOW.IDContext = "MCM_WINDOW"
 
-    local shouldOpenOnStart = MCMClientState:GetClientStateValue("open_on_start", ModuleUUID)
-    if shouldOpenOnStart == nil then
-        shouldOpenOnStart = true
-    end
+    local shouldOpenOnStart = OpenOnStartHelper:ShouldOpenOnStart()
 
     MCM_WINDOW.NoFocusOnAppearing = true
 

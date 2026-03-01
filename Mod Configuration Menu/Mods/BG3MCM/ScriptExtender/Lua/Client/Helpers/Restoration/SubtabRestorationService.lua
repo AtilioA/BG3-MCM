@@ -97,7 +97,7 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     end
 
     -- During initialization, respect open_on_start setting
-    local shouldOpenWindow = not self.isInitialized and (MCMAPI:GetSettingValue("open_on_start", ModuleUUID) == true)
+    local shouldOpenWindow = not self.isInitialized and OpenOnStartHelper:ShouldOpenOnStart()
     MCMDebug(1,
         "SubtabRestorationService: Restoring subtab '" ..
         tabName .. "' for mod: " .. modUUID .. " (shouldOpenWindow: " .. tostring(shouldOpenWindow) .. ")")
