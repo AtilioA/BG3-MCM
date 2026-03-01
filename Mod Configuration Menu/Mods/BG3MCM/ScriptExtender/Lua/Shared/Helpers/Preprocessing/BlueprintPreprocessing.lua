@@ -5,7 +5,6 @@ BlueprintPreprocessing = _Class:Create("HelperBlueprintPreprocessing", nil)
 -- The UUID of the mod being currently processed
 BlueprintPreprocessing.currentmodUUID = nil
 
-
 --- TODO: clean this up, but currently better than nothing
 --- Checks if all elements in the blueprint have valid IDs
 ---@param blueprint Blueprint The blueprint data
@@ -640,14 +639,19 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                         Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                     return false
                 end
-                for _, mod in ipairs(default.Mouse.ModifierKeys) do
-                    if not KeybindingManager:IsValidModifierKey(mod) then
+                for i, mod in ipairs(default.Mouse.ModifierKeys) do
+                    local normalizedModifier = KeybindingManager:NormalizeModifierKey(mod)
+                    if not KeybindingManager:IsValidModifierKey(normalizedModifier) then
                         MCMWarn(0,
                             "Invalid modifier '" .. tostring(mod) ..
                             "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting.Id ..
                             "'. Valid modifiers are: " .. table.concat(SDLKeys.Modifiers, ", ") ..
                             ". Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                         return false
+                    end
+
+                    if normalizedModifier ~= mod then
+                        default.Mouse.ModifierKeys[i] = normalizedModifier
                     end
                 end
             end
@@ -1116,14 +1120,19 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                         return false
                     end
-                    for _, mod in ipairs(keyboard.ModifierKeys) do
-                        if not KeybindingManager:IsValidModifierKey(mod) then
+                    for i, mod in ipairs(keyboard.ModifierKeys) do
+                        local normalizedModifier = KeybindingManager:NormalizeModifierKey(mod)
+                        if not KeybindingManager:IsValidModifierKey(normalizedModifier) then
                             MCMWarn(0,
                                 "Invalid modifier '" ..
                                 tostring(mod) ..
                                 "' in Keyboard.ModifierKeys for setting '" .. setting.Id .. "'. Valid modifiers are: " ..
                                 table.concat(SDLKeys.Modifiers, ", "))
                             return false
+                        end
+
+                        if normalizedModifier ~= mod then
+                            keyboard.ModifierKeys[i] = normalizedModifier
                         end
                     end
                 end

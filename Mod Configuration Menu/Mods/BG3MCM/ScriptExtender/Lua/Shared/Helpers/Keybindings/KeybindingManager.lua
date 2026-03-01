@@ -41,6 +41,16 @@ function KeybindingManager:IsValidModifierKey(modifier)
     return validModifierKeys[modifier:upper()] == true
 end
 
+---@param modifier any
+---@return any
+function KeybindingManager:NormalizeModifierKey(modifier)
+    if modifier == "" then
+        return "NONE"
+    end
+
+    return modifier
+end
+
 function KeybindingManager:IsModifierNull(modifier)
     return modifier == nil or modifier == "" or modifier == "NONE"
 end

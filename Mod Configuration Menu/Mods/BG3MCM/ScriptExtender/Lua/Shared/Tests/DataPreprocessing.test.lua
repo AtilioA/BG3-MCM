@@ -59,6 +59,9 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintVisibleIfAllowsValidTabAndSectionConditions",
     "TestKeybindingV2OptionFlagsMustBeBoolean",
     "TestKeybindingV2MouseDefaultButtonBounds",
+    "TestKeybindingV2KeyboardDefaultEmptyModifierNormalizesToNone",
+    "TestKeybindingV2MouseDefaultEmptyModifierNormalizesToNone",
+    "TestKeybindingV2InvalidModifierStillFailsPreprocessing",
 
     --- Broader blueprint integration tests?
 })
@@ -1641,4 +1644,81 @@ function TestKeybindingV2MouseDefaultButtonBounds()
 
     TestSuite.AssertNotNil(validResult)
     TestSuite.AssertNil(invalidResult)
+end
+
+function TestKeybindingV2KeyboardDefaultEmptyModifierNormalizesToNone()
+    local rawData = {
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "kb-empty-keyboard-modifier",
+                Type = "keybinding_v2",
+                Default = {
+                    Keyboard = {
+                        Key = "A",
+                        ModifierKeys = { "" },
+                    },
+                    Enabled = true,
+                },
+            },
+        },
+    }
+
+    local sanitizedBlueprint = preprocessAndSanitize(rawData, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+
+    local setting = sanitizedBlueprint:GetSettings()[1]
+    local keyboardDefault = setting:GetDefault().Keyboard
+    TestSuite.AssertEquals(keyboardDefault.ModifierKeys[1], "NONE")
+end
+
+function TestKeybindingV2MouseDefaultEmptyModifierNormalizesToNone()
+    local rawData = {
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "kb-empty-mouse-modifier",
+                Type = "keybinding_v2",
+                Default = {
+                    Mouse = {
+                        Button = 1,
+                        ModifierKeys = { "" },
+                    },
+                    Enabled = true,
+                },
+            },
+        },
+    }
+
+    local sanitizedBlueprint = preprocessAndSanitize(rawData, TestConstants.ModuleUUIDs[1])
+
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+
+    local setting = sanitizedBlueprint:GetSettings()[1]
+    local mouseDefault = setting:GetDefault().Mouse
+    TestSuite.AssertEquals(mouseDefault.ModifierKeys[1], "NONE")
+end
+
+-- TODO: where blueprints areaTrigger involved, organize older tests to use integration tests such as this
+function TestKeybindingV2InvalidModifierStillFailsPreprocessing()
+    local rawData = {
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "kb-invalid-modifier",
+                Type = "keybinding_v2",
+                Default = {
+                    Keyboard = {
+                        Key = "A",
+                        ModifierKeys = { "LCTRL_BAD" },
+                    },
+                    Enabled = true,
+                },
+            },
+        },
+    }
+
+    local sanitizedBlueprint = preprocessAndSanitize(rawData, TestConstants.ModuleUUIDs[1])
+    TestSuite.AssertNil(sanitizedBlueprint)
 end
