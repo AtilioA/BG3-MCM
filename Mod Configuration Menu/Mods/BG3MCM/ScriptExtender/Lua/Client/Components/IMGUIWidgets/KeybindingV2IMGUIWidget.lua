@@ -74,7 +74,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
     local registry = KeybindingsRegistry.GetFilteredRegistry()
 
     for modUUID, actions in pairs(registry) do
-        local sortMode = actions._keybindingSortMode or "alphabetical"
+        local sortMode = actions._keybindingSortMode or KeybindingSortMode.DEFAULT
         local modName = MCMClientState:GetModName(modUUID)
         if not modName then
             MCMWarn(0, string.format("Mod name not found for UUID: %s", modUUID))
@@ -140,8 +140,8 @@ function KeybindingV2IMGUIWidget:SortFilteredActions()
 
     -- For each mod, sort its actions by ActionName or index.
     for _, mod in ipairs(self.Widget.FilteredActions) do
-        local sortMode = mod.KeybindingSortMode or "alphabetical"
-        if sortMode == "blueprint" then
+        local sortMode = mod.KeybindingSortMode or KeybindingSortMode.DEFAULT
+        if sortMode == KeybindingSortMode.BLUEPRINT then
             table.sort(mod.Actions, function(a, b)
                 local orderA = a.SortOrder or math.huge
                 local orderB = b.SortOrder or math.huge

@@ -33,7 +33,7 @@ function KeybindingsUI.GetAllKeybindings()
             local modKeybindings = {
                 ModUUID = modUUID,
                 Actions = {},
-                KeybindingSortMode = blueprint:GetKeybindingSortMode() or "alphabetical"
+                KeybindingSortMode = blueprint:GetKeybindingSortMode() or KeybindingSortMode.DEFAULT
             }
             local allSettings = blueprint:GetAllSettingsOrdered()
 

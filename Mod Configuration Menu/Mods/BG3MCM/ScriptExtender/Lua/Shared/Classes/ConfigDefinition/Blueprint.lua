@@ -1,3 +1,14 @@
+---@class KeybindingSortMode
+---@field ALPHABETICAL string
+---@field BLUEPRINT string
+---@field DEFAULT string
+KeybindingSortMode = {
+    ALPHABETICAL = "alphabetical",
+    BLUEPRINT = "blueprint",
+    DEFAULT = nil
+}
+KeybindingSortMode.DEFAULT = KeybindingSortMode.BLUEPRINT
+
 ---@class Blueprint
 ---@field private ModUUID string
 ---@field private SchemaVersion number
@@ -19,7 +30,7 @@ Blueprint = _Class:Create("Blueprint", nil, {
     Sections = {},
     Settings = {},
     Handles = {},
-    KeybindingSortMode = "blueprint"
+    KeybindingSortMode = KeybindingSortMode.DEFAULT
 })
 
 function Blueprint:GetModUUID()
@@ -125,7 +136,7 @@ function Blueprint:New(options)
     self.ModName = options.ModName or nil
     self.ModDescription = options.ModDescription or nil
     self.Handles = options.Handles or nil
-    self.KeybindingSortMode = options.KeybindingSortMode or "alphabetical"
+    self.KeybindingSortMode = options.KeybindingSortMode or KeybindingSortMode.DEFAULT
     self.Tabs = {}
     self.Sections = {}
     self.Settings = {}

@@ -10,6 +10,7 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintShouldHaveSettingsAtSomeLevel",
     "TestHasSchemaVersionsEntry",
     "TestPreprocessData",
+    "TestBlueprintDefaultsKeybindingSortMode",
     "TabsCanHaveEitherTabIdOrId",
     "TabsCanHaveEitherTabNameOrName",
     "SectionsCanHaveEitherSectionIdOrId",
@@ -624,7 +625,6 @@ function TestPreprocessData()
     local data = {
         SchemaVersion = 1,
         ModName = "Test Mod",
-        KeybindingSortMode = "blueprint",
         Tabs = {
             {
                 TabId = "tab-1",
@@ -666,7 +666,8 @@ function TestPreprocessData()
     end
     TestSuite.AssertEquals(preprocessedData.SchemaVersion, 1)
     TestSuite.AssertEquals(preprocessedData.ModName, "Test Mod")
-    TestSuite.AssertEquals(preprocessedData.KeybindingSortMode, "blueprint")
+    TestSuite.AssertEquals(preprocessedData.KeybindingSortMode, KeybindingSortMode.BLUEPRINT)
+    TestSuite.AssertEquals(preprocessedData.KeybindingSortMode, KeybindingSortMode.DEFAULT)
     TestSuite.AssertEquals(#preprocessedData.Tabs, 1)
 
     local tab = preprocessedData.Tabs[1]
@@ -695,6 +696,26 @@ function TestPreprocessData()
     TestSuite.AssertEquals(setting2.Default, 42)
     TestSuite.AssertEquals(setting2.Description, "Description 2")
     TestSuite.AssertEquals(setting2.Tooltip, "Tooltip 2")
+end
+
+function TestBlueprintDefaultsKeybindingSortMode()
+    local rawData = {
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-1",
+                Name = "Setting 1",
+                Type = "checkbox",
+                Default = true,
+            },
+        },
+    }
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint, blueprint = preprocessAndSanitize(rawData, modUUID)
+
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+    TestSuite.AssertEquals(blueprint:GetKeybindingSortMode(), KeybindingSortMode.DEFAULT)
 end
 
 function TestBlueprintDefaultForIntShouldBeNumber()

@@ -87,7 +87,7 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
 
     for _, mod in ipairs(modKeybindings) do
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
-        registry[mod.ModUUID]._keybindingSortMode = mod.KeybindingSortMode or "alphabetical"
+        registry[mod.ModUUID]._keybindingSortMode = mod.KeybindingSortMode or KeybindingSortMode.DEFAULT
         for _, action in ipairs(mod.Actions) do
             registry[mod.ModUUID][action.ActionId] = {
                 modUUID = mod.ModUUID,
@@ -126,7 +126,7 @@ function KeybindingsRegistry.GetFilteredRegistry(options)
     options = options or { includeDeveloper = Ext.Debug.IsDeveloperMode() }
     local filtered = {}
     for modUUID, actions in pairs(registry) do
-        local sortMode = actions._keybindingSortMode or "alphabetical"
+        local sortMode = actions._keybindingSortMode or KeybindingSortMode.DEFAULT
         for actionId, binding in pairs(actions) do
             if actionId ~= "_keybindingSortMode" and binding.visible then
                 filtered[modUUID] = filtered[modUUID] or {}
@@ -426,7 +426,7 @@ end
 ---@return string The sort mode ("alphabetical" or "blueprint")
 function KeybindingsRegistry.GetKeybindingSortMode(modUUID)
     if not modUUID or not registry[modUUID] then
-        return "alphabetical"
+        return KeybindingSortMode.DEFAULT
     end
-    return registry[modUUID]._keybindingSortMode or "alphabetical"
+    return registry[modUUID]._keybindingSortMode or KeybindingSortMode.DEFAULT
 end
