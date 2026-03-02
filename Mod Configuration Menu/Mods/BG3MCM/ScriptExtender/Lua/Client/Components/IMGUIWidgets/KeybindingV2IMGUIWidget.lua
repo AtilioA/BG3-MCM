@@ -210,6 +210,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
         for _, action in ipairs(mod.Actions) do
             local row = imguiTable:AddRow()
+            local isDisabled = action.Enabled == false
+
             -- Enabled checkbox cell.
             local enabledCell = row:AddCell()
             local enabledCheckbox = enabledCell:AddCheckbox("")
@@ -228,10 +230,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                     Enabled = checkbox.Checked,
                     AllowConflict = action.AllowConflict
                 })
-                self:RefreshUI()
             end
-
-            local isDisabled = action.Enabled == false
 
             -- Action Name cell.
             local nameCell = row:AddCell()
@@ -295,7 +294,6 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                     Enabled = action.Enabled,
                     AllowConflict = action.AllowConflict
                 })
-                self:RefreshUI()
             end
 
             if isDisabled then
@@ -331,21 +329,23 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
             -- If there is a conflict, color the keybinding button red and show conflict details
             -- Don't show red text if AllowConflict is enabled for this keybinding
-            local conflictKB = KeybindingConflictService:CheckForConflicts(action.KeyboardMouseBinding, mod, action,
-                "KeyboardMouse")
-            if conflictKB and not action.AllowConflict then
-                kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+            if not isDisabled then
+                local conflictKB = KeybindingConflictService:CheckForConflicts(action.KeyboardMouseBinding, mod, action,
+                    "KeyboardMouse")
+                if conflictKB and not action.AllowConflict then
+                    kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
 
-                -- Add conflict text below the button
-                local conflictText = VCString:InterpolateLocalizedMessage(
-                    "h919dc9b46db144ed8c330d1abb728459aea3",
-                    conflictKB.ActionName
-                )
+                    -- Add conflict text below the button
+                    local conflictText = VCString:InterpolateLocalizedMessage(
+                        "h919dc9b46db144ed8c330d1abb728459aea3",
+                        conflictKB.ActionName
+                    )
 
-                -- Add the conflict text below the keybinding button
-                local conflictLabel = kbCell:AddText(conflictText)
-                conflictLabel.TextWrapPos = 0
-                conflictLabel:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+                    -- Add the conflict text below the keybinding button
+                    local conflictLabel = kbCell:AddText(conflictText)
+                    conflictLabel.TextWrapPos = 0
+                    conflictLabel:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+                end
             end
         end
     end, function(err)
