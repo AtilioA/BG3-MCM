@@ -268,7 +268,8 @@ function IMGUIWidget:AddResetButton(group, setting, modUUID)
         IMGUIWidget:GetIconSizes())
     if not resetButton.Image or resetButton.Image.Icon == "" then
         resetButton:Destroy()
-        resetButton = group:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459") or Ext.Loca.GetTranslatedString("h8be200f84a794856bf872e571f4410f19479"))
+        resetButton = group:AddButton(Ext.Loca.GetTranslatedString("hf6cf844cd5fb40d3aca640d5584ed6d47459") or
+        Ext.Loca.GetTranslatedString("h8be200f84a794856bf872e571f4410f19479"))
     end
 
     resetButton.IDContext = modUUID .. "_" .. "ResetButton_" .. setting:GetId()
@@ -351,4 +352,11 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     addedDescription.IDContext = group.IDContext .. "_Description"
 
     addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
+end
+
+--- Applies a disabled style to an IMGUI element
+---@param element ExtuiStyledRenderable The IMGUI element to style
+---@return nil
+function IMGUIWidget:ApplyDisabledStyle(element)
+    element:SetColor("Text", Color.NormalizedRGBA(140, 140, 140, 1))
 end

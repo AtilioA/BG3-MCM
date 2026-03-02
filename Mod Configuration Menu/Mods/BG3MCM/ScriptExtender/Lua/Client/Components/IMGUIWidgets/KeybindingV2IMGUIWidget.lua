@@ -210,7 +210,6 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 
         for _, action in ipairs(mod.Actions) do
             local row = imguiTable:AddRow()
-
             -- Enabled checkbox cell.
             local enabledCell = row:AddCell()
             local enabledCheckbox = enabledCell:AddCheckbox("")
@@ -232,6 +231,8 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 self:RefreshUI()
             end
 
+            local isDisabled = action.Enabled == false
+
             -- Action Name cell.
             local nameCell = row:AddCell()
             local nameText = nameCell:AddText(action.ActionName)
@@ -243,6 +244,13 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                 descriptionText.TextWrapPos = 0
                 nameText.IDContext = mod.ModName .. "_ActionName_" .. action.ActionId
                 descriptionText.IDContext = mod.ModName .. "_ActionDesc_" .. action.ActionId
+                if isDisabled then
+                    self:ApplyDisabledStyle(descriptionText, row)
+                end
+            end
+
+            if isDisabled then
+                self:ApplyDisabledStyle(nameText, row)
             end
 
             IMGUIHelpers.AddTooltip(nameText,
@@ -265,6 +273,10 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             IMGUIHelpers.AddTooltip(kbButton, Ext.Loca.GetTranslatedString("h232887313a904f9b8a0818632bb3a418ad0e"),
                 mod.ModName .. "_KBMouse_" .. action.ActionId .. "_TOOLTIP")
 
+            if isDisabled then
+                self:ApplyDisabledStyle(kbButton, row)
+            end
+
             -- AllowConflict checkbox cell.
             local conflictCell = row:AddCell()
             local conflictCheckbox = conflictCell:AddCheckbox(Ext.Loca.GetTranslatedString(
@@ -284,6 +296,10 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                     AllowConflict = action.AllowConflict
                 })
                 self:RefreshUI()
+            end
+
+            if isDisabled then
+                self:ApplyDisabledStyle(conflictCheckbox, row)
             end
 
             -- Reset button cell.
@@ -308,6 +324,10 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
                     { updateHandle = false }
                 ),
                 mod.ModName .. "_Reset_" .. action.ActionId .. "_TOOLTIP")
+
+            if isDisabled then
+                self:ApplyDisabledStyle(resetButton, row)
+            end
 
             -- If there is a conflict, color the keybinding button red and show conflict details
             -- Don't show red text if AllowConflict is enabled for this keybinding
@@ -601,7 +621,7 @@ end
 ---@return boolean True if the binding is set to its default value, false otherwise
 function KeybindingV2IMGUIWidget:IsDefaultBinding(action)
     local kbEqual = KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding,
-    action.DefaultKeyboardMouseBinding)
+        action.DefaultKeyboardMouseBinding)
     local mouseEqual = self:AreMouseBindingsEqual(action.MouseBinding, action.DefaultMouseBinding)
     return kbEqual and mouseEqual
 end
@@ -768,6 +788,14 @@ end
 ---@param value any The new value (unused)
 function KeybindingV2IMGUIWidget:UpdateCurrentValue(value)
     -- Not used.
+end
+
+function KeybindingV2IMGUIWidget:ApplyDisabledStyle(element, row)
+    element:SetColor("Text", Color.NormalizedRGBA(140, 140, 140, 1))
+    if row then
+        row:SetColor("TableRowBg", Color.NormalizedRGBA(50, 50, 50, 1))
+        row:SetColor("TableRowBgAlt", Color.NormalizedRGBA(50, 50, 50, 1))
+    end
 end
 
 return KeybindingV2IMGUIWidget

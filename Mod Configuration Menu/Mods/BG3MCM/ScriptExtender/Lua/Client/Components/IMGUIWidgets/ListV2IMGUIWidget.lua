@@ -363,7 +363,7 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
         VCString:InterpolateLocalizedMessage("hdd1c9c4bd6cb4c5bbb4a297c9074019cbdcf", element.name),
         self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
-    if not self.Widget.Enabled then
+    if not self.Widget.Enabled or element.enabled == false then
         moveUpButton.Disabled = true
         moveDownButton.Disabled = true
         self:ApplyDisabledStyle(moveUpButton)
@@ -379,7 +379,7 @@ function ListV2IMGUIWidget:AddNameCell(tableRow, element)
     local nameCell = tableRow:AddCell()
     local nameText = nameCell:AddText(element.name)
     nameText.IDContext = self.Widget.ModUUID .. "_ElementName_" .. self.Widget.Setting.Id .. "_" .. element.name
-    if not self.Widget.Enabled then
+    if not self.Widget.Enabled or element.enabled == false then
         self:ApplyDisabledStyle(nameText)
     end
 end
@@ -410,7 +410,7 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
         VCString:InterpolateLocalizedMessage("hb5b5a421b3504260bcd72028b4311c4352a8", element.name),
         self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
-    if not self.Widget.Enabled then
+    if not self.Widget.Enabled or element.enabled == false then
         removeButton.Disabled = true
         self:ApplyDisabledStyle(removeButton)
     end
@@ -1064,13 +1064,6 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     cancelButton.SameLine = true
 
     self.Widget.ResetConfirmationPopup:Open()
-end
-
----Applies a disabled style to an IMGUI element
----@param element ExtuiStyledRenderable The IMGUI element to style
----@return nil
-function ListV2IMGUIWidget:ApplyDisabledStyle(element)
-    element:SetColor("Text", Color.NormalizedRGBA(100, 100, 100, 1))
 end
 
 ---Renders the search results below the input field

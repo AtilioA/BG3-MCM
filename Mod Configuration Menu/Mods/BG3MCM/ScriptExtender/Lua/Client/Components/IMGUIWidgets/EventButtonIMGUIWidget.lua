@@ -296,27 +296,12 @@ function EventButtonIMGUIWidget:UpdateButtonState(registry)
     end
 end
 
-function EventButtonIMGUIWidget:_ApplyDisabledStyle(button)
-    if button.SetColor then
-        button:SetColor("Text", Color.NormalizedRGBA(128, 128, 128, 1))
-    end
-end
-
-function EventButtonIMGUIWidget:_ApplyEnabledStyle(button)
-    if button.SetColor then
-        button:SetColor("Text", UIStyle.Colors.Text)
-    end
-end
-
 --- Disables the button and adds a tooltip
 ---@param button ExtuiButton|ExtuiImageButton The button to disable
 ---@param tooltipText string The tooltip text to add
 function EventButtonIMGUIWidget:DisableButton(button, tooltipText)
     button.Disabled = true
-    self:_ApplyDisabledStyle(button)
-    -- if self._feedbackTooltip then
-    --     self._feedbackTooltip:Destroy()
-    -- end
+    self:ApplyDisabledStyle(button)
     self._feedbackTooltip = IMGUIHelpers.AddTooltip(button, tooltipText, self.Widget.ModUUID)
 end
 
@@ -324,7 +309,9 @@ end
 ---@param button ExtuiButton|ExtuiImageButton The button to enable
 function EventButtonIMGUIWidget:EnableButton(button)
     button.Disabled = false
-    self:_ApplyEnabledStyle(button)
+    if button.SetColor then
+        button:SetColor("Text", UIStyle.Colors.Text)
+    end
     if self._feedbackTooltip then
         self._feedbackTooltip:Destroy()
         self._feedbackTooltip = nil
