@@ -1,9 +1,42 @@
 -- Net channels for communication between the client and server; these are only used for internal communication between the MCM clients and server, and not for listening to actual MCM events.
 -- 1.40: Modernized to actually use NetChannel API (Ext.Net.CreateChannel)
 
+---@class NetChannel
+---@field Channel string
+---@field Module string
+---@field Broadcast fun(self:NetChannel, payload:any)
+---@field SendToClient fun(self:NetChannel, payload:any, userID:integer)
+---@field SendToServer fun(self:NetChannel, payload:any)
+---@field RequestToServer fun(self:NetChannel, payload:any, callback:fun(response:any))
+---@field SetHandler fun(self:NetChannel, handler:fun(payload:any, userID?:integer))
+---@field SetRequestHandler fun(self:NetChannel, handler:fun(payload:any, userID?:integer):any)
+
+---@class NetChannels
+---@field MCM_RELAY_TO_SERVERS NetChannel
+---@field MCM_RELAY_TO_CLIENTS NetChannel
+---@field MCM_EMIT_ON_SERVER NetChannel
+---@field MCM_EMIT_ON_CLIENTS NetChannel
+---@field MCM_SERVER_SEND_CONFIGS_TO_CLIENT NetChannel
+---@field MCM_CHUNK_INIT NetChannel
+---@field MCM_CHUNK_PART NetChannel
+---@field MCM_CHUNK_END NetChannel
+---@field MCM_CLIENT_REQUEST_CONFIGS NetChannel
+---@field MCM_CLIENT_REQUEST_SET_SETTING_VALUE NetChannel
+---@field MCM_CLIENT_REQUEST_RESET_SETTING_VALUE NetChannel
+---@field MCM_ENSURE_MODVAR_REGISTERED NetChannel
+---@field MCM_CLIENT_REQUEST_PROFILES NetChannel
+---@field MCM_CLIENT_REQUEST_SET_PROFILE NetChannel
+---@field MCM_CLIENT_REQUEST_CREATE_PROFILE NetChannel
+---@field MCM_CLIENT_REQUEST_DELETE_PROFILE NetChannel
+---@field MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION NetChannel
+---@field _LEGACY table<string, string>
+
+---@type NetChannels
 NetChannels = {}
 
 -- Helper to create NetChannel objects
+---@param name string
+---@return NetChannel
 local function createChannel(name)
     return Ext.Net.CreateChannel(ModuleUUID, name)
 end

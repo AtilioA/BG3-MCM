@@ -135,8 +135,7 @@ end
 -- Register generic chunked listeners once and a handler
 if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners then
     ChunkedNet.Client.RegisterNetListeners()
-    -- Register handler using the channel name string (not the object) for consistency with chunk metadata
-    ChunkedNet.Client.RegisterHandler("MCM_Server_Send_Configs_To_Client", function(payload)
+    ChunkedNet.Client.RegisterHandler(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, function(payload)
         local data = parseTablePayload(payload, "Failed to parse chunked configs payload")
         if not data then
             return

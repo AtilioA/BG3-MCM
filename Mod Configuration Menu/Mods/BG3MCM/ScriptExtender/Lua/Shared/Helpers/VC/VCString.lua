@@ -89,6 +89,13 @@ function VCString:Lowercase(str)
     return str:gsub("^%u", string.lower)
 end
 
+---Check whether a value is a non-empty string.
+---@param value any
+---@return boolean
+function VCString:IsNonEmptyString(value)
+    return type(value) == "string" and value ~= ""
+end
+
 --- Update a localized message with dynamic content
 ---@param handle string The handle of the localized message to update
 ---@param dynamicContent string The dynamic content to replace the placeholder with
