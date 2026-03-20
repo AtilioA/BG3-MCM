@@ -41,8 +41,9 @@ end
 
 ---@param setting BlueprintSetting
 ---@param choices string[]
+---@param choicesHandles? string[]  Optional parallel array of localization handles
 ---@return boolean
-function EnumChoicesHelper.ApplyChoices(setting, choices)
+function EnumChoicesHelper.ApplyChoices(setting, choices, choicesHandles)
     if not setting or setting:GetType() ~= "enum" then
         return false
     end
@@ -55,6 +56,21 @@ function EnumChoicesHelper.ApplyChoices(setting, choices)
     options.Choices = copyArray(choices)
     options._RuntimeChoicesInjected = true
     setting:SetOptions(options)
+
+    local handles = setting:GetHandles() or {}
+    if choicesHandles ~= nil then
+        if #choicesHandles ~= #choices then
+            MCMWarn(0, "choicesHandles length (" .. #choicesHandles ..
+                ") does not match choices length (" .. #choices ..
+                "). Handles will not be applied.")
+            handles.ChoicesHandles = nil
+        else
+            handles.ChoicesHandles = copyArray(choicesHandles)
+        end
+    else
+        handles.ChoicesHandles = nil
+    end
+    setting:SetHandles(handles)
 
     return true
 end

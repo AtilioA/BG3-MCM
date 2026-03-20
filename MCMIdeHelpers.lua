@@ -16,6 +16,7 @@
 --- @class MCMEnumSetChoicesArgs
 --- @field settingId string The ID of the enum setting to update
 --- @field choices string[] Table of enum choices to expose at runtime
+--- @field choicesHandles? string[] Optional parallel array of localization handles for each choice
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 
 --- @class MCMKeybindingGetArgs
@@ -96,7 +97,7 @@
 --- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for when the keybinding is pressed
 
 --- @class MCMEnumAPI Enum-related API methods
---- @field SetChoices fun(settingIdOrArgs:string|MCMEnumSetChoicesArgs, choices?:string[], modUUID?:string):boolean Update enum choices at runtime
+--- @field SetChoices fun(settingIdOrArgs:string|MCMEnumSetChoicesArgs, choices?:string[], choicesHandles?:string[], modUUID?:string):boolean Update enum choices at runtime
 
 --- @class MCMListAPI List setting-related API methods
 --- @field GetEnabled fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table<string, boolean> Get all enabled items in a list setting
@@ -216,6 +217,7 @@ MCM = {
 --- @field modUUID string The UUID of the mod
 --- @field settingId string The ID of the enum setting
 --- @field choices string[] The updated runtime choices
+--- @field choicesHandles string[]|nil Optional parallel array of localization handles
 --- @field value string|nil The current authoritative value after the update
 
 --- @class ModEvent_MCM_Setting_Saved

@@ -124,18 +124,20 @@ end
 --- Update enum choices at runtime.
 ---@param settingId string The ID of the enum setting to update
 ---@param choices string[] The choices to expose
+---@param choicesHandles? string[] Optional parallel array of localization handles
 ---@param modUUID string The UUID of the mod that owns the setting
 ---@return boolean success
-function MCMProxy:SetEnumChoices(settingId, choices, modUUID)
+function MCMProxy:SetEnumChoices(settingId, choices, choicesHandles, modUUID)
     if self:IsMainMenu() then
-        return MCMAPI:SetEnumChoices(settingId, choices, modUUID, true)
+        return MCMAPI:SetEnumChoices(settingId, choices, choicesHandles, modUUID, true)
     end
 
     NetChannels.MCM_CLIENT_REQUEST_SET_ENUM_CHOICES:RequestToServer(
         {
             modUUID = modUUID,
             settingId = settingId,
-            choices = choices
+            choices = choices,
+            choicesHandles = choicesHandles
         },
         function(response)
             if response.success then

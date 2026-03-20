@@ -159,9 +159,10 @@ end
 --- Apply enum choices to the blueprint mirror without changing the current setting value.
 ---@param settingId string
 ---@param choices string[]
+---@param choicesHandles? string[]
 ---@param modUUID GUIDSTRING
 ---@return BlueprintSetting|nil
-function MCMAPI:ApplyEnumChoices(settingId, choices, modUUID)
+function MCMAPI:ApplyEnumChoices(settingId, choices, choicesHandles, modUUID)
     local setting = self:GetBlueprintSetting(settingId, modUUID)
     if not setting then
         return nil
@@ -173,7 +174,7 @@ function MCMAPI:ApplyEnumChoices(settingId, choices, modUUID)
         return nil
     end
 
-    if not EnumChoicesHelper.ApplyChoices(setting, choices) then
+    if not EnumChoicesHelper.ApplyChoices(setting, choices, choicesHandles) then
         MCMWarn(0, "Enum choices must be a table of strings. Choices will not be updated.")
         return nil
     end
@@ -184,16 +185,17 @@ end
 --- Update enum choices at runtime and coerce invalid stored values when possible.
 ---@param settingId string
 ---@param choices string[]
+---@param choicesHandles? string[]
 ---@param modUUID GUIDSTRING
 ---@param shouldEmitEvent? boolean
 ---@return boolean
-function MCMAPI:SetEnumChoices(settingId, choices, modUUID, shouldEmitEvent)
+function MCMAPI:SetEnumChoices(settingId, choices, choicesHandles, modUUID, shouldEmitEvent)
     if not modUUID then
         MCMWarn(0, "modUUID is nil. Cannot update enum choices.")
         return false
     end
 
-    local setting = self:ApplyEnumChoices(settingId, choices, modUUID)
+    local setting = self:ApplyEnumChoices(settingId, choices, choicesHandles, modUUID)
     if not setting then
         return false
     end
@@ -213,6 +215,7 @@ function MCMAPI:SetEnumChoices(settingId, choices, modUUID, shouldEmitEvent)
             modUUID = modUUID,
             settingId = settingId,
             choices = EnumChoicesHelper.CopyChoices(choices),
+            choicesHandles = choicesHandles and EnumChoicesHelper.CopyChoices(choicesHandles) or nil,
             value = resolvedValue
         }, true)
     end

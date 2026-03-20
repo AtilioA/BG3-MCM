@@ -80,6 +80,7 @@ EventChannels.MCM_EVENT_BUTTON_CLICKED = "MCM_Event_Button_Clicked"
 --- @return string modUUID The UUID of the mod
 --- @return string settingId The ID of the enum setting
 --- @return string[] choices The updated enum choices
+--- @return string[]|nil choicesHandles Optional parallel array of localization handles
 --- @return string|nil value The current authoritative value after the update
 EventChannels.MCM_ENUM_CHOICES_UPDATED = "MCM_Enum_Choices_Updated"
 

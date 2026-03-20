@@ -34,10 +34,6 @@ function EnumIMGUIWidget:createOptionLabels(setting)
 end
 
 function EnumIMGUIWidget:getLocalizedValue(setting, index)
-    if setting:GetOptions()._RuntimeChoicesInjected then
-        return setting:GetOptions().Choices[index]
-    end
-
     local settingHandles = setting:GetHandles()
     if settingHandles and settingHandles.ChoicesHandles then
         -- This might sound weird, but that's because the handles must be ordered in the same way as the choices.

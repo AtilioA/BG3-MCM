@@ -64,6 +64,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@class MCMEnumSetChoicesArgs
 ---@field settingId string
 ---@field choices string[]
+---@field choicesHandles? string[]
 ---@field modUUID? string
 
 ---@class MCMEventButtonStateArgs
@@ -356,10 +357,10 @@ local function EnumSetChoices_Impl(args)
     end
 
     if Ext.IsServer() then
-        return MCMAPI:SetEnumChoices(args.settingId, args.choices, args.modUUID, true)
+        return MCMAPI:SetEnumChoices(args.settingId, args.choices, args.choicesHandles, args.modUUID, true)
     end
 
-    return MCMProxy:SetEnumChoices(args.settingId, args.choices, args.modUUID)
+    return MCMProxy:SetEnumChoices(args.settingId, args.choices, args.choicesHandles, args.modUUID)
 end
 
 --- Create the Enum API methods
@@ -371,11 +372,12 @@ function MCMAPIImplementations.createEnumAPI(originalModUUID)
     --- Update enum choices at runtime.
     ---@param settingId string|MCMEnumSetChoicesArgs The ID of the enum setting, or an argument table
     ---@param choices string[] The choices to expose at runtime
+    ---@param choicesHandles? string[] Optional parallel array of localization handles
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the enum choices were updated successfully
     EnumAPI.SetChoices = MCMAPIUtils.WithFlexibleArgs(
         EnumSetChoices_Impl,
-        { "settingId", "choices", "modUUID" },
+        { "settingId", "choices", "choicesHandles", "modUUID" },
         { modUUID = originalModUUID }
     )
 

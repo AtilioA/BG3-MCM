@@ -255,7 +255,7 @@ ModEventManager:Subscribe(EventChannels.MCM_ENUM_CHOICES_UPDATED, function(data)
     -- In multiplayer, the client blueprint hasn't been updated yet; apply choices here.
     -- In main menu, MCMAPI:SetEnumChoices already applied them on the same context.
     if not MCMProxy.IsMainMenu() then
-        local success = MCMAPI:ApplyEnumChoices(settingId, choices, modUUID)
+        local success = MCMAPI:ApplyEnumChoices(settingId, choices, data.choicesHandles, modUUID)
         if not success then
             return
         end

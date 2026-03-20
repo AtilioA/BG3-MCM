@@ -111,12 +111,13 @@ function EHandlers.OnClientRequestResetSettingValue(data, userID)
 end
 
 --- Handle client request to update enum choices.
----@param data table Request data with settingId, choices, modUUID
+---@param data table Request data with settingId, choices, modUUID, choicesHandles
 ---@param userID number The user ID of the requesting client
 ---@return table Response with success status
 function EHandlers.OnClientRequestSetEnumChoices(data, userID)
     local settingId = data.settingId
     local choices = data.choices
+    local choicesHandles = data.choicesHandles
     local modUUID = data.modUUID
 
     if not settingId or not modUUID then
@@ -124,7 +125,7 @@ function EHandlers.OnClientRequestSetEnumChoices(data, userID)
     end
 
     local ok, result = xpcall(function()
-        local success = MCMAPI:SetEnumChoices(settingId, choices, modUUID, true)
+        local success = MCMAPI:SetEnumChoices(settingId, choices, choicesHandles, modUUID, true)
         if not success then
             error("MCMAPI rejected runtime enum choices update")
         end
