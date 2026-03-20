@@ -76,6 +76,13 @@ EventChannels.MCM_KEYBINDINGS_LOADED = "MCM_Keybindings_Loaded"
 --- @return string settingId The ID of the event button setting
 EventChannels.MCM_EVENT_BUTTON_CLICKED = "MCM_Event_Button_Clicked"
 
+--- Fired when enum choices are updated at runtime.
+--- @return string modUUID The UUID of the mod
+--- @return string settingId The ID of the enum setting
+--- @return string[] choices The updated enum choices
+--- @return string|nil value The current authoritative value after the update
+EventChannels.MCM_ENUM_CHOICES_UPDATED = "MCM_Enum_Choices_Updated"
+
 local function RegisterModEvents()
     local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
 
@@ -92,6 +99,7 @@ local function RegisterModEvents()
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_WINDOW_CLOSED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_KEYBINDINGS_LOADED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_EVENT_BUTTON_CLICKED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_ENUM_CHOICES_UPDATED)
 end
 
 RegisterModEvents()

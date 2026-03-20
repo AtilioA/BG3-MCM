@@ -208,6 +208,19 @@ function IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
     widget:UpdateCurrentValue(value)
 end
 
+--- Refresh enum choices for a widget.
+---@param settingId string The ID of the setting to update
+---@param value any The current authoritative value for the setting
+---@param modUUID string The UUID of the mod
+function IMGUIAPI:UpdateEnumSettingChoices(settingId, value, modUUID)
+    local widget = self:findWidgetForSetting(settingId, modUUID)
+    if not widget or not widget.RefreshChoices then
+        return
+    end
+
+    widget:RefreshChoices(value)
+end
+
 --- Find the widget corresponding to a setting
 --- TODO: perform a traversal of the window nodes to find the widget;
 --- Storing references in a table is troublesome because they get lost for some reason

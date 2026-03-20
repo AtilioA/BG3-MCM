@@ -409,10 +409,7 @@
             "if": {
                 "properties": {
                     "Type": {
-                        "enum": [
-                            "enum",
-                            "radio"
-                        ]
+                        "const": "enum"
                     }
                 }
             },
@@ -426,11 +423,15 @@
                         "properties": {
                             "Choices": {
                                 "type": "array",
-                                "minItems": 1,
+                                "minItems": 0,
                                 "items": {
                                     "type": "string"
                                 },
-                                "markdownDescription": "The available set of choices for the enum/radio. Will be localized if handles are provided (ChoicesHandles)"
+                                "markdownDescription": "The available set of choices for the enum. An empty array is allowed for runtime-defined enums and can be populated later via the MCM API. Will be localized if handles are provided (ChoicesHandles)."
+                            },
+                            "Dynamic": {
+                                "type": "boolean",
+                                "markdownDescription": "When true, enum value validation accepts any string until your mod applies runtime choices (for example via MCM.Enum.SetChoices)."
                             }
                         },
                         "required": [
@@ -441,6 +442,38 @@
                 }
             },
             "else": {
+                "if": {
+                    "properties": {
+                        "Type": {
+                            "const": "radio"
+                        }
+                    }
+                },
+                "then": {
+                    "required": [
+                        "Options"
+                    ],
+                    "properties": {
+                        "Options": {
+                            "type": "object",
+                            "properties": {
+                                "Choices": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "markdownDescription": "The available set of choices for the radio. Will be localized if handles are provided (ChoicesHandles)."
+                                }
+                            },
+                            "required": [
+                                "Choices"
+                            ],
+                            "markdownDescription": "Additional options for this element."
+                        }
+                    }
+                },
+                "else": {
                 "if": {
                     "properties": {
                         "Type": {
@@ -1037,6 +1070,7 @@
                             }
                         }
                     }
+                }
                 }
             },
             "examples": [

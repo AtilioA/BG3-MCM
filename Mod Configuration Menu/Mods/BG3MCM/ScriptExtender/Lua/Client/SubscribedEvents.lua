@@ -246,6 +246,20 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
     IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
 end)
 
+ModEventManager:Subscribe(EventChannels.MCM_ENUM_CHOICES_UPDATED, function(data)
+    local modUUID = data.modUUID
+    local settingId = data.settingId
+    local choices = data.choices or {}
+    local value = data.value
+
+    local success = MCMAPI:ApplyEnumChoices(settingId, choices, modUUID)
+    if not success then
+        return
+    end
+
+    IMGUIAPI:UpdateEnumSettingChoices(settingId, value, modUUID)
+end)
+
 ModEventManager:Subscribe(EventChannels.MCM_MOD_TAB_ADDED, function(data)
     local modUUID = data.modUUID
     local tabName = data.tabName

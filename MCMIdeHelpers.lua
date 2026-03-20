@@ -13,6 +13,11 @@
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 --- @field shouldEmitEvent? boolean Whether to emit a setting changed event
 
+--- @class MCMEnumSetChoicesArgs
+--- @field settingId string The ID of the enum setting to update
+--- @field choices string[] Table of enum choices to expose at runtime
+--- @field modUUID? string Optional mod UUID, defaults to caller mod
+
 --- @class MCMKeybindingGetArgs
 --- @field settingId string The ID of the keybinding setting
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
@@ -90,6 +95,9 @@
 --- @field GetRaw fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):table|nil Get the raw keybinding data structure
 --- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for when the keybinding is pressed
 
+--- @class MCMEnumAPI Enum-related API methods
+--- @field SetChoices fun(settingIdOrArgs:string|MCMEnumSetChoicesArgs, choices?:string[], modUUID?:string):boolean Update enum choices at runtime
+
 --- @class MCMListAPI List setting-related API methods
 --- @field GetEnabled fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table<string, boolean> Get all enabled items in a list setting
 --- @field GetRaw fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table|nil Get the raw list setting data structure
@@ -134,6 +142,7 @@
 --- @class MCMTable Table containing the Mod Configuration Menu (MCM) public API exposed to each mod.
 --- @field Get fun(settingIdOrArgs:string|MCMGetArgs, modUUID?:string):any Get the value of a setting
 --- @field Set fun(settingIdOrArgs:string|MCMSetArgs, value?:any, modUUID?:string, shouldEmitEvent?:boolean):boolean Set the value of a setting
+--- @field Enum MCMEnumAPI Enum-related methods
 --- @field Keybinding MCMKeybindingAPI Keybinding-related methods
 --- @field List MCMListAPI List setting-related methods
 --- @field EventButton MCMEventButtonAPI Event button-related methods (client-only)
@@ -145,6 +154,7 @@
 
 --- @type MCMTable Table containing the MCM public API exposed to each mod.
 MCM = {
+    Enum = {},
     Keybinding = {},
     List = {},
     EventButton = { FeedbackTypes = {} },
@@ -202,6 +212,12 @@ MCM = {
 --- @field modUUID string The UUID of the mod
 --- @field settingId string The ID of the event button setting
 
+--- @class MCM_Enum_Choices_Updated_Payload
+--- @field modUUID string The UUID of the mod
+--- @field settingId string The ID of the enum setting
+--- @field choices string[] The updated runtime choices
+--- @field value string|nil The current authoritative value after the update
+
 --- @class ModEvent_MCM_Setting_Saved
 --- @field Subscribe fun(self: ModEvent_MCM_Setting_Saved, callback: fun(payload: MCM_Setting_Saved_Payload))
 
@@ -241,6 +257,9 @@ MCM = {
 --- @class ModEvent_MCM_Event_Button_Clicked
 --- @field Subscribe fun(self: ModEvent_MCM_Event_Button_Clicked, callback: fun(payload: MCM_Event_Button_Clicked_Payload))
 
+--- @class ModEvent_MCM_Enum_Choices_Updated
+--- @field Subscribe fun(self: ModEvent_MCM_Enum_Choices_Updated, callback: fun(payload: MCM_Enum_Choices_Updated_Payload))
+
 --- @class ModEvent_Generic
 --- @field Subscribe fun(self: ModEvent_Generic, callback: fun(payload: any))
 
@@ -260,6 +279,7 @@ MCM = {
 --- @field MCM_Window_Closed ModEvent_MCM_Window_Closed
 --- @field MCM_Keybindings_Loaded ModEvent_Generic
 --- @field MCM_Event_Button_Clicked ModEvent_MCM_Event_Button_Clicked
+--- @field MCM_Enum_Choices_Updated ModEvent_MCM_Enum_Choices_Updated
 
 --- @class ExtModEvents
 --- @field BG3MCM BG3MCM_ModEvents

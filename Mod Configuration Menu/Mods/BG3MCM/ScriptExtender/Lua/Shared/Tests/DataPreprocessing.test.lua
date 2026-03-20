@@ -40,6 +40,9 @@ TestSuite.RegisterTests("DataPreprocessing", {
     "TestBlueprintDefaultForDragShouldBeBetweenMinAndMax",
     -- -- Options
     "BlueprintShouldHaveOptionsForEnum",
+    "BlueprintShouldAllowEmptyChoicesForDynamicEnum",
+    "BlueprintDynamicFlagForEnumShouldBeBoolean",
+    "BlueprintDynamicEnumShouldAllowDefaultOutsideChoices",
     "BlueprintShouldHaveOptionsForRadio",
     "BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings",
     "BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings",
@@ -437,6 +440,71 @@ function BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings()
 
     TestSuite.AssertNil(sanitizedBlueprint)
     TestSuite.AssertNil(sanitizedBlueprintWithChoices)
+end
+
+function BlueprintShouldAllowEmptyChoicesForDynamicEnum()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-enum",
+                Type = "enum",
+                Options = {
+                    Choices = {}
+                },
+                Default = "runtime-value"
+            }
+        }
+    })
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+end
+
+function BlueprintDynamicFlagForEnumShouldBeBoolean()
+    local invalidBlueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-enum",
+                Type = "enum",
+                Options = {
+                    Dynamic = "true",
+                    Choices = { "No change" }
+                },
+                Default = "No change"
+            }
+        }
+    })
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(invalidBlueprint, modUUID)
+
+    TestSuite.AssertNil(sanitizedBlueprint)
+end
+
+function BlueprintDynamicEnumShouldAllowDefaultOutsideChoices()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "setting-enum",
+                Type = "enum",
+                Options = {
+                    Dynamic = true,
+                    Choices = { "No change" }
+                },
+                Default = "Runtime Only"
+            }
+        }
+    })
+    local modUUID = TestConstants.ModuleUUIDs[1]
+
+    local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+
+    TestSuite.AssertNotNil(sanitizedBlueprint)
 end
 
 function BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings()

@@ -7,6 +7,7 @@ EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 ---@param modUUID string
 function EnumIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = EnumIMGUIWidget })
+    instance.Setting = setting
     instance.Widget = group:AddCombo("", initialValue)
     instance.Widget.UserData = {
         OptionsLookup = {}
@@ -21,8 +22,9 @@ function EnumIMGUIWidget:new(group, setting, initialValue, modUUID)
 end
 
 function EnumIMGUIWidget:createOptionLabels(setting)
-    local options = setting:GetOptions().Choices
+    local options = setting:GetOptions().Choices or {}
     local optionsLabels = {}
+    self.Widget.UserData.OptionsLookup = {}
     for i, value in ipairs(options) do
         local localizedValue = self:getLocalizedValue(setting, i)
         table.insert(optionsLabels, localizedValue)
@@ -32,6 +34,10 @@ function EnumIMGUIWidget:createOptionLabels(setting)
 end
 
 function EnumIMGUIWidget:getLocalizedValue(setting, index)
+    if setting:GetOptions()._RuntimeChoicesInjected then
+        return setting:GetOptions().Choices[index]
+    end
+
     local settingHandles = setting:GetHandles()
     if settingHandles and settingHandles.ChoicesHandles then
         -- This might sound weird, but that's because the handles must be ordered in the same way as the choices.
@@ -44,6 +50,7 @@ function EnumIMGUIWidget:getLocalizedValue(setting, index)
 end
 
 function EnumIMGUIWidget:setInitialSelection(initialValue)
+    self.Widget.SelectedIndex = -1
     for i, value in ipairs(self.optionsLabels) do
         if self.Widget.UserData.OptionsLookup[value] == initialValue then
             self.Widget.SelectedIndex = i - 1
@@ -67,6 +74,12 @@ function EnumIMGUIWidget:UpdateCurrentValue(value)
             return
         end
     end
+end
+
+function EnumIMGUIWidget:RefreshChoices(value)
+    self.optionsLabels = self:createOptionLabels(self.Setting)
+    self.Widget.Options = self.optionsLabels
+    self:setInitialSelection(value)
 end
 
 function EnumIMGUIWidget:GetOnChangeValue(value)

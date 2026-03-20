@@ -4,6 +4,7 @@ RequireFiles("Shared/Tests/", {
     "ValidateAndFixSettings.test",
     "DataPreprocessing.test",
     "Validators.test",
+    "MCMAPI.test",
     "ModConfig.test",
     "EventButton.test",
     "VisibilityManager.test",

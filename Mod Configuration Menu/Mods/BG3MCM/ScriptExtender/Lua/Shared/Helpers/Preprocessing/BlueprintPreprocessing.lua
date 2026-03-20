@@ -343,6 +343,10 @@ function BlueprintPreprocessing:ValidateEnumSetting(setting)
         return false
     end
 
+    if not self:BlueprintDynamicFlagForEnumShouldBeBoolean(setting) then
+        return false
+    end
+
     if not self:BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings(setting) then
         return false
     end
@@ -1216,13 +1220,21 @@ function BlueprintPreprocessing:BlueprintStepShouldBeNonZeroNumber(setting)
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
-    if not setting.Options or not setting.Options.Choices or #setting.Options.Choices == 0 then
+    if not setting.Options or not setting.Options.Choices then
         MCMWarn(0,
             "Enum setting '" ..
             setting.Id ..
             "' must have 'Options.Choices' defined. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
+    end
+
+    if #setting.Options.Choices == 0 then
+        return true
+    end
+
+    if setting.Options.Dynamic == true then
+        return true
     end
 
     if not table.contains(setting.Options.Choices, setting.Default) then
@@ -1233,6 +1245,16 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
     end
+    return true
+end
+
+function BlueprintPreprocessing:BlueprintDynamicFlagForEnumShouldBeBoolean(setting)
+    if setting.Options and setting.Options.Dynamic ~= nil and type(setting.Options.Dynamic) ~= "boolean" then
+        MCMWarn(0,
+            "Options.Dynamic for enum setting '" .. setting.Id .. "' must be a boolean.")
+        return false
+    end
+
     return true
 end
 

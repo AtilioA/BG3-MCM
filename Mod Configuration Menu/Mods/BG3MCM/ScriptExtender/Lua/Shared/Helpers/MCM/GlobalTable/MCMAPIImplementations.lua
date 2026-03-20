@@ -61,6 +61,11 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@field suggestions string[]
 ---@field modUUID? string
 
+---@class MCMEnumSetChoicesArgs
+---@field settingId string
+---@field choices string[]
+---@field modUUID? string
+
 ---@class MCMEventButtonStateArgs
 ---@field buttonId string
 ---@field modUUID? string
@@ -339,6 +344,42 @@ local function ListInsertSuggestions_Impl(args)
     end
     IMGUIAPI:InsertListV2Suggestions(args.listSettingId, args.suggestions, args.modUUID)
     return true
+end
+
+--- Implementation: Update enum choices at runtime.
+---@param args MCMEnumSetChoicesArgs
+---@return boolean success
+local function EnumSetChoices_Impl(args)
+    if type(args.choices) ~= "table" then
+        MCMWarn(0, "Invalid 'choices' for MCM.Enum.SetChoices; expected table of strings")
+        return false
+    end
+
+    if Ext.IsServer() then
+        return MCMAPI:SetEnumChoices(args.settingId, args.choices, args.modUUID, true)
+    end
+
+    return MCMProxy:SetEnumChoices(args.settingId, args.choices, args.modUUID)
+end
+
+--- Create the Enum API methods
+---@param originalModUUID string The UUID of the mod that will receive these methods
+---@return table EnumAPI The table containing Enum API methods
+function MCMAPIImplementations.createEnumAPI(originalModUUID)
+    local EnumAPI = {}
+
+    --- Update enum choices at runtime.
+    ---@param settingId string|MCMEnumSetChoicesArgs The ID of the enum setting, or an argument table
+    ---@param choices string[] The choices to expose at runtime
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
+    ---@return boolean success True if the enum choices were updated successfully
+    EnumAPI.SetChoices = MCMAPIUtils.WithFlexibleArgs(
+        EnumSetChoices_Impl,
+        { "settingId", "choices", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    return EnumAPI
 end
 
 --- Create the List API methods

@@ -25,6 +25,8 @@ netEventsRegistry:register("MCM_Client_Request_Set_Setting_Value",
     AuthorizedNetCommand:new(EHandlers.OnClientRequestSetSettingValue))
 netEventsRegistry:register("MCM_Client_Request_Reset_Setting_Value",
     AuthorizedNetCommand:new(EHandlers.OnClientRequestResetSettingValue))
+netEventsRegistry:register("MCM_Client_Request_Set_Enum_Choices",
+    AuthorizedNetCommand:new(EHandlers.OnClientRequestSetEnumChoices))
 
 --- Net message handler for when the (IMGUI) client requests profiles data
 -- registry:register("MCM_Client_Request_Profiles", AuthorizedCommand:new(EHandlers.OnClientRequestProfiles))
@@ -50,6 +52,7 @@ local function wireRequestHandlers()
         [NetChannels.MCM_CLIENT_REQUEST_CONFIGS] = "MCM_Client_Request_Configs",
         [NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE] = "MCM_Client_Request_Set_Setting_Value",
         [NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE] = "MCM_Client_Request_Reset_Setting_Value",
+        [NetChannels.MCM_CLIENT_REQUEST_SET_ENUM_CHOICES] = "MCM_Client_Request_Set_Enum_Choices",
         [NetChannels.MCM_CLIENT_REQUEST_SET_PROFILE] = "MCM_Client_Request_Set_Profile",
         [NetChannels.MCM_CLIENT_REQUEST_CREATE_PROFILE] = "MCM_Client_Request_Create_Profile",
         [NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE] = "MCM_Client_Request_Delete_Profile",

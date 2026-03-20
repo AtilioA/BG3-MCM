@@ -49,6 +49,7 @@ function MCMAPIMethods.createMCMAPIMethods(originalModUUID, modTable)
     local MCMInstance = modTable and modTable.MCM or {}
 
     -- Initialize sub-tables
+    MCMInstance.Enum = MCMInstance.Enum or {}
     MCMInstance.Keybinding = MCMInstance.Keybinding or {}
     MCMInstance.EventButton = MCMInstance.EventButton or {}
     MCMInstance.List = MCMInstance.List or {}
@@ -60,6 +61,7 @@ function MCMAPIMethods.createMCMAPIMethods(originalModUUID, modTable)
     end
 
     -- Create and inject API modules
+    MCMInstance.Enum = MCMAPIImplementations.createEnumAPI(originalModUUID)
     MCMInstance.Keybinding = MCMAPIImplementations.createKeybindingAPI(originalModUUID)
     MCMInstance.List = MCMAPIImplementations.createListAPI(originalModUUID)
     MCMInstance.EventButton = MCMAPIImplementations.createEventButtonAPI(originalModUUID)

@@ -121,6 +121,35 @@ function MCMProxy:GetSettingValue(settingId, modUUID)
     end
 end
 
+--- Update enum choices at runtime.
+---@param settingId string The ID of the enum setting to update
+---@param choices string[] The choices to expose
+---@param modUUID string The UUID of the mod that owns the setting
+---@return boolean success
+function MCMProxy:SetEnumChoices(settingId, choices, modUUID)
+    if self:IsMainMenu() then
+        return MCMAPI:SetEnumChoices(settingId, choices, modUUID, true)
+    end
+
+    NetChannels.MCM_CLIENT_REQUEST_SET_ENUM_CHOICES:RequestToServer(
+        {
+            modUUID = modUUID,
+            settingId = settingId,
+            choices = choices
+        },
+        function(response)
+            if response.success then
+                MCMDebug(1, "Successfully updated enum choices for setting " .. settingId .. " on server")
+            else
+                MCMWarn(0,
+                    "Failed to update enum choices for setting " .. settingId .. ": " .. (response.error or "Unknown error"))
+            end
+        end
+    )
+
+    return true
+end
+
 --- Set a setting value
 ---@param settingId string The ID of the setting to set
 ---@param value any The value to set the setting to

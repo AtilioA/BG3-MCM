@@ -23,6 +23,7 @@
 ---@field MCM_CLIENT_REQUEST_CONFIGS NetChannel
 ---@field MCM_CLIENT_REQUEST_SET_SETTING_VALUE NetChannel
 ---@field MCM_CLIENT_REQUEST_RESET_SETTING_VALUE NetChannel
+---@field MCM_CLIENT_REQUEST_SET_ENUM_CHOICES NetChannel
 ---@field MCM_ENSURE_MODVAR_REGISTERED NetChannel
 ---@field MCM_CLIENT_REQUEST_PROFILES NetChannel
 ---@field MCM_CLIENT_REQUEST_SET_PROFILE NetChannel
@@ -59,6 +60,7 @@ NetChannels.MCM_CHUNK_END = createChannel("MCM_Chunk_End")
 NetChannels.MCM_CLIENT_REQUEST_CONFIGS = createChannel("MCM_Client_Request_Configs")
 NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE = createChannel("MCM_Client_Request_Set_Setting_Value")
 NetChannels.MCM_CLIENT_REQUEST_RESET_SETTING_VALUE = createChannel("MCM_Client_Request_Reset_Setting_Value")
+NetChannels.MCM_CLIENT_REQUEST_SET_ENUM_CHOICES = createChannel("MCM_Client_Request_Set_Enum_Choices")
 NetChannels.MCM_ENSURE_MODVAR_REGISTERED = createChannel("MCM_Ensure_ModVar_Registered")
 
 -- Profile management channels (use Request/Reply pattern)

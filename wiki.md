@@ -64,6 +64,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [Core API](#core-api)
       - [EventButton API](#eventbutton-api)
       - [Keybinding API](#keybinding-api)
+      - [Enum API](#enum-api)
       - [List API](#list-api)
       - [Store API](#store-api)
       - [Window and tab APIs](#window-and-tab-apis)
@@ -353,9 +354,10 @@ If you need structured input, consider `list_v2` or multiple settings instead of
 
 - **Renders as**: Dropdown list.
 - **Best for**: Selecting exactly one choice from a longer list.
-- **Required fields**: `Default` (string); `Options.Choices` (array of strings, minimum 1).
-- **Options**: None beyond `Choices`.
-- **Caveats**: `Default` should match one of the `Choices` to avoid validation warnings.
+- **Required fields**: `Default` (string); `Options.Choices` (array of strings).
+- **Optional fields**:
+  - `Options.Dynamic` (`boolean`): When `true`, MCM accepts any value for this enum during validation. This is intended for runtime-defined enums where choices are injected later.
+- **Caveats**: For non-dynamic enums, `Default` should match one of the `Choices`. For dynamic enums, call `MCM.Enum.SetChoices(...)` and let MCM coerce invalid stored values to a safe fallback.
 
 #### radio
 
@@ -527,6 +529,19 @@ These methods operate on `keybinding_v2` settings.
 | `MCM.Keybinding.Get(settingId, modUUID?)` | Gets a human-readable keybinding string | ✅ | ❌ |
 | `MCM.Keybinding.GetRaw(settingId, modUUID?)` | Gets raw keybinding data | ✅ | ❌ |
 | `MCM.Keybinding.SetCallback(settingId, callback, modUUID?)` | Registers a callback for a keybinding | ✅ | ❌ |
+
+#### Enum API
+
+These methods operate on `enum` settings.
+
+| Function | Description | Client | Server |
+|----------|-------------|:------:|:------:|
+| `MCM.Enum.SetChoices(settingId, choices, modUUID?)` | Replaces the runtime `Choices` for an enum setting with a given table of strings. If the current value is no longer valid, MCM falls back to the blueprint default when available, otherwise to the first injected choice. | ✅ | ✅ |
+
+Use this for runtime-defined dropdowns whose available options are discovered after startup or refreshed while the game is running.
+You must use `Options.Dynamic = true` in the blueprint.
+
+The call also emits `MCM_Enum_Choices_Updated` with the authoritative `value` after reconciliation.
 
 #### List API
 
@@ -911,6 +926,7 @@ Here are the events that can be listened to:
 | `MCM_Mod_Tab_Added`          | Fired when a mod inserts a custom tab into the MCM UI.          | `modUUID`: The UUID of the mod  </br> `tabName`: The name of the tab added                      |
 | `MCM_Mod_Tab_Activated`      | Fired when a player clicks a mod in the mod list in MCM's left panel. | `modUUID`: The UUID of the mod  |
 | `MCM_Mod_Subtab_Activated`   | Fired when a subtab within a mod tab is activated.              | `modUUID`: The UUID of the mod  </br> `subtabName`: The name of the activated subtab  |
+| `MCM_Enum_Choices_Updated`   | Fired when runtime choices for an enum are updated through `MCM.Enum.SetChoices`. | `modUUID`: The UUID of the mod  </br> `settingId`: The ID of the enum setting  </br> `choices`: The updated runtime choices  </br> `value`: The authoritative enum value after reconciliation |
 | `MCM_Window_Opened`          | Fired when a player opens the MCM window.         | |
 | `MCM_Window_Closed`          | Fired when a player closes the MCM window.                      |                        |
 

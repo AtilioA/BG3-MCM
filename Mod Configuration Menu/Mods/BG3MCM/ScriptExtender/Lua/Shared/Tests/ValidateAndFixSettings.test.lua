@@ -8,6 +8,8 @@ TestSuite.RegisterTests("ValidateAndFixSettings", {
     "ShouldResetInvalidKeybindingV2Modifier",
     "ShouldFixInvalidListV2Setting",
     "ShouldKeepValidListV2Setting",
+    "ShouldKeepDynamicEnumStringValueUntilChoicesAreInjected",
+    "ShouldKeepDynamicEnumStringValueWithChoicesWhenMarkedDynamic",
 })
 
 function ShouldFixInvalidSettingsAtRootLevel()
@@ -338,4 +340,53 @@ function ShouldKeepValidListV2Setting()
     local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
     TestSuite.AssertEquals(fixedConfig["list-v2-setting"], validListValue)
+end
+
+function ShouldKeepDynamicEnumStringValueUntilChoicesAreInjected()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = "dynamic-enum",
+                Type = "enum",
+                Default = "runtime-default",
+                Options = {
+                    Choices = {}
+                }
+            })
+        }
+    })
+
+    local config = {
+        ["dynamic-enum"] = "manually-edited-value"
+    }
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+    TestSuite.AssertEquals(fixedConfig["dynamic-enum"], "manually-edited-value")
+end
+
+function ShouldKeepDynamicEnumStringValueWithChoicesWhenMarkedDynamic()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            BlueprintSetting:New({
+                Id = "preset_karlach",
+                Type = "enum",
+                Default = "No change",
+                Options = {
+                    Dynamic = true,
+                    Choices = { "No change" }
+                }
+            })
+        }
+    })
+
+    local config = {
+        ["preset_karlach"] = "Karlach AEE"
+    }
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+    TestSuite.AssertEquals(fixedConfig["preset_karlach"], "Karlach AEE")
 end

@@ -132,6 +132,98 @@ function MCMAPI:GetModBlueprint(modUUID)
     end
 end
 
+--- Get a blueprint setting for a mod.
+---@param settingId string The ID of the setting to retrieve
+---@param modUUID GUIDSTRING The UUID of the mod.
+---@return BlueprintSetting|nil
+function MCMAPI:GetBlueprintSetting(settingId, modUUID)
+    local blueprint = self:GetModBlueprint(modUUID)
+    if not blueprint then
+        MCMWarn(0, "Blueprint not found for mod '" .. tostring(modUUID) .. "'.")
+        return nil
+    end
+
+    local setting = blueprint:GetAllSettings()[settingId]
+    if not setting then
+        MCMWarn(0,
+            "Setting '" ..
+            settingId ..
+            "' not found in the blueprint for mod '" ..
+            tostring(modUUID) .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+        return nil
+    end
+
+    return setting
+end
+
+--- Apply enum choices to the blueprint mirror without changing the current setting value.
+---@param settingId string
+---@param choices string[]
+---@param modUUID GUIDSTRING
+---@return BlueprintSetting|nil
+function MCMAPI:ApplyEnumChoices(settingId, choices, modUUID)
+    local setting = self:GetBlueprintSetting(settingId, modUUID)
+    if not setting then
+        return nil
+    end
+
+    if setting:GetType() ~= "enum" then
+        MCMWarn(0,
+            "Setting '" .. settingId .. "' in mod '" .. tostring(modUUID) .. "' is not an enum. Choices will not be updated.")
+        return nil
+    end
+
+    if not EnumChoicesHelper.ApplyChoices(setting, choices) then
+        MCMWarn(0, "Enum choices must be a table of strings. Choices will not be updated.")
+        return nil
+    end
+
+    return setting
+end
+
+--- Update enum choices at runtime and coerce invalid stored values when possible.
+---@param settingId string
+---@param choices string[]
+---@param modUUID GUIDSTRING
+---@param shouldEmitEvent? boolean
+---@return boolean
+function MCMAPI:SetEnumChoices(settingId, choices, modUUID, shouldEmitEvent)
+    if not modUUID then
+        MCMWarn(0, "modUUID is nil. Cannot update enum choices.")
+        return false
+    end
+
+    if shouldEmitEvent == nil then
+        shouldEmitEvent = true
+    end
+
+    local setting = self:ApplyEnumChoices(settingId, choices, modUUID)
+    if not setting then
+        return false
+    end
+
+    local currentValue = self:GetSettingValue(settingId, modUUID)
+    local resolvedValue = EnumChoicesHelper.ResolveValue(setting, currentValue)
+
+    if currentValue ~= resolvedValue then
+        local success = self:SetSettingValue(settingId, resolvedValue, modUUID, shouldEmitEvent)
+        if not success then
+            return false
+        end
+    end
+
+    if shouldEmitEvent ~= false then
+        ModEventManager:Emit(EventChannels.MCM_ENUM_CHOICES_UPDATED, {
+            modUUID = modUUID,
+            settingId = settingId,
+            choices = EnumChoicesHelper.CopyChoices(choices),
+            value = resolvedValue
+        }, true)
+    end
+
+    return true
+end
+
 --- Check if a setting value is valid given the mod blueprint
 ---@param settingId string The id of the setting
 ---@param value any The value to check
@@ -142,19 +234,8 @@ function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
         return false
     end
 
-    local blueprint = self:GetModBlueprint(modUUID)
-    if not blueprint then
-        MCMWarn(0, "Blueprint not found for mod '" .. modUUID .. "'.")
-        return false
-    end
-
-    local setting = blueprint:GetAllSettings()[settingId]
+    local setting = self:GetBlueprintSetting(settingId, modUUID)
     if not setting then
-        MCMWarn(0,
-            "Setting '" ..
-            settingId ..
-            "' not found in the blueprint for mod '" ..
-            modUUID .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
         return false
     end
 

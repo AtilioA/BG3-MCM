@@ -4,6 +4,8 @@ TestSuite.RegisterTests("Setting validators", {
     "TestValidateCheckboxSetting",
     "TestValidateTextSetting",
     "TestValidateEnumSetting",
+    "TestValidateDynamicEnumSettingWithoutChoices",
+    "TestValidateDynamicEnumSettingWithChoices",
     "TestValidateRadioSetting",
     "TestValidateSliderIntSetting",
     "TestValidateSliderFloatSetting",
@@ -114,6 +116,41 @@ function TestValidateEnumSetting()
     TestSuite.AssertTrue(isValid)
 
     isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateDynamicEnumSettingWithoutChoices()
+    local setting = BlueprintSetting:New({
+        Id = "test-dynamic-enum",
+        Type = "enum",
+        Default = "runtime-default",
+        Options = {
+            Choices = {}
+        }
+    })
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, "runtime-value")
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, 42)
+    TestSuite.AssertFalse(isValid)
+end
+
+function TestValidateDynamicEnumSettingWithChoices()
+    local setting = BlueprintSetting:New({
+        Id = "test-dynamic-enum-with-choices",
+        Type = "enum",
+        Default = "No change",
+        Options = {
+            Dynamic = true,
+            Choices = { "No change" }
+        }
+    })
+
+    local isValid = DataPreprocessing:ValidateSetting(setting, "Karlach AEE")
+    TestSuite.AssertTrue(isValid)
+
+    isValid = DataPreprocessing:ValidateSetting(setting, true)
     TestSuite.AssertFalse(isValid)
 end
 
