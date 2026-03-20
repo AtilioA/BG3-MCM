@@ -193,10 +193,6 @@ function MCMAPI:SetEnumChoices(settingId, choices, modUUID, shouldEmitEvent)
         return false
     end
 
-    if shouldEmitEvent == nil then
-        shouldEmitEvent = true
-    end
-
     local setting = self:ApplyEnumChoices(settingId, choices, modUUID)
     if not setting then
         return false

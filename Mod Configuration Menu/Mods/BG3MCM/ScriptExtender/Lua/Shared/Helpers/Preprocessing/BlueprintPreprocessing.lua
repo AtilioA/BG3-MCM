@@ -1230,6 +1230,13 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
     end
 
     if #setting.Options.Choices == 0 then
+        if setting.Options.Dynamic ~= true then
+            MCMWarn(0,
+                "Enum setting '" ..
+                setting.Id ..
+                "' has an empty Choices array but Options.Dynamic is not set to true. " ..
+                "If choices will be injected at runtime via MCM.Enum.SetChoices, set Options.Dynamic = true.")
+        end
         return true
     end
 
