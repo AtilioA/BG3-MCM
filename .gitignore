@@ -72,3 +72,4 @@ node_modules/
 .task*
 .agent/
 .osgrep
+.worktrees/
