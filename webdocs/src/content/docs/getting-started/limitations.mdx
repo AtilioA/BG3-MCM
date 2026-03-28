@@ -1,0 +1,41 @@
+---
+title: Limitations
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Current Limitations
+
+MCM is a powerful framework but has some limitations to be aware of:
+
+### Blueprint Schema
+
+- **Nested structures** are not fully supported yet. Tabs can contain either Sections or Settings, but not both in a nested way.
+- **Dynamic enums** require explicit `Options.Dynamic = true` in the blueprint to survive load-time validation.
+
+### Settings Behavior
+
+- **Settings persist globally** across save files by default (JSON storage). Use `storage = "modvar"` for save-scoped persistence.
+- **Reset behavior** - Resetting a setting doesn't emit individual events but triggers `MCM_All_Mod_Settings_Reset`.
+
+### Keybindings
+
+- **Mouse buttons** are not yet supported for keybinding_v2.
+- **Gamepad support** is not currently available.
+- **Keybindings require client context** - callbacks must be registered in client-side Lua.
+
+### Lists
+
+- **Migration from `list` to `list_v2`** happens automatically if the setting ID stays the same, but old data format may differ.
+- **Suggestions are client-only** - `MCM.List.InsertSuggestions` only works in client context.
+
+### API
+
+- **ModUUID is optional** in most API functions but defaults to the calling mod's UUID. Ensure consistency.
+- **Server-side validation** is limited - some validation happens on the client but server trusts client data.
+
+<Aside type="note" title="Reporting Issues">
+Found a limitation not listed here? Report it on the [GitHub Issues](https://github.com/atilioa/bg3-mcm/issues) page.
+</Aside>

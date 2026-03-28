@@ -1,0 +1,85 @@
+---
+title: MCM.Set
+description: Sets the value of a setting
+sidebar:
+  order: 3
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+
+## Overview
+
+`MCM.Set` programmatically sets the value of a setting defined in your `MCM_blueprint.json`.
+
+<Aside type="caution" title="User Intention">
+Prefer letting users change settings through the MCM UI. Only use `MCM.Set` programmatically when you need to sync state or implement mod logic.
+</Aside>
+
+## Syntax
+
+```lua
+MCM.Set(settingId: string, value: any, modUUID?: string, shouldEmitEvent?: boolean) -> boolean, string
+```
+
+## Parameters
+
+### `settingId` (required)
+- **Type:** `string`
+- **Description:** The unique ID of the setting as defined in your blueprint
+
+### `value` (required)
+- **Type:** `any` (depends on setting type)
+- **Description:** The new value to set
+
+### `modUUID` (optional)
+- **Type:** `string`
+- **Default:** Current mod's `ModuleUUID`
+- **Description:** UUID of the mod that owns the setting
+
+### `shouldEmitEvent` (optional)
+- **Type:** `boolean`
+- **Default:** `true`
+- **Description:** Whether to emit `MCM_Setting_Saved` event
+
+## Return Value
+
+| Type | Description |
+|------|-------------|
+| `boolean` | `true` if successful, `false` if validation failed |
+| `string` | Error message if failed, `nil` if successful |
+
+## Usage Examples
+
+```lua
+-- Set a checkbox value
+local success, err = MCM.Set("enable_mod", false)
+if not success then
+    print("Failed to set: " .. err)
+end
+
+-- Set a slider value
+MCM.Set("intensity", 75)
+
+-- Set an enum value
+MCM.Set("operating_mode", "Experimental")
+
+-- Set without emitting event (for programmatic changes)
+MCM.Set("some_setting", "value", nil, false)
+
+-- Set for a different mod
+MCM.Set("setting_id", "value", "other-mod-uuid")
+```
+
+## Validation
+
+MCM validates values before setting them. Setting may fail if:
+
+- Value type doesn't match setting type
+- Value is out of bounds (for sliders/drags)
+- Value not in Choices (for enum/radio)
+- Setting ID doesn't exist
+
+## Best Practices
+
+- **Check return:** Handle the boolean/string return for error cases
+- **Events:** Use `shouldEmitEvent = false` when syncing state to avoid loops

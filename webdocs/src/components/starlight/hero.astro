@@ -1,0 +1,28 @@
+---
+import Default from '@astrojs/starlight/components/Hero.astro';
+---
+
+<Default {...Astro.props}>
+  <slot />
+</Default>
+
+<style>
+  :global([data-has-hero] .page) {
+    background:
+      radial-gradient(#292929, transparent 50%) no-repeat -60vw -50vh / 105vw 200vh,
+      radial-gradient(#292929, transparent 50%) no-repeat 30vw -100vh / 105vw 200vh;
+  }
+
+  :global([data-has-hero] .page:before) {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: 24px 24px !important;
+    mask-image: linear-gradient(0deg, transparent 5%, #000000);
+    background:
+      linear-gradient(90deg, #0d1117 22px, transparent 1%) 50%,
+      linear-gradient(#0d1117 22px, transparent 1%) 50%,
+      #2f353c;
+  }
+</style>

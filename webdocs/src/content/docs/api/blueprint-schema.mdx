@@ -1,0 +1,49 @@
+---
+title: Blueprint Schema
+description: MCM blueprint JSON schema reference
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Overview
+
+`MCM_blueprint.json` defines your mod settings structure. MCM uses this file to generate UI and validate values.
+
+## Top-Level Shape
+
+```json
+{
+  "SchemaVersion": 1,
+  "ModName": "Your Mod Name",
+  "Tabs": []
+}
+```
+
+## Structure Rules
+
+- A `Tab` can contain `Sections` **or** `Settings`.
+- Each setting `Id` must be unique across the whole blueprint.
+- Each setting must include at least one of `Description` or `Tooltip`.
+
+## Supported Widget Types
+
+`int`, `float`, `checkbox`, `text`, `enum`, `radio`, `slider_int`, `slider_float`, `drag_int`, `drag_float`, `list_v2`, `color_picker`, `color_edit`, `keybinding_v2`, `event_button`
+
+## IDE Support
+
+Use the official schema URL for autocomplete/validation:
+
+```json
+"json.schemas": [
+  {
+    "fileMatch": ["MCM_blueprint*.json"],
+    "url": "https://raw.githubusercontent.com/AtilioA/BG3-MCM/main/.vscode/schema.json"
+  }
+]
+```
+
+<Aside type="tip" title="Reference Examples">
+Start from an existing MCM-integrated mod blueprint and adapt it. This is usually faster and safer than writing from scratch.
+</Aside>

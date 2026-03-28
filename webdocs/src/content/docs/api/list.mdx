@@ -1,0 +1,28 @@
+---
+title: MCM.List
+description: List API for list_v2 settings
+sidebar:
+  order: 5
+---
+
+## Overview
+
+`MCM.List` methods operate on `list_v2` settings.
+
+## Methods
+
+| Function | Description | Client | Server |
+|---|---|:---:|:---:|
+| `MCM.List.GetEnabled(listSettingId, modUUID?)` | Get enabled item names | ✅ | ✅ |
+| `MCM.List.GetRaw(listSettingId, modUUID?)` | Get raw list object | ✅ | ✅ |
+| `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Check item enabled state | ✅ | ✅ |
+| `MCM.List.SetEnabled(listSettingId, itemName, enabled, modUUID?, shouldEmitEvent?)` | Set item enabled state | ✅ | ✅ |
+| `MCM.List.InsertSuggestions(listSettingId, suggestions, modUUID?)` | Add suggestion entries to list UI | ✅ | ❌ |
+
+## Example
+
+```lua
+local enabledItems = MCM.List.GetEnabled('ignore_list')
+MCM.List.SetEnabled('ignore_list', 'SomeItem', true)
+MCM.List.InsertSuggestions('ignore_list', { 'A', 'B', 'C' })
+```

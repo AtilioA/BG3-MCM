@@ -1,0 +1,19 @@
+{
+  "name": "BG3 Mod Configuration Menu Documentation",
+  "short_name": "BG3 MCM Docs",
+  "description": "Documentation for Baldur's Gate 3 Mod Configuration Menu (MCM) integration and APIs.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["developer", "productivity", "games"],
+  "lang": "en",
+  "dir": "ltr"
+}

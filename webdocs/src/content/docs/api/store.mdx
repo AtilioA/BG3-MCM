@@ -1,0 +1,34 @@
+---
+title: MCM.Store
+description: Persistent key-value store API
+sidebar:
+  order: 6
+---
+
+## Overview
+
+`MCM.Store` persists custom values outside the blueprint setting system.
+
+Default storage is JSON (global across saves). `modvar` storage is available for save-scoped needs.
+
+## Methods
+
+| Function | Description |
+|---|---|
+| `MCM.Store.RegisterVar(var, options?)` | Register variable, default and validation |
+| `MCM.Store.Get(var, modUUID?)` | Get current value (or default) |
+| `MCM.Store.Set(var, value, modUUID?)` | Set and persist value |
+| `MCM.Store.GetAll(modUUID?)` | Get all store values for mod |
+
+## Example
+
+```lua
+MCM.Store.RegisterVar('difficulty_level', {
+  type = 'number',
+  default = 1,
+  validate = function(v) return v > 0 end,
+})
+
+local d = MCM.Store.Get('difficulty_level')
+MCM.Store.Set('difficulty_level', d + 1)
+```

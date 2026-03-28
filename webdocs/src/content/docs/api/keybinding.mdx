@@ -1,0 +1,29 @@
+---
+title: MCM.Keybinding
+description: Keybinding API for keybinding_v2 settings
+sidebar:
+  order: 4
+---
+
+## Overview
+
+MCM keybinding methods operate on `keybinding_v2` settings and are available in **client context**.
+
+## Methods
+
+| Function | Description |
+|---|---|
+| `MCM.Keybinding.Get(settingId, modUUID?)` | Returns a human-readable keybinding string |
+| `MCM.Keybinding.GetRaw(settingId, modUUID?)` | Returns raw keybinding table |
+| `MCM.Keybinding.SetCallback(settingId, callback, modUUID?)` | Registers callback when binding triggers |
+
+## Example
+
+```lua
+MCM.Keybinding.SetCallback('key_toggle_feature', function(e)
+  -- client-side action
+  Ext.Net.PostMessageToServer('MYMOD_TOGGLE', '{}')
+end)
+```
+
+Keybinding callbacks are client-side. Use net messages when server-side work is required.

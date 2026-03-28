@@ -1,0 +1,29 @@
+---
+title: MCM.EventButton
+description: Event button API for event_button settings
+sidebar:
+  order: 8
+---
+
+## Overview
+
+`MCM.EventButton` methods operate on `event_button` settings and are client-only.
+
+## Methods
+
+| Function | Description |
+|---|---|
+| `MCM.EventButton.IsEnabled(buttonId, modUUID?)` | Check button enabled state |
+| `MCM.EventButton.ShowFeedback(buttonId, message, feedbackType, modUUID?, durationInMs?)` | Show success/error/info/warning feedback |
+| `MCM.EventButton.RegisterCallback(buttonId, callback, modUUID?)` | Register click callback |
+| `MCM.EventButton.UnregisterCallback(buttonId, modUUID?)` | Remove callback |
+| `MCM.EventButton.SetDisabled(buttonId, enabled, tooltipText?, modUUID?)` | Enable/disable button |
+
+## Example
+
+```lua
+MCM.EventButton.RegisterCallback('reset_button', function()
+  -- do reset work
+  MCM.EventButton.ShowFeedback('reset_button', 'Settings reset', 'success')
+end)
+```

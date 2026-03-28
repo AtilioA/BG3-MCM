@@ -69,10 +69,6 @@ node_modules/
 *.sw?
 # OS specific
 .DS_Store
-# Task files
-.tasks/*
-tasks.json
-tasks/
 .task*
-.roo*
 .agent/
+.osgrep

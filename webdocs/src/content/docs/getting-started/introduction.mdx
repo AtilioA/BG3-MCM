@@ -1,0 +1,196 @@
+---
+title: Introduction
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, Tabs, TabItem, Steps, Aside, LinkCard } from '@astrojs/starlight/components';
+
+# Welcome to MCM
+
+<Aside icon='discord' type="note" title="Discord Community">
+Join our BG3 Modding <a href='https://discord.gg/bawdketrFX' target='_blank'>Discord Community Server!</a>
+</Aside>
+
+**Mod Configuration Menu (MCM)** is an in-game framework for **Baldur's Gate 3** that provides a centralized UI for managing mod settings and keybindings. Created by [Volitio](https://next.nexusmods.com/profile/Volitio), MCM eliminates the need for manual JSON edits, offering a seamless experience for both mod authors and players.
+
+<Aside type="tip" title="Why MCM?">
+Traditionally, BG3SE mods requiring settings needed manual JSON editing or custom UI implementations. MCM provides a unified, user-friendly interface so mod authors can focus on their mod's features rather than configuration boilerplate.
+</Aside>
+
+## What MCM Provides
+
+### 18+ Widget Types
+
+MCM supports a wide variety of input types:
+
+- **Booleans**: `checkbox`
+- **Numbers**: `int`, `float`, `slider_int`, `slider_float`, `drag_int`, `drag_float`
+- **Text**: `text` (single-line and multiline)
+- **Choices**: `enum` (dropdown), `radio` (radio buttons)
+- **Lists**: `list_v2` (with search, reordering, enable/disable)
+- **Colors**: `color_picker` (visual picker), `color_edit` (RGBA fields)
+- **Input**: `keybinding_v2` (hotkey configuration)
+- **Actions**: `event_button` (buttons that trigger callbacks)
+
+### Real-Time Updates
+
+Settings changes take effect immediately without requiring save reloads.
+
+### Keybinding Management
+
+Define keybindings in your blueprint and MCM handles:
+
+- UI for configuring keybindings
+- Loading and saving preferences
+- Conflict detection and resolution
+- Callback registration
+
+### Multiple Profiles
+
+Create, save, load, and delete configuration profiles - useful for testing different settings combinations.
+
+### Localization Support
+
+Provide translations for different languages via handle references in your blueprint.
+
+## How It Works
+
+MCM acts as a bridge between your mod and the game UI:
+
+1. **Define a blueprint** (`MCM_blueprint.json`) describing your settings structure
+2. **MCM validates** your blueprint and generates the UI automatically
+3. **Players configure** settings in the MCM UI (accessible via ESC menu or INSERT key)
+4. **Your mod reads** settings via `MCM.Get("settingId")` anywhere in your code
+
+## Key Features
+
+<CardGrid>
+  <Card title="Blueprint-Driven" icon="setting">
+    Define your entire settings UI in a single JSON file. No IMGUI code required.
+  </Card>
+  
+  <Card title="Automatic Persistence" icon="rocket">
+    MCM handles saving and loading settings to JSON files automatically.
+  </Card>
+  
+  <Card title="Validation" icon="laptop">
+    Dozens of validation checks with detailed error messages if something is wrong.
+  </Card>
+  
+  <Card title="Event-Driven" icon="puzzle">
+    Subscribe to `MCM_Setting_Saved` events to react to setting changes in real-time.
+  </Card>
+</CardGrid>
+
+## What You Can Configure
+
+With MCM, you can expose any configurable aspect of your mod:
+
+- **Feature toggles** (checkboxes)
+- **Numeric parameters** (sliders, draggers)
+- **Mode selection** (dropdowns, radio buttons)
+- **Text input** (names, patterns)
+- **Color schemes** (color pickers)
+- **Keyboard shortcuts** (keybindings)
+- **Lists** (allow/deny lists, presets)
+
+## Quick Example
+
+<Tabs>
+  <TabItem label="Blueprint">
+    ```json
+    {
+        "SchemaVersion": 1,
+        "ModName": "My Awesome Mod",
+        "Tabs": [
+            {
+                "TabId": "settings",
+                "TabName": "Settings",
+                "Settings": [
+                    {
+                        "Id": "enable_mod",
+                        "Name": "Enable Mod",
+                        "Type": "checkbox",
+                        "Default": true,
+                        "Tooltip": "Master toggle for the mod"
+                    },
+                    {
+                        "Id": "mode",
+                        "Name": "Operating Mode",
+                        "Type": "enum",
+                        "Default": "Normal",
+                        "Options": {
+                            "Choices": ["Normal", "Enhanced", "Experimental"]
+                        },
+                        "Tooltip": "Select operating mode"
+                    }
+                ]
+            }
+        ]
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Lua Code">
+    ```lua
+    -- Get setting values
+    local enabled = MCM.Get("enable_mod")
+    local mode = MCM.Get("mode")
+
+    -- Listen to changes
+    Ext.ModEvents.BG3MCM["MCM_Setting_Saved"]:Subscribe(function(payload)
+        if payload.settingId == "enable_mod" then
+            MyMod:SetEnabled(payload.value)
+        end
+    end)
+
+    -- Set a value programmatically
+    MCM.Set("enable_mod", false)
+    ```
+  </TabItem>
+</Tabs>
+
+## Requirements
+
+<Steps>
+  1. **Baldur's Gate 3** (with latest patch)
+  2. **BG3 Script Extender (BG3SE)** - required for MCM to function
+  3. **MCM mod** installed ([Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162))
+  4. **Basic Lua knowledge** (for BG3SE mod development)
+</Steps>
+
+## Getting Started
+
+Ready to integrate MCM into your mod?
+
+<CardGrid>
+  <LinkCard
+    title="Installation"
+    description="Install MCM and set up your development environment"
+    href="/getting-started/installation/"
+  />
+  <LinkCard
+    title="Basic Usage"
+    description="Learn the fundamentals with a simple example"
+    href="/getting-started/basic-usage/"
+  />
+  <LinkCard
+    title="Widget Reference"
+    description="Explore all available setting types"
+    href="/api/blueprint-schema/"
+  />
+  <LinkCard
+    title="Example Mods"
+    description="Check out working MCM integrations"
+    href="https://github.com/atilioa/BG3-auto-send-food-to-camp"
+  />
+</CardGrid>
+
+<Aside type="note" title="New to BG3SE Modding?">
+If you're new to BG3SE modding, check out the [BG3 Modding Wiki](https://wiki.bg3.community) for tutorials on getting started with Script Extender Lua development.
+</Aside>
+
+---
+
+**MCM** makes mod configuration simple. Whether you're creating a small tweak or a major overhaul, MCM handles the settings complexity so you can focus on what matters - your mod's features.

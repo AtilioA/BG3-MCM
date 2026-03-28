@@ -1,0 +1,26 @@
+---
+title: Window and Tab APIs
+description: Open/close MCM and navigate mod pages
+sidebar:
+  order: 7
+---
+
+## Overview
+
+Window APIs are **client-only** and control MCM UI navigation.
+
+## Methods
+
+| Function | Description |
+|---|---|
+| `MCM.OpenMCMWindow()` | Open MCM window |
+| `MCM.CloseMCMWindow()` | Close MCM window |
+| `MCM.OpenModPage(tabName, modUUID?, shouldEmitEvent?)` | Open specific mod page |
+| `MCM.InsertModMenuTab(tabName, tabCallback, modUUID?)` | Add custom tab content |
+
+## Example
+
+```lua
+MCM.OpenMCMWindow()
+MCM.OpenModPage('General', ModuleUUID)
+```
