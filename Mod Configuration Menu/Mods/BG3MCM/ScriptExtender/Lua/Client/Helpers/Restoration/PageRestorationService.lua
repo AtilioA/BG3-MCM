@@ -65,9 +65,8 @@ function PageRestorationService:RestoreLastModPage()
     -- Check if the mod still exists using the manager's helper
     local modExists = self.manager:CheckModExists(lastModUUID)
     if not modExists then
-        MCMWarn(1,
-            "PageRestorationService: Stored mod page no longer exists or is invalid (UUID: " ..
-            lastModUUID .. "). Falling back to main page.")
+        MCMWarn(1, "PageRestorationService: Stored mod page no longer exists or is invalid (UUID: %s). Falling back to main page.",
+            lastModUUID)
         return
     end
 
@@ -85,7 +84,7 @@ function PageRestorationService:RestoreLastModPage()
 
     -- During initialization, respect open_on_start setting
     local shouldOpenWindow = not self.isInitialized and OpenOnStartHelper:ShouldOpenOnStart()
-    MCMDebug(1, "PageRestorationService: Restoring last used mod page: " .. lastModUUID)
+    MCMDebug(1, "PageRestorationService: Restoring last used mod page: %s", lastModUUID)
 
     -- Let DualPaneController handle sidebar state based on settings
     DualPane:OpenModPage(lastModUUID, nil, false, true, shouldOpenWindow)
@@ -110,7 +109,7 @@ function PageRestorationService:UpdateLastModPage(modUUID)
     if config.lastUsedPage ~= modUUID then
         config.lastUsedPage = modUUID
         Config:SaveCurrentConfig()
-        MCMDebug(1, "PageRestorationService: Updated last used mod page: " .. modUUID)
+        MCMDebug(1, "PageRestorationService: Updated last used mod page: %s", modUUID)
     end
 end
 

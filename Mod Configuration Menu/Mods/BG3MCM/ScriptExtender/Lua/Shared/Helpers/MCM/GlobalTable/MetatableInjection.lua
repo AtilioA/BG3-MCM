@@ -18,7 +18,7 @@ local function initializeReverseLookupTable(lookupTable)
                 lookupTable[mod.Info.ModuleUUID] = modConfig.ModTable
             end
         else
-            MCMWarn(3, string.format("No config for %s at %s", mod.Info.Name, scriptExtenderConfigPath))
+            MCMWarn(3, "No config for %s at %s", mod.Info.Name, scriptExtenderConfigPath)
         end
     end
 end
@@ -37,13 +37,13 @@ end
 local function getModTableForUUID(modUUID)
     local modTableName = getModTableNameByUUID(modUUID)
     if not modTableName then
-        MCMWarn(1, "Unable to find ModTable name for modUUID: " .. modUUID)
+        MCMWarn(1, "Unable to find ModTable name for modUUID: %s", modUUID)
         return nil
     end
 
     local modTable = Mods[modTableName]
     if not modTable then
-        MCMWarn(2, "Mod table not found for modTableName: " .. modTableName)
+        MCMWarn(2, "Mod table not found for modTableName: %s", modTableName)
         return nil
     end
     return modTable, modTableName
@@ -54,7 +54,7 @@ local function setupModsMetatable()
     -- Define a custom __newindex function to listen for new entries in the Mods table
     local modsMetatable = {
         __newindex = function(table, key, value)
-            MCMDebug(2, "New mod being added to Mods table: " .. tostring(key))
+            MCMDebug(2, "New mod being added to Mods table: %s", key)
 
             -- Set the new key-value pair in the table as normal
             rawset(table, key, value)
@@ -63,14 +63,13 @@ local function setupModsMetatable()
                 -- Update the reverse lookup table
                 ModUUIDToModTableName[value.ModuleUUID] = key
                 MCMPrint(2,
-                    "Added to reverse lookup: " ..
-                    value.ModuleUUID .. " -> " .. key .. " (" .. Ext.Mod.GetMod(value.ModuleUUID).Info.Name .. ")")
+                    "Added to reverse lookup: %s -> %s (%s)", value.ModuleUUID, key, Ext.Mod.GetMod(value.ModuleUUID).Info.Name)
 
                 -- Inject MCM for all mods and always inject the NotificationManager.
                 TableInjector.injectMCMToModTable(value.ModuleUUID)
                 NotificationManager:InjectNotificationManagerToModTable(value.ModuleUUID)
             else
-                MCMWarn(0, "Unexpected: mod '" .. tostring(key) .. "' does not have a ModuleUUID.")
+                MCMWarn(0, "Unexpected: mod '%s' does not have a ModuleUUID.", key)
             end
         end
     }

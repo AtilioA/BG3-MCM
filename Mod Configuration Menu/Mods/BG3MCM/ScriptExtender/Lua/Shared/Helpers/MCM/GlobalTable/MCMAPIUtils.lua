@@ -12,7 +12,7 @@ function MCMAPIUtils.WarnOnce(modUUID, methodName, message)
         warnedDeprecation[modUUID] = {}
     end
     if not warnedDeprecation[modUUID][methodName] then
-        MCMDeprecation(1, Ext.Mod.GetMod(modUUID).Info.Name .. ": " .. message)
+        MCMDeprecation(1, "%s: %s", Ext.Mod.GetMod(modUUID).Info.Name, message)
         warnedDeprecation[modUUID][methodName] = true
     end
 end

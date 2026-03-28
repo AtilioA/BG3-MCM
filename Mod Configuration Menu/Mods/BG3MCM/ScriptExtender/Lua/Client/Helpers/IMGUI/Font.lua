@@ -98,21 +98,21 @@ function Font.EnsureFontLoaded(typeface, fontSize)
     -- Normalize the size key
     local sizeKey = _normalizeSizeKey(fontSize)
     if not sizeKey or not Font.FONT_SIZE_OPTIONS[sizeKey] then
-        MCMWarn(0, "Invalid font size: " .. tostring(fontSize))
+        MCMWarn(0, "Invalid font size: %s", fontSize)
         return false
     end
 
     -- Check if this font definition exists
     local fontPath = FONT_DEFINITIONS[typeface]
     if not fontPath then
-        MCMWarn(0, "Unknown font typeface: " .. tostring(typeface))
+        MCMWarn(0, "Unknown font typeface: %s", typeface)
         return false
     end
 
     -- Create tracking key
     local fullFontName = Font.GetFontNameWithSizeSuffix(typeface, sizeKey)
     if not fullFontName then
-        MCMWarn(0, "Failed to generate font name for: " .. tostring(typeface) .. " " .. tostring(sizeKey))
+        MCMWarn(0, "Failed to generate font name for: %s %s", typeface, sizeKey)
         return false
     end
 
@@ -124,11 +124,11 @@ function Font.EnsureFontLoaded(typeface, fontSize)
         return true
     end
 
-    MCMDebug(2, "Loading font: " .. fullFontName .. " from " .. fontPath .. " at size " .. tostring(sizeValue))
+    MCMDebug(2, "Loading font: %s from %s at size %s", fullFontName, fontPath, sizeValue)
     local successLoad = Ext.IMGUI.LoadFont(fullFontName, fontPath, sizeValue)
 
     if not successLoad then
-        MCMWarn(0, "Failed to load font: " .. fullFontName .. " from " .. fontPath .. " at size " .. tostring(sizeValue))
+        MCMWarn(0, "Failed to load font: %s from %s at size %s", fullFontName, fontPath, sizeValue)
         return false
     end
 

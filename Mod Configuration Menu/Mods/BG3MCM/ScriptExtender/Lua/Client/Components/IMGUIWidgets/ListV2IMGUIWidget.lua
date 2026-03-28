@@ -613,7 +613,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton2()
                 newElementName = ""
             end
         end, function(err)
-            MCMDebug(1, "Error adding new element: " .. tostring(err))
+            MCMDebug(1, "Error adding new element: %s", err)
         end)
     end
 
@@ -652,7 +652,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
             self.Widget.NewElementInput.Text = self.Widget.NewElementName or ""
         end
     end, function(err)
-        MCMDebug(1, "Error in adding new element input: " .. tostring(err))
+        MCMDebug(1, "Error in adding new element input: %s", err)
         self.Widget.NewElementInput = inputGroup:AddInputText("", "")
         self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
         self.Widget.NewElementInput.AutoSelectAll = true
@@ -684,7 +684,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
                 self.Widget.NewElementName = ""
             end
         end, function(err)
-            MCMDebug(1, "Error adding new element: " .. tostring(err))
+            MCMDebug(1, "Error adding new element: %s", err)
         end)
     end
 
@@ -933,7 +933,7 @@ local function clearGroup(group)
             child:Destroy()
         end
     end, function(err)
-        MCMDebug(1, "Error clearing group: " .. tostring(err))
+        MCMDebug(1, "Error clearing group: %s", err)
     end)
 end
 

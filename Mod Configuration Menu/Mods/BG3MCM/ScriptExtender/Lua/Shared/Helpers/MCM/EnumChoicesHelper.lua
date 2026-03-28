@@ -60,9 +60,8 @@ function EnumChoicesHelper.ApplyChoices(setting, choices, choicesHandles)
     local handles = setting:GetHandles() or {}
     if choicesHandles ~= nil then
         if #choicesHandles ~= #choices then
-            MCMWarn(0, "choicesHandles length (" .. #choicesHandles ..
-                ") does not match choices length (" .. #choices ..
-                "). Handles will not be applied.")
+            MCMWarn(0, "choicesHandles length (%d) does not match choices length (%d). Handles will not be applied.",
+                #choicesHandles, #choices)
             handles.ChoicesHandles = nil
         else
             handles.ChoicesHandles = copyArray(choicesHandles)

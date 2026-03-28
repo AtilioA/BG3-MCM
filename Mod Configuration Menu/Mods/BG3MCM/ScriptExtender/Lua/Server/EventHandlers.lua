@@ -42,7 +42,7 @@ end
 ---@param userID number The user ID of the requesting client
 ---@return table Response with success status
 function EHandlers.OnClientRequestConfigs(data, userID)
-    MCMDebug(2, "Received MCM settings request from user: " .. tostring(userID))
+    MCMDebug(2, "Received MCM settings request from user: %s", userID)
 
     if not MCMAPI.mods or not MCMAPI.profiles then
         MCMServer:LoadAndSendSettings()
@@ -77,7 +77,7 @@ function EHandlers.OnClientRequestSetSettingValue(data, userID)
     end)
 
     if not ok then
-        MCMError(0, "Failed to set setting value: " .. tostring(err))
+        MCMError(0, "Failed to set setting value: %s", err)
         return { success = false, error = tostring(err) }
     end
 
@@ -96,14 +96,14 @@ function EHandlers.OnClientRequestResetSettingValue(data, userID)
         return { success = false, error = "Missing required field: settingId" }
     end
 
-    MCMDebug(1, "Will reset " .. settingId .. " for mod " .. modUUID)
+    MCMDebug(1, "Will reset %s for mod %s", settingId, modUUID)
 
     local ok, err = pcall(function()
         MCMServer:ResetSettingValue(settingId, modUUID)
     end)
 
     if not ok then
-        MCMError(0, "Failed to reset setting value: " .. tostring(err))
+        MCMError(0, "Failed to reset setting value: %s", err)
         return { success = false, error = tostring(err) }
     end
 
@@ -131,7 +131,7 @@ function EHandlers.OnClientRequestSetEnumChoices(data, userID)
         end
         return true
     end, function(err)
-        MCMError(0, "Failed to update enum choices: " .. tostring(err))
+        MCMError(0, "Failed to update enum choices: %s", err)
         return tostring(err)
     end)
 
@@ -173,7 +173,7 @@ function EHandlers.OnClientRequestSetProfile(data, userID)
     end)
 
     if not ok then
-        MCMError(0, "Failed to set profile: " .. tostring(result))
+        MCMError(0, "Failed to set profile: %s", result)
         return { success = false, error = tostring(result) }
     end
 
@@ -198,7 +198,7 @@ function EHandlers.OnClientRequestCreateProfile(data, userID)
     end)
 
     if not ok then
-        MCMError(0, "Failed to create profile: " .. tostring(result))
+        MCMError(0, "Failed to create profile: %s", result)
         return { success = false, error = tostring(result) }
     end
 
@@ -223,7 +223,7 @@ function EHandlers.OnClientRequestDeleteProfile(data, userID)
     end)
 
     if not ok then
-        MCMError(0, "Failed to delete profile: " .. tostring(result))
+        MCMError(0, "Failed to delete profile: %s", result)
         return { success = false, error = tostring(result) }
     end
 
@@ -330,7 +330,7 @@ function EHandlers.OnEmitOnServer(data, userID)
     local eventName = data.eventName
     local eventData = data.eventData
 
-    MCMDebug(2, "Emitting event " .. eventName .. " on server as well.")
+    MCMDebug(2, "Emitting event %s on server as well.", eventName)
 
     local ok, err = pcall(function()
         if Ext.ModEvents['BG3MCM'] and Ext.ModEvents['BG3MCM'][eventName] then
@@ -341,7 +341,7 @@ function EHandlers.OnEmitOnServer(data, userID)
     end)
 
     if not ok then
-        MCMWarn(0, "Failed to emit event: " .. tostring(err))
+        MCMWarn(0, "Failed to emit event: %s", err)
         return { success = false, error = tostring(err) }
     end
 

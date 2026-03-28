@@ -147,7 +147,7 @@ end
 function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates, shouldEmitEvent)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
-        MCMWarn(0, string.format("No binding found to update for mod '%s', action '%s'.", modUUID, actionId))
+        MCMWarn(0, "No binding found to update for mod '%s', action '%s'.", modUUID, actionId)
         return false
     end
 
@@ -191,7 +191,7 @@ end
 function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, callback, eventType)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
-        MCMWarn(0, string.format("No binding found to register callback for mod '%s', action '%s'.", modUUID, actionId))
+        MCMWarn(0, "No binding found to register callback for mod '%s', action '%s'.", modUUID, actionId)
         return false
     end
 
@@ -237,7 +237,7 @@ local function shouldTriggerBinding(e, binding)
 
     -- Check if we should block the keybinding when level is not started
     if binding.blockIfLevelNotStarted and MCMProxy.IsMainMenu() then
-        MCMPrint(2, "Keybinding blocked because level not started: " .. binding.actionName)
+        MCMPrint(2, "Keybinding blocked because level not started: %s", binding.actionName)
         return false
     end
 
@@ -336,7 +336,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         if allowConflictCount < #triggered - 1 then
             local binding = triggered[1]
             local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
-            MCMWarn(0, "Keybinding conflict detected for: " .. keybindingStr)
+            MCMWarn(0, "Keybinding conflict detected for: %s", keybindingStr)
 
             -- TODO: reduce duplication with KeybindingV2IMGUIWidget
             local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
@@ -372,9 +372,8 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
         end
 
         if callback then
-            MCMPrint(1,
-                "Dispatching keyboard callback for mod '" ..
-                binding.modUUID .. "', action '" .. binding.actionName .. "'.")
+            MCMPrint(1, "Dispatching keyboard callback for mod '%s', action '%s'.",
+                binding.modUUID, binding.actionName)
             xpcall(function()
                 callback(e)
             end, function(err)
@@ -385,14 +384,13 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
                 local mod = Ext.Mod.GetMod(binding.modUUID)
                 local modName = (mod and mod.Info and mod.Info.Name) or tostring(binding.modUUID)
                 MCMError(0,
-                    "Keyboard callback failed for mod '" .. modName .. "', action '" .. tostring(binding.actionName) ..
-                    "': " ..
-                    tostring(err) ..
-                    traceback .. "\nPlease contact " .. (mod and mod.Info and mod.Info.Author) .. " about this issue.")
+                    "Keyboard callback failed for mod '%s', action '%s': %s%s\nPlease contact %s about this issue.",
+                    modName, tostring(binding.actionName),
+                    tostring(err),
+                    traceback, (mod and mod.Info and mod.Info.Author))
             end)
         elseif not binding.skipCallback then
-            MCMWarn(0,
-                "No keyboard callback found for mod '" .. binding.modUUID .. "', action '" .. binding.actionName .. "'.")
+            MCMWarn(0, "No keyboard callback found for mod '%s', action '%s'.", binding.modUUID, binding.actionName)
         end
     end
 end

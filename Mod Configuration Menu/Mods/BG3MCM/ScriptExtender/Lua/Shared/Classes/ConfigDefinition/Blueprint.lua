@@ -240,7 +240,7 @@ function Blueprint:RetrieveDefaultValueForSetting(settingId)
     end
 
     if not settings[settingId] then
-        MCMWarn(1, "Setting with ID " .. settingId .. " not found in blueprint. Returning nil as default value.")
+        MCMWarn(1, "Setting with ID %s not found in blueprint. Returning nil as default value.", settingId)
         return nil
     end
 

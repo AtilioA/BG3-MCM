@@ -70,7 +70,7 @@ function ProfileManager:SaveProfileValuesToConfig()
 
     local data = ModConfig:LoadMCMParams()
     if not data then
-        MCMWarn(1, "MCM config file not found: " .. configFilePath)
+        MCMWarn(1, "MCM config file not found: %s", configFilePath)
         return
     end
 
@@ -98,14 +98,13 @@ function ProfileManager:SetCurrentProfile(profileName)
 
     if not table.contains(self.Profiles, profileName) then
         MCMWarn(1,
-            "Profile " ..
-            profileName .. " does not exist. Available profiles: " .. table.concat(self.Profiles, ", "))
+            "Profile %s does not exist. Available profiles: %s", profileName, table.concat(self.Profiles, ", "))
         return false
     end
 
     self.SelectedProfile = profileName
 
-    MCMPrint(1, "Profile set to: " .. profileName)
+    MCMPrint(1, "Profile set to: %s", profileName)
     self:SaveProfileValuesToConfig()
     ModConfig:LoadSettings()
 
@@ -148,7 +147,7 @@ function ProfileManager:CreateProfile(profileName)
     -- Validate path components in the profile name
     local isValid, errorMsg = PathValidator:IsValidPathComponent(profileName, true) -- true for Windows validation
     if not isValid then
-        MCMWarn(1, string.format("Invalid profile name '%s': %s", profileName, errorMsg))
+        MCMWarn(1, "Invalid profile name '%s': %s", profileName, errorMsg)
         return false, errorMsg
     end
 

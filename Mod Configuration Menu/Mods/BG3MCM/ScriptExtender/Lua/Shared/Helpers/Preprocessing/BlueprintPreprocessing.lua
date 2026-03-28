@@ -1279,7 +1279,7 @@ function BlueprintPreprocessing:BlueprintOptionsForEnumShouldHaveAChoicesArrayOf
         for _, choice in ipairs(setting.Options.Choices) do
             if type(choice) ~= "string" then
                 MCMWarn(0,
-                    "Options.Choices for enum setting '" .. setting.Id .. "' must be an array of strings.")
+                    "Options.Choices for enum setting '%s' must be an array of strings.", setting.Id)
                 return false
             end
         end
@@ -1290,17 +1290,16 @@ end
 function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting)
     if not setting.Options or not setting.Options.Choices then
         MCMWarn(0,
-            "Radio setting '" ..
-            setting.Id ..
-            "' must have 'Options.Choices' defined. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "Radio setting '%s' must have 'Options.Choices' defined. Please contact %s about this issue.",
+            setting.Id,
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
         return false
     end
 
     for _, choice in pairs(setting.Options.Choices) do
         if type(choice) ~= "string" then
             MCMWarn(0,
-                "Options.Choices for radio setting '" .. setting.Id .. "' must be an array of strings.")
+                "Options.Choices for radio setting '%s' must be an array of strings.", setting.Id)
             return false
         end
     end
@@ -1311,7 +1310,7 @@ end
 function BlueprintPreprocessing:BlueprintShouldHaveMinAndMaxForSlider(setting)
     if not setting.Options or not setting.Options.Min or not setting.Options.Max then
         MCMWarn(0,
-            "Slider setting '" .. setting.Id .. "' must have 'Options.Min' and 'Options.Max' defined.")
+            "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined.", setting.Id)
         return false
     end
     return true
@@ -1320,7 +1319,7 @@ end
 function BlueprintPreprocessing:BlueprintMinAndMaxForSliderShouldBeNumbers(setting)
     if setting.Options and (type(setting.Options.Min) ~= "number" or type(setting.Options.Max) ~= "number") then
         MCMWarn(0,
-            "Slider setting '" .. setting.Id .. "' must have 'Options.Min' and 'Options.Max' defined as numbers.")
+            "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined as numbers.", setting.Id)
         return false
     end
     return true
@@ -1333,17 +1332,17 @@ function BlueprintPreprocessing:BlueprintMinIsLessThanMaxForSlider(setting)
     end
 
     if not setting.Options then
-        MCMWarn(0, "Slider setting '" .. setting.Id .. "' is missing Options")
+        MCMWarn(0, "Slider setting '%s' is missing Options", setting.Id)
         return false
     end
 
     if not setting.Options.Min or not setting.Options.Max then
-        MCMWarn(0, "Slider setting '" .. setting.Id .. "' is missing Options.Min or Options.Max")
+        MCMWarn(0, "Slider setting '%s' is missing Options.Min or Options.Max", setting.Id)
         return false
     end
 
     if setting.Options.Min >= setting.Options.Max then
-        MCMWarn(0, "Slider setting '" .. setting.Id .. "' must have 'Options.Min' less than 'Options.Max'.")
+        MCMWarn(0, "Slider setting '%s' must have 'Options.Min' less than 'Options.Max'.", setting.Id)
         return false
     end
 
@@ -1361,28 +1360,25 @@ function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     if self:HasIncorrectStructure(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod '" ..
-            Ext.Mod.GetMod(modUUID).Info.Name ..
-            "' has incorrect structure and can't be used. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            "Blueprint for mod '%s' has incorrect structure and can't be used. Please contact %s about this issue.",
+            Ext.Mod.GetMod(modUUID).Info.Name,
+            Ext.Mod.GetMod(modUUID).Info.Author)
         return
     end
 
     if not self:VerifyIDUniqueness(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod '" ..
-            Ext.Mod.GetMod(modUUID).Info.Name ..
-            "' has duplicate IDs and can't be used. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            "Blueprint for mod '%s' has duplicate IDs and can't be used. Please contact %s about this issue.",
+            Ext.Mod.GetMod(modUUID).Info.Name,
+            Ext.Mod.GetMod(modUUID).Info.Author)
         return
     end
 
     if not self:ValidateBlueprintSettings(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod '" ..
-            Ext.Mod.GetMod(modUUID).Info.Name ..
-            "' has invalid settings and can't be used. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            "Blueprint for mod '%s' has invalid settings and can't be used. Please contact %s about this issue.",
+            Ext.Mod.GetMod(modUUID).Info.Name,
+            Ext.Mod.GetMod(modUUID).Info.Author)
         return
     end
 
@@ -1397,9 +1393,9 @@ function BlueprintPreprocessing:SanitizeBlueprints(mods)
         if not self:SanitizeBlueprint(mcmTable.blueprint, modUUID) then
             mods[modUUID] = nil
             MCMWarn(0,
-                "Blueprint validation failed for mod: " ..
-                Ext.Mod.GetMod(modUUID).Info.Name ..
-                ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+                "Blueprint validation failed for mod: %s. Please contact %s about this issue.",
+                Ext.Mod.GetMod(modUUID).Info.Name,
+                Ext.Mod.GetMod(modUUID).Info.Author)
         end
     end
 end
@@ -1410,15 +1406,15 @@ end
 function BlueprintPreprocessing:HasSchemaVersionsEntry(data)
     if not data.SchemaVersion then
         MCMWarn(0,
-            "No 'SchemaVersion' section found in data for mod: " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "No 'SchemaVersion' section found in data for mod: %s. Please contact %s about this issue.",
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name,
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
         return false
     elseif type(data.SchemaVersion) ~= "number" then
         MCMWarn(0,
-            "Invalid 'SchemaVersion' section (not a number) found in data for mod: " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "Invalid 'SchemaVersion' section (not a number) found in data for mod: %s. Please contact %s about this issue.",
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Name,
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
         return false
     end
     return true

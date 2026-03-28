@@ -22,7 +22,7 @@ function NetCommand:execute(data, peerId)
     local ok, result = xpcall(function()
         return self.callback(data, peerId)
     end, function(err)
-        MCMError(0, "NetCommand execution error: " .. tostring(err))
+        MCMError(0, "NetCommand execution error: %s", err)
         return { success = false, error = tostring(err) }
     end)
     

@@ -40,7 +40,7 @@ function Noesis:FindWidgetChild(widgetName, name)
         end
         return nil
     end, function(err)
-        MCMError(0, "Error finding widget: " .. tostring(err))
+        MCMError(0, "Error finding widget: %s", err)
         return nil
     end)
 
@@ -62,7 +62,7 @@ end
 function Noesis:FindMCMGameMenuButton_k()
     local target = Noesis:FindWidgetChild("GameMenu", "MCMButton")
     if target then
-        MCMDebug(3, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
+        MCMDebug(3, "%s (%s)", target.Type, target:GetProperty("Name") or "")
         return target
     else
         -- MCMDebug(1, "MCMButton not found")
@@ -72,7 +72,7 @@ end
 function Noesis:FindMCMGameMenuButton_c()
     local target = Noesis:FindWidgetChild("GameMenu_c", "MCMButton")
     if target then
-        MCMDebug(3, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
+        MCMDebug(3, "%s (%s)", target.Type, target:GetProperty("Name") or "")
         return target
     else
         -- MCMDebug(1, "MCMButton not found")
@@ -90,7 +90,7 @@ end
 function Noesis:FindMCMMainMenuButton_k()
     local target = Noesis:FindWidgetChild("MainMenu", "MCMMainMenuButton")
     if target then
-        MCMDebug(1, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
+        MCMDebug(1, "%s (%s)", target.Type, target:GetProperty("Name") or "")
         return target
     else
         MCMDebug(1, "MCMMainMenuButton not found")
@@ -100,7 +100,7 @@ end
 function Noesis:FindMCMMainMenuButton_c()
     local target = Noesis:FindWidgetChild("MainMenu_c", "MCMMainMenuButton")
     if target then
-        MCMDebug(1, target.Type .. " (" .. (target:GetProperty("Name") or "") .. ")")
+        MCMDebug(1, "%s (%s)", target.Type, target:GetProperty("Name") or "")
         return target
     else
         MCMDebug(1, "MCMMainMenuButton not found")

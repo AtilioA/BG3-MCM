@@ -165,7 +165,7 @@ function RightPane:CreateTab(modUUID, tabName)
     tab.UserData.tabName = tabName
 
     tab.OnActivate = function()
-        MCMDebug(3, "Activating tab " .. tabName)
+        MCMDebug(3, "Activating tab %s", tabName)
 
         -- self:FocusModContentChildWindow()
 
@@ -192,10 +192,10 @@ function RightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
                 traceback = debug.traceback("", 2)
             end
             MCMError(0,
-                "Callback failed for mod " ..
-                Ext.Mod.GetMod(modUUID).Info.Name ..
-                ": " ..
-                err .. traceback .. "\nPlease contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+                "Callback failed for mod %s: %s\nPlease contact %s about this issue.",
+                Ext.Mod.GetMod(modUUID).Info.Name,
+                err .. traceback,
+                Ext.Mod.GetMod(modUUID).Info.Author)
         end)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
@@ -216,9 +216,9 @@ function RightPane:SetVisibleGroup(modUUID)
             group.Visible = (uuid == modUUID)
 
             -- Debug info
-            MCMDebug(3, "Setting visibility for mod " .. uuid .. " to " .. tostring(group.Visible))
+            MCMDebug(3, "Setting visibility for mod %s to %s", uuid, group.Visible)
         else
-            MCMDebug(3, "Skipping visibility update for detached mod " .. uuid)
+            MCMDebug(3, "Skipping visibility update for detached mod %s", uuid)
         end
     end
 
@@ -274,12 +274,12 @@ end
 function RightPane:DetachModGroup(modUUID)
     local group = self.contentGroups[modUUID]
     if not group then
-        MCMError(0, "Tried to detach non-existent mod group for " .. modUUID)
+        MCMError(0, "Tried to detach non-existent mod group for %s", modUUID)
         return
     end
 
     if self.detachedWindows[modUUID] then
-        MCMError(0, "Mod group " .. modUUID .. " is already detached.")
+        MCMError(0, "Mod group %s is already detached.", modUUID)
         return
     end
 
@@ -298,7 +298,7 @@ function RightPane:DetachModGroup(modUUID)
         originalHandle = group.Handle -- Store the original handle for verification
     }
 
-    MCMDebug(1, "Detaching mod group " .. modUUID .. " with handle " .. tostring(group.Handle))
+    MCMDebug(1, "Detaching mod group %s with handle %s", modUUID, group.Handle)
     parent:DetachChild(group)
     newWindow:AttachChild(group)
     self.detachedWindows[modUUID] = newWindow
@@ -317,12 +317,12 @@ end
 function RightPane:ReattachModGroup(modUUID)
     local group = self.contentGroups[modUUID]
     if not group then
-        MCMError(0, "Tried to reattach non-existent mod group for " .. modUUID)
+        MCMError(0, "Tried to reattach non-existent mod group for %s", modUUID)
         return
     end
 
     if not self.detachedWindows[modUUID] then
-        MCMWarn(0, "Mod group " .. modUUID .. " is not detached.")
+        MCMWarn(0, "Mod group %s is not detached.", modUUID)
         return
     end
 
@@ -344,14 +344,14 @@ function RightPane:ReattachModGroup(modUUID)
         end
     end
 
-    MCMDebug(1, "Reattaching mod group " .. modUUID .. " with handle " .. tostring(group.Handle))
+    MCMDebug(1, "Reattaching mod group %s with handle %s", modUUID, group.Handle)
 
     -- Get the correct parent to reattach to
     local targetParent = detachedWin.UserData and detachedWin.UserData.originalParent or self.parent
 
     -- Store children count before detaching
     local childrenBefore = #group.Children
-    MCMDebug(1, "Children before detach: " .. childrenBefore .. ", tabBar: " .. tostring(tabBar ~= nil))
+    MCMDebug(1, "Children before detach: %s, tabBar: %s", childrenBefore, tabBar ~= nil)
 
     -- Detach from window and reattach to original parent
     detachedWin:DetachChild(group)
@@ -359,7 +359,7 @@ function RightPane:ReattachModGroup(modUUID)
 
     -- Check if children were preserved
     local childrenAfter = #group.Children
-    MCMDebug(1, "Children after reattach: " .. childrenAfter)
+    MCMDebug(1, "Children after reattach: %s", childrenAfter)
 
     -- Make sure the group visibility is set correctly based on current mod
     group.Visible = (modUUID == self.currentMod.modUUID)

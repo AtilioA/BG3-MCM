@@ -6,16 +6,16 @@ local function warnDeprecation(deprecatedSettingType, modUUID, newType)
 
     if modUUID then
         local mod = Ext.Mod.GetMod(modUUID)
-        if not mod then return MCMWarn(0, "Mod UUID '" .. modUUID .. "' not found") end
+        if not mod then return MCMWarn(0, "Mod UUID '%s' not found", modUUID) end
         local modInfo = mod.Info
-        if not modInfo then return MCMWarn(0, "Mod Info not found for mod UUID '" .. modUUID .. "'") end
+        if not modInfo then return MCMWarn(0, "Mod Info not found for mod UUID '%s'", modUUID) end
         MCMDeprecation(0,
-            "Mod '" .. modInfo.Name .. "' is using deprecated '" .. deprecatedSettingType .. "' setting type. " ..
-            "Please contact " .. modInfo.Author .. " to upgrade it to '" .. newType .. "'.")
+            "Mod '%s' is using deprecated '%s' setting type. Please contact %s to upgrade it to '%s'.",
+            modInfo.Name, deprecatedSettingType, modInfo.Author, newType)
     else
         MCMDeprecation(0,
-            "Mod is using deprecated '" .. deprecatedSettingType .. "' setting type. " ..
-            "Please upgrade usage to '" .. newType .. "'.")
+            "Mod is using deprecated '%s' setting type. Please upgrade usage to '%s'.",
+            deprecatedSettingType, newType)
     end
 
     warnedDeprecation[key] = true

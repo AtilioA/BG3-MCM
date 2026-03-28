@@ -19,7 +19,7 @@ local function discoverModVars(moduleUUID)
     end
 
     if count > 0 then
-        MCMDebug(2, string.format("Discovered %d ModVars for module %s", count, moduleUUID))
+        MCMDebug(2, "Discovered %d ModVars for module %s", count, moduleUUID)
     end
 end
 
@@ -55,7 +55,7 @@ function StorageManager.DiscoverAllVariables()
     local totalModules = #moduleUUIDs
     local modulesWithVars = 0
 
-    MCMDebug(1, string.format("Starting variable discovery for %d modules", totalModules))
+    MCMDebug(1, "Starting variable discovery for %d modules", totalModules)
 
     for _, moduleUUID in ipairs(moduleUUIDs) do
         local hasVars = false
@@ -80,8 +80,8 @@ function StorageManager.DiscoverAllVariables()
         end
     end
 
-    MCMDebug(1, string.format("\n\nVariable discovery complete. Found variables in %d/%d modules",
-        modulesWithVars, totalModules))
+    MCMDebug(1, "\n\nVariable discovery complete. Found variables in %d/%d modules",
+        modulesWithVars, totalModules)
 end
 
 local function testServiceCalls()

@@ -454,7 +454,7 @@ end
 local function EventButtonIsEnabled_Impl(args)
     local isDisabled = MCMAPI:IsEventButtonDisabled(tostring(args.modUUID), args.buttonId)
     if isDisabled == nil then
-        MCMDebug(1, string.format("Button '%s' not found in mod '%s'", args.buttonId, tostring(args.modUUID)))
+        MCMDebug(1, "Button '%s' not found in mod '%s'", args.buttonId, args.modUUID)
     end
     return not isDisabled
 end
@@ -475,12 +475,12 @@ local function EventButtonRegisterCallback_Impl(args)
     local success = MCMAPI:RegisterEventButtonCallback(args.modUUID, args.buttonId, args.callback)
     if not success then
         MCMWarn(0,
-            string.format("Failed to register event button callback for button '%s' in mod '%s'", args.buttonId,
-                args.modUUID))
+            "Failed to register event button callback for button '%s' in mod '%s'", args.buttonId,
+            args.modUUID)
     else
         MCMDebug(1,
-            string.format("Successfully registered event button callback for button '%s' in mod '%s'", args.buttonId,
-                args.modUUID))
+            "Successfully registered event button callback for button '%s' in mod '%s'", args.buttonId,
+            args.modUUID)
     end
     return success
 end
@@ -493,12 +493,12 @@ local function EventButtonUnregisterCallback_Impl(args)
     local success = MCMAPI:UnregisterEventButtonCallback(args.modUUID, args.buttonId)
     if not success then
         MCMWarn(0,
-            string.format("Failed to unregister event button callback for button '%s' in mod '%s'", args.buttonId,
-                args.modUUID))
+            "Failed to unregister event button callback for button '%s' in mod '%s'", args.buttonId,
+            args.modUUID)
     else
         MCMDebug(1,
-            string.format("Successfully unregistered event button callback for button '%s' in mod '%s'", args.buttonId,
-                args.modUUID))
+            "Successfully unregistered event button callback for button '%s' in mod '%s'", args.buttonId,
+            args.modUUID)
     end
     return success
 end
@@ -513,11 +513,11 @@ local function EventButtonSetDisabled_Impl(args)
     local success = MCMAPI:SetEventButtonDisabled(args.modUUID, args.buttonId, args.disabled, args.tooltipText)
     if not success then
         MCMWarn(0,
-            string.format("Failed to set disabled state for button '%s' in mod '%s'", args.buttonId, args.modUUID))
+            "Failed to set disabled state for button '%s' in mod '%s'", args.buttonId, args.modUUID)
     else
         MCMDebug(1,
-            string.format("Successfully set disabled state for button '%s' in mod '%s' to %s",
-                args.buttonId, args.modUUID, tostring(args.disabled)))
+            "Successfully set disabled state for button '%s' in mod '%s' to %s",
+            args.buttonId, args.modUUID, args.disabled)
     end
     return success
 end

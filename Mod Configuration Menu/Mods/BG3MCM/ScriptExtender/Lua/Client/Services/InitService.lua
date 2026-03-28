@@ -59,7 +59,7 @@ function InitClientMCM()
                 LoadOrderHealthCheckToggles:RunAllChecks()
             end
         end, function(err)
-            MCMWarn(0, "LoadOrderHealthCheckToggles failed: " .. tostring(err))
+            MCMWarn(0, "LoadOrderHealthCheckToggles failed: %s", err)
         end)
 
         MCMAPI:LoadConfigs()
@@ -76,9 +76,7 @@ function InitClientMCM()
                 if response.success then
                     MCMDebug(1, "Successfully requested configs from server after reset")
                 else
-                    MCMWarn(0,
-                        "Failed to request configs from server after reset: " ..
-                        (response.error or "Unknown error"))
+                    MCMWarn(0, "Failed to request configs from server after reset: %s", response.error or "Unknown error")
                 end
             end
         )

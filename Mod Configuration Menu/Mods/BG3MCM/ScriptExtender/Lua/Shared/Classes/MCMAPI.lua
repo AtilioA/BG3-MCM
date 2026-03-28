@@ -76,7 +76,7 @@ function MCMAPI:SetProfile(profileName)
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
-        MCMDebug(1, "Set profile to " .. profileName)
+        MCMDebug(1, "Set profile to %s", profileName)
         if Ext.IsServer() then
             -- Notify other servers about the profile change
             ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
@@ -111,10 +111,9 @@ function MCMAPI:GetAllModSettings(modUUID)
     local mod = self.mods[modUUID]
     if not mod then
         MCMWarn(0,
-            "Mod " ..
-            modUUID ..
-            " was not found by MCM.\nDouble check your blueprint filename, directory, and whether it's well-defined. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            "Mod %s was not found by MCM.\nDouble check your blueprint filename, directory, and whether it's well-defined. Please contact %s about this issue.",
+            modUUID,
+            Ext.Mod.GetMod(modUUID).Info.Author)
         return {}
     end
 
@@ -139,17 +138,17 @@ end
 function MCMAPI:GetBlueprintSetting(settingId, modUUID)
     local blueprint = self:GetModBlueprint(modUUID)
     if not blueprint then
-        MCMWarn(0, "Blueprint not found for mod '" .. tostring(modUUID) .. "'.")
+        MCMWarn(0, "Blueprint not found for mod '%s'.", modUUID)
         return nil
     end
 
     local setting = blueprint:GetAllSettings()[settingId]
     if not setting then
         MCMWarn(0,
-            "Setting '" ..
-            settingId ..
-            "' not found in the blueprint for mod '" ..
-            tostring(modUUID) .. "'. Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            "Setting '%s' not found in the blueprint for mod '%s'. Please contact %s about this issue.",
+            settingId,
+            modUUID,
+            Ext.Mod.GetMod(modUUID).Info.Author)
         return nil
     end
 
@@ -170,7 +169,7 @@ function MCMAPI:ApplyEnumChoices(settingId, choices, choicesHandles, modUUID)
 
     if setting:GetType() ~= "enum" then
         MCMWarn(0,
-            "Setting '" .. settingId .. "' in mod '" .. tostring(modUUID) .. "' is not an enum. Choices will not be updated.")
+            "Setting '%s' in mod '%s' is not an enum. Choices will not be updated.", settingId, modUUID)
         return nil
     end
 
@@ -241,8 +240,7 @@ function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
     local isValid = DataPreprocessing:ValidateSetting(setting, value)
     if not isValid then
         MCMWarn(0,
-            "Value " ..
-            tostring(value) .. " is invalid for setting '" .. settingId .. "' in mod '" .. modUUID .. "'.")
+            "Value %s is invalid for setting '%s' in mod '%s'.", value, settingId, modUUID)
     end
     return isValid
 end
@@ -259,7 +257,7 @@ function MCMAPI:GetSettingValue(settingId, modUUID)
 
     local modSettingsTable = self:GetAllModSettings(modUUID)
     if not modSettingsTable then
-        MCMWarn(0, "Mod settings table not found for mod '" .. modUUID .. "'.")
+        MCMWarn(0, "Mod settings table not found for mod '%s'.", modUUID)
         return nil
     end
 
@@ -303,17 +301,17 @@ function MCMAPI:HandleMissingSetting(settingId, modSettingsTable, modUUID)
                 false)
             if closestMatch and distance < 9 then
                 MCMWarn(0,
-                    "Setting '" ..
-                    settingId ..
-                    "' not found for mod '" ..
-                    modInfo.Name ..
-                    "'. Did you mean '" .. closestMatch .. "'? Please contact " .. modInfo.Author .. " about this issue.")
+                    "Setting '%s' not found for mod '%s'. Did you mean '%s'? Please contact %s about this issue.",
+                    settingId,
+                    modInfo.Name,
+                    closestMatch,
+                    modInfo.Author)
             else
                 MCMWarn(0,
-                    "Setting '" ..
-                    settingId ..
-                    "' not found for mod '" ..
-                    modInfo.Name .. "'. Please contact " .. modInfo.Author .. " about this issue.")
+                    "Setting '%s' not found for mod '%s'. Please contact %s about this issue.",
+                    settingId,
+                    modInfo.Name,
+                    modInfo.Author)
             end
         end)
     end
@@ -341,16 +339,16 @@ function MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
 
     local modSettingsTable = self:GetAllModSettings(modUUID)
     if not modSettingsTable then
-        MCMWarn(0, "Mod settings table is nil for mod UUID: " .. modUUID)
+        MCMWarn(0, "Mod settings table is nil for mod UUID: %s", modUUID)
         return false
     end
 
     local oldValue = modSettingsTable[settingId]
 
     local isValid = self:IsSettingValueValid(settingId, value, modUUID)
-    MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
+    MCMDebug(2, "Setting value for %s is valid? %s", settingId, isValid)
     if not isValid then
-        MCMWarn(0, "Invalid value for setting '" .. settingId .. " (" .. tostring(value) .. "). Value will not be saved.")
+        MCMWarn(0, "Invalid value for setting '%s' (%s). Value will not be saved.", settingId, value)
         return false
     end
 
@@ -387,15 +385,17 @@ function MCMAPI:ResetSettingValue(settingId, modUUID, clientRequest)
 
     local blueprint = self:GetModBlueprint(modUUID)
     if not blueprint then
-        MCMWarn(0, "Blueprint not found for mod UUID: " .. modUUID)
+        MCMWarn(0, "Blueprint not found for mod UUID: %s", modUUID)
         return
     end
 
     local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingId)
     if defaultValue == nil then
         MCMWarn(0,
-            "Setting '" .. settingId .. "' not found in the blueprint for mod '" .. modUUID .. "'. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            "Setting '%s' not found in the blueprint for mod '%s'. Please contact %s about this issue.",
+            settingId,
+            modUUID,
+            Ext.Mod.GetMod(modUUID).Info.Author)
     else
         self:SetSettingValue(settingId, defaultValue, modUUID, not shouldEmitEvent)
         -- NetChannels.MCM_SETTING_RESET:Broadcast({
@@ -442,17 +442,17 @@ function MCMAPI:RegisterEventButtonCallback(modUUID, settingId, callback)
     -- Verify that the mod and setting exist
     local modSettingsTable = self:GetAllModSettings(modUUID)
     if not modSettingsTable then
-        MCMWarn(0, "Mod settings table not found for UUID: " .. modUUID)
+        MCMWarn(0, "Mod settings table not found for UUID: %s", modUUID)
         return false
     end
 
     -- TODO: use an interface instead of direct access to EventButtonRegistry
     local success = EventButtonRegistry.RegisterCallback(modUUID, settingId, callback)
     if success then
-        MCMDebug(1, string.format("Registered event button callback for mod '%s', setting '%s'", modUUID, settingId))
+        MCMDebug(1, "Registered event button callback for mod '%s', setting '%s'", modUUID, settingId)
     else
         MCMWarn(0,
-            string.format("Failed to register event button callback for mod '%s', setting '%s'", modUUID, settingId))
+            "Failed to register event button callback for mod '%s', setting '%s'", modUUID, settingId)
     end
     return success
 end
@@ -474,10 +474,10 @@ function MCMAPI:UnregisterEventButtonCallback(modUUID, settingId)
     -- TODO: use an interface instead of direct access to EventButtonRegistry
     local success = EventButtonRegistry.UnregisterCallback(modUUID, settingId)
     if success then
-        MCMDebug(1, string.format("Unregistered event button callback for mod '%s', setting '%s'", modUUID, settingId))
+        MCMDebug(1, "Unregistered event button callback for mod '%s', setting '%s'", modUUID, settingId)
     else
         MCMWarn(0,
-            string.format("Failed to unregister event button callback for mod '%s', setting '%s'", modUUID, settingId))
+            "Failed to unregister event button callback for mod '%s', setting '%s'", modUUID, settingId)
     end
     return success
 end
@@ -505,26 +505,23 @@ function MCMAPI:SetEventButtonDisabled(modUUID, settingId, disabled, tooltipText
     -- Verify that the mod exists
     local modSettingsTable = self:GetAllModSettings(modUUID)
     if not modSettingsTable then
-        MCMWarn(0, "Mod settings table not found for UUID: " .. tostring(modUUID))
+        MCMWarn(0, "Mod settings table not found for UUID: %s", modUUID)
         return false
     end
 
     -- Check if the button exists by trying to get its current state
     local currentState = EventButtonRegistry.IsDisabled(modUUID, settingId)
     if currentState == nil then
-        MCMWarn(0, string.format("Button not found: mod='%s', setting='%s'",
-            tostring(modUUID), tostring(settingId)))
+        MCMWarn(0, "Button not found: mod='%s', setting='%s'", modUUID, settingId)
         return false
     end
 
     -- Update the disabled state via EventButtonRegistry
     local success = EventButtonRegistry.SetDisabled(modUUID, settingId, disabled, tooltipText)
     if success then
-        MCMDebug(1, string.format("Set disabled state for mod '%s', setting '%s' to %s",
-            modUUID, settingId, tostring(disabled)))
+        MCMDebug(1, "Set disabled state for mod '%s', setting '%s' to %s", modUUID, settingId, disabled)
     else
-        MCMWarn(0, string.format("Failed to set disabled state for mod '%s', setting '%s'",
-            modUUID, settingId))
+        MCMWarn(0, "Failed to set disabled state for mod '%s', setting '%s'", modUUID, settingId)
     end
 
     return success
@@ -547,11 +544,9 @@ function MCMAPI:IsEventButtonDisabled(modUUID, settingId)
     -- Delegate to EventButtonRegistry to check if the button exists and get its disabled state
     local isDisabled = EventButtonRegistry.IsDisabled(modUUID, settingId)
     if isDisabled == nil then
-        MCMDebug(2, string.format("Button not found or error getting state: mod='%s', setting='%s'",
-            tostring(modUUID), tostring(settingId)))
+        MCMDebug(2, "Button not found or error getting state: mod='%s', setting='%s'", modUUID, settingId)
     else
-        MCMDebug(3, string.format("Current disabled state for mod '%s', setting '%s': %s",
-            modUUID, settingId, tostring(isDisabled)))
+        MCMDebug(3, "Current disabled state for mod '%s', setting '%s': %s", modUUID, settingId, isDisabled)
     end
 
     return isDisabled
@@ -587,11 +582,9 @@ function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, feedbackTyp
     local success = EventButtonRegistry.ShowFeedback(modUUID, settingId, message, feedbackType or "info", durationInMs)
 
     if not success then
-        MCMDebug(1, string.format("Failed to show feedback for button: mod='%s', setting='%s'",
-            tostring(modUUID), tostring(settingId)))
+        MCMDebug(1, "Failed to show feedback for button: mod='%s', setting='%s'", modUUID, settingId)
     else
-        MCMDebug(3, string.format("Showing %s feedback for mod '%s', setting '%s': %s",
-            feedbackType or "info", modUUID, settingId, message))
+        MCMDebug(3, "Showing %s feedback for mod '%s', setting '%s': %s", feedbackType or "info", modUUID, settingId, message)
     end
 
     return success

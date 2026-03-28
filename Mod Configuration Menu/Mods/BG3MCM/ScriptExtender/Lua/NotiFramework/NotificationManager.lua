@@ -207,7 +207,7 @@ function NotificationManager:StartFadeOutTimer()
 
         if timePassed >= notificationDuration then
             self:Destroy()
-            MCMDebug(1, "Notification window closed after " .. notificationDuration .. " seconds.")
+            MCMDebug(1, "Notification window closed after %s seconds.", notificationDuration)
             return true
         end
         return false
@@ -296,7 +296,7 @@ end
 ---@return nil
 function NotificationManager:SetupDontShowAgainButtonOnClick(button)
     button.OnClick = function()
-        MCMDebug(1, "Saving user preference to suppress notification: " .. self.id .. ".")
+        MCMDebug(1, "Saving user preference to suppress notification: %s.", self.id)
         NotificationPreferences:StoreUserDontShowPreference(self.modUUID, self.id)
         self:Destroy()
     end
@@ -350,16 +350,10 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
         -- If message is different, modify the title with a random number
         if existingNotification.message ~= message then
             title = string.format("%s##%s", title, tostring(Ext.Math.Random()))
-            MCMDebug(2, string.format(
-                "Notification with same title but different message found. Using modified title: %s",
-                title
-            ))
+            MCMDebug(2, "Notification with same title but different message found. Using modified title: %s", title)
         else
             -- Exact duplicate found, return the existing one
-            MCMDebug(2, string.format(
-                "Notification suppressed - exact duplicate found (ID: %s, Title: %s, Message: %s)",
-                id, title, message
-            ))
+            MCMDebug(2, "Notification suppressed - exact duplicate found (ID: %s, Title: %s, Message: %s)", id, title, message)
             return existingNotification
         end
     end
@@ -368,10 +362,7 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
     local newNotification = NotificationManager:new(id, severity, title, message, options, modUUID)
     if newNotification then
         notificationRegistry:Add(newNotification)
-        MCMDebug(3, string.format(
-            "Created new notification (ID: %s, Title: %s, Active notifications: %d)",
-            id, title, notificationRegistry:Count()
-        ))
+        MCMDebug(3, "Created new notification (ID: %s, Title: %s, Active notifications: %d)", id, title, notificationRegistry:Count())
     end
 
     return newNotification
@@ -381,27 +372,25 @@ function NotificationManager:InjectNotificationManagerToModTable(modUUID)
     if Ext.IsServer() then return end
     if modUUID == ModuleUUID then return end
 
-    MCMPrint(2, "Injecting NotificationManager to mod table for modUUID: " .. modUUID)
+    MCMPrint(2, "Injecting NotificationManager to mod table for modUUID: %s", modUUID)
 
     local modTableName = ModUUIDToModTableName[modUUID]
-    MCMPrint(2, "Mod table name: " .. modTableName)
+    MCMPrint(2, "Mod table name: %s", modTableName)
     local modTable = Mods[modTableName]
     if not modTable then
-        MCMWarn(2, "Mod table not found for modUUID: " .. modUUID)
+        MCMWarn(2, "Mod table not found for modUUID: %s", modUUID)
         return
     end
 
     if modTable.NotificationManager then
-        MCMPrint(1,
-            "NotificationManager already exists in mod table for modUUID: " ..
-            modUUID .. ". Skipping metatable injection.")
+        MCMPrint(1, "NotificationManager already exists in mod table for modUUID: %s. Skipping metatable injection.", modUUID)
         return
     end
 
     modTable.NotificationManager = self:CreateNotificationFunctions(modUUID)
     modTable.NotificationManager.NotificationOptions = NotificationManager:GetAvailableNotificationOptions()
 
-    MCMSuccess(2, "Successfully injected NotificationManager to mod table for modUUID: " .. modUUID)
+    MCMSuccess(2, "Successfully injected NotificationManager to mod table for modUUID: %s", modUUID)
 end
 
 function NotificationManager:CreateNotificationFunctions(modUUID)

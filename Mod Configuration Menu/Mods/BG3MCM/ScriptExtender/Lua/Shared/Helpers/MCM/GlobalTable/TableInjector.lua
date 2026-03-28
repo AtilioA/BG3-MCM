@@ -59,19 +59,18 @@ local function injectMCMToModTable(originalModUUID)
     end
 
     MCMPrint(2,
-        "Injecting MCM to mod table for modUUID: " ..
-        originalModUUID .. " (" .. Ext.Mod.GetMod(originalModUUID).Info.Name .. ")")
+        "Injecting MCM to mod table for modUUID: %s (%s)", originalModUUID, Ext.Mod.GetMod(originalModUUID).Info.Name)
 
     local modTable, modTableName = MetatableInjection.getModTableForUUID(originalModUUID)
     if not modTable then return end
 
-    MCMPrint(2, "Mod table name: " .. modTableName)
+    MCMPrint(2, "Mod table name: %s", modTableName)
     local MCMInstance = injectSharedMCMTable(modTable, originalModUUID)
     MCMAPIMethods.createMCMAPIMethods(originalModUUID, modTable)
 
     modTable.MCM = MCMInstance
 
-    MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: " .. originalModUUID)
+    MCMSuccess(1, "Successfully injected MCM to mod table for modUUID: %s", originalModUUID)
 end
 
 -- Initialize the MCM table injection system

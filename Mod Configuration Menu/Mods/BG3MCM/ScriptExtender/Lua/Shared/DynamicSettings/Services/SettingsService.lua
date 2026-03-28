@@ -68,7 +68,7 @@ local function coerceAndValidate(entry, rawValue)
                 error("Expected string, got " .. type(rawValue))
             end
         else
-            MCMWarn(0, "Unknown promoted type: " .. tostring(entry.type))
+            MCMWarn(0, "Unknown promoted type: %s", entry.type)
         end
     end
 
@@ -132,12 +132,12 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
             adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
         end
     else
-        MCMWarn(0, ("Register: No adapter found for storage type '%s'"):format(storageType))
+        MCMWarn(0, "Register: No adapter found for storage type '%s'", storageType)
         return false
     end
 
     MCMDebug(2,
-        string.format("SettingsService: Registered '%s' for mod %s (storage: %s)", varName, moduleUUID, storageType))
+        "SettingsService: Registered '%s' for mod %s (storage: %s)", varName, moduleUUID, storageType)
     return true
 end
 
@@ -166,7 +166,7 @@ function SettingsService.ResolveStorageType(moduleUUID, varName, providedStorage
 
     local storageType = SettingsService.GetStorageType(moduleUUID, varName)
     if not storageType then
-        MCMWarn(0, ("%s: Variable '%s' not registered for module %s"):format(methodName, varName, moduleUUID))
+        MCMWarn(0, "%s: Variable '%s' not registered for module %s", methodName, varName, moduleUUID)
     end
     return storageType
 end
@@ -239,14 +239,14 @@ function SettingsService.PromoteVariable(moduleUUID, varName, storageType, defin
 
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
-        MCMWarn(0, "No variables known for module " .. moduleUUID)
+        MCMWarn(0, "No variables known for module %s", moduleUUID)
         return
     end
 
     local bucket = modSchema[storageType]
     if not bucket or not bucket[varName] then
-        MCMWarn(0, ("Cannot promote '%s' under %s for module %s; not discovered"):format(
-            varName, storageType, moduleUUID))
+        MCMWarn(0, "Cannot promote '%s' under %s for module %s; not discovered",
+            varName, storageType, moduleUUID)
         return
     end
 
@@ -296,14 +296,14 @@ function SettingsService.Get(moduleUUID, varName, storageType)
 
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
-        MCMWarn(0, "No variables known for module " .. moduleUUID)
+        MCMWarn(0, "No variables known for module %s", moduleUUID)
         return nil
     end
 
     local bucket = modSchema[storageType]
     if not bucket or not bucket[varName] then
-        MCMWarn(0, ("Get: '%s' under %s not discovered for module %s"):format(
-            varName, storageType, moduleUUID))
+        MCMWarn(0, "Get: '%s' under %s not discovered for module %s",
+            varName, storageType, moduleUUID)
         return nil
     end
 
@@ -322,9 +322,8 @@ function SettingsService.Get(moduleUUID, varName, storageType)
     local ok, val = pcall(coerceAndValidate, entry, raw)
     if not ok then
         MCMWarn(0,
-            ("Get: Validation/Coercion failed for %s (%s) for type %s: %s. Reverting setting value to default: %s.")
-            :format(
-                moduleUUID, varName, storageType, val, entry.default))
+            "Get: Validation/Coercion failed for %s (%s) for type %s: %s. Reverting setting value to default: %s.",
+            moduleUUID, varName, storageType, val, entry.default)
 
         -- REVIEW: if default is not defined, should we return nil?
         -- If it's defined as nil, we should return nil...
@@ -348,7 +347,7 @@ function SettingsService.GetAll(moduleUUID)
 
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
-        MCMWarn(0, "No variables known for module " .. moduleUUID)
+        MCMWarn(0, "No variables known for module %s", moduleUUID)
         return {}
     end
 
@@ -364,8 +363,8 @@ function SettingsService.GetAll(moduleUUID)
                     if ok then
                         result[storageType][varName] = val
                     else
-                        MCMWarn(0, ("GetAll: coercion failed for %s:%s in %s: %s"):format(
-                            moduleUUID, varName, storageType, val))
+                        MCMWarn(0, "GetAll: coercion failed for %s:%s in %s: %s",
+                            moduleUUID, varName, storageType, val)
                     end
                 elseif entry.default ~= nil then
                     result[storageType][varName] = entry.default
@@ -449,14 +448,14 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
 
     local modSchema = SettingsService.schema[moduleUUID]
     if not modSchema then
-        MCMWarn(0, "No variables known for module " .. moduleUUID)
+        MCMWarn(0, "No variables known for module %s", moduleUUID)
         return false
     end
 
     local bucket = modSchema[storageType]
     if not bucket or not bucket[varName] then
-        MCMWarn(0, ("Set: '%s' under %s not discovered for module %s"):format(
-            varName, storageType, moduleUUID))
+        MCMWarn(0, "Set: '%s' under %s not discovered for module %s",
+            varName, storageType, moduleUUID)
         return false
     end
 
@@ -467,8 +466,8 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
     -- Validate and coerce. If fails, revert to default.
     local ok, result = pcall(coerceAndValidate, entry, newValue)
     if not ok then
-        MCMWarn(0, ("Set: Validation/Coercion failed for %s (%s) in %s: %s. Reverting to default: %s."):format(
-            moduleUUID, varName, storageType, result, entry.default))
+        MCMWarn(0, "Set: Validation/Coercion failed for %s (%s) in %s: %s. Reverting to default: %s.",
+            moduleUUID, varName, storageType, result, entry.default)
 
         -- REVIEW: if default is not defined, should we return nil?
         -- If it's defined as nil, we should return nil...
@@ -512,7 +511,7 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
         true
     )
 
-    MCMDebug(3, string.format("SettingsService: Set '%s' = %s for mod %s", varName, tostring(val), moduleUUID))
+    MCMDebug(3, "SettingsService: Set '%s' = %s for mod %s", varName, tostring(val), moduleUUID)
     return true
 end
 

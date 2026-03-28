@@ -103,7 +103,7 @@ function EventButtonIMGUIWidget:CreateButton()
             return btn
         end, function(err)
             -- Fallback to regular button if icon fails to load
-            MCMWarn(0, "Failed to load icon for event_button '" .. setting:GetId() .. "': " .. tostring(err))
+            MCMWarn(0, "Failed to load icon for event_button '%s': %s", setting:GetId(), err)
             return buttonContainer:AddButton(buttonLabel)
         end)
 
@@ -247,7 +247,7 @@ function EventButtonIMGUIWidget:TriggerCallback()
     if type(callback) == "function" then
         -- Execute the callback with error handling
         callbackSuccess = xpcall(callback, function(err)
-            MCMError(0, "Error executing callback for event_button '" .. settingId .. "': " .. tostring(err))
+            MCMError(0, "Error executing callback for event_button '%s': %s", settingId, err)
         end)
 
         -- Permanent disable when Cooldown == -1 (disable until reload/reset)
@@ -259,9 +259,9 @@ function EventButtonIMGUIWidget:TriggerCallback()
         end
     else
         if callbackEntry then
-            MCMDebug(1, "No callback registered for event_button '" .. settingId .. "'")
+            MCMDebug(1, "No callback registered for event_button '%s'", settingId)
         else
-            MCMDebug(1, "No registry entry found for event_button '" .. settingId .. "'")
+            MCMDebug(1, "No registry entry found for event_button '%s'", settingId)
         end
         callbackSuccess = false
     end
@@ -429,13 +429,13 @@ end
 function EventButtonIMGUIWidget:UpdateFeedback(message, feedbackType, duration)
     if not self.Widget or not self.Widget.Button then return end
     if not message or message == "" then return end
-    MCMDebug(3, "Updating feedback for " .. self.Widget.ModUUID .. ":" .. self.Widget.Setting:GetId() .. " - " .. message)
+    MCMDebug(3, "Updating feedback for %s:%s - %s", self.Widget.ModUUID, self.Widget.Setting:GetId(), message)
 
     -- Clear previous feedback if any
     if self._actionFeedbackLabel then
         self._actionFeedbackLabel:Destroy()
         self._actionFeedbackLabel = nil
-        MCMDebug(3, "Cleared previous feedback for " .. self.Widget.ModUUID .. ":" .. self.Widget.Setting:GetId())
+        MCMDebug(3, "Cleared previous feedback for %s:%s", self.Widget.ModUUID, self.Widget.Setting:GetId())
     end
 
     -- Create and display the feedback label
@@ -445,7 +445,7 @@ function EventButtonIMGUIWidget:UpdateFeedback(message, feedbackType, duration)
     -- Set color based on feedback type
     feedbackType = feedbackType or self.FEEDBACK_TYPE.INFO
     if not self.FEEDBACK_COLORS[feedbackType] then
-        MCMWarn(1, string.format("Unknown feedback type: %s. Defaulting to 'info'.", tostring(feedbackType)))
+        MCMWarn(1, "Unknown feedback type: %s. Defaulting to 'info'.", feedbackType)
         feedbackType = self.FEEDBACK_TYPE.INFO
     end
 

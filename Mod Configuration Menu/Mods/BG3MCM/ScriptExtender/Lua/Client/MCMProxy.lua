@@ -24,7 +24,7 @@ function MCMProxy:Initialize()
             self.GameStateSubject:OnNext(e.ToState)
         end
 
-        MCMDebug(2, "GameState changed to " .. tostring(e.ToState))
+        MCMDebug(2, "GameState changed to %s", e.ToState)
     end)
 end
 
@@ -49,9 +49,9 @@ function MCMProxy:LoadConfigs()
             { message = "Requesting MCM settings from server." },
             function(response)
                 if response.success then
-                    MCMDebug(1, "Successfully requested configs from server: " .. (response.message or ""))
+                    MCMDebug(1, "Successfully requested configs from server: %s", response.message or "")
                 else
-                    MCMWarn(0, "Failed to request configs from server: " .. (response.error or "Unknown error"))
+                    MCMWarn(0, "Failed to request configs from server: %s", response.error or "Unknown error")
                 end
             end
         )
@@ -141,10 +141,9 @@ function MCMProxy:SetEnumChoices(settingId, choices, choicesHandles, modUUID)
         },
         function(response)
             if response.success then
-                MCMDebug(1, "Successfully updated enum choices for setting " .. settingId .. " on server")
+                MCMDebug(1, "Successfully updated enum choices for setting %s on server", settingId)
             else
-                MCMWarn(0,
-                    "Failed to update enum choices for setting " .. settingId .. ": " .. (response.error or "Unknown error"))
+                MCMWarn(0, "Failed to update enum choices for setting %s: %s", settingId, response.error or "Unknown error")
             end
         end
     )
@@ -174,10 +173,10 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldE
             },
             function(response)
                 if response.success then
-                    MCMDebug(1, "Successfully set setting " .. settingId .. " on server")
+                    MCMDebug(1, "Successfully set setting %s on server", settingId)
                     -- UI update is handled via ModEventManager subscription below
                 else
-                    MCMWarn(0, "Failed to set setting " .. settingId .. ": " .. (response.error or "Unknown error"))
+                    MCMWarn(0, "Failed to set setting %s: %s", settingId, response.error or "Unknown error")
                 end
             end
         )
@@ -211,9 +210,9 @@ function MCMProxy:ResetSettingValue(settingId, modUUID)
             },
             function(response)
                 if response.success then
-                    MCMDebug(1, "Successfully reset setting " .. settingId .. " on server")
+                    MCMDebug(1, "Successfully reset setting %s on server", settingId)
                 else
-                    MCMWarn(0, "Failed to reset setting " .. settingId .. ": " .. (response.error or "Unknown error"))
+                    MCMWarn(0, "Failed to reset setting %s: %s", settingId, response.error or "Unknown error")
                 end
             end
         )
@@ -231,9 +230,9 @@ function MCMProxy:CreateProfile(profileName)
             { profileName = profileName },
             function(response)
                 if response.success then
-                    MCMDebug(1, "Successfully created profile " .. profileName)
+                    MCMDebug(1, "Successfully created profile %s", profileName)
                 else
-                    MCMWarn(0, "Failed to create profile " .. profileName .. ": " .. (response.error or "Unknown error"))
+                    MCMWarn(0, "Failed to create profile %s: %s", profileName, response.error or "Unknown error")
                 end
             end
         )
@@ -251,9 +250,9 @@ function MCMProxy:SetProfile(profileName)
             { profileName = profileName },
             function(response)
                 if response.success then
-                    MCMDebug(1, "Successfully set profile to " .. profileName)
+                    MCMDebug(1, "Successfully set profile to %s", profileName)
                 else
-                    MCMWarn(0, "Failed to set profile to " .. profileName .. ": " .. (response.error or "Unknown error"))
+                    MCMWarn(0, "Failed to set profile to %s: %s", profileName, response.error or "Unknown error")
                 end
             end
         )
@@ -271,9 +270,9 @@ function MCMProxy:DeleteProfile(profileName)
             { profileName = profileName },
             function(response)
                 if response.success then
-                    MCMDebug(1, "Successfully deleted profile " .. profileName)
+                    MCMDebug(1, "Successfully deleted profile %s", profileName)
                 else
-                    MCMWarn(0, "Failed to delete profile " .. profileName .. ": " .. (response.error or "Unknown error"))
+                    MCMWarn(0, "Failed to delete profile %s: %s", profileName, response.error or "Unknown error")
                 end
             end
         )

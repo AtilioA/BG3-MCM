@@ -110,7 +110,7 @@ function GamepadInputHandler:NavigateToTab(tabBar, newIndex)
         targetTab.OnActivate()
     end
 
-    MCMDebug(2, "Gamepad: Navigated to tab index " .. newIndex)
+    MCMDebug(2, "Gamepad: Navigated to tab index %s", newIndex)
     return true
 end
 

@@ -61,7 +61,7 @@ end
 -- Subscribe to SessionLoaded to process pending operations
 Ext.Events.SessionLoaded:Subscribe(function()
     ModVarAdapter._sessionLoaded = true
-    MCMDebug(2, "ModVarAdapter: SessionLoaded fired, processing " .. #ModVarAdapter._pendingOperations .. " pending operations")
+    MCMDebug(2, "ModVarAdapter: SessionLoaded fired, processing %d pending operations", #ModVarAdapter._pendingOperations)
 
     -- Process all pending operations.
     -- REVIEW? maybe use ReactiveX for this?
@@ -104,8 +104,8 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
     Ext.Vars.RegisterModVariable(moduleUUID, varName, config)
     self._registered[moduleUUID][varName] = true
 
-    MCMDebug(2, string.format("ModVarAdapter: Registered '%s' for module %s with config: %s",
-        varName, moduleUUID, Ext.Json.Stringify(config)))
+    MCMDebug(2, "ModVarAdapter: Registered '%s' for module %s with config: %s",
+        varName, moduleUUID, Ext.Json.Stringify(config))
 
     -- Broadcast registration to other contexts
     if not skipBroadcast and NetChannels and NetChannels.MCM_ENSURE_MODVAR_REGISTERED then
@@ -118,7 +118,7 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
             NetChannels.MCM_ENSURE_MODVAR_REGISTERED:Broadcast(payload)
         elseif isClientMainMenu() then
             MCMDebug(3,
-                string.format("ModVarAdapter: Skipping server registration relay for '%s' while in main menu", varName))
+                "ModVarAdapter: Skipping server registration relay for '%s' while in main menu", varName)
         else
             NetChannels.MCM_ENSURE_MODVAR_REGISTERED:SendToServer(payload)
         end
@@ -154,7 +154,7 @@ end
 function ModVarAdapter:GetValue(key, moduleUUID, storageConfig, callback)
     -- If SessionLoaded hasn't fired yet, queue the operation and return nil
     if not self._sessionLoaded then
-        MCMDebug(2, string.format("ModVarAdapter:GetValue('%s') called before SessionLoaded, queuing operation", key))
+        MCMDebug(2, "ModVarAdapter:GetValue('%s') called before SessionLoaded, queuing operation", key)
         table.insert(self._pendingOperations, {
             type = "get",
             key = key,
@@ -182,7 +182,7 @@ function ModVarAdapter:_doSetValue(key, value, moduleUUID, storageConfig)
     local ok, err = pcall(function()
         local vars = Ext.Vars.GetModVariables(moduleUUID)
         if not vars then
-            MCMWarn(0, "ModVarAdapter:SetValue() - GetModVariables returned nil for " .. moduleUUID)
+            MCMWarn(0, "ModVarAdapter:SetValue() - GetModVariables returned nil for %s", moduleUUID)
             return
         end
 
@@ -199,11 +199,11 @@ function ModVarAdapter:_doSetValue(key, value, moduleUUID, storageConfig)
             Ext.Vars.SyncModVariables(moduleUUID)
         end
         -- Otherwise sync happens on next tick (SyncOnTick = true by default)
-        MCMDebug(1, "ModVarAdapter:SetValue() - Set value for '" .. key .. "' to '" .. tostring(value) .. "' for module " .. moduleUUID)
+        MCMDebug(1, "ModVarAdapter:SetValue() - Set value for '%s' to '%s' for module %s", key, tostring(value), moduleUUID)
     end)
 
     if not ok then
-        MCMWarn(0, "ModVarAdapter:SetValue() failed: " .. tostring(err))
+        MCMWarn(0, "ModVarAdapter:SetValue() failed: %s", err)
     end
 end
 
@@ -217,7 +217,7 @@ end
 function ModVarAdapter:SetValue(key, value, moduleUUID, storageConfig)
     -- If SessionLoaded hasn't fired yet, queue the operation
     if not self._sessionLoaded then
-        MCMDebug(2, string.format("ModVarAdapter:SetValue('%s') called before SessionLoaded, queuing operation", key))
+        MCMDebug(2, "ModVarAdapter:SetValue('%s') called before SessionLoaded, queuing operation", key)
         table.insert(self._pendingOperations, {
             type = "set",
             key = key,

@@ -59,18 +59,15 @@ end
 ---@param modUUID string The UUID of the mod
 ---@return nil
 function IMGUIAPI:InsertListV2Suggestions(settingId, suggestions, modUUID)
-    MCMDebug(1,
-        "IMGUIAPI:InsertListV2Suggestions - Starting to insert search results for settingId: " ..
-        settingId .. " and modUUID: " .. modUUID)
+    MCMDebug(1, "IMGUIAPI:InsertListV2Suggestions - Starting to insert search results for settingId: %s and modUUID: %s", settingId, modUUID)
 
     -- Step 1: Find the widget corresponding to the setting
     local widget = self:findWidgetForSetting(settingId, modUUID)
     if not widget then
-        MCMWarn(0, "IMGUIAPI:InsertListV2Suggestions - Widget not found for settingId: " ..
-            settingId .. " and modUUID: " .. modUUID)
+        MCMWarn(0, "IMGUIAPI:InsertListV2Suggestions - Widget not found for settingId: %s and modUUID: %s", settingId, modUUID)
         return
     end
-    MCMDebug(1, "IMGUIAPI:InsertListV2Suggestions - Found widget for settingId: " .. settingId)
+    MCMDebug(1, "IMGUIAPI:InsertListV2Suggestions - Found widget for settingId: %s", settingId)
 
     widget.Widget.Suggestions = suggestions
     widget.Widget.instance:RenderSearchResults()

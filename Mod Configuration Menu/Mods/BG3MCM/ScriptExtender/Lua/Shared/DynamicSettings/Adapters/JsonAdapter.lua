@@ -30,7 +30,7 @@ function SettingsFile:_generatePath()
         directory = modInfo.Info.Directory
         name = modInfo.Info.Name
     else
-        MCMWarn(0, "JsonAdapter: No mod info found for UUID: " .. self.ModuleUUID)
+        MCMWarn(0, "JsonAdapter: No mod info found for UUID: %s", self.ModuleUUID)
     end
     -- Sanitize name for filesystem (basic)
     name = name:gsub("[\\/:*?\"<>|]", "_")
@@ -50,7 +50,7 @@ function SettingsFile:Load()
         if ok and parsed then
             self.Data = parsed
         else
-            MCMWarn(0, "JsonAdapter: Failed to parse JSON for: " .. self.FilePath)
+            MCMWarn(0, "JsonAdapter: Failed to parse JSON for: %s", self.FilePath)
             self.Data = {}
         end
     else

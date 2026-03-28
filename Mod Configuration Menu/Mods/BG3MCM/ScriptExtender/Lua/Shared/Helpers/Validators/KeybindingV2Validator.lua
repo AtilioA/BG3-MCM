@@ -35,7 +35,7 @@ function KeybindingV2Validator.Validate(config, value)
                 return false
             end
             if keyboard.Key ~= "" and not table.contains(SDLKeys.ScanCodes, keyboard.Key) then
-                MCMWarn(0, "Validation failed: Invalid key '" .. tostring(keyboard.Key) .. "'.")
+                MCMWarn(0, "Validation failed: Invalid key '%s'.", keyboard.Key)
                 return false
             end
         end
@@ -47,7 +47,7 @@ function KeybindingV2Validator.Validate(config, value)
             end
             for _, mod in ipairs(keyboard.ModifierKeys) do
                 if not KeybindingManager:IsValidModifierKey(mod) then
-                    MCMWarn(0, "Validation failed: Invalid modifier key '" .. tostring(mod) .. "'.")
+                    MCMWarn(0, "Validation failed: Invalid modifier key '%s'.", mod)
                     return false
                 end
             end
@@ -62,7 +62,7 @@ function KeybindingV2Validator.Validate(config, value)
                 return false
             end
             if mouse.Button < 0 or mouse.Button > 10 then
-                MCMWarn(0, "Validation failed: Mouse.Button must be between 0 and 10, got '" .. tostring(mouse.Button) .. "'.")
+                MCMWarn(0, "Validation failed: Mouse.Button must be between 0 and 10, got %s.", mouse.Button)
                 return false
             end
         end
@@ -74,7 +74,7 @@ function KeybindingV2Validator.Validate(config, value)
             end
             for _, mod in ipairs(mouse.ModifierKeys) do
                 if not KeybindingManager:IsValidModifierKey(mod) then
-                    MCMWarn(0, "Validation failed: Invalid modifier key '" .. tostring(mod) .. "'.")
+                    MCMWarn(0, "Validation failed: Invalid modifier key '%s'.", mod)
                     return false
                 end
             end

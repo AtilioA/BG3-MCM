@@ -60,9 +60,8 @@ function KeybindingV2IMGUIWidget:StoreKeybinding(modData, action, payload)
     local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, payload, true)
     if not success then
         MCMWarn(0,
-            "Failed to update binding in registry for mod '" ..
-            modData.ModName .. "', action '" .. action.ActionId .. ". Please contact " ..
-            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+            "Failed to update binding in registry for mod '%s', action '%s'. Please contact %s about this issue.",
+            modData.ModName, action.ActionId, Ext.Mod.GetMod(ModuleUUID).Info.Author)
     end
     return success
 end
@@ -77,7 +76,7 @@ function KeybindingV2IMGUIWidget:FilterActions()
         local sortMode = actions._keybindingSortMode or KeybindingSortMode.DEFAULT
         local modName = MCMClientState:GetModName(modUUID)
         if not modName then
-            MCMWarn(0, string.format("Mod name not found for UUID: %s", modUUID))
+            MCMWarn(0, "Mod name not found for UUID: %s", modUUID)
             modName = "MISSING_NAME"
         end
         local filteredActions = {}
@@ -351,10 +350,10 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     end, function(err)
         if not modGroup or not err then return end
 
-        MCMError(0, "Error in RenderKeybindingTable: " .. tostring(err))
+        MCMError(0, "Error in RenderKeybindingTable: %s", err)
 
         local errorText = modGroup:AddText(VCString:InterpolateLocalizedMessage("hd8524a99cb1f41059b7e2aa9c543e68ad7g7",
-            tostring(err)))
+            err))
         errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
     end)
 end
@@ -532,8 +531,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
             end
             buttonElement.Disabled = false
         else
-            MCMError(0, "Failed to update binding in registry for mod '" ..
-                modData.ModName .. "', action '" .. action.ActionId .. "'.")
+            MCMError(0, "Failed to update binding in registry for mod '%s', action '%s'.", modData.ModName, action.ActionId)
         end
     end, function(err)
     end)
@@ -569,11 +567,10 @@ function KeybindingV2IMGUIWidget:AssignMouseBinding(mouseBinding)
                 ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
             buttonElement.Disabled = false
         else
-            MCMError(0, "Failed to update mouse binding in registry for mod '" ..
-                modData.ModName .. "', action '" .. action.ActionId .. "'.")
+            MCMError(0, "Failed to update mouse binding in registry for mod '%s', action '%s'.", modData.ModName, action.ActionId)
         end
     end, function(err)
-        MCMError(0, "Error in AssignMouseBinding: " .. tostring(err))
+        MCMError(0, "Error in AssignMouseBinding: %s", err)
     end)
 end
 
@@ -745,8 +742,7 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
 
         local success = KeybindingsRegistry.UpdateBinding(modUUID, actionId, resetPayload, true)
         if not success then
-            MCMError(0,
-                "Failed to reset binding for mod '" .. modUUID .. "', action '" .. actionId .. "'.")
+            MCMError(0, "Failed to reset binding for mod '%s', action '%s'.", modUUID, actionId)
             self:RefreshUI()
         end
     end

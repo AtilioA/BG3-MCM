@@ -51,7 +51,7 @@ local function _coerceJSONString(payload, callerName)
 
   local ok, jsonStr = pcall(Ext.Json.Stringify, payload)
   if not ok or type(jsonStr) ~= "string" then
-    MCMWarn(0, callerName .. ": failed to serialize payload to JSON")
+    MCMWarn(0, "%s: failed to serialize payload to JSON", callerName)
     return nil
   end
 
@@ -65,23 +65,23 @@ end
 local function _getChannelId(channel, callerName)
   if type(channel) == "string" then
     MCMWarn(0,
-      callerName .. ": expected NetChannel object from Ext.Net.CreateChannel(), got legacy string '" .. channel .. "'")
+      "%s: expected NetChannel object from Ext.Net.CreateChannel(), got legacy string '%s'", callerName, channel)
     return nil
   end
 
   local channelType = type(channel)
   if channelType ~= "table" and channelType ~= "userdata" then
-    MCMWarn(0, callerName .. ": expected NetChannel object, got " .. channelType)
+    MCMWarn(0, "%s: expected NetChannel object, got %s", callerName, channelType)
     return nil
   end
 
   if not VCString:IsNonEmptyString(channel.Channel) then
-    MCMWarn(0, callerName .. ": NetChannel is missing a valid Channel field")
+    MCMWarn(0, "%s: NetChannel is missing a valid Channel field", callerName)
     return nil
   end
 
   if not VCString:IsNonEmptyString(channel.Module) then
-    MCMWarn(0, callerName .. ": NetChannel '" .. channel.Channel .. "' is missing a valid Module field")
+    MCMWarn(0, "%s: NetChannel '%s' is missing a valid Module field", callerName, channel.Channel)
   end
 
   return channel.Channel
@@ -107,21 +107,21 @@ local function _computeAndLogChunking(targetChannelId, totalSize, chunkSize, isB
   local chunkSizeKB = chunkSize / 1024
 
   if isBroadcast then
-    MCMDebug(1, string.format(
+    MCMDebug(1,
       "ChunkedNet: Broadcast payload for '%s' is %.1f KB; chunking into %d parts (chunkSize=%.1f KB).",
       targetChannelId,
       totalSizeKB,
       totalChunks,
       chunkSizeKB
-    ))
+    )
   else
-    MCMDebug(1, string.format(
+    MCMDebug(1,
       "ChunkedNet: Payload for '%s' is %.1f KB; chunking into %d parts (chunkSize=%.1f KB).",
       targetChannelId,
       totalSizeKB,
       totalChunks,
       chunkSizeKB
-    ))
+    )
   end
 
   return totalChunks
@@ -388,17 +388,17 @@ Client._handlers = Client._handlers or {}
 ---@return boolean
 local function _registerHandlerById(handlerId, fn, callerName)
   if not VCString:IsNonEmptyString(handlerId) then
-    MCMWarn(0, callerName .. ": handler id must be a non-empty string")
+      MCMWarn(0, "%s: handler id must be a non-empty string", callerName)
     return false
   end
 
   if type(fn) ~= "function" then
-    MCMWarn(0, callerName .. ": handler must be a function")
+      MCMWarn(0, "%s: handler must be a function", callerName)
     return false
   end
 
   if Client._handlers[handlerId] ~= nil then
-    MCMWarn(0, callerName .. ": overwriting existing ChunkedNet handler for '" .. handlerId .. "'")
+      MCMWarn(0, "%s: overwriting existing ChunkedNet handler for '%s'", callerName, handlerId)
   end
 
   Client._handlers[handlerId] = fn
@@ -453,7 +453,7 @@ function Client._onInit(payload)
   end
 
   if type(payload.totalChunks) ~= "number" or payload.totalChunks < 1 then
-    MCMWarn(0, "ChunkedNet.Client._onInit: invalid totalChunks for transfer '" .. payload.id .. "'")
+    MCMWarn(0, "ChunkedNet.Client._onInit: invalid totalChunks for transfer '%s'", payload.id)
     return
   end
 
@@ -478,18 +478,18 @@ function Client._onPart(payload)
   end
 
   if type(payload.index) ~= "number" or payload.index < 1 then
-    MCMWarn(0, "ChunkedNet.Client._onPart: invalid chunk index for transfer '" .. payload.id .. "'")
+    MCMWarn(0, "ChunkedNet.Client._onPart: invalid chunk index for transfer '%s'", payload.id)
     return
   end
 
   if type(payload.data) ~= "string" then
-    MCMWarn(0, "ChunkedNet.Client._onPart: invalid chunk data for transfer '" .. payload.id .. "'")
+    MCMWarn(0, "ChunkedNet.Client._onPart: invalid chunk data for transfer '%s'", payload.id)
     return
   end
 
   local transfer = Client._transfers[payload.id]
   if not transfer then
-    MCMWarn(0, "ChunkedNet.Client._onPart: received chunk before init for transfer '" .. payload.id .. "'")
+    MCMWarn(0, "ChunkedNet.Client._onPart: received chunk before init for transfer '%s'", payload.id)
     transfer = _ensureTransfer(payload.id)
   end
 
@@ -505,55 +505,55 @@ end
 local function _finalize(id)
   local transfer = Client._transfers[id]
   if not transfer then
-    MCMWarn(0, "ChunkedNet: received transfer end for unknown id '" .. tostring(id) .. "'")
+    MCMWarn(0, "ChunkedNet: received transfer end for unknown id '%s'", id)
     return false
   end
 
   if not VCString:IsNonEmptyString(transfer.targetChannel) then
-    MCMWarn(0, "ChunkedNet: transfer '" .. id .. "' is missing targetChannel metadata")
+    MCMWarn(0, "ChunkedNet: transfer '%s' is missing targetChannel metadata", id)
     Client._transfers[id] = nil
     return false
   end
 
   if type(transfer.totalChunks) ~= "number" then
-    MCMWarn(0, "ChunkedNet: transfer '" .. id .. "' ended without totalChunks metadata")
+    MCMWarn(0, "ChunkedNet: transfer '%s' ended without totalChunks metadata", id)
     Client._transfers[id] = nil
     return false
   end
 
   if transfer.received < transfer.totalChunks then
-    MCMWarn(0, string.format(
+    MCMWarn(0,
       "ChunkedNet: transfer '%s' ended early for '%s' (%d/%d chunks received)",
       id,
       transfer.targetChannel,
       transfer.received,
       transfer.totalChunks
-    ))
+    )
     Client._transfers[id] = nil
     return false
   end
 
   local assembled = table.concat(transfer.parts, "")
   if type(transfer.totalSize) == "number" and #assembled ~= transfer.totalSize then
-    MCMWarn(0, string.format(
+    MCMWarn(0,
       "ChunkedNet: transfer '%s' for '%s' assembled to %d bytes; expected %d",
       id,
       transfer.targetChannel,
       #assembled,
       transfer.totalSize
-    ))
+    )
   end
 
   local handler = Client._handlers[transfer.targetChannel]
   if not handler then
-    MCMWarn(0, "No ChunkedNet handler registered for channel '" .. transfer.targetChannel .. "'")
+    MCMWarn(0, "No ChunkedNet handler registered for channel '%s'", transfer.targetChannel)
     Client._transfers[id] = nil
     return false
   end
 
   local ok, err = pcall(handler, assembled)
   if not ok then
-    MCMError(0, "ChunkedNet handler error for channel '" .. transfer.targetChannel .. "': " .. tostring(err))
+    MCMError(0, "ChunkedNet handler error for channel '%s': %s", transfer.targetChannel, err)
     Client._transfers[id] = nil
     return false
   end
