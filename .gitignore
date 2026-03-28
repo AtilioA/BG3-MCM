@@ -76,3 +76,4 @@ tasks/
 .task*
 .roo*
 .agent/
+.osgrep
