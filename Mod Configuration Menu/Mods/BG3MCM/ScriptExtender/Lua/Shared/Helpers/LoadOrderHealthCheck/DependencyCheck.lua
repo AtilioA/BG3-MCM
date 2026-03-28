@@ -84,8 +84,7 @@ local function checkVersionCompatibility(mod, dependency, loadedDependencyMod, i
     end
 
     MCMDebug(3,
-        string.format("Checking version compatibility for mod '%s' with dependency '%s'.", mod.Info.Name, dependency
-            .Name))
+        "Checking version compatibility for mod '%s' with dependency '%s'.", mod.Info.Name, dependency.Name)
 
     -- This is unfortunately necessary due to an MMT bug
     local versionsEqual = areVersionsEqual(mainModVersion, requiredVersion)
@@ -125,7 +124,7 @@ local function recordMissingDependency(mod, dependency, issues)
     )
     local resultMessage = VCString:InterpolateLocalizedMessage(
         "h81ddeda4ecc14ac3a2c27dbaaea487be2ge7", mod.Info.Name, dependency.Name)
-    MCMWarn(1, "Missing dependency recorded: " .. resultMessage)
+        MCMWarn(1, "Missing dependency recorded: %s", resultMessage)
     table.insert(issues, {
         id = issueID,
         modName = mod.Info.Name,
@@ -145,8 +144,8 @@ local function checkDependency(mod, dependency, issues)
     local ignoredMod = ignoredMods[dependency.ModuleUUIDString]
     if ignoredMod then
         MCMDebug(2,
-            string.format("Ignoring dependency '%s' for mod '%s' as it is listed in ignored mods | Reason: %s.",
-                dependency.Name, mod.Info.Name, ignoredMod.Reason))
+            "Ignoring dependency '%s' for mod '%s' as it is listed in ignored mods | Reason: %s.",
+            dependency.Name, mod.Info.Name, ignoredMod.Reason)
         return
     end
 
@@ -184,10 +183,10 @@ function DependencyCheck:EvaluateLoadOrderDependencies()
             end
         end
 
-        MCMPrint(1, "Dependency evaluation complete. Issues found: " .. #issues)
+        MCMPrint(1, "Dependency evaluation complete. Issues found: %d", #issues)
         return issues
     end, function(e)
-        MCMError(0, "Error evaluating load order dependencies: " .. e)
+        MCMError(0, "Error evaluating load order dependencies: %s", e)
         return {}
     end)
 

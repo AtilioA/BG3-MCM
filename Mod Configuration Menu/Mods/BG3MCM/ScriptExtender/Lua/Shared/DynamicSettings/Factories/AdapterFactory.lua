@@ -27,7 +27,7 @@ function AdapterFactory.GetAdapter(storage)
     local typeLower = string.lower(storage)
     local adapter = AdapterFactory.adapters[typeLower]
     if not adapter then
-        MCMError(0, ("AdapterFactory: No adapter registered for storage '%s'"):format(storage))
+        MCMError(0, "AdapterFactory: No adapter registered for storage '%s'", storage)
     end
     return adapter
 end

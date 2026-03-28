@@ -358,7 +358,7 @@ function MCMRendering:CreateMainTable()
             self:RenderMenuPageContent(modUUID)
         end, debug.traceback)
         if not success then
-            MCMWarn(0, "Error processing mod " .. modUUID .. ": " .. err)
+            MCMWarn(0, "Error processing mod %s: %s", modUUID, err)
         end
     end
     DualPane:SetVisibleFrame(ModuleUUID)
@@ -441,7 +441,7 @@ end
 ---@return nil
 function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, modUUID)
     if not modTabs then
-        MCMError(0, "No tab bar found for mod " .. modUUID)
+        MCMError(0, "No tab bar found for mod %s", modUUID)
         return
     end
     local tabName = blueprintTab:GetLocaName()
@@ -459,7 +459,7 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
     end
 
     imguiTab.OnActivate = function()
-        MCMDebug(3, "Activating tab " .. tabName)
+        MCMDebug(3, "Activating tab %s", tabName)
         ModEventManager:Emit(EventChannels.MCM_MOD_SUBTAB_ACTIVATED, {
             modUUID = modUUID,
             tabName = tabName
@@ -576,8 +576,8 @@ function MCMRendering:CreateModMenuSetting(modGroup, setting, modSettings, modUU
     local settingValue = modSettings[setting:GetId()]
     local createWidget = InputWidgetFactory[setting:GetType()]
     if not createWidget then
-        MCMWarn(0, "No compatible widget found for setting type '" .. setting:GetType() .. "'. Please contact " ..
-            Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue (mod " .. Ext.Mod.GetMod(modUUID).Info.Name .. ").")
+        MCMWarn(0, "No compatible widget found for setting type '%s'. Please contact %s about this issue (mod %s).",
+            setting:GetType(), Ext.Mod.GetMod(modUUID).Info.Author, Ext.Mod.GetMod(modUUID).Info.Name)
         return nil
     else
         local widgetGroup = modGroup:AddGroup(setting:GetId())

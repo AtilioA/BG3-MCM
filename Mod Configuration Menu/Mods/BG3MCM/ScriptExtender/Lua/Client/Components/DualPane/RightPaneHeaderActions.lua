@@ -159,7 +159,7 @@ function HeaderActions:UpdateDetachButtons(modUUID)
     self.detachBtn.Visible = not isDetached
     self.reattachBtn.Visible = isDetached
 
-    MCMDebug(2, "Updated detach buttons for mod " .. modUUID .. ", isDetached: " .. tostring(isDetached))
+    MCMDebug(2, "Updated detach buttons for mod %s, isDetached: %s", modUUID, isDetached)
 end
 
 --- Updates the keybinding indicator visibility and tooltip for the current or provided mod

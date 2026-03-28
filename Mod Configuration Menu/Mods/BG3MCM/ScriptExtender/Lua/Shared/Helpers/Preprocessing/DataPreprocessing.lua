@@ -53,17 +53,15 @@ end
 function DataPreprocessing:ValidateSetting(setting, value)
     local validator = SettingValidators[setting:GetType()]
     MCMDebug(2,
-        "Validating setting: " ..
-        setting:GetId() ..
-        " with value: " .. tostring(value) .. " using validator: " .. setting:GetType())
+        "Validating setting: %s with value: %s using validator: %s",
+        setting:GetId(), value, setting:GetType())
 
     if not validator then
         MCMWarn(0,
-            "No validator found for setting type: " ..
-            setting:GetType() ..
-            ". Please contact " ..
-            Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Author ..
-            " about this issue (mod " .. Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Name .. ").")
+            "No validator found for setting type: %s. Please contact %s about this issue (mod %s).",
+            setting:GetType(),
+            Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Author,
+            Ext.Mod.GetMod(BlueprintPreprocessing.currentmodUUID).Info.Name)
         return false
     end
 
@@ -96,11 +94,10 @@ function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invali
         for _, settingID in ipairs(invalidSettings) do
             local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingID)
             MCMWarn(0,
-                "Invalid value for setting '" ..
-                settingID ..
-                "' (value: " ..
-                Ext.DumpExport(config[settingID]) .. ")," .. " resetting it to default value from the blueprint (" ..
-                Ext.DumpExport(defaultValue) .. ").")
+                "Invalid value for setting '%s' (value: %s), resetting it to default value from the blueprint (%s).",
+                settingID,
+                Ext.DumpExport(config[settingID]),
+                Ext.DumpExport(defaultValue))
             config[settingID] = defaultValue
         end
     end

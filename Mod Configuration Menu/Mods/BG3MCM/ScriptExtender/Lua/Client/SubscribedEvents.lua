@@ -194,12 +194,12 @@ NetChannels.MCM_EMIT_ON_CLIENTS:SetHandler(function(data)
     local eventName = data.eventName
     local eventData = data.eventData
 
-    MCMDebug(1, "Emitting event " .. eventName .. " on clients as well.")
+    MCMDebug(1, "Emitting event %s on clients as well.", eventName)
 
     if Ext.ModEvents['BG3MCM'] and Ext.ModEvents['BG3MCM'][eventName] then
         Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
     else
-        MCMWarn(0, "Event '" .. eventName .. "' not registered")
+        MCMWarn(0, "Event '%s' not registered", eventName)
     end
 end)
 
@@ -293,13 +293,13 @@ MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
     xpcall(function()
         InitHandles:UpdateDynamicMCMWindowHandles()
     end, function(err)
-        MCMError(0, "Failed to update dynamic MCM window handles: " .. tostring(err))
+        MCMError(0, "Failed to update dynamic MCM window handles: %s", err)
     end)
 
     xpcall(function()
         MCMPrinter:UpdateLogLevels()
     end, function(err)
-        MCMError(0, "Failed to update log levels: " .. tostring(err))
+        MCMError(0, "Failed to update log levels: %s", err)
     end)
 end)
 

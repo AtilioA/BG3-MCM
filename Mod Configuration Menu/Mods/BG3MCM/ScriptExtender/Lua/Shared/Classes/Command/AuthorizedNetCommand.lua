@@ -24,7 +24,7 @@ function AuthorizedNetCommand:IsUserAuthorized(userId)
 
     local isHost = MCMUtils:IsUserHost(userId)
     if isHost then
-        MCMDebug(2, "Host user " .. Osi.GetUserName(userId) .. " is authorized to send requests.")
+        MCMDebug(2, "Host user %s is authorized to send requests.", Osi.GetUserName(userId))
         return true
     end
 
@@ -39,14 +39,14 @@ function AuthorizedNetCommand:execute(data, peerId)
     local userId = MCMUtils:PeerToUserID(peerId)
     if not self:IsUserAuthorized(userId) then
         MCMWarn(0,
-            "Unauthorized user " ..
-            Osi.GetUserName(userId) .. " tried to send a request. Only the host can send requests in host-only mode.")
+            "Unauthorized user %s tried to send a request. Only the host can send requests in host-only mode.",
+            Osi.GetUserName(userId))
         return { success = false, error = "Unauthorized: Only host can perform this action in host-only mode." }
     else
         local ok, result = xpcall(function()
             return self.callback(data, userId)
         end, function(err)
-            MCMError(0, "AuthorizedNetCommand execution error: " .. tostring(err))
+            MCMError(0, "AuthorizedNetCommand execution error: %s", err)
             return { success = false, error = tostring(err) }
         end)
 

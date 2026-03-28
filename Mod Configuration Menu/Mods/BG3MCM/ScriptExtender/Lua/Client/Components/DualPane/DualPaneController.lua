@@ -406,13 +406,13 @@ function DualPaneController:FindTab(modUUID, tabIdentifier)
     local modTabBar = self.rightPane:GetModTabBar(modUUID)
     if not modTabBar then
         if tabIdentifier and tabIdentifier ~= "" and not isTablessSpecialPage(modUUID) then
-            MCMWarn(1, "Tab bar not found for mod " .. modUUID)
+            MCMWarn(1, "Tab bar not found for mod %s", modUUID)
         end
         return nil
     end
     for _, tab in ipairs(modTabBar.Children) do
         if isMatchingTab(modUUID, tabIdentifier, tab) then
-            MCMSuccess(1, "Found tab for mod " .. modUUID)
+            MCMSuccess(1, "Found tab for mod %s", modUUID)
             ---@type ExtuiTabItem
             return tab
         end
@@ -468,7 +468,7 @@ function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent,
     if targetTab then
         self:ActivateTab(modUUID, targetTab, shouldOpenWindow)
     elseif tabIdentifier then
-        MCMWarn(2, "Tab not immediately found for mod " .. modUUID .. ": " .. tabIdentifier)
+        MCMWarn(2, "Tab not immediately found for mod %s: %s", modUUID, tabIdentifier)
     end
     self:SetVisibleFrame(modUUID, shouldEmitEvent)
 
@@ -515,7 +515,7 @@ function DualPaneController:_toggleCollapsingHeaders(group, targetHeaderId, modN
     if not group or not group.Children then return end
     for _, elem in ipairs(group.Children) do
         if elem and elem.IDContext and string.find(elem.IDContext, "_CollapsingHeader", 1, true) then
-            MCMDebug(0, "Found collapsing header: " .. elem.IDContext)
+            MCMDebug(0, "Found collapsing header: %s", elem.IDContext)
             local isTarget = (targetHeaderId ~= nil) and (elem.IDContext == targetHeaderId)
             if isTarget and elem.Label == modName then
                 elem.IDContext = modName .. "#" .. math.random(1, 1000)

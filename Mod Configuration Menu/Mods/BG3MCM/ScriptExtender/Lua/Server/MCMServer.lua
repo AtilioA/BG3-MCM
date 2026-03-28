@@ -54,11 +54,10 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
     local oldValue = modSettingsTable[settingId]
 
     local isValid = MCMAPI:IsSettingValueValid(settingId, value, modUUID)
-    MCMDebug(2, "Setting value for " .. settingId .. " is valid? " .. tostring(isValid))
+    MCMDebug(2, "Setting value for %s is valid? %s", settingId, isValid)
     if not isValid then
-        local errorMessage = "Invalid value for setting '" ..
-            settingId .. " (" .. tostring(value) .. "). Value will not be saved."
-        MCMWarn(1, errorMessage)
+        local errorMessage = "Invalid value for setting '%s' (%s). Value will not be saved."
+        MCMWarn(1, errorMessage, settingId, value)
 
         -- Notify clients with the current value of the setting, so they can update its UI
         ModEventManager:Emit(EventChannels.MCM_INTERNAL_SETTING_SAVED, {
@@ -210,7 +209,7 @@ end
 function MCMServer:LoadAndSendSettingsToUser(userID)
     MCMDebug(1, "Sending MCM configs to user: " .. userID)
     if not MCMAPI.mods or not MCMAPI.profiles then
-        MCMError(0, "MCM has not loaded configs yet. Cannot send settings to user: " .. userID)
+        MCMError(0, "MCM has not loaded configs yet. Cannot send settings to user: %s", userID)
         MCMWarn(0, "Loading configs...")
         MCMAPI:LoadConfigs()
     end

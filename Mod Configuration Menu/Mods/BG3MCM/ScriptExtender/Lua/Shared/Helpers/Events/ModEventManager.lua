@@ -36,13 +36,13 @@ local function postLegacyNetMessageToServerAndClients(channel, payload)
 
     local okPayload, payloadJson = pcall(Ext.Json.Stringify, payload)
     if not okPayload then
-        MCMWarn(0, "Failed to serialize legacy payload for channel '" .. tostring(channel) .. "'")
+        MCMWarn(0, "Failed to serialize legacy payload for channel '%s'", channel)
         return false
     end
 
     local okMeta, metapayload = pcall(createLegacyMetapayload, channel, payload)
     if not okMeta then
-        MCMWarn(0, "Failed to serialize legacy metapayload for channel '" .. tostring(channel) .. "'")
+        MCMWarn(0, "Failed to serialize legacy metapayload for channel '%s'", channel)
         return false
     end
 
@@ -58,7 +58,7 @@ local function postLegacyNetMessageToServerAndClients(channel, payload)
             sent = true
         end
     end, function(err)
-        MCMWarn(0, "Error while broadcasting or posting net message: " .. tostring(err))
+        MCMWarn(0, "Error while broadcasting or posting net message: %s", err)
     end)
 
     return sent
@@ -83,20 +83,20 @@ local function emitModEvent(eventName, eventData, bothContexts)
                 })
             end
         end, function(err)
-            MCMWarn(0, "Error while emitting mod event: " .. tostring(err))
+        MCMWarn(0, "Error while emitting mod event: %s", err)
         end)
     end
 
     if not ModEventManager:IsEventRegistered(eventName) then
-        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
+        MCMWarn(0, "Event '%s' is not registered.", eventName)
         MCMWarn(0, Ext.DumpExport(Ext.ModEvents['BG3MCM']))
         return
     end
 
     xpcall(function()
-        MCMDebug(1, "Emitting mod event: " .. eventName .. " with data: " .. Ext.DumpExport(eventData))
+        MCMDebug(1, "Emitting mod event: %s with data: %s", eventName, Ext.DumpExport(eventData))
     end, function(err)
-        MCMWarn(0, "Error while emitting mod event: " .. tostring(err))
+        MCMWarn(0, "Error while emitting mod event: %s", err)
     end)
 
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
@@ -130,10 +130,10 @@ local function broadcastDeprecatedNetMessage(eventName, eventData)
     local deprecatedEventName = deprecatedEventNameMap[eventName] or eventName
 
     if Ext.IsServer() then
-        MCMDeprecation(2, "Broadcasting deprecated net message: " .. deprecatedEventName)
+        MCMDeprecation(2, "Broadcasting deprecated net message: %s", deprecatedEventName)
         postLegacyNetMessageToServerAndClients(deprecatedEventName, preparedNetData)
     elseif not MCMProxy.IsMainMenu() then
-        MCMDeprecation(2, "Posting deprecated net message to server: " .. deprecatedEventName)
+        MCMDeprecation(2, "Posting deprecated net message to server: %s", deprecatedEventName)
         postLegacyNetMessageToServerAndClients(deprecatedEventName, preparedNetData)
     end
 end
@@ -225,7 +225,7 @@ function ModEventManager:IssueDeprecationWarning()
         end
 
         if #warningMessages > 0 then
-            MCMDeprecation(0, header .. table.concat(warningMessages, "\n") .. footer)
+            MCMDeprecation(0, "%s%s%s", header, table.concat(warningMessages, "\n"), footer)
         end
     end
 
@@ -261,14 +261,14 @@ function ModEventManager:SendLegacyNetMessageToUser(userID, channel, payload)
 
     local okPayload, payloadJson = pcall(Ext.Json.Stringify, payload)
     if not okPayload then
-        MCMWarn(0, "Failed to serialize legacy user payload for channel '" .. tostring(channel) .. "'")
+        MCMWarn(0, "Failed to serialize legacy user payload for channel '%s'", channel)
         return false
     end
 
     local ok = xpcall(function()
         Ext.ServerNet.PostMessageToUser(userID, channel, payloadJson)
     end, function(err)
-        MCMWarn(0, "Error while posting legacy user net message: " .. tostring(err))
+        MCMWarn(0, "Error while posting legacy user net message: %s", err)
     end)
 
     return ok
@@ -284,11 +284,11 @@ function ModEventManager:Subscribe(eventName, callback)
         error("eventName and callback cannot be nil")
     end
     if not Ext.ModEvents['BG3MCM'] or not Ext.ModEvents['BG3MCM'][eventName] then
-        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
+        MCMWarn(0, "Event '%s' is not registered.", eventName)
         error("Event '" .. eventName .. "' is not registered.")
     end
 
-    MCMDebug(1, "Subscribing to mod event: " .. eventName)
+    MCMDebug(1, "Subscribing to mod event: %s", eventName)
     local subIndex = Ext.ModEvents['BG3MCM'][eventName]:Subscribe(callback)
     return subIndex
 end
@@ -302,11 +302,11 @@ function ModEventManager:Unsubscribe(eventName, subscriptionIndex)
         error("eventName and subscriptionIndex cannot be nil")
     end
     if not Ext.ModEvents['BG3MCM'] or not Ext.ModEvents['BG3MCM'][eventName] then
-        MCMWarn(0, "Event '" .. eventName .. "' is not registered.")
+        MCMWarn(0, "Event '%s' is not registered.", eventName)
         error("Event '" .. eventName .. "' is not registered.")
     end
 
-    MCMDebug(1, "Unsubscribing from mod event: " .. eventName)
+    MCMDebug(1, "Unsubscribing from mod event: %s", eventName)
     Ext.ModEvents['BG3MCM'][eventName]:Unsubscribe(subscriptionIndex)
 end
 

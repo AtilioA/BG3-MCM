@@ -42,7 +42,7 @@ Ext.ModEvents['BG3MCM'][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Subscribe(func
     end
 
     if payload.settingId == "debug_level" then
-        MCMPrint(0, "Setting debug level to " .. payload.value)
+        MCMPrint(0, "Setting debug level to %s", payload.value)
         MCMPrinter.DebugLevel = payload.value
         local config = Config:getCfg()
         config.DEBUG.level = payload.value

@@ -188,9 +188,9 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
         end
     end, function(err)
         if not categoryHeader then return end
-        MCMError(0, "Error rendering category " .. tostring(catName) .. ": " .. tostring(err))
+        MCMError(0, "Error rendering category %s: %s", catName, err)
         local errorText = categoryHeader:AddText(VCString:InterpolateLocalizedMessage("hfd82935321af4ad0b327de79a102776acf5f",
-            tostring(err)))
+            err))
         errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
     end)
 end
@@ -255,7 +255,7 @@ function NativeKeybindingIMGUIWidget:FilterCategories(categories)
                 if action.Bindings then
                     for _, b in ipairs(action.Bindings) do
                         matchesBinding = matchesBinding or
-                            VCString:FuzzyMatch((tostring(b.InputId) or ""):upper(), searchText)
+                            VCString:FuzzyMatch(tostring(b.InputId):upper(), searchText)
                     end
                 end
                 if matchesName or matchesId or matchesBinding then

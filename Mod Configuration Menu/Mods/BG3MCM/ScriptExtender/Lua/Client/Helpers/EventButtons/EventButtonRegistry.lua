@@ -71,7 +71,7 @@ function EventButtonRegistry.SetDisabled(modUUID, settingId, disabled, tooltipTe
 
     -- Ensure the mod and setting exist in the registry
     if not EventButtonRegistry.Registry[modUUID] or not EventButtonRegistry.Registry[modUUID][settingId] then
-        MCMWarn(0, string.format("Button not found: mod='%s', setting='%s'", tostring(modUUID), tostring(settingId)))
+        MCMWarn(0, "Button not found: mod='%s', setting='%s'", modUUID, settingId)
         return false
     end
 
@@ -158,7 +158,7 @@ function EventButtonRegistry.ShowFeedback(modUUID, settingId, message, feedbackT
     local widget = EventButtonRegistry.GetWidget(modUUID, settingId)
 
     if not widget then
-        MCMWarn(0, string.format("Widget not found for mod='%s', setting='%s'", tostring(modUUID), tostring(settingId)))
+        MCMWarn(0, "Widget not found for mod='%s', setting='%s'", modUUID, settingId)
         return false
     end
 

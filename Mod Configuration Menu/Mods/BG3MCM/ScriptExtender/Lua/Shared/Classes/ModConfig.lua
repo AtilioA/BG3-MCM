@@ -172,7 +172,7 @@ function ModConfig:LoadMCMParams()
     local function loadMCMParamsFromFile(paramsFilepath)
         local configFileContent = Ext.IO.LoadFile(paramsFilepath)
         if not configFileContent or configFileContent == "" then
-            MCMWarn(1, "MCM config file not found: " .. paramsFilepath .. ". Creating default config.")
+            MCMWarn(1, "MCM config file not found: %s. Creating default config.", paramsFilepath)
             local defaultConfig = ProfileManager.DefaultConfig
             JsonLayer:SaveJSONFile(paramsFilepath, defaultConfig)
             return defaultConfig
@@ -180,7 +180,7 @@ function ModConfig:LoadMCMParams()
 
         local success, data = pcall(Ext.Json.Parse, configFileContent)
         if not success then
-            MCMWarn(0, "Failed to parse MCM config file: " .. paramsFilepath)
+            MCMWarn(0, "Failed to parse MCM config file: %s", paramsFilepath)
             return nil
         end
 
@@ -213,8 +213,8 @@ function ModConfig:GetSettings()
     local profileManager = ProfileManager:Create(self:LoadMCMParams())
     if not profileManager then
         MCMWarn(0,
-            "Failed to load profiles from MCM configuration file. Please contact " ..
-            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+            "Failed to load profiles from MCM configuration file. Please contact %s about this issue.",
+            Ext.Mod.GetMod(ModuleUUID).Info.Author)
         return {}
     end
     self.profileManager = profileManager
@@ -265,7 +265,7 @@ end
 
 function ModConfig:MigrateDeprecatedKeys(blueprint, settings)
     local allSettings = blueprint:GetAllSettings()
-    MCMDebug(2, "Migrating deprecated keys for blueprint: " .. blueprint:GetModUUID())
+    MCMDebug(2, "Migrating deprecated keys for blueprint: %s", blueprint:GetModUUID())
 
     for _, setting in pairs(allSettings) do
         -- If it's a listV2 setting, migrate it to the new format
@@ -280,7 +280,7 @@ function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
 
     local oldSetting = settings[setting:GetId()]
     if not oldSetting or type(oldSetting) ~= "table" or oldSetting.elements ~= nil then
-        MCMDebug(3, "Old setting for " .. setting:GetId() .. " does not exist or is not valid. Skipping migration.")
+        MCMDebug(3, "Old setting for %s does not exist or is not valid. Skipping migration.", setting:GetId())
         return
     end
 
@@ -299,12 +299,12 @@ function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
 
     NotificationManager:CreateIMGUINotification('Migrated_listV2_setting_' ..
         setting:GetId() .. 'for_mod_' .. blueprint:GetModUUID(), 'success',
-        "Migrated ListV2 setting " .. setting:GetLocaName(),
-        " The ListV2 setting for mod " .. blueprint:GetModUUID() .. " has been migrated to the new format.", {
+        "Migrated ListV2 setting %s", setting:GetLocaName(),
+        " The ListV2 setting for mod %s has been migrated to the new format.", blueprint:GetModUUID(), {
             duration = 10,
         }, ModuleUUID)
 
-    MCMSuccess(0, "Successfully migrated ListV2 setting: " .. setting:GetId())
+    MCMSuccess(0, "Successfully migrated ListV2 setting: %s", setting:GetId())
 end
 
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
@@ -313,7 +313,7 @@ end
 ---@param settings table The table with all settings for the mod
 ---@param settingsFilePath string The file path of the settings.json file
 function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
-    MCMSuccess(1, "Loaded settings for mod: " .. Ext.Mod.GetMod(modUUID).Info.Name)
+    MCMSuccess(1, "Loaded settings for mod: %s", Ext.Mod.GetMod(modUUID).Info.Name)
     self:MigrateDeprecatedKeys(blueprint, settings)
     -- Add new settings, remove deprecated settings, update JSON file
     self:AddKeysMissingFromBlueprint(blueprint, settings)
@@ -346,13 +346,13 @@ function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
     local allSettings = blueprint:GetAllSettings()
     for _, setting in pairs(allSettings) do
         if settings[setting:GetId()] == nil then
-            MCMDebug(1, "Setting missing: " .. setting:GetId())
+            MCMDebug(1, "Setting missing: %s", setting:GetId())
             if settings[setting:GetOldId()] ~= nil then
                 settings[setting:GetId()] = settings[setting:GetOldId()]
-                MCMDebug(3, "Using old setting value for: " .. setting:GetId())
+                MCMDebug(3, "Using old setting value for: %s", setting:GetId())
             else
                 settings[setting:GetId()] = setting:GetDefault()
-                MCMDebug(2, "Setting default value for: " .. setting:GetId())
+                MCMDebug(2, "Setting default value for: %s", setting:GetId())
             end
         end
     end
@@ -377,7 +377,7 @@ function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
             if type(value) == "table" and next(value) == nil then
                 -- Do nothing
             else
-                MCMWarn(2, "Removing deprecated setting: " .. key)
+                MCMWarn(2, "Removing deprecated setting: %s", key)
                 settings[key] = nil
             end
         end
@@ -393,9 +393,9 @@ function ModConfig:SubmitBlueprint(data, modUUID)
     local preprocessedData = DataPreprocessing:PreprocessData(data, modUUID)
     if not preprocessedData then
         MCMWarn(0,
-            "Failed to preprocess data for mod: " ..
-            Ext.Mod.GetMod(modUUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " about this issue.")
+            "Failed to preprocess data for mod: %s. Please contact %s about this issue.",
+            Ext.Mod.GetMod(modUUID).Info.Name,
+            Ext.Mod.GetMod(modUUID).Info.Author)
         return
     end
 
@@ -406,7 +406,7 @@ function ModConfig:SubmitBlueprint(data, modUUID)
     local modBlueprint = self.mods[modUUID].blueprint
     ModConfig:CheckMCMDependency(modUUID, modBlueprint)
 
-    MCMSuccess(2, "Blueprint for mod '" .. Ext.Mod.GetMod(modUUID).Info.Name .. "' is ready to be used.")
+    MCMSuccess(2, "Blueprint for mod '%s' is ready to be used.", Ext.Mod.GetMod(modUUID).Info.Name)
 end
 
 --- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_blueprint.json" and be located in the mod's directory, alongside the mod's meta.lsx file.
@@ -424,7 +424,7 @@ end
 ---@return nil
 function ModConfig:LoadBlueprintForMod(uuid)
     local modData = Ext.Mod.GetMod(uuid)
-    MCMDebug(3, "Checking mod: " .. modData.Info.Name)
+    MCMDebug(3, "Checking mod: %s", modData.Info.Name)
 
     local status, err = pcall(function()
         local data = JsonLayer:LoadBlueprintForMod(modData)
@@ -443,8 +443,9 @@ end
 ---@param err unknown|nil The error that occurred when loading the blueprint (thrown by JsonLayer)
 function ModConfig:HandleLoadBlueprintError(modData, err)
     if not err then
-        MCMWarn(0, "An unexpected blueprint error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
-            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, "An unexpected blueprint error occurred for mod: %s. Please contact %s about this issue.",
+            modData.Info.Name,
+            Ext.Mod.GetMod(ModuleUUID).Info.Author)
         return
     end
 
@@ -454,7 +455,9 @@ function ModConfig:HandleLoadBlueprintError(modData, err)
         MCMWarn(3, err.message)
     else
         -- Handle other unexpected errors (which ones lol)
-        MCMWarn(0, "An unexpected blueprint error occurred for mod: " .. modData.Info.Name .. ". Please contact " ..
-            Ext.Mod.GetMod(ModuleUUID).Info.Author .. " about this issue:\n" .. err)
+        MCMWarn(0, "An unexpected blueprint error occurred for mod: %s. Please contact %s about this issue:\n%s",
+            modData.Info.Name,
+            Ext.Mod.GetMod(ModuleUUID).Info.Author,
+            err)
     end
 end

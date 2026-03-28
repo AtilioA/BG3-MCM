@@ -46,7 +46,7 @@ local function checkConflict(mod, conflict, issues)
             resultMessage = resultMessage,
             severity = "error"
         })
-        MCMWarn(0, "Conflict detected: " .. resultMessage)
+        MCMWarn(0, "Conflict detected: %s", resultMessage)
     end
 end
 
@@ -74,10 +74,10 @@ function ConflictCheck:EvaluateLoadOrderConflicts()
             end
         end
 
-        MCMDebug(1, "Conflict evaluation complete. Issues found: " .. #issues)
+        MCMDebug(1, "Conflict evaluation complete. Issues found: %d", #issues)
         return issues
     end, function(e)
-        MCMError(0, "Error evaluating load order conflicts: " .. e)
+        MCMError(0, "Error evaluating load order conflicts: %s", e)
         return {}
     end)
 

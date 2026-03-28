@@ -45,13 +45,13 @@ JsonLayer.MCMBlueprintPathPattern = string.gsub("Mods/%s/MCM_blueprint.json", "'
 function JsonLayer:LoadJSONFile(filePath)
     local fileContent = Ext.IO.LoadFile(filePath)
     if not fileContent or fileContent == "" then
-        MCMDebug(2, "JSON file not found: " .. filePath)
+        MCMDebug(2, "JSON file not found: %s", filePath)
         return nil
     end
 
     local success, data = pcall(Ext.Json.Parse, fileContent)
     if not success then
-        MCMWarn(0, "Failed to parse JSON file: " .. filePath)
+        MCMWarn(0, "Failed to parse JSON file: %s", filePath)
         return nil
     end
 
@@ -76,16 +76,16 @@ function JsonLayer:TryParseModBlueprintJSON(blueprintJSONStr, modUUID)
         return nil
     end
 
-    MCMDebug(4, "Entering TryParseModBlueprintJSON with parameters: " .. blueprintJSONStr .. ", " .. modUUID)
+    MCMDebug(4, "Entering TryParseModBlueprintJSON with parameters: %s, %s", blueprintJSONStr, modUUID)
 
     local success, data = pcall(Ext.Json.Parse, blueprintJSONStr)
     if success then
         return data
     else
         MCMWarn(0,
-            "Invalid MCM Blueprint JSON file for mod " ..
-            Ext.Mod.GetMod(modUUID).Info.Name ..
-            ". Please contact " .. Ext.Mod.GetMod(modUUID).Info.Author .. " for assistance.")
+            "Invalid MCM Blueprint JSON file for mod %s. Please contact %s for assistance.",
+            Ext.Mod.GetMod(modUUID).Info.Name,
+            Ext.Mod.GetMod(modUUID).Info.Author)
         return nil
     end
 end
@@ -115,9 +115,8 @@ function JsonLayer:LoadBlueprintForMod(modData)
         local incorrectConfig = self:LoadJSONFile(incorrectBlueprintFilepath)
         if incorrectConfig ~= nil then
             MCMWarn(0,
-                string.format(
-                    "MCM_blueprint.json found in incorrect location for mod %s. Please move it alongside the mod's meta.lsx file.",
-                    modData.Info.Name))
+                "MCM_blueprint.json found in incorrect location for mod %s. Please move it alongside the mod's meta.lsx file.",
+                modData.Info.Name)
         end
     end
 
@@ -127,14 +126,14 @@ function JsonLayer:LoadBlueprintForMod(modData)
     local blueprintFilepath = self.MCMBlueprintPathPattern:format(modData.Info.Directory)
     local config = Ext.IO.LoadFile(blueprintFilepath, "data")
     if config == nil or config == "" then
-        return self:FileNotFoundError("Blueprint file not found for mod: " .. modData.Info.Name)
+        return self:FileNotFoundError("Blueprint file not found for mod: %s", modData.Info.Name)
     end
 
     local data = self:TryParseModBlueprintJSON(config, modData.Info.ModuleUUID)
     if data == nil or type(data) ~= "table" then
-        return self:JSONParseError("Failed to load MCM blueprint JSON file for mod: " ..
-            modData.Info.Name ..
-            ". Blueprint is present but malformed. Please contact " .. modData.Info.Author .. " about this issue.")
+        return self:JSONParseError("Failed to load MCM blueprint JSON file for mod: %s. Blueprint is present but malformed. Please contact %s about this issue.",
+            modData.Info.Name,
+            modData.Info.Author)
     end
 
     return data

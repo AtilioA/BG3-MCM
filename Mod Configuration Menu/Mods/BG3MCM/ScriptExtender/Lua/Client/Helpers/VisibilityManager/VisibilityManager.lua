@@ -59,8 +59,7 @@ function VisibilityManager.evaluateGroup(modUUID, conditionGroup)
         end
         return false
     else
-        MCMWarn(0, "Unknown logical operator '" .. tostring(logicalOp) .. "' for mod '" ..
-            modName .. "'. Please contact " .. modAuthor .. ".")
+        MCMWarn(0, "Unknown logical operator '%s' for mod '%s'. Please contact %s.", logicalOp, modName, modAuthor)
         return false
     end
 end
@@ -74,9 +73,7 @@ end
 function VisibilityManager.evaluateConditionWithInfo(modName, modAuthor, modUUID, cond)
     local currentValue = MCMRendering:GetClientStateValue(cond.SettingId, modUUID)
     if currentValue == nil then
-        MCMWarn(0, "Missing value for setting '" .. cond.SettingId ..
-            "' required for visibility condition in mod '" .. modName ..
-            "'. Please contact " .. modAuthor .. ".")
+        MCMWarn(0, "Missing value for setting '%s' required for visibility condition in mod '%s'. Please contact %s.", cond.SettingId, modName, modAuthor)
         return false
     end
 
@@ -89,9 +86,7 @@ function VisibilityManager.evaluateConditionWithInfo(modName, modAuthor, modUUID
         local numCurrent = tonumber(currentValue)
         local numExpected = tonumber(cond.ExpectedValue)
         if numCurrent == nil or numExpected == nil then
-            MCMWarn(0, "Non-numeric value encountered for numeric comparison in setting '" ..
-                cond.SettingId .. "' in mod '" .. modName ..
-                "'. Please contact " .. modAuthor .. ".")
+            MCMWarn(0, "Non-numeric value encountered for numeric comparison in setting '%s' in mod '%s'. Please contact %s.", cond.SettingId, modName, modAuthor)
             return false
         end
         if op == ">" then

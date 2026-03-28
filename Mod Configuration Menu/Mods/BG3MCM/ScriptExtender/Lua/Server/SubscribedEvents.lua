@@ -76,7 +76,7 @@ local function wireRequestHandlers()
                 local ok, result = xpcall(function()
                     return command:execute(data, peerId)
                 end, function(err)
-                    MCMError(0, "NetChannel handler error for " .. registryKey .. ": " .. tostring(err))
+                    MCMError(0, "NetChannel handler error for %s: %s", registryKey, err)
                     return { success = false, error = tostring(err) }
                 end)
 
@@ -103,7 +103,7 @@ local function wireRequestHandlers()
                 xpcall(function()
                     command:execute(data, peerId)
                 end, function(err)
-                    MCMError(0, "NetChannel handler error for " .. registryKey .. ": " .. tostring(err))
+                    MCMError(0, "NetChannel handler error for %s: %s", registryKey, err)
                 end)
             end)
         end
@@ -143,7 +143,7 @@ function SubscribedEvents.SubscribeToEvents()
     -- Ext.Osiris.RegisterListener("CharacterCreationStarted", 0, "after", EHandlers.CCStarted)
 
     Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
-        MCMDebug(1, "UserConnected: " .. userID .. " " .. userName .. " " .. userProfileID)
+        MCMDebug(1, "UserConnected: %s %s %s", userID, userName, userProfileID)
         MCMServer:LoadAndSendSettingsToUser(userID)
     end)
 

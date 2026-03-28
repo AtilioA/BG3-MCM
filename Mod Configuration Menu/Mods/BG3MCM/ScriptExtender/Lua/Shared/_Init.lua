@@ -68,8 +68,8 @@ else
     local versionNumber = table.concat(MODVERSION, ".")
     local SEVersionNumber = Ext.Utils.Version()
     MCMPrint(0,
-        "Volitio's Baldur's Gate 3 Mod Configuration Menu version " ..
-        versionNumber .. " loaded (SE version " .. SEVersionNumber .. ")")
+        "Volitio's Baldur's Gate 3 Mod Configuration Menu version %s loaded (SE version %s)",
+        versionNumber, SEVersionNumber)
 end
 
 MCMAPI = MCMAPI:New({}, "BG3MCM")

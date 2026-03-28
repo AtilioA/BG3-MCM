@@ -16,7 +16,7 @@ function IMGUIHelpers.SetFont(window, family, size)
 
     local fontName = Font.GetFontNameWithSizeSuffix(family, size)
     if not fontName then
-        MCMWarn(1, "Failed to get font name for " .. family .. " " .. size)
+        MCMWarn(1, "Failed to get font name for %s %s", family, size)
         return
     end
 
@@ -57,7 +57,7 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
         tt:SetColor("BorderShadow", { 0, 0, 0, 0.4 })
         return tt
     end, function(err)
-        MCMError(1, "Error creating tooltip: " .. tostring(err))
+        MCMError(1, "Error creating tooltip: %s", err)
         return nil
     end)
 

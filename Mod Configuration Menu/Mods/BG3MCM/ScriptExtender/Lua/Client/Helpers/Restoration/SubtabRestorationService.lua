@@ -83,7 +83,7 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     -- Check if the mod still exists using the manager's helper
     local modExists = self.manager:CheckModExists(modUUID)
     if not modExists then
-        MCMWarn(1, "SubtabRestorationService: Cannot restore subtab for non-existent mod: " .. tostring(modUUID))
+        MCMWarn(1, "SubtabRestorationService: Cannot restore subtab for non-existent mod: %s", modUUID)
         return
     end
 
@@ -92,15 +92,13 @@ function SubtabRestorationService:RestoreLastUsedSubtab(modUUID)
     local tabName = config.lastUsedModSubTabs and config.lastUsedModSubTabs[modUUID] or ""
 
     if tabName == "" then
-        MCMDebug(2, "SubtabRestorationService: No previous subtab to restore for mod: " .. modUUID)
+        MCMDebug(2, "SubtabRestorationService: No previous subtab to restore for mod: %s", modUUID)
         return
     end
 
     -- During initialization, respect open_on_start setting
     local shouldOpenWindow = not self.isInitialized and OpenOnStartHelper:ShouldOpenOnStart()
-    MCMDebug(1,
-        "SubtabRestorationService: Restoring subtab '" ..
-        tabName .. "' for mod: " .. modUUID .. " (shouldOpenWindow: " .. tostring(shouldOpenWindow) .. ")")
+    MCMDebug(1, "SubtabRestorationService: Restoring subtab '%s' for mod: %s (shouldOpenWindow: %s)", tabName, modUUID, shouldOpenWindow)
 
     -- Let DualPaneController handle sidebar state based on settings
     DualPane:OpenModPage(modUUID, tabName, false, true, shouldOpenWindow)
@@ -135,7 +133,7 @@ function SubtabRestorationService:UpdateLastUsedSubtab(modUUID, subtabName)
         config.lastUsedPage = modUUID
 
         Config:SaveCurrentConfig()
-        MCMDebug(2, "SubtabRestorationService: Updated last used subtab for mod " .. modUUID .. ": " .. subtabName)
+        MCMDebug(2, "SubtabRestorationService: Updated last used subtab for mod %s: %s", modUUID, subtabName)
     end
 end
 
@@ -151,7 +149,7 @@ function SubtabRestorationService:SetupTabInsertionListener(modUUID, tabName, sh
     local function onTabInserted(e)
         local tabInfo = e
         if tabInfo and tabInfo.modUUID == modUUID and tabInfo.tabName == tabName then
-            MCMDebug(2, "Awaited tab now available, opening mod page: " .. modUUID .. " and tab: " .. tabName)
+            MCMDebug(2, "Awaited tab now available, opening mod page: %s and tab: %s", modUUID, tabName)
             DualPane:OpenModPage(modUUID, tabName, false, true, shouldOpenWindow)
 
             self:CleanupTabInsertionListener()
@@ -170,7 +168,7 @@ end
 --- Clean up tab insertion listener and timer
 function SubtabRestorationService:CleanupTabInsertionListener()
     -- Remove event handler if it exists
-    MCMDebug(2, "Cleaning up tab insertion listener with handler ID: " .. tostring(self.tabInsertionHandlerId))
+        MCMDebug(2, "Cleaning up tab insertion listener with handler ID: %s", tostring(self.tabInsertionHandlerId))
     if self.tabInsertionHandlerId then
         ModEventManager:Unsubscribe(EventChannels.MCM_MOD_TAB_ADDED, self.tabInsertionHandlerId)
         self.tabInsertionHandlerId = nil
