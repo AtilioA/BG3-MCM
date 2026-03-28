@@ -70,6 +70,6 @@ node_modules/
 # OS specific
 .DS_Store
 .task*
-.agent/
+.agent*/
 .osgrep
 .worktrees/
