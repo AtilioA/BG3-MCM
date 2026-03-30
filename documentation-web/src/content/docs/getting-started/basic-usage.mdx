@@ -6,14 +6,14 @@ sidebar:
 
 import { Aside, Steps, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-# Getting Started with MCM
+# Getting started with MCM
 
 This guide walks you through integrating MCM into your BG3SE mod. The process is simple: create a blueprint JSON file and use the MCM API in your Lua code.
 
-<Aside type="tip" title="Complete Examples Available">
-Check out these working MCM integrations:
-- [Auto Send Food To Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp)
-- [Smart Autosaving](https://github.com/AtilioA/BG3-smart-autosaving)
+<Aside type="tip" title="Complete examples available">
+  Check out these working MCM integrations: - [Auto Send Food To
+  Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp) - [Smart
+  Autosaving](https://github.com/AtilioA/BG3-smart-autosaving)
 </Aside>
 
 ## Overview
@@ -21,9 +21,8 @@ Check out these working MCM integrations:
 Integrating MCM into your mod involves three main steps:
 
 <Steps>
-1. **Create an `MCM_blueprint.json`** file defining your settings
-2. **Add MCM as a dependency** in your `meta.lsx`
-3. **Use `MCM.Get()`** to read settings in your Lua code
+  1. **Create an `MCM_blueprint.json`** file defining your settings 2. **Add MCM as a dependency**
+  in your `meta.lsx` 3. **Use `MCM.Get()`** to read settings in your Lua code
 </Steps>
 
 ## Step 1: Create the Blueprint
@@ -32,34 +31,34 @@ Create a file named `MCM_blueprint.json` alongside your `meta.lsx`:
 
 ```json
 {
-    "SchemaVersion": 1,
-    "ModName": "My Awesome Mod",
-    "Tabs": [
+  "SchemaVersion": 1,
+  "ModName": "My Awesome Mod",
+  "Tabs": [
+    {
+      "TabId": "general",
+      "TabName": "General",
+      "Settings": [
         {
-            "TabId": "general",
-            "TabName": "General",
-            "Settings": [
-                {
-                    "Id": "enable_mod",
-                    "Name": "Enable Mod",
-                    "Type": "checkbox",
-                    "Default": true,
-                    "Tooltip": "Master toggle for the mod"
-                },
-                {
-                    "Id": "intensity",
-                    "Name": "Intensity",
-                    "Type": "slider_int",
-                    "Default": 50,
-                    "Options": {
-                        "Min": 0,
-                        "Max": 100
-                    },
-                    "Description": "Adjust the intensity level"
-                }
-            ]
+          "Id": "enable_mod",
+          "Name": "Enable Mod",
+          "Type": "checkbox",
+          "Default": true,
+          "Tooltip": "Master toggle for the mod"
+        },
+        {
+          "Id": "intensity",
+          "Name": "Intensity",
+          "Type": "slider_int",
+          "Default": 50,
+          "Options": {
+            "Min": 0,
+            "Max": 100
+          },
+          "Description": "Adjust the intensity level"
         }
-    ]
+      ]
+    }
+  ]
 }
 ```
 
@@ -90,29 +89,29 @@ MCM.Set("intensity", 75)
 -- Listen for changes
 Ext.ModEvents.BG3MCM["MCM_Setting_Saved"]:Subscribe(function(payload)
     if payload.modUUID ~= ModuleUUID then return end
-    
+
     if payload.settingId == "enable_mod" then
         MyMod:SetEnabled(payload.value)
     end
 end)
 ```
 
-## Keybinding Example
+## Keybinding example
 
 Define a keybinding in your blueprint:
 
 ```json
 {
-    "Id": "key_action",
-    "Name": "Action Hotkey",
-    "Type": "keybinding_v2",
-    "Default": {
-        "Keyboard": {
-            "Key": "F",
-            "ModifierKeys": ["LShift"]
-        }
-    },
-    "Tooltip": "Hotkey to trigger the action"
+  "Id": "key_action",
+  "Name": "Action Hotkey",
+  "Type": "keybinding_v2",
+  "Default": {
+    "Keyboard": {
+      "Key": "F",
+      "ModifierKeys": ["LShift"]
+    }
+  },
+  "Tooltip": "Hotkey to trigger the action"
 }
 ```
 
@@ -124,25 +123,25 @@ MCM.Keybinding.SetCallback("key_action", function(e)
 end)
 ```
 
-## Event Button Example
+## Event button example
 
 Define an event button in your blueprint:
 
 ```json
 {
-    "Id": "reset_button",
-    "Name": "Reset Settings",
-    "Type": "event_button",
-    "Options": {
-        "ConfirmDialog": {
-            "Title": "Confirm Reset",
-            "Message": "Are you sure you want to reset all settings?",
-            "ConfirmText": "Reset",
-            "CancelText": "Cancel"
-        },
-        "Cooldown": 5
+  "Id": "reset_button",
+  "Name": "Reset Settings",
+  "Type": "event_button",
+  "Options": {
+    "ConfirmDialog": {
+      "Title": "Confirm Reset",
+      "Message": "Are you sure you want to reset all settings?",
+      "ConfirmText": "Reset",
+      "CancelText": "Cancel"
     },
-    "Tooltip": "Click to reset all settings to defaults"
+    "Cooldown": 5
+  },
+  "Tooltip": "Click to reset all settings to defaults"
 }
 ```
 
@@ -154,24 +153,24 @@ MCM.EventButton.RegisterCallback("reset_button", function()
 end)
 ```
 
-## List Settings
+## List settings
 
 Define a list in your blueprint:
 
 ```json
 {
-    "Id": "ignore_list",
-    "Name": "Ignore List",
-    "Type": "list_v2",
-    "Default": {
-        "Enabled": true,
-        "Elements": []
-    },
-    "Options": {
-        "ShowSearchBar": true,
-        "PageSize": 10
-    },
-    "Tooltip": "List of items to ignore"
+  "Id": "ignore_list",
+  "Name": "Ignore List",
+  "Type": "list_v2",
+  "Default": {
+    "Enabled": true,
+    "Elements": []
+  },
+  "Options": {
+    "ShowSearchBar": true,
+    "PageSize": 10
+  },
+  "Tooltip": "List of items to ignore"
 }
 ```
 
@@ -191,27 +190,27 @@ MCM.List.SetEnabled("ignore_list", "SomeItem", true)
 MCM.List.InsertSuggestions("ignore_list", {"Item1", "Item2", "Item3"})
 ```
 
-## Best Practices
+## Best practices
 
 <CardGrid>
-  <Card title="Use Descriptive IDs" icon="setting">
+  <Card title="Use descriptive IDs" icon="setting">
     Keep setting IDs short but descriptive. They are used programmatically.
   </Card>
-  
-  <Card title="Validate Defaults" icon="approve-check">
-    Ensure default values match the expected type for each setting.
-  </Card>
-  
-  <Card title="Subscribe to Events" icon="rocket">
-    Use `MCM_Setting_Saved` events to react to changes in real-time.
-  </Card>
-  
-  <Card title="Test All Widgets" icon="warning">
+
+<Card title="Validate defaults" icon="approve-check">
+  Ensure default values match the expected type for each setting.
+</Card>
+
+<Card title="Subscribe to Events" icon="rocket">
+  Use `MCM_Setting_Saved` events to react to changes in real-time.
+</Card>
+
+  <Card title="Test all widgets" icon="warning">
     Test your blueprint thoroughly - MCM validates but you should verify the UX.
   </Card>
 </CardGrid>
 
-## Next Steps
+## Next steps
 
 <CardGrid>
   <LinkCard
@@ -220,15 +219,11 @@ MCM.List.InsertSuggestions("ignore_list", {"Item1", "Item2", "Item3"})
     href="/getting-started/introduction/"
   />
   <LinkCard
-    title="Widget Reference"
+    title="Widget reference"
     description="Explore all available setting types"
     href="/api/blueprint-schema/"
   />
-  <LinkCard
-    title="API Reference"
-    description="Complete MCM API documentation"
-    href="/api/"
-  />
+  <LinkCard title="API Reference" description="Complete MCM API documentation" href="/api/" />
   <LinkCard
     title="GitHub Wiki"
     description="Full documentation on the wiki"

@@ -9,17 +9,17 @@ import { Steps, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components'
 ### Requirements
 
 <Steps>
-  1. **Baldur's Gate 3** (with latest patch)
-  2. **BG3 Script Extender (BG3SE)** - required for MCM to function
-  3. **MCM mod** installed from [Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162)
+  1. **Baldur's Gate 3** (with latest patch) 2. **BG3 Script Extender (BG3SE)** - required for MCM
+  to function 3. **MCM mod** installed from [Nexus
+  Mods](https://www.nexusmods.com/baldursgate3/mods/9162)
 </Steps>
 
 ### Installation for Players
 
 <Steps>
-  1. Download MCM from [Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162)
-  2. Install using your preferred mod manager (Vortex, BG3 Mod Manager, etc.)
-  3. Ensure MCM loads before other mods that depend on it (most mod managers handle this automatically)
+  1. Download MCM from [Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162) 2. Install
+  using your preferred mod manager (Vortex, BG3 Mod Manager, etc.) 3. Ensure MCM loads before other
+  mods that depend on it (most mod managers handle this automatically)
 </Steps>
 
 ### Installation for Mod Authors
@@ -27,17 +27,18 @@ import { Steps, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components'
 To integrate MCM into your mod:
 
 <Steps>
-  1. **Add MCM as a dependency** in your mod's `meta.lsx` file:
-     ```xml
-     <Dependencies>
-         <Dependency UUID="755a8a72-407f-4f0d-9a33-274ac0f0b53d" Version64="<minimum-version>" />
-     </Dependencies>
-     ```
-     Use the current MCM UUID `755a8a72-407f-4f0d-9a33-274ac0f0b53d` and set `Version64` to the minimum version you support. See a canonical dependency example in [Mod Uninstaller meta.lsx](https://github.com/AtilioA/BG3-mod-uninstaller/blob/main/Mod%20Uninstaller/Mods/ModUninstaller/meta.lsx#L7-L24).
-  2. **Create an `MCM_blueprint.json`** file alongside your `meta.lsx`
-  3. **Set up IDE support** (optional but recommended):
-     - Add the [JSON schema](https://raw.githubusercontent.com/atilioa/bg3-mcm/main/.vscode/schema.json) to your VS Code settings for autocomplete and validation
-  4. **Replace hardcoded values** with `MCM.Get("settingId")` calls in your Lua code
+  1. **Add MCM as a dependency** in your mod's `meta.lsx` file: ```xml
+  <Dependencies>
+    <Dependency UUID="755a8a72-407f-4f0d-9a33-274ac0f0b53d" Version64="<minimum-version>" />
+  </Dependencies>
+  ``` Use the current MCM UUID `755a8a72-407f-4f0d-9a33-274ac0f0b53d` and set `Version64` to the
+  minimum version you support. See a canonical dependency example in [Mod Uninstaller
+  meta.lsx](https://github.com/AtilioA/BG3-mod-uninstaller/blob/main/Mod%20Uninstaller/Mods/ModUninstaller/meta.lsx#L7-L24).
+  2. **Create an `MCM_blueprint.json`** file alongside your `meta.lsx` 3. **Set up IDE support**
+  (optional but recommended): - Add the [JSON
+  schema](https://raw.githubusercontent.com/atilioa/bg3-mcm/main/.vscode/schema.json) to your VS
+  Code settings for autocomplete and validation 4. **Replace hardcoded values** with
+  `MCM.Get("settingId")` calls in your Lua code
 </Steps>
 
 ### IDE Setup for Blueprint Authoring
@@ -56,17 +57,17 @@ For autocomplete and validation in VS Code:
 ]
 ```
 
-### Log File Location
+### Log file location
 
 If you encounter issues, check these log files for error messages:
 
 - **BG3SE Log:** `Documents\Larian Studios\Baldur's Gate 3\logs\scripts.log`
 
-## Next Steps
+## Next steps
 
 <CardGrid>
   <LinkCard
-    title="Basic Usage"
+    title="Basic usage"
     description="Learn how to integrate MCM into your mod"
     href="/getting-started/basic-usage/"
   />
@@ -81,14 +82,16 @@ If you encounter issues, check these log files for error messages:
     href="/api/blueprint-schema/"
   />
   <LinkCard
-    title="Example Mods"
+    title="Example mods"
     description="Check out working MCM integrations"
     href="https://github.com/atilioa/BG3-auto-send-food-to-camp"
   />
 </CardGrid>
 
-<Aside type="tip" title="Need Help?">
-If you encounter any issues during installation, check the [MCM GitHub Wiki](https://github.com/atilioa/bg3-mcm/wiki) or join our [Discord Community Server](https://discord.gg/bawdketrFX).
+<Aside type="tip" title="Need help?">
+  If you encounter any issues during installation, check the [MCM GitHub
+  Wiki](https://github.com/atilioa/bg3-mcm/wiki) or join our [Discord Community
+  Server](https://discord.gg/DcS8c7KUa6).
 </Aside>
 
 ---

@@ -12,7 +12,7 @@ import { Aside, Code } from '@astrojs/starlight/components';
 `MCM.Get` retrieves the current value of a setting defined in your `MCM_blueprint.json`.
 
 <Aside type="tip" title="When to Use">
-Use `MCM.Get` anywhere in your Lua code to read player-configured settings.
+  Use `MCM.Get` anywhere in your Lua code to read player-configured settings.
 </Aside>
 
 ## Syntax
@@ -24,30 +24,32 @@ MCM.Get(settingId: string, modUUID?: string) -> any
 ## Parameters
 
 ### `settingId` (required)
+
 - **Type:** `string`
 - **Description:** The unique ID of the setting as defined in your blueprint
 
 ### `modUUID` (optional)
+
 - **Type:** `string`
 - **Default:** Current mod's `ModuleUUID`
 - **Description:** UUID of the mod that owns the setting. Defaults to the calling mod.
 
-## Return Value
+## Return value
 
 Returns the current value of the setting. The type depends on the setting type:
 
-| Setting Type | Return Type |
-|--------------|-------------|
-| `checkbox` | `boolean` |
-| `int`, `slider_int`, `drag_int` | `integer` |
-| `float`, `slider_float`, `drag_float` | `number` |
-| `text`, `enum`, `radio` | `string` |
-| `list_v2` | `table` |
-| `color_picker`, `color_edit` | `table` (RGBA array) |
-| `keybinding_v2` | `table` |
-| `event_button` | `nil` |
+| Setting Type                          | Return Type          |
+| ------------------------------------- | -------------------- |
+| `checkbox`                            | `boolean`            |
+| `int`, `slider_int`, `drag_int`       | `integer`            |
+| `float`, `slider_float`, `drag_float` | `number`             |
+| `text`, `enum`, `radio`               | `string`             |
+| `list_v2`                             | `table`              |
+| `color_picker`, `color_edit`          | `table` (RGBA array) |
+| `keybinding_v2`                       | `table`              |
+| `event_button`                        | `nil`                |
 
-## Usage Examples
+## Usage examples
 
 ```lua
 -- Get a checkbox value
@@ -69,10 +71,11 @@ local hotkey = MCM.Get("action_key")
 local otherModSetting = MCM.Get("setting_id", "other-mod-uuid")
 ```
 
-## Best Practices
+## Best practices
 
-<Aside type="tip" title="Reactive Updates">
-Don't just read settings once at startup. Use the `MCM_Setting_Saved` event to react when settings change.
+<Aside type="tip" title="Reactive updates">
+  Don't just read settings once at startup. Use the `MCM_Setting_Saved` event to react when settings
+  change.
 </Aside>
 
 - **Check for nil:** Settings may be nil if not yet initialized
