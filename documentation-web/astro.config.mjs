@@ -74,7 +74,7 @@ export default defineConfig({
       },
       customCss: ['./src/styles/global.css'],
       sidebar: [
-        { label: 'Getting Started', autogenerate: { directory: 'getting-started' } },
+        { label: 'Getting started', autogenerate: { directory: 'getting-started' } },
         { label: 'API', autogenerate: { directory: 'api' } },
       ],
       favicon: '/favicon.ico',

@@ -1,5 +1,5 @@
 ---
-title: Basic Usage
+title: Basic usage
 sidebar:
   order: 3
 ---
@@ -21,11 +21,12 @@ This guide walks you through integrating MCM into your BG3SE mod. The process is
 Integrating MCM into your mod involves three main steps:
 
 <Steps>
-  1. **Create an `MCM_blueprint.json`** file defining your settings 2. **Add MCM as a dependency**
-  in your `meta.lsx` 3. **Use `MCM.Get()`** to read settings in your Lua code
+  1. **Create an `MCM_blueprint.json`** file defining your settings
+  2. **Add MCM as a dependency** in your `meta.lsx`
+  3. **Use `MCM.Get()`** to read settings in your Lua code
 </Steps>
 
-## Step 1: Create the Blueprint
+## Step 1: Create the blueprint
 
 Create a file named `MCM_blueprint.json` alongside your `meta.lsx`:
 
@@ -62,19 +63,17 @@ Create a file named `MCM_blueprint.json` alongside your `meta.lsx`:
 }
 ```
 
-## Step 2: Add MCM Dependency
+## Step 2: Add MCM dependency
 
 In your `meta.lsx`, add MCM as a dependency:
 
 ```xml
-<Dependencies>
-    <Dependency UUID="755a8a72-407f-4f0d-9a33-274ac0f0b53d" Version64="<minimum-version>" />
-</Dependencies>
+TODO
 ```
 
 Use the current MCM UUID `755a8a72-407f-4f0d-9a33-274ac0f0b53d` and set `Version64` to the minimum version you support. See a canonical dependency example in [Mod Uninstaller meta.lsx](https://github.com/AtilioA/BG3-mod-uninstaller/blob/main/Mod%20Uninstaller/Mods/ModUninstaller/meta.lsx#L7-L24).
 
-## Step 3: Use MCM in Your Code
+## Step 3: Use MCM in your code
 
 Access settings anywhere in your Lua code:
 
@@ -111,7 +110,7 @@ Define a keybinding in your blueprint:
       "ModifierKeys": ["LShift"]
     }
   },
-  "Tooltip": "Hotkey to trigger the action"
+  "Description": "Hotkey to trigger the action"
 }
 ```
 
@@ -141,7 +140,7 @@ Define an event button in your blueprint:
     },
     "Cooldown": 5
   },
-  "Tooltip": "Click to reset all settings to defaults"
+  "Tooltip": "Click to reset mod"
 }
 ```
 
@@ -149,7 +148,7 @@ Register the callback:
 
 ```lua
 MCM.EventButton.RegisterCallback("reset_button", function()
-    MyMod:ResetSettings()
+    MyMod:Reset()
 end)
 ```
 
@@ -197,11 +196,11 @@ MCM.List.InsertSuggestions("ignore_list", {"Item1", "Item2", "Item3"})
     Keep setting IDs short but descriptive. They are used programmatically.
   </Card>
 
-<Card title="Validate defaults" icon="approve-check">
-  Ensure default values match the expected type for each setting.
+<Card title="Use 'Options'" icon="setting">
+  Almost every setting type has `Options` that can be set. Play around with these.
 </Card>
 
-<Card title="Subscribe to Events" icon="rocket">
+<Card title="Subscribe to events" icon="rocket">
   Use `MCM_Setting_Saved` events to react to changes in real-time.
 </Card>
 
@@ -223,9 +222,9 @@ MCM.List.InsertSuggestions("ignore_list", {"Item1", "Item2", "Item3"})
     description="Explore all available setting types"
     href="/api/blueprint-schema/"
   />
-  <LinkCard title="API Reference" description="Complete MCM API documentation" href="/api/" />
+  <LinkCard title="API reference" description="Complete MCM API documentation" href="/api/" />
   <LinkCard
-    title="GitHub Wiki"
+    title="GitHub wiki"
     description="Full documentation on the wiki"
     href="https://github.com/atilioa/bg3-mcm/wiki"
   />

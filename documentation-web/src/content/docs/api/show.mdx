@@ -38,7 +38,7 @@ MCM.Get(settingId: string, modUUID?: string) -> any
 
 Returns the current value of the setting. The type depends on the setting type:
 
-| Setting Type                          | Return Type          |
+| Setting type                          | Return type          |
 | ------------------------------------- | -------------------- |
 | `checkbox`                            | `boolean`            |
 | `int`, `slider_int`, `drag_int`       | `integer`            |
@@ -71,13 +71,7 @@ local hotkey = MCM.Get("action_key")
 local otherModSetting = MCM.Get("setting_id", "other-mod-uuid")
 ```
 
-## Best practices
-
 <Aside type="tip" title="Reactive updates">
   Don't just read settings once at startup. Use the `MCM_Setting_Saved` event to react when settings
   change.
 </Aside>
-
-- **Check for nil:** Settings may be nil if not yet initialized
-- **Use Events:** Subscribe to `MCM_Setting_Saved` for reactive updates
-- **Defaults:** Returns the blueprint default if no value has been set
