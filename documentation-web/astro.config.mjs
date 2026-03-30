@@ -61,7 +61,7 @@ export default defineConfig({
         { tag: 'meta', attrs: { name: 'msapplication-TileColor', content: '#3b82f6' } },
       ],
       social: [
-        { icon: 'discord', label: 'Discord', href: 'https://discord.gg/TODO' },
+        { icon: 'discord', label: 'Discord', href: 'https://discord.gg/DcS8c7KUa6' },
         { icon: 'github', label: 'GitHub', href: 'https://github.com/atilioa/bg3-mcm' },
       ],
       locales: {

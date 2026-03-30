@@ -1,8 +1,5 @@
 # Mod Configuration Menu (MCM) for Baldur's Gate 3
 
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fbg3mcm.dev)](https://next.nexusmods.com/profile/Volitio)
-[![Discord](https://img.shields.io/discord/your-discord-id?label=Discord&logo=discord)](https://discord.gg/TODO)
-
 > In-game framework for managing mod settings and keybindings. Eliminates manual JSON edits for both players and mod authors.
 
 ## Overview
@@ -11,8 +8,8 @@ MCM is a **Baldur's Gate 3 Script Extender (BG3SE)** mod framework created by [V
 
 ## Key Features
 
-- **18k+ lines of code** so you don't have to write configuration systems
-- **18+ widget types**: checkboxes, sliders, dropdowns, color pickers, keybindings, lists, and more
+- **20k+ lines of code** so you don't have to write configuration systems
+- **15+ widget types**: checkboxes, sliders, dropdowns, color pickers, keybindings, lists, and more
 - **Real-time saving**: settings update instantly without save reloads
 - **Keybinding management** with automatic conflict detection
 - **Multiple configuration profiles**: create, save, load, and delete profiles
@@ -44,7 +41,7 @@ MCM allows you to define your mod's settings via a simple JSON blueprint file. M
                     "Settings": [
                         {
                             "Id": "enable_feature",
-                            "Name": "Enable Feature",
+                            "Name": "Enable feature",
                             "Type": "checkbox",
                             "Default": true,
                             "Tooltip": "Toggle the main feature on/off"
@@ -77,7 +74,7 @@ See the [full documentation](https://github.com/atilioa/bg3-mcm) for details.
 - **[Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162)** - Download MCM
 - **[GitHub](https://github.com/atilioa/bg3-mcm)** - Source code and issue tracker
 - **[Wiki](https://github.com/atilioa/bg3-mcm/wiki)** - Full documentation
-- **[Discord](https://discord.gg/TODO)** - Community and support
+- **[Discord](https://discord.gg/DcS8c7KUa6)** - Community and support
 - **[MCM GPT](https://chatgpt.com/g/g-69095e14686481918fb288289170e87b-mcmgpt)** - AI assistant for MCM questions
 
 ---
