@@ -75,5 +75,5 @@ tasks.json
 tasks/
 .task*
 .roo*
-.agent/
+.agent*/
 .osgrep
