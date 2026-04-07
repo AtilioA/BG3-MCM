@@ -66,3 +66,26 @@ function table.isEmpty(tbl)
     end
     return next(tbl) == nil
 end
+
+---Merge default values from source into target recursively without overriding existing target values.
+---@param target table
+---@param source table
+function table.mergeDefaults(target, source)
+    if type(target) ~= "table" or type(source) ~= "table" then
+        return
+    end
+
+    for k, v in pairs(source) do
+        if type(v) == "table" then
+            if target[k] == nil then
+                target[k] = {}
+            end
+
+            if type(target[k]) == "table" then
+                table.mergeDefaults(target[k], v)
+            end
+        elseif target[k] == nil then
+            target[k] = v
+        end
+    end
+end

@@ -1,7 +1,28 @@
 local _hasReceivedConfigPayload = nil
+local _hasRequestedStoreBootstrap = nil
+
+local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
+local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
 
 local function invalidateConfigPayloadCache()
     _hasReceivedConfigPayload = nil
+end
+
+local function invalidateStoreBootstrapState()
+    _hasRequestedStoreBootstrap = nil
+end
+
+local function requestStoreBootstrapIfNeeded()
+    if _hasRequestedStoreBootstrap then
+        return
+    end
+
+    if MCMProxy and MCMProxy.IsMainMenu and MCMProxy.IsMainMenu() then
+        return
+    end
+
+    _hasRequestedStoreBootstrap = true
+    NetChannels.MCM_CLIENT_REQUEST_STORE_BOOTSTRAP:SendToServer({})
 end
 
 local function handleStartKey()
@@ -56,11 +77,13 @@ end
 Ext.Events.GameStateChanged:Subscribe(function(e)
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
         invalidateConfigPayloadCache()
+        invalidateStoreBootstrapState()
         InitClientMCM()
     end
 
     if e.ToState == Ext.Enums.ClientGameState["Running"] then
         InitClientMCM()
+        requestStoreBootstrapIfNeeded()
     end
 end)
 
@@ -132,6 +155,24 @@ local function parseTablePayload(payload, errorMessage)
     return nil
 end
 
+local function onStoreSyncPayload(payload)
+    local data = parseTablePayload(payload, "Failed to parse storage sync payload")
+    if not data then
+        return
+    end
+
+    StorageSyncService:HandleServerSyncPayload(data)
+end
+
+local function onStoreBootstrapPayload(payload)
+    local data = parseTablePayload(payload, "Failed to parse store bootstrap payload")
+    if not data then
+        return
+    end
+
+    StorageSyncService:HandleBootstrapPayload(data)
+end
+
 -- Register generic chunked listeners once and a handler
 if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners then
     ChunkedNet.Client.RegisterNetListeners()
@@ -142,11 +183,21 @@ if ChunkedNet and ChunkedNet.Client and ChunkedNet.Client.RegisterNetListeners t
         end
         onConfigsReceived(data.mods, data.profiles)
     end)
+
+    ChunkedNet.Client.RegisterHandler(NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP, function(payload)
+        onStoreBootstrapPayload(payload)
+    end)
+
+    ChunkedNet.Client.RegisterHandler(NetChannels.MCM_SERVER_SYNC_STORE_VALUE, function(payload)
+        onStoreSyncPayload(payload)
+    end)
 end
 
 Ext.Events.ResetCompleted:Subscribe(function()
     invalidateConfigPayloadCache()
+    invalidateStoreBootstrapState()
     InitClientMCM()
+    requestStoreBootstrapIfNeeded()
 end)
 
 -- Handle direct (non-chunked) config messages
@@ -156,6 +207,14 @@ NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT:SetHandler(function(payload)
         return
     end
     onConfigsReceived(data.mods, data.profiles)
+end)
+
+NetChannels.MCM_SERVER_SYNC_STORE_VALUE:SetHandler(function(payload)
+    onStoreSyncPayload(payload)
+end)
+
+NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP:SetHandler(function(payload)
+    onStoreBootstrapPayload(payload)
 end)
 
 local function forwardRelayToServer(data)
@@ -208,7 +267,6 @@ NetChannels.MCM_ENSURE_MODVAR_REGISTERED:SetHandler(function(data)
         return
     end
 
-    local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
     ModVarAdapter:EnsureRegistered(data.varName, data.moduleUUID, data.storageConfig, true)
 end)
 

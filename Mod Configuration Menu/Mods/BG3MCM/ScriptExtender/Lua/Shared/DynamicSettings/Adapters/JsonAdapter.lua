@@ -90,6 +90,7 @@ end
 -- =============================================================================
 
 local IStorageAdapter = require("Shared/DynamicSettings/Adapters/IStorageAdapter")
+local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
 
 ---@class JsonStorageManager : IStorageAdapter
 local JsonStorageManager = {}
@@ -99,7 +100,13 @@ JsonStorageManager._cache = {} -- table<string, SettingsFile>
 
 -- Default configuration for JSON storage
 JsonStorageManager.DEFAULTS = {
-    -- AutoSave = true?
+    Server = true,
+    Client = true,
+    WriteableOnServer = true,
+    WriteableOnClient = true,
+    Persistent = true,
+    SyncToClient = true,
+    SyncToServer = false,
 }
 
 ---Internal helper to retrieve or create the file handler for a UUID
@@ -119,6 +126,12 @@ end
 ---@return any
 function JsonStorageManager:GetValue(key, moduleUUID, storageConfig)
     if not moduleUUID then return nil end
+
+    local cached = StorageSyncService:GetCachedValue("json", moduleUUID, key)
+    if cached ~= nil then
+        return cached
+    end
+
     local handler = self:_getFileHandler(moduleUUID)
     return handler:Get(key)
 end
@@ -144,6 +157,38 @@ function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)
     --     handler.Data[key] = value
     -- end
     handler:Set(key, value)
+
+    StorageSyncService:OnLocalSet("json", moduleUUID, key, value, config)
+end
+
+---@return table<string, table<string, any>>
+function JsonStorageManager:GetAllValues()
+    local result = {}
+    local seen = {}
+
+    -- REFACTOR: This will cause bottlenecks on large mod lists. Refactor to only run for mods that register with the Store API
+    local loadOrder = Ext.Mod.GetLoadOrder() or {}
+    for _, moduleUUID in ipairs(loadOrder) do
+        local handler = self:_getFileHandler(moduleUUID)
+        handler:Load()
+        seen[moduleUUID] = true
+        result[moduleUUID] = result[moduleUUID] or {}
+        for key, value in pairs(handler.Data or {}) do
+            result[moduleUUID][key] = value
+        end
+    end
+
+    for moduleUUID, handler in pairs(self._cache) do
+        if not seen[moduleUUID] then
+            handler:Load()
+            result[moduleUUID] = result[moduleUUID] or {}
+            for key, value in pairs(handler.Data or {}) do
+                result[moduleUUID][key] = value
+            end
+        end
+    end
+
+    return result
 end
 
 --- Force save all loaded files
@@ -152,5 +197,7 @@ function JsonStorageManager:SaveAll()
         handler:Save()
     end
 end
+
+StorageSyncService:RegisterStorageAdapter("json", JsonStorageManager)
 
 return JsonStorageManager

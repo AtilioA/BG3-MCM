@@ -4,6 +4,7 @@ EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
 EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
 local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
+local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
 
 local function warnAboutNPAKM()
     if LoadOrderHealthCheck and LoadOrderHealthCheck.ShouldWarnAboutNPAKM and LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then
@@ -364,6 +365,22 @@ function EHandlers.OnEnsureModVarRegistered(data, userID)
     ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, true)
 
     return { success = true }
+end
+
+--- Handle storage value sync request from a client.
+---@param data table
+---@param userID integer
+---@return table
+function EHandlers.OnClientSetStoreValue(data, userID)
+    return StorageSyncService:HandleClientSet(data, userID)
+end
+
+--- Handle storage bootstrap request from a client.
+---@param data table
+---@param userID integer
+---@return table
+function EHandlers.OnClientRequestStoreBootstrap(data, userID)
+    return StorageSyncService:HandleBootstrapRequest(data, userID)
 end
 
 return EHandlers

@@ -8,4 +8,5 @@ RequireFiles("Shared/Tests/", {
     "ModConfig.test",
     "EventButton.test",
     "VisibilityManager.test",
+    "StorageSyncService.test",
 })

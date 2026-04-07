@@ -2,6 +2,7 @@ SubscribedEvents = {}
 
 local netEventsRegistry = CommandRegistry:new()
 local modEventRegistry = CommandRegistry:new()
+local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
 
 --- Net message handler for when the (IMGUI) client requests the MCM settings to be loaded
 netEventsRegistry:register("MCM_Client_Request_Configs", NetCommand:new(EHandlers.OnClientRequestConfigs))
@@ -10,6 +11,8 @@ netEventsRegistry:register("MCM_Client_Request_Configs", NetCommand:new(EHandler
 netEventsRegistry:register("MCM_Relay_To_Clients", NetCommand:new(EHandlers.OnRelayToClients))
 netEventsRegistry:register("MCM_Emit_On_Server", NetCommand:new(EHandlers.OnEmitOnServer))
 netEventsRegistry:register("MCM_Ensure_ModVar_Registered", NetCommand:new(EHandlers.OnEnsureModVarRegistered))
+netEventsRegistry:register("MCM_Client_Set_Store_Value", NetCommand:new(EHandlers.OnClientSetStoreValue))
+netEventsRegistry:register("MCM_Client_Request_Store_Bootstrap", NetCommand:new(EHandlers.OnClientRequestStoreBootstrap))
 
 --- Net message handlers for when the (IMGUI) client opens or closes the MCM window
 modEventRegistry:register(EventChannels.MCM_WINDOW_OPENED, EHandlers.OnUserOpenedWindow)
@@ -65,6 +68,8 @@ local function wireRequestHandlers()
         [NetChannels.MCM_EMIT_ON_SERVER] = "MCM_Emit_On_Server",
         [NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION] = "MCM_Client_Show_Troubleshooting_Notification",
         [NetChannels.MCM_ENSURE_MODVAR_REGISTERED] = "MCM_Ensure_ModVar_Registered",
+        [NetChannels.MCM_CLIENT_SET_STORE_VALUE] = "MCM_Client_Set_Store_Value",
+        [NetChannels.MCM_CLIENT_REQUEST_STORE_BOOTSTRAP] = "MCM_Client_Request_Store_Bootstrap",
     }
 
     -- Wire up request/reply handlers
@@ -145,6 +150,7 @@ function SubscribedEvents.SubscribeToEvents()
     Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
         MCMDebug(1, "UserConnected: %s %s %s", userID, userName, userProfileID)
         MCMServer:LoadAndSendSettingsToUser(userID)
+        StorageSyncService:SendBootstrapToUser(userID)
     end)
 
     Ext.Events.SessionLoaded:Subscribe(EHandlers.OnSessionLoaded)

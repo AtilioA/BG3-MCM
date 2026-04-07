@@ -30,6 +30,10 @@
 ---@field MCM_CLIENT_REQUEST_CREATE_PROFILE NetChannel
 ---@field MCM_CLIENT_REQUEST_DELETE_PROFILE NetChannel
 ---@field MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION NetChannel
+---@field MCM_CLIENT_SET_STORE_VALUE NetChannel
+---@field MCM_SERVER_SYNC_STORE_VALUE NetChannel
+---@field MCM_CLIENT_REQUEST_STORE_BOOTSTRAP NetChannel
+---@field MCM_SERVER_SEND_STORE_BOOTSTRAP NetChannel
 ---@field _LEGACY table<string, string>
 
 ---@type NetChannels
@@ -71,6 +75,12 @@ NetChannels.MCM_CLIENT_REQUEST_DELETE_PROFILE = createChannel("MCM_Client_Reques
 
 -- Notification channel
 NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION = createChannel("MCM_Client_Show_Troubleshooting_Notification")
+
+-- Dynamic storage synchronization channels
+NetChannels.MCM_CLIENT_SET_STORE_VALUE = createChannel("MCM_Client_Set_Store_Value")
+NetChannels.MCM_SERVER_SYNC_STORE_VALUE = createChannel("MCM_Server_Sync_Store_Value")
+NetChannels.MCM_CLIENT_REQUEST_STORE_BOOTSTRAP = createChannel("MCM_Client_Request_Store_Bootstrap")
+NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP = createChannel("MCM_Server_Send_Store_Bootstrap")
 
 -- Legacy string constants for backwards compatibility (deprecated NetMessage usage)
 -- These are kept for postNetMessageToServerAndClients which maintains backwards compatibility

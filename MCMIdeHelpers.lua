@@ -118,8 +118,18 @@
 --- @field default? any The default value for the variable
 --- @field type? string Optional type hint ("boolean", "number", "string", "table")
 --- @field storage? string Optional storage type ("json", etc.), defaults to "json". Only json storage is properly implemented at the moment.
+--- @field storageConfig? MCMStoreStorageConfig Optional storage sync and persistence overrides. Mirrors SE's ModVars defaults
 --- @field validate? fun(value: any): (boolean, string)? Optional validation function
 --- @field modUUID? string Optional mod UUID, override for the default mod UUID
+
+--- @class MCMStoreStorageConfig
+--- @field SyncToClient? boolean Should server-side writes sync to clients
+--- @field SyncToServer? boolean Should client-side writes sync to server
+--- @field Server? boolean Storage available on server context
+--- @field Client? boolean Storage available on client context
+--- @field WriteableOnServer? boolean Allow writes on server
+--- @field WriteableOnClient? boolean Allow writes on client
+--- @field Persistent? boolean Persist values to disk/mod storage
 
 --- @class MCMStoreGetArgs
 --- @field var string The name/key of the variable to retrieve
