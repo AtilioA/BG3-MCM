@@ -562,6 +562,8 @@ The Store API allows mods to persist custom key-value data independently of the 
 The JSON storage allows saving values to JSON files without needing to define a blueprint. This is useful for storing save-independent data like user preferences and cache state.
 
 > • **JSON storage is the default**, making Store values global across save files unless `storage = "modvar"` is specified. `modvar` is still a WIP.
+> • Both backends support a `storageConfig` table using the exact same parameters as BG3SE native ModVars (`Client`, `Server`, `SyncToClient`, `SyncToServer`, `Persistent`, `WriteableOnClient`, `WriteableOnServer`).
+> • For JSON storage, `SyncToClient` defaults to `true` and `SyncToServer` defaults to `false`. For example, explicitly set `SyncToServer = true` in your `storageConfig` if client-side modifications need to propagate back to the server during the same live session.
 > • The Store API is type-safe and supports custom validation.
 {.is-info}
 

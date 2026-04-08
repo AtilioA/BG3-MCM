@@ -584,7 +584,8 @@ function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, feedbackTyp
     if not success then
         MCMDebug(1, "Failed to show feedback for button: mod='%s', setting='%s'", modUUID, settingId)
     else
-        MCMDebug(3, "Showing %s feedback for mod '%s', setting '%s': %s", feedbackType or "info", modUUID, settingId, message)
+        MCMDebug(3, "Showing %s feedback for mod '%s', setting '%s': %s", feedbackType or "info", modUUID, settingId,
+            message)
     end
 
     return success

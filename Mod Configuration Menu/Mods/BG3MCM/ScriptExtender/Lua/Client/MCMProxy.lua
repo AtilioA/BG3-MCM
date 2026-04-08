@@ -143,7 +143,8 @@ function MCMProxy:SetEnumChoices(settingId, choices, choicesHandles, modUUID)
             if response.success then
                 MCMDebug(1, "Successfully updated enum choices for setting %s on server", settingId)
             else
-                MCMWarn(0, "Failed to update enum choices for setting %s: %s", settingId, response.error or "Unknown error")
+                MCMWarn(0, "Failed to update enum choices for setting %s: %s", settingId,
+                    response.error or "Unknown error")
             end
         end
     )

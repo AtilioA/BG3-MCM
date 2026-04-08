@@ -1,5 +1,3 @@
-local AdapterFactory = require("Shared/DynamicSettings/Factories/AdapterFactory")
-
 ---@class StorageSyncPayload
 ---@field storageType string
 ---@field moduleUUID string
@@ -26,22 +24,22 @@ local function normalizeStorageType(storageType)
     return string.lower(storageType or "")
 end
 
--- ---@param payload any
--- ---@return table|nil
--- local function parsePayload(payload)
---     if type(payload) == "table" then
---         return payload
---     end
+---@param payload any
+---@return table|nil
+local function parsePayload(payload)
+    if type(payload) == "table" then
+        return payload
+    end
 
---     if type(payload) == "string" then
---         local ok, parsed = pcall(Ext.Json.Parse, payload)
---         if ok and type(parsed) == "table" then
---             return parsed
---         end
---     end
+    if type(payload) == "string" then
+        local ok, parsed = pcall(Ext.Json.Parse, payload)
+        if ok and type(parsed) == "table" then
+            return parsed
+        end
+    end
 
---     return nil
--- end
+    return nil
+end
 
 ---@return boolean
 local function isClientMainMenu()
@@ -64,7 +62,6 @@ local function isClientMainMenu()
     return false
 end
 
---- REVIEW: double-check these with Aahz
 ---@return integer|nil
 local function getLocalUserID()
     if not Ext.IsClient() then
@@ -139,12 +136,7 @@ end
 ---@return table|nil
 function StorageSyncService:GetRegisteredStorageAdapter(storageType)
     local normalizedStorageType = normalizeStorageType(storageType)
-    local adapter = self._adapters[normalizedStorageType]
-    if adapter then
-        return adapter
-    end
-
-    return AdapterFactory.GetAdapter(normalizedStorageType)
+    return self._adapters[normalizedStorageType]
 end
 
 ---@param storageType string
@@ -297,7 +289,7 @@ end
 ---@param userID integer
 ---@return table
 function StorageSyncService:HandleClientSet(data, userID)
-    local payload = data
+    local payload = parsePayload(data)
     if not payload then
         return { success = false, error = "Invalid payload" }
     end
@@ -357,7 +349,7 @@ function StorageSyncService:CollectAllPersistedState()
     local stores = payload.stores
 
     -- Backfill from persistence via all registered adapters.
-    for storageType, adapter in pairs(AdapterFactory.adapters) do
+    for storageType, adapter in pairs(self._adapters) do
         if adapter and adapter.GetAllValues then
             local all = adapter:GetAllValues()
             if all then
@@ -382,7 +374,7 @@ end
 
 ---@param data any
 function StorageSyncService:HandleBootstrapPayload(data)
-    local payload = data
+    local payload = parsePayload(data)
     if not payload then
         return
     end
@@ -399,7 +391,7 @@ end
 
 ---@param data any
 function StorageSyncService:HandleServerSyncPayload(data)
-    local payload = data
+    local payload = parsePayload(data)
     if not payload then
         return
     end

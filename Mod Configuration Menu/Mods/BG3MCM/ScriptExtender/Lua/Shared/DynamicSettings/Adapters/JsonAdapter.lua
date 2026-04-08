@@ -24,8 +24,15 @@ end
 ---Generates a file path based on the mod's directory.
 function SettingsFile:_generatePath()
     local modInfo = Ext.Mod.GetMod(self.ModuleUUID)
+    local mcmInfo = Ext.Mod.GetMod(ModuleUUID)
     local name = "UnknownMod"
     local directory = "UnknownDirectory"
+    local mcmDirectory = "UnknownMCMDirectory"
+
+    if mcmInfo and mcmInfo.Info and mcmInfo.Info.Directory then
+        mcmDirectory = mcmInfo.Info.Directory
+    end
+
     if modInfo and modInfo.Info and modInfo.Info.Directory then
         directory = modInfo.Info.Directory
         name = modInfo.Info.Name
@@ -36,8 +43,7 @@ function SettingsFile:_generatePath()
     name = name:gsub("[\\/:*?\"<>|]", "_")
 
     -- REFACTOR: allow proper Profile integration
-    return Ext.Mod.GetMod(ModuleUUID).Info.Directory ..
-        "/Profiles/Default/" .. directory .. "/" .. "dynamic_settings.json"
+    return string.format("%s/Profiles/Default/%s/dynamic_settings.json", mcmDirectory, directory)
 end
 
 --- Loads the file from disk if not already loaded.
@@ -164,25 +170,12 @@ end
 ---@return table<string, table<string, any>>
 function JsonStorageManager:GetAllValues()
     local result = {}
-    local seen = {}
-
-    -- REFACTOR: This will cause bottlenecks on large mod lists. Refactor to only run for mods that register with the Store API
-    local loadOrder = Ext.Mod.GetLoadOrder() or {}
-    for _, moduleUUID in ipairs(loadOrder) do
-        local handler = self:_getFileHandler(moduleUUID)
-        handler:Load()
-        seen[moduleUUID] = true
-        result[moduleUUID] = result[moduleUUID] or {}
-        for key, value in pairs(handler.Data or {}) do
-            result[moduleUUID][key] = value
-        end
-    end
 
     for moduleUUID, handler in pairs(self._cache) do
-        if not seen[moduleUUID] then
-            handler:Load()
-            result[moduleUUID] = result[moduleUUID] or {}
-            for key, value in pairs(handler.Data or {}) do
+        handler:Load()
+        result[moduleUUID] = result[moduleUUID] or {}
+        if type(handler.Data) == "table" then
+            for key, value in pairs(handler.Data) do
                 result[moduleUUID][key] = value
             end
         end

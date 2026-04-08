@@ -33,13 +33,14 @@ function InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback,
 
         -- Once keybindings are loaded, register all pending callbacks.
         for _, entry in ipairs(InputCallbackManager._PendingKeybindingCallbacks) do
-            local success = InputCallbackManager.RegisterKeybinding(entry.modUUID, entry.actionId, entry.callback, entry.eventType)
+            local success = InputCallbackManager.RegisterKeybinding(entry.modUUID, entry.actionId, entry.callback,
+                entry.eventType)
             if success then
                 MCMPrint(2, "Registered keybinding callback for action '%s' (mod '%s')", entry.actionId,
-                        entry.modUUID)
+                    entry.modUUID)
             else
                 MCMWarn(0, "Failed to register keybinding callback for action '%s' (mod '%s')", entry
-                        .actionId, entry.modUUID)
+                    .actionId, entry.modUUID)
             end
         end
         -- Clear the pending queue after processing.
