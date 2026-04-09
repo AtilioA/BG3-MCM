@@ -301,7 +301,8 @@ function MCMRendering:NotifyMCMWindowReady()
 end
 
 function MCMRendering:LoadMods(mods)
-    self.mods = mods
+    self.mods = mods or {}
+    self:ConvertModTablesToBlueprints()
 
     -- if MCM_WINDOW then MCM_WINDOW:Destroy() end
     local createdWindow = self:CreateMainIMGUIWindow()
@@ -319,7 +320,6 @@ function MCMRendering:CreateModMenu()
     --     return
     -- end
 
-    self:ConvertModTablesToBlueprints()
     self:CreateProfileManagementHeader()
     self:CreateKeybindingsPage()
     self:CreateMainTable()
@@ -330,8 +330,16 @@ end
 --- Convert the mod configs to use the Blueprint class
 ---@return nil
 function MCMRendering:ConvertModTablesToBlueprints()
-    for _modUUID, config in pairs(self.mods) do
-        config.blueprint = Blueprint:New(config.blueprint)
+    for modUUID, config in pairs(self.mods) do
+        if type(config) ~= "table" then
+            MCMWarn(1, "Skipping blueprint conversion for mod '%s': mod config is not a table", tostring(modUUID))
+        elseif type(config.blueprint) ~= "table" then
+            MCMWarn(1, "Skipping blueprint conversion for mod '%s': blueprint is missing or invalid", tostring(modUUID))
+        elseif config.blueprint._ClassName == "Blueprint" and type(config.blueprint.GetModName) == "function" then
+            -- Already converted.
+        else
+            config.blueprint = Blueprint:New(config.blueprint)
+        end
     end
 end
 
