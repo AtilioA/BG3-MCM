@@ -103,14 +103,25 @@ end
 --- @return string|nil The name of the mod, or nil if the mod is not found
 function MCMRendering:GetModName(modUUID)
     if not modUUID then
+        MCMWarn(1, "GetModName called without mod UUID")
         return nil
     end
 
-    if self.mods[modUUID] and self.mods[modUUID].blueprint then
-        return self.mods[modUUID].blueprint:GetModName()
+    local mod = self.mods and self.mods[modUUID]
+    local blueprint = mod and mod.blueprint
+
+    if blueprint and type(blueprint.GetModName) == "function" then
+        return blueprint:GetModName()
     end
 
-    return nil
+    local modData = Ext.Mod.GetMod(modUUID)
+    if modData and modData.Info and modData.Info.Name and modData.Info.Name ~= "" then
+        MCMWarn(1, "GetModName fallback for mod '%s': using Ext.Mod metadata", modUUID)
+        return modData.Info.Name
+    end
+
+    MCMWarn(1, "GetModName fallback for mod '%s': no name source available; using UUID", modUUID)
+    return modUUID
 end
 
 function MCMRendering:GetClientStateValue(settingId, modUUID)
