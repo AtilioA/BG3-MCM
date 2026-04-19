@@ -7,7 +7,6 @@ local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncS
 --- Net message handler for when the (IMGUI) client requests the MCM settings to be loaded
 netEventsRegistry:register("MCM_Client_Request_Configs", NetCommand:new(EHandlers.OnClientRequestConfigs))
 
---- Net message handler to relay messages to other clients (backwards support for deprecated net message usage)
 netEventsRegistry:register("MCM_Relay_To_Clients", NetCommand:new(EHandlers.OnRelayToClients))
 netEventsRegistry:register("MCM_Emit_On_Server", NetCommand:new(EHandlers.OnEmitOnServer))
 netEventsRegistry:register("MCM_Ensure_ModVar_Registered", NetCommand:new(EHandlers.OnEnsureModVarRegistered))
@@ -115,23 +114,6 @@ local function wireRequestHandlers()
     end
 end
 
-local function registerLegacyRelayListeners()
-    local relayCommand = netEventsRegistry.commands["MCM_Relay_To_Clients"]
-    if not relayCommand then
-        return
-    end
-
-    Ext.RegisterNetListener(NetChannels._LEGACY.MCM_RELAY_TO_CLIENTS, function(_, metapayload, peerId)
-        local ok, data = pcall(Ext.Json.Parse, metapayload)
-        if not ok or type(data) ~= "table" then
-            MCMWarn(0, "Invalid legacy relay payload received on server")
-            return
-        end
-
-        relayCommand:execute(data, peerId)
-    end)
-end
-
 local function registerModEventListeners(registry)
     for eventName, handler in pairs(registry) do
         ModEventManager:Subscribe(eventName, handler)
@@ -163,7 +145,6 @@ function SubscribedEvents.SubscribeToEvents()
     end)
 
     wireRequestHandlers()
-    registerLegacyRelayListeners()
     registerModEventListeners(modEventRegistry)
 end
 

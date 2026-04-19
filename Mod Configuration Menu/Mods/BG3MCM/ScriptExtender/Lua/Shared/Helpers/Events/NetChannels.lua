@@ -85,10 +85,6 @@ NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP = createChannel("MCM_Server_Send_Sto
 -- Legacy string constants for backwards compatibility (deprecated NetMessage usage)
 -- These are kept for postNetMessageToServerAndClients which maintains backwards compatibility
 NetChannels._LEGACY = {
-    MCM_RELAY_TO_SERVERS = "MCM_Relay_To_Servers",
-    MCM_RELAY_TO_CLIENTS = "MCM_Relay_To_Clients",
-    MCM_EMIT_ON_SERVER = "MCM_Emit_On_Server",
-    MCM_EMIT_ON_CLIENTS = "MCM_Emit_On_Clients",
     MCM_SERVER_SEND_CONFIGS_TO_CLIENT = "MCM_Server_Send_Configs_To_Client",
     MCM_CHUNK_INIT = "MCM_Chunk_Init",
     MCM_CHUNK_PART = "MCM_Chunk_Part",

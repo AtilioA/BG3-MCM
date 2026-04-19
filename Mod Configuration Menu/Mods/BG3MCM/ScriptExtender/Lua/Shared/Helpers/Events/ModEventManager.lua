@@ -17,13 +17,6 @@ local deprecatedEventNameMap = {
     MCM_Window_Closed = "MCM_User_Closed_Window"
 }
 
-local function createLegacyMetapayload(channel, payload)
-    return Ext.Json.Stringify({
-        channel = channel,
-        payload = payload
-    })
-end
-
 local function postLegacyNetMessageToServerAndClients(channel, payload)
     if not channel then
         MCMWarn(0, "Cannot send legacy net message with nil channel")
@@ -40,21 +33,13 @@ local function postLegacyNetMessageToServerAndClients(channel, payload)
         return false
     end
 
-    local okMeta, metapayload = pcall(createLegacyMetapayload, channel, payload)
-    if not okMeta then
-        MCMWarn(0, "Failed to serialize legacy metapayload for channel '%s'", channel)
-        return false
-    end
-
     local sent = false
     xpcall(function()
         if Ext.IsServer() then
             Ext.Net.BroadcastMessage(channel, payloadJson)
-            Ext.Net.BroadcastMessage(NetChannels._LEGACY.MCM_RELAY_TO_SERVERS, metapayload)
             sent = true
         elseif Ext.IsClient() and not MCMProxy.IsMainMenu() then
             Ext.Net.PostMessageToServer(channel, payloadJson)
-            Ext.Net.PostMessageToServer(NetChannels._LEGACY.MCM_RELAY_TO_CLIENTS, metapayload)
             sent = true
         end
     end, function(err)

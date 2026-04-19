@@ -228,8 +228,6 @@ end
 -- local defaultSettings = Blueprint:GetDefaultSettingsFromBlueprint(modBlueprint)
 
 -- ModConfig:UpdateAllSettingsForMod(modUUID, defaultSettings)
--- Ext.Net.BroadcastMessage(NetChannels.MCM_RELAY_TO_SERVERS,
---     Ext.Json.Stringify({ channel = EventChannels.MCM_ALL_MOD_SETTINGS_RESET, payload = { modUUID = modUUID, settings = defaultSettings } }))
 -- end
 
 -- UNUSED since profile management currently calls shared code

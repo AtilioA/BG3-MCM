@@ -234,16 +234,6 @@ NetChannels.MCM_RELAY_TO_SERVERS:SetHandler(function(data)
     forwardRelayToServer(data)
 end)
 
--- Backwards compatibility for deprecated NetMessage relay path
-Ext.RegisterNetListener(NetChannels._LEGACY.MCM_RELAY_TO_SERVERS, function(_, metapayload)
-    local data = parseTablePayload(metapayload, "Invalid legacy relay payload received")
-    if not data then
-        return
-    end
-
-    forwardRelayToServer(data)
-end)
-
 NetChannels.MCM_EMIT_ON_CLIENTS:SetHandler(function(data)
     if not data or not data.eventName then
         MCMWarn(0, "Invalid emit data received - missing eventName")
