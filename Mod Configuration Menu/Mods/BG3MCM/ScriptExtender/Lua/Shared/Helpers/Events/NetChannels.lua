@@ -86,9 +86,6 @@ NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP = createChannel("MCM_Server_Send_Sto
 -- These are kept for postNetMessageToServerAndClients which maintains backwards compatibility
 NetChannels._LEGACY = {
     MCM_SERVER_SEND_CONFIGS_TO_CLIENT = "MCM_Server_Send_Configs_To_Client",
-    MCM_CHUNK_INIT = "MCM_Chunk_Init",
-    MCM_CHUNK_PART = "MCM_Chunk_Part",
-    MCM_CHUNK_END = "MCM_Chunk_End",
 }
 
 return NetChannels
