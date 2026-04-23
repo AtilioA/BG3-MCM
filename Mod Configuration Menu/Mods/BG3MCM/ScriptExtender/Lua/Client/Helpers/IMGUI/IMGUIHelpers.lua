@@ -46,6 +46,9 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
         return nil
     end
 
+    -- Blank space to offset from cursor
+    tooltipText = "   " .. tooltipText
+
     local success, imguiObjectTooltip = xpcall(function()
         local tt = imguiObject:Tooltip()
         tt.IDContext = uuid .. "_TOOLTIP"
@@ -67,7 +70,6 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
 
     return imguiObjectTooltip
 end
-
 
 --- Apply default styles to an IMGUI element
 ---@param element ExtuiStyledRenderable
