@@ -29,8 +29,8 @@
 ChunkedNet = ChunkedNet or {}
 
 -- Conservative thresholds to avoid Script Extender ~1MB cap
-ChunkedNet.DIRECT_THRESHOLD_BYTES = 800 * 1024
-ChunkedNet.CHUNK_PAYLOAD_SIZE_BYTES = 800 * 1024
+ChunkedNet.DIRECT_THRESHOLD_BYTES = 700 * 1024
+ChunkedNet.CHUNK_PAYLOAD_SIZE_BYTES = 700 * 1024
 
 ---Generate a transfer identifier.
 ---@return string
