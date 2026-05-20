@@ -19,17 +19,20 @@ HeaderActions.__index = HeaderActions
 function HeaderActions:New(parent)
     local self = setmetatable({}, HeaderActions)
     self.group = parent:AddGroup("HeaderActions")
+    local headerActionButtonSizeMultiplier = 1.5
 
     -- Create toggle buttons and set their OnClick to call DualPane:ToggleSidebar()
     self.expandBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("h9db97044cb044d15b12a4edf05f463154812"),
         ICON_TOGGLE_EXPAND,
         VCString:InterpolateLocalizedMessage("hbb483085e7f04700beb8cc5bf94a98b4g6ac",
-            KeyPresentationMapping:GetViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)), 1.5)
+            KeyPresentationMapping:GetViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)),
+        headerActionButtonSizeMultiplier)
     self.expandBtn.SameLine = true
     self.collapseBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("h8f387f7585c44277893ec0714a67c13f4g18"),
         ICON_TOGGLE_COLLAPSE,
         VCString:InterpolateLocalizedMessage("h4e0e208daa6a439ca5ba95a668a7ac36d882",
-            KeyPresentationMapping:GetViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)), 1.5)
+            KeyPresentationMapping:GetViewKeyForSetting("toggle_mcm_sidebar_keybinding", ModuleUUID)),
+        headerActionButtonSizeMultiplier)
     self.collapseBtn.SameLine = true
     self.expandBtn.OnClick = function() DualPane:ToggleSidebar() end
     self.collapseBtn.OnClick = function() DualPane:ToggleSidebar() end
@@ -47,7 +50,7 @@ function HeaderActions:New(parent)
 
     self.detachBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("h861b52b0eba84565aa41b19875c087d1fea6"),
         ICON_DETACH,
-        Ext.Loca.GetTranslatedString("h5270f62d04b243b6b9ea0473bd610aa72b0e"), 1)
+        Ext.Loca.GetTranslatedString("h5270f62d04b243b6b9ea0473bd610aa72b0e"), headerActionButtonSizeMultiplier)
     self.detachBtn.SameLine = true
     self.detachBtn.OnClick = function()
         if DualPane.rightPane and DualPane.rightPane.currentMod and
@@ -60,7 +63,7 @@ function HeaderActions:New(parent)
 
     self.reattachBtn = self:CreateActionButton(Ext.Loca.GetTranslatedString("he66f0182055744419b01312c1d04dc85e906"),
         "input_dropDownArrow_d",
-        Ext.Loca.GetTranslatedString("hc2133fbab6fb47a9a4f71e83a715780237e1"), 1.5)
+        Ext.Loca.GetTranslatedString("hc2133fbab6fb47a9a4f71e83a715780237e1"), headerActionButtonSizeMultiplier)
     self.reattachBtn.SameLine = true
     self.reattachBtn.Visible = false
     self.reattachBtn.OnClick = function()
@@ -111,7 +114,10 @@ function HeaderActions:CreateActionButton(text, icon, tooltip, multiplier)
     if not button.Image or button.Image.Icon == "" then
         button:Destroy()
         button = self.group:AddButton(text)
+    else
+    button:SetStyle("FramePadding", 1, 1)
     end
+    button:SetStyle("FrameRounding", 3.0, 3.0)
 
     button.IDContext = "HeaderAction_" .. text .. "_BUTTON"
     IMGUIHelpers.AddTooltip(button, tooltip, "HeaderAction_" .. text)
