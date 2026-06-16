@@ -28,6 +28,22 @@ function IStorageAdapter:ResolveConfig(providedConfig)
     return config
 end
 
+--- Ensure the underlying storage prototype is registered for (moduleUUID, key).
+--- MUST be safe to call at bootstrap (before SessionLoaded), since some backends (e.g. SE ModVariables) require registration before the savegame restores values.
+--- Default implementation is a no-op for backends that need no registration (e.g. JSON).
+---@param key string The key/variable name
+---@param moduleUUID string The UUID of the module
+---@param storageConfig? table Optional storage-specific configuration (e.g., SE ModVar parameters)
+function IStorageAdapter:EnsureRegistered(key, moduleUUID, storageConfig)
+    -- No registration required by default.
+end
+
+--- Run `fn` once this backend can serve real values. Example: "wait for the savegame before restoring values" timing lives here.
+---@param fn fun() Callback to run when the adapter is ready
+function IStorageAdapter:RunWhenReady(fn)
+    fn()
+end
+
 --- Read the raw Lua value (boolean/number/string/table/etc.) for (moduleUUID, key).
 --- Returns nil if the variable is not set.
 ---@param key string The key to read

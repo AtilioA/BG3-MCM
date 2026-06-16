@@ -73,12 +73,24 @@ Ext.Events.SessionLoaded:Subscribe(function()
             end
         elseif op.type == "set" then
             ModVarAdapter:_doSetValue(op.key, op.value, op.moduleUUID, op.storageConfig)
+        elseif op.type == "ready" then
+            if op.fn then op.fn() end
         end
     end
 
     -- Clear the queue
     ModVarAdapter._pendingOperations = {}
 end)
+
+--- Run `fn` once SE ModVar values are available (i.e. after SessionLoaded, when the savegame has restored persisted values). Runs immediately if SessionLoaded already fired; otherwise queues `fn` to run when it does.
+---@param fn fun() Callback to run when the adapter is ready
+function ModVarAdapter:RunWhenReady(fn)
+    if self._sessionLoaded then
+        fn()
+    else
+        table.insert(self._pendingOperations, { type = "ready", fn = fn })
+    end
+end
 
 --- Ensure a ModVar is registered with SE if not already registered.
 --- Uses exact SE parameter names for compatibility.
@@ -100,6 +112,15 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
     -- Merge user config with defaults using IStorageAdapter logic
     local config = self:ResolveConfig(storageConfig)
 
+    -- Persistent ModVars MUST be registered during bootstrap: SE restores their saved values BEFORE SessionLoaded. Registering after SessionLoaded means this session's  saved value can no longer be restored.
+    if self._sessionLoaded and config.Persistent ~= false then
+        -- Warn so authors move registration to bootstrap.
+        MCMWarn(0,
+            "ModVarAdapter: persistent ModVar '%s' (module %s) registered AFTER SessionLoaded; " ..
+            "its saved value cannot be restored this session. Register ModVars Store vars during your mod's bootstrap.",
+            varName, moduleUUID)
+    end
+
     -- Register with SE
     Ext.Vars.RegisterModVariable(moduleUUID, varName, config)
     self._registered[moduleUUID][varName] = true
@@ -107,8 +128,8 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
     MCMDebug(2, "ModVarAdapter: Registered '%s' for module %s with config: %s",
         varName, moduleUUID, Ext.Json.Stringify(config))
 
-    -- Broadcast registration to other contexts
-    if not skipBroadcast and NetChannels and NetChannels.MCM_ENSURE_MODVAR_REGISTERED then
+    -- Broadcast registration to other contexts.
+    if not skipBroadcast and self._sessionLoaded and NetChannels and NetChannels.MCM_ENSURE_MODVAR_REGISTERED then
         local payload = {
             varName = varName,
             moduleUUID = moduleUUID,
@@ -175,8 +196,7 @@ end
 ---@param moduleUUID string The UUID of the module
 ---@param storageConfig? table Optional SE configuration parameters
 function ModVarAdapter:_doSetValue(key, value, moduleUUID, storageConfig)
-    -- FIXME: not persisting
-    -- Ensure the variable is registered before writing
+    -- Ensure the variable is registered before writing.
     self:EnsureRegistered(key, moduleUUID, storageConfig)
 
     local ok, err = pcall(function()

@@ -67,6 +67,21 @@ function table.isEmpty(tbl)
     return next(tbl) == nil
 end
 
+---@generic T
+---@param value T The value to copy
+---@return T copy A deep copy of the value
+function table.deepcopy(value)
+    if type(value) ~= "table" then
+        return value
+    end
+
+    local copy = {}
+    for k, v in pairs(value) do
+        copy[k] = table.deepcopy(v)
+    end
+    return copy
+end
+
 ---Merge default values from source into target recursively without overriding existing target values.
 ---@param target table
 ---@param source table

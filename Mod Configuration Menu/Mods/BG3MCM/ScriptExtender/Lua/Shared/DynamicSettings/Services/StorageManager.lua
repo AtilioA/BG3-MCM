@@ -8,9 +8,10 @@ local StorageManager = {}
 
 --- Discover all ModVars for a specific module
 ---@param moduleUUID string The UUID of the module to discover variables for
+---@return integer count Number of ModVars discovered for this module
 local function discoverModVars(moduleUUID)
     local vars = Ext.Vars.GetModVariables(moduleUUID)
-    if not vars then return end
+    if not vars then return 0 end
 
     local count = 0
     for varName, _ in pairs(vars) do
@@ -21,6 +22,8 @@ local function discoverModVars(moduleUUID)
     if count > 0 then
         MCMDebug(2, "Discovered %d ModVars for module %s", count, moduleUUID)
     end
+
+    return count
 end
 
 --- Discover all ModConfig variables for a specific module (future functionality)
@@ -58,24 +61,12 @@ function StorageManager.DiscoverAllVariables()
     MCMDebug(1, "Starting variable discovery for %d modules", totalModules)
 
     for _, moduleUUID in ipairs(moduleUUIDs) do
-        local hasVars = false
-
-        -- Discover ModVars
-        local modvars = Ext.Vars.GetModVariables(moduleUUID)
-        local vars = {}
-        for k, v in pairs(modvars) do
-            vars[k] = v
-        end
-
-        if not table.isEmpty(vars) then
-            discoverModVars(moduleUUID)
-            hasVars = true
-        end
+        local count = discoverModVars(moduleUUID)
 
         -- Discover ModConfig variables (if API is available)
         discoverModConfig(moduleUUID)
 
-        if hasVars then
+        if count > 0 then
             modulesWithVars = modulesWithVars + 1
         end
     end

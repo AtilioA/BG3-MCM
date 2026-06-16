@@ -124,16 +124,24 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
     end
     SettingsService.varToStorageType[moduleUUID][varName] = storageType
 
-    -- If no value exists yet, write the default
     local adapter = AdapterFactory.GetAdapter(storageType)
-    if adapter then
-        local raw = adapter:GetValue(varName, moduleUUID, definition.storageConfig)
-        if raw == nil and definition.default ~= nil then
-            adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
-        end
-    else
+    if not adapter then
         MCMWarn(0, "Register: No adapter found for storage type '%s'", storageType)
         return false
+    end
+
+    -- Register the underlying storage prototype eagerly. This MUST happen now (i.e. when the mod calls MCM.Store.RegisterVar at bootstrap) so SE can restore a ModVar's persisted value BEFORE SessionLoaded.
+    if adapter.EnsureRegistered then
+        adapter:EnsureRegistered(varName, moduleUUID, definition.storageConfig)
+    end
+
+    -- Seed the default only if no value exists. RunWhenReady lets backends (e.g. ModVar) evaluate AFTER the savegame value is restored, never clobbering it; backends such as JSON run immediately.
+    if definition.default ~= nil then
+        adapter:RunWhenReady(function()
+            if adapter:GetValue(varName, moduleUUID, definition.storageConfig) == nil then
+                adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
+            end
+        end)
     end
 
     MCMDebug(2,
@@ -256,18 +264,25 @@ function SettingsService.PromoteVariable(moduleUUID, varName, storageType, defin
     bucket[varName].validate      = definition.validate
     bucket[varName].storageConfig = definition.storageConfig
 
-    -- Immediately write default if no value exists
+    -- Ensure the storage prototype is registered, then seed/repair the default.
     local adapter                 = AdapterFactory.GetAdapter(storageType)
     if adapter then
-        local raw = adapter:GetValue(varName, moduleUUID, definition.storageConfig)
-        if raw == nil and definition.default ~= nil then
-            adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
-        else
-            local ok, _val = pcall(coerceAndValidate, bucket[varName], raw)
-            if not ok then
-                adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
-            end
+        if adapter.EnsureRegistered then
+            adapter:EnsureRegistered(varName, moduleUUID, definition.storageConfig)
         end
+
+        -- RunWhenReady so ModVar evaluates the value AFTER restore (no clobber).
+        adapter:RunWhenReady(function()
+            local raw = adapter:GetValue(varName, moduleUUID, definition.storageConfig)
+            if raw == nil and definition.default ~= nil then
+                adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
+            else
+                local ok = pcall(coerceAndValidate, bucket[varName], raw)
+                if not ok then
+                    adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
+                end
+            end
+        end)
     end
 end
 
@@ -492,8 +507,11 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
     end
     val = result
 
-    --FIXME: deepcopy oldValue since it may be a table
     local oldValue = adapter and adapter:GetValue(varName, moduleUUID, entry.storageConfig) or nil
+    if type(oldValue) == "table" then
+        -- Might not even be needed - will values get serialized for events?
+        oldValue = table.deepcopy(oldValue)
+    end
     if adapter then
         adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
     end
