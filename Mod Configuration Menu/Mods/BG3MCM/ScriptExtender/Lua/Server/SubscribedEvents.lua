@@ -76,9 +76,10 @@ local function wireRequestHandlers()
         local command = netEventsRegistry.commands[registryKey]
         if command then
             channel:SetRequestHandler(function(data, peerId)
+                local userID = MCMUtils:PeerToUserID(peerId)
                 -- Auto-wrap in xpcall for error handling
                 local ok, result = xpcall(function()
-                    return command:execute(data, peerId)
+                    return command:execute(data, userID)
                 end, function(err)
                     MCMError(0, "NetChannel handler error for %s: %s", registryKey, err)
                     return { success = false, error = tostring(err) }
@@ -103,9 +104,10 @@ local function wireRequestHandlers()
         local command = netEventsRegistry.commands[registryKey]
         if command then
             channel:SetHandler(function(data, peerId)
+                local userID = MCMUtils:PeerToUserID(peerId)
                 -- Auto-wrap in xpcall for error handling
                 xpcall(function()
-                    command:execute(data, peerId)
+                    command:execute(data, userID)
                 end, function(err)
                     MCMError(0, "NetChannel handler error for %s: %s", registryKey, err)
                 end)
