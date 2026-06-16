@@ -32,4 +32,22 @@ function AdapterFactory.GetAdapter(storage)
     return adapter
 end
 
+--- True if `storage` maps to a registered adapter (case-insensitive).
+---@param storage StorageType Candidate storage type
+---@return boolean known
+function AdapterFactory.IsKnown(storage)
+    return type(storage) == "string" and AdapterFactory.adapters[string.lower(storage)] ~= nil
+end
+
+--- Sorted, quoted list of registered storage types, for diagnostics.
+---@return string list e.g. "'json', 'modconfig', 'modvar'"
+function AdapterFactory.KnownTypesList()
+    local names = {}
+    for storage in pairs(AdapterFactory.adapters) do
+        names[#names + 1] = string.format("'%s'", storage)
+    end
+    table.sort(names)
+    return table.concat(names, ", ")
+end
+
 return AdapterFactory

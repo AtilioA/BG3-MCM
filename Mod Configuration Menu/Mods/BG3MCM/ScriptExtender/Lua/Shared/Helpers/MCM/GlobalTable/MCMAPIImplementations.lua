@@ -105,7 +105,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@class MCMStoreRegisterOptions
 ---@field default? any The default value for the variable
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
----@field storage? string Optional storage type ("modvar", "json"), defaults to "json"
+---@field storage? StorageType Storage backend for this variable. Defaults to "json". Unknown values warn and fall back to "json".
 ---@field storageConfig? table Optional parameters (Server, Client, Persistent, SyncToClient, etc.)
 ---@field validate? fun(value: any): (boolean, string)? Optional validation function
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
@@ -121,7 +121,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 
 ---@class MCMStoreGetAllArgs
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
----@field storage? string Optional storage type to get values for, defaults to "json"
+---@field storage? StorageType Storage backend to read values from. Defaults to "json". Unknown values warn and fall back to "json".
 
 --- Implementation: Get the value of a setting
 ---@param args MCMGetArgs
@@ -686,9 +686,28 @@ end
 -- =============================================================================
 
 local SettingsService = require("Shared/DynamicSettings/Services/SettingsService")
+local AdapterFactory = require("Shared/DynamicSettings/Factories/AdapterFactory")
 
 -- Default storage type for the Store API
-local DEFAULT_STORAGE_TYPE = "json"
+local DEFAULT_STORAGE_TYPE = AdapterFactory.StorageType.Json
+
+--- Resolve a caller-provided storage type, warning and falling back to the default when unrecognized.
+---@param requested? StorageType Storage type supplied by the caller (nil uses the default)
+---@param context string Caller label for diagnostics, e.g. "MCM.Store.RegisterVar"
+---@return StorageType storage A storage type backed by a registered adapter
+local function resolveStorageType(requested, context)
+    if requested == nil then
+        return DEFAULT_STORAGE_TYPE
+    end
+
+    if not AdapterFactory.IsKnown(requested) then
+        MCMWarn(0, "%s: unknown storage type '%s'; falling back to '%s'. Recognized types: %s.",
+            context, tostring(requested), DEFAULT_STORAGE_TYPE, AdapterFactory.KnownTypesList())
+        return DEFAULT_STORAGE_TYPE
+    end
+
+    return requested
+end
 
 --- Implementation: Register a variable for persistence
 ---@param varName string The variable name
@@ -702,7 +721,7 @@ local function Store_RegisterVar_Impl(varName, options, modUUID)
     end
 
     options = options or {}
-    local storage = options.storage or DEFAULT_STORAGE_TYPE
+    local storage = resolveStorageType(options.storage, "MCM.Store.RegisterVar")
     local finalModUUID = options.modUUID or modUUID
 
     local definition = {
@@ -743,7 +762,7 @@ end
 ---@param args MCMStoreGetAllArgs
 ---@return table<string, any>
 local function Store_GetAll_Impl(args)
-    local storage = args.storage or DEFAULT_STORAGE_TYPE
+    local storage = resolveStorageType(args.storage, "MCM.Store.GetAll")
     return SettingsService.GetAllForStorageType(args.modUUID, storage)
 end
 

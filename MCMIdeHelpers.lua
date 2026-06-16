@@ -117,7 +117,7 @@
 --- @class MCMStoreRegisterOptions
 --- @field default? any The default value for the variable
 --- @field type? string Optional type hint ("boolean", "number", "string", "table")
---- @field storage? string Optional storage type ("json", etc.), defaults to "json". Only json storage is properly implemented at the moment.
+--- @field storage? "json"|"modvar"|"modconfig" Storage backend for this variable. Defaults to "json"; unknown values warn and fall back to "json".
 --- @field storageConfig? MCMStoreStorageConfig Optional storage sync and persistence overrides. Mirrors SE's ModVars defaults
 --- @field validate? fun(value: any): (boolean, string)? Optional validation function
 --- @field modUUID? string Optional mod UUID, override for the default mod UUID
@@ -142,7 +142,7 @@
 
 --- @class MCMStoreGetAllArgs
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
---- @field storage? string Optional storage type, defaults to "json". Only json storage is properly implemented at the moment.
+--- @field storage? "json"|"modvar"|"modconfig" Storage backend to read values from. Defaults to "json"; unknown values warn and fall back to "json".
 
 --- @class MCMStoreAPI Store API for JSON persistence of non-blueprint settings
 --- @field RegisterVar fun(varName:string, options?:MCMStoreRegisterOptions):boolean Register a dynamic variable for persistence
