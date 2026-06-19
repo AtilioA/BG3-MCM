@@ -15,7 +15,7 @@ local function discoverModVars(moduleUUID)
 
     local count = 0
     for varName, _ in pairs(vars) do
-        SettingsService.RegisterDiscoveredVariable(moduleUUID, varName, "ModVar")
+        SettingsService.RegisterDiscoveredVariable(moduleUUID, varName, AdapterFactory.StorageType.ModVar)
         count = count + 1
     end
 
