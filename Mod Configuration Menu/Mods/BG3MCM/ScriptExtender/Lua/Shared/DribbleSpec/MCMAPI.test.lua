@@ -127,4 +127,71 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         D.expect(mods[modUUID].settingsValues["dynamic-enum"]).toBe("option-1")
         D.expect(setSettingValueCalled).toBeFalsy()
     end)
+
+    D.test("TestSameSettingIdIsScopedPerMod", function()
+        local firstModUUID = TestConstants.ModuleUUIDs[1]
+        local secondModUUID = TestConstants.ModuleUUIDs[2]
+        local settingId = "shared-setting-id"
+        local originalMods = MCMAPI.mods
+        local originalModConfigMods = ModConfig.mods
+        local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
+        local originalEmit = ModEventManager.Emit
+
+        local function makeBlueprint(modUUID, defaultValue)
+            return Blueprint:New({
+                ModUUID = modUUID,
+                SchemaVersion = 1,
+                Settings = {
+                    BlueprintSetting:New({
+                        Id = settingId,
+                        Name = "Shared Setting ID",
+                        Type = "checkbox",
+                        Default = defaultValue,
+                    })
+                }
+            })
+        end
+
+        local mods = {
+            [firstModUUID] = {
+                blueprint = makeBlueprint(firstModUUID, false),
+                settingsValues = {
+                    [settingId] = false,
+                },
+            },
+            [secondModUUID] = {
+                blueprint = makeBlueprint(secondModUUID, true),
+                settingsValues = {
+                    [settingId] = false,
+                },
+            },
+        }
+
+        MCMAPI.mods = mods
+        ModConfig.mods = mods
+        ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
+            self.mods[targetModUUID].settingsValues = settings
+        end
+        ModEventManager.Emit = function(...) end
+
+        local ok, err = pcall(function()
+            D.expect(MCMAPI:GetSettingValue(settingId, firstModUUID)).toBe(false)
+            D.expect(MCMAPI:GetSettingValue(settingId, secondModUUID)).toBe(false)
+
+            local success = MCMAPI:SetSettingValue(settingId, true, firstModUUID, false)
+
+            D.expect(success).toBe(true)
+            D.expect(MCMAPI:GetSettingValue(settingId, firstModUUID)).toBe(true)
+            D.expect(MCMAPI:GetSettingValue(settingId, secondModUUID)).toBe(false)
+        end)
+
+        MCMAPI.mods = originalMods
+        ModConfig.mods = originalModConfigMods
+        ModConfig.UpdateAllSettingsForMod = originalUpdateAllSettingsForMod
+        ModEventManager.Emit = originalEmit
+
+        if not ok then
+            error(err)
+        end
+    end)
 end)
