@@ -77,6 +77,7 @@ function LoadedSettingsRepair:HandleListV2SettingMigration(blueprint, setting, s
         string.format("Migrated ListV2 setting %s", setting:GetLocaName()),
         string.format("The ListV2 setting for mod %s has been migrated to the new format.", blueprint:GetModUUID()), {
             duration = 10,
+            displayOnceOnly = true,
         }, ModuleUUID)
 
     MCMSuccess(0, "Successfully migrated ListV2 setting: %s", setting:GetId())
