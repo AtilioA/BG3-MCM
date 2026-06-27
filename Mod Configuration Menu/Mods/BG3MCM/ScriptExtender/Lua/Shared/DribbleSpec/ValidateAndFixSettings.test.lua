@@ -1,5 +1,5 @@
 D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, function()
-    D.test("ShouldFixInvalidSettingsAtRootLevel", function()
+    D.test("ShouldFixInvalidSettingsAtRootLevel", function(ctx)
         -- Create a mock blueprint
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
@@ -38,7 +38,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(config["setting-3"]).toBe(true)
     end)
 
-    D.test("ShouldFixInvalidSettingInsideTab", function()
+    D.test("ShouldFixInvalidSettingInsideTab", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Tabs = {
@@ -75,7 +75,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(fixedConfig["setting-2"]).toBe(42)
     end)
 
-    D.test("ShouldFixInvalidSettingsInsideTab", function()
+    D.test("ShouldFixInvalidSettingsInsideTab", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Tabs = {
@@ -116,7 +116,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(config["setting-3"]).toBe(true)
     end)
 
-    D.test("ShouldFixInvalidSettingInsideTabSection", function()
+    D.test("ShouldFixInvalidSettingInsideTabSection", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Tabs = {
@@ -149,7 +149,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(fixedConfig["setting-1"]).toBe(true)
     end)
 
-    D.test("ShouldKeepValidKeybindingV2WithUppercaseModifier", function()
+    D.test("ShouldKeepValidKeybindingV2WithUppercaseModifier", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -180,7 +180,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(fixedConfig["open_cpf"].Keyboard.ModifierKeys[1]).toBe("LCTRL")
     end)
 
-    D.test("ShouldKeepValidKeybindingV2WithModifierVariants", function()
+    D.test("ShouldKeepValidKeybindingV2WithModifierVariants", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -214,7 +214,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         end
     end)
 
-    D.test("ShouldResetInvalidKeybindingV2Modifier", function()
+    D.test("ShouldResetInvalidKeybindingV2Modifier", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -245,7 +245,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(#fixedConfig["open_cpf"].Keyboard.ModifierKeys).toBe(0)
     end)
 
-    D.test("ShouldFixInvalidListV2Setting", function()
+    D.test("ShouldFixInvalidListV2Setting", function(ctx)
         local defaultListValue = {
             enabled = true,
             elements = {
@@ -284,7 +284,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(fixedConfig["list-v2-setting"]).toBe(defaultListValue)
     end)
 
-    D.test("ShouldKeepValidListV2Setting", function()
+    D.test("ShouldKeepValidListV2Setting", function(ctx)
         local defaultListValue = {
             enabled = false,
             elements = {
@@ -329,7 +329,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(fixedConfig["list-v2-setting"]).toBe(validListValue)
     end)
 
-    D.test("ShouldKeepDynamicEnumStringValueUntilChoicesAreInjected", function()
+    D.test("ShouldKeepDynamicEnumStringValueUntilChoicesAreInjected", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -353,7 +353,7 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(fixedConfig["dynamic-enum"]).toBe("manually-edited-value")
     end)
 
-    D.test("ShouldKeepDynamicEnumStringValueWithChoicesWhenMarkedDynamic", function()
+    D.test("ShouldKeepDynamicEnumStringValueWithChoicesWhenMarkedDynamic", function(ctx)
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -376,5 +376,40 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
         D.expect(fixedConfig["preset_karlach"]).toBe("Karlach AEE")
+    end)
+
+    D.test("ShouldPreserveValidSettingsWhenMixedWithInvalid", function(ctx)
+        local blueprint = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                BlueprintSetting:New({
+                    Id = "valid-int",
+                    Type = "int",
+                    Default = 42
+                }),
+                BlueprintSetting:New({
+                    Id = "invalid-int",
+                    Type = "int",
+                    Default = 100
+                }),
+                BlueprintSetting:New({
+                    Id = "valid-checkbox",
+                    Type = "checkbox",
+                    Default = true
+                }),
+            }
+        })
+
+        local config = {
+            ["valid-int"] = 7,
+            ["invalid-int"] = "not-a-number",
+            ["valid-checkbox"] = false,
+        }
+
+        local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+        D.expect(fixedConfig["valid-int"]).toBe(7)
+        D.expect(fixedConfig["invalid-int"]).toBe(100)
+        D.expect(fixedConfig["valid-checkbox"]).toBe(false)
     end)
 end)

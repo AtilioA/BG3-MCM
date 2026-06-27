@@ -1,5 +1,5 @@
 D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
-    D.test("TestValidateIntSetting", function()
+    D.test("TestValidateIntSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-int",
             Type = "int",
@@ -13,7 +13,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateFloatSetting", function()
+    D.test("TestValidateFloatSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-float",
             Type = "float",
@@ -27,7 +27,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateCheckboxSetting", function()
+    D.test("TestValidateCheckboxAcceptsBooleanTrue", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-checkbox",
             Type = "checkbox",
@@ -36,11 +36,27 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
 
         local isValid, message = DataPreprocessing:ValidateSetting(setting, true)
         D.expect(isValid).toBeTruthy()
+    end)
 
-        isValid, message = DataPreprocessing:ValidateSetting(setting, false)
+    D.test("TestValidateCheckboxAcceptsBooleanFalse", function(ctx)
+        local setting = BlueprintSetting:New({
+            Id = "test-checkbox",
+            Type = "checkbox",
+            Default = true,
+        })
+
+        local isValid, message = DataPreprocessing:ValidateSetting(setting, false)
         D.expect(isValid).toBeTruthy()
+    end)
 
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
+    D.test("TestValidateCheckboxRejectsNonBooleanTypes", function(ctx)
+        local setting = BlueprintSetting:New({
+            Id = "test-checkbox",
+            Type = "checkbox",
+            Default = true,
+        })
+
+        local isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
         D.expect(isValid).toBeFalsy()
 
         isValid, message = DataPreprocessing:ValidateSetting(setting, "true")
@@ -56,7 +72,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateTextSetting", function()
+    D.test("TestValidateTextSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-text",
             Type = "text",
@@ -76,7 +92,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateEnumSetting", function()
+    D.test("TestValidateEnumSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-enum",
             Type = "enum",
@@ -93,7 +109,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateDynamicEnumSettingWithoutChoices", function()
+    D.test("TestValidateDynamicEnumSettingWithoutChoices", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-dynamic-enum",
             Type = "enum",
@@ -110,7 +126,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateDynamicEnumSettingWithChoices", function()
+    D.test("TestValidateDynamicEnumSettingWithChoices", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-dynamic-enum-with-choices",
             Type = "enum",
@@ -128,7 +144,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateRadioSetting", function()
+    D.test("TestValidateRadioSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-radio",
             Type = "radio",
@@ -145,7 +161,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateSliderIntSetting", function()
+    D.test("TestValidateSliderIntSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-slider-int",
             Type = "slider_int",
@@ -166,7 +182,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateSliderFloatSetting", function()
+    D.test("TestValidateSliderFloatSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-slider-float",
             Type = "slider_float",
@@ -190,7 +206,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateDragIntSetting", function()
+    D.test("TestValidateDragIntSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-drag-int",
             Type = "drag_int",
@@ -211,7 +227,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateDragFloatSetting", function()
+    D.test("TestValidateDragFloatSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-drag-float",
             Type = "drag_float",
@@ -235,7 +251,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateColorPickerSetting", function()
+    D.test("TestValidateColorPickerSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "color-picker",
             Type = "color_picker",
@@ -272,7 +288,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateColorEditSetting", function()
+    D.test("TestValidateColorEditSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "color-edit",
             Type = "color_edit",
@@ -309,7 +325,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateKeybindingV2Keyboard", function()
+    D.test("TestValidateKeybindingV2Keyboard", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-kb-binding",
             Type = "keybinding_v2",
@@ -344,7 +360,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeTruthy()
     end)
 
-    D.test("TestValidateKeybindingV2KeyboardModifierVariants", function()
+    D.test("TestValidateKeybindingV2KeyboardModifierVariants", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-kb-binding-variants",
             Type = "keybinding_v2",
@@ -384,7 +400,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(mixedCaseComboIsValid).toBeTruthy()
     end)
 
-    D.test("TestValidateKeybindingV2MouseModifierVariants", function()
+    D.test("TestValidateKeybindingV2MouseModifierVariants", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-mouse-binding-variants",
             Type = "keybinding_v2",
@@ -416,7 +432,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         end
     end)
 
-    D.test("TestValidateKeybindingV2InvalidModifier", function()
+    D.test("TestValidateKeybindingV2InvalidModifier", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-kb-invalid-modifier",
             Type = "keybinding_v2",
@@ -434,7 +450,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateKeybindingV2InvalidModifierVariants", function()
+    D.test("TestValidateKeybindingV2InvalidModifierVariants", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-kb-invalid-modifier-variants",
             Type = "keybinding_v2",
@@ -469,7 +485,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         end
     end)
 
-    D.test("TestValidateKeybindingV2Mouse", function()
+    D.test("TestValidateKeybindingV2Mouse", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-mouse-binding",
             Type = "keybinding_v2",
@@ -510,7 +526,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateKeybindingV2XOR", function()
+    D.test("TestValidateKeybindingV2XOR", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-xor-binding",
             Type = "keybinding_v2",
@@ -547,7 +563,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateListV2Setting", function()
+    D.test("TestValidateListV2Setting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-list-v2",
             Type = "list_v2",
@@ -586,7 +602,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestValidateEventButtonSetting", function()
+    D.test("TestValidateEventButtonSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-event-button-setting",
             Type = "event_button"
@@ -602,7 +618,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(isValid).toBeFalsy()
     end)
 
-    D.test("TestNonExistentSetting", function()
+    D.test("TestNonExistentSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "non-existent",
             Type = "unknown",

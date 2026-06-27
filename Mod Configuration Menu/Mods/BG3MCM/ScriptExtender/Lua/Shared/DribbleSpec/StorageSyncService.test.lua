@@ -1,15 +1,15 @@
-local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
-local JsonAdapter = require("Shared/DynamicSettings/Adapters/JsonAdapter")
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
 
 D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function()
-    D.test("TestStoreSyncChannelsExist", function()
+    D.test("TestStoreSyncChannelsExist", function(ctx)
         D.expect(NetChannels.MCM_CLIENT_SET_STORE_VALUE ~= nil).toBeTruthy()
         D.expect(NetChannels.MCM_SERVER_SYNC_STORE_VALUE ~= nil).toBeTruthy()
         D.expect(NetChannels.MCM_CLIENT_REQUEST_STORE_BOOTSTRAP ~= nil).toBeTruthy()
         D.expect(NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP ~= nil).toBeTruthy()
     end)
 
-    D.test("TestStorageSyncCacheKeyedByStorageType", function()
+    D.test("TestStorageSyncCacheKeyedByStorageType", function(ctx)
         StorageSyncService:ResetForTests()
 
         StorageSyncService:SetCachedValue("json", "mod-1", "k", "json-v")
@@ -19,7 +19,7 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         D.expect(StorageSyncService:GetCachedValue("yaml", "mod-1", "k")).toBe("yaml-v")
     end)
 
-    D.test("TestStorageSyncNoLoopGuards", function()
+    D.test("TestStorageSyncNoLoopGuards", function(ctx)
         StorageSyncService:ResetForTests()
         StorageSyncService:BeginRemoteApply()
         D.expect(StorageSyncService:CanBroadcastLocalWrite({ SyncToClient = true })).toBe(false)
@@ -29,12 +29,17 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         D.expect(StorageSyncService:ShouldApplyOnClient(7, 8)).toBe(true)
     end)
 
-    D.test("TestStorageSyncShouldApplyOnClientWhenOriginIsNil", function()
+    D.test("TestStorageSyncShouldApplyOnClientWhenOriginIsNil", function(ctx)
         StorageSyncService:ResetForTests()
         D.expect(StorageSyncService:ShouldApplyOnClient(nil, 8)).toBe(true)
     end)
 
-    D.test("TestJsonDefaultsMirrorModVarSyncSemantics", function()
+    D.test("TestStorageSyncShouldApplyOnClientWhenBothNil", function(ctx)
+        StorageSyncService:ResetForTests()
+        D.expect(StorageSyncService:ShouldApplyOnClient(nil, nil)).toBe(true)
+    end)
+
+    D.test("TestJsonDefaultsMirrorModVarSyncSemantics", function(ctx)
         local cfg = JsonAdapter:ResolveConfig(nil)
         D.expect(cfg.SyncToClient).toBe(true)
         D.expect(cfg.SyncToServer).toBe(false)
@@ -42,7 +47,7 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         D.expect(cfg.Client).toBe(true)
     end)
 
-    D.test("TestJsonGetPrefersSyncedCache", function()
+    D.test("TestJsonGetPrefersSyncedCache", function(ctx)
         StorageSyncService:ResetForTests()
         StorageSyncService:SetCachedValue("json", TestConstants.ModuleUUIDs[1], "cached-key", "cached-value")
 
@@ -50,7 +55,7 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         D.expect(value).toBe("cached-value")
     end)
 
-    D.test("TestStorageSyncBootstrapPayloadIsDeepCopy", function()
+    D.test("TestStorageSyncBootstrapPayloadIsDeepCopy", function(ctx)
         StorageSyncService:ResetForTests()
         StorageSyncService:SetCachedValue("json", "mod-1", "k", "v")
 

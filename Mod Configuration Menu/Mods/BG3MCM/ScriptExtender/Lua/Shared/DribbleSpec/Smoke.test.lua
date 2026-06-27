@@ -1,5 +1,5 @@
 D.describe("BG3MCM DribbleSpec smoke", { tags = { "smoke", "dribblespec" } }, function()
-    D.test("loads MCM globals", function()
+    D.test("loads MCM globals", function(ctx)
         D.expect(MCMAPI).toBeTruthy()
         D.expect(ModuleUUID).toBe("755a8a72-407f-4f0d-9a33-274ac0f0b53d")
     end)
