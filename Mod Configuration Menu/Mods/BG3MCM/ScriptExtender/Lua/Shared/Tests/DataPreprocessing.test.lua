@@ -2,12 +2,14 @@ TestSuite.RegisterTests("DataPreprocessing", {
     -- Blueprint structure validation
     "TestSanitizeBlueprintWithSchemaVersion",
     "TestSanitizeBlueprintWithoutSchemaVersion",
-    "TestBlueprintShouldntHaveSections",
+    "TestBlueprintAllowsTopLevelSections",
     "TestBlueprintShouldntHaveTabsAndSettings",
     "TestBlueprintShouldHaveTabsOrSettings",
     "TestBlueprintCanAddRootLevelSettingWithoutTabs",
     "TestRootSettingsBlueprintIsValidThroughUsualPath",
     "TestBlueprintShouldHaveSettingsAtSomeLevel",
+    "TestBlueprintShapeIncludesNestedTabSettings",
+    "TestValidateAndFixSettingsIncludesNestedTabSettings",
     "TestHasSchemaVersionsEntry",
     "TestPreprocessData",
     "TestBlueprintDefaultsKeybindingSortMode",
@@ -109,7 +111,7 @@ function TestSanitizeBlueprintWithoutSchemaVersion()
     TestSuite.AssertNil(sanitizedBlueprint)
 end
 
-function TestBlueprintShouldntHaveSections()
+function TestBlueprintAllowsTopLevelSections()
     local rawData = {
         SchemaVersion = 1,
         Sections = {
@@ -131,7 +133,8 @@ function TestBlueprintShouldntHaveSections()
 
     local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
-    TestSuite.AssertNil(sanitizedBlueprint)
+    TestSuite.AssertNotNil(sanitizedBlueprint)
+    TestSuite.AssertNotNil(sanitizedBlueprint:GetAllSettings()["setting-1"])
 end
 
 function TestBlueprintShouldHaveTabsOrSettings()
@@ -266,6 +269,73 @@ function TestBlueprintShouldHaveSettingsAtSomeLevel()
     TestSuite.AssertTrue(next(allSettingsRootLevel) ~= nil)
     TestSuite.AssertTrue(next(allSettingsTabLevel) ~= nil)
     TestSuite.AssertTrue(next(allSettingsSectionLevel) ~= nil)
+end
+
+function TestBlueprintShapeIncludesNestedTabSettings()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local rawData = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "tab-1",
+                TabName = "Main",
+                Tabs = {
+                    {
+                        TabId = "nested-tab-1",
+                        TabName = "Nested",
+                        Settings = {
+                            {
+                                Id = "nested-setting",
+                                Name = "Nested Setting",
+                                Type = "checkbox",
+                                Default = true,
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    local blueprint = preprocessAndSanitize(rawData, modUUID)
+
+    TestSuite.AssertNotNil(blueprint)
+    TestSuite.AssertNotNil(blueprint:GetAllSettings()["nested-setting"])
+    TestSuite.AssertEquals(blueprint:RetrieveDefaultValueForSetting("nested-setting"), true)
+end
+
+function TestValidateAndFixSettingsIncludesNestedTabSettings()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "tab-1",
+                TabName = "Main",
+                Tabs = {
+                    {
+                        TabId = "nested-tab-1",
+                        TabName = "Nested",
+                        Settings = {
+                            {
+                                Id = "nested-int",
+                                Name = "Nested Int",
+                                Type = "int",
+                                Default = 7,
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    local config = {
+        ["nested-int"] = "broken"
+    }
+
+    local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+    TestSuite.AssertEquals(fixedConfig["nested-int"], 7)
 end
 
 function TestUniqueTabIds()

@@ -4,6 +4,9 @@ TestSuite.RegisterTests("ModConfig", {
     "TestAddKeysMissingFromBlueprintShouldUseNotOldIdOnlyIfValueOnCurrentId",
     "TestSaveSettingsForModShouldPersistRootSettings",
     "TestSaveSettingsForModShouldFallbackToRootDefault",
+    "TestSaveSettingsForModShouldPersistNestedSettings",
+    "TestLoadedSettingsRepairShouldFlattenMigrateAndValidate",
+    "TestLoadedSettingsRepairShouldPreserveEmptyUnknownTables",
 })
 
 function TestAddKeysMissingFromBlueprintShouldUseOldIdOnlyIfNoValueOnCurrentId()
@@ -161,4 +164,124 @@ function TestSaveSettingsForModShouldFallbackToRootDefault()
     end
 
     TestSuite.AssertEquals(capturedData["root-setting"], true)
+end
+
+function TestSaveSettingsForModShouldPersistNestedSettings()
+    local modUUID = TestConstants.ModuleUUIDs[1]
+    local rawData = {
+        SchemaVersion = 1,
+        Tabs = {
+            {
+                TabId = "main-tab",
+                TabName = "Main",
+                Tabs = {
+                    {
+                        TabId = "nested-tab",
+                        TabName = "Nested",
+                        Settings = {
+                            {
+                                Id = "nested-setting",
+                                Name = "Nested Setting",
+                                Type = "checkbox",
+                                Default = true,
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    local blueprint = Blueprint:New(DataPreprocessing:PreprocessData(rawData, modUUID))
+    local originalMods = ModConfig.mods
+    local originalGetSettingsFilePath = ModConfig.GetSettingsFilePath
+    local originalSaveJSONFile = JsonLayer.SaveJSONFile
+    local capturedData = nil
+
+    ModConfig.mods = {
+        [modUUID] = {
+            blueprint = blueprint,
+            settingsValues = {
+                ["nested-setting"] = false,
+            }
+        }
+    }
+
+    ModConfig.GetSettingsFilePath = function(_self, _modUUID)
+        return "mock/settings.json"
+    end
+
+    JsonLayer.SaveJSONFile = function(_self, _path, data)
+        capturedData = data
+    end
+
+    local ok, err = pcall(function()
+        ModConfig:SaveSettingsForMod(modUUID)
+    end)
+
+    ModConfig.mods = originalMods
+    ModConfig.GetSettingsFilePath = originalGetSettingsFilePath
+    JsonLayer.SaveJSONFile = originalSaveJSONFile
+
+    if not ok then
+        error(err)
+    end
+
+    TestSuite.AssertEquals(capturedData["main-tab"]["nested-tab"]["nested-setting"], false)
+end
+
+function TestLoadedSettingsRepairShouldFlattenMigrateAndValidate()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "list-v2-setting",
+                Type = "list_v2",
+                Default = {
+                    enabled = true,
+                    elements = {}
+                }
+            },
+            {
+                Id = "int-setting",
+                Type = "int",
+                Default = 42
+            }
+        }
+    })
+
+    local repaired = LoadedSettingsRepair:Repair(blueprint, {
+        group = {
+            ["list-v2-setting"] = { "Alpha", "Beta" },
+            ["int-setting"] = "broken",
+        }
+    })
+
+    TestSuite.AssertEquals(repaired["list-v2-setting"].enabled, true)
+    TestSuite.AssertEquals(repaired["list-v2-setting"].elements[1].name, "Alpha")
+    TestSuite.AssertEquals(repaired["int-setting"], 42)
+end
+
+function TestLoadedSettingsRepairShouldPreserveEmptyUnknownTables()
+    local blueprint = Blueprint:New({
+        SchemaVersion = 1,
+        Settings = {
+            {
+                Id = "known-setting",
+                Type = "checkbox",
+                Default = true
+            }
+        }
+    })
+
+    local settings = {
+        ["known-setting"] = false,
+        ["unknown-empty"] = {},
+        ["unknown-value"] = "remove me",
+    }
+
+    LoadedSettingsRepair:RemoveDeprecatedKeys(blueprint, settings)
+
+    TestSuite.AssertNotNil(settings["unknown-empty"])
+    TestSuite.AssertNil(settings["unknown-value"])
 end

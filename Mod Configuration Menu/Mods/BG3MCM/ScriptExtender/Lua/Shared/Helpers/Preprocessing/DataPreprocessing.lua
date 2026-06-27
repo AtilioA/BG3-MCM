@@ -10,38 +10,11 @@ DataPreprocessing = _Class:Create("HelperDataPreprocessing", nil)
 function DataPreprocessing:ValidateSettings(blueprint, settings)
     local invalidSettings = {}
 
-    local BlueprintTabs = blueprint:GetTabs()
-    local BlueprintSettings = blueprint:GetSettings()
-
-    if BlueprintTabs then
-        for _, tab in ipairs(BlueprintTabs) do
-            -- Check if the tab has sections
-            if #tab:GetSections() > 0 then
-                for _, section in ipairs(tab:GetSections()) do
-                    for _, setting in ipairs(section:GetSettings()) do
-                        if not self:ValidateSetting(setting, settings[setting:GetId()]) then
-                            table.insert(invalidSettings, setting:GetId())
-                        end
-                    end
-                end
-            else
-                -- Validate settings directly in the tab
-                for _, setting in ipairs(tab:GetSettings()) do
-                    if not self:ValidateSetting(setting, settings[setting:GetId()]) then
-                        table.insert(invalidSettings, setting:GetId())
-                    end
-                end
-            end
+    BlueprintShape:ForEachSetting(blueprint, function(setting)
+        if not self:ValidateSetting(setting, settings[setting:GetId()]) then
+            table.insert(invalidSettings, setting:GetId())
         end
-    end
-
-    if BlueprintSettings then
-        for _, setting in ipairs(BlueprintSettings) do
-            if not self:ValidateSetting(setting, settings[setting:GetId()]) then
-                table.insert(invalidSettings, setting:GetId())
-            end
-        end
-    end
+    end)
 
     return #invalidSettings == 0, invalidSettings
 end
@@ -103,59 +76,13 @@ function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invali
     end
 end
 
---- Recursively preprocess tabs and sections to create Blueprint instances for each element found.
----@param elementData table The current tab or section data to preprocess.
----@param modUUID string The UUID of the mod that the item data belongs to.
----@return table - The preprocessed tab or section data.
-function DataPreprocessing:RecursivePreprocess(elementData, modUUID)
-    local processedData = {
-        Settings = {}
-    }
+---@param settings table[]|nil
+---@return BlueprintSetting[]
+function DataPreprocessing:PreprocessSettings(settings)
+    local processedSettings = {}
 
-    if elementData.TabName or elementData.Name then
-        processedData = BlueprintTab:New({
-            TabId = elementData.TabId or elementData.Id,
-            TabName = elementData.TabName or elementData.Name,
-            TabDescription = elementData.TabDescription or elementData.Description,
-            VisibleIf = elementData.VisibleIf,
-            Tabs = elementData.Tabs or {}, -- Tabs might also have nested Tabs
-            Sections = elementData.Sections or {},
-            -- Settings = elementData.Settings or {},
-            Handles = elementData.Handles or {}
-        })
-
-        -- Process nested Tabs if they exist
-        if elementData.Tabs then
-            for _, nestedTab in ipairs(elementData.Tabs) do
-                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modUUID))
-            end
-        end
-    end
-
-    if elementData.SectionName then
-        processedData = BlueprintSection:New({
-            SectionId = elementData.SectionId or elementData.Id,
-            SectionName = elementData.SectionName or elementData.Name,
-            SectionDescription = elementData.SectionDescription or elementData.Description,
-            VisibleIf = elementData.VisibleIf,
-            -- TODO: validate Options input
-            Options = elementData.Options or {},
-            Tabs = elementData.Tabs or {}, -- Sections might also have nested Tabs
-            -- Settings = elementData.Settings or {},
-            Handles = elementData.Handles or {}
-        })
-
-        -- Process nested Tabs in Sections if they exist
-        if elementData.Tabs then
-            for _, nestedTab in ipairs(elementData.Tabs) do
-                table.insert(processedData.Tabs, self:RecursivePreprocess(nestedTab, modUUID))
-            end
-        end
-    end
-
-    -- Common processing for Settings in both Tabs and Sections
-    for _, setting in ipairs(elementData.Settings or {}) do
-        local newSetting = BlueprintSetting:New({
+    for _, setting in ipairs(settings or {}) do
+        table.insert(processedSettings, BlueprintSetting:New({
             Id = setting.Id,
             OldId = setting.OldId,
             Name = setting.Name,
@@ -166,11 +93,82 @@ function DataPreprocessing:RecursivePreprocess(elementData, modUUID)
             Tooltip = setting.Tooltip,
             Options = setting.Options or {},
             Handles = setting.Handles or {}
-        })
-        table.insert(processedData.Settings, newSetting)
+        }))
     end
 
-    return processedData
+    return processedSettings
+end
+
+---@param target BlueprintTab[]
+---@param rawTabs table[]|nil
+---@param modUUID string
+function DataPreprocessing:AppendTabs(target, rawTabs, modUUID)
+    for _, rawTab in ipairs(rawTabs or {}) do
+        table.insert(target, self:PreprocessTab(rawTab, modUUID) or BlueprintTab:New({}))
+    end
+end
+
+---@param target BlueprintSection[]
+---@param rawSections table[]|nil
+---@param modUUID string
+function DataPreprocessing:AppendSections(target, rawSections, modUUID)
+    for _, rawSection in ipairs(rawSections or {}) do
+        table.insert(target, self:PreprocessSection(rawSection, modUUID) or BlueprintSection:New({}))
+    end
+end
+
+---@param tabData table
+---@param modUUID string
+---@return BlueprintTab|nil
+function DataPreprocessing:PreprocessTab(tabData, modUUID)
+    if not (tabData.TabId or tabData.Id) or not (tabData.TabName or tabData.Name) then
+        return nil
+    end
+
+    local tab = BlueprintTab:New({
+        TabId = tabData.TabId or tabData.Id,
+        TabName = tabData.TabName or tabData.Name,
+        TabDescription = tabData.TabDescription or tabData.Description,
+        VisibleIf = tabData.VisibleIf,
+        Tabs = {},
+        Sections = {},
+        Settings = {},
+        Handles = tabData.Handles or {}
+    })
+
+    tab.Settings = self:PreprocessSettings(tabData.Settings)
+
+    self:AppendTabs(tab.Tabs, tabData.Tabs, modUUID)
+    self:AppendSections(tab.Sections, tabData.Sections, modUUID)
+
+    return tab
+end
+
+---@param sectionData table
+---@param modUUID string
+---@return BlueprintSection|nil
+function DataPreprocessing:PreprocessSection(sectionData, modUUID)
+    if not (sectionData.SectionId or sectionData.Id) or not (sectionData.SectionName or sectionData.Name) then
+        return nil
+    end
+
+    local section = BlueprintSection:New({
+        SectionId = sectionData.SectionId or sectionData.Id,
+        SectionName = sectionData.SectionName or sectionData.Name,
+        SectionDescription = sectionData.SectionDescription or sectionData.Description,
+        VisibleIf = sectionData.VisibleIf,
+        -- TODO: validate Options input
+        Options = sectionData.Options or {},
+        Tabs = {},
+        Settings = {},
+        Handles = sectionData.Handles or {}
+    })
+
+    section.Settings = self:PreprocessSettings(sectionData.Settings)
+
+    self:AppendTabs(section.Tabs, sectionData.Tabs, modUUID)
+
+    return section
 end
 
 --- Entry point function to preprocess data including SchemaVersion and ModName.
@@ -187,18 +185,13 @@ function DataPreprocessing:PreprocessData(data, modUUID)
         KeybindingSortMode = data.KeybindingSortMode or KeybindingSortMode.DEFAULT,
         Handles = data.Handles,
         Tabs = {},
+        Sections = {},
         Settings = {}
     }
 
-    -- Recursively process each top-level Tab
-    for _, tab in ipairs(data.Tabs or {}) do
-        table.insert(preprocessedData.Tabs, self:RecursivePreprocess(tab, modUUID))
-    end
-
-    -- Process each top-level Setting
-    for _, setting in ipairs(data.Settings or {}) do
-        table.insert(preprocessedData.Settings, BlueprintSetting:New(setting))
-    end
+    self:AppendTabs(preprocessedData.Tabs, data.Tabs, modUUID)
+    self:AppendSections(preprocessedData.Sections, data.Sections, modUUID)
+    preprocessedData.Settings = self:PreprocessSettings(data.Settings)
 
     return preprocessedData
 end

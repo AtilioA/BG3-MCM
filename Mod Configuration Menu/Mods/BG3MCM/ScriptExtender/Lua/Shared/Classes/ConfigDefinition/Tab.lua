@@ -96,6 +96,12 @@ function BlueprintTab:GetVisibleIf()
     return self.VisibleIf
 end
 
+--- Get nested tabs of the BlueprintTab.
+--- @return BlueprintTab[]
+function BlueprintTab:GetTabs()
+    return self.Tabs
+end
+
 --- Get the Sections of the BlueprintTab.
 --- @return BlueprintSection[]
 --- @return nil - If there are no sections
@@ -143,17 +149,5 @@ end
 --- Get all settings under this tab, including those in sections.
 --- @return BlueprintSetting[]
 function BlueprintTab:GetAllSettings()
-    local settings = {}
-
-    for _, setting in ipairs(self.Settings or {}) do
-        table.insert(settings, setting)
-    end
-
-    for _, section in ipairs(self.Sections or {}) do
-        for _, setting in ipairs(section:GetSettings() or {}) do
-            table.insert(settings, setting)
-        end
-    end
-
-    return settings
+    return BlueprintShape:GetAllSettingsOrdered(self)
 end

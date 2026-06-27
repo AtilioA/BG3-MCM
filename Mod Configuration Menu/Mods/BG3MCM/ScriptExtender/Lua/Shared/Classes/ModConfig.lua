@@ -84,7 +84,6 @@ function ModConfig:GetSettingsFilePath(modUUID)
     return self.profileManager:GetModProfileSettingsPath(modUUID) .. "/settings.json"
 end
 
--- TODO: as always, refactor this nuclear waste (might only do when introducing recursive handling of tabs and sections)
 --- Save the settings for a mod to the settings file with tab and section information.
 --- @param modUUID GUIDSTRING The mod's UUID to save the settings for.
 function ModConfig:SaveSettingsForMod(modUUID)
@@ -93,53 +92,16 @@ function ModConfig:SaveSettingsForMod(modUUID)
     local settings = self.mods[modUUID].settingsValues
     local updatedSettings = {}
 
-    for _, setting in ipairs(blueprint:GetSettings() or {}) do
+    BlueprintShape:ForEachSetting(blueprint, function(setting, path)
         local settingId = setting:GetId()
         if settingId then
             local updatedSetting = settings[settingId]
             if updatedSetting == nil then
                 updatedSetting = setting:GetDefault()
             end
-            updatedSettings[settingId] = updatedSetting
+            BlueprintShape:SetNestedSettingValue(updatedSettings, path, settingId, updatedSetting)
         end
-    end
-
-    for _, tab in ipairs(blueprint:GetTabs()) do
-        local tabId = tab.TabId
-        if tabId then
-            updatedSettings[tabId] = updatedSettings[tabId] or {}
-            if tab.Settings then -- Check if tab has direct settings
-                for _, setting in ipairs(tab:GetSettings()) do
-                    local settingId = setting.Id
-                    if settingId then
-                        local updatedSetting = settings[settingId]
-                        if updatedSetting == nil then
-                            updatedSetting = setting:GetDefault()
-                        end
-                        updatedSettings[tabId][settingId] = updatedSetting
-                    end
-                end
-            end
-            if tab.Sections then -- Check if tab has sections with settings
-                for _, section in ipairs(tab.Sections) do
-                    local sectionId = section.SectionId
-                    if sectionId then
-                        updatedSettings[tabId][sectionId] = updatedSettings[tabId][sectionId] or {}
-                        for _, setting in ipairs(section:GetSettings()) do
-                            local settingId = setting.Id
-                            if settingId then
-                                local updatedSetting = settings[settingId]
-                                if updatedSetting == nil then
-                                    updatedSetting = setting:GetDefault()
-                                end
-                                updatedSettings[tabId][sectionId][settingId] = updatedSetting
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
+    end)
 
     JsonLayer:SaveJSONFile(configFilePath, updatedSettings)
 end
@@ -230,25 +192,6 @@ function ModConfig:GetSettings()
     return self.mods
 end
 
--- Function to determine if a setting group should be preserved in the settings file (when flattening the JSON)
-local function shouldPreserveSettingGroup(key, value)
-    -- Function to determine if a table is a setting group
-    local function isListV2SettingGroup(tbl)
-        return type(tbl) == "table" and tbl.elements ~= nil and tbl.enabled ~= nil
-    end
-
-    local function isKeybindingV2SettingGroup(tbl)
-        return type(tbl) == "table" and tbl.Keyboard ~= nil
-    end
-
-    if isKeybindingV2SettingGroup(value)
-        or isListV2SettingGroup(value)
-        or table.isArray(value)
-        or KeybindingManager:IsKeybindingTable(value) then
-        return true
-    end
-end
-
 --- Load the settings for a mod from the settings file.
 ---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
@@ -256,55 +199,18 @@ function ModConfig:LoadSettingsForMod(modUUID, blueprint)
     local settingsFilePath = self:GetSettingsFilePath(modUUID)
     local settings = JsonLayer:LoadJSONFile(settingsFilePath)
     if settings then
-        local flattenedSettings = JsonLayer:FlattenSettingsJSON(settings, shouldPreserveSettingGroup)
-        self:HandleLoadedSettings(modUUID, blueprint, flattenedSettings, settingsFilePath)
+        self:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
     else
         self:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
     end
 end
 
 function ModConfig:MigrateDeprecatedKeys(blueprint, settings)
-    local allSettings = blueprint:GetAllSettings()
-    MCMDebug(2, "Migrating deprecated keys for blueprint: %s", blueprint:GetModUUID())
-
-    for _, setting in pairs(allSettings) do
-        -- If it's a listV2 setting, migrate it to the new format
-        self:HandleListV2SettingMigration(blueprint, setting, settings)
-    end
+    return LoadedSettingsRepair:MigrateDeprecatedKeys(blueprint, settings)
 end
 
 function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
-    if setting:GetType() ~= "list_v2" then
-        return
-    end
-
-    local oldSetting = settings[setting:GetId()]
-    if not oldSetting or type(oldSetting) ~= "table" or oldSetting.elements ~= nil then
-        MCMDebug(3, "Old setting for %s does not exist or is not valid. Skipping migration.", setting:GetId())
-        return
-    end
-
-    settings[setting:GetId()] = {
-        elements = {},
-        enabled = true
-    }
-
-    for _, element in ipairs(oldSetting) do
-        -- MCMDebug(1, "Migrating element: " .. element .. " for setting: " .. setting:GetId())
-        table.insert(settings[setting:GetId()].elements, {
-            name = element,
-            enabled = true
-        })
-    end
-
-    NotificationManager:CreateIMGUINotification('Migrated_listV2_setting_' ..
-        setting:GetId() .. 'for_mod_' .. blueprint:GetModUUID(), 'success',
-        "Migrated ListV2 setting %s", setting:GetLocaName(),
-        " The ListV2 setting for mod %s has been migrated to the new format.", blueprint:GetModUUID(), {
-            duration = 10,
-        }, ModuleUUID)
-
-    MCMSuccess(0, "Successfully migrated ListV2 setting: %s", setting:GetId())
+    return LoadedSettingsRepair:HandleListV2SettingMigration(blueprint, setting, settings)
 end
 
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
@@ -314,12 +220,7 @@ end
 ---@param settingsFilePath string The file path of the settings.json file
 function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
     MCMSuccess(1, "Loaded settings for mod: %s", Ext.Mod.GetMod(modUUID).Info.Name)
-    self:MigrateDeprecatedKeys(blueprint, settings)
-    -- Add new settings, remove deprecated settings, update JSON file
-    self:AddKeysMissingFromBlueprint(blueprint, settings)
-    self:RemoveDeprecatedKeys(blueprint, settings)
-
-    settings = DataPreprocessing:ValidateAndFixSettings(blueprint, settings)
+    settings = LoadedSettingsRepair:Repair(blueprint, settings)
     JsonLayer:SaveJSONFile(settingsFilePath, settings)
 
     self.mods[modUUID].settingsValues = settings
@@ -343,45 +244,14 @@ end
 --- @param blueprint Blueprint The blueprint to use for the settings
 --- @param settings BlueprintSetting The settings to update
 function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
-    local allSettings = blueprint:GetAllSettings()
-    for _, setting in pairs(allSettings) do
-        if settings[setting:GetId()] == nil then
-            MCMDebug(1, "Setting missing: %s", setting:GetId())
-            if settings[setting:GetOldId()] ~= nil then
-                settings[setting:GetId()] = settings[setting:GetOldId()]
-                MCMDebug(3, "Using old setting value for: %s", setting:GetId())
-            else
-                settings[setting:GetId()] = setting:GetDefault()
-                MCMDebug(2, "Setting default value for: %s", setting:GetId())
-            end
-        end
-    end
+    return LoadedSettingsRepair:AddKeysMissingFromBlueprint(blueprint, settings)
 end
 
 --- Clean up settings entries that are not present in the blueprint
 ---@param blueprint Blueprint The blueprint for the mod
 ---@param settings BlueprintSetting The settings to clean up
 function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
-    -- Create a set of valid setting names from the blueprint
-    local validSettings = {}
-
-    local allSettings = blueprint:GetAllSettings()
-    for id, _setting in pairs(allSettings) do
-        validSettings[id] = true
-    end
-
-    -- Remove any settings that are not in the valid set
-    for key, value in pairs(settings) do
-        if not validSettings[key] then
-            -- Keep empty tables
-            if type(value) == "table" and next(value) == nil then
-                -- Do nothing
-            else
-                MCMWarn(2, "Removing deprecated setting: %s", key)
-                settings[key] = nil
-            end
-        end
-    end
+    return LoadedSettingsRepair:RemoveDeprecatedKeys(blueprint, settings)
 end
 
 --- SECTION: BLUEPRINT HANDLING

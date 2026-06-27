@@ -74,6 +74,12 @@ function BlueprintSection:GetVisibleIf()
     return self.VisibleIf
 end
 
+--- Get nested tabs of the BlueprintSection.
+--- @return BlueprintTab[]
+function BlueprintSection:GetTabs()
+    return self.Tabs
+end
+
 function BlueprintSection:GetSettings()
     return self.Settings
 end

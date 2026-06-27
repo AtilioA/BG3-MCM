@@ -192,59 +192,21 @@ function Blueprint:AddSetting(settingOptions)
 end
 
 function Blueprint:GetAllSettings()
-    local allSettings = {}
-
-    -- Collect root-level Settings if they exist
-    for _, setting in ipairs(self.Settings or {}) do
-        allSettings[setting:GetId()] = setting
-    end
-
-    -- Traverse Tabs and their Sections to collect Settings
-    for _, tab in ipairs(self.Tabs or {}) do
-        for _, setting in pairs(tab:GetAllSettings() or {}) do
-            allSettings[setting:GetId()] = setting
-        end
-    end
-
-    return allSettings
+    return BlueprintShape:GetAllSettings(self)
 end
 
 --- Get all settings as an ordered array, preserving blueprint order.
 --- This is useful for keybindings where order matters.
 ---@return BlueprintSetting[]
 function Blueprint:GetAllSettingsOrdered()
-    local settings = {}
-
-    for _, setting in ipairs(self.Settings or {}) do
-        table.insert(settings, setting)
-    end
-
-    for _, tab in ipairs(self.Tabs or {}) do
-        for _, setting in ipairs(tab:GetAllSettings() or {}) do
-            table.insert(settings, setting)
-        end
-    end
-
-    return settings
+    return BlueprintShape:GetAllSettingsOrdered(self)
 end
 
 --- Retrieve the default value for a setting by name
 ---@param settingId string The name/key of the setting to retrieve the default value for
 ---@return any setting.Default The default value for the setting
 function Blueprint:RetrieveDefaultValueForSetting(settingId)
-    local settings = self:GetAllSettings()
-
-    if not settings then
-        MCMWarn(1, "No settings found in blueprint. Returning nil as default value.")
-        return nil
-    end
-
-    if not settings[settingId] then
-        MCMWarn(1, "Setting with ID %s not found in blueprint. Returning nil as default value.", settingId)
-        return nil
-    end
-
-    return settings[settingId]:GetDefault()
+    return BlueprintShape:RetrieveDefaultValueForSetting(self, settingId)
 end
 
 --- Retrieve all the default values for all the settings in the blueprint

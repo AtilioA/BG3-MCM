@@ -10,66 +10,25 @@ BlueprintPreprocessing.currentmodUUID = nil
 ---@param blueprint Blueprint The blueprint data
 ---@return boolean True if all elements have valid IDs, false otherwise
 function BlueprintPreprocessing:CheckValidIDs(blueprint)
-    local function checkValidID(element)
+    local function hasValidID(element)
         if not element.GetId then
             return true
         end
 
-        if not element:GetId() or element:GetId() == "" then
-            return false
-        end
-        return true
+        return element:GetId() and element:GetId() ~= ""
     end
 
-    local function traverseBlueprint(element)
-        local isValid = true
+    local isValid = true
 
-        if not checkValidID(element) then
+    BlueprintShape:ForEachElement(blueprint, function(element)
+        if not hasValidID(element) then
             isValid = false
-        end
-
-        -- Check tabs
-        if element.GetTabs then
-            local tabs = element:GetTabs()
-            if tabs then
-                for _, tab in ipairs(tabs) do
-                    if not traverseBlueprint(tab) then
-                        isValid = false
-                    end
-                end
-            end
-        end
-
-        if element.GetSections then
-            local sections = element:GetSections()
-            if sections then
-                for _, section in ipairs(sections) do
-                    if not traverseBlueprint(section) then
-                        isValid = false
-                    end
-                end
-            end
-        end
-
-        if element.GetSettings then
-            local settings = element:GetSettings()
-            if settings then
-                for _, setting in ipairs(settings) do
-                    if not checkValidID(setting) then
-                        isValid = false
-                    end
-                end
-            end
-        end
-
-        if not isValid then
             MCMWarn(0,
                 "Missing ID in element: " .. (element and element.GetLocaName and element:GetLocaName() or "Unknown"))
         end
-        return isValid
-    end
+    end)
 
-    return traverseBlueprint(blueprint)
+    return isValid
 end
 
 --- Validate the structure of the blueprint data
@@ -83,31 +42,12 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
     local hasSettings = blueprint:GetSettings() and #blueprint:GetSettings() > 0
 
     --- Check if blueprint does NOT have both tabs and settings
-    if not hasTabs and not hasSettings then
-        -- _D(blueprint)
-        MCMWarn(0,
-            "Blueprint for mod '" ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
-            "' does not have any tabs or settings. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return true
-    elseif hasTabs and hasSettings then
+    if hasTabs and hasSettings then
         MCMWarn(0,
             "Blueprint for mod '" ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
             "' has both tabs and settings. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return true
-    end
-
-    --- Check if blueprint does NOT have sections directly at the top level
-    --- TODO: remove this stupid design decision, sections should be allowed at the top level. This was not possible before the 1.7 layout though.
-    local hasSections = blueprint:GetSections() and #blueprint:GetSections() > 0
-    if hasSections then
-        MCMWarn(0,
-            "Sections found directly in blueprint for mod '" ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
-            "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return true
     end
 
@@ -121,6 +61,12 @@ function BlueprintPreprocessing:HasIncorrectStructure(blueprint)
 
     if not self:ValidateTabStructure(blueprint:GetTabs()) then
         return true
+    end
+
+    for _, section in ipairs(BlueprintShape:GetSections(blueprint)) do
+        if not self:ValidateTabStructure(BlueprintShape:GetTabs(section)) then
+            return true
+        end
     end
 
     return false
@@ -143,10 +89,16 @@ function BlueprintPreprocessing:ValidateTabStructure(tabs)
             return false
         end
 
-        local nestedTabs = tab.Tabs or {}
+        local nestedTabs = BlueprintShape:GetTabs(tab)
 
         if not self:ValidateTabStructure(nestedTabs) then
             return false
+        end
+
+        for _, section in ipairs(BlueprintShape:GetSections(tab)) do
+            if not self:ValidateTabStructure(BlueprintShape:GetTabs(section)) then
+                return false
+            end
         end
     end
 
@@ -156,53 +108,43 @@ end
 --- Verify that all tabs in the blueprint have unique IDs
 ---@param blueprint table The blueprint data to verify
 function BlueprintPreprocessing:VerifyTabIDUniqueness(blueprint)
-    local tabs = blueprint.Tabs
-    if tabs == nil then
-        return true
-    end
-
     local tabIDs = {}
 
-    for _, tab in ipairs(tabs) do
-        if tabIDs[tab.TabId] then
+    local isValid = true
+    BlueprintShape:ForEachTab(blueprint, function(tab)
+        if tabIDs[tab:GetId()] then
             MCMWarn(0,
                 "Duplicate tab ID found in blueprint for mod '" ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
                 "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
+            isValid = false
+            return
         end
-        tabIDs[tab.TabId] = true
-    end
+        tabIDs[tab:GetId()] = true
+    end)
 
-    return true
+    return isValid
 end
 
 --- Verify that all sections in the blueprint have unique IDs
 ---@param blueprint table The blueprint data to verify
 function BlueprintPreprocessing:VerifySectionIDUniqueness(blueprint)
-    local tabs = blueprint.Tabs
-    if tabs == nil then
-        return true
-    end
-
     local sectionIDs = {}
+    local isValid = true
 
-    for _, tab in ipairs(tabs) do
-        if tab.Sections == nil or table.isEmpty(tab.Sections) then goto continue end
-        for _, section in ipairs(tab.Sections) do
-            if sectionIDs[section.SectionId] then
-                MCMWarn(0,
-                    "Duplicate section ID found in blueprint for mod '" ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
-                    "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-            sectionIDs[section.SectionId] = true
+    BlueprintShape:ForEachSection(blueprint, function(section)
+        if sectionIDs[section:GetId()] then
+            MCMWarn(0,
+                "Duplicate section ID found in blueprint for mod '" ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+                "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+            return
         end
-        ::continue::
-    end
+        sectionIDs[section:GetId()] = true
+    end)
 
-    return true
+    return isValid
 end
 
 --- Verify that all setting IDs in the blueprint are unique
@@ -211,54 +153,21 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint)
     local settingIDs = {}
     local isValid = true
 
-    local function checkSettingIDUniqueness(settings)
-        for _, setting in ipairs(settings) do
-            if setting ~= nil then
-                if settingIDs[setting.Id] then
-                    MCMWarn(0,
-                        "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod '" ..
-                        Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
-                        "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                    isValid = false
-                    goto continue
-                end
-                settingIDs[setting.Id] = true
-            end
-            ::continue::
-        end
-    end
-
-    local rootSettings = blueprint:GetSettings()
-    if rootSettings ~= nil then
-        checkSettingIDUniqueness(rootSettings)
-    end
-
-    local tabs = blueprint:GetTabs()
-    if tabs == nil then
-        return isValid
-    end
-
-    for _, tab in ipairs(tabs) do
-        local tabSettings = tab:GetSettings()
-        if tabSettings ~= nil then
-            checkSettingIDUniqueness(tabSettings)
+    BlueprintShape:ForEachSetting(blueprint, function(setting)
+        if setting == nil then
+            return
         end
 
-        local tabSections = tab:GetSections()
-        if tabSections == nil then
-            goto continue
+        if settingIDs[setting.Id] then
+            MCMWarn(0,
+                "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod '" ..
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
+                "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            isValid = false
+            return
         end
-
-        for _, section in ipairs(tabSections) do
-            local sectionSettings = section:GetSettings()
-            if sectionSettings == nil then
-                goto continue_inner
-            end
-            checkSettingIDUniqueness(sectionSettings)
-            ::continue_inner::
-        end
-        ::continue::
-    end
+        settingIDs[setting.Id] = true
+    end)
 
     return isValid
 end
@@ -597,11 +506,11 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
 
     local default = setting.Default
     if default and type(default) == "table" then
-        local hasKeyboard = default.Keyboard and type(default.Keyboard) == "table" and 
+        local hasKeyboard = default.Keyboard and type(default.Keyboard) == "table" and
             default.Keyboard.Key and default.Keyboard.Key ~= ""
         local hasMouse = default.Mouse and type(default.Mouse) == "table" and
             default.Mouse.Button and type(default.Mouse.Button) == "number" and default.Mouse.Button > 0
-        
+
         if hasKeyboard and hasMouse then
             MCMWarn(0,
                 "Keybinding_v2 setting '" .. setting.Id ..
@@ -609,7 +518,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
         end
-        
+
         if default.Mouse then
             if type(default.Mouse) ~= "table" then
                 MCMWarn(0,
@@ -618,7 +527,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
             end
-            
+
             if default.Mouse.Button == nil or type(default.Mouse.Button) ~= "number" then
                 MCMWarn(0,
                     "Default.Mouse.Button for keybinding_v2 setting '" .. setting.Id ..
@@ -626,7 +535,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
             end
-            
+
             if default.Mouse.Button < 1 or default.Mouse.Button > 10 then
                 MCMWarn(0,
                     "Default.Mouse.Button for keybinding_v2 setting '" .. setting.Id ..
@@ -634,7 +543,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
             end
-            
+
             if default.Mouse.ModifierKeys then
                 if type(default.Mouse.ModifierKeys) ~= "table" then
                     MCMWarn(0,
@@ -661,7 +570,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
             end
         end
     end
-    
+
     return true
 end
 
@@ -669,60 +578,21 @@ end
 ---@param blueprint Blueprint The blueprint data
 ---@return boolean True if all VisibleIf conditions are valid, false otherwise
 function BlueprintPreprocessing:ValidateTabsVisibleIf(blueprint)
-    local function validateTabRecursive(tab)
-        -- Validate the tab's VisibleIf
+    local isValid = true
+
+    BlueprintShape:ForEachTab(blueprint, function(tab)
         if not self:ValidateVisibleIf(tab:GetVisibleIf(), blueprint, "Tab", tab:GetId()) then
-            return false
+            isValid = false
         end
+    end)
 
-        -- Validate nested tabs
-        if tab.GetTabs then
-            local nestedTabs = tab:GetTabs()
-            if nestedTabs then
-                for _, nestedTab in ipairs(nestedTabs) do
-                    if not validateTabRecursive(nestedTab) then
-                        return false
-                    end
-                end
-            end
+    BlueprintShape:ForEachSection(blueprint, function(section)
+        if not self:ValidateVisibleIf(section:GetVisibleIf(), blueprint, "Section", section:GetId()) then
+            isValid = false
         end
+    end)
 
-        -- Validate sections
-        if tab.GetSections then
-            local sections = tab:GetSections()
-            if sections then
-                for _, section in ipairs(sections) do
-                    if not self:ValidateVisibleIf(section:GetVisibleIf(), blueprint, "Section", section:GetId()) then
-                        return false
-                    end
-                    -- Validate nested tabs in sections
-                    if section.GetTabs then
-                        local sectionTabs = section:GetTabs()
-                        if sectionTabs then
-                            for _, sectionTab in ipairs(sectionTabs) do
-                                if not validateTabRecursive(sectionTab) then
-                                    return false
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        return true
-    end
-
-    local tabs = blueprint:GetTabs()
-    if tabs then
-        for _, tab in ipairs(tabs) do
-            if not validateTabRecursive(tab) then
-                return false
-            end
-        end
-    end
-
-    return true
+    return isValid
 end
 
 local VisibleIfAllowedGroupKeys = {
@@ -1096,7 +966,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
 
             local hasKeyboard = setting.Default["Keyboard"] ~= nil and type(setting.Default["Keyboard"]) == "table"
             local hasMouse = setting.Default["Mouse"] ~= nil and type(setting.Default["Mouse"]) == "table"
-            
+
             if not hasKeyboard and not hasMouse then
                 MCMWarn(0,
                     "Default value for setting '" ..
