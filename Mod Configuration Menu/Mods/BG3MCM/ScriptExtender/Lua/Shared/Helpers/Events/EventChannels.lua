@@ -3,8 +3,8 @@ EventChannels = {}
 --- Fired when a setting value has been updated.
 --- @return string modUUID The UUID of the mod
 --- @return string settingId The ID of the setting
---- @return any oldValue The old value of the setting
---- @return any value The new value of the setting
+--- @return MCMSettingValue oldValue The old value of the setting
+--- @return MCMSettingValue value The new value of the setting
 EventChannels.MCM_SETTING_SAVED = "MCM_Setting_Saved"
 -- REMOVED: Use MCM_SETTING_SAVED instead
 -- EventChannels.MCM_SETTING_UPDATED = "MCM_Setting_Updated"
@@ -13,15 +13,15 @@ EventChannels.MCM_INTERNAL_SETTING_SAVED = "MCM_Internal_Setting_Saved"
 --- Fired when a dynamic setting value has been updated.
 --- @return string modUUID The UUID of the mod
 --- @return string key The key ('id'/'name') of the setting
---- @return any oldValue The old value of the setting
---- @return any value The new value of the setting
+--- @return StorageValue oldValue The old value of the setting
+--- @return StorageValue value The new value of the setting
 --- @return string storageType The type of storage ("ModVar", "ModConfig", etc.)
 EventChannels.MCM_DYNAMIC_SETTING_SAVED = "MCM_Dynamic_Setting_Saved"
 
 --- Fired when a setting is reset to its default value.
 --- @return string modUUID The UUID of the mod
 --- @return string settingId The ID of the setting
---- @return any defaultValue The default value of the setting
+--- @return MCMSettingValue defaultValue The default value of the setting
 EventChannels.MCM_SETTING_RESET = "MCM_Setting_Reset"
 
 --- Fired when all mod settings are reset to their default values.

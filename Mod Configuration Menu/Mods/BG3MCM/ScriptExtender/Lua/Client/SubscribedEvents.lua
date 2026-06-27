@@ -1,8 +1,8 @@
 local _hasReceivedConfigPayload = nil
 local _hasRequestedStoreBootstrap = nil
 
-local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
-local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
+local ModVarAdapter = Ext.Require("Shared/DynamicSettings/Adapters/ModVarAdapter.lua")
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
 local function invalidateConfigPayloadCache()
     _hasReceivedConfigPayload = nil

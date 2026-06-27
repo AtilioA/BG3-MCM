@@ -2,17 +2,11 @@
 ---| 'up'
 ---| 'down'
 
----@class ElementTable
----@field enabled boolean
----@field name string
+---@alias ElementTable ListV2Element
 
 ---@class FilteredElements
 ---@field element ElementTable
 ---@field indexInElements number
-
----@class ListV2SettingValue
----@field enabled boolean
----@field elements ElementTable[]
 
 ---@class ListV2IMGUIWidget: IMGUIWidget
 ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
@@ -243,15 +237,15 @@ function ListV2IMGUIWidget:CreateTable(tableGroup)
     end
 
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7268106aaf6f4d1d90f279554082e1faedbd"), "WidthFixed",
-        IMGUIWidget:GetIconSizes()[0])
+        IMGUIWidget:GetIconSizes()[1])
     if self.Widget.AllowReordering then
         imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7b51e015aaa54af789c1ee0c3fbfa48eabb5"), "WidthFixed",
-            IMGUIWidget:GetIconSizes()[0])
+            IMGUIWidget:GetIconSizes()[1])
     end
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"), "WidthStretch")
     if not self.Widget.ReadOnly then
         imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0"), "WidthFixed",
-            IMGUIWidget:GetIconSizes()[0])
+            IMGUIWidget:GetIconSizes()[1])
     end
 
     if not self.Widget.Enabled then
@@ -721,7 +715,7 @@ function ListV2IMGUIWidget:CreateSearchResultsTable(parentGroup)
 
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"), "WidthStretch")
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"), "WidthFixed",
-        IMGUIWidget:GetIconSizes()[0])
+        IMGUIWidget:GetIconSizes()[1])
 
     return imguiTable
 end

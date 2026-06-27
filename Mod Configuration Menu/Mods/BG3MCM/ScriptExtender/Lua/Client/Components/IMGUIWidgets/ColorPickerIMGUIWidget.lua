@@ -1,6 +1,11 @@
 ---@class ColorPickerIMGUIWidget: IMGUIWidget
 ColorPickerIMGUIWidget = _Class:Create("ColorPickerIMGUIWidget", IMGUIWidget)
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue RGBAColor
+---@param modUUID string
+---@return ColorPickerIMGUIWidget
 function ColorPickerIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = ColorPickerIMGUIWidget })
     local rgb = { initialValue[1], initialValue[2], initialValue[3] }

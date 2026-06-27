@@ -5,11 +5,11 @@ function FloatValidator.Validate(config, value)
     if type(value) ~= "number" then
         return false
     end
-    if config and config.Options then
-        if config.Options.Min and not FloatUtils.isWithinEpsilon(value, config.Options.Min, nil) then
+    if config and config.GetOptions then
+        if config:GetOptions().Min and not FloatUtils.isWithinEpsilon(value, config:GetOptions().Min, nil) then
             return false
         end
-        if config.Options.Max and not FloatUtils.isWithinEpsilon(value, nil, config.Options.Max) then
+        if config:GetOptions().Max and not FloatUtils.isWithinEpsilon(value, nil, config:GetOptions().Max) then
             return false
         end
     end

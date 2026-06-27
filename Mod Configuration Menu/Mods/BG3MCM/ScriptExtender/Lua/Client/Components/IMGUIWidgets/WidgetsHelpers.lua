@@ -1,7 +1,7 @@
 WidgetHelpers = {}
 
 --- Create an increment/decrement button for slider widgets
----@param group any The Widget group to add the button to
+---@param group ExtuiGroup The Widget group to add the button to
 ---@param settingId string The setting ID for unique ID context
 ---@param increment number The increment value (positive for next, negative for previous)
 ---@param tooltip string The tooltip text
@@ -9,7 +9,7 @@ WidgetHelpers = {}
 ---@param max number The maximum value for clamping
 ---@param getCurrentValueCallback function Function to call to get the current widget value
 ---@param setMCMValueCallback function Function to call to set the MCM setting value
----@return any The created button
+---@return ExtuiButton|ExtuiImageButton The created button
 function WidgetHelpers.CreateSliderStepButton(group, settingId, increment, tooltip, min, max,
                                               getCurrentValueCallback, setMCMValueCallback)
     local label

@@ -332,7 +332,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local blueprintWithRepeatedIDAtTabLevel = TestConstants.Blueprints.SettingsTabLevel
         blueprintWithRepeatedIDAtTabLevel.Tabs[1].Settings[1].Id = blueprintWithRepeatedIDAtTabLevel.Tabs[1].Settings[2]
-        .Id
+            .Id
 
         local blueprintWithRepeatedIDAtSectionLevel = TestConstants.Blueprints.SettingsSectionLevel
         blueprintWithRepeatedIDAtSectionLevel.Tabs[1].Sections[1].Settings[1].Id = blueprintWithRepeatedIDAtSectionLevel
@@ -1545,31 +1545,31 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         D.expect(#preprocessedData.Tabs).toBe(1)
 
         local tab = preprocessedData.Tabs[1]
-        D.expect(tab.TabId).toBe("tab-1")
-        D.expect(tab.TabName).toBe("Tab 1")
-        D.expect(#tab.Settings).toBe(1)
-        D.expect(#tab.Sections).toBe(1)
+        D.expect(tab:GetId()).toBe("tab-1")
+        D.expect(tab:GetTabName()).toBe("Tab 1")
+        D.expect(#tab:GetSettings()).toBe(1)
+        D.expect(#tab:GetSections()).toBe(1)
 
-        local setting1 = tab.Settings[1]
-        D.expect(setting1.Id).toBe("setting-1")
-        D.expect(setting1.Name).toBe("Setting 1")
-        D.expect(setting1.Type).toBe("boolean")
-        D.expect(setting1.Default).toBe(true)
-        D.expect(setting1.Description).toBe("Description 1")
-        D.expect(setting1.Tooltip).toBe("Tooltip 1")
+        local setting1 = tab:GetSettings()[1]
+        D.expect(setting1:GetId()).toBe("setting-1")
+        D.expect(setting1:GetName()).toBe("Setting 1")
+        D.expect(setting1:GetType()).toBe("boolean")
+        D.expect(setting1:GetDefault()).toBe(true)
+        D.expect(setting1:GetDescription()).toBe("Description 1")
+        D.expect(setting1:GetTooltip()).toBe("Tooltip 1")
 
-        local section1 = tab.Sections[1]
-        D.expect(section1.SectionId).toBe("section-1")
-        D.expect(section1.SectionName).toBe("Section 1")
-        D.expect(#section1.Settings).toBe(1)
+        local section1 = tab:GetSections()[1]
+        D.expect(section1:GetId()).toBe("section-1")
+        D.expect(section1:GetLocaName()).toBe("Section 1")
+        D.expect(#section1:GetSettings()).toBe(1)
 
-        local setting2 = section1.Settings[1]
-        D.expect(setting2.Id).toBe("setting-2")
-        D.expect(setting2.Name).toBe("Setting 2")
-        D.expect(setting2.Type).toBe("number")
-        D.expect(setting2.Default).toBe(42)
-        D.expect(setting2.Description).toBe("Description 2")
-        D.expect(setting2.Tooltip).toBe("Tooltip 2")
+        local setting2 = section1:GetSettings()[1]
+        D.expect(setting2:GetId()).toBe("setting-2")
+        D.expect(setting2:GetName()).toBe("Setting 2")
+        D.expect(setting2:GetType()).toBe("number")
+        D.expect(setting2:GetDefault()).toBe(42)
+        D.expect(setting2:GetDescription()).toBe("Description 2")
+        D.expect(setting2:GetTooltip()).toBe("Tooltip 2")
     end)
 
     D.test("TestBlueprintDefaultsKeybindingSortMode", function()

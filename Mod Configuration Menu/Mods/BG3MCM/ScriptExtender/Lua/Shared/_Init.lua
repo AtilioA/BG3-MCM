@@ -51,6 +51,7 @@ RequireFiles("NotiFramework/", {
 RequireFiles("Lib/reactivex/", { "_init" })
 
 RequireFiles("Shared/", {
+    "Types",
     "MetaClass",
     "Helpers/_Init",
     "Classes/_Init",

@@ -1,8 +1,8 @@
 ---@class KeybindingV2Validator: Validator
 KeybindingV2Validator = _Class:Create("KeybindingV2Validator", Validator)
 
----@param config any
----@param value table
+---@param config BlueprintSetting
+---@param value KeybindingV2Value
 ---@return boolean
 function KeybindingV2Validator.Validate(config, value)
     if type(value) ~= "table" then
@@ -10,8 +10,10 @@ function KeybindingV2Validator.Validate(config, value)
         return false
     end
 
-    local hasKeyboard = value.Keyboard and type(value.Keyboard) == "table"
-    local hasMouse = value.Mouse and type(value.Mouse) == "table"
+    local keyboard = value.Keyboard
+    local mouse = value.Mouse
+    local hasKeyboard = type(keyboard) == "table"
+    local hasMouse = type(mouse) == "table"
 
     if not hasKeyboard and not hasMouse then
         MCMWarn(0, "Validation failed: Either Keyboard or Mouse binding must be present.")
@@ -19,8 +21,10 @@ function KeybindingV2Validator.Validate(config, value)
     end
 
     if hasKeyboard and hasMouse then
-        local kbHasValue = value.Keyboard.Key and value.Keyboard.Key ~= ""
-        local mouseHasValue = value.Mouse.Button and value.Mouse.Button > 0
+        ---@cast keyboard KeybindingKeyboardBinding
+        ---@cast mouse KeybindingMouseBinding
+        local kbHasValue = keyboard.Key and keyboard.Key ~= ""
+        local mouseHasValue = mouse.Button and mouse.Button > 0
         if kbHasValue and mouseHasValue then
             MCMWarn(0, "Validation failed: Cannot have both Keyboard and Mouse bindings assigned. Use one or the other.")
             return false
@@ -28,7 +32,7 @@ function KeybindingV2Validator.Validate(config, value)
     end
 
     if hasKeyboard then
-        local keyboard = value.Keyboard
+        ---@cast keyboard KeybindingKeyboardBinding
         if keyboard.Key then
             if type(keyboard.Key) ~= "string" then
                 MCMWarn(0, "Validation failed: Keyboard.Key is not a string.")
@@ -55,7 +59,7 @@ function KeybindingV2Validator.Validate(config, value)
     end
 
     if hasMouse then
-        local mouse = value.Mouse
+        ---@cast mouse KeybindingMouseBinding
         if mouse.Button ~= nil then
             if type(mouse.Button) ~= "number" then
                 MCMWarn(0, "Validation failed: Mouse.Button is not a number.")

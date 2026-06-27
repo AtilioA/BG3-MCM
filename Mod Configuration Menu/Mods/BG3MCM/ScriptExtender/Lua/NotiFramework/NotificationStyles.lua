@@ -1,8 +1,8 @@
 ---@class NotificationStyle
 ---@field icon string The icon name to display in the notification
----@field borderColor table<number> The RGBA color of the border
----@field titleBgActive table<number> The RGBA color of the active title background
----@field titleBg table<number> The RGBA color of the title background
+---@field borderColor RGBAColor The RGBA color of the border
+---@field titleBgActive RGBAColor The RGBA color of the active title background
+---@field titleBg RGBAColor The RGBA color of the title background
 NotificationStyles =
 {
     error = {
@@ -34,7 +34,7 @@ NotificationStyles =
 
 --- Gets the border color style for the notification severity
 ---@param severity NotificationSeverity The severity of the notification
----@return table<number>
+---@return RGBAColor
 function NotificationStyles:GetStyleBorderColor(severity)
     local style = self[severity]
     return style.borderColor
@@ -50,7 +50,7 @@ end
 
 --- Gets the title background style for the notification severity
 ---@param severity NotificationSeverity The severity of the notification
----@return table<number>
+---@return RGBAColor
 function NotificationStyles:GetStyleTitleBg(severity)
     local style = self[severity]
     return style.titleBg
@@ -58,7 +58,7 @@ end
 
 --- Gets the active title background style for the notification severity
 ---@param severity NotificationSeverity The severity of the notification
----@return table<number>
+---@return RGBAColor
 function NotificationStyles:GetStyleTitleBgActive(severity)
     local style = self[severity]
     return style.titleBgActive

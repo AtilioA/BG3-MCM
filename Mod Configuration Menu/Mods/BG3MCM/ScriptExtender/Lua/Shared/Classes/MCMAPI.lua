@@ -224,7 +224,7 @@ end
 
 --- Check if a setting value is valid given the mod blueprint
 ---@param settingId string The id of the setting
----@param value any The value to check
+---@param value MCMSettingValue The value to check
 ---@return boolean Whether the value is valid
 function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
     if not modUUID then
@@ -248,7 +248,7 @@ end
 --- Get the value of a configuration setting
 ---@param settingId string The id of the setting
 ---@param modUUID string The UUID of the mod that has the setting
----@return any - The value of the setting
+---@return MCMSettingValue - The value of the setting
 function MCMAPI:GetSettingValue(settingId, modUUID)
     if not modUUID then
         MCMWarn(0, "modUUID is nil. Cannot get setting value.")
@@ -322,7 +322,7 @@ end
 
 --- Set the value of a configuration setting
 ---@param settingId string The id of the setting
----@param value any The new value of the setting
+---@param value MCMSettingValue The new value of the setting
 ---@param modUUID string The UUID of the mod
 ---@param shouldEmitEvent? boolean Whether to emit an event
 ---@return boolean success True if the setting was successfully updated

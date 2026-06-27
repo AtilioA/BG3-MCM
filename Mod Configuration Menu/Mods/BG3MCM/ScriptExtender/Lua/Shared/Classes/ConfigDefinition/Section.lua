@@ -2,7 +2,7 @@
 ---@field private SectionName string
 ---@field private SectionId string
 ---@field private SectionDescription string
----@field private VisibleIf table<string, string>
+---@field private VisibleIf VisibleIfDefinition
 ---@field private Options table
 ---@field private Settings BlueprintSetting[]
 ---@field private Handles? table
@@ -21,6 +21,7 @@ BlueprintSection = _Class:Create("BlueprintSection", nil, {
 --- @param options table
 --- @return BlueprintSection
 function BlueprintSection:New(options)
+    ---@type BlueprintSection
     local self = setmetatable({}, BlueprintSection)
     self.SectionId = options.SectionId or ""
     self.SectionName = options.SectionName or ""
@@ -70,6 +71,7 @@ function BlueprintSection:GetDescription()
     return self.SectionDescription
 end
 
+---@return VisibleIfDefinition
 function BlueprintSection:GetVisibleIf()
     return self.VisibleIf
 end
@@ -100,6 +102,13 @@ function BlueprintSection:SetSectionDescription(value)
     self.SectionDescription = value
 end
 
+---@param name string
+---@param type string
+---@param default MCMSettingValue
+---@param description string
+---@param options? table
+---@param sectionName? string
+---@return BlueprintSection
 function BlueprintSection:AddSetting(name, type, default, description, options, sectionName)
     local setting = BlueprintSetting:New({
         Name = name,

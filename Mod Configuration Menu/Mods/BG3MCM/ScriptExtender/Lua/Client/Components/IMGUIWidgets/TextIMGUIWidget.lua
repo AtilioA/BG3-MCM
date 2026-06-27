@@ -1,6 +1,11 @@
 ---@class TextIMGUIWidget: IMGUIWidget
 TextIMGUIWidget = _Class:Create("TextIMGUIWidget", IMGUIWidget)
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue string
+---@param modUUID string
+---@return TextIMGUIWidget
 function TextIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = TextIMGUIWidget })
 
@@ -38,6 +43,8 @@ function TextIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Text = value
 end
 
+---@param value { Text: string }
+---@return string
 function TextIMGUIWidget:GetOnChangeValue(value)
     return value.Text
 end

@@ -4,6 +4,6 @@ RequireFiles("Shared/DynamicSettings/", {
     "Services/_Init"
 })
 
-SettingsService = require("Shared/DynamicSettings/Services/SettingsService")
-local StorageManager = require("Shared/DynamicSettings/Services/StorageManager")
+SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local StorageManager = Ext.Require("Shared/DynamicSettings/Services/StorageManager.lua")
 StorageManager.RegisterEventListeners()

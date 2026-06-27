@@ -158,15 +158,16 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint)
             return
         end
 
-        if settingIDs[setting.Id] then
+        if settingIDs[setting:GetId()] then
             MCMWarn(0,
-                "Duplicate setting ID " .. setting.Id .. " found in blueprint for mod '" ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Name ..
-                "'. Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                "Duplicate setting ID '%s' found in blueprint for mod '%s'. Please contact %s about this issue.",
+                setting:GetId(),
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Name,
+                Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
             isValid = false
             return
         end
-        settingIDs[setting.Id] = true
+        settingIDs[setting:GetId()] = true
     end)
 
     return isValid
@@ -485,7 +486,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     if setting.Options and setting.Options.ShouldTriggerOnKeyDown ~= nil and type(setting.Options.ShouldTriggerOnKeyDown) ~= "boolean" then
         MCMWarn(0,
             "Options.ShouldTriggerOnKeyDown for keybinding_v2 setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -494,7 +495,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     if setting.Options and setting.Options.BlockIfLevelNotStarted ~= nil and type(setting.Options.BlockIfLevelNotStarted) ~= "boolean" then
         MCMWarn(0,
             "Options.BlockIfLevelNotStarted for keybinding_v2 setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -503,7 +504,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     if setting.Options and setting.Options.PreventAction ~= nil and type(setting.Options.PreventAction) ~= "boolean" then
         MCMWarn(0,
             "Options.PreventAction for keybinding_v2 setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -512,7 +513,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     if setting.Options and setting.Options.SkipCallback ~= nil and type(setting.Options.SkipCallback) ~= "boolean" then
         MCMWarn(0,
             "Options.SkipCallback for keybinding_v2 setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' must be a boolean. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -527,7 +528,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
 
         if hasKeyboard and hasMouse then
             MCMWarn(0,
-                "Keybinding_v2 setting '" .. setting.Id ..
+                "Keybinding_v2 setting '" .. setting:GetId() ..
                 "' cannot have both Keyboard and Mouse defaults. Use one or the other. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -536,7 +537,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
         if default.Mouse then
             if type(default.Mouse) ~= "table" then
                 MCMWarn(0,
-                    "Default.Mouse for keybinding_v2 setting '" .. setting.Id ..
+                    "Default.Mouse for keybinding_v2 setting '" .. setting:GetId() ..
                     "' must be a table. Please contact " ..
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
@@ -544,7 +545,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
 
             if default.Mouse.Button == nil or type(default.Mouse.Button) ~= "number" then
                 MCMWarn(0,
-                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting.Id ..
+                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
                     "' must be a number. Please contact " ..
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
@@ -552,7 +553,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
 
             if default.Mouse.Button < 1 or default.Mouse.Button > 10 then
                 MCMWarn(0,
-                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting.Id ..
+                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
                     "' must be between 1 and 10. Please contact " ..
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
@@ -561,7 +562,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
             if default.Mouse.ModifierKeys then
                 if type(default.Mouse.ModifierKeys) ~= "table" then
                     MCMWarn(0,
-                        "Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting.Id ..
+                        "Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
                         "' must be a table. Please contact " ..
                         Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                     return false
@@ -571,9 +572,10 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                     if not KeybindingManager:IsValidModifierKey(normalizedModifier) then
                         MCMWarn(0,
                             "Invalid modifier '" .. tostring(mod) ..
-                            "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting.Id ..
+                            "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
                             "'. Valid modifiers are: " .. table.concat(SDLKeys.Modifiers, ", ") ..
-                            ". Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                            ". Please contact " ..
+                            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                         return false
                     end
 
@@ -870,7 +872,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
     if setting.Default == nil then
         MCMWarn(0,
             "Setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' is missing a 'Default' value. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -880,7 +882,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "boolean" then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a boolean. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -889,7 +891,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "number" or math.floor(setting.Default) ~= setting.Default then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be an integer. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -898,7 +900,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "number" then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a number. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -907,7 +909,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "string" then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a string. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -917,7 +919,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "boolean" then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a boolean. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -926,7 +928,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "string" then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a string. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -935,7 +937,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "number" or math.floor(setting.Default) ~= setting.Default then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be an integer. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -944,7 +946,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "number" then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a number. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -953,7 +955,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "table" or #setting.Default ~= 4 or not (type(setting.Default[1]) == "number" and type(setting.Default[2]) == "number" and type(setting.Default[3]) == "number" and type(setting.Default[4]) == "number") then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a table of 4 numbers. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -963,7 +965,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             if setting.Default["Enabled"] ~= nil and type(setting.Default["Enabled"]) ~= "boolean" then
                 MCMWarn(0,
                     "Default value for 'enabled' in keybinding_v2 setting '" ..
-                    setting.Id ..
+                    setting:GetId() ..
                     "' must be a boolean. Please contact " ..
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
@@ -975,7 +977,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
             if not hasKeyboard and not hasMouse then
                 MCMWarn(0,
                     "Default value for setting '" ..
-                    setting.Id ..
+                    setting:GetId() ..
                     "' must contain either a 'Keyboard' or 'Mouse' table. Please contact " ..
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
@@ -987,7 +989,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                 if type(key) ~= "string" or (key ~= "" and not table.contains(SDLKeys.ScanCodes, key)) then
                     MCMWarn(0,
                         "Invalid key '" ..
-                        key .. "' in Keyboard.Key for setting '" .. setting.Id .. "'. Valid keys are: " ..
+                        key .. "' in Keyboard.Key for setting '" .. setting:GetId() .. "'. Valid keys are: " ..
                         table.concat(SDLKeys.ScanCodes, ", "))
                     return false
                 end
@@ -1005,7 +1007,8 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                             MCMWarn(0,
                                 "Invalid modifier '" ..
                                 tostring(mod) ..
-                                "' in Keyboard.ModifierKeys for setting '" .. setting.Id .. "'. Valid modifiers are: " ..
+                                "' in Keyboard.ModifierKeys for setting '" ..
+                                setting:GetId() .. "'. Valid modifiers are: " ..
                                 table.concat(SDLKeys.Modifiers, ", "))
                             return false
                         end
@@ -1021,7 +1024,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
         if type(setting.Default) ~= "table" or (setting.Default["enabled"] == nil and setting.Default["Enabled"] == nil) or (type(setting.Default.elements) ~= "table" and type(setting.Default.Elements) ~= "table") then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be a table with 'Enabled' and 'Elements'. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -1051,7 +1054,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                     "Element " ..
                     Ext.DumpExport(element) ..
                     " for setting '" ..
-                    setting.Id .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+                    setting:GetId() .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
                 return false
             end
             if element.enabled ~= nil and type(element.enabled) ~= "boolean" then
@@ -1059,7 +1062,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                     "Element " ..
                     Ext.DumpExport(element) ..
                     " for setting '" ..
-                    setting.Id .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+                    setting:GetId() .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
                 return false
             end
         end
@@ -1073,7 +1076,7 @@ function BlueprintPreprocessing:BlueprintDefaultShouldBeWithinRange(setting)
         if setting.Default < setting.Options.Min or setting.Default > setting.Options.Max then
             MCMWarn(0,
                 "Default value for setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' must be within the range of 'Options.Min' and 'Options.Max'. Please contact " ..
                 Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
             return false
@@ -1086,7 +1089,7 @@ function BlueprintPreprocessing:BlueprintStepShouldBeNonZeroNumber(setting)
     if setting.Options and setting.Options.Step and (type(setting.Options.Step) ~= "number" or setting.Options.Step == 0) then
         MCMWarn(0,
             "Step value for setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' must be a non-zero number. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -1098,7 +1101,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
     if not setting.Options or not setting.Options.Choices then
         MCMWarn(0,
             "Enum setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' must have 'Options.Choices' defined. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -1108,7 +1111,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
         if setting.Options.Dynamic ~= true then
             MCMWarn(0,
                 "Enum setting '" ..
-                setting.Id ..
+                setting:GetId() ..
                 "' has an empty Choices array but Options.Dynamic is not set to true. " ..
                 "If choices will be injected at runtime via MCM.Enum.SetChoices, set Options.Dynamic = true.")
         end
@@ -1122,7 +1125,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
     if not table.contains(setting.Options.Choices, setting.Default) then
         MCMWarn(0,
             "Enum setting '" ..
-            setting.Id ..
+            setting:GetId() ..
             "' must have a 'Default' value that is one of the 'Options.Choices'. Please contact " ..
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
         return false
@@ -1133,7 +1136,7 @@ end
 function BlueprintPreprocessing:BlueprintDynamicFlagForEnumShouldBeBoolean(setting)
     if setting.Options and setting.Options.Dynamic ~= nil and type(setting.Options.Dynamic) ~= "boolean" then
         MCMWarn(0,
-            "Options.Dynamic for enum setting '" .. setting.Id .. "' must be a boolean.")
+            "Options.Dynamic for enum setting '" .. setting:GetId() .. "' must be a boolean.")
         return false
     end
 
@@ -1143,7 +1146,7 @@ end
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
     if not setting.Options or not setting.Options.Choices or #setting.Options.Choices == 0 then
         MCMWarn(0,
-            "Radio setting '" .. setting.Id .. "' must have 'Options.Choices' defined.")
+            "Radio setting '" .. setting:GetId() .. "' must have 'Options.Choices' defined.")
         return false
     end
     return true
@@ -1154,7 +1157,7 @@ function BlueprintPreprocessing:BlueprintOptionsForEnumShouldHaveAChoicesArrayOf
         for _, choice in ipairs(setting.Options.Choices) do
             if type(choice) ~= "string" then
                 MCMWarn(0,
-                    "Options.Choices for enum setting '%s' must be an array of strings.", setting.Id)
+                    "Options.Choices for enum setting '%s' must be an array of strings.", setting:GetId())
                 return false
             end
         end
@@ -1166,7 +1169,7 @@ function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayO
     if not setting.Options or not setting.Options.Choices then
         MCMWarn(0,
             "Radio setting '%s' must have 'Options.Choices' defined. Please contact %s about this issue.",
-            setting.Id,
+            setting:GetId(),
             Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
         return false
     end
@@ -1174,7 +1177,7 @@ function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayO
     for _, choice in pairs(setting.Options.Choices) do
         if type(choice) ~= "string" then
             MCMWarn(0,
-                "Options.Choices for radio setting '%s' must be an array of strings.", setting.Id)
+                "Options.Choices for radio setting '%s' must be an array of strings.", setting:GetId())
             return false
         end
     end
@@ -1185,7 +1188,7 @@ end
 function BlueprintPreprocessing:BlueprintShouldHaveMinAndMaxForSlider(setting)
     if not setting.Options or not setting.Options.Min or not setting.Options.Max then
         MCMWarn(0,
-            "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined.", setting.Id)
+            "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined.", setting:GetId())
         return false
     end
     return true
@@ -1194,7 +1197,7 @@ end
 function BlueprintPreprocessing:BlueprintMinAndMaxForSliderShouldBeNumbers(setting)
     if setting.Options and (type(setting.Options.Min) ~= "number" or type(setting.Options.Max) ~= "number") then
         MCMWarn(0,
-            "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined as numbers.", setting.Id)
+            "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined as numbers.", setting:GetId())
         return false
     end
     return true
@@ -1207,17 +1210,17 @@ function BlueprintPreprocessing:BlueprintMinIsLessThanMaxForSlider(setting)
     end
 
     if not setting.Options then
-        MCMWarn(0, "Slider setting '%s' is missing Options", setting.Id)
+        MCMWarn(0, "Slider setting '%s' is missing Options", setting:GetId())
         return false
     end
 
     if not setting.Options.Min or not setting.Options.Max then
-        MCMWarn(0, "Slider setting '%s' is missing Options.Min or Options.Max", setting.Id)
+        MCMWarn(0, "Slider setting '%s' is missing Options.Min or Options.Max", setting:GetId())
         return false
     end
 
     if setting.Options.Min >= setting.Options.Max then
-        MCMWarn(0, "Slider setting '%s' must have 'Options.Min' less than 'Options.Max'.", setting.Id)
+        MCMWarn(0, "Slider setting '%s' must have 'Options.Min' less than 'Options.Max'.", setting:GetId())
         return false
     end
 

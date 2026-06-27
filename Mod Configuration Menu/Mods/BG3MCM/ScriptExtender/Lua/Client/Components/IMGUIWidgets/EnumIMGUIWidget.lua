@@ -1,10 +1,11 @@
 ---@class EnumIMGUIWidget
 EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 
----@param group any
+---@param group ExtuiGroup
 ---@param setting BlueprintSetting
----@param initialValue any
+---@param initialValue string
 ---@param modUUID string
+---@return EnumIMGUIWidget
 function EnumIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = EnumIMGUIWidget })
     instance.Setting = setting

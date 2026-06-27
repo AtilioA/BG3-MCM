@@ -1,6 +1,6 @@
 --- Client initialization service responsible for one-time setup and config loading
 
-local LoadOrderHealthCheckToggles = require("Shared/Helpers/LoadOrderHealthCheck/LoadOrderHealthCheckToggles")
+local LoadOrderHealthCheckToggles = Ext.Require("Shared/Helpers/LoadOrderHealthCheck/LoadOrderHealthCheckToggles.lua")
 
 local _initialized = false
 

@@ -2,10 +2,10 @@
 -- TODO: ADD modUUID TO ALL IDCONTEXTS SINCE THEY MIGHT NOT BE UNIQUE ACROSS DIFFERENT MODS
 
 ---@class IMGUIWidget
----@field Widget any The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
----@field _currentValue any The current value of the widget (for internal use)
----@field _defaultValue any The default value of the widget (for internal use)
----@field _resetButton any The reset button IMGUI object (for internal use)
+---@field Widget ExtuiStyledRenderable|nil The actual IMGUI widget object (e.g. SliderInt, Checkbox, etc.)
+---@field _currentValue MCMSettingValue The current value of the widget (for internal use)
+---@field _defaultValue MCMSettingValue The default value of the widget (for internal use)
+---@field _resetButton ExtuiButton|ExtuiImageButton|nil The reset button IMGUI object (for internal use)
 IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
     Widget = nil,
     _currentValue = nil,
@@ -57,11 +57,12 @@ end
 
 -- TODO: add this annotation to all IMGUIWidget subclasses
 --- Create a new IMGUI widget
----@param group any The IMGUI group to add the widget to
+---@param group ExtuiGroup The IMGUI group to add the widget to
 ---@param setting BlueprintSetting The Setting object that this widget will be responsible for
----@param initialValue any The initial value of the widget
+---@param initialValue MCMSettingValue The initial value of the widget
 ---@param modUUID string The UUID of the mod that owns this widget
----@param widgetClass any The class of the widget to create
+---@param widgetClass IMGUIWidget The class of the widget to create
+---@return IMGUIWidget widget The created widget instance
 function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     local widgetName = setting:GetLocaName()
     if widgetName == nil or widgetName == "" then
@@ -89,6 +90,7 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     end
 
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
+    ---@cast widget IMGUIWidget
 
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
 
@@ -157,17 +159,17 @@ end
 
 --- Extract the value from the widget's OnChange event
 --- This must be implemented by each widget subclass to properly handle its specific event structure
---- @param value any The value from the OnChange event
---- @return any The extracted value
+--- @param value unknown The value from the OnChange event
+--- @return unknown The extracted value
 function IMGUIWidget:GetOnChangeValue(value)
     error("IMGUIWidget:GetOnChangeValue must be overridden in a derived class")
 end
 
 --- Extract the actual value from a widget event
 --- Different widget types have different event structures, so this attempts to get the value in a generic way
---- @param widget any The widget instance
---- @param eventValue any The value from the OnChange event
---- @return any The extracted value
+--- @param widget IMGUIWidget The widget instance
+--- @param eventValue unknown The value from the OnChange event
+--- @return unknown The extracted value
 function IMGUIWidget:ExtractValueFromWidgetEvent(widget, eventValue)
     -- Use the widget's specific GetOnChangeValue if available
     if widget.GetOnChangeValue then
@@ -197,8 +199,8 @@ function IMGUIWidget:UpdateResetButtonVisibility()
 end
 
 --- Compares two values to check if they are equal, handling different types appropriately
----@param currentValue any The current value
----@param defaultValue any The default value
+---@param currentValue unknown The current value
+---@param defaultValue unknown The default value
 ---@return boolean True if the values are equal
 function IMGUIWidget:IsValueEqualToDefault(currentValue, defaultValue)
     if currentValue == nil or defaultValue == nil then
@@ -236,8 +238,9 @@ function IMGUIWidget:IsValueEqualToDefault(currentValue, defaultValue)
 end
 
 --- Create a title for the widget
--- @param group The IMGUI group to add the title to
--- @param titleText The text to display as the title
+---@param group ExtuiGroup The IMGUI group to add the title to
+---@param titleText string The text to display as the title
+---@return ExtuiText|nil
 function IMGUIWidget:CreateTitle(group, titleText)
     if not titleText or titleText == "" then return end
 
@@ -257,7 +260,7 @@ function IMGUIWidget:InitializeWidget(widget, group, setting)
 end
 
 --- Add a reset button to the widget
----@param group any The IMGUI group to add the button to
+---@param group ExtuiGroup The IMGUI group to add the button to
 ---@param setting BlueprintSetting The Setting object that this widget will be responsible for
 ---@param modUUID string The UUID of the mod that owns this widget
 ---@return nil
@@ -322,8 +325,8 @@ function IMGUIWidget:SetupTooltip(widget, setting)
 end
 
 --- Add a slightly faded description text below the widget
----@param widget any
----@param group any
+---@param widget ExtuiStyledRenderable
+---@param group ExtuiGroup
 ---@param setting BlueprintSetting
 ---@return nil
 function IMGUIWidget:SetupDescription(widget, group, setting)

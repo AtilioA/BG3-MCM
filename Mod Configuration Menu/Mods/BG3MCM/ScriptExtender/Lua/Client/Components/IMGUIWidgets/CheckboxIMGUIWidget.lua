@@ -1,6 +1,11 @@
 ---@class CheckboxIMGUIWidget: IMGUIWidget
 CheckboxIMGUIWidget = _Class:Create("CheckboxIMGUIWidget", IMGUIWidget)
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue boolean
+---@param modUUID string
+---@return CheckboxIMGUIWidget
 function CheckboxIMGUIWidget:new(group, setting, initialValue, modUUID)
     -- Ensure Widget is an instance-specific property. This is some Lua nonsense that I don't understand. Try designing a better language next time. /hj
     local instance = setmetatable({}, { __index = CheckboxIMGUIWidget })
@@ -25,7 +30,7 @@ function CheckboxIMGUIWidget:new(group, setting, initialValue, modUUID)
 end
 
 --- Adds a title text to the checkbox that can be clicked to toggle the checkbox.
----@param group any
+---@param group ExtuiGroup
 ---@param setting BlueprintSetting
 ---@param modUUID string
 function CheckboxIMGUIWidget:_addLabelWidget(group, setting, modUUID)
@@ -56,6 +61,8 @@ function CheckboxIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Checked = value
 end
 
+---@param value { Checked: boolean }
+---@return boolean
 function CheckboxIMGUIWidget:GetOnChangeValue(value)
     return value.Checked
 end

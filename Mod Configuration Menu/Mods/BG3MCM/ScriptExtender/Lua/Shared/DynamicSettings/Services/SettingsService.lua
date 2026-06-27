@@ -1,11 +1,11 @@
 -- Central façade for managing (reading, writing, promoting) module-scoped variables.
 
-local AdapterFactory = require("Shared/DynamicSettings/Factories/AdapterFactory")
+local AdapterFactory = Ext.Require("Shared/DynamicSettings/Factories/AdapterFactory.lua")
 
 ---@class VariableEntry
 ---@field type string|nil The type of the variable ("boolean", "number", "string", "table", or nil)
----@field default any The default value for the variable
----@field validate fun(value: any): (boolean, string)? Optional validation function
+---@field default StorageValue The default value for the variable
+---@field validate fun(value: unknown): (boolean, string)? Optional validation function
 ---@field storageType string The storage type for this variable
 ---@field storageConfig table|nil Optional storage-specific configuration (e.g., SE ModVar parameters)
 
@@ -48,7 +48,7 @@ end
 --- INTERNAL: Coerce a rawValue into the declared type (if promoted), or accept raw.
 ---@param entry VariableEntry The entry for the mod variable
 ---@param rawValue any The mod variable's raw value to coerce and validate
----@return any - The coerced and validated value, or rawValue if none performed
+---@return StorageValue - The coerced and validated value, or rawValue if none performed
 local function coerceAndValidate(entry, rawValue)
     if entry.type then
         if entry.type == "boolean" then
@@ -291,7 +291,7 @@ end
 ---@param moduleUUID string The UUID of the module
 ---@param varName string The name of the variable
 ---@param storageType? string The type of storage, or nil to auto-detect
----@return any value The value of the variable
+---@return StorageValue value The value of the variable
 function SettingsService.Get(moduleUUID, varName, storageType)
     if not moduleUUID then
         MCMWarn(0, "Get: moduleUUID cannot be nil")

@@ -1,7 +1,7 @@
 -- Manages the lifecycle and tracking of active notifications
 
 ---@class NotificationRegistry
----@field private _activeNotifications table<NotificationManager, boolean>
+---@field private _activeNotifications NotificationManager[]
 NotificationRegistry = _Class:Create("NotificationRegistry", nil, {
     _activeNotifications = {}
 })

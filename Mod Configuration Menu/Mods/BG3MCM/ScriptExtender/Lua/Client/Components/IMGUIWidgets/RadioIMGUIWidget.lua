@@ -1,6 +1,11 @@
 ---@class RadioIMGUIWidget: IMGUIWidget
 RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue string
+---@param modUUID string
+---@return RadioIMGUIWidget
 function RadioIMGUIWidget:new(group, setting, initialValue, modUUID)
     if not group or not setting or not modUUID then
         return {}
@@ -12,7 +17,7 @@ function RadioIMGUIWidget:new(group, setting, initialValue, modUUID)
     return instance
 end
 
----@param group any The IMGUI group to add the radio buttons to
+---@param group ExtuiGroup The IMGUI group to add the radio buttons to
 ---@param setting BlueprintSetting The setting containing the radio button options
 ---@param initialValue any The current value of the setting
 function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
@@ -74,6 +79,8 @@ function RadioIMGUIWidget:UpdateCurrentValue(value)
     end
 end
 
+---@param value { UserData: table?, Label: string }
+---@return string
 function RadioIMGUIWidget:GetOnChangeValue(value)
     return value.UserData and value.UserData.OriginalValue or value.Label
 end

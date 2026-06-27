@@ -258,13 +258,11 @@ end
 -- end
 
 -- Get the current MCM profile's name
---@return string The name of the current profile
-function MCMServer:GetCurrentProfile()
-    Ext.ServerNet.BroadcastMessage(NetChannels.MCM_SERVER_SEND_CURRENT_PROFILE,
-        Ext.Json.Stringify({ profileName = ModConfig.profileManager:GetCurrentProfile() }))
-    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    return ModConfig.profileManager:GetCurrentProfile()
-end
+-- ---@return string The name of the current profile
+-- function MCMServer:GetCurrentProfile()
+--     -- TODO: implement through a real request/response NetChannel
+--     return ModConfig.profileManager:GetCurrentProfile()
+-- end
 
 -- --- Check if a setting value is valid given the mod blueprint
 -- ---@param settingId string The id of the setting

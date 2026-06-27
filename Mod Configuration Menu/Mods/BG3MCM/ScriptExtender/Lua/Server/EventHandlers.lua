@@ -3,8 +3,8 @@ EHandlers = {}
 EHandlers.SFX_OPEN_MCM_WINDOW = "7151f51c-cc6c-723c-8dbd-ec3daa634b45"
 EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 
-local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
-local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
+local ModVarAdapter = Ext.Require("Shared/DynamicSettings/Adapters/ModVarAdapter.lua")
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
 local function warnAboutNPAKM()
     if LoadOrderHealthCheck and LoadOrderHealthCheck.ShouldWarnAboutNPAKM and LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then

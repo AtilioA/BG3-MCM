@@ -8,8 +8,8 @@ IStorageAdapter.__index = IStorageAdapter
 IStorageAdapter.DEFAULTS = {}
 
 --- Merge provided configuration with adapter defaults.
----@param providedConfig? table User-provided configuration
----@return table config The complete configuration with defaults applied
+---@param providedConfig? StorageConfig User-provided configuration
+---@return StorageConfig config The complete configuration with defaults applied
 function IStorageAdapter:ResolveConfig(providedConfig)
     local config = {}
 
@@ -33,7 +33,7 @@ end
 --- Default implementation is a no-op for backends that need no registration (e.g. JSON).
 ---@param key string The key/variable name
 ---@param moduleUUID string The UUID of the module
----@param storageConfig? table Optional storage-specific configuration (e.g., SE ModVar parameters)
+---@param storageConfig? StorageConfig Optional storage-specific configuration (e.g., SE ModVar parameters)
 function IStorageAdapter:EnsureRegistered(key, moduleUUID, storageConfig)
     -- No registration required by default.
 end
@@ -48,8 +48,8 @@ end
 --- Returns nil if the variable is not set.
 ---@param key string The key to read
 ---@param moduleUUID string The UUID of the module
----@param storageConfig? table Optional storage-specific configuration (e.g., SE ModVar parameters)
----@return any value The raw Lua value or nil if not set
+---@param storageConfig? StorageConfig Optional storage-specific configuration (e.g., SE ModVar parameters)
+---@return StorageValue value The raw Lua value or nil if not set
 function IStorageAdapter:GetValue(key, moduleUUID, storageConfig)
     MCMError(0, "IStorageAdapter:GetValue() not implemented")
 end
@@ -57,9 +57,9 @@ end
 --- Write the raw Lua value (boolean/number/string/table/etc.) for (moduleUUID, key).
 --- If value == nil, nullify the variable.
 ---@param key string The key to write
----@param value any The value to write (nil to delete)
+---@param value StorageValue The value to write (nil to delete)
 ---@param moduleUUID string The UUID of the module
----@param storageConfig? table Optional storage-specific configuration (e.g., SE ModVar parameters)
+---@param storageConfig? StorageConfig Optional storage-specific configuration (e.g., SE ModVar parameters)
 function IStorageAdapter:SetValue(key, value, moduleUUID, storageConfig)
     MCMError(0, "IStorageAdapter:SetValue() not implemented")
 end

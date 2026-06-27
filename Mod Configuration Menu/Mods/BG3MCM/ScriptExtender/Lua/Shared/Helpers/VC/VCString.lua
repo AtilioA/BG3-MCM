@@ -90,7 +90,7 @@ function VCString:Lowercase(str)
 end
 
 ---Check whether a value is a non-empty string.
----@param value any
+---@param value unknown
 ---@return boolean
 function VCString:IsNonEmptyString(value)
     return type(value) == "string" and value ~= ""

@@ -2,16 +2,16 @@ NotificationPrinter = Printer:New { Prefix = "Notification Framework", ApplyColo
 
 -- Update the Printer debug level when the setting is changed, since the value is only used during the object's creation
 -- NOTE: this does not work as expected because there are two sources of truth for the debug level: Notification settings.json and VCConfig json file
-Ext.ModEvents['BG3MCM'][EventChannels.Notification_SETTING_SAVED]:Subscribe(function(payload)
-    if not payload or payload.modUUID ~= ModuleUUID or not payload.settingId then
-        return
-    end
+-- Ext.ModEvents['BG3MCM'][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Subscribe(function(payload)
+--     if not payload or payload.modUUID ~= ModuleUUID or not payload.settingId then
+--         return
+--     end
 
-    if payload.settingId == "notification_framework_debug_level" then
-        NotificationPrint(0, "Setting debug level to " .. payload.value)
-        NotificationPrinter.DebugLevel = payload.value
-    end
-end)
+--     if payload.settingId == "notification_framework_debug_level" then
+--         NotificationPrint(0, "Setting debug level to " .. payload.value)
+--         NotificationPrinter.DebugLevel = payload.value
+--     end
+-- end)
 
 function NotificationPrint(debugLevel, ...)
     NotificationPrinter:SetFontColor(0, 255, 255)

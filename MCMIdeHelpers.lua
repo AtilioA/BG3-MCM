@@ -1,7 +1,34 @@
 --- @meta
 --- @diagnostic disable
 
---- Aggregated EmmyLua annotations for the Mod Configuration Menu (MCM) public API (version 1.40+).
+--- Aggregated EmmyLua annotations for the Mod Configuration Menu (MCM) public API (version 1.41+).
+
+--- @alias unknown nil|boolean|number|string|table|function|thread|userdata
+--- @alias StorageValue nil|boolean|number|string|table
+--- @alias MCMSettingValue StorageValue
+--- @alias RGBAColor number[]
+
+--- @class ListV2Element
+--- @field name string
+--- @field enabled boolean
+
+--- @class ListV2SettingValue
+--- @field enabled boolean
+--- @field elements ListV2Element[]
+
+--- @class KeybindingKeyboardBinding
+--- @field Key string
+--- @field ModifierKeys string[]
+
+--- @class KeybindingMouseBinding
+--- @field Button number
+--- @field ModifierKeys string[]
+
+--- @class KeybindingV2Value
+--- @field Keyboard? KeybindingKeyboardBinding
+--- @field Mouse? KeybindingMouseBinding
+--- @field Enabled? boolean
+--- @field AllowConflict? boolean
 
 --- @class MCMGetArgs
 --- @field settingId string The ID of the setting to retrieve
@@ -9,7 +36,7 @@
 
 --- @class MCMSetArgs
 --- @field settingId string The ID of the setting to update
---- @field value any The new value to set
+--- @field value MCMSettingValue The new value to set
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 --- @field shouldEmitEvent? boolean Whether to emit a setting changed event
 
@@ -78,7 +105,7 @@
 
 --- @class MCMInsertModMenuTabArgs
 --- @field tabName string The name of the tab to be inserted/add content to
---- @field tabCallback fun(tab:any) Callback function to create the tab content
+--- @field tabCallback fun(tab:ExtuiTabItem) Callback function to create the tab content
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 --- @field skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately
 
@@ -93,8 +120,10 @@
 
 --- @class MCMKeybindingAPI Keybinding-related API methods
 --- @field Get fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):string Get a human-readable keybinding string (e.g., "[Ctrl] + [C]")
---- @field GetRaw fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):table|nil Get the raw keybinding data structure
---- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for when the keybinding is pressed
+--- @field GetRaw fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):KeybindingV2Value|nil Get the raw keybinding data structure
+--- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for key down and key up events
+--- @field SetKeyDownCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for key down events
+--- @field SetKeyUpCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for key up events
 
 --- @class MCMEnumAPI Enum-related API methods
 --- @field SetChoices fun(settingIdOrArgs:string|MCMEnumSetChoicesArgs, choices?:string[], choicesHandles?:string[], modUUID?:string):boolean Update enum choices at runtime
@@ -115,11 +144,11 @@
 --- @field SetDisabled fun(buttonIdOrArgs:string|MCMEventButtonSetDisabledArgs, disabled?:boolean, tooltipText?:string, modUUID?:string):boolean Enable or disable an event button
 
 --- @class MCMStoreRegisterOptions
---- @field default? any The default value for the variable
+--- @field default? StorageValue The default value for the variable
 --- @field type? string Optional type hint ("boolean", "number", "string", "table")
 --- @field storage? "json"|"modvar"|"modconfig" Storage backend for this variable. Defaults to "json"; unknown values warn and fall back to "json".
 --- @field storageConfig? MCMStoreStorageConfig Optional storage sync and persistence overrides. Mirrors SE's ModVars defaults
---- @field validate? fun(value: any): (boolean, string)? Optional validation function
+--- @field validate? fun(value: unknown): (boolean, string)? Optional validation function
 --- @field modUUID? string Optional mod UUID, override for the default mod UUID
 
 --- @class MCMStoreStorageConfig
@@ -137,7 +166,7 @@
 
 --- @class MCMStoreSetArgs
 --- @field var string The name/key of the variable to set
---- @field value any The value to set
+--- @field value StorageValue The value to set
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 
 --- @class MCMStoreGetAllArgs
@@ -146,13 +175,13 @@
 
 --- @class MCMStoreAPI Store API for JSON persistence of non-blueprint settings
 --- @field RegisterVar fun(varName:string, options?:MCMStoreRegisterOptions):boolean Register a dynamic variable for persistence
---- @field Get fun(varNameOrArgs:string|MCMStoreGetArgs, modUUID?:string):any Get a stored value
---- @field Set fun(varNameOrArgs:string|MCMStoreSetArgs, value?:any, modUUID?:string):boolean Set a stored value
---- @field GetAll fun(modUUIDOrArgs?:string|MCMStoreGetAllArgs):table<string, any> Get all stored values for this mod
+--- @field Get fun(varNameOrArgs:string|MCMStoreGetArgs, modUUID?:string):StorageValue Get a stored value
+--- @field Set fun(varNameOrArgs:string|MCMStoreSetArgs, value?:StorageValue, modUUID?:string):boolean Set a stored value
+--- @field GetAll fun(modUUIDOrArgs?:string|MCMStoreGetAllArgs):table<string, StorageValue> Get all stored values for this mod
 
 --- @class MCMTable Table containing the Mod Configuration Menu (MCM) public API exposed to each mod.
---- @field Get fun(settingIdOrArgs:string|MCMGetArgs, modUUID?:string):any Get the value of a setting
---- @field Set fun(settingIdOrArgs:string|MCMSetArgs, value?:any, modUUID?:string, shouldEmitEvent?:boolean):boolean Set the value of a setting
+--- @field Get fun(settingIdOrArgs:string|MCMGetArgs, modUUID?:string):MCMSettingValue Get the value of a setting
+--- @field Set fun(settingIdOrArgs:string|MCMSetArgs, value?:MCMSettingValue, modUUID?:string, shouldEmitEvent?:boolean):boolean Set the value of a setting
 --- @field Enum MCMEnumAPI Enum-related methods
 --- @field Keybinding MCMKeybindingAPI Keybinding-related methods
 --- @field List MCMListAPI List setting-related methods
@@ -160,7 +189,7 @@
 --- @field Store MCMStoreAPI Store API for JSON persistence of non-blueprint settings
 --- @field OpenMCMWindow fun():nil Open the MCM window (client-only)
 --- @field CloseMCMWindow fun():nil Close the MCM window (client-only)
---- @field InsertModMenuTab fun(tabNameOrArgs:string|MCMInsertModMenuTabArgs, tabCallback?:fun(tab:any), modUUID?:string, skipDisclaimer?:boolean):nil Insert a new tab into the MCM (client-only)
+--- @field InsertModMenuTab fun(tabNameOrArgs:string|MCMInsertModMenuTabArgs, tabCallback?:fun(tab:ExtuiTabItem), modUUID?:string, skipDisclaimer?:boolean):nil Insert a new tab into the MCM (client-only)
 --- @field OpenModPage fun(tabNameOrArgs:string|MCMOpenModPageArgs, modUUID?:string, shouldEmitEvent?:boolean):nil Open a mod page in the MCM (client-only)
 
 --- @type MCMTable Table containing the MCM public API exposed to each mod.

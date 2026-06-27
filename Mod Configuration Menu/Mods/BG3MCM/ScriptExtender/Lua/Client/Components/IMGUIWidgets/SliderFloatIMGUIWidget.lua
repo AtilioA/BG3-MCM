@@ -1,7 +1,11 @@
 ---@class SliderFloatIMGUIWidget: IMGUIWidget
 SliderFloatIMGUIWidget = _Class:Create("SliderFloatIMGUIWidget", IMGUIWidget)
 
----@return any
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue number
+---@param modUUID string
+---@return SliderFloatIMGUIWidget
 function SliderFloatIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = SliderFloatIMGUIWidget })
 
@@ -49,6 +53,8 @@ function SliderFloatIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
 end
 
+---@param value { Value: number[] }
+---@return number
 function SliderFloatIMGUIWidget:GetOnChangeValue(value)
     return value.Value[1]
 end

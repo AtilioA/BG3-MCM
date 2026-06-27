@@ -12,6 +12,7 @@ KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
 ---@param group ExtuiGroup The IMGUI group to attach this widget to
 ---@return KeybindingV2IMGUIWidget
 function KeybindingV2IMGUIWidget:new(group)
+    ---@type KeybindingV2IMGUIWidget
     local instance = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
     instance.Widget = {
         Group = group,
@@ -52,9 +53,9 @@ function KeybindingV2IMGUIWidget:new(group)
 end
 
 ---Stores a keybinding in the registry
----@param modData table The mod data containing ModUUID and ModName
----@param action table The action data containing ActionId
----@param payload table The payload containing the keybinding data
+---@param modData KeybindingUIMod The mod data containing ModUUID and ModName
+---@param action KeybindingUIAction The action data containing ActionId
+---@param payload KeybindingV2Value The payload containing the keybinding data
 ---@return boolean success Whether the operation was successful
 function KeybindingV2IMGUIWidget:StoreKeybinding(modData, action, payload)
     local success = KeybindingsRegistry.UpdateBinding(modData.ModUUID, action.ActionId, payload, true)
@@ -188,7 +189,7 @@ end
 
 ---Renders the keybinding table for a specific mod
 ---@param modGroup ExtuiGroup The IMGUI group to render the table in
----@param mod table The mod data containing actions to render
+---@param mod KeybindingUIMod The mod data containing actions to render
 function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     xpcall(function()
         local columns = 4
@@ -518,7 +519,7 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     local registry = KeybindingsRegistry.GetFilteredRegistry()
     local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
-    local newPayload = KeybindingsRegistry.BuildKeyboardPayload(keybinding, currentBinding.Enabled)
+    local newPayload = KeybindingsRegistry.BuildKeyboardPayload(keybinding, currentBinding.enabled)
     newPayload.AllowConflict = action.AllowConflict
 
     xpcall(function()
@@ -558,7 +559,7 @@ function KeybindingV2IMGUIWidget:AssignMouseBinding(mouseBinding)
     local registry = KeybindingsRegistry.GetFilteredRegistry()
     local currentBinding = (registry[modData.ModUUID] and registry[modData.ModUUID][action.ActionId]) or {}
 
-    local newPayload = KeybindingsRegistry.BuildMousePayload(mouseBinding, currentBinding.Enabled)
+    local newPayload = KeybindingsRegistry.BuildMousePayload(mouseBinding, currentBinding.enabled)
     newPayload.AllowConflict = action.AllowConflict
 
     xpcall(function()
@@ -781,7 +782,7 @@ function KeybindingV2IMGUIWidget:Destroy()
 end
 
 ---Updates the current value (not used)
----@param value any The new value (unused)
+---@param value unknown The new value (unused)
 function KeybindingV2IMGUIWidget:UpdateCurrentValue(value)
     -- Not used.
 end

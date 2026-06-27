@@ -121,6 +121,11 @@ function EventButtonIMGUIWidget:CreateButton()
     self.Widget.CooldownGroup = buttonContainer:AddGroup("CooldownGroup_" .. setting:GetId())
 end
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param currentValue MCMSettingValue
+---@param modUUID string
+---@return EventButtonIMGUIWidget
 function EventButtonIMGUIWidget:new(group, setting, currentValue, modUUID)
     local instance = setmetatable({}, { __index = EventButtonIMGUIWidget })
 

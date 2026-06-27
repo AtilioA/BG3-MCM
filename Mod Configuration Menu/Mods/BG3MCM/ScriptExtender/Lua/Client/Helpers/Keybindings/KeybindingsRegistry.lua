@@ -37,6 +37,9 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     end
 end
 
+---@param binding KeybindingKeyboardBinding
+---@param currentEnabled boolean|nil
+---@return KeybindingV2Value
 function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled)
     return {
         Keyboard = {
@@ -47,6 +50,9 @@ function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled)
     }
 end
 
+---@param binding KeybindingMouseBinding
+---@param currentEnabled boolean|nil
+---@return KeybindingV2Value
 function KeybindingsRegistry.BuildMousePayload(binding, currentEnabled)
     return {
         Mouse = {
@@ -142,7 +148,7 @@ end
 --- Accepts a table of updates that can include fields like 'Keyboard' and 'Enabled'.
 --- @param modUUID string The UUID of the mod to update the binding for
 --- @param actionId string The ID of the action to update the binding for
---- @param updates table A table of updates to apply to the binding
+--- @param updates KeybindingV2Value A table of updates to apply to the binding
 --- @param shouldEmitEvent? boolean Whether to emit the setting saved event
 function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates, shouldEmitEvent)
     local modTable = registry[modUUID]

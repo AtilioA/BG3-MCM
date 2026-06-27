@@ -4,7 +4,7 @@
 ---@class SettingsFile
 ---@field ModuleUUID string
 ---@field FilePath string
----@field Data table<string, any>
+---@field Data table<string, StorageValue>
 ---@field Loaded boolean
 ---@field AutoSave boolean
 local SettingsFile = {}
@@ -95,8 +95,8 @@ end
 -- Manages multiple file handlers, keyed by UUID.
 -- =============================================================================
 
-local IStorageAdapter = require("Shared/DynamicSettings/Adapters/IStorageAdapter")
-local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
+local IStorageAdapter = Ext.Require("Shared/DynamicSettings/Adapters/IStorageAdapter.lua")
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
 ---@class JsonStorageManager : IStorageAdapter
 local JsonStorageManager = {}
@@ -129,7 +129,7 @@ end
 ---@param key string
 ---@param moduleUUID string
 ---@param storageConfig? table Optional storage-specific configuration
----@return any
+---@return StorageValue
 function JsonStorageManager:GetValue(key, moduleUUID, storageConfig)
     if not moduleUUID then return nil end
 
@@ -144,7 +144,7 @@ end
 
 --- Write the raw Lua value
 ---@param key string
----@param value any
+---@param value StorageValue
 ---@param moduleUUID string
 ---@param storageConfig? table Optional storage configuration (unused for JSON)
 function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)

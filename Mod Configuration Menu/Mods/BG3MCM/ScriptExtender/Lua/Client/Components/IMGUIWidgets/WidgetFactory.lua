@@ -22,6 +22,7 @@ local function warnDeprecation(deprecatedSettingType, modUUID, newType)
 end
 
 --- 'Factory' for creating IMGUI widgets based on the type of setting
+---@type table<string, fun(group: ExtuiTreeParent, setting: BlueprintSetting, settingValue: MCMSettingValue, modUUID: string): IMGUIWidget>
 InputWidgetFactory = {
     int = function(group, setting, settingValue, modUUID)
         return IMGUIWidget:Create(group, setting, settingValue, modUUID, IntIMGUIWidget)

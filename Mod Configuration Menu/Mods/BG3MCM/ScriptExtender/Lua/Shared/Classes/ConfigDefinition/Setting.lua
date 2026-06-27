@@ -3,8 +3,8 @@
 ---@field private OldId string
 ---@field private Name string
 ---@field private Type string
----@field private VisibleIf table<string, string>
----@field private Default any
+---@field private VisibleIf VisibleIfDefinition
+---@field private Default MCMSettingValue
 ---@field private Description string
 ---@field private Tooltip string
 ---@field private Section string
@@ -28,7 +28,9 @@ BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
 
 --- Constructor for the BlueprintSetting class.
 --- @param options table
+--- @return BlueprintSetting
 function BlueprintSetting:New(options)
+    ---@type BlueprintSetting
     local self = setmetatable({}, BlueprintSetting)
 
     if options.Id ~= nil then
@@ -106,10 +108,12 @@ function BlueprintSetting:GetType()
     return self.Type
 end
 
+---@return VisibleIfDefinition
 function BlueprintSetting:GetVisibleIf()
     return self.VisibleIf
 end
 
+---@return MCMSettingValue
 function BlueprintSetting:GetDefault()
     return self.Default
 end
@@ -208,13 +212,13 @@ end
 -- end
 
 --- Get the current value of the setting
----@return any
+---@return MCMSettingValue
 function BlueprintSetting:GetValue()
     return self.Default
 end
 
 --- Set the value of the setting
----@param value any
+---@param value MCMSettingValue
 function BlueprintSetting:SetValue(value)
 end
 

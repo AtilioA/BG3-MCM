@@ -93,7 +93,6 @@ end
 
 --- Returns the tabs of the blueprint, if any.
 ---@return BlueprintTab[] tabs The tabs of the blueprint
----@return nil - If there are no tabs
 function Blueprint:GetTabs()
     return self.Tabs
 end
@@ -105,14 +104,12 @@ end
 
 --- Returns the settings of the blueprint, if any.
 ---@return BlueprintSetting[] settings The settings of the blueprint
----@return nil - If there are no settings
 function Blueprint:GetSettings()
     return self.Settings
 end
 
 --- Returns the sections of the blueprint, if any.
 ---@return BlueprintSection[] sections The sections of the blueprint
----@return nil - If there are no sections
 function Blueprint:GetSections()
     return self.Sections
 end
@@ -131,6 +128,7 @@ end
 --- @param options table
 --- @return Blueprint
 function Blueprint:New(options)
+    ---@type Blueprint
     local self = setmetatable({}, Blueprint)
     self.ModUUID = options.ModUUID or nil
     self.SchemaVersion = options.SchemaVersion or nil
@@ -215,7 +213,7 @@ end
 
 --- Retrieve the default value for a setting by name
 ---@param settingId string The name/key of the setting to retrieve the default value for
----@return any setting.Default The default value for the setting
+---@return MCMSettingValue setting.Default The default value for the setting
 function Blueprint:RetrieveDefaultValueForSetting(settingId)
     return BlueprintShape:RetrieveDefaultValueForSetting(self, settingId)
 end
