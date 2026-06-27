@@ -92,14 +92,14 @@ function ModConfig:SaveSettingsForMod(modUUID)
     local settings = self.mods[modUUID].settingsValues
     local updatedSettings = {}
 
-    BlueprintShape:ForEachSetting(blueprint, function(setting, path)
+    BlueprintShape:ForEachSetting(blueprint, function(setting, containerPath)
         local settingId = setting:GetId()
         if settingId then
             local updatedSetting = settings[settingId]
             if updatedSetting == nil then
                 updatedSetting = setting:GetDefault()
             end
-            BlueprintShape:SetNestedSettingValue(updatedSettings, path, settingId, updatedSetting)
+            BlueprintShape:SetNestedSettingValue(updatedSettings, containerPath, settingId, updatedSetting)
         end
     end)
 

@@ -1,33 +1,41 @@
+---@alias BlueprintSettingId string
+---@alias BlueprintSettingPath string[]
+
 ---@class BlueprintCacheIndex
----@field byId table<string, BlueprintSetting>
----@field entries BlueprintShapeEntry[]
----@field pathById table<string, string[]>
+---@field byId table<BlueprintSettingId, BlueprintSetting> Direct setting lookup by ID, scoped to this blueprint or subtree. IDs are validated unique per mod blueprint, not globally.
+---@field entries BlueprintShapeEntry[] Ordered traversal entries for save output and any order-sensitive callers.
+---@field containerPathById table<BlueprintSettingId, BlueprintSettingPath> Parent-container path by setting ID, used to re-nest flat values when saving to JSON.
 ---@field hasAnySettings boolean
 
 ---@class BlueprintCache
 BlueprintCache = _Class:Create("BlueprintCache", nil)
 
-local enabled = true
+local cacheEnabled = true
 local caches = setmetatable({}, { __mode = "k" })
 
 ---@param value boolean
-function BlueprintCache:SetEnabled(value)
-    enabled = value == true
-    if not enabled then
+function BlueprintCache:SetCacheEnabled(value)
+    local nextValue = value == true
+    if cacheEnabled == nextValue then
+        return
+    end
+
+    cacheEnabled = nextValue
+    if not cacheEnabled then
         self:InvalidateAll()
     end
 end
 
 ---@return boolean
-function BlueprintCache:IsEnabled()
-    return enabled
+function BlueprintCache:IsCacheEnabled()
+    return cacheEnabled
 end
 
 ---@param root table
 ---@param buildFn fun(root: table): BlueprintCacheIndex
 ---@return BlueprintCacheIndex
 function BlueprintCache:GetOrBuild(root, buildFn)
-    if not enabled then
+    if not cacheEnabled then
         return buildFn(root)
     end
 
@@ -58,8 +66,8 @@ function BlueprintCache:ApplyMCMSettings()
     end
 
     local debugLevel = MCMAPI:GetSettingValue("debug_level", ModuleUUID) or 0
-    local shouldDisable = debugLevel >= 1 and MCMAPI:GetSettingValue("enable_blueprint_cache", ModuleUUID) == false
-    self:SetEnabled(not shouldDisable)
+    local userEnabledCache = MCMAPI:GetSettingValue("enable_blueprint_cache", ModuleUUID)
+    self:SetCacheEnabled(debugLevel < 1 or userEnabledCache ~= false)
 end
 
 Ext.ModEvents['BG3MCM'][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Subscribe(function(payload)

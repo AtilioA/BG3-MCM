@@ -33,14 +33,14 @@ local function makeBlueprint()
     })
 end
 
-D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
+    D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
     D.beforeEach(function()
-        BlueprintCache:SetEnabled(true)
+        BlueprintCache:SetCacheEnabled(true)
         BlueprintCache:InvalidateAll()
     end)
 
     D.afterEach(function()
-        BlueprintCache:SetEnabled(true)
+        BlueprintCache:SetCacheEnabled(true)
         BlueprintCache:InvalidateAll()
     end)
 
@@ -58,7 +58,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
         local blueprint = makeBlueprint()
         local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
-        BlueprintCache:SetEnabled(false)
+        BlueprintCache:SetCacheEnabled(false)
         blueprint:GetAllSettings()
         blueprint:GetAllSettings()
 
@@ -89,7 +89,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
             error(err)
         end
 
-        D.expect(BlueprintCache:IsEnabled()).toBe(false)
+        D.expect(BlueprintCache:IsCacheEnabled()).toBe(false)
     end)
 
     D.test("TestBlueprintCacheIgnoresDisableSettingWhenDebugHidden", function()
@@ -116,7 +116,32 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
             error(err)
         end
 
-        D.expect(BlueprintCache:IsEnabled()).toBe(true)
+        D.expect(BlueprintCache:IsCacheEnabled()).toBe(true)
+    end)
+
+    D.test("TestBlueprintCacheMissingSettingStaysEnabled", function()
+        local originalMCMAPI = MCMAPI
+        MCMAPI = {
+            GetSettingValue = function(_self, settingId, _modUUID)
+                if settingId == "debug_level" then
+                    return 1
+                end
+
+                return nil
+            end,
+        }
+
+        local ok, err = pcall(function()
+            BlueprintCache:ApplyMCMSettings()
+        end)
+
+        MCMAPI = originalMCMAPI
+
+        if not ok then
+            error(err)
+        end
+
+        D.expect(BlueprintCache:IsCacheEnabled()).toBe(true)
     end)
 
     D.test("TestBlueprintCacheInvalidatesAfterAddSetting", function(ctx)
@@ -187,20 +212,20 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
         D.expect(path).toEqual({ "main-tab", "nested-tab" })
     end)
 
-    D.test("TestBlueprintCacheOrderedTraversalPreservesDuplicateSettings", function()
+    D.test("TestBlueprintCacheOrderedTraversalPreservesSettingOrder", function()
         local blueprint = Blueprint:New({
             ModUUID = TestConstants.ModuleUUIDs[1],
             SchemaVersion = 1,
             Settings = {
                 {
-                    Id = "duplicate-setting",
-                    Name = "First Duplicate",
+                    Id = "first-setting",
+                    Name = "First Setting",
                     Type = "checkbox",
                     Default = true,
                 },
                 {
-                    Id = "duplicate-setting",
-                    Name = "Second Duplicate",
+                    Id = "second-setting",
+                    Name = "Second Setting",
                     Type = "checkbox",
                     Default = false,
                 },
@@ -211,9 +236,10 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
         local byId = blueprint:GetAllSettings()
 
         D.expect(#ordered).toBe(2)
-        D.expect(ordered[1]:GetName()).toBe("First Duplicate")
-        D.expect(ordered[2]:GetName()).toBe("Second Duplicate")
-        D.expect(byId["duplicate-setting"]:GetName()).toBe("Second Duplicate")
+        D.expect(ordered[1]:GetName()).toBe("First Setting")
+        D.expect(ordered[2]:GetName()).toBe("Second Setting")
+        D.expect(byId["first-setting"]:GetName()).toBe("First Setting")
+        D.expect(byId["second-setting"]:GetName()).toBe("Second Setting")
     end)
 
     D.test("TestSaveSettingsForModUsesWarmedBlueprintCache", function(ctx)
@@ -273,7 +299,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
 
         D.expect(blueprint.byId).toBeNil()
         D.expect(blueprint.entries).toBeNil()
-        D.expect(blueprint.pathById).toBeNil()
+        D.expect(blueprint.containerPathById).toBeNil()
         D.expect(blueprint._cache).toBeNil()
     end)
 end)

@@ -1,13 +1,13 @@
 ---@class BlueprintShapeEntry
----@field id string
+---@field id BlueprintSettingId|nil
 ---@field setting BlueprintSetting
----@field path string[]
+---@field containerPath BlueprintSettingPath
 
 ---@class BlueprintShape
 BlueprintShape = _Class:Create("BlueprintShape", nil)
 
----@param values table|nil
----@return table
+---@param values BlueprintSettingPath|nil
+---@return BlueprintSettingPath
 local function copyPath(values)
     local copy = {}
     for index, value in ipairs(values or {}) do
@@ -16,9 +16,9 @@ local function copyPath(values)
     return copy
 end
 
----@param path table
+---@param path BlueprintSettingPath
 ---@param id string|nil
----@return table
+---@return BlueprintSettingPath
 local function appendPath(path, id)
     local nextPath = copyPath(path)
     if id and id ~= "" then
@@ -149,22 +149,24 @@ function BlueprintShape:_BuildIndex(blueprint)
     local index = {
         byId = {},
         entries = {},
-        pathById = {},
+        containerPathById = {},
         hasAnySettings = false,
     }
 
+    ---@param element Blueprint|BlueprintTab|BlueprintSection
+    ---@param path BlueprintSettingPath
     local function visitElement(element, path)
         for _, setting in ipairs(self:GetSettings(element)) do
             local settingId = getElementId(setting)
-            local settingPath = copyPath(path)
+            local containerPath = copyPath(path)
             if settingId then
                 index.byId[settingId] = setting
-                index.pathById[settingId] = settingPath
+                index.containerPathById[settingId] = containerPath
             end
             table.insert(index.entries, {
                 id = settingId,
                 setting = setting,
-                path = settingPath,
+                containerPath = containerPath,
             })
             index.hasAnySettings = true
         end
@@ -191,16 +193,16 @@ function BlueprintShape:GetIndex(blueprint)
 end
 
 ---@param blueprint Blueprint|BlueprintTab|BlueprintSection
----@param callback fun(setting: BlueprintSetting, path: string[])
+---@param callback fun(setting: BlueprintSetting, containerPath: BlueprintSettingPath)
 function BlueprintShape:ForEachSetting(blueprint, callback)
     local index = self:GetIndex(blueprint)
     for _, entry in ipairs(index.entries) do
-        callback(entry.setting, entry.path)
+        callback(entry.setting, entry.containerPath)
     end
 end
 
 ---@param blueprint Blueprint|BlueprintTab|BlueprintSection
----@return table<string, BlueprintSetting>
+---@return table<BlueprintSettingId, BlueprintSetting>
 function BlueprintShape:GetAllSettings(blueprint)
     local settings = {}
     local index = self:GetIndex(blueprint)
@@ -232,24 +234,24 @@ function BlueprintShape:HasAnySettings(blueprint)
 end
 
 ---@param blueprint Blueprint|BlueprintTab|BlueprintSection
----@param settingId string
+---@param settingId BlueprintSettingId
 ---@return BlueprintSetting|nil
 function BlueprintShape:GetSettingById(blueprint, settingId)
     return self:GetIndex(blueprint).byId[settingId]
 end
 
 ---@param blueprint Blueprint|BlueprintTab|BlueprintSection
----@param settingId string
+---@param settingId BlueprintSettingId
 ---@return boolean
 function BlueprintShape:IsSettingId(blueprint, settingId)
     return self:GetIndex(blueprint).byId[settingId] ~= nil
 end
 
 ---@param blueprint Blueprint|BlueprintTab|BlueprintSection
----@param settingId string
----@return string[]|nil
+---@param settingId BlueprintSettingId
+---@return BlueprintSettingPath|nil
 function BlueprintShape:GetPathForSetting(blueprint, settingId)
-    local path = self:GetIndex(blueprint).pathById[settingId]
+    local path = self:GetIndex(blueprint).containerPathById[settingId]
     if not path then
         return nil
     end
@@ -258,7 +260,7 @@ function BlueprintShape:GetPathForSetting(blueprint, settingId)
 end
 
 ---@param blueprint Blueprint|BlueprintTab|BlueprintSection
----@param settingId string
+---@param settingId BlueprintSettingId
 ---@return any
 function BlueprintShape:RetrieveDefaultValueForSetting(blueprint, settingId)
     local setting = self:GetSettingById(blueprint, settingId)
@@ -276,7 +278,7 @@ function BlueprintShape:InvalidateCache()
 end
 
 ---@param output table
----@param path string[]
+---@param path BlueprintSettingPath
 ---@param key string
 ---@param value any
 function BlueprintShape:SetNestedSettingValue(output, path, key, value)
