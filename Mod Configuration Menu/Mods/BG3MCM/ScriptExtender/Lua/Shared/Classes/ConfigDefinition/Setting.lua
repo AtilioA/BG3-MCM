@@ -168,6 +168,7 @@ end
 
 function BlueprintSetting:SetId(value)
     self.Id = value
+    BlueprintShape:InvalidateCache()
 end
 
 function BlueprintSetting:SetType(value)

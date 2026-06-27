@@ -447,6 +447,26 @@
                             }
                         },
                         {
+                            "Id": "enable_blueprint_cache",
+                            "Name": "Enable settings cache",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Cache mod settings for faster lookups. Disable only if troubleshooting values that appear stale.",
+                            "VisibleIf": {
+                                "Conditions": [
+                                    {
+                                        "ExpectedValue": "1",
+                                        "SettingId": "debug_level",
+                                        "Operator": ">="
+                                    }
+                                ]
+                            },
+                            "Handles": {
+                                "NameHandle": "hcf4f4988e04b461d9b1c4b68011c581dgge3",
+                                "DescriptionHandle": "hdffa1deb372e491ab7344a156ca6bea1g49a"
+                            }
+                        },
+                        {
                             "Id": "reset_lua_both",
                             "Name": "Reset Lua (Server & Client)",
                             "Type": "keybinding_v2",

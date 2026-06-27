@@ -110,5 +110,6 @@ function BlueprintSection:AddSetting(name, type, default, description, options, 
         Options = options or {}
     })
     table.insert(self.Settings, setting)
+    BlueprintShape:InvalidateCache()
     return self
 end

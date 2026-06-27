@@ -122,6 +122,7 @@ end
 function BlueprintTab:AddSection(sectionOptions)
     local section = BlueprintSection:New(sectionOptions)
     table.insert(self.Sections, section)
+    BlueprintShape:InvalidateCache()
     return self
 end
 
@@ -131,6 +132,7 @@ end
 function BlueprintTab:AddSetting(settingOptions)
     local setting = BlueprintSetting:New(settingOptions)
     table.insert(self.Settings, setting)
+    BlueprintShape:InvalidateCache()
     return self
 end
 

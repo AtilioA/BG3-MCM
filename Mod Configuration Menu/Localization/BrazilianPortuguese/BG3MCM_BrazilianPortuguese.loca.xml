@@ -35,6 +35,8 @@
     <content contentuid="h99e6c7f6eb9c43238ca27a89bb45b9690607" version="1">Esta aba pode ter conteúdo que não está disponível no menu principal. Por favor, carregue um save primeiro.</content>
     <content contentuid="h8bc90105aaff4addaebee525051bde958a87" version="1">Printar avisos de descontinuação para mods com código desatualizado.&lt;br&gt;Eles ainda serão exibidos se o modo desenvolvedor estiver ativado.</content>
     <content contentuid="h676e89908a8543c18ca789ec673306febb93" version="1">Printar avisos de descontinuação</content>
+    <content contentuid="hcf4f4988e04b461d9b1c4b68011c581dgge3" version="1">Ativar cache de configurações</content>
+    <content contentuid="hdffa1deb372e491ab7344a156ca6bea1g49a" version="1">Armazena em cache as configurações de mod para consultas mais rápidas. Desative apenas se valores parecerem estar desatualizados.</content>
     <content contentuid="hfdc1753df79d44ee8cf69a3a79e863e5g8cf" version="1">Depuração</content>
     <content contentuid="h6e8c611890eb4a589f1777131bebe79a2fcd" version="1">&#x0a;Sua load order provavelmente está sendo resetada. BG3MM 1.0.12.9+ identifica problemas na load order.&#x0a;Problemas podem ser causados pelo uso do gerenciador de mods nativo do jogo ou mods com meta.lsx/UUID inválido.&#x0a;Certifique-se de ter o SE e ter salvo e exportado sua load order.</content>
     <content contentuid="h8fdf52dfb8b14895a479a2bb6bd2a4af9d4f" version="1">Não mostrar novamente</content>

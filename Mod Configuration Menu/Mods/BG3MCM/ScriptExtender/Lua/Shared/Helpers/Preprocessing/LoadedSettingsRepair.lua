@@ -39,12 +39,11 @@ end
 ---@param blueprint Blueprint
 ---@param settings table<string, any>
 function LoadedSettingsRepair:MigrateDeprecatedKeys(blueprint, settings)
-    local allSettings = blueprint:GetAllSettings()
     MCMDebug(2, "Migrating deprecated keys for blueprint: %s", blueprint:GetModUUID())
 
-    for _, setting in pairs(allSettings) do
+    BlueprintShape:ForEachSetting(blueprint, function(setting)
         self:HandleListV2SettingMigration(blueprint, setting, settings)
-    end
+    end)
 end
 
 ---@param blueprint Blueprint
@@ -86,8 +85,7 @@ end
 ---@param blueprint Blueprint
 ---@param settings table<string, any>
 function LoadedSettingsRepair:AddKeysMissingFromBlueprint(blueprint, settings)
-    local allSettings = blueprint:GetAllSettings()
-    for _, setting in pairs(allSettings) do
+    BlueprintShape:ForEachSetting(blueprint, function(setting)
         if settings[setting:GetId()] == nil then
             MCMDebug(2, "Setting missing: %s", setting:GetId())
             if settings[setting:GetOldId()] ~= nil then
@@ -98,7 +96,7 @@ function LoadedSettingsRepair:AddKeysMissingFromBlueprint(blueprint, settings)
                 MCMDebug(2, "Setting default value for: %s", setting:GetId())
             end
         end
-    end
+    end)
 end
 
 ---@param blueprint Blueprint
@@ -106,10 +104,9 @@ end
 function LoadedSettingsRepair:RemoveDeprecatedKeys(blueprint, settings)
     local validSettings = {}
 
-    local allSettings = blueprint:GetAllSettings()
-    for id, _setting in pairs(allSettings) do
-        validSettings[id] = true
-    end
+    BlueprintShape:ForEachSetting(blueprint, function(setting)
+        validSettings[setting:GetId()] = true
+    end)
 
     for key, value in pairs(settings) do
         if not validSettings[key] then

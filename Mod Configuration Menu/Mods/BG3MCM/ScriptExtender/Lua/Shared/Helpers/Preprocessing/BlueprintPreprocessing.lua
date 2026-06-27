@@ -185,46 +185,60 @@ end
 ---@param blueprint Blueprint The blueprint data to validate
 function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
     local isValid = true
-    local blueprintSettingsDefinitions = blueprint:GetAllSettings()
 
-    if blueprintSettingsDefinitions then
-        for _, setting in pairs(blueprintSettingsDefinitions) do
+    if BlueprintShape:HasAnySettings(blueprint) then
+        BlueprintShape:ForEachSetting(blueprint, function(setting)
+            if not isValid then
+                return
+            end
+
             if not self:BlueprintCheckDefaultType(setting) then
-                return false
+                isValid = false
+                return
             end
 
             local settingType = setting:GetType()
             if settingType == "enum" then
                 if not self:ValidateEnumSetting(setting) then
-                    return false
+                    isValid = false
+                    return
                 end
             elseif settingType == "radio" then
                 if not self:ValidateRadioSetting(setting) then
-                    return false
+                    isValid = false
+                    return
                 end
             elseif self:IsSliderSetting(settingType) then
                 if not self:ValidateSliderSetting(setting) then
-                    return false
+                    isValid = false
+                    return
                 end
             elseif settingType == "keybinding_v2" then
                 if not self:ValidateKeybindingV2Setting(setting) then
-                    return false
+                    isValid = false
+                    return
                 end
             elseif settingType == "event_button" then
                 if not self:ValidateEventButtonSetting(setting) then
-                    return false
+                    isValid = false
+                    return
                 end
             elseif settingType == "checkbox" then
                 if not self:ValidateCheckboxSetting(setting) then
-                    return false
+                    isValid = false
+                    return
                 end
             end
 
             -- Validate VisibleIf for the setting
             if not self:ValidateVisibleIf(setting:GetVisibleIf(), blueprint, "Setting", setting:GetId()) then
-                return false
+                isValid = false
             end
-        end
+        end)
+    end
+
+    if not isValid then
+        return false
     end
 
     -- Validate VisibleIf for tabs
@@ -788,16 +802,7 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
     end
 
     -- Validate that the referenced setting exists
-    local allSettings = blueprint:GetAllSettings()
-    local settingExists = false
-    if allSettings then
-        for _, setting in pairs(allSettings) do
-            if setting:GetId() == condition.SettingId then
-                settingExists = true
-                break
-            end
-        end
-    end
+    local settingExists = BlueprintShape:IsSettingId(blueprint, condition.SettingId)
 
     if not settingExists then
         MCMWarn(0,

@@ -142,7 +142,7 @@ function MCMAPI:GetBlueprintSetting(settingId, modUUID)
         return nil
     end
 
-    local setting = blueprint:GetAllSettings()[settingId]
+    local setting = blueprint:GetSettingById(settingId)
     if not setting then
         MCMWarn(0,
             "Setting '%s' not found in the blueprint for mod '%s'. Please contact %s about this issue.",

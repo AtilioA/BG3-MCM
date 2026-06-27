@@ -11,6 +11,7 @@ RequireFiles("Shared/Helpers/", {
     "Printer",
     "Color",
     "Fallback",
+    "Blueprint/_Init",
     "Preprocessing/_Init",
     "MCM/_Init",
 })

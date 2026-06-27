@@ -1,3 +1,8 @@
+---@class BlueprintShapeEntry
+---@field id string
+---@field setting BlueprintSetting
+---@field path string[]
+
 ---@class BlueprintShape
 BlueprintShape = _Class:Create("BlueprintShape", nil)
 
@@ -20,6 +25,20 @@ local function appendPath(path, id)
         table.insert(nextPath, id)
     end
     return nextPath
+end
+
+---@param element any
+---@return string|nil
+local function getElementId(element)
+    if not element then
+        return nil
+    end
+
+    if element.GetId then
+        return element:GetId()
+    end
+
+    return element.Id or element.TabId or element.SectionId
 end
 
 ---@param element any
@@ -124,74 +143,136 @@ function BlueprintShape:ForEachSection(blueprint, callback)
     visitElement(blueprint)
 end
 
----@param blueprint Blueprint
----@param callback fun(setting: BlueprintSetting, path: string[])
-function BlueprintShape:ForEachSetting(blueprint, callback)
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@return BlueprintCacheIndex
+function BlueprintShape:_BuildIndex(blueprint)
+    local index = {
+        byId = {},
+        entries = {},
+        pathById = {},
+        hasAnySettings = false,
+    }
+
     local function visitElement(element, path)
         for _, setting in ipairs(self:GetSettings(element)) do
-            callback(setting, path)
+            local settingId = getElementId(setting)
+            local settingPath = copyPath(path)
+            if settingId then
+                index.byId[settingId] = setting
+                index.pathById[settingId] = settingPath
+            end
+            table.insert(index.entries, {
+                id = settingId,
+                setting = setting,
+                path = settingPath,
+            })
+            index.hasAnySettings = true
         end
 
         for _, section in ipairs(self:GetSections(element)) do
-            visitElement(section, appendPath(path, section:GetId()))
+            visitElement(section, appendPath(path, getElementId(section)))
         end
 
         for _, tab in ipairs(self:GetTabs(element)) do
-            visitElement(tab, appendPath(path, tab:GetId()))
+            visitElement(tab, appendPath(path, getElementId(tab)))
         end
     end
 
     visitElement(blueprint, {})
+    return index
 end
 
----@param blueprint Blueprint
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@return BlueprintCacheIndex
+function BlueprintShape:GetIndex(blueprint)
+    return BlueprintCache:GetOrBuild(blueprint, function(root)
+        return self:_BuildIndex(root)
+    end)
+end
+
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@param callback fun(setting: BlueprintSetting, path: string[])
+function BlueprintShape:ForEachSetting(blueprint, callback)
+    local index = self:GetIndex(blueprint)
+    for _, entry in ipairs(index.entries) do
+        callback(entry.setting, entry.path)
+    end
+end
+
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
 ---@return table<string, BlueprintSetting>
 function BlueprintShape:GetAllSettings(blueprint)
-    local allSettings = {}
-
-    self:ForEachSetting(blueprint, function(setting)
-        allSettings[setting:GetId()] = setting
-    end)
-
-    return allSettings
-end
-
----@param blueprint Blueprint
----@return BlueprintSetting[]
-function BlueprintShape:GetAllSettingsOrdered(blueprint)
     local settings = {}
+    local index = self:GetIndex(blueprint)
 
-    self:ForEachSetting(blueprint, function(setting)
-        table.insert(settings, setting)
-    end)
+    for id, setting in pairs(index.byId) do
+        settings[id] = setting
+    end
 
     return settings
 end
 
----@param blueprint Blueprint
----@return boolean
-function BlueprintShape:HasAnySettings(blueprint)
-    local hasSettings = false
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@return BlueprintSetting[]
+function BlueprintShape:GetAllSettingsOrdered(blueprint)
+    local settings = {}
+    local index = self:GetIndex(blueprint)
 
-    self:ForEachSetting(blueprint, function()
-        hasSettings = true
-    end)
+    for _, entry in ipairs(index.entries) do
+        table.insert(settings, entry.setting)
+    end
 
-    return hasSettings
+    return settings
 end
 
----@param blueprint Blueprint
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@return boolean
+function BlueprintShape:HasAnySettings(blueprint)
+    return self:GetIndex(blueprint).hasAnySettings
+end
+
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@param settingId string
+---@return BlueprintSetting|nil
+function BlueprintShape:GetSettingById(blueprint, settingId)
+    return self:GetIndex(blueprint).byId[settingId]
+end
+
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@param settingId string
+---@return boolean
+function BlueprintShape:IsSettingId(blueprint, settingId)
+    return self:GetIndex(blueprint).byId[settingId] ~= nil
+end
+
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
+---@param settingId string
+---@return string[]|nil
+function BlueprintShape:GetPathForSetting(blueprint, settingId)
+    local path = self:GetIndex(blueprint).pathById[settingId]
+    if not path then
+        return nil
+    end
+
+    return copyPath(path)
+end
+
+---@param blueprint Blueprint|BlueprintTab|BlueprintSection
 ---@param settingId string
 ---@return any
 function BlueprintShape:RetrieveDefaultValueForSetting(blueprint, settingId)
-    local settings = self:GetAllSettings(blueprint)
+    local setting = self:GetSettingById(blueprint, settingId)
 
-    if not settings[settingId] then
+    if not setting then
         MCMWarn(1, "Setting with ID %s not found in blueprint. Returning nil as default value.", settingId)
         return nil
     end
 
-    return settings[settingId]:GetDefault()
+    return setting:GetDefault()
+end
+
+function BlueprintShape:InvalidateCache()
+    BlueprintCache:InvalidateAll()
 end
 
 ---@param output table

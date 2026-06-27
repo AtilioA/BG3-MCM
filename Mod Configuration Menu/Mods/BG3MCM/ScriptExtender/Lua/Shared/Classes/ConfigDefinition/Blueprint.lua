@@ -100,6 +100,7 @@ end
 
 function Blueprint:SetTabs(value)
     self.Tabs = value
+    BlueprintShape:InvalidateCache()
 end
 
 --- Returns the settings of the blueprint, if any.
@@ -118,10 +119,12 @@ end
 
 function Blueprint:SetSections(value)
     self.Sections = value
+    BlueprintShape:InvalidateCache()
 end
 
 function Blueprint:SetSettings(value)
     self.Settings = value
+    BlueprintShape:InvalidateCache()
 end
 
 --- Constructor for the Blueprint class.
@@ -178,6 +181,7 @@ function Blueprint:AddSection(name, description)
     })
 
     table.insert(self.Sections, section)
+    BlueprintShape:InvalidateCache()
 
     return section
 end
@@ -188,6 +192,7 @@ end
 function Blueprint:AddSetting(settingOptions)
     local setting = BlueprintSetting:New(settingOptions)
     table.insert(self.Settings, setting)
+    BlueprintShape:InvalidateCache()
     return self
 end
 
@@ -200,6 +205,12 @@ end
 ---@return BlueprintSetting[]
 function Blueprint:GetAllSettingsOrdered()
     return BlueprintShape:GetAllSettingsOrdered(self)
+end
+
+---@param settingId string
+---@return BlueprintSetting|nil
+function Blueprint:GetSettingById(settingId)
+    return BlueprintShape:GetSettingById(self, settingId)
 end
 
 --- Retrieve the default value for a setting by name
@@ -215,10 +226,9 @@ end
 function Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
     local settings = {}
 
-    local allSettings = blueprint:GetAllSettings()
-    for _, setting in pairs(allSettings) do
+    BlueprintShape:ForEachSetting(blueprint, function(setting)
         settings[setting:GetId()] = setting:GetDefault()
-    end
+    end)
 
     return settings
 end
