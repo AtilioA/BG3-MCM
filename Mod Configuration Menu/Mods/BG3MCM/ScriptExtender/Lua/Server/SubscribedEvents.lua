@@ -137,8 +137,6 @@ function SubscribedEvents.SubscribeToEvents()
         StorageSyncService:SendBootstrapToUser(userID)
     end)
 
-    Ext.Events.SessionLoaded:Subscribe(EHandlers.OnSessionLoaded)
-
     MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
         if not ConfigsLoaded then
             return

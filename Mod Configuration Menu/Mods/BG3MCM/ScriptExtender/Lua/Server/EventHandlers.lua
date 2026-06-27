@@ -257,13 +257,6 @@ function EHandlers.OnUserClosedWindow(data)
     end
 end
 
--- Run tests if debug level is high enough
-function EHandlers.OnSessionLoaded()
-    if Config:getCfg().DEBUG.level > 2 then
-        TestSuite.RunTests()
-    end
-end
-
 local function showTroubleshootingNotification(userCharacter)
     Osi.OpenMessageBox(userCharacter, Ext.Loca.GetTranslatedString("h62488e121c3345bf81777731789205cd2154"))
 end

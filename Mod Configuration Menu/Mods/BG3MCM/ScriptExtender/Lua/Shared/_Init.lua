@@ -54,7 +54,8 @@ RequireFiles("Shared/", {
     "MetaClass",
     "Helpers/_Init",
     "Classes/_Init",
-    "Tests/_Init",
+    "Tests/TestConstants",
+    "DribbleSpec/_Init",
     "DynamicSettings/_Init"
 })
 
