@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "Lua 5.4",
+  "workspace.library": [
+    "C:\\Modding\\BG3\\ReferenceScripts",
+    "C:\\Modding\\BG3\\ReferenceScripts\\ExtIdeHelpers.lua"
+  ],
+  "workspace.ignoreDir": [
+    ".vscode",
+    ".worktrees"
+  ],
+  "workspace.preloadFileSize": 10000,
+  "diagnostics.globals": [
+    "Osi",
+    "Ext"
+  ],
+  "diagnostics.libraryFiles": "Disable",
+  "diagnostics.workspaceRate": 25,
+  "diagnostics.workspaceDelay": 5000,
+  "diagnostics.severity": {
+    "unused-local": "Information",
+    "code-after-break": "Error!",
+    "missing-return": "Warning",
+    "missing-return-value": "Error",
+    "unreachable-code": "Error",
+    "redundant-return-value": "Warning",
+    "need-check-nil": "Error!",
+    "return-type-mismatch": "Error"
+  },
+  "diagnostics.groupSeverity": {
+    "type-check": "Error"
+  },
+  "diagnostics.unusedLocalExclude": [
+    "_*"
+  ],
+  "type.checkTableShape": true,
+  "type.inferParamType": true,
+  "hint.enable": true
+}
