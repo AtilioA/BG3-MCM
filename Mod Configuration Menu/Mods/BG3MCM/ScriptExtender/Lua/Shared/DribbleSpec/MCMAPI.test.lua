@@ -43,7 +43,7 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         ModEventManager.Emit = function(...) end
 
         local ok, err = pcall(function()
-            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, modUUID)
+            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
         end)
 
         MCMAPI.mods = originalMods
@@ -76,7 +76,7 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         ModEventManager.Emit = function(...) end
 
         local ok, err = pcall(function()
-            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, modUUID)
+            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
         end)
 
         MCMAPI.mods = originalMods
@@ -111,7 +111,7 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         ModEventManager.Emit = function(...) end
 
         local ok, err = pcall(function()
-            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, modUUID)
+            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
         end)
 
         MCMAPI.mods = originalMods
