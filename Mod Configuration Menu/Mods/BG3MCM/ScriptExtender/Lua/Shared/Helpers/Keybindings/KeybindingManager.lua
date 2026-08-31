@@ -54,20 +54,16 @@ function KeybindingManager:IsValidModifierKey(modifier)
 end
 
 ---@param modifier any
----@return any
-function KeybindingManager:NormalizeModifierKey(modifier)
-    if modifier == "" then
-        return "NONE"
-    end
-
-    return modifier
-end
-
+---@return boolean
 function KeybindingManager:IsModifierNull(modifier)
-    return modifier == nil or modifier == "" or modifier == "NONE"
+    if modifier == nil then return true end
+    if type(modifier) ~= "string" then return false end
+    local normalized = modifier:upper()
+    return normalized == "" or normalized == "NONE"
 end
 
 ---Normalizes a modifier list for persistence and exact comparisons.
+---Empty strings and legacy NONE sentinels become the canonical empty list.
 ---@param modifiers string[]|nil
 ---@return string[]
 function KeybindingManager:NormalizeModifiers(modifiers)
@@ -75,13 +71,30 @@ function KeybindingManager:NormalizeModifiers(modifiers)
     local seen = {}
     for _, modifier in ipairs(modifiers or {}) do
         local value = tostring(modifier):upper()
-        if value ~= "" and value ~= "NONE" and not seen[value] then
+        if not self:IsModifierNull(value) and not seen[value] then
             seen[value] = true
             table.insert(normalized, value)
         end
     end
     table.sort(normalized)
     return normalized
+end
+
+---Adapts author and legacy modifier input to the canonical internal list.
+---@param modifiers any
+---@return string[]|nil canonicalModifiers
+---@return any? invalidModifier
+function KeybindingManager:AdaptModifierKeys(modifiers)
+    if modifiers == nil then return {} end
+    if type(modifiers) ~= "table" then return nil, modifiers end
+
+    for _, modifier in ipairs(modifiers) do
+        if not self:IsModifierNull(modifier) and not self:IsValidModifierKey(modifier) then
+            return nil, modifier
+        end
+    end
+
+    return self:NormalizeModifiers(modifiers)
 end
 
 ---Returns whether a keyboard binding has an assigned primary key.

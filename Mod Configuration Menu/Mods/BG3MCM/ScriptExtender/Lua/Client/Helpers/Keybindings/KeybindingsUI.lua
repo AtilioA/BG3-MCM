@@ -49,7 +49,7 @@ function KeybindingsUI.GetAllKeybindings()
                     else
                         keyboardBinding = Fallback_Value(
                             setting:GetDefault() and setting:GetDefault().Keyboard,
-                            { Key = "", ModifierKeys = { "NONE" } }
+                            { Key = "", ModifierKeys = {} }
                         )
                         mouseBinding = setting:GetDefault() and setting:GetDefault().Mouse
                         MCMDebug(1, "Falling back to default keybinding for setting: %s", settingId)
@@ -84,7 +84,7 @@ function KeybindingsUI.GetAllKeybindings()
                         Enabled = enabled,
                         DefaultKeyboardMouseBinding = Fallback_Value(
                             setting:GetDefault() and setting:GetDefault().Keyboard,
-                            { Key = "", ModifierKeys = { "NONE" } }
+                            { Key = "", ModifierKeys = {} }
                         ),
                         DefaultMouseBinding = Fallback_Value(
                             setting:GetDefault() and setting:GetDefault().Mouse,

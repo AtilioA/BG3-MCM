@@ -120,6 +120,19 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
 
         D.expect(isValid).toBeFalsy()
     end)
+    D.test("adapts no-modifier forms to one empty list", function()
+        local modifiers, invalid = KeybindingManager:AdaptModifierKeys({ "", "NONE", "none" })
+        D.expect(modifiers).toEqual({})
+        D.expect(invalid).toBeNil()
+
+        local valid = KeybindingManager:AdaptModifierKeys({ "rshift", "LCTRL", "RSHIFT" })
+        D.expect(valid).toEqual({ "LCTRL", "RSHIFT" })
+
+        local rejected, invalidModifier = KeybindingManager:AdaptModifierKeys({ "LCTRL_BAD" })
+        D.expect(rejected).toBeNil()
+        D.expect(invalidModifier).toBe("LCTRL_BAD")
+    end)
+
 
     D.test("persists complete replacement values unchanged", function()
         RegisterActions({ MouseAction("replace-device", { Button = 8, ModifierKeys = { "LCTRL" } }) })
@@ -477,6 +490,8 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         MCMAPI.GetSettingValue = originalGetSettingValue
         if not ok then error(result) end
         D.expect(result).toBe("[Left Ctrl] + [K]")
+        D.expect(KeyPresentationMapping:GetKBViewKey({ Key = "K", ModifierKeys = { "NONE", "" } }))
+            .toBe("[K]")
         D.expect(KeyPresentationMapping:GetMouseViewKey({ Button = 1, ModifierKeys = {} }))
             .toBe("[Left Mouse Button]")
         D.expect(KeyPresentationMapping:GetMouseViewKey({ Button = 10, ModifierKeys = {} }))

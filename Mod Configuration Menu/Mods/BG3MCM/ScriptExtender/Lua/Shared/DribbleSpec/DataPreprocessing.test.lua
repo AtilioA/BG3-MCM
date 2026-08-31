@@ -1404,7 +1404,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         D.expect(invalidResult).toBeNil()
     end)
 
-    D.test("TestKeybindingV2KeyboardDefaultEmptyModifierNormalizesToNone", function()
+    D.test("TestKeybindingV2KeyboardDefaultModifiersCanonicalizeToEmptyList", function()
         local rawData = {
             SchemaVersion = 1,
             Settings = {
@@ -1414,7 +1414,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                     Default = {
                         Keyboard = {
                             Key = "A",
-                            ModifierKeys = { "" },
+                            ModifierKeys = { "", "NONE", "none" },
                         },
                         Enabled = true,
                     },
@@ -1428,10 +1428,10 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local setting = sanitizedBlueprint:GetSettings()[1]
         local keyboardDefault = setting:GetDefault().Keyboard
-        D.expect(keyboardDefault.ModifierKeys[1]).toBe("NONE")
+        D.expect(keyboardDefault.ModifierKeys).toEqual({})
     end)
 
-    D.test("TestKeybindingV2MouseDefaultEmptyModifierNormalizesToNone", function()
+    D.test("TestKeybindingV2MouseDefaultModifiersCanonicalizeToEmptyList", function()
         local rawData = {
             SchemaVersion = 1,
             Settings = {
@@ -1441,7 +1441,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                     Default = {
                         Mouse = {
                             Button = 1,
-                            ModifierKeys = { "" },
+                            ModifierKeys = { "", "NONE", "none" },
                         },
                         Enabled = true,
                     },
@@ -1455,7 +1455,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local setting = sanitizedBlueprint:GetSettings()[1]
         local mouseDefault = setting:GetDefault().Mouse
-        D.expect(mouseDefault.ModifierKeys[1]).toBe("NONE")
+        D.expect(mouseDefault.ModifierKeys).toEqual({})
     end)
 
     D.test("TestKeybindingV2InvalidModifierStillFailsPreprocessing", function()

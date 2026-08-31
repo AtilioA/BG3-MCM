@@ -574,31 +574,26 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                 return false
             end
 
-            if default.Mouse.ModifierKeys then
-                if type(default.Mouse.ModifierKeys) ~= "table" then
-                    MCMWarn(0,
-                        "Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
-                        "' must be a table. Please contact " ..
-                        Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                    return false
-                end
-                for i, mod in ipairs(default.Mouse.ModifierKeys) do
-                    local normalizedModifier = KeybindingManager:NormalizeModifierKey(mod)
-                    if not KeybindingManager:IsValidModifierKey(normalizedModifier) then
-                        MCMWarn(0,
-                            "Invalid modifier '" .. tostring(mod) ..
-                            "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
-                            "'. Valid modifiers are: " .. table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", ") ..
-                            ". Please contact " ..
-                            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                        return false
-                    end
-
-                    if normalizedModifier ~= mod then
-                        default.Mouse.ModifierKeys[i] = normalizedModifier
-                    end
-                end
+            if default.Mouse.ModifierKeys ~= nil and type(default.Mouse.ModifierKeys) ~= "table" then
+                MCMWarn(0,
+                    "Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
+                    "' must be a table. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
             end
+
+            local normalizedModifiers, invalidModifier =
+                KeybindingManager:AdaptModifierKeys(default.Mouse.ModifierKeys)
+            if not normalizedModifiers then
+                MCMWarn(0,
+                    "Invalid modifier '" .. tostring(invalidModifier) ..
+                    "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
+                    "'. Valid modifiers are: " .. table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", ") ..
+                    ". Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+            default.Mouse.ModifierKeys = normalizedModifiers
         end
     end
 
@@ -1009,30 +1004,25 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                     return false
                 end
 
-                if keyboard.ModifierKeys then
-                    if type(keyboard.ModifierKeys) ~= "table" then
-                        MCMWarn(0,
-                            "Keyboard.ModifierKeys must be a table. Please contact " ..
-                            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                        return false
-                    end
-                    for i, mod in ipairs(keyboard.ModifierKeys) do
-                        local normalizedModifier = KeybindingManager:NormalizeModifierKey(mod)
-                        if not KeybindingManager:IsValidModifierKey(normalizedModifier) then
-                            MCMWarn(0,
-                                "Invalid modifier '" ..
-                                tostring(mod) ..
-                                "' in Keyboard.ModifierKeys for setting '" ..
-                                setting:GetId() .. "'. Valid modifiers are: " ..
-                                table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", "))
-                            return false
-                        end
-
-                        if normalizedModifier ~= mod then
-                            keyboard.ModifierKeys[i] = normalizedModifier
-                        end
-                    end
+                if keyboard.ModifierKeys ~= nil and type(keyboard.ModifierKeys) ~= "table" then
+                    MCMWarn(0,
+                        "Keyboard.ModifierKeys must be a table. Please contact " ..
+                        Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    return false
                 end
+
+                local normalizedModifiers, invalidModifier =
+                    KeybindingManager:AdaptModifierKeys(keyboard.ModifierKeys)
+                if not normalizedModifiers then
+                    MCMWarn(0,
+                        "Invalid modifier '" ..
+                        tostring(invalidModifier) ..
+                        "' in Keyboard.ModifierKeys for setting '" ..
+                        setting:GetId() .. "'. Valid modifiers are: " ..
+                        table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", "))
+                    return false
+                end
+                keyboard.ModifierKeys = normalizedModifiers
             end
         end
     elseif setting.Type == "list_v2" then
