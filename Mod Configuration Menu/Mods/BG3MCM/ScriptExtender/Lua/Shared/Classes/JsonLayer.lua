@@ -91,12 +91,16 @@ function JsonLayer:TryParseModBlueprintJSON(blueprintJSONStr, modUUID)
 end
 
 -- Custom exception for file-related issues
-function JsonLayer:FileNotFoundError(message)
-    error({ code = "FileNotFoundError", message = message })
+---@param message string Format string for the error message
+---@param ... any Format arguments
+function JsonLayer:FileNotFoundError(message, ...)
+    error({ code = "FileNotFoundError", message = string.format(message, ...) })
 end
 
-function JsonLayer:JSONParseError(message)
-    error({ code = "JSONParseError", message = message })
+---@param message string Format string for the error message
+---@param ... any Format arguments
+function JsonLayer:JSONParseError(message, ...)
+    error({ code = "JSONParseError", message = string.format(message, ...) })
 end
 
 --- Load settings files for each mod in the load order, if they exist. The settings file should be named "MCM_blueprint.json" and be located in the mod's directory, alongside the mod's meta.lsx file.
@@ -131,7 +135,8 @@ function JsonLayer:LoadBlueprintForMod(modData)
 
     local data = self:TryParseModBlueprintJSON(config, modData.Info.ModuleUUID)
     if data == nil or type(data) ~= "table" then
-        return self:JSONParseError("Failed to load MCM blueprint JSON file for mod: %s. Blueprint is present but malformed. Please contact %s about this issue.",
+        return self:JSONParseError(
+        "Failed to load MCM blueprint JSON file for mod: %s. Blueprint is present but malformed. Please contact %s about this issue.",
             modData.Info.Name,
             modData.Info.Author)
     end

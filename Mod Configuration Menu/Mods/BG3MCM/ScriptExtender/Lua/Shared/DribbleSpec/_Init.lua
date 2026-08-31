@@ -7,6 +7,7 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/Smoke.test.lua")
     Ext.Require("Shared/DribbleSpec/BlueprintCache.test.lua")
     Ext.Require("Shared/DribbleSpec/DataPreprocessing.test.lua")
+    Ext.Require("Shared/DribbleSpec/JsonLayer.test.lua")
     Ext.Require("Shared/DribbleSpec/Validators.test.lua")
     Ext.Require("Shared/DribbleSpec/ValidateAndFixSettings.test.lua")
     Ext.Require("Shared/DribbleSpec/MCMAPI.test.lua")
