@@ -2,11 +2,11 @@
 -- It handles loading, saving, and switching between different profiles, which allow users to have multiple configurations for their mod settings.
 --
 -- The ProfileManager class is responsible for:
--- - Maintaining the list of available profiles
--- - Keeping track of the currently selected profile
--- - Loading and saving profile data to the MCM configuration file
--- - Creating new profiles
--- - Setting the current profile
+--- Maintaining the list of available profiles
+--- Keeping track of the currently selected profile
+--- Loading and saving profile data to the MCM configuration file
+--- Creating new profiles
+--- Setting the current profile
 ---@class ProfileManager
 ---@field DefaultProfile string The name of the default profile
 ---@field SelectedProfile string The name of the currently selected profile

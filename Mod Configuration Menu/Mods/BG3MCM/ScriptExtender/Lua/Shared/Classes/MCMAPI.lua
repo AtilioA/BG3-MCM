@@ -13,11 +13,11 @@ local RX = {
 --
 -- The MCM class is responsible for providing a consistent and user-friendly API for mod authors and the IMGUI client to interact with the Mod Configuration Menu system.
 -- It provides methods for managing the configuration of mods, including:
--- - Loading the configurations for all mods
--- - Creating and managing user profiles
--- - Retrieving the settings and blueprints for individual mods
--- - Setting and getting the values of configuration settings
--- - Resetting settings to their default values
+--- Loading the configurations for all mods
+--- Creating and managing user profiles
+--- Retrieving the settings and blueprints for individual mods
+--- Setting and getting the values of configuration settings
+--- Resetting settings to their default values
 MCMAPI = _Class:Create("MCMAPI", nil, {
     mods = {},
     profiles = {},

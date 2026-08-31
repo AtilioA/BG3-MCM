@@ -106,7 +106,7 @@ end
 ---@param type string
 ---@param default MCMSettingValue
 ---@param description string
----@param options? table
+---@param options? table<string, unknown>
 ---@param sectionName? string
 ---@return BlueprintSection
 function BlueprintSection:AddSetting(name, type, default, description, options, sectionName)

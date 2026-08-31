@@ -14,10 +14,10 @@ local RX = {
 -- It acts as the bridge between MCM's core business logic and MCM's IMGUI window, handling the rendering and interaction of the mod configuration UI.
 -- It relies on settings and profiles managed by the MCM (API) class, and then translates this data into a user-friendly IMGUI interface.
 -- MCMRendering provides methods for:
--- - Creating the main MCM menu, which contains a tab for each mod that has MCM settings
--- - Creating new tabs and sections for each mod, based on the mod's blueprint
--- - Creating IMGUI widgets for each setting in the mod's blueprint
--- - Sending messages to the server to update setting values
+--- Creating the main MCM menu, which contains a tab for each mod that has MCM settings
+--- Creating new tabs and sections for each mod, based on the mod's blueprint
+--- Creating IMGUI widgets for each setting in the mod's blueprint
+--- Sending messages to the server to update setting values
 ---@class MCMRendering: MetaClass
 ---@field mods table<string, ModSettings>
 ---@field UIReady ReplaySubject
