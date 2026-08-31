@@ -266,6 +266,7 @@ ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(pay
     local value = payload.value
 
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
+    KeybindingsRegistry.ApplyBindingValue(modUUID, settingId, value)
 
     IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
 end)
@@ -324,9 +325,12 @@ end)
 
 ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
     local newSettings = data.newSettings
+    if type(newSettings) ~= "table" then return end
 
     for modUUID, modSettings in pairs(newSettings) do
-        for settingId, settingValue in pairs(modSettings.settingsValues) do
+        for settingId, settingValue in pairs(modSettings.settingsValues or {}) do
+            MCMClientState:SetClientStateValue(settingId, settingValue, modUUID)
+            KeybindingsRegistry.ApplyBindingValue(modUUID, settingId, settingValue)
             IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modUUID)
         end
     end

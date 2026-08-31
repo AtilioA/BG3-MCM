@@ -49,6 +49,7 @@ end
 ---@param settingId string The id of the setting
 ---@param value any The new value of the setting
 ---@param modUUID GUIDSTRING The UUID of the mod
+---@return boolean success
 function MCMServer:SetSettingValue(settingId, value, modUUID)
     local modSettingsTable = MCMAPI:GetAllModSettings(modUUID)
     local oldValue = modSettingsTable[settingId]
@@ -67,9 +68,8 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
             oldValue = oldValue,
             error = errorMessage
         }, true)
-        return
+        return false
     end
-
     modSettingsTable[settingId] = value
     ModConfig:UpdateAllSettingsForMod(modUUID, modSettingsTable)
 
@@ -88,6 +88,7 @@ function MCMServer:SetSettingValue(settingId, value, modUUID)
         value = value,
         oldValue = oldValue
     }, true)
+    return true
 end
 
 ---@param settingId string The id of the setting to reset

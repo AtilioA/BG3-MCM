@@ -108,13 +108,14 @@ function ProfileManager:SetCurrentProfile(profileName)
     self:SaveProfileValuesToConfig()
     ModConfig:LoadSettings()
 
-    -- TODO: untangle this from shared client/server code
-    if Ext.IsServer() then
-        ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
-            profileName = profileName,
-            newSettings = ModConfig.mods
-        })
+    local profileSettings = {}
+    for modUUID, modSettings in pairs(ModConfig.mods or {}) do
+        profileSettings[modUUID] = { settingsValues = modSettings.settingsValues or {} }
     end
+    ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
+        profileName = profileName,
+        newSettings = profileSettings
+    }, Ext.IsServer())
 
     return true
 end

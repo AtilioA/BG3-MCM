@@ -73,14 +73,15 @@ function EHandlers.OnClientRequestSetSettingValue(data, userID)
         MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modUUID)
     end
 
-    local ok, err = pcall(function()
-        MCMServer:SetSettingValue(settingId, value, modUUID)
+    local ok, result = pcall(function()
+        return MCMServer:SetSettingValue(settingId, value, modUUID)
     end)
 
     if not ok then
-        MCMError(0, "Failed to set setting value: %s", err)
-        return { success = false, error = tostring(err) }
+        MCMError(0, "Failed to set setting value: %s", result)
+        return { success = false, error = tostring(result) }
     end
+    if not result then return { success = false, error = "Setting value was rejected" } end
 
     return { success = true, data = { settingId = settingId, value = value, modUUID = modUUID } }
 end
