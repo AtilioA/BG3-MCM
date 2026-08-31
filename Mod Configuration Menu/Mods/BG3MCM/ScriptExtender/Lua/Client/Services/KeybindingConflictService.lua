@@ -3,19 +3,8 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 ---@class KeybindingConflictService
 KeybindingConflictService = _Class:Create("KeybindingConflictService", nil)
 
----Compares keyboard or mouse bindings by device, primary input, and modifier set.
----@param binding1 KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
----@param binding2 KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
----@return boolean
-function KeybindingConflictService:AreKeybindingsEqual(binding1, binding2)
-    local active1 = KeybindingManager:GetActiveV2Binding(binding1)
-    local active2 = KeybindingManager:GetActiveV2Binding(binding2)
-    if not active1 or not active2 then return active1 == nil and active2 == nil end
-    return KeybindingsRegistry.NormalizeBinding(active1) == KeybindingsRegistry.NormalizeBinding(active2)
-end
-
 ---Checks MCM and native bindings for a conflict.
----@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|nil
 ---@param currentMod KeybindingUIMod
 ---@param currentAction KeybindingUIAction
 ---@param inputType string
@@ -30,7 +19,7 @@ function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, cur
 end
 
 ---Checks MCM-defined bindings for a conflict.
----@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|nil
 ---@param currentAction KeybindingUIAction
 ---@param currentModUUID? string
 ---@return table|nil
@@ -45,7 +34,7 @@ function KeybindingConflictService:CheckMCMForConflicts(keybinding, currentActio
                 })
                 if not (modUUID == currentModUUID and actionId == currentAction.ActionId)
                     and action.allowConflict ~= true
-                    and self:AreKeybindingsEqual(keybinding, actionBinding) then
+                    and KeybindingManager:AreBindingsEqual(keybinding, actionBinding) then
                     return { ActionName = action.actionName, Keybinding = actionBinding }
                 end
             end
@@ -65,7 +54,7 @@ local function copyModifiers(modifiers)
 end
 
 ---Checks confidently mapped live native bindings for an exact conflict.
----@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|nil
 ---@return table|nil
 function KeybindingConflictService:CheckNativeForConflicts(keybinding)
     local active = KeybindingManager:GetActiveV2Binding(keybinding)
@@ -84,7 +73,7 @@ function KeybindingConflictService:CheckNativeForConflicts(keybinding)
                 end
             end
 
-            if transformed and self:AreKeybindingsEqual(active, transformed) then
+            if transformed and KeybindingManager:AreBindingsEqual(active, transformed) then
                 return { ActionName = nativeAction.EventName, Keybinding = transformed }
             end
         end

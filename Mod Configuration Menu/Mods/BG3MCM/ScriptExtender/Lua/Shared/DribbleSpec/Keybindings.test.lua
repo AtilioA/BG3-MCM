@@ -103,13 +103,10 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     end)
 
     D.test("does not treat unsupported modifiers as unmodified", function()
-        D.expect(KeybindingManager:IsKeybindingPressed({
-            Key = "A",
-            Modifiers = {}
-        }, {
-            ScanCode = "A",
-            Modifier = "LGUI"
-        })).toBeFalsy()
+        D.expect(KeybindingManager:AreBindingsEqual(
+            { Key = "A", ModifierKeys = {} },
+            { Key = "A", ModifierKeys = { "LGUI" } }
+        )).toBeFalsy()
     end)
 
     D.test("rejects fractional mouse buttons", function()
@@ -256,6 +253,29 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(release.prevented).toBeTruthy()
     end)
 
+    D.test("dispatches keyboard input through shared identity", function()
+        local action = MouseAction("keyboard-dispatch", nil)
+        action.KeyboardMouseBinding = { Key = "K", ModifierKeys = { "LCTRL", "LALT" } }
+        action.DefaultKeyboardMouseBinding = action.KeyboardMouseBinding
+        RegisterActions({ action })
+
+        local calls = 0
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "keyboard-dispatch", "KeyboardMouse",
+            function() calls = calls + 1 end, "KeyDown")
+        local event = {
+            Key = "k",
+            Modifiers = { "LALT", "LCTRL" },
+            Event = "KeyDown",
+            Repeat = false,
+            prevented = false,
+            PreventAction = function(self) self.prevented = true end
+        }
+        KeybindingsRegistry.DispatchKeyboardEvent(event)
+
+        D.expect(calls).toBe(1)
+        D.expect(event.prevented).toBeTruthy()
+    end)
+
     D.test("does not prevent mouse edges when PreventAction is false", function()
         RegisterActions({ MouseAction("observe-mouse", { Button = 9, ModifierKeys = {} }, false, false) })
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "observe-mouse", "KeyboardMouse", function() end)
@@ -318,22 +338,31 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     end)
 
     D.test("compares exact keyboard and mouse identities", function()
-        D.expect(KeybindingConflictService:AreKeybindingsEqual(
+        D.expect(KeybindingManager:GetBindingIdentity(
+            { Keyboard = { Key = "k", ModifierKeys = { "LCTRL", "LALT" } } }
+        )).toBe("keyboard:K:LALT+LCTRL")
+        D.expect(KeybindingManager:GetBindingIdentity(
+            { Mouse = { Button = 5, ModifierKeys = { "LCTRL", "LALT" } } }
+        )).toBe("mouse:5:LALT+LCTRL")
+
+        D.expect(KeybindingManager:AreBindingsEqual(
             { Button = 5, ModifierKeys = { "LCTRL", "LALT" } },
             { Button = 5, ModifierKeys = { "LALT", "LCTRL" } }
         )).toBeTruthy()
-        D.expect(KeybindingConflictService:AreKeybindingsEqual(
+        D.expect(KeybindingManager:AreBindingsEqual(
             { Button = 5, ModifierKeys = { "LCTRL" } },
             { Button = 6, ModifierKeys = { "LCTRL" } }
         )).toBeFalsy()
-        D.expect(KeybindingConflictService:AreKeybindingsEqual(
+        D.expect(KeybindingManager:AreBindingsEqual(
             { Key = "K", ModifierKeys = {} },
             { Button = 5, ModifierKeys = {} }
         )).toBeFalsy()
-        D.expect(KeybindingConflictService:AreKeybindingsEqual(
+        D.expect(KeybindingManager:AreBindingsEqual(
             { Button = 5, ModifierKeys = { "LCTRL" } },
             { Button = 5, ModifierKeys = { "LALT" } }
         )).toBeFalsy()
+        D.expect(KeybindingManager:AreBindingsEqual(nil, { Keyboard = { Key = "", ModifierKeys = {} } }))
+            .toBeTruthy()
     end)
 
     D.test("checks invisible registry bindings for MCM conflicts", function()
@@ -439,6 +468,33 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(saved.Enabled).toBeFalsy()
         D.expect(saved.AllowConflict).toBeTruthy()
         D.expect(saved.Mouse.Button).toBe(2)
+    end)
+
+    D.test("uses shared identity for conflict and default UI comparisons", function()
+        RegisterActions({ MouseAction("identity-conflict", {
+            Button = 5,
+            ModifierKeys = { "LCTRL", "LALT" }
+        }) })
+        local conflict = KeybindingConflictService:CheckMCMForConflicts(
+            { Button = 5, ModifierKeys = { "LALT", "LCTRL" } },
+            { ActionId = "other-action" }, "other-mod"
+        )
+        D.expect(conflict).toBeTruthy()
+        D.expect(conflict.ActionName).toBe("identity-conflict")
+
+        local action = {
+            KeyboardMouseBinding = nil,
+            DefaultKeyboardMouseBinding = nil,
+            MouseBinding = { Button = 5, ModifierKeys = { "LCTRL", "LALT" } },
+            DefaultMouseBinding = { Button = 5, ModifierKeys = { "LALT", "LCTRL" } },
+            Enabled = true,
+            DefaultEnabled = true,
+            AllowConflict = false,
+            DefaultAllowConflict = false
+        }
+        D.expect(KeybindingV2IMGUIWidget:IsDefaultBinding(action)).toBeTruthy()
+        action.DefaultMouseBinding.Button = 6
+        D.expect(KeybindingV2IMGUIWidget:IsDefaultBinding(action)).toBeFalsy()
     end)
 
     D.test("normalizes a verified native middle mouse binding", function(ctx)
