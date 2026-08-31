@@ -519,6 +519,14 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
         return false
     end
 
+    if options.AllowConflict ~= nil and type(options.AllowConflict) ~= "boolean" then
+        MCMWarn(0,
+            "Options.AllowConflict for keybinding_v2 setting '" ..
+            settingId .. "' must be a boolean. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
     local default = setting.Default
     if default and type(default) == "table" then
         local hasKeyboard = default.Keyboard and type(default.Keyboard) == "table" and

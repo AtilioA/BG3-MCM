@@ -1349,6 +1349,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                         BlockIfLevelNotStarted = true,
                         PreventAction = false,
                         SkipCallback = false,
+                        AllowConflict = true,
                     }
                 }
             }

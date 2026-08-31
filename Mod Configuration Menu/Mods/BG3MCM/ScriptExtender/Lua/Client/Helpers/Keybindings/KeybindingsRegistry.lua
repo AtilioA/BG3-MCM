@@ -4,10 +4,6 @@ local RX = {
     BehaviorSubject = Ext.Require("Lib/reactivex/subjects/behaviorsubject.lua")
 }
 
----@class Keybinding
----@field Key string
----@field ModifierKeys string[]
-
 KeybindingsRegistry = {}
 
 -- Internal registry: a table mapping mod UUID to its actions.
@@ -16,8 +12,8 @@ local registry = {}
 -- A BehaviorSubject that always holds the current registry state.
 local keybindingsSubject = RX.BehaviorSubject.Create(registry)
 
---- Utility functions for normalizing bindings.
----@param binding Keybinding
+---Normalizes a keyboard binding for exact comparisons.
+---@param binding KeybindingKeyboardBinding|string|nil
 ---@return string|nil The normalized binding, or nil if invalid
 function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     if binding == nil or binding == "" then
@@ -27,9 +23,9 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
         MCMWarn(0, "Invalid keyboard binding, expected a table with a 'Key' field.")
         return nil
     end
-    local mod = (binding.ModifierKeys and type(binding.ModifierKeys) == "table" and #binding.ModifierKeys > 0)
-        and table.concat(binding.ModifierKeys, "+"):upper() or "NONE"
-    local scan = binding.Key:upper()
+    local modifiers = KeybindingManager:NormalizeModifiers(binding.ModifierKeys)
+    local mod = #modifiers > 0 and table.concat(modifiers, "+") or "NONE"
+    local scan = tostring(binding.Key):upper()
     if mod ~= "NONE" then
         return mod .. "+" .. scan
     else
@@ -37,30 +33,74 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
     end
 end
 
----@param binding KeybindingKeyboardBinding
----@param currentEnabled boolean|nil
+---Returns a device-aware identity for an assigned binding.
+---@param binding KeybindingKeyboardBinding|KeybindingMouseBinding|string|nil
+---@return string|nil
+function KeybindingsRegistry.NormalizeBinding(binding)
+    if KeybindingManager:IsKeyboardBindingAssigned(binding) then
+        ---@cast binding KeybindingKeyboardBinding
+        return "keyboard:" .. KeybindingsRegistry.NormalizeKeyboardBinding(binding)
+    end
+    if KeybindingManager:IsMouseBindingAssigned(binding) then
+        ---@cast binding KeybindingMouseBinding
+        local modifiers = KeybindingManager:NormalizeModifiers(binding.ModifierKeys)
+        return "mouse:" .. tostring(binding.Button) .. ":" .. table.concat(modifiers, "+")
+    end
+    return nil
+end
+
+---Canonicalizes a complete keybinding value to one active device or one empty keyboard binding.
+---@param value KeybindingV2Value|nil
+---@param fallbackEnabled? boolean
+---@param fallbackAllowConflict? boolean
 ---@return KeybindingV2Value
-function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled)
-    return {
+function KeybindingsRegistry.CanonicalizeValue(value, fallbackEnabled, fallbackAllowConflict)
+    return KeybindingManager:CanonicalizeV2Value(value, {
+        Enabled = fallbackEnabled,
+        AllowConflict = fallbackAllowConflict
+    })
+end
+
+---@param binding KeybindingKeyboardBinding
+---@param currentEnabled? boolean
+---@param currentAllowConflict? boolean
+---@return KeybindingV2Value
+function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled, currentAllowConflict)
+    return KeybindingsRegistry.CanonicalizeValue({
         Keyboard = {
             Key = binding.Key or binding,
             ModifierKeys = binding.ModifierKeys or {}
         },
-        Enabled = currentEnabled
-    }
+        Enabled = currentEnabled,
+        AllowConflict = currentAllowConflict
+    }, currentEnabled, currentAllowConflict)
 end
 
 ---@param binding KeybindingMouseBinding
----@param currentEnabled boolean|nil
+---@param currentEnabled? boolean
+---@param currentAllowConflict? boolean
 ---@return KeybindingV2Value
-function KeybindingsRegistry.BuildMousePayload(binding, currentEnabled)
-    return {
+function KeybindingsRegistry.BuildMousePayload(binding, currentEnabled, currentAllowConflict)
+    return KeybindingsRegistry.CanonicalizeValue({
         Mouse = {
             Button = binding.Button or 0,
             ModifierKeys = binding.ModifierKeys or {}
         },
-        Enabled = currentEnabled
-    }
+        Enabled = currentEnabled,
+        AllowConflict = currentAllowConflict
+    }, currentEnabled, currentAllowConflict)
+end
+
+---Returns a complete canonical value for a registry entry.
+---@param binding KeybindingRegistryEntry
+---@return KeybindingV2Value
+function KeybindingsRegistry.GetBindingValue(binding)
+    return KeybindingsRegistry.CanonicalizeValue({
+        Keyboard = binding.keyboardBinding,
+        Mouse = binding.mouseBinding,
+        Enabled = binding.enabled,
+        AllowConflict = binding.allowConflict
+    })
 end
 
 --- Determines if a developer-only action should be included based on the provided options.
@@ -95,18 +135,30 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
         registry[mod.ModUUID]._keybindingSortMode = mod.KeybindingSortMode or KeybindingSortMode.DEFAULT
         for _, action in ipairs(mod.Actions) do
+            local existing = registry[mod.ModUUID][action.ActionId] or {}
+            local currentValue = KeybindingsRegistry.CanonicalizeValue({
+                Keyboard = action.KeyboardMouseBinding,
+                Mouse = action.MouseBinding,
+                Enabled = action.Enabled,
+                AllowConflict = action.AllowConflict
+            })
+            local defaultValue = KeybindingsRegistry.CanonicalizeValue({
+                Keyboard = action.DefaultKeyboardMouseBinding,
+                Mouse = action.DefaultMouseBinding,
+                Enabled = action.DefaultEnabled,
+                AllowConflict = action.DefaultAllowConflict
+            })
             registry[mod.ModUUID][action.ActionId] = {
                 modUUID = mod.ModUUID,
                 actionName = action.ActionName,
                 actionId = action.ActionId,
-                keyboardBinding = Fallback.Value(action.KeyboardMouseBinding, { Key = "", ModifierKeys = { "NONE" } }),
-                mouseBinding = Fallback.Value(action.MouseBinding, { Button = 0, ModifierKeys = {} }),
-                enabled = Fallback.Value(action.Enabled, true),
-                defaultKeyboardBinding = Fallback.Value(action.DefaultKeyboardMouseBinding,
-                    { Key = "", ModifierKeys = { "NONE" } }),
-                defaultMouseBinding = Fallback.Value(action.DefaultMouseBinding,
-                    { Button = 0, ModifierKeys = {} }),
-                defaultEnabled = Fallback.Value(action.DefaultEnabled, true),
+                keyboardBinding = currentValue.Keyboard,
+                mouseBinding = currentValue.Mouse,
+                enabled = currentValue.Enabled,
+                defaultKeyboardBinding = defaultValue.Keyboard,
+                defaultMouseBinding = defaultValue.Mouse,
+                defaultEnabled = defaultValue.Enabled,
+                defaultAllowConflict = defaultValue.AllowConflict,
                 shouldTriggerOnRepeat = Fallback.Value(action.ShouldTriggerOnRepeat, false),
                 shouldTriggerOnKeyUp = Fallback.Value(action.ShouldTriggerOnKeyUp, false),
                 shouldTriggerOnKeyDown = Fallback.Value(action.ShouldTriggerOnKeyDown, true),
@@ -115,10 +167,13 @@ function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
                 description = action.Description,
                 isDeveloperOnly = Fallback.Value(action.IsDeveloperOnly, false),
                 tooltip = action.Tooltip,
-                allowConflict = Fallback.Value(action.AllowConflict, false),
+                allowConflict = currentValue.AllowConflict,
                 skipCallback = Fallback.Value(action.SkipCallback, false),
                 sortOrder = action.SortOrder,
-                visible = KeybindingsRegistry:ShouldIncludeAction(action, options)
+                visible = KeybindingsRegistry:ShouldIncludeAction(action, options),
+                keyboardCallback = existing.keyboardCallback,
+                keyDownCallback = existing.keyDownCallback,
+                keyUpCallback = existing.keyUpCallback
             }
         end
     end
@@ -144,44 +199,38 @@ function KeybindingsRegistry.GetFilteredRegistry(options)
     return filtered
 end
 
---- Updates a binding for a given mod/action.
---- Accepts a table of updates that can include fields like 'Keyboard' and 'Enabled'.
+---Persists a complete replacement value for a binding.
 --- @param modUUID string The UUID of the mod to update the binding for
 --- @param actionId string The ID of the action to update the binding for
---- @param updates KeybindingV2Value A table of updates to apply to the binding
+--- @param value KeybindingV2Value The complete value to persist
 --- @param shouldEmitEvent? boolean Whether to emit the setting saved event
-function KeybindingsRegistry.UpdateBinding(modUUID, actionId, updates, shouldEmitEvent)
+--- @return boolean success
+function KeybindingsRegistry.UpdateBinding(modUUID, actionId, value, shouldEmitEvent)
     local modTable = registry[modUUID]
     if not modTable or not modTable[actionId] then
         MCMWarn(0, "No binding found to update for mod '%s', action '%s'.", modUUID, actionId)
         return false
     end
 
-    local bindingEntry = modTable[actionId]
+    -- The save event applies the accepted value back into the registry.
+    return MCMProxy:SetSettingValue(actionId, value, modUUID, nil, shouldEmitEvent) ~= false
+end
 
-    -- Update keyboard binding if provided.
-    if updates.Keyboard ~= nil then
-        bindingEntry.keyboardBinding = updates.Keyboard
-    end
+---Applies an authoritative saved or profile value to an existing registry entry.
+---Updates entries selectively
+---@param modUUID string
+---@param actionId string
+---@param value KeybindingV2Value
+---@return boolean
+function KeybindingsRegistry.ApplyBindingValue(modUUID, actionId, value)
+    local bindingEntry = registry[modUUID] and registry[modUUID][actionId]
+    if not bindingEntry then return false end
 
-    -- Update mouse binding if provided.
-    if updates.Mouse ~= nil then
-        bindingEntry.mouseBinding = updates.Mouse
-    end
-
-    -- Update enabled state if provided.
-    if updates.Enabled ~= nil then
-        bindingEntry.enabled = updates.Enabled
-    end
-
-    -- Update allowConflict state if provided.
-    if updates.AllowConflict ~= nil then
-        bindingEntry.allowConflict = updates.AllowConflict
-    end
-
-    -- Persist the updated binding.
-    MCMProxy:SetSettingValue(actionId, updates, modUUID, nil, shouldEmitEvent)
-
+    local canonical = KeybindingsRegistry.CanonicalizeValue(value, bindingEntry.enabled, bindingEntry.allowConflict)
+    bindingEntry.keyboardBinding = canonical.Keyboard
+    bindingEntry.mouseBinding = canonical.Mouse
+    bindingEntry.enabled = canonical.Enabled
+    bindingEntry.allowConflict = canonical.AllowConflict
     keybindingsSubject:OnNext(registry)
     return true
 end

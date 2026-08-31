@@ -8,27 +8,39 @@
 --- @alias MCMSettingValue StorageValue
 --- @alias RGBAColor number[]
 
+--- Describes one configurable list entry.
 --- @class ListV2Element
 --- @field name string
 --- @field enabled boolean
 
+--- Describes the complete value of a list_v2 setting.
 --- @class ListV2SettingValue
 --- @field enabled boolean
 --- @field elements ListV2Element[]
 
+--- Describes an assigned keyboard key and its modifiers.
 --- @class KeybindingKeyboardBinding
 --- @field Key string
 --- @field ModifierKeys string[]
 
+--- Describes an assigned mouse button and its keyboard modifiers.
 --- @class KeybindingMouseBinding
 --- @field Button number
 --- @field ModifierKeys string[]
 
---- @class KeybindingV2Value
---- @field Keyboard? KeybindingKeyboardBinding
---- @field Mouse? KeybindingMouseBinding
+--- Describes a complete keyboard-backed keybinding_v2 value.
+--- @class KeybindingV2KeyboardValue
+--- @field Keyboard KeybindingKeyboardBinding
 --- @field Enabled? boolean
 --- @field AllowConflict? boolean
+
+--- Describes a complete mouse-backed keybinding_v2 value.
+--- @class KeybindingV2MouseValue
+--- @field Mouse KeybindingMouseBinding
+--- @field Enabled? boolean
+--- @field AllowConflict? boolean
+
+--- @alias KeybindingV2Value KeybindingV2KeyboardValue|KeybindingV2MouseValue
 
 --- @class MCMGetArgs
 --- @field settingId string The ID of the setting to retrieve
@@ -52,7 +64,7 @@
 
 --- @class MCMKeybindingSetCallbackArgs
 --- @field settingId string The ID of the keybinding setting
---- @field callback fun(e:EclLuaKeyInputEvent) Callback function invoked when the keybinding is pressed
+--- @field callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) Callback invoked with the raw keyboard or mouse event
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 
 --- @class MCMListGetArgs
@@ -121,9 +133,9 @@
 --- @class MCMKeybindingAPI Keybinding-related API methods
 --- @field Get fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):string Get a human-readable keybinding string (e.g., "[Ctrl] + [C]")
 --- @field GetRaw fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):KeybindingV2Value|nil Get the raw keybinding data structure
---- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for key down and key up events
---- @field SetKeyDownCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for key down events
---- @field SetKeyUpCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent), modUUID?:string):nil Register a callback for key up events
+--- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent), modUUID?:string):nil Register a callback for key or mouse down/up events
+--- @field SetKeyDownCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent), modUUID?:string):nil Register a callback for key down or mouse press events
+--- @field SetKeyUpCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent), modUUID?:string):nil Register a callback for key up or mouse release events
 
 --- @class MCMEnumAPI Enum-related API methods
 --- @field SetChoices fun(settingIdOrArgs:string|MCMEnumSetChoicesArgs, choices?:string[], choicesHandles?:string[], modUUID?:string):boolean Update enum choices at runtime
