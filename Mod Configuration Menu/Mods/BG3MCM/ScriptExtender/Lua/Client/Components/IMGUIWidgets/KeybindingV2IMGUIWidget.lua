@@ -3,10 +3,8 @@
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 ---@field Widget table
 ---@field _registrySubscription any
+---@field _captureSession KeybindingCaptureSession|nil
 KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
-
-local activeCaptureWidget = nil
-local CAPTURE_TIMEOUT_MS = 10000
 
 ---@param action KeybindingUIAction
 ---@return KeybindingKeyboardBinding|KeybindingMouseBinding|nil
@@ -29,9 +27,6 @@ function KeybindingV2IMGUIWidget:new(group)
         SearchText = "",
         FilteredActions = {},
         CollapsedMods = {},
-        ListeningForInput = false,
-        CurrentListeningAction = nil,
-        InputEventSubscriptions = {},
         DynamicElements = {
             ModHeaders = {},
             NoResultsText = nil,
@@ -52,7 +47,7 @@ function KeybindingV2IMGUIWidget:new(group)
 
     -- Subscribe to registry changes so UI updates automatically.
     instance._registrySubscription = KeybindingsRegistry:GetSubject():Subscribe(function(newRegistry)
-        if activeCaptureWidget == instance then return end
+        if instance._captureSession then return end
         instance:FilterActions()
         instance:RefreshUI()
     end)
@@ -375,85 +370,50 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
     end)
 end
 
----Starts listening for one keyboard or mouse combo.
+---Starts one keyboard or mouse capture session.
 ---@param mod KeybindingUIMod
 ---@param action KeybindingUIAction
 ---@param inputType string
 ---@param button ExtuiButton
 function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, button)
-    if activeCaptureWidget then return end
-    activeCaptureWidget = self
-    self.Widget.ListeningForInput = true
-    self.Widget.CurrentListeningAction = { Mod = mod, Action = action, InputType = inputType }
-    self.Widget.ClaimedInput = nil
-    self.Widget.PreviousNoMouseInputs = MCM_WINDOW and MCM_WINDOW.NoMouseInputs or false
-    if MCM_WINDOW then MCM_WINDOW.NoMouseInputs = true end
-    InputCallbackManager.SetCaptureActive(true)
-    self:RegisterInputEvents()
+    if self._captureSession or KeybindingCaptureSession.IsActive() then return end
+
+    local session
+    session = KeybindingCaptureSession.Start({
+        OnComplete = function(outcome)
+            if self._captureSession ~= session then return end
+            self._captureSession = nil
+
+            if outcome.kind == "binding" and outcome.binding then
+                local binding = outcome.binding
+                self:NotifyAssignmentConflict(binding, mod, action, inputType)
+                local registryAction = getRegistryAction({ Mod = mod, Action = action })
+                local enabled = registryAction and registryAction.enabled
+                if enabled == nil then enabled = action.Enabled end
+                local allowConflict = registryAction and registryAction.allowConflict
+                if allowConflict == nil then allowConflict = action.AllowConflict end
+                local payload = binding.Button
+                    and KeybindingsRegistry.BuildMousePayload(binding, enabled, allowConflict)
+                    or KeybindingsRegistry.BuildKeyboardPayload(binding, enabled, allowConflict)
+                self:StoreKeybinding(mod, action, payload)
+            end
+
+            if outcome.reason ~= "destroyed" then
+                self:FilterActions()
+                self:RefreshUI()
+            end
+        end
+    })
+    if not session then return end
+
+    self._captureSession = session
     button.Label = ClientGlobals.LISTENING_INPUT_STRING
     button.Disabled = true
 end
 
----Registers the temporary capture subscriptions and timeout.
-function KeybindingV2IMGUIWidget:RegisterInputEvents()
-    local subs = self.Widget.InputEventSubscriptions
-    if subs.KeyInput or subs.MouseButtonInput then return end
-
-    subs.KeyInput = Ext.Events.KeyInput:Subscribe(function(e) self:HandleKeyInput(e) end)
-    subs.MouseButtonInput = Ext.Events.MouseButtonInput:Subscribe(function(e) self:HandleMouseInput(e) end)
-    subs.WindowClosed = ModEventManager:Subscribe(EventChannels.MCM_WINDOW_CLOSED, function()
-        self:FinishCapture(true)
-    end)
-    subs.GameStateChanged = Ext.Events.GameStateChanged:Subscribe(function(e)
-        if InputCallbackManager.IsInputCleanupGameState(e.ToState) then self:FinishCapture(true) end
-    end)
-    subs.Timeout = Ext.Timer.WaitFor(CAPTURE_TIMEOUT_MS, function()
-        self.Widget.InputEventSubscriptions.Timeout = nil
-        if activeCaptureWidget == self then self:FinishCapture(true) end
-    end)
-end
-
----Removes every temporary capture subscription.
-function KeybindingV2IMGUIWidget:UnregisterInputEvents()
-    local subs = self.Widget.InputEventSubscriptions
-    if subs.KeyInput then Ext.Events.KeyInput:Unsubscribe(subs.KeyInput); subs.KeyInput = nil end
-    if subs.MouseButtonInput then
-        Ext.Events.MouseButtonInput:Unsubscribe(subs.MouseButtonInput); subs.MouseButtonInput = nil
-    end
-    if subs.WindowClosed then
-        ModEventManager:Unsubscribe(EventChannels.MCM_WINDOW_CLOSED, subs.WindowClosed); subs.WindowClosed = nil
-    end
-    if subs.GameStateChanged then
-        Ext.Events.GameStateChanged:Unsubscribe(subs.GameStateChanged); subs.GameStateChanged = nil
-    end
-    if subs.Timeout then Ext.Timer.Cancel(subs.Timeout); subs.Timeout = nil end
-end
-
----Restores window input and removes all temporary capture state.
----@param refresh boolean
-function KeybindingV2IMGUIWidget:FinishCapture(refresh)
-    if activeCaptureWidget ~= self and not self.Widget.ListeningForInput and not self.Widget.ClaimedInput then return end
-    self.Widget.ListeningForInput = false
-    self.Widget.CurrentListeningAction = nil
-    self.Widget.ClaimedInput = nil
-    if MCM_WINDOW then MCM_WINDOW.NoMouseInputs = self.Widget.PreviousNoMouseInputs == true end
-    self.Widget.PreviousNoMouseInputs = nil
-    self:UnregisterInputEvents()
-    InputCallbackManager.SetCaptureActive(false)
-    if activeCaptureWidget == self then activeCaptureWidget = nil end
-    if refresh then
-        self:FilterActions()
-        self:RefreshUI()
-    end
-end
-
----Records the selected input so its release is claimed globally and locally.
----@param device "Keyboard"|"Mouse"
----@param input string|integer
-function KeybindingV2IMGUIWidget:BeginClaimedRelease(device, input)
-    self.Widget.ListeningForInput = false
-    self.Widget.ClaimedInput = { Device = device, Input = input }
-    InputCallbackManager.ClaimRelease(device, input)
+---Cancels this widget's active capture session.
+function KeybindingV2IMGUIWidget:CancelKeybinding()
+    if self._captureSession then self._captureSession:Cancel("cancelled") end
 end
 
 ---Resolves the live registry entry for the action being captured, if any. Capture must read `enabled`/`allowConflict` from the registry
@@ -463,66 +423,6 @@ local function getRegistryAction(current)
     if not current or not current.Mod or not current.Action then return nil end
     local modRegistry = KeybindingsRegistry.GetRegistry()[current.Mod.ModUUID]
     return modRegistry and modRegistry[current.Action.ActionId]
-end
-
----Handles keyboard input during capture and claims both edges of the selected key.
----@param e EclLuaKeyInputEvent
-function KeybindingV2IMGUIWidget:HandleKeyInput(e)
-    local key = tostring(e.Key):upper()
-    local claimed = self.Widget.ClaimedInput
-    if claimed and claimed.Device == "Keyboard" and e.Event == "KeyUp" and key == claimed.Input then
-        e:PreventAction()
-        e:StopPropagation()
-        self:FinishCapture(true)
-        return
-    end
-
-    if not self.Widget.ListeningForInput or e.Event ~= "KeyDown" or e.Repeat then return end
-    if KeybindingManager:IsActiveModifier(key) then return end
-
-    e:PreventAction()
-    e:StopPropagation()
-    self:BeginClaimedRelease("Keyboard", key)
-
-    if key == "ESCAPE" then
-        return
-    end
-
-    local current = self.Widget.CurrentListeningAction
-    if not current then return end
-    if key == "BACKSPACE" then
-        self.Widget.CurrentListeningAction = nil
-        local registryAction = getRegistryAction(current)
-        if not registryAction then return end
-        KeybindingsRegistry.UpdateBinding(current.Mod.ModUUID, current.Action.ActionId,
-            KeybindingsRegistry.BuildKeyboardPayload(
-                { Key = "", ModifierKeys = {} }, registryAction.enabled, registryAction.allowConflict), true)
-        return
-    end
-
-    self:AssignKeybinding({ Key = key, ModifierKeys = InputCallbackManager.GetHeldModifiers() })
-end
-
----Handles mouse input during capture and claims both edges of the selected button.
----@param e EclLuaMouseButtonEvent
-function KeybindingV2IMGUIWidget:HandleMouseInput(e)
-    local claimed = self.Widget.ClaimedInput
-    if claimed and claimed.Device == "Mouse" and not e.Pressed and e.Button == claimed.Input then
-        e:PreventAction()
-        e:StopPropagation()
-        self:FinishCapture(true)
-        return
-    end
-    if not self.Widget.ListeningForInput or not e.Pressed then return end
-
-    e:PreventAction()
-    e:StopPropagation()
-    if e.Button < KeybindingManager.MOUSE_BUTTON_MIN or e.Button > KeybindingManager.MOUSE_BUTTON_MAX then
-        self:BeginClaimedRelease("Mouse", e.Button)
-        return
-    end
-    self:BeginClaimedRelease("Mouse", e.Button)
-    self:AssignMouseBinding({ Button = e.Button, ModifierKeys = InputCallbackManager.GetHeldModifiers() })
 end
 
 ---Warns when a newly selected combo exactly conflicts with another action.
@@ -545,37 +445,6 @@ function KeybindingV2IMGUIWidget:NotifyAssignmentConflict(binding, modData, acti
     local conflictStr = VCString:InterpolateLocalizedMessage("h0f52923132fa41c1a269a7eb647068d8d2ee",
         KeyPresentationMapping:GetKBViewKey(binding) or "", action.ActionName, conflictAction.ActionName)
     KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
-end
-
----Saves a keyboard binding. The save event rebuilds the row with the new label.
----@param keybinding KeybindingKeyboardBinding
-function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
-    local current = self.Widget.CurrentListeningAction
-    if not current then return end
-    self.Widget.CurrentListeningAction = nil
-    local registryAction = getRegistryAction(current)
-    if not registryAction then return end
-    self:NotifyAssignmentConflict(keybinding, current.Mod, current.Action, current.InputType)
-    self:StoreKeybinding(current.Mod, current.Action,
-        KeybindingsRegistry.BuildKeyboardPayload(keybinding, registryAction.enabled, registryAction.allowConflict))
-end
-
----Saves a mouse binding. The save event rebuilds the row with the new label.
----@param mouseBinding KeybindingMouseBinding
-function KeybindingV2IMGUIWidget:AssignMouseBinding(mouseBinding)
-    local current = self.Widget.CurrentListeningAction
-    if not current then return end
-    self.Widget.CurrentListeningAction = nil
-    local registryAction = getRegistryAction(current)
-    if not registryAction then return end
-    self:NotifyAssignmentConflict(mouseBinding, current.Mod, current.Action, current.InputType)
-    self:StoreKeybinding(current.Mod, current.Action,
-        KeybindingsRegistry.BuildMousePayload(mouseBinding, registryAction.enabled, registryAction.allowConflict))
-end
-
----Cancels the current capture and restores the window.
-function KeybindingV2IMGUIWidget:CancelKeybinding()
-    self:FinishCapture(true)
 end
 
 ---Gets the display label for a binding (keyboard or mouse)
@@ -668,7 +537,7 @@ end
 
 ---Cleans up resources when the widget is destroyed
 function KeybindingV2IMGUIWidget:Destroy()
-    self:FinishCapture(false)
+    if self._captureSession then self._captureSession:Cancel("destroyed") end
     self:ClearDynamicElements()
     if self._registrySubscription then
         self._registrySubscription:Unsubscribe()

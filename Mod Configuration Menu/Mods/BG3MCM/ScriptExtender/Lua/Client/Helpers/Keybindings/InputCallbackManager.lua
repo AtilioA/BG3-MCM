@@ -9,10 +9,6 @@ InputCallbackManager = {}
 InputCallbackManager._KeyInputSubject = RX.Subject.Create()
 InputCallbackManager._MouseInputSubject = RX.Subject.Create()
 InputCallbackManager._HeldModifiers = {}
-InputCallbackManager._CaptureActive = false
-InputCallbackManager._ClaimedKeyboardReleases = {}
-InputCallbackManager._ClaimedMouseReleases = {}
-local RELEASE_CLAIM_TIMEOUT_MS = 30000
 local INPUT_CLEANUP_GAME_STATES = {
     [Ext.Enums.ClientGameState.StartLoading] = true,
     [Ext.Enums.ClientGameState.LoadSession] = true,
@@ -80,12 +76,6 @@ function InputCallbackManager.GetHeldModifiers()
     return modifiers
 end
 
----Enables or disables normal keybinding dispatch while capture owns input.
----@param active boolean
-function InputCallbackManager.SetCaptureActive(active)
-    InputCallbackManager._CaptureActive = active == true
-end
-
 ---Returns whether an input lifecycle must be reset for a client game state.
 ---@param state unknown
 ---@return boolean
@@ -93,25 +83,10 @@ function InputCallbackManager.IsInputCleanupGameState(state)
     return INPUT_CLEANUP_GAME_STATES[state] == true
 end
 
----Claims the matching release keyup even if capture times out before release.
----@param device "Keyboard"|"Mouse"
----@param input string|integer
-function InputCallbackManager.ClaimRelease(device, input)
-    local claimedInput = device == "Keyboard" and tostring(input):upper() or input
-    local claim = { Input = claimedInput, Expires = Ext.Timer.MonotonicTime() + RELEASE_CLAIM_TIMEOUT_MS }
-    if device == "Keyboard" then
-        InputCallbackManager._ClaimedKeyboardReleases[claimedInput] = claim
-    else
-        InputCallbackManager._ClaimedMouseReleases[input] = claim
-    end
-end
-
----Clears held, claimed, and matched input state across game/session transitions.
+---Clears held, captured, and matched input state across game/session transitions.
 function InputCallbackManager.ResetInputState()
     InputCallbackManager._HeldModifiers = {}
-    InputCallbackManager._ClaimedKeyboardReleases = {}
-    InputCallbackManager._ClaimedMouseReleases = {}
-    InputCallbackManager._CaptureActive = false
+    if KeybindingCaptureSession then KeybindingCaptureSession.Reset("input-reset") end
     KeybindingsRegistry.ResetInputState()
 end
 
@@ -146,33 +121,19 @@ function InputCallbackManager.Initialize()
                 InputCallbackManager._HeldModifiers[key] = nil
             end
         end
-        local claims = InputCallbackManager._ClaimedKeyboardReleases
-        local claim = claims[key]
-        if claim and Ext.Timer.MonotonicTime() > claim.Expires then
-            claims[key] = nil
-            claim = nil
-        end
-        if e.Event == "KeyUp" and claim and key == claim.Input then
-            claims[key] = nil
+        if KeybindingCaptureSession.ConsumeClaimedRelease("Keyboard", key, e.Event == "KeyUp") then
             e:PreventAction()
             return
         end
-        if InputCallbackManager._CaptureActive then return end
+        if KeybindingCaptureSession.IsActive() then return end
         InputCallbackManager._KeyInputSubject:OnNext(e)
     end)
     Ext.Events.MouseButtonInput:Subscribe(function(e)
-        local claims = InputCallbackManager._ClaimedMouseReleases
-        local claim = claims[e.Button]
-        if claim and Ext.Timer.MonotonicTime() > claim.Expires then
-            claims[e.Button] = nil
-            claim = nil
-        end
-        if not e.Pressed and claim and e.Button == claim.Input then
-            claims[e.Button] = nil
+        if KeybindingCaptureSession.ConsumeClaimedRelease("Mouse", e.Button, not e.Pressed) then
             e:PreventAction()
             return
         end
-        if InputCallbackManager._CaptureActive then return end
+        if KeybindingCaptureSession.IsActive() then return end
         InputCallbackManager._MouseInputSubject:OnNext(e)
     end)
     Ext.Events.GameStateChanged:Subscribe(function(e)

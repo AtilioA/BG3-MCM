@@ -383,59 +383,55 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     end)
 
     D.test("suppresses unsupported mouse buttons during capture", function()
-        local widget = setmetatable({
-            Widget = {
-                ListeningForInput = true,
-                ClaimedInput = nil
-            }
-        }, { __index = KeybindingV2IMGUIWidget })
-        local claimedDevice = nil
-        local claimedInput = nil
-        local originalBeginClaimedRelease = widget.BeginClaimedRelease
-        widget.BeginClaimedRelease = function(_, device, input)
-            claimedDevice = device
-            claimedInput = input
-        end
+        local outcome = nil
+        local session = KeybindingCaptureSession.Start({
+            OnComplete = function(value) outcome = value end
+        })
 
         local press = MouseEvent(true, KeybindingManager.MOUSE_BUTTON_MAX + 1)
         local ok, err = pcall(function()
-            widget:HandleMouseInput(press)
+            session:HandleMouseInput(press)
         end)
-
-        widget.BeginClaimedRelease = originalBeginClaimedRelease
         if not ok then error(err) end
+
         D.expect(press.prevented).toBeTruthy()
         D.expect(press.stopped).toBeTruthy()
-        D.expect(claimedDevice).toBe("Mouse")
-        D.expect(claimedInput).toBe(KeybindingManager.MOUSE_BUTTON_MAX + 1)
+        D.expect(outcome).toBeNil()
+
+        local release = MouseEvent(false, KeybindingManager.MOUSE_BUTTON_MAX + 1)
+        session:HandleMouseInput(release)
+        D.expect(release.prevented).toBeTruthy()
+        D.expect(outcome).toEqual({ kind = "cancelled", reason = "unsupported-button" })
     end)
 
     D.test("stops captured mouse release propagation", function()
-        local widget = setmetatable({
-            Widget = {
-                ListeningForInput = false,
-                ClaimedInput = { Device = "Mouse", Input = 1 }
-            }
-        }, { __index = KeybindingV2IMGUIWidget })
-        widget.FinishCapture = function() end
+        local outcome = nil
+        local session = KeybindingCaptureSession.Start({
+            OnComplete = function(value) outcome = value end
+        })
+
+        session:HandleMouseInput(MouseEvent(true, 1))
+        D.expect(outcome).toBeNil()
 
         local release = MouseEvent(false, 1)
-        widget:HandleMouseInput(release)
+        session:HandleMouseInput(release)
 
         D.expect(release.prevented).toBeTruthy()
         D.expect(release.stopped).toBeTruthy()
+        D.expect(outcome.kind).toBe("binding")
+        D.expect(outcome.binding.Button).toBe(1)
     end)
 
-    D.test("keeps release claims for different inputs", function()
-        InputCallbackManager.ClaimRelease("Mouse", 1)
-        InputCallbackManager.ClaimRelease("Mouse", 2)
-        InputCallbackManager.ClaimRelease("Keyboard", "A")
-        InputCallbackManager.ClaimRelease("Keyboard", "B")
+    D.test("retains the claimed release after selection", function()
+        local session = KeybindingCaptureSession.Start({
+            OnComplete = function() end
+        })
 
-        D.expect(InputCallbackManager._ClaimedMouseReleases[1]).toBeTruthy()
-        D.expect(InputCallbackManager._ClaimedMouseReleases[2]).toBeTruthy()
-        D.expect(InputCallbackManager._ClaimedKeyboardReleases.A).toBeTruthy()
-        D.expect(InputCallbackManager._ClaimedKeyboardReleases.B).toBeTruthy()
+        session:HandleMouseInput(MouseEvent(true, 1))
+        session:HandleMouseInput(MouseEvent(false, 1))
+
+        D.expect(KeybindingCaptureSession.ConsumeClaimedRelease("Mouse", 1, true)).toBeTruthy()
+        D.expect(KeybindingCaptureSession.ConsumeClaimedRelease("Mouse", 1, true)).toBeFalsy()
     end)
 
     D.test("uses current registry flags when committing a captured binding", function()
@@ -447,15 +443,9 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             AllowConflict = true
         })
 
-        local widget = setmetatable({
-            Widget = {
-                CurrentListeningAction = {
-                    Mod = { ModUUID = TEST_MOD_UUID },
-                    Action = action,
-                    InputType = "KeyboardMouse"
-                }
-            }
-        }, { __index = KeybindingV2IMGUIWidget })
+        local widget = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
+        widget.FilterActions = function() end
+        widget.RefreshUI = function() end
         local saved = nil
         widget.NotifyAssignmentConflict = function() end
         widget.StoreKeybinding = function(_, _, _, payload)
@@ -463,11 +453,26 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             return true
         end
 
-        widget:AssignMouseBinding({ Button = 2, ModifierKeys = { "LCTRL" } })
+        InputCallbackManager._HeldModifiers = { LCTRL = true }
+        local ok, err = pcall(function()
+            widget:StartListeningForInput(
+                { ModUUID = TEST_MOD_UUID },
+                action,
+                "KeyboardMouse",
+                { Label = "", Disabled = false }
+            )
+            D.expect(widget._captureSession).Not.toBeNil()
+            widget._captureSession:HandleMouseInput(MouseEvent(true, 2))
+            widget._captureSession:HandleMouseInput(MouseEvent(false, 2))
+        end)
+        InputCallbackManager._HeldModifiers = {}
+        if not ok then error(err) end
 
+        D.expect(saved).Not.toBeNil()
         D.expect(saved.Enabled).toBeFalsy()
         D.expect(saved.AllowConflict).toBeTruthy()
         D.expect(saved.Mouse.Button).toBe(2)
+        D.expect(saved.Mouse.ModifierKeys).toEqual({ "LCTRL" })
     end)
 
     D.test("uses shared identity for conflict and default UI comparisons", function()
