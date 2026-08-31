@@ -145,7 +145,7 @@ function DataPreprocessing:PreprocessTab(tabData, modUUID)
         Handles = tabData.Handles or {}
     })
 
-    tab:AddSetting(self:PreprocessSettings(tabData.Settings))
+    tab.Settings = self:PreprocessSettings(tabData.Settings)
 
     self:AppendTabs(tab:GetTabs(), tabData.Tabs, modUUID)
     self:AppendSections(tab:GetSections(), tabData.Sections, modUUID)
