@@ -65,13 +65,22 @@ end
 function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
     if not isValid then
         for _, settingID in ipairs(invalidSettings) do
+            local setting = BlueprintShape:GetSettingById(blueprint, settingID)
             local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingID)
-            MCMWarn(0,
-                "Invalid value for setting '%s' (value: %s), resetting it to default value from the blueprint (%s).",
-                settingID,
-                Ext.DumpExport(config[settingID]),
-                Ext.DumpExport(defaultValue))
-            config[settingID] = defaultValue
+            if setting and self:ValidateSetting(setting, defaultValue) then
+                MCMWarn(0,
+                    "Invalid value for setting '%s' (value: %s), resetting it to default value from the blueprint (%s).",
+                    settingID,
+                    Ext.DumpExport(config[settingID]),
+                    Ext.DumpExport(defaultValue))
+                config[settingID] = defaultValue
+            else
+                MCMWarn(0,
+                    "Invalid value for setting '%s' (value: %s). The blueprint default (%s) is also invalid, so the setting could not be repaired. Please contact the mod author about this issue.",
+                    settingID,
+                    Ext.DumpExport(config[settingID]),
+                    Ext.DumpExport(defaultValue))
+            end
         end
     end
 end
