@@ -39,7 +39,6 @@ luac.out
 *.x86_64
 *.hex
 
-ignore/
 output/
 *.pak
 *.code-workspace
@@ -77,3 +76,4 @@ tasks/
 .roo*
 .agent*/
 .osgrep
+meta.lsx.bak
