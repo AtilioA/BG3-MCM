@@ -147,10 +147,9 @@ KeyPresentationMapping.Mapping = {
     KP_PERIOD       = "Keypad .",
     KP_EQUALS       = "Keypad =",
 
-    -- TODO: actually identify LMB, RMB, etc.
-    MOUSE_BUTTON_1  = "Mouse 1",
-    MOUSE_BUTTON_2  = "Mouse 2",
-    MOUSE_BUTTON_3  = "Mouse 3",
+    MOUSE_BUTTON_1  = "Left Mouse Button",
+    MOUSE_BUTTON_2  = "Middle Mouse Button",
+    MOUSE_BUTTON_3  = "Right Mouse Button",
     MOUSE_BUTTON_4  = "Mouse 4",
     MOUSE_BUTTON_5  = "Mouse 5",
     MOUSE_BUTTON_6  = "Mouse 6",
@@ -232,14 +231,8 @@ function KeyPresentationMapping:GetViewKeyForSetting(settingId, modUUID)
         return ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
 
-    if keybinding.Mouse then
-        return self:GetMouseViewKey(keybinding.Mouse)
-    end
-    if keybinding.Keyboard then
-        return self:GetKBViewKey(keybinding.Keyboard)
-    end
-
-    return ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
+    local active = KeybindingManager:GetActiveV2Binding(keybinding)
+    return self:GetKBViewKey(active)
 end
 
 return KeyPresentationMapping

@@ -3,166 +3,92 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 ---@class KeybindingConflictService
 KeybindingConflictService = _Class:Create("KeybindingConflictService", nil)
 
-local function isEmptyBinding(binding)
-    if binding == nil or binding == "" or binding == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING then
-        return true
-    end
-    if type(binding) == "table" then
-        if not binding.Key or binding.Key == "" then
-            return true
-        end
-    end
-    return false
-end
-
---- Compares two keybindings for equality after normalization
----@param binding1 Keybinding|string|nil
----@param binding2 Keybinding|string|nil
----@return boolean True if the keybindings are equal, false otherwise
+---Compares keyboard or mouse bindings by device, primary input, and modifier set.
+---@param binding1 KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@param binding2 KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@return boolean
 function KeybindingConflictService:AreKeybindingsEqual(binding1, binding2)
-    local normalized1, normalized2 = nil, nil
-
-    -- Both unassigned
-    if (binding1 == nil or binding1 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) and
-        (binding2 == nil or binding2 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) then
-        return true
-    end
-
-    -- One unassigned, the other not
-    if (binding1 == nil or binding1 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) ~=
-        (binding2 == nil or binding2 == ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING) then
-        return false
-    end
-
-    if type(binding1) == "table" and binding1.Key ~= nil then
-        normalized1 = KeybindingsRegistry.NormalizeKeyboardBinding(binding1)
-    end
-    if type(binding2) == "table" and binding2.Key ~= nil then
-        normalized2 = KeybindingsRegistry.NormalizeKeyboardBinding(binding2)
-    end
-
-    return normalized1 ~= nil and normalized2 ~= nil and normalized1 == normalized2
+    local active1 = KeybindingManager:GetActiveV2Binding(binding1)
+    local active2 = KeybindingManager:GetActiveV2Binding(binding2)
+    if not active1 or not active2 then return active1 == nil and active2 == nil end
+    return KeybindingsRegistry.NormalizeBinding(active1) == KeybindingsRegistry.NormalizeBinding(active2)
 end
 
---- Checks if a keybinding conflicts with an existing action
----@param keybinding Keybinding|string|nil
----@param action table The action data to check against
----@param actionId string The ID of the action to check
----@param currentActionId string The ID of the current action to skip
----@return table|nil Conflicting action if found, nil otherwise
-function KeybindingConflictService:CheckActionForConflict(keybinding, action, actionId, currentActionId)
-    -- _D("Checking conflict between")
-    -- _D(keybinding)
-    if actionId == currentActionId or isEmptyBinding(action.keyboardBinding) then
-        return nil
-    end
-    if isEmptyBinding(keybinding) then
-        return nil
-    end
-
-    -- Check if either the existing action or the new keybinding allows conflicts
-    if action.allowConflict == true then
-        return nil
-    end
-
-    if type(keybinding) == "table" and keybinding.AllowConflict == true then
-        return nil
-    end
-
-    if self:AreKeybindingsEqual(keybinding, action.keyboardBinding) then
-        return {
-            ActionName = action.actionName,
-            Keybinding = action.keyboardBinding
-        }
-    end
-    return nil
-end
-
---- Checks if a keybinding conflicts within a single mod
----@param keybinding Keybinding|string|nil
----@param actions table The actions table of a mod
----@param currentActionId string The ID of the current action to skip
----@return table|nil Conflicting action if found, nil otherwise
-function KeybindingConflictService:CheckModForConflicts(keybinding, actions, currentActionId)
-    for actionId, action in pairs(actions) do
-        local conflict = self:CheckActionForConflict(keybinding, action, actionId, currentActionId)
-        if conflict then
-            return conflict
-        end
-    end
-    return nil
-end
-
---- Checks if a keybinding conflicts with existing bindings across all mods
----@param keybinding Keybinding|string
----@param currentMod table (unused)
----@param currentAction table The current action data
----@param inputType string The type of input ("KeyboardMouse")
----@return table|nil Conflicting action if found, nil otherwise
+---Checks MCM and native bindings for a conflict.
+---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@param currentMod KeybindingUIMod
+---@param currentAction KeybindingUIAction
+---@param inputType string
+---@return table|nil
 function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, currentAction, inputType)
-    if inputType ~= "KeyboardMouse" then
+    if inputType ~= "KeyboardMouse" or currentAction.AllowConflict
+        or not KeybindingManager:GetActiveV2Binding(keybinding) then
         return nil
     end
-
-    -- Check MCM-defined keybindings for conflicts
-    local mcmConflict = self:CheckMCMForConflicts(keybinding, currentAction)
-    if mcmConflict then
-        return mcmConflict
-    end
-
-    -- Check native keybindings for conflicts
-    -- local nativeConflict = self:CheckNativeForConflicts(keybinding, currentAction)
-    -- if nativeConflict then
-    --     return nativeConflict
-    -- end
-
-    return nil
+    return self:CheckMCMForConflicts(keybinding, currentAction, currentMod and currentMod.ModUUID)
+        or self:CheckNativeForConflicts(keybinding)
 end
 
---- Checks if a keybinding conflicts with existing MCM-defined bindings
----@param keybinding Keybinding|string
----@param currentAction table The current action data
----@return table|nil Conflicting action if found, nil otherwise
-function KeybindingConflictService:CheckMCMForConflicts(keybinding, currentAction)
+---Checks MCM-defined bindings for a conflict.
+---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@param currentAction KeybindingUIAction
+---@param currentModUUID? string
+---@return table|nil
+function KeybindingConflictService:CheckMCMForConflicts(keybinding, currentAction, currentModUUID)
     local registry = KeybindingsRegistry.GetFilteredRegistry()
-    local currentActionId = currentAction.ActionId
-
-    for _, actions in pairs(registry) do
-        local conflict = self:CheckModForConflicts(keybinding, actions, currentActionId)
-        if conflict then
-            return conflict
-        end
-    end
-
-    return nil
-end
-
---- Checks if a keybinding conflicts with existing native bindings
----@param keybinding Keybinding|string
----@param currentAction table The current action data
----@return table|nil Conflicting action if found, nil otherwise
-function KeybindingConflictService:CheckNativeForConflicts(keybinding, currentAction)
-    local nativeData = NativeKeybindings.GetByDeviceType("Keyboard")
-    if nativeData and nativeData.Public then
-        for _, nativeAction in ipairs(nativeData.Public) do
-            for _, binding in ipairs(nativeAction.Bindings or {}) do
-                -- Convert native binding to standard Keybinding table
-                local transformed = { Key = tostring(binding.InputId), ModifierKeys = binding.Modifiers or {} }
-                local mcmAction = {
-                    ActionId = nativeAction.EventName,
-                    ActionName = nativeAction.EventName,
-                    actionName = nativeAction.EventName, -- Add this line to ensure actionName is available
-                    keyboardBinding = transformed
-                }
-                local conflict = self:CheckActionForConflict(keybinding, mcmAction, nativeAction.EventName,
-                    currentAction.ActionId)
-                if conflict then
-                    return conflict
+    for modUUID, actions in pairs(registry) do
+        for actionId, action in pairs(actions) do
+            if actionId ~= "_keybindingSortMode" then
+                local actionBinding = KeybindingManager:GetActiveV2Binding({
+                    Mouse = action.mouseBinding,
+                    Keyboard = action.keyboardBinding
+                })
+                if not (modUUID == currentModUUID and actionId == currentAction.ActionId)
+                    and action.allowConflict ~= true
+                    and self:AreKeybindingsEqual(keybinding, actionBinding) then
+                    return { ActionName = action.actionName, Keybinding = actionBinding }
                 end
             end
         end
     end
+    return nil
+end
 
+---@param modifiers table|nil
+---@return string[]
+local function copyModifiers(modifiers)
+    local result = {}
+    for _, modifier in ipairs(modifiers or {}) do
+        table.insert(result, tostring(modifier))
+    end
+    return result
+end
+
+---Checks confidently mapped live native bindings for an exact conflict.
+---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|string|nil
+---@return table|nil
+function KeybindingConflictService:CheckNativeForConflicts(keybinding)
+    local active = KeybindingManager:GetActiveV2Binding(keybinding)
+    if not active then return nil end
+
+    local nativeData = NativeKeybindings.GetAll()
+    for _, nativeAction in ipairs(nativeData.Public or {}) do
+        for _, binding in ipairs(nativeAction.Bindings or {}) do
+            local transformed = nil
+            if active.Key and binding.InputType == "Keyboard" then
+                transformed = { Key = tostring(binding.InputId), ModifierKeys = copyModifiers(binding.Modifiers) }
+            elseif active.Button and binding.InputType == "Mouse" then
+                local button = NativeKeybindings.GetVerifiedMouseButton(binding.InputId)
+                if button then
+                    transformed = { Button = button, ModifierKeys = copyModifiers(binding.Modifiers) }
+                end
+            end
+
+            if transformed and self:AreKeybindingsEqual(active, transformed) then
+                return { ActionName = nativeAction.EventName, Keybinding = transformed }
+            end
+        end
+    end
     return nil
 end
 

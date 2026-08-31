@@ -579,7 +579,7 @@
     <content contentuid="h37e3d35cef6a43468bb71a253982d5634de8" version="1">Text is saved when you click outside the field.</content>
     <content contentuid="hbadbecf8d8f149af8ceaa61c606f3539dd45" version="1">Apply font styling to other windows.&lt;br&gt;Note this currently does not affect custom windows created by mod authors.</content>
     <content contentuid="ha0754485dddb46b5902f09bfb426ecbd1367" version="1">Apply the font settings to windows created by other mods.</content>
-    <content contentuid="ha01f9dde75564cd7902c5056f1f3d03ba1ea" version="1">Note: the Keybindings feature only works for keyboard input.</content>
+    <content contentuid="ha01f9dde75564cd7902c5056f1f3d03ba1ea" version="1">Note: the Keybindings feature only works for keyboard and mouse input. For saving mouse input, click the mouse button outside the MCM window.</content>
     <content contentuid="he0bae6ed370f481cac73d3eb515e12a0gg35" version="1">Reset Lua (Server)</content>
     <content contentuid="h9d0b2ab058c949eda1871604cba0083bd4c1" version="1">Reinitializes the server Lua VM.</content>
     <content contentuid="h2b1ab8b215ff4918bd9f9319d52a1fb33460" version="1">Reset Lua (Client)</content>
