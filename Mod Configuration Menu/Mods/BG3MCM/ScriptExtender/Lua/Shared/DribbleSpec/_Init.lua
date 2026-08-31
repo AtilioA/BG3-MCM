@@ -29,6 +29,7 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/StorageSyncService.test.lua")
     Ext.Require("Shared/DribbleSpec/InternalAPIGuard.test.lua")
     if Ext.IsClient() then
+        Ext.Require("Shared/DribbleSpec/SettingWrite.test.lua")
         Ext.Require("Shared/DribbleSpec/Keybindings.test.lua")
     end
 end
