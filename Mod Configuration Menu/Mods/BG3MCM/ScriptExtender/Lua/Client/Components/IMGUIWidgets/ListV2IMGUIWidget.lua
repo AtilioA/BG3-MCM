@@ -897,7 +897,8 @@ end
 ---@return string trimmedName
 function ListV2IMGUIWidget:NormalizeName(name)
     local s = tostring(name or "")
-    return s:gsub("^%s*(.-)%s*$", "%1")
+    local trimmed = s:gsub("^%s*(.-)%s*$", "%1")
+    return trimmed
 end
 
 --- Attempts to add an element to the list after validation (non-empty, non-duplicate)
