@@ -182,7 +182,7 @@ local function KeybindingGetRaw_Impl(args)
     return MCMAPI:GetSettingValue(args.settingId, args.modUUID)
 end
 
---- Implementation: Set a callback for keybinding (fires on both KeyDown and KeyUp)
+--- Implementation: Set a callback for keyboard or mouse down/up events.
 ---@param args MCMKeybindingSetCallbackArgs
 ---@return nil
 local function KeybindingSetCallback_Impl(args)
@@ -229,9 +229,9 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
         { modUUID = originalModUUID }
     )
 
-    --- Set a callback for keybinding (fires on both KeyDown and KeyUp events)
+    --- Set a callback for keyboard or mouse down/up events.
     ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
-    ---@param callback function The callback function to be called when the keybinding is triggered
+    ---@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) The raw input event callback
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
     KeybindingAPI.SetCallback = MCMAPIUtils.WithFlexibleArgs(
@@ -242,7 +242,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
 
     --- Set a callback for KeyDown events only
     ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
-    ---@param callback function The callback function to be called when the key is pressed down
+    ---@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) Called on key down or mouse press
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
     KeybindingAPI.SetKeyDownCallback = MCMAPIUtils.WithFlexibleArgs(
@@ -253,7 +253,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
 
     --- Set a callback for KeyUp events only
     ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
-    ---@param callback function The callback function to be called when the key is released
+    ---@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) Called on key up or mouse release
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
     KeybindingAPI.SetKeyUpCallback = MCMAPIUtils.WithFlexibleArgs(

@@ -7,6 +7,7 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 ---@field GetAllKeybindings fun(self: KeybindingsUI): table<string, table>
 ---@field CreateKeybindingsPage fun(self: KeybindingsUI, dualPane: DualPane): any
 ---@field GetNativeKeybindings fun(self: KeybindingsUI): table[]
+---@field KeybindingWidget? KeybindingV2IMGUIWidget
 
 ---@class KeybindingsUI
 KeybindingsUI = {}
@@ -44,26 +45,17 @@ function KeybindingsUI.GetAllKeybindings()
                     local keyboardBinding = nil
                     local mouseBinding = nil
 
-                    if currentBinding and currentBinding.Keyboard then
+                    if currentBinding then
                         keyboardBinding = currentBinding.Keyboard
-                        MCMDebug(2, "Using saved keyboard binding for setting: " .. settingId)
+                        mouseBinding = currentBinding.Mouse
+                        MCMDebug(2, "Using saved keybinding for setting: " .. settingId)
                     else
                         keyboardBinding = Fallback_Value(
-                            setting.Default and setting.Default.Keyboard,
+                            setting:GetDefault() and setting:GetDefault().Keyboard,
                             { Key = "", ModifierKeys = { "NONE" } }
                         )
-                        MCMDebug(1, "Falling back to default keyboard binding for setting: " .. settingId)
-                    end
-
-                    if currentBinding and currentBinding.Mouse then
-                        mouseBinding = currentBinding.Mouse
-                        MCMDebug(2, "Using saved mouse binding for setting: " .. settingId)
-                        -- else
-                        --     mouseBinding = Fallback_Value(
-                        --         setting.Default and setting.Default.Mouse,
-                        --         { Button = 0, ModifierKeys = {} }
-                        --     )
-                        --     MCMDebug(1, "Falling back to default mouse binding for setting: " .. settingId)
+                        mouseBinding = setting:GetDefault() and setting:GetDefault().Mouse
+                        MCMDebug(1, "Falling back to default keybinding for setting: " .. settingId)
                     end
 
                     local description = setting.GetDescription and setting:GetDescription() or ""
@@ -73,11 +65,15 @@ function KeybindingsUI.GetAllKeybindings()
                         true
                     )
                     local defaultEnabled = Fallback_Value(
-                        setting.Default and setting.Default.Enabled,
+                        setting:GetDefault() and setting:GetDefault().Enabled,
                         true
                     )
                     local allowConflict = Fallback_Value(
                         currentBinding and currentBinding.AllowConflict,
+                        setting:GetOptions() and setting:GetOptions().AllowConflict or false
+                    )
+                    local defaultAllowConflict = Fallback_Value(
+                        setting:GetOptions() and setting:GetOptions().AllowConflict,
                         false
                     )
 
@@ -90,42 +86,43 @@ function KeybindingsUI.GetAllKeybindings()
                         DefaultEnabled = defaultEnabled,
                         Enabled = enabled,
                         DefaultKeyboardMouseBinding = Fallback_Value(
-                            setting.Default and setting.Default.Keyboard,
+                            setting:GetDefault() and setting:GetDefault().Keyboard,
                             { Key = "", ModifierKeys = { "NONE" } }
                         ),
                         DefaultMouseBinding = Fallback_Value(
-                            setting.Default and setting.Default.Mouse,
+                            setting:GetDefault() and setting:GetDefault().Mouse,
                             { Button = 0, ModifierKeys = {} }
                         ),
                         Description = description,
                         Tooltip = tooltip,
                         ShouldTriggerOnRepeat = Fallback_Value(
-                            setting.Options and setting.Options.ShouldTriggerOnRepeat,
+                            setting:GetOptions() and setting:GetOptions().ShouldTriggerOnRepeat,
                             false
                         ),
                         ShouldTriggerOnKeyUp = Fallback_Value(
-                            setting.Options and setting.Options.ShouldTriggerOnKeyUp,
+                            setting:GetOptions() and setting:GetOptions().ShouldTriggerOnKeyUp,
                             false
                         ),
                         ShouldTriggerOnKeyDown = Fallback_Value(
-                            setting.Options and setting.Options.ShouldTriggerOnKeyDown,
+                            setting:GetOptions() and setting:GetOptions().ShouldTriggerOnKeyDown,
                             true
                         ),
                         BlockIfLevelNotStarted = Fallback_Value(
-                            setting.Options and setting.Options.BlockIfLevelNotStarted,
+                            setting:GetOptions() and setting:GetOptions().BlockIfLevelNotStarted,
                             false
                         ),
                         PreventAction = Fallback_Value(
-                            setting.Options and setting.Options.PreventAction,
+                            setting:GetOptions() and setting:GetOptions().PreventAction,
                             true
                         ),
                         IsDeveloperOnly = Fallback_Value(
-                            setting.Options and setting.Options.IsDeveloperOnly,
+                            setting:GetOptions() and setting:GetOptions().IsDeveloperOnly,
                             false
                         ),
                         AllowConflict = allowConflict,
+                        DefaultAllowConflict = defaultAllowConflict,
                         SkipCallback = Fallback_Value(
-                            setting.Options and setting.Options.SkipCallback,
+                            setting:GetOptions() and setting:GetOptions().SkipCallback,
                             false
                         ),
                         SortOrder = (setting.GetSortOrder and setting:GetSortOrder()) or settingIndex
@@ -148,7 +145,7 @@ end
 ---@return table[] unified native keybinding groups
 function KeybindingsUI.GetNativeKeybindings()
     local result = {}
-    local native = NativeKeybindings.GetByDeviceType("Keyboard")
+    local native = NativeKeybindings.GetAll()
     if not native or not native.Public then return result end
     local byCategory = {}
     for _, kBinding in ipairs(native.Public) do
@@ -160,15 +157,21 @@ function KeybindingsUI.GetNativeKeybindings()
     for category, keybindings in pairs(byCategory) do
         local actions = {}
         for _, kBinding in ipairs(keybindings) do
+            local bindings = {}
+            for _, binding in ipairs(kBinding.Bindings or {}) do
+                if binding.InputType == "Keyboard" or binding.InputType == "Mouse" then
+                    table_insert(bindings, binding)
+                end
+            end
             local action = {
                 ActionId = kBinding.EventName or "",
                 ActionName = kBinding.EventName or "",
                 Description = kBinding.Description or "",
-                Bindings = kBinding.Bindings or {}
+                Bindings = bindings
             }
-            table_insert(actions, action)
+            if #bindings > 0 then table_insert(actions, action) end
         end
-        table_insert(result, { CategoryName = category, Actions = actions })
+        if #actions > 0 then table_insert(result, { CategoryName = category, Actions = actions }) end
     end
     return result
 end
@@ -180,6 +183,11 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
     if not dualPane then
         MCMDebug(1, "Invalid dualPane parameter in CreateKeybindingsPage")
         return {}
+    end
+
+    if KeybindingsUI.KeybindingWidget then
+        KeybindingsUI.KeybindingWidget:Destroy()
+        KeybindingsUI.KeybindingWidget = nil
     end
 
     -- Create a dedicated "Hotkeys" menu section using the new interface
@@ -213,7 +221,7 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
     -- Safely create the keybinding widget
     pcall(function()
         if type(KeybindingV2IMGUIWidget) == "table" and type(KeybindingV2IMGUIWidget.new) == "function" then
-            local _keybindingWidget = KeybindingV2IMGUIWidget:new(MCMHotkeysGroup)
+            KeybindingsUI.KeybindingWidget = KeybindingV2IMGUIWidget:new(MCMHotkeysGroup)
         end
     end)
 

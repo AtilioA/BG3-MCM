@@ -12,6 +12,9 @@ local registry = {}
 -- A BehaviorSubject that always holds the current registry state.
 local keybindingsSubject = RX.BehaviorSubject.Create(registry)
 
+---@type table<integer, KeybindingRegistryEntry[]>
+local activeMouseBindings = {}
+
 ---Normalizes a keyboard binding for exact comparisons.
 ---@param binding KeybindingKeyboardBinding|string|nil
 ---@return string|nil The normalized binding, or nil if invalid
@@ -235,6 +238,11 @@ function KeybindingsRegistry.ApplyBindingValue(modUUID, actionId, value)
     return true
 end
 
+---Clears mouse presses retained for dispatch.
+function KeybindingsRegistry.ResetInputState()
+    activeMouseBindings = {}
+end
+
 --- Registers a callback for a given binding.
 --- Note that this uses the full registry (not the filtered view) so that callbacks
 --- can be attached even for actions that are invisible in the UI.
@@ -266,22 +274,9 @@ function KeybindingsRegistry.RegisterCallback(modUUID, actionId, inputType, call
     return true
 end
 
---- Evaluates if a binding should be triggered given the key event and the binding properties.
-local function shouldTriggerBinding(e, binding)
-    if e.Event == "KeyDown" and not binding.shouldTriggerOnKeyDown then
-        return false
-    elseif e.Event == "KeyUp" and not binding.shouldTriggerOnKeyUp then
-        return false
-    end
-
-    if not binding.keyboardBinding then
-        return false
-    end
-
-    if e.Repeat and not binding.shouldTriggerOnRepeat then
-        return false
-    end
-
+---@param binding KeybindingRegistryEntry
+---@return boolean
+local function canTriggerBinding(binding)
     if binding.isDeveloperOnly and not Ext.Debug.IsDeveloperMode() then
         return false
     end
@@ -296,10 +291,92 @@ local function shouldTriggerBinding(e, binding)
         return false
     end
 
-    return KeybindingManager:IsKeybindingPressed(e, {
-        ScanCode = binding.keyboardBinding.Key,
-        Modifier = binding.keyboardBinding.ModifierKeys
+    return true
+end
+
+---@param binding KeybindingRegistryEntry
+---@param eventType "KeyDown"|"KeyUp"
+---@param isRepeat? boolean
+---@return boolean
+local function shouldTriggerEvent(binding, eventType, isRepeat)
+    if eventType == "KeyDown" and not binding.shouldTriggerOnKeyDown then return false end
+    if eventType == "KeyUp" and not binding.shouldTriggerOnKeyUp then return false end
+    if isRepeat and not binding.shouldTriggerOnRepeat then return false end
+    return true
+end
+
+---@param binding KeybindingRegistryEntry
+---@param eventType "KeyDown"|"KeyUp"
+---@return function|nil
+local function getCallback(binding, eventType)
+    if eventType == "KeyDown" then
+        return binding.keyDownCallback or binding.keyboardCallback
+    end
+    return binding.keyUpCallback or binding.keyboardCallback
+end
+
+---@param binding KeybindingRegistryEntry
+---@param e EclLuaKeyInputEvent|EclLuaMouseButtonEvent
+---@param eventType "KeyDown"|"KeyUp"
+local function invokeCallback(binding, e, eventType)
+    local callback = getCallback(binding, eventType)
+    if not callback then
+        if not binding.skipCallback then
+            MCMWarn(0, "No keybinding callback found for mod '%s', action '%s'.", binding.modUUID,
+                binding.actionName)
+        end
+        return
+    end
+
+    MCMPrint(1, "Dispatching keybinding callback for mod '%s', action '%s'.",
+        binding.modUUID, binding.actionName)
+    xpcall(function()
+        callback(e)
+    end, function(err)
+        local traceback = debug and type(debug.traceback) == "function" and debug.traceback("", 2) or ""
+        local mod = Ext.Mod.GetMod(binding.modUUID)
+        local modName = (mod and mod.Info and mod.Info.Name) or tostring(binding.modUUID)
+        MCMError(0,
+            "Keybinding callback failed for mod '%s', action '%s': %s%s\nPlease contact %s about this issue.",
+            modName, tostring(binding.actionName), tostring(err), traceback,
+            mod and mod.Info and mod.Info.Author or modName)
+    end)
+end
+
+---@param triggered KeybindingRegistryEntry[]
+---@return boolean
+local function shouldBlockConflictingCallbacks(triggered)
+    if #triggered <= 1 then return false end
+
+    local allowConflictCount = 0
+    for _, binding in ipairs(triggered) do
+        if binding.allowConflict then allowConflictCount = allowConflictCount + 1 end
+    end
+    if allowConflictCount >= #triggered - 1 then return false end
+
+    local binding = triggered[1]
+    local activeBinding = KeybindingManager:GetActiveV2Binding({
+        Mouse = binding.mouseBinding,
+        Keyboard = binding.keyboardBinding
     })
+    local keybindingStr = KeyPresentationMapping:GetKBViewKey(activeBinding) or ""
+    MCMWarn(0, "Keybinding conflict detected for: %s", keybindingStr)
+    local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
+        binding.actionName)
+    local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb",
+        keybindingStr, binding.actionName)
+    KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
+    return true
+end
+
+---@param e EclLuaKeyInputEvent|EclLuaMouseButtonEvent
+---@param triggered KeybindingRegistryEntry[]
+---@param eventType "KeyDown"|"KeyUp"
+local function dispatchCallbacks(e, triggered, eventType)
+    if shouldBlockConflictingCallbacks(triggered) then return end
+    for _, binding in ipairs(triggered) do
+        invokeCallback(binding, e, eventType)
+    end
 end
 
 function KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
@@ -318,15 +395,16 @@ function KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
 end
 
 --- Determines if an action should be prevented based on the triggered bindings
---- @param e table The keyboard event
---- @param triggeredBindings table[]|nil Optional array of triggered bindings
+--- @param e EclLuaKeyInputEvent|EclLuaMouseButtonEvent The input event
+--- @param triggeredBindings KeybindingRegistryEntry[]|nil Optional array of triggered bindings
+--- @param isKeyboard? boolean Whether keyboard-only event fields may be read
 --- @return boolean True if the action should be prevented, false otherwise
-function KeybindingsRegistry.ShouldPreventAction(e, triggeredBindings)
+function KeybindingsRegistry.ShouldPreventAction(e, triggeredBindings, isKeyboard)
     if e.PreventAction == nil then
         return false
     end
 
-    if e.Key == "ESCAPE" then
+    if isKeyboard and tostring(e.Key) == "ESCAPE" then
         return false
     end
 
@@ -337,117 +415,88 @@ function KeybindingsRegistry.ShouldPreventAction(e, triggeredBindings)
             return false
         end
 
-        -- Check if any triggered binding has PreventAction set to false
-        -- If any binding has PreventAction = false, we don't prevent the action
-        -- This will probably cause false positives, but it's better than preventing all actions or preventing none.
+        -- Any matching binding may require suppression
         for _, binding in ipairs(triggeredBindings) do
-            if binding.preventAction == false then
-                return false
-            end
+            if binding.preventAction ~= false then return true end
         end
+        return false
     end
 
     -- By default, prevent the action
     return true
 end
 
---- Dispatch a keyboard event.
+---Dispatches a keyboard event.
+---@param e EclLuaKeyInputEvent
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
     local triggered = {}
 
-    -- Collect all bindings that match the key event.
     for _modUUID, actions in pairs(registry) do
         for _actionId, binding in pairs(actions) do
-            if shouldTriggerBinding(e, binding) then
+            if type(binding) == "table" and KeybindingManager:IsKeyboardBindingAssigned(binding.keyboardBinding)
+                and canTriggerBinding(binding)
+                and shouldTriggerEvent(binding, e.Event, e.Repeat)
+                and KeybindingManager:IsKeybindingPressed(e, {
+                    ScanCode = binding.keyboardBinding.Key,
+                    Modifier = binding.keyboardBinding.ModifierKeys
+                }) then
                 table.insert(triggered, binding)
             end
         end
     end
 
-    if #triggered > 0 and KeybindingsRegistry.ShouldPreventAction(e, triggered) then
+    if #triggered > 0 and KeybindingsRegistry.ShouldPreventAction(e, triggered, true) then
         e:PreventAction()
     end
 
-    if #triggered > 1 then
-        -- Filter out bindings that are allowed to conflict
-        local conflictingBindings = {}
-        for _, binding in ipairs(triggered) do
-            if not binding.allowConflict then
-                table.insert(conflictingBindings, binding)
-            end
-        end
+    dispatchCallbacks(e, triggered, e.Event)
+end
 
-        -- Conflict logic: for n overlapping keybindings, n-1 need allowConflict=true for no warning.
-        -- Example: 2 overlapping need 1 with allowConflict, 3 overlapping need 2 with allowConflict.
+---@param modifiers string[]
+---@param required string[]
+---@return boolean
+local function modifiersMatch(modifiers, required)
+    local actualIdentity = table.concat(KeybindingManager:NormalizeModifiers(modifiers), "+")
+    local requiredIdentity = table.concat(KeybindingManager:NormalizeModifiers(required), "+")
+    return actualIdentity == requiredIdentity
+end
 
-        local allowConflictCount = 0
-        for _, binding in ipairs(triggered) do
-            if binding.allowConflict then
-                allowConflictCount = allowConflictCount + 1
-            end
-        end
+---Dispatches a mouse press/release event using centrally tracked keyboard modifiers.
+---@param e EclLuaMouseButtonEvent
+---@param heldModifiers string[]
+function KeybindingsRegistry.DispatchMouseEvent(e, heldModifiers)
+    local button = e.Button
+    local matched = {}
 
-        -- Show warning if fewer than n-1 have allowConflict (i.e., at least 2 don't have it)
-        if allowConflictCount < #triggered - 1 then
-            local binding = triggered[1]
-            local keybindingStr = KeyPresentationMapping:GetKBViewKey(binding.keyboardBinding) or ""
-            MCMWarn(0, "Keybinding conflict detected for: %s", keybindingStr)
-
-            -- TODO: reduce duplication with KeybindingV2IMGUIWidget
-            local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
-                binding.actionName)
-            local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb",
-                keybindingStr,
-                binding.actionName)
-            KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
-        else
-            -- No conflict warning, execute all callbacks
-            for _, binding in ipairs(triggered) do
-                if binding.keyboardCallback then
-                    xpcall(function()
-                        binding.keyboardCallback(e)
-                    end, function(err)
-                        MCMError(0, "Error in keyboard callback: " .. tostring(err))
-                    end)
+    if e.Pressed then
+        for _modUUID, actions in pairs(registry) do
+            for _actionId, binding in pairs(actions) do
+                if type(binding) == "table" and KeybindingManager:IsMouseBindingAssigned(binding.mouseBinding)
+                    and binding.mouseBinding.Button == button
+                    and modifiersMatch(heldModifiers, binding.mouseBinding.ModifierKeys)
+                    and canTriggerBinding(binding) then
+                    table.insert(matched, binding)
                 end
             end
-            return
         end
-    elseif #triggered == 1 then
-        local binding = triggered[1]
-        local callback = nil
+        activeMouseBindings[button] = matched
+    else
+        matched = activeMouseBindings[button] or {}
+        activeMouseBindings[button] = nil
+    end
 
-        -- Determine which callback to use based on event type
-        if e.Event == "KeyDown" then
-            callback = binding.keyDownCallback or binding.keyboardCallback
-        elseif e.Event == "KeyUp" then
-            callback = binding.keyUpCallback or binding.keyboardCallback
-        else
-            callback = binding.keyboardCallback
-        end
+    if #matched > 0 and KeybindingsRegistry.ShouldPreventAction(e, matched, false) then
+        e:PreventAction()
+    end
 
-        if callback then
-            MCMPrint(1, "Dispatching keyboard callback for mod '%s', action '%s'.",
-                binding.modUUID, binding.actionName)
-            xpcall(function()
-                callback(e)
-            end, function(err)
-                local traceback = ""
-                if debug and type(debug.traceback) == "function" then
-                    traceback = debug.traceback("", 2)
-                end
-                local mod = Ext.Mod.GetMod(binding.modUUID)
-                local modName = (mod and mod.Info and mod.Info.Name) or tostring(binding.modUUID)
-                MCMError(0,
-                    "Keyboard callback failed for mod '%s', action '%s': %s%s\nPlease contact %s about this issue.",
-                    modName, tostring(binding.actionName),
-                    tostring(err),
-                    traceback, (mod and mod.Info and mod.Info.Author))
-            end)
-        elseif not binding.skipCallback then
-            MCMWarn(0, "No keyboard callback found for mod '%s', action '%s'.", binding.modUUID, binding.actionName)
+    local eventType = e.Pressed and "KeyDown" or "KeyUp"
+    local triggered = {}
+    for _, binding in ipairs(matched) do
+        if shouldTriggerEvent(binding, eventType, false) then
+            table.insert(triggered, binding)
         end
     end
+    dispatchCallbacks(e, triggered, eventType)
 end
 
 --- Exposes the registry's BehaviorSubject so others can subscribe.
