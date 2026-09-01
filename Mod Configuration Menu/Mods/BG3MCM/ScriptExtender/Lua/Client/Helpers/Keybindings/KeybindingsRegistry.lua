@@ -347,11 +347,16 @@ local function shouldBlockConflictingCallbacks(triggered)
         Keyboard = binding.keyboardBinding
     })
     local keybindingStr = KeyPresentationMapping:GetKBViewKey(activeBinding) or ""
-    MCMWarn(0, "Keybinding conflict detected for: %s", keybindingStr)
+    local actionNames = {}
+    for _, triggeredBinding in ipairs(triggered) do
+        table.insert(actionNames, string.format("'%s'", tostring(triggeredBinding.actionName)))
+    end
+    local actionNamesStr = table.concat(actionNames, ", ")
+    MCMWarn(0, "Keybinding conflict detected for: %s. Conflicting actions: %s", keybindingStr, actionNamesStr)
     local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",
         binding.actionName)
     local conflictStr = VCString:InterpolateLocalizedMessage("h8509840fdfe4453b800fd84957a50800gacb",
-        keybindingStr, binding.actionName)
+        keybindingStr, actionNamesStr)
     KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
     return true
 end

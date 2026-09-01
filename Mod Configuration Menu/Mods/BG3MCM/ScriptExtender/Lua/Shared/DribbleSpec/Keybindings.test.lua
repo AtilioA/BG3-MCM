@@ -260,6 +260,36 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(release.prevented).toBeFalsy()
     end)
 
+    D.test("reports all actions in a blocked conflict", function()
+        RegisterActions({
+            MouseAction("runtime-conflict-one", { Button = 3, ModifierKeys = {} }),
+            MouseAction("runtime-conflict-two", { Button = 3, ModifierKeys = {} })
+        })
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "runtime-conflict-one", "KeyboardMouse", function() end)
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "runtime-conflict-two", "KeyboardMouse", function() end)
+
+        local originalWarn = MCMWarn
+        local originalNotifyConflict = KeybindingsRegistry.NotifyConflict
+        local warningActions = nil
+        MCMWarn = function(_, format, _, actions)
+            if format == "Keybinding conflict detected for: %s. Conflicting actions: %s" then
+                warningActions = actions
+            end
+        end
+        KeybindingsRegistry.NotifyConflict = function() end
+
+        local ok, err = pcall(function()
+            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 3), {})
+        end)
+
+        MCMWarn = originalWarn
+        KeybindingsRegistry.NotifyConflict = originalNotifyConflict
+        if not ok then error(err) end
+
+        D.expect(warningActions).toContain("'runtime-conflict-one'")
+        D.expect(warningActions).toContain("'runtime-conflict-two'")
+    end)
+
     D.test("compares exact keyboard and mouse identities", function()
         D.expect(KeybindingConflictService:AreKeybindingsEqual(
             { Button = 5, ModifierKeys = { "LCTRL", "LALT" } },
