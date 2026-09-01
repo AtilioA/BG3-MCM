@@ -48,7 +48,7 @@
 
 ---Represents an assigned mouse button and its keyboard modifiers.
 ---@class KeybindingMouseBinding
----@field Button number
+---@field Button integer
 ---@field ModifierKeys string[]
 
 ---Stores a complete keyboard-backed keybinding_v2 value.

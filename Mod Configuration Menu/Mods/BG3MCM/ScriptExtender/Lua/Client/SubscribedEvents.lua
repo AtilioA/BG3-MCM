@@ -265,6 +265,16 @@ ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(pay
     local settingId = payload.settingId
     local value = payload.value
 
+    if payload.error then
+        if payload.oldValue == nil then
+            MCMWarn(0, "Cannot roll back setting '%s' for mod '%s': no authoritative value was provided.",
+                settingId, modUUID)
+            return
+        end
+        value = payload.oldValue
+        MCMDebug(1, "Rolling back rejected setting '%s' for mod '%s'.", settingId, modUUID)
+    end
+
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
     KeybindingsRegistry.ApplyBindingValue(modUUID, settingId, value)
 

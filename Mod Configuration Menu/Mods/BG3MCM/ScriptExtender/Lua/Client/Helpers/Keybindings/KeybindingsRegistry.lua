@@ -94,18 +94,6 @@ function KeybindingsRegistry.BuildMousePayload(binding, currentEnabled, currentA
     }, currentEnabled, currentAllowConflict)
 end
 
----Returns a complete canonical value for a registry entry.
----@param binding KeybindingRegistryEntry
----@return KeybindingV2Value
-function KeybindingsRegistry.GetBindingValue(binding)
-    return KeybindingsRegistry.CanonicalizeValue({
-        Keyboard = binding.keyboardBinding,
-        Mouse = binding.mouseBinding,
-        Enabled = binding.enabled,
-        AllowConflict = binding.allowConflict
-    })
-end
-
 --- Determines if a developer-only action should be included based on the provided options.
 --- @param action table The action to evaluate for inclusion.
 --- @param options ActionFilterOptions|nil The options that may affect inclusion.
@@ -220,14 +208,13 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, value, shouldEmitE
 end
 
 ---Applies an authoritative saved or profile value to an existing registry entry.
----Updates entries selectively
 ---@param modUUID string
 ---@param actionId string
----@param value KeybindingV2Value
+---@param value KeybindingV2Value|nil
 ---@return boolean
 function KeybindingsRegistry.ApplyBindingValue(modUUID, actionId, value)
     local bindingEntry = registry[modUUID] and registry[modUUID][actionId]
-    if not bindingEntry then return false end
+    if not bindingEntry or type(value) ~= "table" then return false end
 
     local canonical = KeybindingsRegistry.CanonicalizeValue(value, bindingEntry.enabled, bindingEntry.allowConflict)
     bindingEntry.keyboardBinding = canonical.Keyboard

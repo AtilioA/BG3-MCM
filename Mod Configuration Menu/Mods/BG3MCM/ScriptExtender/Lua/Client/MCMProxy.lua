@@ -12,7 +12,6 @@ local RX = {
 MCMProxy = _Class:Create("MCMProxy", nil, {
     GameState = Ext.Net.IsHost() and "Running" or "Menu",
     GameStateSubject = nil,
-    SettingRequestVersions = {},
 })
 
 -- Initialize the reactive game state management
@@ -169,9 +168,6 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldE
         end
         return success
     else
-        local requestKey = modUUID .. ":" .. settingId
-        local requestVersion = (self.SettingRequestVersions[requestKey] or 0) + 1
-        self.SettingRequestVersions[requestKey] = requestVersion
         NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE:RequestToServer(
             {
                 modUUID = modUUID,
@@ -184,14 +180,6 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldE
                     -- UI update is handled via ModEventManager subscription below
                 else
                     MCMWarn(0, "Failed to set setting %s: %s", settingId, response.error or "Unknown error")
-                    if self.SettingRequestVersions[requestKey] == requestVersion then
-                        ModEventManager:Emit(EventChannels.MCM_INTERNAL_SETTING_SAVED, {
-                            modUUID = modUUID,
-                            settingId = settingId,
-                            value = MCMClientState:GetClientStateValue(settingId, modUUID),
-                            error = response.error
-                        }, false)
-                    end
                 end
             end
         )

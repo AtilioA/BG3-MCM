@@ -81,7 +81,7 @@ end
 ---@param allowConflict boolean
 ---@return KeybindingV2Value
 function KeybindingV2IMGUIWidget:BuildActionValue(action, enabled, allowConflict)
-    if action.MouseBinding and action.MouseBinding.Button and action.MouseBinding.Button > 0 then
+    if KeybindingManager:IsMouseBindingAssigned(action.MouseBinding) then
         return KeybindingsRegistry.BuildMousePayload(action.MouseBinding, enabled, allowConflict)
     end
     return KeybindingsRegistry.BuildKeyboardPayload(
@@ -454,12 +454,6 @@ function KeybindingV2IMGUIWidget:BeginClaimedRelease(device, input)
     InputCallbackManager.ClaimRelease(device, input)
 end
 
----Returns the manager's current modifier snapshot.
----@return string[]
-function KeybindingV2IMGUIWidget:GetCaptureModifiers()
-    return InputCallbackManager.GetHeldModifiers()
-end
-
 ---Handles keyboard input during capture and claims both edges of the selected key.
 ---@param e EclLuaKeyInputEvent
 function KeybindingV2IMGUIWidget:HandleKeyInput(e)
@@ -493,7 +487,7 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         return
     end
 
-    self:AssignKeybinding({ Key = key, ModifierKeys = self:GetCaptureModifiers() })
+    self:AssignKeybinding({ Key = key, ModifierKeys = InputCallbackManager.GetHeldModifiers() })
 end
 
 ---Handles mouse input during capture and claims both edges of the selected button.
@@ -505,11 +499,15 @@ function KeybindingV2IMGUIWidget:HandleMouseInput(e)
         self:FinishCapture(true)
         return
     end
-    if not self.Widget.ListeningForInput or not e.Pressed or e.Button < 1 or e.Button > 10 then return end
+    if not self.Widget.ListeningForInput or not e.Pressed then return end
 
     e:PreventAction()
+    if e.Button < KeybindingManager.MOUSE_BUTTON_MIN or e.Button > KeybindingManager.MOUSE_BUTTON_MAX then
+        self:BeginClaimedRelease("Mouse", e.Button)
+        return
+    end
     self:BeginClaimedRelease("Mouse", e.Button)
-    self:AssignMouseBinding({ Button = e.Button, ModifierKeys = self:GetCaptureModifiers() })
+    self:AssignMouseBinding({ Button = e.Button, ModifierKeys = InputCallbackManager.GetHeldModifiers() })
 end
 
 ---Warns when a newly selected combo exactly conflicts with another action.
@@ -565,7 +563,7 @@ end
 ---@param action table The action containing binding data
 ---@return string The display label
 function KeybindingV2IMGUIWidget:GetBindingLabel(action)
-    if action.MouseBinding and action.MouseBinding.Button and action.MouseBinding.Button > 0 then
+    if KeybindingManager:IsMouseBindingAssigned(action.MouseBinding) then
         return KeyPresentationMapping:GetMouseViewKey(action.MouseBinding)
             or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
@@ -577,7 +575,7 @@ end
 ---@param action table The action containing default binding data
 ---@return string The display label
 function KeybindingV2IMGUIWidget:GetDefaultBindingLabel(action)
-    if action.DefaultMouseBinding and action.DefaultMouseBinding.Button and action.DefaultMouseBinding.Button > 0 then
+    if KeybindingManager:IsMouseBindingAssigned(action.DefaultMouseBinding) then
         return KeyPresentationMapping:GetMouseViewKey(action.DefaultMouseBinding)
             or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
     end
@@ -591,33 +589,10 @@ end
 function KeybindingV2IMGUIWidget:IsDefaultBinding(action)
     local kbEqual = KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding,
         action.DefaultKeyboardMouseBinding)
-    local mouseEqual = self:AreMouseBindingsEqual(action.MouseBinding, action.DefaultMouseBinding)
+    local mouseEqual = KeybindingConflictService:AreKeybindingsEqual(action.MouseBinding, action.DefaultMouseBinding)
     return kbEqual and mouseEqual
         and action.Enabled == action.DefaultEnabled
         and action.AllowConflict == action.DefaultAllowConflict
-end
-
----Checks if two mouse bindings are equal
----@param binding1 table|nil The first mouse binding
----@param binding2 table|nil The second mouse binding
----@return boolean True if equal, false otherwise
-function KeybindingV2IMGUIWidget:AreMouseBindingsEqual(binding1, binding2)
-    if not binding1 and not binding2 then return true end
-    if not binding1 or not binding2 then return false end
-
-    local button1 = binding1.Button or 0
-    local button2 = binding2.Button or 0
-    if button1 ~= button2 then return false end
-
-    local mods1 = binding1.ModifierKeys or {}
-    local mods2 = binding2.ModifierKeys or {}
-    if #mods1 ~= #mods2 then return false end
-
-    for _, mod in ipairs(mods1) do
-        if not table.contains(mods2, mod) then return false end
-    end
-
-    return true
 end
 
 ---Resets a binding to its default value
@@ -629,7 +604,7 @@ function KeybindingV2IMGUIWidget:ResetBinding(modUUID, actionId)
     if binding then
         local resetPayload
 
-        if binding.defaultMouseBinding and binding.defaultMouseBinding.Button and binding.defaultMouseBinding.Button > 0 then
+        if KeybindingManager:IsMouseBindingAssigned(binding.defaultMouseBinding) then
             resetPayload = KeybindingsRegistry.BuildMousePayload(binding.defaultMouseBinding, binding.defaultEnabled,
                 binding.defaultAllowConflict)
         else

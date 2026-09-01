@@ -4,6 +4,10 @@
 
 KeybindingManager = {}
 
+KeybindingManager.MOUSE_BUTTON_MIN = 1
+KeybindingManager.MOUSE_BUTTON_MAX = 10
+KeybindingManager.MOUSE_BUTTON_UNASSIGNED = 0
+
 local validModifierKeys = {}
 for _, modifier in ipairs(SDLKeys.Modifiers or {}) do
     validModifierKeys[tostring(modifier):upper()] = true
@@ -83,7 +87,9 @@ end
 ---@param binding KeybindingMouseBinding|nil
 ---@return boolean
 function KeybindingManager:IsMouseBindingAssigned(binding)
-    return type(binding) == "table" and type(binding.Button) == "number" and binding.Button > 0
+    return type(binding) == "table" and type(binding.Button) == "number"
+        and binding.Button == math.floor(binding.Button)
+        and binding.Button >= self.MOUSE_BUTTON_MIN and binding.Button <= self.MOUSE_BUTTON_MAX
 end
 
 ---Returns the one assigned keyboard or mouse binding from a value or binding table.

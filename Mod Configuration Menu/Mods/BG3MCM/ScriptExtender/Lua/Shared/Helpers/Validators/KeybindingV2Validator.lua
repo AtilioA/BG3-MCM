@@ -24,7 +24,7 @@ function KeybindingV2Validator.Validate(config, value)
         ---@cast keyboard KeybindingKeyboardBinding
         ---@cast mouse KeybindingMouseBinding
         local kbHasValue = keyboard.Key and keyboard.Key ~= ""
-        local mouseHasValue = mouse.Button and mouse.Button > 0
+        local mouseHasValue = KeybindingManager:IsMouseBindingAssigned(mouse)
         if kbHasValue and mouseHasValue then
             MCMWarn(0, "Validation failed: Cannot have both Keyboard and Mouse bindings assigned. Use one or the other.")
             return false
@@ -65,8 +65,14 @@ function KeybindingV2Validator.Validate(config, value)
                 MCMWarn(0, "Validation failed: Mouse.Button is not a number.")
                 return false
             end
-            if mouse.Button < 0 or mouse.Button > 10 then
-                MCMWarn(0, "Validation failed: Mouse.Button must be between 0 and 10, got %s.", mouse.Button)
+            if mouse.Button ~= math.floor(mouse.Button) then
+                MCMWarn(0, "Validation failed: Mouse.Button must be an integer, got %s.", mouse.Button)
+                return false
+            end
+            if mouse.Button < KeybindingManager.MOUSE_BUTTON_UNASSIGNED
+                or mouse.Button > KeybindingManager.MOUSE_BUTTON_MAX then
+                MCMWarn(0, "Validation failed: Mouse.Button must be between 0 and %s, got %s.",
+                    KeybindingManager.MOUSE_BUTTON_MAX, mouse.Button)
                 return false
             end
         end

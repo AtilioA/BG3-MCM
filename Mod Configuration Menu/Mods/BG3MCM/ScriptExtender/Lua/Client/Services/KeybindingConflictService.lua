@@ -35,7 +35,7 @@ end
 ---@param currentModUUID? string
 ---@return table|nil
 function KeybindingConflictService:CheckMCMForConflicts(keybinding, currentAction, currentModUUID)
-    local registry = KeybindingsRegistry.GetFilteredRegistry()
+    local registry = KeybindingsRegistry.GetRegistry()
     for modUUID, actions in pairs(registry) do
         for actionId, action in pairs(actions) do
             if actionId ~= "_keybindingSortMode" then

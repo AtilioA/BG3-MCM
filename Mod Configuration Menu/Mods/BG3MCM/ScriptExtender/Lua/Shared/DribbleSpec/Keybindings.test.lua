@@ -98,6 +98,15 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         })
     end)
 
+    D.test("rejects fractional mouse buttons", function()
+        local isValid = KeybindingV2Validator.Validate({}, {
+            Keyboard = { Key = "K", ModifierKeys = {} },
+            Mouse = { Button = 1.5, ModifierKeys = {} }
+        })
+
+        D.expect(isValid).toBeFalsy()
+    end)
+
     D.test("persists complete replacement values unchanged", function()
         RegisterActions({ MouseAction("replace-device", { Button = 8, ModifierKeys = { "LCTRL" } }) })
         local originalSetSettingValue = MCMProxy.SetSettingValue
@@ -158,6 +167,43 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         })
         D.expect(entry.keyboardBinding.Key).toBe("")
         D.expect(entry.mouseBinding).toBeNil()
+    end)
+
+    D.test("does not clear a binding when the authoritative value is missing", function()
+        RegisterActions({ MouseAction("missing-authority", { Button = 7, ModifierKeys = {} }) })
+        local entry = KeybindingsRegistry.GetRegistry()[TEST_MOD_UUID]["missing-authority"]
+
+        D.expect(KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "missing-authority", nil)).toBeFalsy()
+        D.expect(entry.mouseBinding.Button).toBe(7)
+    end)
+
+    D.test("does not clear a binding on a rejected save without an old value", function()
+        RegisterActions({ MouseAction("rejected-save", { Button = 7, ModifierKeys = {} }) })
+        local entry = KeybindingsRegistry.GetRegistry()[TEST_MOD_UUID]["rejected-save"]
+
+        Ext.ModEvents["BG3MCM"][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Throw({
+            modUUID = TEST_MOD_UUID,
+            settingId = "rejected-save",
+            value = { Mouse = { Button = KeybindingManager.MOUSE_BUTTON_MAX + 1, ModifierKeys = {} } },
+            error = "rejected"
+        })
+
+        D.expect(entry.mouseBinding.Button).toBe(7)
+    end)
+
+    D.test("rolls back a rejected save to its authoritative old value", function()
+        RegisterActions({ MouseAction("authoritative-rejection", { Button = 7, ModifierKeys = {} }) })
+        local entry = KeybindingsRegistry.GetRegistry()[TEST_MOD_UUID]["authoritative-rejection"]
+
+        Ext.ModEvents["BG3MCM"][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Throw({
+            modUUID = TEST_MOD_UUID,
+            settingId = "authoritative-rejection",
+            value = { Mouse = { Button = KeybindingManager.MOUSE_BUTTON_MAX + 1, ModifierKeys = {} } },
+            oldValue = { Mouse = { Button = 6, ModifierKeys = {} }, Enabled = true, AllowConflict = false },
+            error = "rejected"
+        })
+
+        D.expect(entry.mouseBinding.Button).toBe(6)
     end)
 
     D.test("dispatches raw mouse press and release and prevents both edges", function()
@@ -227,6 +273,54 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             { Key = "K", ModifierKeys = {} },
             { Button = 5, ModifierKeys = {} }
         )).toBeFalsy()
+        D.expect(KeybindingConflictService:AreKeybindingsEqual(
+            { Button = 5, ModifierKeys = { "LCTRL" } },
+            { Button = 5, ModifierKeys = { "LALT" } }
+        )).toBeFalsy()
+    end)
+
+    D.test("checks invisible registry bindings for MCM conflicts", function()
+        RegisterActions({
+            MouseAction("visible-conflict", { Button = 5, ModifierKeys = {} }),
+            MouseAction("hidden-conflict", { Button = 5, ModifierKeys = {} })
+        })
+        KeybindingsRegistry.GetRegistry()[TEST_MOD_UUID]["hidden-conflict"].visible = false
+
+        local conflict = KeybindingConflictService:CheckMCMForConflicts(
+            { Button = 5, ModifierKeys = {} },
+            { ActionId = "visible-conflict" },
+            TEST_MOD_UUID
+        )
+
+        D.expect(conflict).toBeTruthy()
+        D.expect(conflict.ActionName).toBe("hidden-conflict")
+    end)
+
+    D.test("suppresses unsupported mouse buttons during capture", function()
+        local widget = setmetatable({
+            Widget = {
+                ListeningForInput = true,
+                ClaimedInput = nil
+            }
+        }, { __index = KeybindingV2IMGUIWidget })
+        local claimedDevice = nil
+        local claimedInput = nil
+        local originalBeginClaimedRelease = widget.BeginClaimedRelease
+        widget.BeginClaimedRelease = function(_, device, input)
+            claimedDevice = device
+            claimedInput = input
+        end
+
+        local press = MouseEvent(true, KeybindingManager.MOUSE_BUTTON_MAX + 1)
+        local ok, err = pcall(function()
+            widget:HandleMouseInput(press)
+        end)
+
+        widget.BeginClaimedRelease = originalBeginClaimedRelease
+        if not ok then error(err) end
+        D.expect(press.prevented).toBeTruthy()
+        D.expect(claimedDevice).toBe("Mouse")
+        D.expect(claimedInput).toBe(KeybindingManager.MOUSE_BUTTON_MAX + 1)
     end)
 
     D.test("normalizes a verified native middle mouse binding", function(ctx)

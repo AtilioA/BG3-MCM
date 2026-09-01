@@ -531,8 +531,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     if default and type(default) == "table" then
         local hasKeyboard = default.Keyboard and type(default.Keyboard) == "table" and
             default.Keyboard.Key and default.Keyboard.Key ~= ""
-        local hasMouse = default.Mouse and type(default.Mouse) == "table" and
-            default.Mouse.Button and type(default.Mouse.Button) == "number" and default.Mouse.Button > 0
+        local hasMouse = KeybindingManager:IsMouseBindingAssigned(default.Mouse)
 
         if hasKeyboard and hasMouse then
             MCMWarn(0,
@@ -559,10 +558,19 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                 return false
             end
 
-            if default.Mouse.Button < 1 or default.Mouse.Button > 10 then
+            if default.Mouse.Button ~= math.floor(default.Mouse.Button) then
                 MCMWarn(0,
                     "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
-                    "' must be between 1 and 10. Please contact " ..
+                    "' must be an integer. Please contact " ..
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                return false
+            end
+
+            if default.Mouse.Button < KeybindingManager.MOUSE_BUTTON_MIN
+                or default.Mouse.Button > KeybindingManager.MOUSE_BUTTON_MAX then
+                MCMWarn(0,
+                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
+                    "' must be between 1 and " .. KeybindingManager.MOUSE_BUTTON_MAX .. ". Please contact " ..
                     Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                 return false
             end
