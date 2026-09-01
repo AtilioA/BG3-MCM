@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
-  "runtime.version": "Lua 5.1",
+  "runtime.version": "Lua 5.3",
   "workspace.library": [
     "C:\\Modding\\BG3\\ReferenceScripts",
     "C:\\Modding\\BG3\\ReferenceScripts\\ExtIdeHelpers.lua"
