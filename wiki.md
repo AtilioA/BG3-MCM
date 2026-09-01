@@ -31,40 +31,10 @@ The rest of this documentation provides detailed explanations of these steps and
 If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybinding)*.
 {.is-success}
 
-### Use the `MCM` API, not `Mods.BG3MCM` internals
-
-MCM's public API is the global `MCM` table (see [MCM API functions](#mcm-api-functions)). It is injected into your mod with your mod's UUID as the default, so every call is simple.
-`Mods.BG3MCM.*` (such as `MCMAPI` and `IMGUIAPI`) is MCM's internal implementation. It is **not** covered by compatibility guarantees, and MCM warns once per session if your mod accesses it.
-Use it only when you deliberately need a workaround for a missing public feature. In that case, please let me know, so it can become a proper API.
-
-| Don't do (internal API) | Do instead (public API) | Why |
-| --- | --- | --- |
-| `Mods.BG3MCM.MCMAPI:GetSettingValue(id, uuid)` | `MCM.Get(id)` or `MCM.Get({ settingId = id, modUUID = uuid })` | `MCM` is injected per-mod with the correct UUID default |
-| `Mods.BG3MCM.MCMAPI:SetSettingValue(...)` and other `MCMAPI:*` calls | `MCM.Set`, `MCM.Store.*`, `MCM.Enum.*`, `MCM.List.*` | Same coverage; table-based arguments preferred since MCM 1.38 |
-| `Mods.BG3MCM.MCMAPI:GetModBlueprint(uuid)` + `setting.Default = value` | `MCM.Set(settingId, value)` (or `MCM.Store` for non-blueprint state) | Mutating `Default` may corrupt validation and repair; presets should set values, not fake defaults |
-| `Mods.BG3MCM.IMGUIAPI:findWidgetForSetting(...)` + `widget._field = value` | No public equivalent: use `MCM.EventButton.*`, `MCM.InsertModMenuTab`, or file an MCM issue | IMGUI widgets are internal; `_defaultValue` and widget methods are not stable APIs |
-| Any other `Mods.BG3MCM.*` access | Ask on Discord or file an MCM issue on GitHub | This exists for deliberate workarounds, but please raise maintainer (Volitio) awareness |
-
-```lua
--- DO: read and write settings from your own mod (UI syncs automatically)
-local value = MCM.Get({ settingId = "mySetting" })
-MCM.Set({ settingId = "mySetting", value = 42 })
-
--- DON'T: reach into internals to do the same
--- local value = Mods.BG3MCM.MCMAPI:GetSettingValue("mySetting", ModuleUUID)
--- Mods.BG3MCM.MCMAPI:GetModBlueprint(ModuleUUID).Tabs[1].Settings[1].Default = 42
-```
-
-Also remember:
-
-- Use `list_v2` and `keybinding_v2`; the `list` and `keybinding` types are deprecated
-- `MCM.Get`/`MCM.Set` work on both client and server; `MCM.Keybinding.*`, `MCM.EventButton.*`, and `MCM.OpenMCMWindow` are client-only as of 1.41.
-
 ## Table of Contents
 
 - [Mod Configuration Menu documentation](#mod-configuration-menu-documentation)
   - [Quick-start guide](#quick-start-guide)
-    - [Use the `MCM` API, not `Mods.BG3MCM` internals](#use-the-mcm-api-not-modsbg3mcm-internals)
   - [Table of Contents](#table-of-contents)
   - [Features for mod authors](#features-for-mod-authors)
   - [Concepts](#concepts)
@@ -91,6 +61,7 @@ Also remember:
       - [keybinding\_v2](#keybinding_v2)
       - [event\_button](#event_button)
   - [MCM API functions](#mcm-api-functions)
+    - [Use the `MCM` API, not `Mods.BG3MCM` internals](#use-the-mcm-api-not-modsbg3mcm-internals)
       - [Core API](#core-api)
       - [EventButton API](#eventbutton-api)
       - [Keybinding API](#keybinding-api)
@@ -493,6 +464,36 @@ As of version 1.14+, MCM introduces a global `MCM` table (can be called anywhere
 > • Client-only functions will not exist on the server context.
 > • For full details and up-to-date signatures, see the code in BG3MCM's `MCMAPIMethods.lua` file.
 {.is-info}
+
+### Use the `MCM` API, not `Mods.BG3MCM` internals
+
+MCM's public API is the global `MCM` table (see [MCM API functions](#mcm-api-functions)).
+`Mods.BG3MCM.*` (such as `MCMAPI` and `IMGUIAPI`) is MCM's internal implementation. It is **not** covered by compatibility guarantees, and MCM will warn once per session if your mod accesses it.
+Use it only when you deliberately need a workaround for a missing public feature. In that case, please let me know, so it can become a proper API.
+
+| Don't do (internal API) | Do instead (public API) | Why |
+| --- | --- | --- |
+| `Mods.BG3MCM.MCMAPI:GetSettingValue(id, uuid)` | `MCM.Get(id)` or `MCM.Get({ settingId = id, modUUID = uuid })` | `MCM` is injected per-mod with the correct UUID default |
+| `Mods.BG3MCM.MCMAPI:SetSettingValue(...)` and other `MCMAPI:*` calls | `MCM.Set`, `MCM.Store.*`, `MCM.Enum.*`, `MCM.List.*` | Same coverage; table-based arguments preferred since MCM 1.38 |
+| `Mods.BG3MCM.MCMAPI:GetModBlueprint(uuid)` + `setting.Default = value` | `MCM.Set(settingId, value)` (or `MCM.Store` for non-blueprint state) | Mutating `Default` may corrupt validation and repair; presets should set values, not fake defaults |
+| `Mods.BG3MCM.IMGUIAPI:findWidgetForSetting(...)` + `widget._field = value` | No public equivalent: use `MCM.EventButton.*`, `MCM.InsertModMenuTab`, or file an MCM issue if you really need it for some reason | IMGUI widgets are internal; `_defaultValue` and widget methods are not stable APIs |
+
+For any other `Mods.BG3MCM.*` access, please ask on Discord or file an MCM issue on GitHub. This exists for deliberate workarounds, but please raise awareness if you find yourself needing it, so that a proper API can be added.
+
+```lua
+-- DO: read and write settings from your own mod (UI syncs automatically)
+local value = MCM.Get({ settingId = "mySetting" })
+MCM.Set({ settingId = "mySetting", value = 42 })
+
+-- DON'T: reach into internals to do the same
+-- local value = Mods.BG3MCM.MCMAPI:GetSettingValue("mySetting", ModuleUUID)
+-- Mods.BG3MCM.MCMAPI:GetModBlueprint(ModuleUUID).Tabs[1].Settings[1].Default = 42
+```
+
+Also remember:
+
+- Use `list_v2` and `keybinding_v2`; the `list` and `keybinding` types are deprecated
+- `MCM.Get`/`MCM.Set` work on both client and server; `MCM.Keybinding.*`, `MCM.EventButton.*`, and `MCM.OpenMCMWindow` are client-only as of 1.41.
 
 #### Core API
 
