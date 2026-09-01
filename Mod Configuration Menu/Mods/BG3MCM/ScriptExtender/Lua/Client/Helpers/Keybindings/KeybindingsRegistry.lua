@@ -122,10 +122,10 @@ end
 function KeybindingsRegistry.RegisterModKeybindings(modKeybindings, options)
     options = options or { includeDeveloper = Ext.Debug.IsDeveloperMode() }
 
-    for _, mod in ipairs(modKeybindings) do
+    for _, mod in ipairs(modKeybindings or {}) do
         registry[mod.ModUUID] = registry[mod.ModUUID] or {}
         registry[mod.ModUUID]._keybindingSortMode = mod.KeybindingSortMode or KeybindingSortMode.DEFAULT
-        for _, action in ipairs(mod.Actions) do
+        for _, action in ipairs(mod.Actions or {}) do
             local existing = registry[mod.ModUUID][action.ActionId] or {}
             local currentValue = KeybindingsRegistry.CanonicalizeValue({
                 Keyboard = action.KeyboardMouseBinding,

@@ -65,7 +65,9 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Button = button,
             Pressed = pressed,
             prevented = false,
-            PreventAction = function(self) self.prevented = true end
+            stopped = false,
+            PreventAction = function(self) self.prevented = true end,
+            StopPropagation = function(self) self.stopped = true end
         }
     end
 
@@ -96,6 +98,16 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Enabled = true,
             AllowConflict = false
         })
+    end)
+
+    D.test("does not treat unsupported modifiers as unmodified", function()
+        D.expect(KeybindingManager:IsKeybindingPressed({
+            Key = "A",
+            Modifiers = {}
+        }, {
+            ScanCode = "A",
+            Modifier = "LGUI"
+        })).toBeFalsy()
     end)
 
     D.test("rejects fractional mouse buttons", function()
@@ -349,8 +361,69 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         widget.BeginClaimedRelease = originalBeginClaimedRelease
         if not ok then error(err) end
         D.expect(press.prevented).toBeTruthy()
+        D.expect(press.stopped).toBeTruthy()
         D.expect(claimedDevice).toBe("Mouse")
         D.expect(claimedInput).toBe(KeybindingManager.MOUSE_BUTTON_MAX + 1)
+    end)
+
+    D.test("stops captured mouse release propagation", function()
+        local widget = setmetatable({
+            Widget = {
+                ListeningForInput = false,
+                ClaimedInput = { Device = "Mouse", Input = 1 }
+            }
+        }, { __index = KeybindingV2IMGUIWidget })
+        widget.FinishCapture = function() end
+
+        local release = MouseEvent(false, 1)
+        widget:HandleMouseInput(release)
+
+        D.expect(release.prevented).toBeTruthy()
+        D.expect(release.stopped).toBeTruthy()
+    end)
+
+    D.test("keeps release claims for different inputs", function()
+        InputCallbackManager.ClaimRelease("Mouse", 1)
+        InputCallbackManager.ClaimRelease("Mouse", 2)
+        InputCallbackManager.ClaimRelease("Keyboard", "A")
+        InputCallbackManager.ClaimRelease("Keyboard", "B")
+
+        D.expect(InputCallbackManager._ClaimedMouseReleases[1]).toBeTruthy()
+        D.expect(InputCallbackManager._ClaimedMouseReleases[2]).toBeTruthy()
+        D.expect(InputCallbackManager._ClaimedKeyboardReleases.A).toBeTruthy()
+        D.expect(InputCallbackManager._ClaimedKeyboardReleases.B).toBeTruthy()
+    end)
+
+    D.test("uses current registry flags when committing a captured binding", function()
+        local action = MouseAction("capture-race", { Button = 8, ModifierKeys = {} })
+        RegisterActions({ action })
+        KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "capture-race", {
+            Mouse = { Button = 8, ModifierKeys = {} },
+            Enabled = false,
+            AllowConflict = true
+        })
+
+        local widget = setmetatable({
+            Widget = {
+                CurrentListeningAction = {
+                    Mod = { ModUUID = TEST_MOD_UUID },
+                    Action = action,
+                    InputType = "KeyboardMouse"
+                }
+            }
+        }, { __index = KeybindingV2IMGUIWidget })
+        local saved = nil
+        widget.NotifyAssignmentConflict = function() end
+        widget.StoreKeybinding = function(_, _, _, payload)
+            saved = payload
+            return true
+        end
+
+        widget:AssignMouseBinding({ Button = 2, ModifierKeys = { "LCTRL" } })
+
+        D.expect(saved.Enabled).toBeFalsy()
+        D.expect(saved.AllowConflict).toBeTruthy()
+        D.expect(saved.Mouse.Button).toBe(2)
     end)
 
     D.test("normalizes a verified native middle mouse binding", function(ctx)

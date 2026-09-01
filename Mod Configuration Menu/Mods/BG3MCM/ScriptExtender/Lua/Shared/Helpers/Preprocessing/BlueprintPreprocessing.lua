@@ -588,7 +588,7 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
                         MCMWarn(0,
                             "Invalid modifier '" .. tostring(mod) ..
                             "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
-                            "'. Valid modifiers are: " .. table.concat(SDLKeys.Modifiers, ", ") ..
+                            "'. Valid modifiers are: " .. table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", ") ..
                             ". Please contact " ..
                             Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
                         return false
@@ -1024,7 +1024,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
                                 tostring(mod) ..
                                 "' in Keyboard.ModifierKeys for setting '" ..
                                 setting:GetId() .. "'. Valid modifiers are: " ..
-                                table.concat(SDLKeys.Modifiers, ", "))
+                                table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", "))
                             return false
                         end
 

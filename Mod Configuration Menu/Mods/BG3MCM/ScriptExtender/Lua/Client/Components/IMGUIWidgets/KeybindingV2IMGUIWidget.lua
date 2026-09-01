@@ -454,6 +454,15 @@ function KeybindingV2IMGUIWidget:BeginClaimedRelease(device, input)
     InputCallbackManager.ClaimRelease(device, input)
 end
 
+---Resolves the live registry entry for the action being captured, if any. Capture must read `enabled`/`allowConflict` from the registry
+---@param current table|nil
+---@return KeybindingRegistryEntry|nil
+local function getRegistryAction(current)
+    if not current or not current.Mod or not current.Action then return nil end
+    local modRegistry = KeybindingsRegistry.GetRegistry()[current.Mod.ModUUID]
+    return modRegistry and modRegistry[current.Action.ActionId]
+end
+
 ---Handles keyboard input during capture and claims both edges of the selected key.
 ---@param e EclLuaKeyInputEvent
 function KeybindingV2IMGUIWidget:HandleKeyInput(e)
@@ -481,9 +490,11 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
     if not current then return end
     if key == "BACKSPACE" then
         self.Widget.CurrentListeningAction = nil
+        local registryAction = getRegistryAction(current)
+        if not registryAction then return end
         KeybindingsRegistry.UpdateBinding(current.Mod.ModUUID, current.Action.ActionId,
             KeybindingsRegistry.BuildKeyboardPayload(
-                { Key = "", ModifierKeys = {} }, current.Action.Enabled, current.Action.AllowConflict), true)
+                { Key = "", ModifierKeys = {} }, registryAction.enabled, registryAction.allowConflict), true)
         return
     end
 
@@ -496,12 +507,14 @@ function KeybindingV2IMGUIWidget:HandleMouseInput(e)
     local claimed = self.Widget.ClaimedInput
     if claimed and claimed.Device == "Mouse" and not e.Pressed and e.Button == claimed.Input then
         e:PreventAction()
+        e:StopPropagation()
         self:FinishCapture(true)
         return
     end
     if not self.Widget.ListeningForInput or not e.Pressed then return end
 
     e:PreventAction()
+    e:StopPropagation()
     if e.Button < KeybindingManager.MOUSE_BUTTON_MIN or e.Button > KeybindingManager.MOUSE_BUTTON_MAX then
         self:BeginClaimedRelease("Mouse", e.Button)
         return
@@ -538,9 +551,11 @@ function KeybindingV2IMGUIWidget:AssignKeybinding(keybinding)
     local current = self.Widget.CurrentListeningAction
     if not current then return end
     self.Widget.CurrentListeningAction = nil
+    local registryAction = getRegistryAction(current)
+    if not registryAction then return end
     self:NotifyAssignmentConflict(keybinding, current.Mod, current.Action, current.InputType)
     self:StoreKeybinding(current.Mod, current.Action,
-        KeybindingsRegistry.BuildKeyboardPayload(keybinding, current.Action.Enabled, current.Action.AllowConflict))
+        KeybindingsRegistry.BuildKeyboardPayload(keybinding, registryAction.enabled, registryAction.allowConflict))
 end
 
 ---Saves a mouse binding. The save event rebuilds the row with the new label.
@@ -549,9 +564,11 @@ function KeybindingV2IMGUIWidget:AssignMouseBinding(mouseBinding)
     local current = self.Widget.CurrentListeningAction
     if not current then return end
     self.Widget.CurrentListeningAction = nil
+    local registryAction = getRegistryAction(current)
+    if not registryAction then return end
     self:NotifyAssignmentConflict(mouseBinding, current.Mod, current.Action, current.InputType)
     self:StoreKeybinding(current.Mod, current.Action,
-        KeybindingsRegistry.BuildMousePayload(mouseBinding, current.Action.Enabled, current.Action.AllowConflict))
+        KeybindingsRegistry.BuildMousePayload(mouseBinding, registryAction.enabled, registryAction.allowConflict))
 end
 
 ---Cancels the current capture and restores the window.

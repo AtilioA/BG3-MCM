@@ -10,8 +10,8 @@ InputCallbackManager._KeyInputSubject = RX.Subject.Create()
 InputCallbackManager._MouseInputSubject = RX.Subject.Create()
 InputCallbackManager._HeldModifiers = {}
 InputCallbackManager._CaptureActive = false
-InputCallbackManager._ClaimedKeyboardRelease = nil
-InputCallbackManager._ClaimedMouseRelease = nil
+InputCallbackManager._ClaimedKeyboardReleases = {}
+InputCallbackManager._ClaimedMouseReleases = {}
 local RELEASE_CLAIM_TIMEOUT_MS = 30000
 local INPUT_CLEANUP_GAME_STATES = {
     [Ext.Enums.ClientGameState.StartLoading] = true,
@@ -97,19 +97,20 @@ end
 ---@param device "Keyboard"|"Mouse"
 ---@param input string|integer
 function InputCallbackManager.ClaimRelease(device, input)
-    local claim = { Input = input, Expires = Ext.Timer.MonotonicTime() + RELEASE_CLAIM_TIMEOUT_MS }
+    local claimedInput = device == "Keyboard" and tostring(input):upper() or input
+    local claim = { Input = claimedInput, Expires = Ext.Timer.MonotonicTime() + RELEASE_CLAIM_TIMEOUT_MS }
     if device == "Keyboard" then
-        InputCallbackManager._ClaimedKeyboardRelease = claim
+        InputCallbackManager._ClaimedKeyboardReleases[claimedInput] = claim
     else
-        InputCallbackManager._ClaimedMouseRelease = claim
+        InputCallbackManager._ClaimedMouseReleases[input] = claim
     end
 end
 
 ---Clears held, claimed, and matched input state across game/session transitions.
 function InputCallbackManager.ResetInputState()
     InputCallbackManager._HeldModifiers = {}
-    InputCallbackManager._ClaimedKeyboardRelease = nil
-    InputCallbackManager._ClaimedMouseRelease = nil
+    InputCallbackManager._ClaimedKeyboardReleases = {}
+    InputCallbackManager._ClaimedMouseReleases = {}
     InputCallbackManager._CaptureActive = false
     KeybindingsRegistry.ResetInputState()
 end
@@ -145,13 +146,14 @@ function InputCallbackManager.Initialize()
                 InputCallbackManager._HeldModifiers[key] = nil
             end
         end
-        local claim = InputCallbackManager._ClaimedKeyboardRelease
+        local claims = InputCallbackManager._ClaimedKeyboardReleases
+        local claim = claims[key]
         if claim and Ext.Timer.MonotonicTime() > claim.Expires then
-            InputCallbackManager._ClaimedKeyboardRelease = nil
+            claims[key] = nil
             claim = nil
         end
         if e.Event == "KeyUp" and claim and key == claim.Input then
-            InputCallbackManager._ClaimedKeyboardRelease = nil
+            claims[key] = nil
             e:PreventAction()
             return
         end
@@ -159,13 +161,14 @@ function InputCallbackManager.Initialize()
         InputCallbackManager._KeyInputSubject:OnNext(e)
     end)
     Ext.Events.MouseButtonInput:Subscribe(function(e)
-        local claim = InputCallbackManager._ClaimedMouseRelease
+        local claims = InputCallbackManager._ClaimedMouseReleases
+        local claim = claims[e.Button]
         if claim and Ext.Timer.MonotonicTime() > claim.Expires then
-            InputCallbackManager._ClaimedMouseRelease = nil
+            claims[e.Button] = nil
             claim = nil
         end
         if not e.Pressed and claim and e.Button == claim.Input then
-            InputCallbackManager._ClaimedMouseRelease = nil
+            claims[e.Button] = nil
             e:PreventAction()
             return
         end

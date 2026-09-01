@@ -381,8 +381,6 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             "ralt",
             "NONE",
             "none",
-            "LGUI",
-            "lgui",
         }
 
         for _, modifier in ipairs(validModifierVariants) do
@@ -464,6 +462,10 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             "LCTRL_BAD",
             "CTRL",
             "LeftCtrl",
+            "LGUI",
+            "lgui",
+            "RGUI",
+            "CAPS",
             "",
             123,
             true,

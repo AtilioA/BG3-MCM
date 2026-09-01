@@ -8,20 +8,23 @@ KeybindingManager.MOUSE_BUTTON_MIN = 1
 KeybindingManager.MOUSE_BUTTON_MAX = 10
 KeybindingManager.MOUSE_BUTTON_UNASSIGNED = 0
 
-local validModifierKeys = {}
-for _, modifier in ipairs(SDLKeys.Modifiers or {}) do
-    validModifierKeys[tostring(modifier):upper()] = true
-end
-
--- Only these modifiers are relevant
-local allowedActiveModifiers = {
-    LSHIFT = true,
-    RSHIFT = true,
-    LCTRL  = true,
-    RCTRL  = true,
-    LALT   = true,
-    RALT   = true,
+-- These are the supported modifier values; NONE represents an empty/unmodified binding.
+KeybindingManager.SUPPORTED_MODIFIERS = {
+    "NONE",
+    "LShift",
+    "RShift",
+    "LCtrl",
+    "RCtrl",
+    "LAlt",
+    "RAlt"
 }
+
+local allowedActiveModifiers = {}
+for _, modifier in ipairs(KeybindingManager.SUPPORTED_MODIFIERS) do
+    if modifier ~= "NONE" then
+        allowedActiveModifiers[modifier:upper()] = true
+    end
+end
 
 -- Checks if a table is a keybinding table
 function KeybindingManager:IsKeybindingTable(value)
@@ -30,6 +33,10 @@ end
 
 -- Returns true if the given key is an allowed modifier.
 function KeybindingManager:IsActiveModifier(key)
+    if type(key) ~= "string" then
+        return false
+    end
+
     local normalizedKey = key:upper()
     local isActive = allowedActiveModifiers[normalizedKey] or false
     return isActive
@@ -42,7 +49,8 @@ function KeybindingManager:IsValidModifierKey(modifier)
         return false
     end
 
-    return validModifierKeys[modifier:upper()] == true
+    local normalizedModifier = modifier:upper()
+    return normalizedModifier == "NONE" or self:IsActiveModifier(normalizedModifier)
 end
 
 ---@param modifier any
@@ -155,10 +163,12 @@ end
 -- Returns a set (table with keys) of 'active modifiers' from a given modifiers list.
 function KeybindingManager:ExtractActiveModifiers(modifiers)
     local activeModifiers = {}
-    for _, mod in ipairs(modifiers) do
-        local normalizedModifier = mod:upper()
-        if self:IsActiveModifier(normalizedModifier) then
-            activeModifiers[normalizedModifier] = true
+    for _, mod in ipairs(modifiers or {}) do
+        if type(mod) == "string" then
+            local normalizedModifier = mod:upper()
+            if self:IsActiveModifier(normalizedModifier) then
+                activeModifiers[normalizedModifier] = true
+            end
         end
     end
     return activeModifiers
@@ -170,8 +180,13 @@ function KeybindingManager:IsModifierPressed(e, modifiers)
     local mods = type(modifiers) == "table" and modifiers or { modifiers }
     local requiredSet = {}
     for _, mod in ipairs(mods) do
+        if type(mod) ~= "string" then
+            return false
+        end
+
         local m = mod:upper()
-        if self:IsActiveModifier(m) then
+        if not self:IsModifierNull(m) then
+            if not self:IsActiveModifier(m) then return false end
             requiredSet[m] = true
         end
     end
