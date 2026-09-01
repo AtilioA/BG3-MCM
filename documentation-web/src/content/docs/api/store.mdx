@@ -2,27 +2,44 @@
 title: MCM.Store
 description: Persistent key-value store API
 sidebar:
-  order: 6
+  order: 9
 ---
+
+import { Aside } from '@astrojs/starlight/components';
 
 ## Overview
 
-`MCM.Store` persists custom values outside the blueprint setting system.
+`MCM.Store` persists custom values outside the blueprint setting system. Use it for state that doesn't belong in a user-facing setting.
 
-Default storage is JSON (global across saves). `modvar` storage is available for save-scoped needs.
+Values default to JSON storage, which is global across save files. Pass `storage = 'modvar'` to scope a variable to the current save instead.
+
+<Aside type="caution" title="Register early">
+  Register your variables once at mod initialization (for example in `BootstrapShared.lua`). `modvar`-backed variables must be registered before the session loads, or their values won't persist.
+</Aside>
 
 ## Methods
 
 | Function | Description |
 |---|---|
-| `MCM.Store.RegisterVar(var, options?)` | Register variable, default and validation |
-| `MCM.Store.Get(var, modUUID?)` | Get current value (or default) |
-| `MCM.Store.Set(var, value, modUUID?)` | Set and persist value |
-| `MCM.Store.GetAll(modUUID?)` | Get all store values for mod |
+| `MCM.Store.RegisterVar(var, options?)` | Register a variable with its default, validation, and storage backend |
+| `MCM.Store.Get(var, modUUID?)` | Get the current value (or the default) |
+| `MCM.Store.Set(var, value, modUUID?)` | Set and persist the value |
+| `MCM.Store.GetAll(modUUID?, storage?)` | Get every stored value for a mod, optionally filtered by storage backend |
+
+## RegisterVar options
+
+| Option | Type | Description |
+|---|---|---|
+| `type` | `string` | Expected value type, e.g. `'number'`, `'string'`, `'boolean'` |
+| `default` | `any` | Value returned by `Get` until one is set |
+| `validate` | `function` | Returns `true` if a candidate value is acceptable |
+| `storage` | `string` | `'json'` (default, global across saves) or `'modvar'` (save-scoped) |
+| `storageConfig` | `table` | Backend options for `modvar`, such as `SyncToClient` and `Persistent` |
 
 ## Example
 
 ```lua
+-- JSON-backed (global across saves)
 MCM.Store.RegisterVar('difficulty_level', {
   type = 'number',
   default = 1,
@@ -31,4 +48,15 @@ MCM.Store.RegisterVar('difficulty_level', {
 
 local d = MCM.Store.Get('difficulty_level')
 MCM.Store.Set('difficulty_level', d + 1)
+
+-- Save-scoped (modvar), synced to the client
+MCM.Store.RegisterVar('player_class_custom', {
+  default = 'None',
+  storage = 'modvar',
+  storageConfig = { SyncToClient = true, Persistent = true },
+})
 ```
+
+<Aside type="note" title="modvar storage is a work in progress">
+  `modvar` storage is still being refined. Test save and load behavior for any variable you scope to the save.
+</Aside>

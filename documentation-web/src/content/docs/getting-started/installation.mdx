@@ -12,6 +12,7 @@ import { Steps, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components'
   1. **Baldur's Gate 3** (with latest patch)
   2. **BG3 Script Extender (BG3SE)** - required for MCM to function
   3. **MCM mod** installed from [Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162)
+  4. **Basic Lua knowledge** (for BG3SE mod development)
 </Steps>
 
 ### Installation for players
@@ -29,7 +30,7 @@ To integrate MCM into your mod:
 <Steps>
   1. **Add MCM as a dependency** in your mod's `meta.lsx` file. Use the current MCM UUID `755a8a72-407f-4f0d-9a33-274ac0f0b53d` and set `Version64` to the minimum version you support. See a canonical dependency example in [Mod Uninstaller meta.lsx](https://github.com/AtilioA/BG3-mod-uninstaller/blob/main/Mod%20Uninstaller/Mods/ModUninstaller/meta.lsx#L7-L24).
   2. **Create an `MCM_blueprint.json`** file alongside your `meta.lsx`
-  3. **Set up IDE support** (optional but recommended): Add the [JSON schema](https://raw.githubusercontent.com/atilioa/bg3-mcm/main/.vscode/schema.json) to your VS Code settings for autocomplete and validation
+  3. **Set up IDE support** (optional but recommended): Add the [JSON schema](https://raw.githubusercontent.com/AtilioA/BG3-MCM/main/.vscode/schema.json) to your VS Code settings for autocomplete and validation
   4. **Replace hardcoded values** with `MCM.Get("settingId")` calls in your Lua code
 </Steps>
 
@@ -44,7 +45,7 @@ For autocomplete and validation in VS Code:
 "json.schemas": [
   {
     "fileMatch": ["MCM_blueprint*.json"],
-    "url": "https://raw.githubusercontent.com/atilioa/bg3-mcm/main/.vscode/schema.json"
+    "url": "https://raw.githubusercontent.com/AtilioA/BG3-MCM/main/.vscode/schema.json"
   }
 ]
 ```
@@ -70,10 +71,10 @@ For autocomplete and validation in VS Code:
   <LinkCard
     title="Example mods"
     description="Check out working MCM integrations"
-    href="https://github.com/atilioa/BG3-auto-send-food-to-camp"
+    href="https://github.com/AtilioA/BG3-auto-send-food-to-camp"
   />
 </CardGrid>
 
 ---
 
-Once you have MCM installed successfully, you're ready to add professional settings UI to your BG3 mods!
+With MCM installed, you can start adding a settings UI to your BG3 mods.

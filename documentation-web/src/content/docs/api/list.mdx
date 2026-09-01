@@ -2,7 +2,7 @@
 title: MCM.List
 description: List API for list_v2 settings
 sidebar:
-  order: 5
+  order: 8
 ---
 
 ## Overview
@@ -13,7 +13,7 @@ sidebar:
 
 | Function | Description | Client | Server |
 |---|---|:---:|:---:|
-| `MCM.List.GetEnabled(listSettingId, modUUID?)` | Get enabled item names | ✅ | ✅ |
+| `MCM.List.GetEnabled(listSettingId, modUUID?)` | Get a `{ [itemName] = true }` map of enabled items | ✅ | ✅ |
 | `MCM.List.GetRaw(listSettingId, modUUID?)` | Get raw list object | ✅ | ✅ |
 | `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Check item enabled state | ✅ | ✅ |
 | `MCM.List.SetEnabled(listSettingId, itemName, enabled, modUUID?, shouldEmitEvent?)` | Set item enabled state | ✅ | ✅ |

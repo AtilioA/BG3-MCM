@@ -11,7 +11,7 @@ import { Aside, Code } from '@astrojs/starlight/components';
 
 `MCM.Get` retrieves the current value of a setting defined in your `MCM_blueprint.json`.
 
-<Aside type="tip" title="When to Use">
+<Aside type="tip" title="When to use">
   Use `MCM.Get` anywhere in your Lua code to read player-configured settings.
 </Aside>
 
@@ -47,7 +47,8 @@ Returns the current value of the setting. The type depends on the setting type:
 | `list_v2`                             | `table`              |
 | `color_picker`, `color_edit`          | `table` (RGBA array) |
 | `keybinding_v2`                       | `table`              |
-| `event_button`                        | `nil`                |
+
+`list_v2` and `keybinding_v2` use lowercase keys at runtime (for example `enabled` and `elements`), which differ from the capitalized keys (`Enabled`, `Elements`) used in the blueprint `Default`. `event_button` settings hold no value: `MCM.Get` returns `nil` and logs a warning, so use [`MCM.EventButton.IsEnabled`](/api/event-button/) to check button state instead.
 
 ## Usage examples
 
@@ -61,10 +62,10 @@ local intensity = MCM.Get("intensity")
 -- Get an enum value
 local mode = MCM.Get("operating_mode")
 
--- Get a list (returns table with Enabled and Elements)
+-- Get a list (returns { enabled = bool, elements = { { name, enabled }, ... } })
 local ignoreList = MCM.Get("ignore_list")
 
--- Get a keybinding (returns Keyboard/Mouse/Enabled table)
+-- Get a keybinding (raw table; use MCM.Keybinding.Get for a display string)
 local hotkey = MCM.Get("action_key")
 
 -- Get from a specific mod (if integrating another mod's settings)
@@ -72,6 +73,5 @@ local otherModSetting = MCM.Get("setting_id", "other-mod-uuid")
 ```
 
 <Aside type="tip" title="Reactive updates">
-  Don't just read settings once at startup. Use the `MCM_Setting_Saved` event to react when settings
-  change.
+  Settings you read once at startup go stale when players change them. Subscribe to the `MCM_Setting_Saved` event to react when settings change.
 </Aside>

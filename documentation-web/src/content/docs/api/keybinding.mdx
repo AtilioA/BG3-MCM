@@ -2,7 +2,7 @@
 title: MCM.Keybinding
 description: Keybinding API for keybinding_v2 settings
 sidebar:
-  order: 4
+  order: 6
 ---
 
 ## Overview
@@ -14,8 +14,10 @@ MCM keybinding methods operate on `keybinding_v2` settings and are available in 
 | Function | Description |
 |---|---|
 | `MCM.Keybinding.Get(settingId, modUUID?)` | Returns a human-readable keybinding string |
-| `MCM.Keybinding.GetRaw(settingId, modUUID?)` | Returns raw keybinding table |
-| `MCM.Keybinding.SetCallback(settingId, callback, modUUID?)` | Registers callback when binding triggers |
+| `MCM.Keybinding.GetRaw(settingId, modUUID?)` | Returns the raw keybinding table |
+| `MCM.Keybinding.SetCallback(settingId, callback, modUUID?)` | Register a callback that fires on both key press and release |
+| `MCM.Keybinding.SetKeyDownCallback(settingId, callback, modUUID?)` | Register a callback that fires only on key press |
+| `MCM.Keybinding.SetKeyUpCallback(settingId, callback, modUUID?)` | Register a callback that fires only on key release |
 
 ## Example
 

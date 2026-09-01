@@ -8,7 +8,7 @@ import { Aside, Steps, Card, CardGrid, LinkCard } from '@astrojs/starlight/compo
 
 # Getting started with MCM
 
-This guide walks you through integrating MCM into your BG3SE mod. The process is simple: create a blueprint JSON file and use the MCM API in your Lua code.
+This guide walks you through integrating MCM into your BG3SE mod: create a blueprint JSON file, then read settings with the MCM API in your Lua code.
 
 <Aside type="tip" title="Complete examples available">
   Check out these working MCM integrations: - [Auto Send Food To
@@ -41,7 +41,7 @@ Create a file named `MCM_blueprint.json` alongside your `meta.lsx`:
       "Settings": [
         {
           "Id": "enable_mod",
-          "Name": "Enable Mod",
+          "Name": "Enable mod",
           "Type": "checkbox",
           "Default": true,
           "Tooltip": "Master toggle for the mod"
@@ -65,13 +65,23 @@ Create a file named `MCM_blueprint.json` alongside your `meta.lsx`:
 
 ## Step 2: Add MCM dependency
 
-In your `meta.lsx`, add MCM as a dependency:
+In your `meta.lsx`, add MCM to the `Dependencies` node:
 
 ```xml
-TODO
+<node id="Dependencies">
+  <children>
+    <node id="ModuleShortDesc">
+      <attribute id="Folder" type="LSString" value="BG3MCM" />
+      <attribute id="MD5" type="LSString" value="" />
+      <attribute id="Name" type="LSString" value="Mod Configuration Menu" />
+      <attribute id="UUID" type="FixedString" value="755a8a72-407f-4f0d-9a33-274ac0f0b53d" />
+      <attribute id="Version64" type="int64" value="41799034041532416" />
+    </node>
+  </children>
+</node>
 ```
 
-Use the current MCM UUID `755a8a72-407f-4f0d-9a33-274ac0f0b53d` and set `Version64` to the minimum version you support. See a canonical dependency example in [Mod Uninstaller meta.lsx](https://github.com/AtilioA/BG3-mod-uninstaller/blob/main/Mod%20Uninstaller/Mods/ModUninstaller/meta.lsx#L7-L24).
+`Version64` sets the minimum MCM version you support. Use the version you developed against (the value above is MCM 1.41). For the full surrounding file, see a canonical dependency example in [Mod Uninstaller's meta.lsx](https://github.com/AtilioA/BG3-mod-uninstaller/blob/main/Mod%20Uninstaller/Mods/ModUninstaller/meta.lsx#L7-L24).
 
 ## Step 3: Use MCM in your code
 
@@ -205,7 +215,7 @@ MCM.List.InsertSuggestions("ignore_list", {"Item1", "Item2", "Item3"})
 </Card>
 
   <Card title="Test all widgets" icon="warning">
-    Test your blueprint thoroughly - MCM validates but you should verify the UX.
+    Test your blueprint thoroughly. MCM validates the schema, but only you can verify the UX.
   </Card>
 </CardGrid>
 
@@ -222,10 +232,14 @@ MCM.List.InsertSuggestions("ignore_list", {"Item1", "Item2", "Item3"})
     description="Explore all available setting types"
     href="/api/blueprint-schema/"
   />
-  <LinkCard title="API reference" description="Complete MCM API documentation" href="/api/" />
   <LinkCard
-    title="GitHub wiki"
-    description="Full documentation on the wiki"
-    href="https://github.com/atilioa/bg3-mcm/wiki"
+    title="React to changes"
+    description="Subscribe to MCM events from your mod"
+    href="/api/events/"
+  />
+  <LinkCard
+    title="Full wiki"
+    description="The complete MCM author guide"
+    href="https://github.com/AtilioA/BG3-MCM/blob/main/wiki.md"
   />
 </CardGrid>

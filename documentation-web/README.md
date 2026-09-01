@@ -9,7 +9,7 @@ MCM is a **Baldur's Gate 3 Script Extender (BG3SE)** mod framework created by [V
 ## Key Features
 
 - **20k+ lines of code** so you don't have to write configuration systems
-- **15+ widget types**: checkboxes, sliders, dropdowns, color pickers, keybindings, lists, and more
+- **15 widget types**: checkboxes, sliders, dropdowns, color pickers, keybindings, lists, and more
 - **Real-time saving**: settings update instantly without save reloads
 - **Keybinding management** with automatic conflict detection
 - **Multiple configuration profiles**: create, save, load, and delete profiles
@@ -34,19 +34,13 @@ MCM allows you to define your mod's settings via a simple JSON blueprint file. M
         {
             "TabId": "general",
             "TabName": "General",
-            "Sections": [
+            "Settings": [
                 {
-                    "SectionId": "features",
-                    "SectionName": "Features",
-                    "Settings": [
-                        {
-                            "Id": "enable_feature",
-                            "Name": "Enable feature",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Tooltip": "Toggle the main feature on/off"
-                        }
-                    ]
+                    "Id": "enable_mod",
+                    "Name": "Enable mod",
+                    "Type": "checkbox",
+                    "Default": true,
+                    "Tooltip": "Toggle the main feature on/off"
                 }
             ]
         }
@@ -57,8 +51,8 @@ MCM allows you to define your mod's settings via a simple JSON blueprint file. M
 Then in your Lua code:
 
 ```lua
-local enabled = MCM.Get("enable_feature")
-MCM.Set("enable_feature", false)
+local enabled = MCM.Get("enable_mod")
+MCM.Set("enable_mod", false)
 ```
 
 ## Quick Start
@@ -67,13 +61,13 @@ MCM.Set("enable_feature", false)
 2. Add MCM as a dependency in your mod's `meta.lsx`
 3. Replace hardcoded values with `MCM.Get("settingId")` calls
 
-See the [full documentation](https://github.com/atilioa/bg3-mcm) for details.
+See the [full documentation](https://github.com/AtilioA/BG3-MCM) for details.
 
 ## Links
 
 - **[Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162)** - Download MCM
-- **[GitHub](https://github.com/atilioa/bg3-mcm)** - Source code and issue tracker
-- **[Wiki](https://github.com/atilioa/bg3-mcm/wiki)** - Full documentation
+- **[GitHub](https://github.com/AtilioA/BG3-MCM)** - Source code and issue tracker
+- **[Wiki](https://github.com/AtilioA/BG3-MCM/blob/main/wiki.md)** - Full documentation
 - **[Discord](https://discord.gg/DcS8c7KUa6)** - Community and support
 - **[MCM GPT](https://chatgpt.com/g/g-69095e14686481918fb288289170e87b-mcmgpt)** - AI assistant for MCM questions
 

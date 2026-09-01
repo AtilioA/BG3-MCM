@@ -23,13 +23,54 @@ import { Aside } from '@astrojs/starlight/components';
 
 ## Structure rules
 
-- A `Tab` can contain `Sections` **or** `Settings`.
+- The blueprint root must contain exactly one of `Tabs`, `Sections`, or `Settings`. `SchemaVersion` is the only required top-level field; `ModName` is optional.
+- A `Tab` must contain at least one of `Settings`, `Sections`, or nested `Tabs`.
 - Each setting `Id` must be unique across the whole blueprint.
 - Each setting must include at least one of `Description` or `Tooltip`.
 
 ## Supported widget types
 
 `int`, `float`, `checkbox`, `text`, `enum`, `radio`, `slider_int`, `slider_float`, `drag_int`, `drag_float`, `list_v2`, `color_picker`, `color_edit`, `keybinding_v2`, `event_button`
+
+Most types accept a `Default` and a `Tooltip` or `Description`, plus type-specific `Options` (for example `Min`/`Max` for sliders, `Choices` for `enum` and `radio`, and `Cooldown` for `event_button`). Start from a reference blueprint to see the options each type supports.
+
+## Dynamic enum choices
+
+Set `"Options": { "Dynamic": true }` on an `enum` or `radio` setting to populate its choices at runtime with [`MCM.Enum.SetChoices`](/api/enum/). Without `Dynamic`, choices must be listed in the blueprint and stay fixed.
+
+## Conditional visibility (VisibleIf)
+
+`VisibleIf` shows or hides a `Tab`, `Section`, or `Setting` based on the values of other settings. It controls visibility only and never changes the underlying values.
+
+```json
+{
+  "Id": "advanced_threshold",
+  "Name": "Advanced threshold",
+  "Type": "slider_int",
+  "Default": 50,
+  "Options": { "Min": 0, "Max": 100 },
+  "Tooltip": "Only shown when advanced mode is on",
+  "VisibleIf": {
+    "Conditions": [
+      { "SettingId": "advanced_mode", "Operator": "==", "ExpectedValue": true }
+    ]
+  }
+}
+```
+
+- `Conditions` is a list of `{ SettingId, Operator, ExpectedValue }` checks. `Operator` is one of `==`, `!=`, `>`, `<`, `>=`, `<=`.
+- With multiple conditions, the default `LogicalOperator` is `"and"`; set `"LogicalOperator": "or"` to require only one.
+- Hiding a container (`Tab` or `Section`) hides all of its children, regardless of their own `VisibleIf`.
+
+## How validation works
+
+When your blueprint loads, MCM reconciles it against each player's saved settings:
+
+- Settings missing from the blueprint are removed from the settings file.
+- Values that fail validation are reset to the setting's `Default`.
+- New settings are added with their default value.
+
+You can therefore add or remove settings between releases without leaving players with a broken or stale settings file.
 
 ## IDE support
 

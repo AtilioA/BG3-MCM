@@ -19,7 +19,7 @@ import { Aside, Code } from '@astrojs/starlight/components';
 ## Syntax
 
 ```lua
-MCM.Set(settingId: string, value: any, modUUID?: string, shouldEmitEvent?: boolean) -> boolean, string
+MCM.Set(settingId: string, value: any, modUUID?: string, shouldEmitEvent?: boolean) -> boolean
 ```
 
 ## Parameters
@@ -48,18 +48,17 @@ MCM.Set(settingId: string, value: any, modUUID?: string, shouldEmitEvent?: boole
 
 ## Return value
 
-| Type      | Description                                        |
-| --------- | -------------------------------------------------- |
-| `boolean` | `true` if successful, `false` if validation failed |
-| `string`  | Error message if failed, `nil` if successful       |
+| Type      | Description                                                 |
+| --------- | ----------------------------------------------------------- |
+| `boolean` | `true` if the value was set, `false` if validation failed |
 
 ## Usage examples
 
 ```lua
 -- Set a checkbox value
-local success, err = MCM.Set("enable_mod", false)
+local success = MCM.Set("enable_mod", false)
 if not success then
-    print("Failed to set: " .. err)
+    print("Failed to set enable_mod (value rejected by validation)")
 end
 
 -- Set a slider value
@@ -86,5 +85,5 @@ MCM validates values before setting them. Setting may fail if:
 
 ## Best practices
 
-- **Check return:** Handle the boolean/string return for error cases
+- **Check the return:** `MCM.Set` returns `false` when validation rejects the value, so handle that case
 - **Events:** Use `shouldEmitEvent = false` when syncing state to avoid loops

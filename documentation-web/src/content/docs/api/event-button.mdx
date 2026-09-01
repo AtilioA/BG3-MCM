@@ -2,7 +2,7 @@
 title: MCM.EventButton
 description: Event button API for event_button settings
 sidebar:
-  order: 8
+  order: 7
 ---
 
 ## Overview
@@ -17,13 +17,15 @@ sidebar:
 | `MCM.EventButton.ShowFeedback(buttonId, message, feedbackType, modUUID?, durationInMs?)` | Show success/error/info/warning feedback |
 | `MCM.EventButton.RegisterCallback(buttonId, callback, modUUID?)` | Register click callback |
 | `MCM.EventButton.UnregisterCallback(buttonId, modUUID?)` | Remove callback |
-| `MCM.EventButton.SetDisabled(buttonId, enabled, tooltipText?, modUUID?)` | Enable/disable button |
+| `MCM.EventButton.SetDisabled(buttonId, disabled, tooltipText?, modUUID?)` | Disable or enable a button (pass `true` to disable); `tooltipText` shows while disabled |
+
+`feedbackType` takes one of the `MCM.EventButton.FeedbackTypes` constants (`.SUCCESS`, `.ERROR`, `.INFO`, `.WARNING`) or the equivalent string. It defaults to `"info"` when omitted.
 
 ## Example
 
 ```lua
 MCM.EventButton.RegisterCallback('reset_button', function()
   -- do reset work
-  MCM.EventButton.ShowFeedback('reset_button', 'Settings reset', 'success')
+  MCM.EventButton.ShowFeedback('reset_button', 'Settings reset', MCM.EventButton.FeedbackTypes.SUCCESS)
 end)
 ```

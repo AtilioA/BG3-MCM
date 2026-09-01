@@ -14,7 +14,7 @@ head:
   - tag: link
     attrs:
       rel: canonical
-      href: https://github.com/atilioa/bg3-mcm
+      href: https://github.com/AtilioA/BG3-MCM
 template: splash
 description: In-game framework for managing mod settings and keybindings for Baldur's Gate 3.
 editUrl: false
@@ -33,7 +33,7 @@ hero:
       icon: right-arrow
       variant: primary
     - text: View on GitHub
-      link: https://github.com/atilioa/bg3-mcm
+      link: https://github.com/AtilioA/BG3-MCM
       icon: github
       variant: secondary
       attrs:
@@ -53,7 +53,7 @@ import { SiNexusmods } from 'react-icons/si';
       <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       <div class="relative z-10 flex flex-col gap-y-4">
         <div class="text-4xl filter drop-shadow-lg">📝</div>
-        <h3 class="text-xl font-bold text-white">Dozens of widget types</h3>
+        <h3 class="text-xl font-bold text-white">15 widget types</h3>
         <p class="text-zinc-400 leading-relaxed">Checkboxes, sliders, dropdowns, color pickers, keybindings, lists, and more</p>
       </div>
     </div>
@@ -70,7 +70,7 @@ import { SiNexusmods } from 'react-icons/si';
       <div class="relative z-10 flex flex-col gap-y-4">
         <div class="text-4xl filter drop-shadow-lg">⌨️</div>
         <h3 class="text-xl font-bold text-white">Keybinding management</h3>
-        <p class="text-zinc-400 leading-relaxed">Custom keybinding definition, automatic conflict detection and resolution for hotkeys</p>
+        <p class="text-zinc-400 leading-relaxed">Define custom hotkeys; MCM detects and resolves conflicts automatically</p>
       </div>
     </div>
   </div>
@@ -104,7 +104,7 @@ import { SiNexusmods } from 'react-icons/si';
 
 ## Quick example
 
-See how easy it is to add a settings UI to your BG3SE mod:
+Add a settings UI to your BG3SE mod with a JSON blueprint and two Lua calls:
 
 <Code code={`{
     "SchemaVersion": 1,
@@ -115,8 +115,8 @@ See how easy it is to add a settings UI to your BG3SE mod:
             "TabName": "General",
             "Settings": [
                 {
-                    "Id": "enable_feature",
-                    "Name": "Enable feature",
+                    "Id": "enable_mod",
+                    "Name": "Enable mod",
                     "Type": "checkbox",
                     "Default": true,
                     "Tooltip": "Toggle the main feature on/off"
@@ -135,12 +135,12 @@ See how easy it is to add a settings UI to your BG3SE mod:
 }`} lang="json" title="MCM_blueprint.json" />
 
 <Code code={`-- In your mod's Lua code (server or client)
-local enabled = MCM.Get("enable_feature")
+local enabled = MCM.Get("enable_mod")
 local intensity = MCM.Get("intensity")
 
 -- Listen to setting changes
 Ext.ModEvents.BG3MCM["MCM_Setting_Saved"]:Subscribe(function(payload)
-    if payload.settingId == "enable_feature" then
+    if payload.settingId == "enable_mod" then
         MyMod:SetEnabled(payload.value)
     end
 end)`} lang="lua" title="Using MCM in your mod" />
@@ -161,7 +161,7 @@ end)`} lang="lua" title="Using MCM in your mod" />
   <LinkCard
     class="!no-underline"
     title="🎮 Example mods"
-    description="Check out a few mods that integrate with MCM"
+    description="See popular mods that integrate with MCM"
     target="_blank"
     href="https://www.nexusmods.com/games/baldursgate3/mods?keyword=MCM&sort=endorsements"
   />
@@ -177,7 +177,7 @@ end)`} lang="lua" title="Using MCM in your mod" />
     title="🐛 Report issues"
     description="Found a bug? Leave a report on GitHub"
     target="_blank"
-    href="https://github.com/atilioa/bg3-mcm/issues"
+    href="https://github.com/AtilioA/BG3-MCM/issues"
   />
 </CardGrid>
 
@@ -194,13 +194,13 @@ end)`} lang="lua" title="Using MCM in your mod" />
         Ready to simplify your mod's settings?
       </h2>
       <span class="text-zinc-400 md:text-lg max-w-2xl">
-        MCM handles all the complexity of settings management so you can focus on your mod's actual features.
+        MCM handles settings management so you can focus on your mod's features.
       </span>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="/getting-started/introduction/" class="group flex items-center justify-center relative overflow-hidden bg-white text-zinc-900 px-8 py-4 rounded-xl font-semibold hover:bg-zinc-100 transition-all duration-300 hover:shadow-xl hover:shadow-white/10">
           <span class="relative z-10">Get started</span>
         </a>
-        <a href="https://github.com/atilioa/bg3-mcm" target="_blank" class="group flex items-center justify-center relative overflow-hidden bg-transparent border-2 border-zinc-600 text-zinc-300 px-8 py-4 rounded-xl font-semibold hover:border-zinc-500 hover:text-white transition-all duration-300 hover:shadow-xl hover:shadow-zinc-500/10">
+        <a href="https://www.nexusmods.com/baldursgate3/mods/9162" target="_blank" class="group flex items-center justify-center relative overflow-hidden bg-transparent border-2 border-zinc-600 text-zinc-300 px-8 py-4 rounded-xl font-semibold hover:border-zinc-500 hover:text-white transition-all duration-300 hover:shadow-xl hover:shadow-zinc-500/10">
           <span class="relative z-10 flex items-center gap-2">
             <SiNexusmods className="w-5 h-5" />
             View on Nexus

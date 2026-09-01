@@ -20,19 +20,18 @@ import {
   Join Volitio's{' '}<a href="https://discord.gg/DcS8c7KUa6" target="_blank">Discord server!</a>
 </Aside>
 
-**Mod Configuration Menu (MCM)** is an in-game framework for **Baldur's Gate 3** that provides a centralized UI for managing mod settings and keybindings. Created by [Volitio](https://next.nexusmods.com/profile/Volitio), MCM eliminates the need for manual JSON edits, offering a seamless experience for both mod authors and players.
+**Mod Configuration Menu (MCM)** is an in-game framework for **Baldur's Gate 3** that provides a centralized UI for managing mod settings and keybindings. Created by [Volitio](https://next.nexusmods.com/profile/Volitio), MCM removes the need for manual JSON edits and gives both mod authors and players one place to manage settings.
 
 <Aside type="tip" title="Why MCM?">
   Traditionally, BG3SE mods requiring settings needed manual JSON editing or custom UI
-  implementations. MCM provides a unified, user-friendly interface so mod authors can focus on their
-  mod's features rather than configuration boilerplate.
+  implementations. MCM gives every mod one settings interface, so authors can skip the configuration boilerplate.
 </Aside>
 
 ## What MCM provides
 
-### 15+ widget types
+### 15 widget types
 
-MCM supports a wide variety of input types:
+MCM supports these input types:
 
 - **Booleans**: `checkbox`
 - **Numbers**: `int`, `float`, `slider_int`, `slider_float`, `drag_int`, `drag_float`
@@ -45,7 +44,7 @@ MCM supports a wide variety of input types:
 
 ### Real-time updates
 
-Settings changes take effect immediately without requiring save reloads.
+Settings changes take effect immediately, with no save reload required.
 
 ### Keybinding management
 
@@ -120,14 +119,14 @@ With MCM, you can expose any configurable aspect of your mod:
                 "Settings": [
                     {
                         "Id": "enable_mod",
-                        "Name": "Enable Mod",
+                        "Name": "Enable mod",
                         "Type": "checkbox",
                         "Default": true,
                         "Tooltip": "Master toggle for the mod"
                     },
                     {
-                        "Id": "mode",
-                        "Name": "Operating Mode",
+                        "Id": "operating_mode",
+                        "Name": "Operating mode",
                         "Type": "enum",
                         "Default": "Normal",
                         "Options": {
@@ -146,7 +145,7 @@ With MCM, you can expose any configurable aspect of your mod:
     ```lua
     -- Get setting values
     local enabled = MCM.Get("enable_mod")
-    local mode = MCM.Get("mode")
+    local mode = MCM.Get("operating_mode")
 
     -- Listen to changes
     Ext.ModEvents.BG3MCM["MCM_Setting_Saved"]:Subscribe(function(payload)
@@ -161,15 +160,6 @@ With MCM, you can expose any configurable aspect of your mod:
 
   </TabItem>
 </Tabs>
-
-## Requirements
-
-<Steps>
-  1. **Baldur's Gate 3** (with latest patch)
-  2. **BG3 Script Extender (BG3SE)** - required for MCM to function
-  3. **MCM mod** installed ([Nexus Mods](https://www.nexusmods.com/baldursgate3/mods/9162))
-  4. **Basic Lua knowledge** (for BG3SE mod development)
-</Steps>
 
 ## Getting started
 
@@ -194,7 +184,7 @@ Ready to integrate MCM into your mod?
   <LinkCard
     title="Example mods"
     description="Check out working MCM integrations"
-    href="https://github.com/atilioa/BG3-auto-send-food-to-camp"
+    href="https://github.com/AtilioA/BG3-auto-send-food-to-camp"
   />
 </CardGrid>
 
@@ -205,4 +195,4 @@ Ready to integrate MCM into your mod?
 
 ---
 
-**MCM** makes mod configuration simple. Whether you're creating a small tweak or a major overhaul, MCM handles the settings complexity so you can focus on what matters: your mod's features.
+**MCM** handles the settings layer for mods of any size, from a small tweak to a major overhaul, so you can spend your time on the mod's features instead of configuration plumbing.

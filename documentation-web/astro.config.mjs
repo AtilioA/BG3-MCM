@@ -8,7 +8,7 @@ import mermaid from 'astro-mermaid';
 import starlightThemeNext from 'starlight-theme-next';
 
 export default defineConfig({
-  site: 'https://github.com/atilioa/bg3-mcm',
+  site: 'https://github.com/AtilioA/BG3-MCM',
   integrations: [
     sitemap({
       changefreq: 'weekly',
@@ -31,7 +31,7 @@ export default defineConfig({
             content: "Baldur's Gate 3 Mod Configuration Menu documentation for settings and keybinding integration.",
           },
         },
-        { tag: 'meta', attrs: { property: 'og:url', content: 'https://github.com/atilioa/bg3-mcm' } },
+        { tag: 'meta', attrs: { property: 'og:url', content: 'https://github.com/AtilioA/BG3-MCM' } },
         { tag: 'meta', attrs: { property: 'og:site_name', content: 'BG3 Mod Configuration Menu' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
         { tag: 'meta', attrs: { name: 'twitter:title', content: 'BG3 Mod Configuration Menu (MCM)' } },
@@ -55,27 +55,27 @@ export default defineConfig({
           tag: 'meta',
           attrs: { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
         },
-        { tag: 'link', attrs: { rel: 'canonical', href: 'https://github.com/atilioa/bg3-mcm' } },
+        { tag: 'link', attrs: { rel: 'canonical', href: 'https://github.com/AtilioA/BG3-MCM' } },
         { tag: 'link', attrs: { rel: 'manifest', href: '/manifest.json' } },
         { tag: 'meta', attrs: { name: 'theme-color', content: '#3b82f6' } },
         { tag: 'meta', attrs: { name: 'msapplication-TileColor', content: '#3b82f6' } },
       ],
       social: [
         { icon: 'discord', label: 'Discord', href: 'https://discord.gg/DcS8c7KUa6' },
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/atilioa/bg3-mcm' },
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/AtilioA/BG3-MCM' },
       ],
       locales: {
         root: { label: 'English', lang: 'en' },
       },
       logo: {
-        light: './src/assets/brand-logo-gray.svg',
-        dark: './src/assets/brand-logo-gray.svg',
+        light: './src/assets/mcm-logo.svg',
+        dark: './src/assets/mcm-logo.svg',
         replacesTitle: true,
       },
       customCss: ['./src/styles/global.css'],
       sidebar: [
-        { label: 'Getting started', autogenerate: { directory: 'getting-started' } },
-        { label: 'API', autogenerate: { directory: 'api' } },
+        { label: 'Getting started', items: [{ autogenerate: { directory: 'getting-started' } }] },
+        { label: 'API', items: [{ autogenerate: { directory: 'api' } }] },
       ],
       favicon: '/favicon.ico',
       components: {

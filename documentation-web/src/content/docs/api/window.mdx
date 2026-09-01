@@ -2,25 +2,30 @@
 title: Window and tab APIs
 description: Open/close MCM and navigate mod pages
 sidebar:
-  order: 7
+  order: 10
 ---
 
 ## Overview
 
-Window APIs are **client-only** and control MCM UI navigation.
+Window and tab APIs are **client-only** and control MCM UI navigation. Calling them from a server-context script raises an error, so gate them behind `Ext.IsClient()` or keep them in client-only files.
 
 ## Methods
 
 | Function | Description |
 |---|---|
-| `MCM.OpenMCMWindow()` | Open MCM window |
-| `MCM.CloseMCMWindow()` | Close MCM window |
-| `MCM.OpenModPage(tabName, modUUID?, shouldEmitEvent?)` | Open specific mod page |
-| `MCM.InsertModMenuTab(tabName, tabCallback, modUUID?)` | Add custom tab content |
+| `MCM.OpenMCMWindow()` | Open the MCM window |
+| `MCM.CloseMCMWindow()` | Close the MCM window |
+| `MCM.OpenModPage(tabName, modUUID?, shouldEmitEvent?)` | Open a specific mod page |
+| `MCM.InsertModMenuTab(tabName, tabCallback, modUUID?, skipDisclaimer?)` | Add a custom tab; `tabCallback(tab)` builds its content. `skipDisclaimer` (default `false`) renders immediately without the disclaimer screen |
 
 ## Example
 
 ```lua
 MCM.OpenMCMWindow()
 MCM.OpenModPage('General', ModuleUUID)
+
+-- Add a custom tab whose content you build with IMGUI
+MCM.InsertModMenuTab('My tab', function(tab)
+    tab:AddText('Built with custom IMGUI')
+end)
 ```

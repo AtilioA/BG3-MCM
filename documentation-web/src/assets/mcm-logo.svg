@@ -1,0 +1,14 @@
+<!-- Placeholder MCM logo. Replace this file with the final Mod Configuration Menu artwork (keep the same path/filename). -->
+<svg width="176" height="40" viewBox="0 0 176 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mod Configuration Menu">
+  <g stroke="#ffffff" stroke-width="3" stroke-linecap="round">
+    <line x1="6" y1="11" x2="34" y2="11" />
+    <line x1="6" y1="20" x2="34" y2="20" />
+    <line x1="6" y1="29" x2="34" y2="29" />
+  </g>
+  <g fill="#0b0b14" stroke="#ffffff" stroke-width="3">
+    <circle cx="13" cy="11" r="4.5" />
+    <circle cx="27" cy="20" r="4.5" />
+    <circle cx="17" cy="29" r="4.5" />
+  </g>
+  <text x="48" y="28" font-family="Geist, 'Segoe UI', system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" letter-spacing="0.5" fill="#ffffff">MCM</text>
+</svg>
