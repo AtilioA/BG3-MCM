@@ -1,0 +1,24 @@
+# BG3-MCM
+
+> Baldur's Gate 3 Script Extender framework that gives mods an in-game Mod Configuration Menu: define settings in an `MCM_blueprint.json`, read/write them via a global `MCM` Lua API, and MCM handles the UI, validation, persistence, keybindings, and profiles.
+
+For mod authors integrating MCM, the public API is the global `MCM` table (`MCM.Get`/`MCM.Set`, `MCM.Keybinding`, `MCM.EventButton`, `MCM.List`, `MCM.Enum`, `MCM.Store`, `MCM.InsertModMenuTab`). `Mods.BG3MCM.*` (e.g. `MCMAPI`, `IMGUIAPI`) is internal: use it only for a deliberate, user-requested workaround for a missing public feature, and prefer asking the maintainer to expose a proper API instead. Never generate `Mods.BG3MCM.*` calls, and never mutate `setting.Default` or `widget._*` fields.
+
+MCM's own IDE helpers (`MCMIdeHelpers.lua`) contain the same directives plus full EmmyLua annotations of the public API.
+
+Optional: an MCM-focused custom GPT is available for questions at https://chatgpt.com/g/g-69095e14686481918fb288289170e87b-mcmgpt.
+
+## Docs
+
+- [MCM documentation for mod authors (wiki mirror)](https://raw.githubusercontent.com/AtilioA/BG3-MCM/refs/heads/main/wiki.md): integration guide, widget reference, and API do/don't pairs
+- [MCM blueprint JSON schema](https://raw.githubusercontent.com/AtilioA/BG3-MCM/refs/heads/main/.vscode/schema.json): validates `MCM_blueprint.json` files
+- [MCM IDE helpers (EmmyLua annotations)](https://raw.githubusercontent.com/AtilioA/BG3-MCM/refs/heads/main/MCMIdeHelpers.lua): autocomplete and prompt context for the `MCM` public API
+
+## API
+
+- [Public API implementation reference (`MCMAPIMethods.lua`)](https://raw.githubusercontent.com/AtilioA/BG3-MCM/refs/heads/main/Mod%20Configuration%20Menu/Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/MCM/GlobalTable/MCMAPIMethods.lua): up-to-date signatures of every `MCM.*` function
+
+## Examples
+
+- [Example blueprint: Auto Send Food To Camp](https://github.com/AtilioA/BG3-auto-send-food-to-camp/blob/main/Auto%20Send%20Food%20To%20Camp/Mods/AutoSendFoodToCamp/MCM_blueprint.json): minimal real-world `MCM_blueprint.json`
+- [Example blueprint: Smart Autosaving](https://github.com/AtilioA/BG3-smart-autosaving/blob/main/Smart%20Autosaving/Mods/SmartAutosaving/MCM_blueprint.json): blueprint with varied widget types

@@ -2,6 +2,15 @@
 --- @diagnostic disable
 
 --- Aggregated EmmyLua annotations for the Mod Configuration Menu (MCM) public API (version 1.41+).
+---
+--- Use MCM.* public API (MCM.Get/Set, MCM.Keybinding.SetCallback,
+--- MCM.EventButton.RegisterCallback, MCM.List.*, MCM.Enum.SetChoices, MCM.Store.*).
+--- Mods.BG3MCM.MCMAPI/IMGUIAPI are internal; use only a workaround is needed for a missing public feature.
+---
+--- Read/write a setting from your mod (UI updates automatically; table-based args are preferred since MCM 1.38:
+--- local value = MCM.Get({ settingId = "mySetting" })
+--- MCM.Set({ settingId = "mySetting", value = 42 })
+--- DON'T: Mods.BG3MCM.MCMAPI:GetSettingValue("mySetting", ModuleUUID); that's an internal API; mutating setting.Default or widget._*, etc are unsupported operations)
 
 --- @alias unknown nil|boolean|number|string|table|function|thread|userdata
 --- @alias StorageValue nil|boolean|number|string|table
