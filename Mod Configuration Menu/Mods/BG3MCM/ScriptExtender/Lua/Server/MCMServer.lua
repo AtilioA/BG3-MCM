@@ -258,13 +258,6 @@ end
 --     return ModConfig:GetProfiles()
 -- end
 
--- Get the current MCM profile's name
--- ---@return string The name of the current profile
--- function MCMServer:GetCurrentProfile()
---     -- TODO: implement through a real request/response NetChannel
---     return ModConfig.profileManager:GetCurrentProfile()
--- end
-
 -- --- Check if a setting value is valid given the mod blueprint
 -- ---@param settingId string The id of the setting
 -- ---@param value any The value to check

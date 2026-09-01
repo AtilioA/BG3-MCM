@@ -48,14 +48,14 @@ function KeybindingsUI.GetAllKeybindings()
                     if currentBinding then
                         keyboardBinding = currentBinding.Keyboard
                         mouseBinding = currentBinding.Mouse
-                        MCMDebug(2, "Using saved keybinding for setting: " .. settingId)
+                        MCMDebug(2, "Using saved keybinding for setting: %s", settingId)
                     else
                         keyboardBinding = Fallback_Value(
                             setting:GetDefault() and setting:GetDefault().Keyboard,
                             { Key = "", ModifierKeys = { "NONE" } }
                         )
                         mouseBinding = setting:GetDefault() and setting:GetDefault().Mouse
-                        MCMDebug(1, "Falling back to default keybinding for setting: " .. settingId)
+                        MCMDebug(1, "Falling back to default keybinding for setting: %s", settingId)
                     end
 
                     local description = setting.GetDescription and setting:GetDescription() or ""

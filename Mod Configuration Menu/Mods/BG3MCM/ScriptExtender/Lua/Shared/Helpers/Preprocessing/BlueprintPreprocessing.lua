@@ -521,9 +521,8 @@ function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
 
     if options.AllowConflict ~= nil and type(options.AllowConflict) ~= "boolean" then
         MCMWarn(0,
-            "Options.AllowConflict for keybinding_v2 setting '" ..
-            settingId .. "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "Options.AllowConflict for keybinding_v2 setting '%s' must be a boolean. Please contact %s about this issue.",
+            settingId, Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
         return false
     end
 
