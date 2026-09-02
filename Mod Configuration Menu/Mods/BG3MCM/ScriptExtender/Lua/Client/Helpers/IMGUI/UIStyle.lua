@@ -67,8 +67,8 @@ UIStyle.Colors = {
 UIStyle.Colors["Border"] = UIStyle.Colors["ScrollbarGrab"]
 
 UIStyle.TextStyles = {
-    ["SettingTitle"] = Color.NormalizedRGBA(255, 255, 255, 1),
-    ["SettingDescription"] = UIStyle.Colors["Text"],
+    ["SettingTitle"] = Color.NormalizedRGBA(250, 240, 220, 1.0),
+    ["SettingDescription"] = Color.NormalizedRGBA(190, 170, 150, 1.0),
 }
 
 -- Applied locally so the global frame style remains unchanged.
@@ -109,7 +109,7 @@ UIStyle.InputStyleByType = {
 UIStyle.Styles = {
     ["Alpha"]                   = 1.0,
     ["ButtonTextAlign"]         = 0.5, -- vec2?
-    ["CellPadding"]             = 4.0,   -- vec2?
+    ["CellPadding"]             = 4.0, -- vec2?
     ["ChildBorderSize"]         = 1.0,
     ["ChildRounding"]           = 4.0,
     ["DisabledAlpha"]           = 0.5,
@@ -125,9 +125,9 @@ UIStyle.Styles = {
     ["PopupRounding"]           = 2.0,
     ["ScrollbarRounding"]       = 9.0,
     ["ScrollbarSize"]           = 10.0,
-    ["SelectableTextAlign"]     = 0.0,  -- vec2?
+    ["SelectableTextAlign"]     = 0.0, -- vec2?
     ["SeparatorTextAlign"]      = { 0.0, 0.5 },
-    ["SeparatorTextBorderSize"] = 1.0,
+    ["SeparatorTextBorderSize"] = 3,
     ["SeparatorTextPadding"]    = { 28.0, 6.0 },
     ["TabBarBorderSize"]        = 1.0,
     ["TabRounding"]             = 6.0,

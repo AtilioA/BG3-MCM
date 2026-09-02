@@ -53,6 +53,7 @@ function CheckboxIMGUIWidget:_addLabelWidget(group, setting, modUUID)
 
     checkboxLabelWidget.TextWrapPos = 0
     checkboxLabelWidget.SameLine = true
+    IMGUIHelpers:ApplyTextStyle(checkboxLabelWidget, "SettingTitle")
 
     self.UserData.LabelWidget = checkboxLabelWidget
 end
