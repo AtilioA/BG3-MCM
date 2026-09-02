@@ -71,6 +71,49 @@ UIStyle.TextStyles = {
     ["SettingDescription"] = Color.NormalizedRGBA(190, 170, 150, 1.0),
 }
 
+UIStyle.CustomTabStyles = {
+    InputStyles = {
+        Checkbox = "checkbox",
+        Combo = "combo",
+        InputText = "default",
+        InputInt = "default",
+        InputScalar = "default",
+        DragInt = "default",
+        DragScalar = "default",
+        SliderInt = "slider_int",
+        SliderScalar = "default",
+        ColorEdit = "default",
+        ColorPicker = "default",
+    },
+    TextStyles = {
+        Text = "SettingDescription",
+        TextLink = "SettingDescription",
+        BulletText = "SettingDescription",
+        Button = "SettingTitle",
+        RadioButton = "SettingTitle",
+        Selectable = "SettingTitle",
+        CollapsingHeader = "SettingTitle",
+        SeparatorText = "SettingTitle",
+        TabItem = "SettingTitle",
+    },
+    ParentTypes = {
+        Window = true,
+        ChildWindow = true,
+        Group = true,
+        CollapsingHeader = true,
+        TabBar = true,
+        TabItem = true,
+        Tree = true,
+        Table = true,
+        TableRow = true,
+        TableCell = true,
+        Popup = true,
+        MenuBar = true,
+        Menu = true,
+        Tooltip = true,
+    },
+}
+
 -- Applied locally so the global frame style remains unchanged.
 UIStyle.InputStyles = {
     ["default"] = {

@@ -197,6 +197,7 @@ function RightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
                 err .. traceback,
                 Ext.Mod.GetMod(modUUID).Info.Author)
         end)
+        IMGUIHelpers:ApplyCustomTabStyles(tab)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
             tabName = tabName,
