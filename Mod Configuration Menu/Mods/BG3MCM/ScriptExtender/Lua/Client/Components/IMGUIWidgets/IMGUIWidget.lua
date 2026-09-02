@@ -13,6 +13,34 @@ IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
     _resetButton = nil
 })
 
+local borderedInputTypes = {
+    int = true,
+    float = true,
+    checkbox = true,
+    text = true,
+    enum = true,
+    slider_int = true,
+    slider_float = true,
+    drag_int = true,
+    drag_float = true,
+    color_picker = true,
+    color_edit = true,
+}
+
+local inputFrameRoundings = {
+    checkbox = 0,
+    enum = 50,
+    slider_int = 50,
+}
+
+local inputFramePaddingX = {
+    enum = 8,
+}
+
+local inputGrabRoundings = {
+    slider_int = 50,
+}
+
 -- Function to estimate icon size based on viewport size
 -- This is used to scale the icon size based on the resolution, so that it looks good on all resolutions
 ---@param height integer The height of the viewport
@@ -91,6 +119,11 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
 
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
     ---@cast widget IMGUIWidget
+
+    if borderedInputTypes[settingType] then
+        IMGUIHelpers:ApplyInputBorder(widget.Widget, inputFrameRoundings[settingType], inputFramePaddingX[settingType],
+            inputGrabRoundings[settingType])
+    end
 
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
 

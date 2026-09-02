@@ -71,6 +71,24 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
     return imguiObjectTooltip
 end
 
+--- Apply input styling without changing the global style.
+---@param element ExtuiStyledRenderable
+---@param frameRounding number|nil
+---@param framePaddingX number|nil
+---@param grabRounding number|nil
+function IMGUIHelpers:ApplyInputBorder(element, frameRounding, framePaddingX, grabRounding)
+    element:SetStyle("FrameBorderSize", 1.0)
+    if frameRounding then
+        element:SetStyle("FrameRounding", frameRounding)
+    end
+    if framePaddingX then
+        element:SetStyle("FramePadding", framePaddingX, 4.0)
+    end
+    if grabRounding then
+        element:SetStyle("GrabRounding", grabRounding)
+    end
+end
+
 --- Apply default styles to an IMGUI element
 ---@param element ExtuiStyledRenderable
 function IMGUIHelpers:ApplyDefaultStylesToIMGUIElement(element)
@@ -78,6 +96,10 @@ function IMGUIHelpers:ApplyDefaultStylesToIMGUIElement(element)
         element:SetColor(k, v)
     end
     for k, v in pairs(UIStyle.Styles) do
-        element:SetStyle(k, v)
+        if type(v) == "table" then
+            element:SetStyle(k, v[1], v[2])
+        else
+            element:SetStyle(k, v)
+        end
     end
 end

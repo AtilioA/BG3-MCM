@@ -62,6 +62,7 @@ function UIProfileManager:CreateProfileContent()
 
     -- Profile selection dropdown
     local profileCombo = profilesGroup:AddCombo("")
+    IMGUIHelpers:ApplyInputBorder(profileCombo, 50, 8)
     profileCombo.Options = profiles.Profiles
     profileCombo.SelectedIndex = profileIndex - 1 -- Convert to 0-based index
 
@@ -74,6 +75,7 @@ function UIProfileManager:CreateProfileContent()
     end
 
     local newProfileName = profilesGroup:AddInputText("")
+    IMGUIHelpers:ApplyInputBorder(newProfileName)
 
     -- Action buttons
     local buttonText = Ext.Loca.GetTranslatedString("h3e4b68e2569e4df2b548b4a5a893a57a7972")
