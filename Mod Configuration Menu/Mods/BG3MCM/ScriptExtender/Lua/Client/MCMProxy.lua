@@ -1,32 +1,8 @@
 --- MCMProxy ensures that mod settings can be managed and updated from the main menu if necessary, or from the server if the game is running.
 
----@class RXClass
----@field BehaviorSubject table
-local RX = {
-    BehaviorSubject = Ext.Require("Lib/reactivex/subjects/behaviorsubject.lua")
-}
-
 ---@class MCMProxy
----@field GameState string The current game state. Might be used to determine if the game is in the main menu.
----@field GameStateSubject any Subject that emits game state changes
 MCMProxy = _Class:Create("MCMProxy", nil, {
-    GameState = Ext.Net.IsHost() and "Running" or "Menu",
-    GameStateSubject = nil,
 })
-
--- Initialize the reactive game state management
-function MCMProxy:Initialize()
-    self.GameStateSubject = RX.BehaviorSubject.Create(self.GameState)
-
-    Ext.Events.GameStateChanged:Subscribe(function(e)
-        -- Emit the state change through our reactive subject
-        if self.GameStateSubject then
-            self.GameStateSubject:OnNext(e.ToState)
-        end
-
-        MCMDebug(2, "GameState changed to %s", e.ToState)
-    end)
-end
 
 ---Check if the game is in the main menu
 ---@return boolean
@@ -66,14 +42,10 @@ end
 ---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
 ---@return nil
 function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer)
-    if not self.GameStateSubject then
-        self:Initialize()
-    end
-
-    -- Subscribe to game state changes to handle tab insertion appropriately
     local disclaimerTab, disclaimerElement
-    local subscription = nil
-    subscription = self.GameStateSubject:Subscribe(function(gameState)
+    local inserted = false
+    local function handleGameState(gameState)
+        if inserted then return end
         -- This timer is a workaround. Ideally, we should be able to use this value directly. May refactor this if we get a way to query the game state directly.
         VCTimer:OnTicks(2, function()
             if gameState == "Menu" then
@@ -99,13 +71,18 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer
                 end
 
                 MCMClientState.UIReady:Subscribe(function(ready)
-                    if ready and subscription and not subscription._unsubscribed then
+                    if ready then
                         DualPane:InsertModTab(modUUID, tabName, tabCallback, skipDisclaimer)
-                        subscription = nil
+                        inserted = true
                     end
                 end)
             end
         end)
+    end
+
+    handleGameState(Ext.Utils.GetGameState())
+    Ext.Events.GameStateChanged:Subscribe(function(e)
+        handleGameState(e.ToState)
     end)
 end
 
@@ -297,6 +274,3 @@ function MCMProxy:RegisterMCMKeybindings()
     -- MCMAPI:SetEventButtonDisabled(ModuleUUID, "EventButtonExample2", true, "Disabled via API")
     -- MCMAPI:SetEventButtonDisabled(ModuleUUID, "EventButtonExample", true, "Disabled via API too")
 end
-
--- Initialize the proxy when the module is loaded
-MCMProxy:Initialize()
