@@ -9,17 +9,17 @@ UIStyle.UnofficialColors = {
 }
 
 UIStyle.Colors = {
-    ["Border"] = Color.NormalizedRGBA(61, 38, 20, 0.66),
+    ["Border"] = Color.NormalizedRGBA(82, 60, 40, 0.1),
     ["BorderShadow"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
     ["Button"] = Color.NormalizedRGBA(117, 102, 74, 0.5),
     ["ButtonActive"] = Color.NormalizedRGBA(183, 122, 81, 0.7),
     ["ButtonHovered"] = Color.NormalizedRGBA(163, 102, 71, 0.5),
     ["CheckMark"] = Color.NormalizedRGBA(219, 201, 173, 0.78),
-    ["ChildBg"] = Color.NormalizedRGBA(31, 28, 28, 0.4),
+    ["ChildBg"] = Color.NormalizedRGBA(29, 27, 27, 0.4),
     ["DragDropTarget"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
-    ["FrameBg"] = UIStyle.UnofficialColors.BoxColor,
-    ["FrameBgActive"] = UIStyle.UnofficialColors.BoxActiveColor,
-    ["FrameBgHovered"] = UIStyle.UnofficialColors.BoxHoverColor,
+    ["FrameBg"] = Color.NormalizedRGBA(24, 19, 17, 1),
+    ["FrameBgActive"] = Color.NormalizedRGBA(34, 27, 22, 1),
+    ["FrameBgHovered"] = Color.NormalizedRGBA(34, 27, 22, 1),
     ["Header"] = Color.NormalizedRGBA(92, 76, 69, 0.76),
     ["HeaderActive"] = UIStyle.UnofficialColors.BoxActiveColor,
     ["HeaderHovered"] = Color.NormalizedRGBA(105, 71, 56, 0.86),
@@ -40,9 +40,9 @@ UIStyle.Colors = {
     ["ScrollbarGrab"] = Color.NormalizedRGBA(92, 76, 69, 0.76),
     ["ScrollbarGrabActive"] = UIStyle.UnofficialColors.BoxActiveColor,
     ["ScrollbarGrabHovered"] = Color.NormalizedRGBA(120, 89, 71, 0.86),
-    ["Separator"] = UIStyle.UnofficialColors.BoxColor,
-    ["SeparatorActive"] = UIStyle.UnofficialColors.BoxActiveColor,
-    ["SeparatorHovered"] = UIStyle.UnofficialColors.BoxHoverColor,
+    ["Separator"] = Color.NormalizedRGBA(82, 60, 40, 1),
+    ["SeparatorActive"] = Color.NormalizedRGBA(175, 135, 104, 1),
+    ["SeparatorHovered"] = Color.NormalizedRGBA(125, 96, 74, 1),
     ["SliderGrab"] = Color.NormalizedRGBA(242, 209, 153, 0.14),
     ["SliderGrabActive"] = Color.NormalizedRGBA(133, 133, 64, 0.3),
     ["Tab"] = UIStyle.UnofficialColors.BoxColor,
@@ -64,10 +64,52 @@ UIStyle.Colors = {
     ["WindowBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
 }
 
+UIStyle.Colors["Border"] = UIStyle.Colors["ScrollbarGrab"]
+
+UIStyle.TextStyles = {
+    ["SettingTitle"] = Color.NormalizedRGBA(250, 240, 220, 1.0),
+    ["SettingDescription"] = Color.NormalizedRGBA(190, 170, 150, 1.0),
+}
+
+-- Applied locally so the global frame style remains unchanged.
+UIStyle.InputStyles = {
+    ["default"] = {
+        ["FrameBorderSize"] = 1.0,
+    },
+    ["checkbox"] = {
+        ["FrameBorderSize"] = 1.0,
+        ["FrameRounding"] = 0.0,
+    },
+    ["combo"] = {
+        ["FrameBorderSize"] = 1.0,
+        ["FrameRounding"] = 50.0,
+        ["FramePadding"] = { 8.0, 4.0 },
+    },
+    ["slider_int"] = {
+        ["FrameBorderSize"] = 1.0,
+        ["FrameRounding"] = 50.0,
+        ["GrabRounding"] = 50.0,
+    },
+}
+
+UIStyle.InputStyleByType = {
+    int = "default",
+    float = "default",
+    checkbox = "checkbox",
+    text = "default",
+    enum = "combo",
+    slider_int = "slider_int",
+    slider_float = "default",
+    drag_int = "default",
+    drag_float = "default",
+    color_picker = "default",
+    color_edit = "default",
+}
+
 UIStyle.Styles = {
     ["Alpha"]                   = 1.0,
     ["ButtonTextAlign"]         = 0.5, -- vec2?
-    ["CellPadding"]             = 4.0,   -- vec2?
+    ["CellPadding"]             = 4.0, -- vec2?
     ["ChildBorderSize"]         = 1.0,
     ["ChildRounding"]           = 4.0,
     ["DisabledAlpha"]           = 0.5,
@@ -83,10 +125,10 @@ UIStyle.Styles = {
     ["PopupRounding"]           = 2.0,
     ["ScrollbarRounding"]       = 9.0,
     ["ScrollbarSize"]           = 10.0,
-    ["SelectableTextAlign"]     = 0.0,  -- vec2?
-    ["SeparatorTextAlign"]      = 0.5,  -- vec2?
-    ["SeparatorTextBorderSize"] = 5.0,
-    ["SeparatorTextPadding"]    = 10.0, -- vec2?
+    ["SelectableTextAlign"]     = 0.0, -- vec2?
+    ["SeparatorTextAlign"]      = { 0.0, 0.5 },
+    ["SeparatorTextBorderSize"] = 3,
+    ["SeparatorTextPadding"]    = { 28.0, 6.0 },
     ["TabBarBorderSize"]        = 1.0,
     ["TabRounding"]             = 6.0,
     ["WindowBorderSize"]        = 2,

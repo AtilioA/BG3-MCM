@@ -239,6 +239,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- Enabled checkbox cell.
             local enabledCell = row:AddCell()
             local enabledCheckbox = enabledCell:AddCheckbox("")
+            IMGUIHelpers:ApplyInputStyle(enabledCheckbox, "checkbox")
             IMGUIHelpers.AddTooltip(enabledCheckbox,
                 Ext.Loca.GetTranslatedString(
                     "h6fd6de5f403d4d5b8a7ba0a8b353b97f7b09"),
@@ -298,6 +299,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             local conflictCell = row:AddCell()
             local conflictCheckbox = conflictCell:AddCheckbox(Ext.Loca.GetTranslatedString(
                 "ha7dbcb7a64404859b1f9c8a6efa96b304d06"))
+            IMGUIHelpers:ApplyInputStyle(conflictCheckbox, "checkbox")
 
             IMGUIHelpers.AddTooltip(conflictCheckbox,
                 Ext.Loca.GetTranslatedString("h35a1d92d0e8e404f906a4b087020f9e6g3dg"),

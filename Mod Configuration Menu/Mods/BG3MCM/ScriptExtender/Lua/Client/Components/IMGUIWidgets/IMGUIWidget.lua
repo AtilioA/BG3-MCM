@@ -92,6 +92,11 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
     ---@cast widget IMGUIWidget
 
+    local inputStyleName = UIStyle.InputStyleByType[settingType]
+    if inputStyleName then
+        IMGUIHelpers:ApplyInputStyle(widget.Widget, inputStyleName)
+    end
+
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
 
     widget._group = group
@@ -246,6 +251,7 @@ function IMGUIWidget:CreateTitle(group, titleText)
 
     local widgetNameText = group:AddText(titleText)
     widgetNameText.TextWrapPos = 0
+    IMGUIHelpers:ApplyTextStyle(widgetNameText, "SettingTitle")
     return widgetNameText
 end
 
@@ -355,7 +361,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
 
     addedDescription.IDContext = group.IDContext .. "_Description"
 
-    addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
+    IMGUIHelpers:ApplyTextStyle(addedDescription, "SettingDescription")
 end
 
 --- Applies a disabled style to an IMGUI element

@@ -71,6 +71,34 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
     return imguiObjectTooltip
 end
 
+--- Apply a named input style without changing the global style.
+---@param element ExtuiStyledRenderable
+---@param styleName string
+function IMGUIHelpers:ApplyInputStyle(element, styleName)
+    local style = UIStyle.InputStyles[styleName]
+    if not style then
+        return
+    end
+
+    for k, v in pairs(style) do
+        if type(v) == "table" then
+            element:SetStyle(k, v[1], v[2])
+        else
+            element:SetStyle(k, v)
+        end
+    end
+end
+
+--- Apply a named text style.
+---@param element ExtuiStyledRenderable
+---@param styleName string
+function IMGUIHelpers:ApplyTextStyle(element, styleName)
+    local color = UIStyle.TextStyles[styleName]
+    if color then
+        element:SetColor("Text", color)
+    end
+end
+
 --- Apply default styles to an IMGUI element
 ---@param element ExtuiStyledRenderable
 function IMGUIHelpers:ApplyDefaultStylesToIMGUIElement(element)
@@ -78,6 +106,10 @@ function IMGUIHelpers:ApplyDefaultStylesToIMGUIElement(element)
         element:SetColor(k, v)
     end
     for k, v in pairs(UIStyle.Styles) do
-        element:SetStyle(k, v)
+        if type(v) == "table" then
+            element:SetStyle(k, v[1], v[2])
+        else
+            element:SetStyle(k, v)
+        end
     end
 end

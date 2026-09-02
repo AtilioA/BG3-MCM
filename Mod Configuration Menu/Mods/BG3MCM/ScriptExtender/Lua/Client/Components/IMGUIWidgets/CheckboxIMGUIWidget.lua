@@ -44,15 +44,16 @@ function CheckboxIMGUIWidget:_addLabelWidget(group, setting, modUUID)
     end
 
     checkboxLabelWidget.OnHoverEnter = function()
-        self.Widget:SetColor("FrameBg", UIStyle.UnofficialColors.BoxHoverColor)
+        self.Widget:SetColor("FrameBg", UIStyle.Colors["FrameBgHovered"])
     end
 
     checkboxLabelWidget.OnHoverLeave = function()
-        self.Widget:SetColor("FrameBg", UIStyle.UnofficialColors.BoxColor)
+        self.Widget:SetColor("FrameBg", UIStyle.Colors["FrameBg"])
     end
 
     checkboxLabelWidget.TextWrapPos = 0
     checkboxLabelWidget.SameLine = true
+    IMGUIHelpers:ApplyTextStyle(checkboxLabelWidget, "SettingTitle")
 
     self.UserData.LabelWidget = checkboxLabelWidget
 end
