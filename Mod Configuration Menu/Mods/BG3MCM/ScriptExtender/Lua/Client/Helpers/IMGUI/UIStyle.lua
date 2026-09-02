@@ -125,13 +125,13 @@ UIStyle.InputStyles = {
     },
     ["combo"] = {
         ["FrameBorderSize"] = 1.0,
-        ["FrameRounding"] = 50.0,
+        ["FrameRounding"] = 10,
         ["FramePadding"] = { 8.0, 4.0 },
     },
     ["slider_int"] = {
         ["FrameBorderSize"] = 1.0,
-        ["FrameRounding"] = 50.0,
-        ["GrabRounding"] = 50.0,
+        ["FrameRounding"] = 10,
+        ["GrabRounding"] = 10,
     },
 }
 
@@ -174,7 +174,7 @@ UIStyle.Styles = {
     ["SeparatorTextPadding"]    = { 28.0, 6.0 },
     ["TabBarBorderSize"]        = 1.0,
     ["TabRounding"]             = 6.0,
-    ["WindowBorderSize"]        = 2,
+    ["WindowBorderSize"]        = 1,
     ["WindowMinSize"]           = 32.0, -- vec2?
     ["WindowPadding"]           = 3.0,
     ["WindowRounding"]          = 4.0,
