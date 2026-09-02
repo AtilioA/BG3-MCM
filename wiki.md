@@ -61,6 +61,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [keybinding\_v2](#keybinding_v2)
       - [event\_button](#event_button)
   - [MCM API functions](#mcm-api-functions)
+    - [Use the `MCM` API, not `Mods.BG3MCM` internals](#use-the-mcm-api-not-modsbg3mcm-internals)
       - [Core API](#core-api)
       - [EventButton API](#eventbutton-api)
       - [Keybinding API](#keybinding-api)
@@ -457,12 +458,42 @@ If you need structured input, consider `list_v2` or multiple settings instead of
 
 ## MCM API functions
 
-As of version 1.14+, MCM introduces a global `MCM` table (can be called anywhere in your code) that simplifies MCM usage such as access and modification of settings' values. This should be used for any operations with MCM, avoiding usage of `Mods.BG3MCM` internals unless explicitly stated in the documentation.
+As of version 1.14+, MCM introduces a global `MCM` table (can be called anywhere in your code) that simplifies MCM usage such as access and modification of settings' values. This should be used for any operations with MCM, avoiding usage of `Mods.BG3MCM` internals unless explicitly stated in the documentation; see [Use the `MCM` API, not `Mods.BG3MCM` internals](#use-the-mcm-api-not-modsbg3mcm-internals) for the do/don't.
 
 > • All `modUUID` parameters are optional and default to the UUID of the mod that calls the function.
 > • Client-only functions will not exist on the server context.
 > • For full details and up-to-date signatures, see the code in BG3MCM's `MCMAPIMethods.lua` file.
 {.is-info}
+
+### Use the `MCM` API, not `Mods.BG3MCM` internals
+
+MCM's public API is the global `MCM` table (see [MCM API functions](#mcm-api-functions)).
+`Mods.BG3MCM.*` (such as `MCMAPI` and `IMGUIAPI`) is MCM's internal implementation. It is **not** covered by compatibility guarantees, and MCM will warn once per session if your mod accesses it.
+Use it only when you deliberately need a workaround for a missing public feature. In that case, please let me know, so it can become a proper API.
+
+| Don't do (internal API) | Do instead (public API) | Why |
+| --- | --- | --- |
+| `Mods.BG3MCM.MCMAPI:GetSettingValue(id, uuid)` | `MCM.Get(id)` or `MCM.Get({ settingId = id, modUUID = uuid })` | `MCM` is injected per-mod with the correct UUID default |
+| `Mods.BG3MCM.MCMAPI:SetSettingValue(...)` and other `MCMAPI:*` calls | `MCM.Set`, `MCM.Store.*`, `MCM.Enum.*`, `MCM.List.*` | Same coverage; table-based arguments preferred since MCM 1.38 |
+| `Mods.BG3MCM.MCMAPI:GetModBlueprint(uuid)` + `setting.Default = value` | `MCM.Set(settingId, value)` (or `MCM.Store` for non-blueprint state) | Mutating `Default` may corrupt validation and repair; presets should set values, not fake defaults |
+| `Mods.BG3MCM.IMGUIAPI:findWidgetForSetting(...)` + `widget._field = value` | No public equivalent: use `MCM.EventButton.*`, `MCM.InsertModMenuTab`, or file an MCM issue if you really need it for some reason | IMGUI widgets are internal; `_defaultValue` and widget methods are not stable APIs |
+
+For any other `Mods.BG3MCM.*` access, please ask on Discord or file an MCM issue on GitHub. This exists for deliberate workarounds, but please raise awareness if you find yourself needing it, so that a proper API can be added.
+
+```lua
+-- DO: read and write settings from your own mod (UI syncs automatically)
+local value = MCM.Get({ settingId = "mySetting" })
+MCM.Set({ settingId = "mySetting", value = 42 })
+
+-- DON'T: reach into internals to do the same
+-- local value = Mods.BG3MCM.MCMAPI:GetSettingValue("mySetting", ModuleUUID)
+-- Mods.BG3MCM.MCMAPI:GetModBlueprint(ModuleUUID).Tabs[1].Settings[1].Default = 42
+```
+
+Also remember:
+
+- Use `list_v2` and `keybinding_v2`; the `list` and `keybinding` types are deprecated
+- `MCM.Get`/`MCM.Set` work on both client and server; `MCM.Keybinding.*`, `MCM.EventButton.*`, and `MCM.OpenMCMWindow` are client-only as of 1.41.
 
 #### Core API
 
@@ -514,7 +545,7 @@ As of version 1.14+, MCM introduces a global `MCM` table (can be called anywhere
 These methods operate on `event_button` 'settings'.
 
 | Function | Description | Client | Server |
-|----------|-------------|:------:|:------:|
+| ---------- | ------------- | :------: | :------: |
 | `MCM.EventButton.IsEnabled(buttonId, modUUID?)` | Returns `true` if the event button is enabled, `false` if disabled, or `nil` if not found | ✅ | ❌ |
 | `MCM.EventButton.ShowFeedback(buttonId, message, feedbackType, modUUID?, durationInMs?)` | Shows a feedback message for an event button. `feedbackType` can be `"success"`, `"error"`, `"info"`, or `"warning"` | ✅ | ❌ |
 | `MCM.EventButton.RegisterCallback(buttonId, callback, modUUID?)` | Registers a callback for an event button | ✅ | ❌ |
@@ -526,7 +557,7 @@ These methods operate on `event_button` 'settings'.
 These methods operate on `keybinding_v2` settings.
 
 | Function | Description | Client | Server |
-|----------|-------------|:------:|:------:|
+| ---------- | ------------- | :------: | :------: |
 | `MCM.Keybinding.Get(settingId, modUUID?)` | Gets a human-readable keybinding string | ✅ | ❌ |
 | `MCM.Keybinding.GetRaw(settingId, modUUID?)` | Gets raw keybinding data | ✅ | ❌ |
 | `MCM.Keybinding.SetCallback(settingId, callback, modUUID?)` | Registers a callback for a keybinding | ✅ | ❌ |
@@ -551,7 +582,7 @@ The call also emits `MCM_Enum_Choices_Updated` with the authoritative `value` af
 These methods operate on `list_v2` settings.
 
 | Function | Description | Client | Server |
-|----------|-------------|:------:|:------:|
+| ---------- | ------------- | :------: | :------: |
 | `MCM.List.GetEnabled(listSettingId, modUUID?)` | Gets a table of enabled items in a list | ✅ | ✅ |
 | `MCM.List.GetRaw(listSettingId, modUUID?)` | Gets raw list setting data | ✅ | ✅ |
 | `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Checks if a specific item is enabled in a list | ✅ | ✅ |
@@ -571,7 +602,7 @@ The JSON storage allows saving values to JSON files without needing to define a 
 {.is-info}
 
 | Function | Description | Client | Server |
-|----------|-------------|:------:|:------:|
+| ---------- | ------------- | :------: | :------: |
 | `MCM.Store.RegisterVar(var, options?)` | Registers a variable with type constraints and defaults. | ✅ | ✅ |
 | `MCM.Store.Get(var, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
 | `MCM.Store.Set(var, value, modUUID?)` | Sets a stored value with automatic persistence | ✅ | ✅ |
@@ -617,7 +648,7 @@ MCM.Store.Set("difficulty_level", difficulty + 1)
 These methods operate on the MCM window, and can be used to control the opening and closing of MCM, as well as opening a specific mod's tab.
 
 | Function | Description | Client | Server |
-|----------|-------------|:------:|:------:|
+| ---------- | ------------- | :------: | :------: |
 | `MCM.OpenMCMWindow()` | Opens the MCM window | ✅ | ❌ |
 | `MCM.CloseMCMWindow()` | Closes the MCM window | ✅ | ❌ |
 | `MCM.OpenModPage(tabName, modUUID?, shouldEmitEvent?)` | Opens a specific mod's tab in the MCM window | ✅ | ❌ |
@@ -752,7 +783,7 @@ MCM also provides additional options to control how a keybinding behaves. These 
 Available `Options`:
 
 | Option | Default | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `ShouldTriggerOnKeyDown` | `true` | Triggers the keybinding callback when the key is pressed down. This is the default behavior. |
 | `ShouldTriggerOnKeyUp` | `false` | Triggers the callback when the key is released. |
 | `ShouldTriggerOnRepeat` | `false` | Continuously triggers the callback while the key is held down. |
@@ -936,19 +967,19 @@ end)
 
 Here are the events that can be listened to:
 
-| Event name                | Description                                                       | Payload content                                                                                     |
-|------------------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `MCM_Setting_Saved`          | Fired whenever a setting value has been saved and written to the settings JSON file by MCM. | `modUUID`: The UUID of the mod  </br> `settingId`: The ID of the setting  </br> `value`: The new value of the setting  </br> `oldValue`: The old value of the setting |
-| `MCM_Setting_Reset`          | Fired when a setting is reset to its default value.              | `modUUID`: The UUID of the mod  </br> `settingId`: The ID of the setting  </br> `defaultValue`: The default value of the setting |
-| `MCM_Profile_Created`        | Fired when a new profile is created.                             | `profileName`: The name of the created profile  </br> `newSettings`: The settings of the new profile |
-| `MCM_Profile_Activated`      | Fired when a profile is set as the active one.                  | `profileName`: The name of the active profile                                               |
-| `MCM_Profile_Deleted`        | Fired when a profile is deleted.                                 | `profileName`: The name of the deleted profile                                               |
-| `MCM_Mod_Tab_Added`          | Fired when a mod inserts a custom tab into the MCM UI.          | `modUUID`: The UUID of the mod  </br> `tabName`: The name of the tab added                      |
-| `MCM_Mod_Tab_Activated`      | Fired when a player clicks a mod in the mod list in MCM's left panel. | `modUUID`: The UUID of the mod  |
-| `MCM_Mod_Subtab_Activated`   | Fired when a subtab within a mod tab is activated.              | `modUUID`: The UUID of the mod  </br> `subtabName`: The name of the activated subtab  |
-| `MCM_Enum_Choices_Updated`   | Fired when runtime choices for an enum are updated through `MCM.Enum.SetChoices`. | `modUUID`: The UUID of the mod  </br> `settingId`: The ID of the enum setting  </br> `choices`: The updated runtime choices  </br> `value`: The authoritative enum value after reconciliation |
-| `MCM_Window_Opened`          | Fired when a player opens the MCM window.         | |
-| `MCM_Window_Closed`          | Fired when a player closes the MCM window.                      |                        |
+| Event name | Description | Payload content |
+| ------------------------------ | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `MCM_Setting_Saved` | Fired whenever a setting value has been saved and written to the settings JSON file by MCM. | `modUUID`: The UUID of the mod  </br> `settingId`: The ID of the setting  </br> `value`: The new value of the setting  </br> `oldValue`: The old value of the setting |
+| `MCM_Setting_Reset` | Fired when a setting is reset to its default value. | `modUUID`: The UUID of the mod  </br> `settingId`: The ID of the setting  </br> `defaultValue`: The default value of the setting |
+| `MCM_Profile_Created` | Fired when a new profile is created. | `profileName`: The name of the created profile  </br> `newSettings`: The settings of the new profile |
+| `MCM_Profile_Activated` | Fired when a profile is set as the active one. | `profileName`: The name of the active profile |
+| `MCM_Profile_Deleted` | Fired when a profile is deleted. | `profileName`: The name of the deleted profile |
+| `MCM_Mod_Tab_Added` | Fired when a mod inserts a custom tab into the MCM UI. | `modUUID`: The UUID of the mod  </br> `tabName`: The name of the tab added |
+| `MCM_Mod_Tab_Activated` | Fired when a player clicks a mod in the mod list in MCM's left panel. | `modUUID`: The UUID of the mod |
+| `MCM_Mod_Subtab_Activated` | Fired when a subtab within a mod tab is activated. | `modUUID`: The UUID of the mod  </br> `subtabName`: The name of the activated subtab |
+| `MCM_Enum_Choices_Updated` | Fired when runtime choices for an enum are updated through `MCM.Enum.SetChoices`. | `modUUID`: The UUID of the mod  </br> `settingId`: The ID of the enum setting  </br> `choices`: The updated runtime choices  </br> `value`: The authoritative enum value after reconciliation |
+| `MCM_Window_Opened` | Fired when a player opens the MCM window. | |
+| `MCM_Window_Closed` | Fired when a player closes the MCM window. | |
 
 For the most up-to-date information, please refer to this file in the Git repository: [EventChannels.lua](https://github.com/AtilioA/BG3-MCM/blob/main/Mod%20Configuration%20Menu/Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/Events/EventChannels.lua)
 

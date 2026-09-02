@@ -3,6 +3,7 @@
     "type": "object",
     "additionalProperties": false,
     "$comment": "This JSON Schema validates blueprint files that define the configuration structure for mods using the Mod Configuration Menu (MCM).\nIt ensures the blueprint adheres to the expected format and contains all necessary elements for proper MCM integration.",
+    "markdownDescription": "Blueprints define settings; read and write them in code only via the global, public `MCM` table API (`MCM.Get`/`MCM.Set`, see [MCMIdeHelpers.lua](https://github.com/AtilioA/BG3-MCM/blob/main/MCMIdeHelpers.lua)). `Mods.BG3MCM.*` (`MCMAPI`, `IMGUIAPI`) are internals: use only for a deliberate workarounds.",
     "properties": {
         "Optional": {
             "type": "boolean",
