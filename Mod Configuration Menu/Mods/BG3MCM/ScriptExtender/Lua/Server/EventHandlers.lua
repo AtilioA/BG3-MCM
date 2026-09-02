@@ -328,7 +328,7 @@ function EHandlers.OnEmitOnServer(data, userID)
     MCMDebug(2, "Emitting event %s on server as well.", eventName)
 
     local ok, err = pcall(function()
-        if Ext.ModEvents['BG3MCM'] and Ext.ModEvents['BG3MCM'][eventName] then
+        if Ext.ModEvents['BG3MCM'][eventName] then
             Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
         else
             error("Event '" .. eventName .. "' not registered")

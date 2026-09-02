@@ -55,9 +55,7 @@ function InitClientMCM()
     if MCMProxy.IsMainMenu() then
         -- Run load order checks when on main menu, then load local configs
         xpcall(function()
-            if LoadOrderHealthCheckToggles and LoadOrderHealthCheckToggles.RunAllChecks then
-                LoadOrderHealthCheckToggles:RunAllChecks()
-            end
+            LoadOrderHealthCheckToggles:RunAllChecks()
         end, function(err)
             MCMWarn(0, "LoadOrderHealthCheckToggles failed: %s", err)
         end)

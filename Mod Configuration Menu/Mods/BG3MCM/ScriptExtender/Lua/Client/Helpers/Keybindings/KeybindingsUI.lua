@@ -14,13 +14,10 @@ KeybindingsUI = {}
 
 KeybindingsUI.SearchBar = nil
 
--- Local references for better performance
+-- Local references for better performance (desperate placebo stuff)
 local pairs = pairs
 local ipairs = ipairs
 local table_insert = table.insert
-local string_format = string.format
-local pcall = pcall
-local type = type
 local Fallback_Value = Fallback.Value
 
 --- Gets all keybinding settings from loaded mods

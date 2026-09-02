@@ -77,7 +77,6 @@ local function wireRequestHandlers()
         if command then
             channel:SetRequestHandler(function(data, peerId)
                 local userID = MCMUtils:PeerToUserID(peerId)
-                -- Auto-wrap in xpcall for error handling
                 local ok, result = xpcall(function()
                     return command:execute(data, userID)
                 end, function(err)
@@ -105,7 +104,6 @@ local function wireRequestHandlers()
         if command then
             channel:SetHandler(function(data, peerId)
                 local userID = MCMUtils:PeerToUserID(peerId)
-                -- Auto-wrap in xpcall for error handling
                 xpcall(function()
                     command:execute(data, userID)
                 end, function(err)
