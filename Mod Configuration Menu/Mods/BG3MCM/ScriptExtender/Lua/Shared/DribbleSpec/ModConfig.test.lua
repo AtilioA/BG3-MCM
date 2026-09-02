@@ -254,6 +254,38 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         D.expect(repaired["int-setting"]).toBe(42)
     end)
 
+    D.test("TestLoadedSettingsRepairShouldPreserveMouseKeybindingV2", function()
+        local settingId = "mouse-keybinding"
+        local blueprint = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                {
+                    Id = settingId,
+                    Type = "keybinding_v2",
+                    Default = {
+                        Keyboard = { Key = "K", ModifierKeys = {} },
+                        Enabled = true,
+                        AllowConflict = false,
+                    }
+                }
+            }
+        })
+
+        local repaired = LoadedSettingsRepair:Repair(blueprint, {
+            [settingId] = {
+                Mouse = { Button = 5, ModifierKeys = { "LCTRL" } },
+                Enabled = false,
+                AllowConflict = true,
+            }
+        })
+
+        D.expect(repaired[settingId]).toEqual({
+            Mouse = { Button = 5, ModifierKeys = { "LCTRL" } },
+            Enabled = false,
+            AllowConflict = true,
+        })
+    end)
+
     D.test("TestLoadedSettingsRepairShouldPreserveEmptyUnknownTables", function()
         local blueprint = Blueprint:New({
             SchemaVersion = 1,

@@ -13,11 +13,11 @@
 -- It relies on helper classes such as the JsonLayer and ProfileManager to handle the details of working with JSON files and managing user profiles.
 --
 -- ModConfig is responsible for:
--- - Loading and managing the configuration data for each mod
--- - Handling the loading, saving, and updating of mod settings
--- - Interfacing with the ProfileManager to manage user profiles
--- - Submitting and loading mod blueprints
--- - Ensuring the consistency and integrity of the mod settings
+--- Loading and managing the configuration data for each mod
+--- Handling the loading, saving, and updating of mod settings
+--- Interfacing with the ProfileManager to manage user profiles
+--- Submitting and loading mod blueprints
+--- Ensuring the consistency and integrity of the mod settings
 ModConfig = _Class:Create("ModConfig", nil, {
     mods = {},
     profileManager = ProfileManager

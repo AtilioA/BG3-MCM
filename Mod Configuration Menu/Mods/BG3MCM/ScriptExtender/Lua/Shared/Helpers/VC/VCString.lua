@@ -80,17 +80,19 @@ end
 --- Capitalize the first letter of a string
 ---@param str string The string to capitalize
 function VCString:Capitalize(str)
-    return str:gsub("^%l", string.upper)
+    local capitalized = str:gsub("^%l", string.upper)
+    return capitalized
 end
 
 --- Lowercase the first letter of a string
 ---@param str string The string to lowercase
 function VCString:Lowercase(str)
-    return str:gsub("^%u", string.lower)
+    local lowercased = str:gsub("^%u", string.lower)
+    return lowercased
 end
 
 ---Check whether a value is a non-empty string.
----@param value any
+---@param value unknown
 ---@return boolean
 function VCString:IsNonEmptyString(value)
     return type(value) == "string" and value ~= ""
@@ -129,7 +131,8 @@ end
 ---@return string
 function VCString:EscapeReplacement(str)
     if str == nil then return "" end
-    return str:gsub("%%", "%%%%")
+    local escaped = str:gsub("%%", "%%%%")
+    return escaped
 end
 
 -- Adds full stop to the end of the string if it doesn't already have one
@@ -231,14 +234,16 @@ function VCString:AddNewlinesAfterPeriods(description)
         return nil
     end
 
-    return string.gsub(description, "%. ", ".\n")
+    local punctuated = string.gsub(description, "%. ", ".\n")
+    return punctuated
 end
 
 --- Replace <br> tags with newlines in a string
 function VCString:ReplaceBrWithNewlines(description)
     if not description or description == "" then return "" end
 
-    return string.gsub(description, "<br>", "\n")
+    local sanitized = string.gsub(description, "<br>", "\n")
+    return sanitized
 end
 
 --- Update a localized message with dynamic content.

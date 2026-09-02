@@ -32,9 +32,19 @@ local DEVICE_TYPE = {
 ---@field Type table
 
 local NativeKeybindings = {}
+local VERIFIED_MOUSE_INPUTS = {
+    middle = 2
+}
 local _initialized = false
 ---@type InputManager|nil
 local _inputManager = nil
+
+---Returns the SDL button for a verified native mouse input name.
+---@param inputId unknown
+---@return integer|nil
+function NativeKeybindings.GetVerifiedMouseButton(inputId)
+    return VERIFIED_MOUSE_INPUTS[tostring(inputId):lower()]
+end
 
 ---@class NativeKeybinding
 ---@field CategoryName string

@@ -400,7 +400,7 @@ function NotificationManager:CreateNotificationFunctions(modUUID)
         ---@param title string The title of the warning IMGUIwindow
         ---@param message string The message to display
         ---@param options NotificationOptions The options for the warning
-        ---@return function
+        ---@return nil
         ShowInfo = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'info', title, message, options, modUUID)
         end,
@@ -408,7 +408,7 @@ function NotificationManager:CreateNotificationFunctions(modUUID)
         ---@param title string The title of the warning IMGUIwindow
         ---@param message string The message to display
         ---@param options NotificationOptions The options for the warning
-        ---@return function
+        ---@return nil
         ShowSuccess = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'success', title, message, options, modUUID)
         end,
@@ -416,7 +416,7 @@ function NotificationManager:CreateNotificationFunctions(modUUID)
         ---@param title string The title of the warning IMGUIwindow
         ---@param message string The message to display
         ---@param options NotificationOptions The options for the warning
-        ---@return function
+        ---@return nil
         ShowWarning = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'warning', title, message, options, modUUID)
         end,
@@ -424,7 +424,7 @@ function NotificationManager:CreateNotificationFunctions(modUUID)
         ---@param title string The title of the warning IMGUIwindow
         ---@param message string The message to display
         ---@param options NotificationOptions The options for the warning
-        ---@return function
+        ---@return nil
         ShowError = function(id, title, message, options)
             NotificationManager:CreateIMGUINotification(id, 'error', title, message, options, modUUID)
         end

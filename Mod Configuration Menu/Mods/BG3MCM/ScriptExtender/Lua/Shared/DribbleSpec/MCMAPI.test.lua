@@ -194,4 +194,60 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
             error(err)
         end
     end)
+
+    D.test("TestSetKeybindingV2UsesReplacementValue", function()
+        local modUUID = TestConstants.ModuleUUIDs[1]
+        local settingId = "canonical-keybinding"
+        local blueprint = Blueprint:New({
+            ModUUID = modUUID,
+            SchemaVersion = 1,
+            Settings = {
+                BlueprintSetting:New({
+                    Id = settingId,
+                    Name = "Canonical keybinding",
+                    Type = "keybinding_v2",
+                    Default = { Keyboard = { Key = "K", ModifierKeys = {} } }
+                })
+            }
+        })
+        local mods = {
+            [modUUID] = {
+                blueprint = blueprint,
+                settingsValues = {
+                    [settingId] = {
+                        Mouse = { Button = 5, ModifierKeys = { "LCTRL" } },
+                        Enabled = false,
+                        AllowConflict = true
+                    }
+                }
+            }
+        }
+        local originalMods = MCMAPI.mods
+        local originalModConfigMods = ModConfig.mods
+        local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
+        local originalEmit = ModEventManager.Emit
+        MCMAPI.mods = mods
+        ModConfig.mods = mods
+        ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
+            self.mods[targetModUUID].settingsValues = settings
+        end
+        ModEventManager.Emit = function(...) end
+
+        local ok, err = pcall(function()
+            local replacement = {
+                Keyboard = { Key = "J", ModifierKeys = { "RSHIFT", "LALT" } },
+                Enabled = true,
+                AllowConflict = false
+            }
+            local success = MCMAPI:SetSettingValue(settingId, replacement, modUUID, false)
+            D.expect(success).toBeTruthy()
+            D.expect(MCMAPI:GetSettingValue(settingId, modUUID)).toEqual(replacement)
+        end)
+
+        MCMAPI.mods = originalMods
+        ModConfig.mods = originalModConfigMods
+        ModConfig.UpdateAllSettingsForMod = originalUpdateAllSettingsForMod
+        ModEventManager.Emit = originalEmit
+        if not ok then error(err) end
+    end)
 end)

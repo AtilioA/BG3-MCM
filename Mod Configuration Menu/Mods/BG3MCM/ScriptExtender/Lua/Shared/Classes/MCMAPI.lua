@@ -13,11 +13,11 @@ local RX = {
 --
 -- The MCM class is responsible for providing a consistent and user-friendly API for mod authors and the IMGUI client to interact with the Mod Configuration Menu system.
 -- It provides methods for managing the configuration of mods, including:
--- - Loading the configurations for all mods
--- - Creating and managing user profiles
--- - Retrieving the settings and blueprints for individual mods
--- - Setting and getting the values of configuration settings
--- - Resetting settings to their default values
+--- Loading the configurations for all mods
+--- Creating and managing user profiles
+--- Retrieving the settings and blueprints for individual mods
+--- Setting and getting the values of configuration settings
+--- Resetting settings to their default values
 MCMAPI = _Class:Create("MCMAPI", nil, {
     mods = {},
     profiles = {},
@@ -224,7 +224,7 @@ end
 
 --- Check if a setting value is valid given the mod blueprint
 ---@param settingId string The id of the setting
----@param value any The value to check
+---@param value MCMSettingValue The value to check
 ---@return boolean Whether the value is valid
 function MCMAPI:IsSettingValueValid(settingId, value, modUUID)
     if not modUUID then
@@ -248,7 +248,7 @@ end
 --- Get the value of a configuration setting
 ---@param settingId string The id of the setting
 ---@param modUUID string The UUID of the mod that has the setting
----@return any - The value of the setting
+---@return MCMSettingValue - The value of the setting
 function MCMAPI:GetSettingValue(settingId, modUUID)
     if not modUUID then
         MCMWarn(0, "modUUID is nil. Cannot get setting value.")
@@ -322,7 +322,7 @@ end
 
 --- Set the value of a configuration setting
 ---@param settingId string The id of the setting
----@param value any The new value of the setting
+---@param value MCMSettingValue The new value of the setting
 ---@param modUUID string The UUID of the mod
 ---@param shouldEmitEvent? boolean Whether to emit an event
 ---@return boolean success True if the setting was successfully updated

@@ -2,7 +2,7 @@
 -- Supports full SE parameter compatibility and automatic nested table dirty/sync.
 -- NOTE: Actual value access is deferred until SessionLoaded event.
 
-local IStorageAdapter = require("Shared/DynamicSettings/Adapters/IStorageAdapter")
+local IStorageAdapter = Ext.Require("Shared/DynamicSettings/Adapters/IStorageAdapter.lua")
 
 ---@class ModVarAdapter : IStorageAdapter
 local ModVarAdapter = {}
@@ -96,7 +96,7 @@ end
 --- Uses exact SE parameter names for compatibility.
 ---@param varName string The variable name to register
 ---@param moduleUUID string The module UUID
----@param storageConfig? table Optional SE configuration parameters
+---@param storageConfig? StorageConfig Optional SE configuration parameters
 ---@param skipBroadcast? boolean Internal use to prevent loops
 function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skipBroadcast)
     -- Initialize tracking for this module if needed
@@ -150,7 +150,7 @@ end
 ---@param key string The key to read
 ---@param moduleUUID string The UUID of the module
 ---@param storageConfig? table Optional SE configuration parameters
----@return any value The raw Lua value or nil if not set
+---@return StorageValue value The raw Lua value or nil if not set
 function ModVarAdapter:_doGetValue(key, moduleUUID, storageConfig)
     -- Ensure the variable is registered before reading to avoid SE indexing errors
     self:EnsureRegistered(key, moduleUUID, storageConfig)
@@ -169,9 +169,9 @@ end
 --- value will be available via callback if provided.
 ---@param key string The key to read
 ---@param moduleUUID string The UUID of the module
----@param storageConfig? table Optional SE configuration parameters
----@param callback? function Optional callback(value) called when value is actually retrieved
----@return any value The raw Lua value or nil if not set (may be nil if before SessionLoaded)
+---@param storageConfig? StorageConfig Optional SE configuration parameters
+---@param callback? fun(value: StorageValue) Optional callback(value) called when value is actually retrieved
+---@return StorageValue value The raw Lua value or nil if not set (may be nil if before SessionLoaded)
 function ModVarAdapter:GetValue(key, moduleUUID, storageConfig, callback)
     -- If SessionLoaded hasn't fired yet, queue the operation and return nil
     if not self._sessionLoaded then
@@ -192,9 +192,9 @@ end
 
 --- Internal: Actually perform the SetValue operation (assumes SessionLoaded has fired)
 ---@param key string The key to write
----@param value any The value to write (nil to delete)
+---@param value StorageValue The value to write (nil to delete)
 ---@param moduleUUID string The UUID of the module
----@param storageConfig? table Optional SE configuration parameters
+---@param storageConfig? StorageConfig Optional SE configuration parameters
 function ModVarAdapter:_doSetValue(key, value, moduleUUID, storageConfig)
     -- Ensure the variable is registered before writing.
     self:EnsureRegistered(key, moduleUUID, storageConfig)
@@ -231,9 +231,9 @@ end
 --- Automatically handles nested table dirty/sync.
 --- NOTE: If called before SessionLoaded, the operation is queued and executed after SessionLoaded.
 ---@param key string The key to write
----@param value any The value to write (nil to delete)
+---@param value StorageValue The value to write (nil to delete)
 ---@param moduleUUID string The UUID of the module
----@param storageConfig? table Optional SE configuration parameters
+---@param storageConfig? StorageConfig Optional SE configuration parameters
 function ModVarAdapter:SetValue(key, value, moduleUUID, storageConfig)
     -- If SessionLoaded hasn't fired yet, queue the operation
     if not self._sessionLoaded then

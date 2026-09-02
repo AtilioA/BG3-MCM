@@ -411,7 +411,7 @@ end
 --- of Observables whenever any of them produce a new value. The results of the combinator function
 --- are produced by the new Observable.
 --- @param ... Observable - One or more Observables to combine.
--- - @param ... combinator - last arg = A function that combines the latest result from each Observable and returns a single value.
+--- @param ... combinator - last arg = A function that combines the latest result from each Observable and returns a single value.
 ---@return Observable
 function Observable:CombineLatest(...)
     local sources = { ... }

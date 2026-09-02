@@ -1,13 +1,14 @@
 -- Authorized NetCommand interface
----@class AuthorizedCommand : NetCommand
+---@class AuthorizedNetCommand : NetCommand
 AuthorizedNetCommand = setmetatable({}, { __index = NetCommand })
 AuthorizedNetCommand.__index = AuthorizedNetCommand
 
 --- Creates a new AuthorizedCommand instance.
 ---@param callback function The callback function to be executed.
----@return AuthorizedCommand The new AuthorizedCommand instance.
+---@return AuthorizedNetCommand The new AuthorizedNetCommand instance.
 function AuthorizedNetCommand:new(callback)
     local cmd = setmetatable(NetCommand:new(callback), self)
+    ---@cast cmd AuthorizedNetCommand
     return cmd
 end
 

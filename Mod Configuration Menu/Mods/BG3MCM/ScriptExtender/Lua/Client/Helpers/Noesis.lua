@@ -25,7 +25,12 @@ local function findNoesisElementByName(element, name)
 end
 
 function Noesis:FindWidgetChild(widgetName, name)
-    local root = Ext.UI.GetRoot():Find("ContentRoot")
+    local uiRoot = Ext.UI.GetRoot()
+    if not uiRoot then
+        return nil
+    end
+
+    local root = uiRoot:Find("ContentRoot")
     if not root then
         MCMError(0, "ContentRoot not found")
         return nil
@@ -206,6 +211,10 @@ end
 
 function Noesis:MonitorMainMenuButtonPress()
     VCTimer:ExecuteWithIntervalUntilCondition(function()
+        -- UI root not ready yet? retry next interval
+        if not Ext.UI.GetRoot() then
+            return false
+        end
         local isController = Gamepad.IsHostUsingGamepad()
 
         local mainMenuButton = Noesis:FindMCMMainMenuButton(isController)

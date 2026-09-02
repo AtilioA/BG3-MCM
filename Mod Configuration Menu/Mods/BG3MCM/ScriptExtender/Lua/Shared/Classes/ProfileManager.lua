@@ -2,11 +2,11 @@
 -- It handles loading, saving, and switching between different profiles, which allow users to have multiple configurations for their mod settings.
 --
 -- The ProfileManager class is responsible for:
--- - Maintaining the list of available profiles
--- - Keeping track of the currently selected profile
--- - Loading and saving profile data to the MCM configuration file
--- - Creating new profiles
--- - Setting the current profile
+--- Maintaining the list of available profiles
+--- Keeping track of the currently selected profile
+--- Loading and saving profile data to the MCM configuration file
+--- Creating new profiles
+--- Setting the current profile
 ---@class ProfileManager
 ---@field DefaultProfile string The name of the default profile
 ---@field SelectedProfile string The name of the currently selected profile
@@ -108,13 +108,14 @@ function ProfileManager:SetCurrentProfile(profileName)
     self:SaveProfileValuesToConfig()
     ModConfig:LoadSettings()
 
-    -- TODO: untangle this from shared client/server code
-    if Ext.IsServer() then
-        ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
-            profileName = profileName,
-            newSettings = ModConfig.mods
-        })
+    local profileSettings = {}
+    for modUUID, modSettings in pairs(ModConfig.mods or {}) do
+        profileSettings[modUUID] = { settingsValues = modSettings.settingsValues or {} }
     end
+    ModEventManager:Emit(EventChannels.MCM_PROFILE_ACTIVATED, {
+        profileName = profileName,
+        newSettings = profileSettings
+    }, Ext.IsServer())
 
     return true
 end

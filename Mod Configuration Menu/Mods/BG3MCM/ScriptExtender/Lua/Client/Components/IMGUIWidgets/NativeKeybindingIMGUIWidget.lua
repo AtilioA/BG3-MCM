@@ -1,3 +1,5 @@
+local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
+
 ---@class NativeKeybindingIMGUIWidget: IMGUIWidget
 NativeKeybindingIMGUIWidget = _Class:Create("NativeKeybindingIMGUIWidget", IMGUIWidget)
 
@@ -108,10 +110,19 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingCell(cell, action)
         local bindingText = ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
 
         if binding.InputId then
-            bindingText = KeyPresentationMapping:GetKBViewKey({
-                Key = tostring(binding.InputId),
-                ModifierKeys = binding.Modifiers
-            })
+            local mouseButton = binding.InputType == "Mouse"
+                and NativeKeybindings.GetVerifiedMouseButton(binding.InputId) or nil
+            if mouseButton then
+                bindingText = KeyPresentationMapping:GetMouseViewKey({
+                    Button = mouseButton,
+                    ModifierKeys = binding.Modifiers
+                })
+            else
+                bindingText = KeyPresentationMapping:GetKBViewKey({
+                    Key = (binding.InputType == "Mouse" and "Mouse " or "") .. tostring(binding.InputId),
+                    ModifierKeys = binding.Modifiers
+                })
+            end
         end
 
         -- Only add spacing if this isn't the first button

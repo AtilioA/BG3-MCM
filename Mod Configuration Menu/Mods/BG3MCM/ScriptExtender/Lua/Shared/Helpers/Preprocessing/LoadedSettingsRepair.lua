@@ -10,7 +10,7 @@ function LoadedSettingsRepair:ShouldPreserveSettingGroup(_key, value)
     end
 
     local function isKeybindingV2SettingGroup(tbl)
-        return type(tbl) == "table" and tbl.Keyboard ~= nil
+        return type(tbl) == "table" and (tbl.Keyboard ~= nil or tbl.Mouse ~= nil)
     end
 
     if isKeybindingV2SettingGroup(value)

@@ -21,7 +21,7 @@ end
 
 --- Validate a single setting based on its type
 ---@param setting BlueprintSetting The setting to validate
----@param value any The value of the setting
+---@param value MCMSettingValue The value of the setting
 ---@return boolean True if the setting is valid, false otherwise
 function DataPreprocessing:ValidateSetting(setting, value)
     local validator = SettingValidators[setting:GetType()]
@@ -48,7 +48,7 @@ end
 --- Attempt to fix invalid settings by resetting them to default values
 ---@param blueprint Blueprint The blueprint data
 ---@param config table<string, any> All the settings for the mod as a flat table of settingId -> value pairs
----@return nil - The config table is updated in place
+---@return table<string, any> config The updated config table
 function DataPreprocessing:ValidateAndFixSettings(blueprint, config)
     local isValid, invalidSettings = DataPreprocessing:ValidateSettings(blueprint, config)
     DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
@@ -65,13 +65,22 @@ end
 function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
     if not isValid then
         for _, settingID in ipairs(invalidSettings) do
+            local setting = BlueprintShape:GetSettingById(blueprint, settingID)
             local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingID)
-            MCMWarn(0,
-                "Invalid value for setting '%s' (value: %s), resetting it to default value from the blueprint (%s).",
-                settingID,
-                Ext.DumpExport(config[settingID]),
-                Ext.DumpExport(defaultValue))
-            config[settingID] = defaultValue
+            if setting and self:ValidateSetting(setting, defaultValue) then
+                MCMWarn(0,
+                    "Invalid value for setting '%s' (value: %s), resetting it to default value from the blueprint (%s).",
+                    settingID,
+                    Ext.DumpExport(config[settingID]),
+                    Ext.DumpExport(defaultValue))
+                config[settingID] = defaultValue
+            else
+                MCMWarn(0,
+                    "Invalid value for setting '%s' (value: %s). The blueprint default (%s) is also invalid, so the setting could not be repaired. Please contact the mod author about this issue.",
+                    settingID,
+                    Ext.DumpExport(config[settingID]),
+                    Ext.DumpExport(defaultValue))
+            end
         end
     end
 end
@@ -138,8 +147,8 @@ function DataPreprocessing:PreprocessTab(tabData, modUUID)
 
     tab.Settings = self:PreprocessSettings(tabData.Settings)
 
-    self:AppendTabs(tab.Tabs, tabData.Tabs, modUUID)
-    self:AppendSections(tab.Sections, tabData.Sections, modUUID)
+    self:AppendTabs(tab:GetTabs(), tabData.Tabs, modUUID)
+    self:AppendSections(tab:GetSections(), tabData.Sections, modUUID)
 
     return tab
 end
@@ -166,7 +175,7 @@ function DataPreprocessing:PreprocessSection(sectionData, modUUID)
 
     section.Settings = self:PreprocessSettings(sectionData.Settings)
 
-    self:AppendTabs(section.Tabs, sectionData.Tabs, modUUID)
+    self:AppendTabs(section:GetTabs(), sectionData.Tabs, modUUID)
 
     return section
 end
@@ -174,7 +183,7 @@ end
 --- Entry point function to preprocess data including SchemaVersion and ModName.
 ---@param data table The full item data to preprocess
 ---@param modUUID string The UUID of the mod that the item data belongs to
----@return table<string, BlueprintSetting>|nil The preprocessed data, or nil if preprocessing failed
+---@return PreprocessedBlueprintData The preprocessed data
 function DataPreprocessing:PreprocessData(data, modUUID)
     local preprocessedData = {
         ModUUID = modUUID,

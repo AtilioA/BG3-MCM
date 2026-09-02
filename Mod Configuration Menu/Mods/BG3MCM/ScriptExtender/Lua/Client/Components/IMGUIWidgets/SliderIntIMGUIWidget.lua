@@ -1,7 +1,11 @@
 ---@class SliderIntIMGUIWidget: IMGUIWidget
 SliderIntIMGUIWidget = _Class:Create("SliderIntIMGUIWidget", IMGUIWidget)
 
----@return any
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue integer
+---@param modUUID string
+---@return SliderIntIMGUIWidget
 function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = SliderIntIMGUIWidget })
 
@@ -76,6 +80,8 @@ function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
     tt:AddText(Ext.Loca.GetTranslatedString("h0dfee4b6ba51423da77eaa53e1961ade059f"))
 end
 
+---@param value { Value: integer[] }
+---@return integer
 function SliderIntIMGUIWidget:GetOnChangeValue(value)
     return value.Value[1]
 end

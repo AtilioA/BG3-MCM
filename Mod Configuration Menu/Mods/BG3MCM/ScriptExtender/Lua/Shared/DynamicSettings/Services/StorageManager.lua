@@ -1,7 +1,7 @@
 -- Handles discovery and initialization of storage backends for DynamicSettings
 
-local AdapterFactory = require("Shared/DynamicSettings/Factories/AdapterFactory")
-local SettingsService = require("Shared/DynamicSettings/Services/SettingsService")
+local AdapterFactory = Ext.Require("Shared/DynamicSettings/Factories/AdapterFactory.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
 
 ---@class StorageManager
 local StorageManager = {}

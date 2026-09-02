@@ -158,13 +158,15 @@ end
 ---@param modUUID string The UUID of the mod to set the setting for
 ---@param setUIValue function|nil A function to set the UI value
 ---@param shouldEmitEvent? boolean Whether to emit the setting saved event
+---@return boolean accepted Whether the local save succeeded or the server request was queued
 function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
     if self:IsMainMenu() then
         -- Handle locally
-        MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
-        if setUIValue then
+        local success = MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
+        if success and setUIValue then
             setUIValue(value)
         end
+        return success
     else
         NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE:RequestToServer(
             {
@@ -192,6 +194,7 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldE
                 setUIValue(data.value)
             end
         end)
+        return true
     end
 end
 

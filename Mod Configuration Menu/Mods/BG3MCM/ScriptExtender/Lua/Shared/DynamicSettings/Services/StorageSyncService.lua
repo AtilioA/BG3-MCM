@@ -2,13 +2,13 @@
 ---@field storageType string
 ---@field moduleUUID string
 ---@field varName string
----@field value any
+---@field value StorageValue
 ---@field originUserID? integer
----@field storageConfig? table
+---@field storageConfig? StorageConfig
 
 ---@class StorageSyncService
----@field private _cache table<string, table<string, table<string, any>>> cache[storageType][moduleUUID][varName]
----@field private _adapters table<string, table>
+---@field private _cache table<string, table<string, table<string, StorageValue>>> cache[storageType][moduleUUID][varName]
+---@field private _adapters table<string, IStorageAdapter>
 ---@field private _applyingRemote boolean
 ---@field private _testMode boolean
 StorageSyncService = {
@@ -24,7 +24,7 @@ local function normalizeStorageType(storageType)
     return string.lower(storageType or "")
 end
 
----@param payload any
+---@param payload unknown
 ---@return table|nil
 local function parsePayload(payload)
     if type(payload) == "table" then
@@ -91,8 +91,8 @@ local function getConnectedUserIDs()
     return result
 end
 
----@param stores table<string, table<string, table<string, any>>>
----@return table<string, table<string, table<string, any>>>
+---@param stores table<string, table<string, table<string, StorageValue>>>
+---@return table<string, table<string, table<string, StorageValue>>>
 local function deepCopyStores(stores)
     local copy = {}
     for storageType, mods in pairs(stores or {}) do
@@ -123,7 +123,7 @@ function StorageSyncService:_syncToClients(payload, excludeUserID)
 end
 
 ---@param storageType string
----@param adapter table
+---@param adapter IStorageAdapter
 function StorageSyncService:RegisterStorageAdapter(storageType, adapter)
     if type(storageType) ~= "string" or storageType == "" then
         return
@@ -133,7 +133,7 @@ function StorageSyncService:RegisterStorageAdapter(storageType, adapter)
 end
 
 ---@param storageType string
----@return table|nil
+---@return IStorageAdapter|nil
 function StorageSyncService:GetRegisteredStorageAdapter(storageType)
     local normalizedStorageType = normalizeStorageType(storageType)
     return self._adapters[normalizedStorageType]
@@ -142,7 +142,7 @@ end
 ---@param storageType string
 ---@param moduleUUID string
 ---@param varName string
----@param value any
+---@param value StorageValue
 function StorageSyncService:SetCachedValue(storageType, moduleUUID, varName, value)
     local normalizedStorageType = normalizeStorageType(storageType)
     self._cache[normalizedStorageType] = self._cache[normalizedStorageType] or {}
@@ -158,7 +158,7 @@ end
 ---@param storageType string
 ---@param moduleUUID string
 ---@param varName string
----@return any
+---@return StorageValue
 function StorageSyncService:GetCachedValue(storageType, moduleUUID, varName)
     local normalizedStorageType = normalizeStorageType(storageType)
     local byStorage = self._cache[normalizedStorageType]
@@ -174,24 +174,24 @@ function StorageSyncService:EndRemoteApply()
     self._applyingRemote = false
 end
 
----@param config table|nil
+---@param config StorageConfig|nil
 ---@return boolean
 function StorageSyncService:CanBroadcastLocalWrite(config)
     if self._applyingRemote then
         return false
     end
 
-    return config and config.SyncToClient == true
+    return config ~= nil and config.SyncToClient == true
 end
 
----@param config table|nil
+---@param config StorageConfig|nil
 ---@return boolean
 function StorageSyncService:CanClientSendToServer(config)
     if self._applyingRemote then
         return false
     end
 
-    return config and config.SyncToServer == true
+    return config ~= nil and config.SyncToServer == true
 end
 
 ---@param originUserID integer|nil
@@ -221,8 +221,8 @@ end
 ---@param storageType string
 ---@param moduleUUID string
 ---@param varName string
----@param value any
----@param config table|nil
+---@param value StorageValue
+---@param config StorageConfig|nil
 function StorageSyncService:OnLocalSet(storageType, moduleUUID, varName, value, config)
     self:SetCachedValue(storageType, moduleUUID, varName, value)
     self:EnsureDiscovered(storageType, moduleUUID, varName)
@@ -262,8 +262,8 @@ end
 ---@param storageType string
 ---@param moduleUUID string
 ---@param varName string
----@param value any
----@param storageConfig table|nil
+---@param value StorageValue
+---@param storageConfig StorageConfig|nil
 ---@return boolean
 function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, value, storageConfig)
     local adapter = self:GetRegisteredStorageAdapter(storageType)
@@ -285,7 +285,7 @@ function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, v
     return true
 end
 
----@param data any
+---@param data unknown
 ---@param userID integer
 ---@return table
 function StorageSyncService:HandleClientSet(data, userID)
@@ -330,7 +330,7 @@ function StorageSyncService:HandleClientSet(data, userID)
     return { success = true }
 end
 
----@param data any
+---@param data unknown
 ---@param userID integer
 ---@return table
 function StorageSyncService:HandleBootstrapRequest(data, userID)
@@ -372,7 +372,7 @@ function StorageSyncService:SendBootstrapToUser(userID)
     ChunkedNet.SendJSONToUser(userID, NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP, payload)
 end
 
----@param data any
+---@param data unknown
 function StorageSyncService:HandleBootstrapPayload(data)
     local payload = parsePayload(data)
     if not payload then
@@ -389,7 +389,7 @@ function StorageSyncService:HandleBootstrapPayload(data)
     end
 end
 
----@param data any
+---@param data unknown
 function StorageSyncService:HandleServerSyncPayload(data)
     local payload = parsePayload(data)
     if not payload then

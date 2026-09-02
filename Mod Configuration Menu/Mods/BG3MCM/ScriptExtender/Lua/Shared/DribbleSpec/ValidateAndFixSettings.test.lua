@@ -284,6 +284,51 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         D.expect(fixedConfig["list-v2-setting"]).toBe(defaultListValue)
     end)
 
+    D.test("ShouldKeepInvalidListV2ValueWhenDefaultIsAlsoInvalid", function(ctx)
+        local invalidDefault = {
+            enabled = { "Alpha", "Beta" },
+            elements = {
+                {
+                    name = "Alpha",
+                    enabled = true,
+                },
+                {
+                    name = "Beta",
+                    enabled = true,
+                }
+            }
+        }
+
+        local blueprint = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                BlueprintSetting:New({
+                    Id = "list-v2-setting",
+                    Type = "list_v2",
+                    Default = invalidDefault,
+                })
+            }
+        })
+
+        local invalidConfigValue = {
+            enabled = { "Gamma" },
+            elements = {
+                {
+                    name = "Gamma",
+                    enabled = true,
+                }
+            }
+        }
+
+        local config = {
+            ["list-v2-setting"] = invalidConfigValue,
+        }
+
+        local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
+
+        D.expect(fixedConfig["list-v2-setting"]).toBe(invalidConfigValue)
+    end)
+
     D.test("ShouldKeepValidListV2Setting", function(ctx)
         local defaultListValue = {
             enabled = false,

@@ -107,7 +107,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
 ---@field storage? StorageType Storage backend for this variable. Defaults to "json". Unknown values warn and fall back to "json".
 ---@field storageConfig? table Optional parameters (Server, Client, Persistent, SyncToClient, etc.)
----@field validate? fun(value: any): (boolean, string)? Optional validation function
+---@field validate? fun(value: unknown): (boolean, string)? Optional validation function
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMStoreGetArgs
@@ -116,7 +116,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 
 ---@class MCMStoreSetArgs
 ---@field var string The name/key of the variable to set
----@field value any The value to set
+---@field value StorageValue The value to set
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
 
 ---@class MCMStoreGetAllArgs
@@ -125,7 +125,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 
 --- Implementation: Get the value of a setting
 ---@param args MCMGetArgs
----@return any The value of the setting, or nil if not found
+---@return MCMSettingValue The value of the setting, or nil if not found
 local function Get_Impl(args)
     return MCMAPI:GetSettingValue(args.settingId, args.modUUID)
 end
@@ -134,6 +134,9 @@ end
 ---@param args MCMSetArgs
 ---@return boolean success True if the setting was successfully updated
 local function Set_Impl(args)
+    if Ext.IsClient() then
+        return MCMProxy:SetSettingValue(args.settingId, args.value, args.modUUID, nil, args.shouldEmitEvent)
+    end
     return MCMAPI:SetSettingValue(args.settingId, args.value, args.modUUID, args.shouldEmitEvent)
 end
 
@@ -146,7 +149,7 @@ function MCMAPIImplementations.createCoreMethods(originalModUUID)
     --- Get the value of a setting
     ---@param settingId string|MCMGetArgs The ID of the setting to retrieve, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
-    ---@return any The value of the setting, or nil if not found
+    ---@return MCMSettingValue The value of the setting, or nil if not found
     MCMInstance.Get = MCMAPIUtils.WithFlexibleArgs(
         Get_Impl,
         { "settingId", "modUUID" },
@@ -155,7 +158,7 @@ function MCMAPIImplementations.createCoreMethods(originalModUUID)
 
     --- Set the value of a setting
     ---@param settingId string|MCMSetArgs The ID of the setting to set, or an argument table
-    ---@param value any The value to set
+    ---@param value MCMSettingValue The value to set
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@param shouldEmitEvent? boolean Whether to emit a setting changed event
     ---@return boolean success True if the setting was successfully updated
@@ -177,12 +180,12 @@ end
 
 --- Implementation: Get the raw keybinding data
 ---@param args MCMKeybindingGetArgs
----@return table|nil The raw keybinding data structure or nil if not found
+---@return KeybindingV2Value|nil The raw keybinding data structure or nil if not found
 local function KeybindingGetRaw_Impl(args)
     return MCMAPI:GetSettingValue(args.settingId, args.modUUID)
 end
 
---- Implementation: Set a callback for keybinding (fires on both KeyDown and KeyUp)
+--- Implementation: Set a callback for keyboard or mouse down/up events.
 ---@param args MCMKeybindingSetCallbackArgs
 ---@return nil
 local function KeybindingSetCallback_Impl(args)
@@ -229,9 +232,9 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
         { modUUID = originalModUUID }
     )
 
-    --- Set a callback for keybinding (fires on both KeyDown and KeyUp events)
+    --- Set a callback for keyboard or mouse down/up events.
     ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
-    ---@param callback function The callback function to be called when the keybinding is triggered
+    ---@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) The raw input event callback
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
     KeybindingAPI.SetCallback = MCMAPIUtils.WithFlexibleArgs(
@@ -242,7 +245,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
 
     --- Set a callback for KeyDown events only
     ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
-    ---@param callback function The callback function to be called when the key is pressed down
+    ---@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) Called on key down or mouse press
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
     KeybindingAPI.SetKeyDownCallback = MCMAPIUtils.WithFlexibleArgs(
@@ -253,7 +256,7 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
 
     --- Set a callback for KeyUp events only
     ---@param settingId string|MCMKeybindingSetCallbackArgs The ID of the keybinding setting, or an argument table
-    ---@param callback function The callback function to be called when the key is released
+    ---@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) Called on key up or mouse release
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return nil
     KeybindingAPI.SetKeyUpCallback = MCMAPIUtils.WithFlexibleArgs(
@@ -283,7 +286,7 @@ end
 
 --- Implementation: Get the raw list setting data
 ---@param args MCMListGetArgs
----@return table|nil The raw list setting data or nil if not found
+---@return ListV2SettingValue|nil The raw list setting data or nil if not found
 local function ListGetRaw_Impl(args)
     return MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
 end
@@ -685,8 +688,8 @@ end
 -- Delegates to SettingsService for storage abstraction
 -- =============================================================================
 
-local SettingsService = require("Shared/DynamicSettings/Services/SettingsService")
-local AdapterFactory = require("Shared/DynamicSettings/Factories/AdapterFactory")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local AdapterFactory = Ext.Require("Shared/DynamicSettings/Factories/AdapterFactory.lua")
 
 -- Default storage type for the Store API
 local DEFAULT_STORAGE_TYPE = AdapterFactory.StorageType.Json
@@ -736,7 +739,7 @@ end
 
 --- Implementation: Get a stored value
 ---@param args MCMStoreGetArgs
----@return any value
+---@return StorageValue value
 local function Store_Get_Impl(args)
     if not args.var then
         MCMWarn(0, "MCM.Store.Get: var is required")
@@ -760,7 +763,7 @@ end
 
 --- Implementation: Get all stored values for a mod
 ---@param args MCMStoreGetAllArgs
----@return table<string, any>
+---@return table<string, StorageValue>
 local function Store_GetAll_Impl(args)
     local storage = resolveStorageType(args.storage, "MCM.Store.GetAll")
     return SettingsService.GetAllForStorageType(args.modUUID, storage)
@@ -783,7 +786,7 @@ function MCMAPIImplementations.createStoreAPI(originalModUUID)
     --- Get a stored value
     ---@param varOrArgs string|MCMStoreGetArgs The variable name, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
-    ---@return any value The stored value, or the registered default if not set
+    ---@return StorageValue value The stored value, or the registered default if not set
     StoreAPI.Get = MCMAPIUtils.WithFlexibleArgs(
         Store_Get_Impl,
         { "var", "modUUID" },
@@ -792,7 +795,7 @@ function MCMAPIImplementations.createStoreAPI(originalModUUID)
 
     --- Set a stored value
     ---@param varOrArgs string|MCMStoreSetArgs The variable name, or an argument table
-    ---@param value? any The value to set
+    ---@param value? StorageValue The value to set
     ---@param modUUID? string Optional mod UUID, defaults to current mod
     ---@return boolean success True if the value was set successfully
     StoreAPI.Set = MCMAPIUtils.WithFlexibleArgs(

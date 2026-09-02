@@ -2,7 +2,7 @@ Color = {}
 
 --- Create a table for the RGBA values from a hex color
 ---@param hex_color string The hex color to convert to RGBA
----@return table<number>
+---@return RGBAColor
 function Color.HEXToRGBA(hex_color)
     -- Remove the hash from the hex color if it is present
     hex_color = hex_color:gsub("#", "")
@@ -23,7 +23,7 @@ end
 ---@param g number
 ---@param b number
 ---@param a number
----@return table<number>
+---@return RGBAColor
 function Color.RGBA(r, g, b, a)
     return { r, g, b, a }
 end
@@ -34,7 +34,7 @@ end
 ---@param g number
 ---@param b number
 ---@param a number
----@return table<number>
+---@return RGBAColor
 function Color.NormalizedRGBA(r, g, b, a)
     if r > 1 or g > 1 or b > 1 then
         return { r / 255, g / 255, b / 255, a }
@@ -46,7 +46,7 @@ end
 --- Create a table for the RGBA values, normalized to 0-1, given a hex color and an alpha value
 ---@param hex_color string The hex color to convert to RGBA
 ---@param a number The alpha value
----@return table<number>
+---@return RGBAColor
 function Color.NormalizedHexToRGBA(hex_color, a)
     -- Remove the hash from the hex color if it is present
     hex_color = hex_color:gsub("#", "")

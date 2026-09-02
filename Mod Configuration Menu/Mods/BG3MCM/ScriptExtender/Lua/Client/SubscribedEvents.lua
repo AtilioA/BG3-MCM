@@ -1,8 +1,8 @@
 local _hasReceivedConfigPayload = nil
 local _hasRequestedStoreBootstrap = nil
 
-local ModVarAdapter = require("Shared/DynamicSettings/Adapters/ModVarAdapter")
-local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
+local ModVarAdapter = Ext.Require("Shared/DynamicSettings/Adapters/ModVarAdapter.lua")
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
 local function invalidateConfigPayloadCache()
     _hasReceivedConfigPayload = nil
@@ -265,7 +265,18 @@ ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(pay
     local settingId = payload.settingId
     local value = payload.value
 
+    if payload.error then
+        if payload.oldValue == nil then
+            MCMWarn(0, "Cannot roll back setting '%s' for mod '%s': no authoritative value was provided.",
+                settingId, modUUID)
+            return
+        end
+        value = payload.oldValue
+        MCMDebug(1, "Rolling back rejected setting '%s' for mod '%s'.", settingId, modUUID)
+    end
+
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
+    KeybindingsRegistry.ApplyBindingValue(modUUID, settingId, value)
 
     IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
 end)
@@ -324,9 +335,12 @@ end)
 
 ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
     local newSettings = data.newSettings
+    if type(newSettings) ~= "table" then return end
 
     for modUUID, modSettings in pairs(newSettings) do
-        for settingId, settingValue in pairs(modSettings.settingsValues) do
+        for settingId, settingValue in pairs(modSettings.settingsValues or {}) do
+            MCMClientState:SetClientStateValue(settingId, settingValue, modUUID)
+            KeybindingsRegistry.ApplyBindingValue(modUUID, settingId, settingValue)
             IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modUUID)
         end
     end

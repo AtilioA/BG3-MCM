@@ -1,6 +1,11 @@
 ---@class IntIMGUIWidget: IMGUIWidget
 IntIMGUIWidget = _Class:Create("IntIMGUIWidget", IMGUIWidget)
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue integer
+---@param modUUID string
+---@return IntIMGUIWidget
 function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = IntIMGUIWidget })
 
@@ -50,6 +55,8 @@ function IntIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
 end
 
+---@param value { Value: integer[] }
+---@return integer
 function IntIMGUIWidget:GetOnChangeValue(value)
     return value.Value[1]
 end

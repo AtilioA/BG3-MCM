@@ -2,7 +2,7 @@ SubscribedEvents = {}
 
 local netEventsRegistry = CommandRegistry:new()
 local modEventRegistry = CommandRegistry:new()
-local StorageSyncService = require("Shared/DynamicSettings/Services/StorageSyncService")
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
 --- Net message handler for when the (IMGUI) client requests the MCM settings to be loaded
 netEventsRegistry:register("MCM_Client_Request_Configs", NetCommand:new(EHandlers.OnClientRequestConfigs))

@@ -430,7 +430,7 @@ If you need structured input, consider `list_v2` or multiple settings instead of
 
 - **Renders as**: Hotkey configuration that appears in MCM's Hotkeys page.
 - **Best for**: Configurable actions that need keybindings.
-- **Required fields**: `Default` (object with `Keyboard` and/or `Mouse` config, optionally `Enabled`).
+- **Required fields**: `Default` (object with one `Keyboard` or `Mouse` config, optionally `Enabled`).
 - **Optional fields**:
   - `Options.ShouldTriggerOnKeyDown`: Trigger when the key is pressed (default `true`).
   - `Options.ShouldTriggerOnKeyUp`: Trigger when the key is released (default `false`).
@@ -438,9 +438,10 @@ If you need structured input, consider `list_v2` or multiple settings instead of
   - `Options.IsDeveloperOnly`: Hide unless developer mode is enabled (default `false`).
   - `Options.BlockIfLevelNotStarted`: Block in menus before the level starts (default `false`).
   - `Options.PreventAction`: When `true`, blocks the game's original action (default `true`).
+  - `Options.AllowConflict`: Allow this action to share an exact combo with another MCM action (default `false`).
 - **Caveats**:
   - Hotkeys do nothing unless you register a callback with `MCM.Keybinding.SetCallback`; see [Adding a keybinding](#adding-a-keybinding).
-  - Mouse buttons are not yet supported.
+  - A binding has one primary input: either a keyboard key or mouse button 1 through 10. Keyboard modifiers can be combined with either device.
 
 #### event_button
 
@@ -529,6 +530,8 @@ These methods operate on `keybinding_v2` settings.
 | `MCM.Keybinding.Get(settingId, modUUID?)` | Gets a human-readable keybinding string | ✅ | ❌ |
 | `MCM.Keybinding.GetRaw(settingId, modUUID?)` | Gets raw keybinding data | ✅ | ❌ |
 | `MCM.Keybinding.SetCallback(settingId, callback, modUUID?)` | Registers a callback for a keybinding | ✅ | ❌ |
+| `MCM.Keybinding.SetKeyDownCallback(settingId, callback, modUUID?)` | Registers a callback for key down or mouse press | ✅ | ❌ |
+| `MCM.Keybinding.SetKeyUpCallback(settingId, callback, modUUID?)` | Registers a callback for key up or mouse release | ✅ | ❌ |
 
 #### Enum API
 
@@ -709,6 +712,17 @@ Before (deprecated `keybinding` format):
 }
 ```
 
+Use a mouse default instead by replacing `Keyboard` with `Mouse`:
+
+```json
+"Mouse": {
+    "Button": 3,
+    "ModifierKeys": ["LCTRL"]
+}
+```
+
+Mouse buttons 1, 2, and 3 are left, middle, and right. Buttons 4 through 10 are device-dependent additional buttons. Capturing a keyboard combo replaces any mouse combo and vice versa. Escape cancels capture; Backspace unbinds the action.
+
 After (keybinding_v2 format):
 
 ```json
@@ -744,6 +758,8 @@ Available `Options`:
 | `ShouldTriggerOnRepeat` | `false` | Continuously triggers the callback while the key is held down. |
 | `IsDeveloperOnly` | `false` | Whether to hide this keybinding if developer mode is disabled. |
 | `BlockIfLevelNotStarted` | `false` | Prevents the keybinding from triggering when the game level has not started yet. This is useful for actions that should only be available in-game, not in the main menu. |
+| `PreventAction` | `true` | Prevents the matching keyboard event or both edges of a matching mouse click from reaching the game. |
+| `AllowConflict` | `false` | Allows the action to share an exact keyboard or mouse combo with another MCM action. |
 | `SkipCallback` | `false` | When `true`, MCM won't expect or warn about missing callbacks. Use this when your mod handles input via its own polling instead of relying on registering your callbacks through MCM. |
 
 These options are not mutually exclusive, meaning authors can use any combination of them. For example, setting `ShouldTriggerOnRepeat` to `true` allows an action to repeat continuously while the key is held, which may be useful for certain keybindings. Note that the `Options` object is entirely optional and may be omitted if the default behavior is sufficient for the keybinding's needs.
@@ -761,7 +777,9 @@ end)
 ```
 
 In this example, when the keybinding is pressed, a network message is sent to the server to execute the teleport action.
-Your callback is called with the input event passed as param.
+Your callback receives the raw `EclLuaKeyInputEvent` or `EclLuaMouseButtonEvent`. Mouse press maps to key down and mouse release maps to key up, so the same callback API works for both devices.
+
+Callbacks that read keyboard-only fields such as `e.Key`, `e.Event`, `e.Modifiers`, or `e.Repeat` must account for mouse bindings, because those fields do not exist on `EclLuaMouseButtonEvent`. Use `MCM.Keybinding.GetRaw` when device-specific callback behavior is required.
 
 #### Client vs. Server execution
 

@@ -261,7 +261,7 @@ end
 
 ---@param blueprint Blueprint|BlueprintTab|BlueprintSection
 ---@param settingId BlueprintSettingId
----@return any
+---@return MCMSettingValue
 function BlueprintShape:RetrieveDefaultValueForSetting(blueprint, settingId)
     local setting = self:GetSettingById(blueprint, settingId)
 
@@ -280,7 +280,7 @@ end
 ---@param output table
 ---@param path BlueprintSettingPath
 ---@param key string
----@param value any
+---@param value MCMSettingValue
 function BlueprintShape:SetNestedSettingValue(output, path, key, value)
     local target = output
 

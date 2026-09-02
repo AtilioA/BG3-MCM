@@ -6,7 +6,7 @@ EventButtonValidator = {}
 --- They always pass validation if the value is nil or a valid table structure 
 --- (for future extensibility)
 ---@param setting BlueprintSetting The setting to validate
----@param value any The value to validate
+---@param value unknown The value to validate
 ---@return boolean True if the value is valid, false otherwise
 function EventButtonValidator.Validate(setting, value)
     -- Event buttons don't store state so their value should typically be nil

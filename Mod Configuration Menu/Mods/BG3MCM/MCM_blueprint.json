@@ -190,6 +190,9 @@
                                 },
                                 "Enabled": true
                             },
+                            "Options": {
+                                "AllowConflict": true
+                            },
                             "Description": "Set the keybinding for closing MCM's window.",
                             "Handles": {
                                 "NameHandle": "hb2513599ba7a4b689fc3984a9ad9ae1c3d31",

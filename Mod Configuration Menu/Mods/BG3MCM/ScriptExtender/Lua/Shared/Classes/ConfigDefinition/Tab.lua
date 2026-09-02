@@ -2,7 +2,7 @@
 ---@field private TabId string
 ---@field private TabName string
 ---@field private TabDescription string
----@field private VisibleIf table<string, string>
+---@field private VisibleIf VisibleIfDefinition
 ---@field private Tabs? BlueprintTab[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Settings? BlueprintSetting[]
@@ -19,7 +19,7 @@ BlueprintTab = _Class:Create("BlueprintTab", nil, {
 })
 
 --- Constructor for the BlueprintTab class.
---- @param options table
+--- @param options BlueprintTab
 function BlueprintTab:New(options)
     local self = setmetatable({}, BlueprintTab)
     self.TabId = options.TabId or ""
@@ -92,6 +92,7 @@ function BlueprintTab:GetTabDescription()
     return self.TabDescription
 end
 
+---@return VisibleIfDefinition
 function BlueprintTab:GetVisibleIf()
     return self.VisibleIf
 end
@@ -103,15 +104,13 @@ function BlueprintTab:GetTabs()
 end
 
 --- Get the Sections of the BlueprintTab.
---- @return BlueprintSection[]
---- @return nil - If there are no sections
+--- @return BlueprintSection[] sections
 function BlueprintTab:GetSections()
     return self.Sections
 end
 
 --- Get the Settings of the BlueprintTab.
---- @return BlueprintSetting[]
---- @return nil - If there are no settings
+--- @return BlueprintSetting[] settings
 function BlueprintTab:GetSettings()
     return self.Settings
 end

@@ -393,10 +393,9 @@ function DualPaneController:InsertModTab(modUUID, tabName, callback, skipDisclai
     return self.rightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
 end
 
--- Helper to find tab by identifier in a mod's tab bar
+-- Returns whether the mod uses a tabless special page.
 ---@param modUUID string The UUID of the mod to find the tab in
----@param tabIdentifier string|nil The identifier of the tab to find
----@return ExtuiTabItem|nil tab The tab, or nil if not found
+---@return boolean isSpecialPage Whether the page is rendered without a tab bar (hotkeys, profiles, etc)
 local function isTablessSpecialPage(modUUID)
     return modUUID == ClientGlobals.MCM_HOTKEYS
         or modUUID == ClientGlobals.MCM_PROFILES
