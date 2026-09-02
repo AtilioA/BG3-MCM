@@ -1,7 +1,19 @@
 if Mods.Dribbles then
+    ---@param _options table
+    ---@return fun()
+    local function SuppressMCMTestLogs(_options)
+        local previousDebugLevel = MCMPrinter.DebugLevel
+        MCMPrinter.DebugLevel = -1
+
+        return function()
+            MCMPrinter.DebugLevel = previousDebugLevel
+        end
+    end
+
     D = Mods.Dribbles.RegisterTestGlobals({
         commandAlias = "mcm_d",
         ownerModuleUUID = "755a8a72-407f-4f0d-9a33-274ac0f0b53d",
+        beforeRun = SuppressMCMTestLogs,
     })
 
     Ext.Require("Shared/DribbleSpec/Smoke.test.lua")
