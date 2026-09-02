@@ -1,3 +1,5 @@
+local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
+
 ---Minimal keybinding action fixture accepted by the registry.
 ---@class KeybindingTestAction
 ---@field ActionId string
@@ -427,8 +429,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     end)
 
     D.test("normalizes a verified native middle mouse binding", function(ctx)
-        local nativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
-        ctx.stub(nativeKeybindings, "GetAll", function()
+        ctx.stub(NativeKeybindings, "GetAll", function()
             return {
                 Public = { {
                     EventName = "NativeMiddleMouse",
