@@ -86,7 +86,7 @@ function ListV2IMGUIWidget:RenderHeader()
 
     -- Enable/disable entire list
     local enabledCheckbox = headerGroup:AddCheckbox(Ext.Loca.GetTranslatedString("h4ffde733fba3492387caa52d9c585d57f177"))
-    IMGUIHelpers:ApplyInputBorder(enabledCheckbox, 0)
+    IMGUIHelpers:ApplyInputStyle(enabledCheckbox, "checkbox")
     enabledCheckbox.IDContext = self.Widget.ModUUID .. "_EnableCheckbox_" .. self.Widget.Setting.Id
     IMGUIHelpers.AddTooltip(enabledCheckbox, Ext.Loca.GetTranslatedString("h17e2c93763d54f3f9b5da8722d09cf90fab9"),
         self.Widget.ModUUID .. "_EnableCheckbox_TOOLTIP")
@@ -108,7 +108,7 @@ function ListV2IMGUIWidget:RenderHeader()
         headerGroup:AddText(Ext.Loca.GetTranslatedString("h9b0d0bba0bf64006a6dd8ed86a4d5353a3d8"))
         if not self.Widget.SearchInput then
             self.Widget.SearchInput = headerGroup:AddInputText("", self.Widget.SearchText)
-            IMGUIHelpers:ApplyInputBorder(self.Widget.SearchInput)
+            IMGUIHelpers:ApplyInputStyle(self.Widget.SearchInput, "default")
             self.Widget.SearchInput.IDContext = self.Widget.ModUUID .. "_SearchInput_" .. self.Widget.Setting.Id
             self.Widget.SearchInput.OnChange = VCTimer:Debounce(50, function(input)
                 self.Widget.SearchText = input.Text
@@ -301,7 +301,7 @@ end
 function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     local checkboxCell = tableRow:AddCell()
     local enabledCheckbox = checkboxCell:AddCheckbox("")
-    IMGUIHelpers:ApplyInputBorder(enabledCheckbox, 0)
+    IMGUIHelpers:ApplyInputStyle(enabledCheckbox, "checkbox")
     enabledCheckbox.IDContext = self.Widget.ModUUID ..
         "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name
     enabledCheckbox.Checked = element.enabled ~= false
@@ -473,7 +473,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     -- Input for page number
     if currentPage <= totalPages - 2 or currentPage >= 3 then
         local pageInput = paginationGroup:AddInputText("", tostring(currentPage))
-        IMGUIHelpers:ApplyInputBorder(pageInput)
+        IMGUIHelpers:ApplyInputStyle(pageInput, "default")
         pageInput.IDContext = self.Widget.ModUUID .. "_PageInput_" .. self.Widget.Setting.Id
         pageInput.Text = tostring(currentPage or "...")
         pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1] * 1.5, 0 }
@@ -587,7 +587,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton2()
     local newElementName = ""
     inputGroup:AddText(Ext.Loca.GetTranslatedString("hf10161d75da04360907b151e4eb07054f8cb"))
     local textInput = inputGroup:AddInputText("", newElementName)
-    IMGUIHelpers:ApplyInputBorder(textInput)
+    IMGUIHelpers:ApplyInputStyle(textInput, "default")
     textInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
     textInput.AutoSelectAll = true
     textInput.SameLine = true
@@ -638,7 +638,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
         -- Input field for adding new elements
         if not self.Widget.NewElementInput then
             self.Widget.NewElementInput = inputGroup:AddInputText("", "")
-            IMGUIHelpers:ApplyInputBorder(self.Widget.NewElementInput)
+            IMGUIHelpers:ApplyInputStyle(self.Widget.NewElementInput, "default")
             self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
             self.Widget.NewElementInput.AutoSelectAll = true
             self.Widget.NewElementInput.SameLine = true
@@ -654,7 +654,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end, function(err)
         MCMDebug(1, "Error in adding new element input: %s", err)
         self.Widget.NewElementInput = inputGroup:AddInputText("", "")
-        IMGUIHelpers:ApplyInputBorder(self.Widget.NewElementInput)
+        IMGUIHelpers:ApplyInputStyle(self.Widget.NewElementInput, "default")
         self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
         self.Widget.NewElementInput.AutoSelectAll = true
         self.Widget.NewElementInput.SameLine = true

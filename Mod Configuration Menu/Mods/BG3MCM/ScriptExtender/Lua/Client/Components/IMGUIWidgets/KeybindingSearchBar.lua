@@ -53,7 +53,7 @@ function KeybindingSearchBar:Render(group)
     searchLabel.SameLine = true
 
     local searchInput = group:AddInputText("", self._searchText)
-    IMGUIHelpers:ApplyInputBorder(searchInput)
+    IMGUIHelpers:ApplyInputStyle(searchInput, "default")
     searchInput.IDContext = "SearchInput"
     searchInput.AutoSelectAll = true
     searchInput.OnChange = function(input)

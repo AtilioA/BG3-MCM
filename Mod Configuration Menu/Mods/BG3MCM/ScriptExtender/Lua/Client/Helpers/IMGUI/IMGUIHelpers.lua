@@ -71,21 +71,31 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
     return imguiObjectTooltip
 end
 
---- Apply input styling without changing the global style.
+--- Apply a named input style without changing the global style.
 ---@param element ExtuiStyledRenderable
----@param frameRounding number|nil
----@param framePaddingX number|nil
----@param grabRounding number|nil
-function IMGUIHelpers:ApplyInputBorder(element, frameRounding, framePaddingX, grabRounding)
-    element:SetStyle("FrameBorderSize", 1.0)
-    if frameRounding then
-        element:SetStyle("FrameRounding", frameRounding)
+---@param styleName string
+function IMGUIHelpers:ApplyInputStyle(element, styleName)
+    local style = UIStyle.InputStyles[styleName]
+    if not style then
+        return
     end
-    if framePaddingX then
-        element:SetStyle("FramePadding", framePaddingX, 4.0)
+
+    for k, v in pairs(style) do
+        if type(v) == "table" then
+            element:SetStyle(k, v[1], v[2])
+        else
+            element:SetStyle(k, v)
+        end
     end
-    if grabRounding then
-        element:SetStyle("GrabRounding", grabRounding)
+end
+
+--- Apply a named text style.
+---@param element ExtuiStyledRenderable
+---@param styleName string
+function IMGUIHelpers:ApplyTextStyle(element, styleName)
+    local color = UIStyle.TextStyles[styleName]
+    if color then
+        element:SetColor("Text", color)
     end
 end
 

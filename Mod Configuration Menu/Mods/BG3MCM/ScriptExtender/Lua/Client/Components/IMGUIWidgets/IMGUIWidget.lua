@@ -13,34 +13,6 @@ IMGUIWidget = _Class:Create("IMGUIWidget", nil, {
     _resetButton = nil
 })
 
-local borderedInputTypes = {
-    int = true,
-    float = true,
-    checkbox = true,
-    text = true,
-    enum = true,
-    slider_int = true,
-    slider_float = true,
-    drag_int = true,
-    drag_float = true,
-    color_picker = true,
-    color_edit = true,
-}
-
-local inputFrameRoundings = {
-    checkbox = 0,
-    enum = 50,
-    slider_int = 50,
-}
-
-local inputFramePaddingX = {
-    enum = 8,
-}
-
-local inputGrabRoundings = {
-    slider_int = 50,
-}
-
 -- Function to estimate icon size based on viewport size
 -- This is used to scale the icon size based on the resolution, so that it looks good on all resolutions
 ---@param height integer The height of the viewport
@@ -120,9 +92,9 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
     ---@cast widget IMGUIWidget
 
-    if borderedInputTypes[settingType] then
-        IMGUIHelpers:ApplyInputBorder(widget.Widget, inputFrameRoundings[settingType], inputFramePaddingX[settingType],
-            inputGrabRoundings[settingType])
+    local inputStyleName = UIStyle.InputStyleByType[settingType]
+    if inputStyleName then
+        IMGUIHelpers:ApplyInputStyle(widget.Widget, inputStyleName)
     end
 
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
@@ -279,6 +251,7 @@ function IMGUIWidget:CreateTitle(group, titleText)
 
     local widgetNameText = group:AddText(titleText)
     widgetNameText.TextWrapPos = 0
+    IMGUIHelpers:ApplyTextStyle(widgetNameText, "SettingTitle")
     return widgetNameText
 end
 
@@ -388,7 +361,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
 
     addedDescription.IDContext = group.IDContext .. "_Description"
 
-    addedDescription:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 0.67))
+    IMGUIHelpers:ApplyTextStyle(addedDescription, "SettingDescription")
 end
 
 --- Applies a disabled style to an IMGUI element

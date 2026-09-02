@@ -9,17 +9,17 @@ UIStyle.UnofficialColors = {
 }
 
 UIStyle.Colors = {
-    ["Border"] = Color.NormalizedRGBA(82, 60, 40, 1),
+    ["Border"] = Color.NormalizedRGBA(82, 60, 40, 0.1),
     ["BorderShadow"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
     ["Button"] = Color.NormalizedRGBA(117, 102, 74, 0.5),
     ["ButtonActive"] = Color.NormalizedRGBA(183, 122, 81, 0.7),
     ["ButtonHovered"] = Color.NormalizedRGBA(163, 102, 71, 0.5),
     ["CheckMark"] = Color.NormalizedRGBA(219, 201, 173, 0.78),
-    ["ChildBg"] = Color.NormalizedRGBA(27, 25, 25, 0.4),
+    ["ChildBg"] = Color.NormalizedRGBA(29, 27, 27, 0.4),
     ["DragDropTarget"] = Color.NormalizedRGBA(18, 18, 18, 0.78),
-    ["FrameBg"] = UIStyle.UnofficialColors.BoxColor,
-    ["FrameBgActive"] = UIStyle.UnofficialColors.BoxActiveColor,
-    ["FrameBgHovered"] = UIStyle.UnofficialColors.BoxHoverColor,
+    ["FrameBg"] = Color.NormalizedRGBA(24, 19, 17, 1),
+    ["FrameBgActive"] = Color.NormalizedRGBA(34, 27, 22, 1),
+    ["FrameBgHovered"] = Color.NormalizedRGBA(34, 27, 22, 1),
     ["Header"] = Color.NormalizedRGBA(92, 76, 69, 0.76),
     ["HeaderActive"] = UIStyle.UnofficialColors.BoxActiveColor,
     ["HeaderHovered"] = Color.NormalizedRGBA(105, 71, 56, 0.86),
@@ -62,6 +62,48 @@ UIStyle.Colors = {
     ["TitleBgActive"] = UIStyle.UnofficialColors.BoxColor,
     ["TitleBgCollapsed"] = Color.NormalizedRGBA(13, 13, 13, 0.75),
     ["WindowBg"] = Color.NormalizedRGBA(18, 18, 18, 0.9),
+}
+
+UIStyle.Colors["Border"] = UIStyle.Colors["ScrollbarGrab"]
+
+UIStyle.TextStyles = {
+    ["SettingTitle"] = Color.NormalizedRGBA(255, 255, 255, 1),
+    ["SettingDescription"] = UIStyle.Colors["Text"],
+}
+
+-- Applied locally so the global frame style remains unchanged.
+UIStyle.InputStyles = {
+    ["default"] = {
+        ["FrameBorderSize"] = 1.0,
+    },
+    ["checkbox"] = {
+        ["FrameBorderSize"] = 1.0,
+        ["FrameRounding"] = 0.0,
+    },
+    ["combo"] = {
+        ["FrameBorderSize"] = 1.0,
+        ["FrameRounding"] = 50.0,
+        ["FramePadding"] = { 8.0, 4.0 },
+    },
+    ["slider_int"] = {
+        ["FrameBorderSize"] = 1.0,
+        ["FrameRounding"] = 50.0,
+        ["GrabRounding"] = 50.0,
+    },
+}
+
+UIStyle.InputStyleByType = {
+    int = "default",
+    float = "default",
+    checkbox = "checkbox",
+    text = "default",
+    enum = "combo",
+    slider_int = "slider_int",
+    slider_float = "default",
+    drag_int = "default",
+    drag_float = "default",
+    color_picker = "default",
+    color_edit = "default",
 }
 
 UIStyle.Styles = {
