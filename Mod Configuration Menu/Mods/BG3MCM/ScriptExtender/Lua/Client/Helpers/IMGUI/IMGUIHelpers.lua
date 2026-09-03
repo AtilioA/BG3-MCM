@@ -47,8 +47,8 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
         local tt = imguiObject:Tooltip()
         tt.IDContext = uuid .. "_TOOLTIP"
         if tooltipText and tooltipText ~= "" then
-            -- Blank space to offset from cursor
-            local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods("   " ..
+            -- Cursor offset, empty for now; raise to indent
+            local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods("" ..
             tooltipText))
             tt:AddText(preprocessedTooltip)
         end
@@ -115,7 +115,7 @@ function IMGUIHelpers.AddTooltipWithRange(widget, setting, numberFormat)
         return
     end
 
-    -- Match AddTooltip cursor offset on first line
+    -- Match AddTooltip cursor offset on first line, empty for now; raise to indent
     local isFirstLine = table.isEmpty(tt.Children)
 
     if not table.isEmpty(tt.Children) then
@@ -125,7 +125,7 @@ function IMGUIHelpers.AddTooltipWithRange(widget, setting, numberFormat)
 
     local rangeText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
         string.format(numberFormat, setting:GetOptions().Min), string.format(numberFormat, setting:GetOptions().Max))
-    tt:AddText((isFirstLine and "   " or "") .. rangeText)
+    tt:AddText((isFirstLine and "" or "") .. rangeText)
 
     if not table.isEmpty(tt.Children) then
         local tooltipSeparator = tt:AddSeparator()
