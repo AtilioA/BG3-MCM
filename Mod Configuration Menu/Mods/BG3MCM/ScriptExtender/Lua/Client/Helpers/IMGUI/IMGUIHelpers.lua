@@ -26,15 +26,12 @@ end
 
 --- Add a tooltip to a button
 ---@param imguiObject ExtuiStyledRenderable
----@param tooltipText string
+---@param tooltipText string|nil Text to display; may be empty to create an unpopulated tooltip for callers that add children themselves
 ---@param uuid string
 ---@return ExtuiStyledRenderable | nil
 function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
     if not imguiObject then
         MCMWarn(1, "Tried to add a tooltip to a nil object")
-        return nil
-    end
-    if not tooltipText or tooltipText == "" then
         return nil
     end
     if not uuid then
@@ -46,14 +43,15 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
         return nil
     end
 
-    -- Blank space to offset from cursor
-    tooltipText = "   " .. tooltipText
-
     local success, imguiObjectTooltip = xpcall(function()
         local tt = imguiObject:Tooltip()
         tt.IDContext = uuid .. "_TOOLTIP"
-        local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods(tooltipText))
-        tt:AddText(preprocessedTooltip)
+        if tooltipText and tooltipText ~= "" then
+            -- Blank space to offset from cursor
+            local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods("   " ..
+            tooltipText))
+            tt:AddText(preprocessedTooltip)
+        end
         tt:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
         tt:SetStyle("WindowPadding", 15, 15)
         tt:SetStyle("PopupBorderSize", 2)
@@ -69,6 +67,74 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
     end
 
     return imguiObjectTooltip
+end
+
+--- Mod-scoped identity for a setting, used to namespace per-setting UI resources (tooltip windows), so mods with equal setting IDs do not collide.
+---@param setting BlueprintSetting
+---@return string
+function IMGUIHelpers.GetModScopedSettingId(setting)
+    local modUUID = setting:GetModUUID()
+    return modUUID .. "_" .. setting:GetId()
+end
+
+--- Resolve the setting's tooltip text (localized when a handle is present) and attach it to the widget.
+---@param widget ExtuiStyledRenderable
+---@param setting BlueprintSetting
+---@return ExtuiStyledRenderable|nil tooltip Nil when the setting has no tooltip
+function IMGUIHelpers.AddSettingTooltip(widget, setting)
+    if setting:GetTooltip() == nil or setting:GetTooltip() == "" then
+        MCMDebug(2, "No tooltip found for setting: " .. setting:GetId())
+        return
+    end
+
+    local tooltipText = setting:GetTooltip()
+    local translatedTooltip = nil
+    if setting:GetHandles().TooltipHandle ~= nil then
+        translatedTooltip = Ext.Loca.GetTranslatedString(setting:GetHandles().TooltipHandle)
+    end
+    if translatedTooltip ~= nil and translatedTooltip ~= "" then
+        tooltipText = translatedTooltip
+    end
+
+    return IMGUIHelpers.AddTooltip(widget, tooltipText, IMGUIHelpers.GetModScopedSettingId(setting) .. "_TOOLTIP")
+end
+
+--- Attach a tooltip to a slider/drag widget: the setting tooltip when present, otherwise an unpopulated tooltip that always receives the value range and the manual-input hint below.
+---@param widget ExtuiStyledRenderable
+---@param setting BlueprintSetting
+---@param numberFormat string Lua format for Options.Min/Max, e.g. "%s" for integers or "%.2f" for floats
+---@return ExtuiStyledRenderable|nil tooltip
+function IMGUIHelpers.AddTooltipWithRange(widget, setting, numberFormat)
+    local tt = IMGUIHelpers.AddSettingTooltip(widget, setting)
+
+    if not tt then
+        tt = IMGUIHelpers.AddTooltip(widget, "", IMGUIHelpers.GetModScopedSettingId(setting))
+    end
+
+    if not tt then
+        return
+    end
+
+    -- Match AddTooltip cursor offset on first line
+    local isFirstLine = table.isEmpty(tt.Children)
+
+    if not table.isEmpty(tt.Children) then
+        local tooltipSeparator = tt:AddSeparator()
+        tooltipSeparator:SetColor("Separator", UIStyle.UnofficialColors["TooltipSeparator"])
+    end
+
+    local rangeText = VCString:InterpolateLocalizedMessage("h3914d63b7ccb425f950cea47eca955ad9788",
+        string.format(numberFormat, setting:GetOptions().Min), string.format(numberFormat, setting:GetOptions().Max))
+    tt:AddText((isFirstLine and "   " or "") .. rangeText)
+
+    if not table.isEmpty(tt.Children) then
+        local tooltipSeparator = tt:AddSeparator()
+        tooltipSeparator:SetColor("Separator", UIStyle.UnofficialColors["TooltipSeparator"])
+    end
+
+    tt:AddText(Ext.Loca.GetTranslatedString("h0dfee4b6ba51423da77eaa53e1961ade059f"))
+
+    return tt
 end
 
 --- Apply a named input style without changing the global style.

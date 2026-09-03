@@ -314,20 +314,7 @@ function IMGUIWidget:AddResetButton(group, setting, modUUID)
 end
 
 function IMGUIWidget:SetupTooltip(widget, setting)
-    if setting:GetTooltip() == nil or setting:GetTooltip() == "" then
-        MCMDebug(2, "No tooltip found for setting: " .. setting:GetId())
-        return
-    end
-    local tooltipText = setting:GetTooltip()
-    local translatedTooltip = nil
-    if setting.Handles.TooltipHandle ~= nil then
-        translatedTooltip = Ext.Loca.GetTranslatedString(setting.Handles.TooltipHandle)
-    end
-    if translatedTooltip ~= nil and translatedTooltip ~= "" then
-        tooltipText = translatedTooltip
-    end
-
-    return IMGUIHelpers.AddTooltip(widget, tooltipText, setting:GetId() .. "_TOOLTIP")
+    return IMGUIHelpers.AddSettingTooltip(widget, setting)
 end
 
 --- Add a slightly faded description text below the widget

@@ -35,7 +35,9 @@ function LeftPane:CreateMenuButton(text, description, uuid)
             DualPane:ToggleSidebar()
         end
     end
-    IMGUIHelpers.AddTooltip(button, description, "MenuButton_" .. text .. "_" .. uuid .. "_TOOLTIP")
+    if description and description ~= "" then
+        IMGUIHelpers.AddTooltip(button, description, "MenuButton_" .. text .. "_" .. uuid .. "_TOOLTIP")
+    end
     return button
 end
 

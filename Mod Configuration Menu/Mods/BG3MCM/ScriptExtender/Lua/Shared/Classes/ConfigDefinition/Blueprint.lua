@@ -10,7 +10,7 @@ KeybindingSortMode = {
 KeybindingSortMode.DEFAULT = KeybindingSortMode.BLUEPRINT
 
 ---@class Blueprint
----@field private ModUUID string
+---@field private ModUUID string|nil
 ---@field private SchemaVersion number
 ---@field private Optional boolean
 ---@field private ModName? string
@@ -130,7 +130,7 @@ end
 function Blueprint:New(options)
     ---@type Blueprint
     local self = setmetatable({}, Blueprint)
-    self.ModUUID = options.ModUUID or nil
+    self.ModUUID = options.ModUUID
     self.SchemaVersion = options.SchemaVersion or nil
     self.Settings = options.Settings or nil
     self.Optional = options.Optional or false
@@ -165,6 +165,11 @@ function Blueprint:New(options)
         end
     end
 
+    -- Denormalize ownership onto every setting so they carry mod UUID; needed for many operations that don't have access to the blueprint itself
+    for _, setting in ipairs(self:GetAllSettings()) do
+        setting:SetModUUID(self.ModUUID)
+    end
+
     return self
 end
 
@@ -189,6 +194,7 @@ end
 ---@return Blueprint
 function Blueprint:AddSetting(settingOptions)
     local setting = BlueprintSetting:New(settingOptions)
+    setting:SetModUUID(self.ModUUID)
     table.insert(self.Settings, setting)
     BlueprintShape:InvalidateCache()
     return self

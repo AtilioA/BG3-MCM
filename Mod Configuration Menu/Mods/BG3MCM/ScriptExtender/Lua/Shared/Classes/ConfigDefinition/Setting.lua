@@ -10,6 +10,7 @@
 ---@field private Section string
 ---@field private Options table
 ---@field private Handles table
+---@field private ModUUID string|nil UUID of the mod that owns this setting; added by the Blueprint at construction
 BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
     Id = "",
     OldId = "",
@@ -21,9 +22,8 @@ BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
     Tooltip = "",
     Section = "General",
     Options = {},
-    Handles = {}
-    -- TODO: Show setting on UI only when other settings are set to specific values?
-    -- ShowWhen = { SettingId = "", Value = "" }
+    Handles = {},
+    ModUUID = nil
 })
 
 --- Constructor for the BlueprintSetting class.
@@ -73,6 +73,7 @@ function BlueprintSetting:New(options)
 
     self.Options = options.Options or {}
     self.Handles = options.Handles or {}
+    self.ModUUID = options.ModUUID
 
     return self
 end
@@ -98,6 +99,17 @@ end
 
 function BlueprintSetting:GetId()
     return self.Id
+end
+
+--- UUID of the mod that owns this setting, stamped by the Blueprint at construction.
+
+---@return string
+function BlueprintSetting:GetModUUID()
+    return self.ModUUID
+end
+
+function BlueprintSetting:SetModUUID(modUUID)
+    self.ModUUID = modUUID
 end
 
 function BlueprintSetting:GetOldId()

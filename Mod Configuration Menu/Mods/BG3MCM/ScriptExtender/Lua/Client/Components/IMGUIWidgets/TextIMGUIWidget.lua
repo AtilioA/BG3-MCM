@@ -32,7 +32,7 @@ function TextIMGUIWidget:SetupTooltip(widget, setting)
 
     if not table.isEmpty(tt.Children) then
         local tooltipSeparator = tt:AddSeparator()
-        tooltipSeparator:SetColor("Separator", Color.HEXToRGBA("#524444"))
+        tooltipSeparator:SetColor("Separator", UIStyle.UnofficialColors["TooltipSeparator"])
     end
 
     local localizedText = Ext.Loca.GetTranslatedString("h37e3d35cef6a43468bb71a253982d5634de8")

@@ -91,7 +91,7 @@ function RadioIMGUIWidget:SetupTooltip(widget, setting)
     if not tooltipText or tooltipText == "" then
         return
     end
-    local tooltipId = setting.Id .. "_TOOLTIP"
+    local tooltipId = IMGUIHelpers.GetModScopedSettingId(setting)
 
     for _, button in ipairs(radioOptions) do
         local tt = IMGUIHelpers.AddTooltip(button, tooltipText, tooltipId)

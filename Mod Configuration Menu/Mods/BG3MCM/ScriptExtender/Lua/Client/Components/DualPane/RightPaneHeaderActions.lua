@@ -120,7 +120,9 @@ function HeaderActions:CreateActionButton(text, icon, tooltip, multiplier)
     button:SetStyle("FrameRounding", 3.0, 3.0)
 
     button.IDContext = "HeaderAction_" .. text .. "_BUTTON"
-    IMGUIHelpers.AddTooltip(button, tooltip, "HeaderAction_" .. text)
+    if tooltip and tooltip ~= "" then
+        IMGUIHelpers.AddTooltip(button, tooltip, "HeaderAction_" .. text)
+    end
     return button
 end
 

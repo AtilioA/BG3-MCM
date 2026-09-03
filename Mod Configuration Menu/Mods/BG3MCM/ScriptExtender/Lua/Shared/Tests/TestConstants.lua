@@ -11,6 +11,7 @@ TestConstants.ModuleUUIDs = {
 TestConstants.Blueprints = {
     SettingsRootLevel =
         Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1],
             SchemaVersion = 1,
             Settings = {
                 BlueprintSetting:New({
@@ -48,6 +49,7 @@ TestConstants.Blueprints = {
         }),
     SettingsTabLevel =
         Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1],
             SchemaVersion = 1,
             Tabs = {
                 BlueprintTab:New({
@@ -92,6 +94,7 @@ TestConstants.Blueprints = {
 
     SettingsSectionLevel =
         Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1],
             SchemaVersion = 1,
             Tabs = {
                 BlueprintTab:New({
