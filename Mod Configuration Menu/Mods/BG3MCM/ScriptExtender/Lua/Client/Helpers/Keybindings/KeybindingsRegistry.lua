@@ -385,7 +385,7 @@ end
 ---@param e EclLuaKeyInputEvent
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
     local triggered = {}
-    local inputBinding = { Key = e.Key, ModifierKeys = e.Modifiers }
+    local inputBinding = { Key = e.Key, ModifierKeys = KeybindingManager:GetActiveModifiers(e.Modifiers) }
 
     for _modUUID, actions in pairs(registry) do
         for _actionId, binding in pairs(actions) do
@@ -413,7 +413,7 @@ function KeybindingsRegistry.DispatchMouseEvent(e, heldModifiers)
     local matched = {}
 
     if e.Pressed then
-        local inputBinding = { Button = button, ModifierKeys = heldModifiers }
+        local inputBinding = { Button = button, ModifierKeys = KeybindingManager:GetActiveModifiers(heldModifiers) }
         for _modUUID, actions in pairs(registry) do
             for _actionId, binding in pairs(actions) do
                 if type(binding) == "table" and KeybindingManager:IsMouseBindingAssigned(binding.mouseBinding)

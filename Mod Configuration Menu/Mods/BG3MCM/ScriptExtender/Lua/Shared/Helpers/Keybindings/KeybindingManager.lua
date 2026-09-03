@@ -79,6 +79,19 @@ function KeybindingManager:NormalizeModifiers(modifiers)
     return normalized
 end
 
+---Returns the active modifiers from live input, sorted
+---@param modifiers string[]|nil
+---@return string[]
+function KeybindingManager:GetActiveModifiers(modifiers)
+    local active = {}
+    for _, modifier in ipairs(modifiers or {}) do
+        if self:IsActiveModifier(modifier) then
+            table.insert(active, modifier)
+        end
+    end
+    return self:NormalizeModifiers(active)
+end
+
 ---Adapts author and legacy modifier input to the canonical internal list.
 ---@param modifiers any
 ---@return string[]|nil canonicalModifiers

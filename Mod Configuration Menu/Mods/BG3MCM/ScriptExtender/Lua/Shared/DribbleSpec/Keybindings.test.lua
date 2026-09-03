@@ -276,6 +276,121 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(event.prevented).toBeTruthy()
     end)
 
+    ---@param key string
+    ---@param modifiers string[]|nil
+    local function KeyEvent(key, modifiers)
+        return {
+            Key = key,
+            Modifiers = modifiers,
+            Event = "KeyDown",
+            Repeat = false,
+            prevented = false,
+            PreventAction = function(self) self.prevented = true end
+        }
+    end
+
+    ---Registers one keyboard action and counts how often it fires.
+    ---@param id string
+    ---@param binding KeybindingKeyboardBinding
+    ---@param events { Key: string, Modifiers: string[]|nil }[]
+    ---@return integer
+    local function DispatchKeysCount(id, binding, events)
+        local action = MouseAction(id, nil)
+        action.KeyboardMouseBinding = binding
+        action.DefaultKeyboardMouseBinding = binding
+        RegisterActions({ action })
+
+        local calls = 0
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, id, "KeyboardMouse",
+            function() calls = calls + 1 end, "KeyDown")
+        for _, input in ipairs(events) do
+            KeybindingsRegistry.DispatchKeyboardEvent(KeyEvent(input.Key, input.Modifiers))
+        end
+        return calls
+    end
+
+    D.test("dispatches plain keyboard bindings past unsupported live modifiers", function()
+        local calls = DispatchKeysCount("plain-key-noise", { Key = "K", ModifierKeys = {} }, {
+            { Key = "K", Modifiers = {} },
+            { Key = "K", Modifiers = nil },
+            { Key = "K", Modifiers = { "NONE", "" } },
+            { Key = "K", Modifiers = { "NUM" } },
+            { Key = "K", Modifiers = { "CAPS", "NUM", "LGUI", "RGUI", "MODE", "SCROLL" } },
+        })
+
+        D.expect(calls).toBe(5)
+    end)
+
+    D.test("keeps exact matching for plain keyboard bindings", function()
+        local calls = DispatchKeysCount("plain-key-exact", { Key = "K", ModifierKeys = {} }, {
+            { Key = "K", Modifiers = { "LCTRL" } },
+            { Key = "K", Modifiers = { "LCTRL", "LALT" } },
+            { Key = "J", Modifiers = {} },
+        })
+
+        D.expect(calls).toBe(0)
+    end)
+
+    D.test("dispatches modified keyboard bindings past unsupported live modifiers", function()
+        local calls = DispatchKeysCount("mod-key-noise", { Key = "K", ModifierKeys = { "LCTRL" } }, {
+            { Key = "K", Modifiers = { "LCTRL" } },
+            { Key = "k", Modifiers = { "lctrl", "LCTRL", "NUM" } },
+            { Key = "K", Modifiers = { "LCTRL", "CAPS" } },
+        })
+
+        D.expect(calls).toBe(3)
+    end)
+
+    D.test("rejects incomplete, wrong, or extra supported modifiers", function()
+        local calls = DispatchKeysCount("mod-key-reject", { Key = "K", ModifierKeys = { "LCTRL" } }, {
+            { Key = "K", Modifiers = {} },
+            { Key = "K", Modifiers = { "LALT" } },
+            { Key = "K", Modifiers = { "LCTRL", "LALT" } },
+        })
+
+        D.expect(calls).toBe(0)
+    end)
+
+    D.test("never matches unsupported modifiers on either side", function()
+        local calls = DispatchKeysCount("junk-key", { Key = "K", ModifierKeys = { "LGUI" } }, {
+            { Key = "K", Modifiers = {} },
+            { Key = "K", Modifiers = { "LGUI" } },
+        })
+
+        D.expect(calls).toBe(0)
+    end)
+
+    D.test("dispatches mouse bindings past unsupported held modifiers", function()
+        RegisterActions({
+            MouseAction("mouse-noise", { Button = 5, ModifierKeys = {} }),
+            MouseAction("mouse-mod-noise", { Button = 6, ModifierKeys = { "LCTRL" } }),
+        })
+        local plain = 0
+        local modified = 0
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-noise", "KeyboardMouse",
+            function() plain = plain + 1 end, "KeyDown")
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-noise", "KeyboardMouse",
+            function() end, "KeyUp")
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-mod-noise", "KeyboardMouse",
+            function() modified = modified + 1 end, "KeyDown")
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-mod-noise", "KeyboardMouse",
+            function() end, "KeyUp")
+
+        for _, held in ipairs({ {}, { "NUM" }, { "CAPS", "SCROLL" } }) do
+            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 5), held)
+            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(false, 5), held)
+        end
+        for _, held in ipairs({ { "LCTRL" }, { "LCTRL", "NUM" } }) do
+            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 6), held)
+            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(false, 6), held)
+        end
+        KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 6), {})
+        KeybindingsRegistry.DispatchMouseEvent(MouseEvent(false, 6), {})
+
+        D.expect(plain).toBe(3)
+        D.expect(modified).toBe(2)
+    end)
+
     D.test("does not prevent mouse edges when PreventAction is false", function()
         RegisterActions({ MouseAction("observe-mouse", { Button = 9, ModifierKeys = {} }, false, false) })
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "observe-mouse", "KeyboardMouse", function() end)

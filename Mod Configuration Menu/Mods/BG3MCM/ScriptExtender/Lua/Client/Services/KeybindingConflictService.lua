@@ -43,16 +43,6 @@ function KeybindingConflictService:CheckMCMForConflicts(keybinding, currentActio
     return nil
 end
 
----@param modifiers table|nil
----@return string[]
-local function copyModifiers(modifiers)
-    local result = {}
-    for _, modifier in ipairs(modifiers or {}) do
-        table.insert(result, tostring(modifier))
-    end
-    return result
-end
-
 ---Checks confidently mapped live native bindings for an exact conflict.
 ---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|nil
 ---@return table|nil
@@ -65,11 +55,11 @@ function KeybindingConflictService:CheckNativeForConflicts(keybinding)
         for _, binding in ipairs(nativeAction.Bindings or {}) do
             local transformed = nil
             if active.Key and binding.InputType == "Keyboard" then
-                transformed = { Key = tostring(binding.InputId), ModifierKeys = copyModifiers(binding.Modifiers) }
+                transformed = { Key = tostring(binding.InputId), ModifierKeys = KeybindingManager:GetActiveModifiers(binding.Modifiers) }
             elseif active.Button and binding.InputType == "Mouse" then
                 local button = NativeKeybindings.GetVerifiedMouseButton(binding.InputId)
                 if button then
-                    transformed = { Button = button, ModifierKeys = copyModifiers(binding.Modifiers) }
+                    transformed = { Button = button, ModifierKeys = KeybindingManager:GetActiveModifiers(binding.Modifiers) }
                 end
             end
 
