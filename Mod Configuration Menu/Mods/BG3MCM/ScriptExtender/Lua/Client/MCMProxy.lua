@@ -1,9 +1,7 @@
 --- MCMProxy ensures that mod settings can be managed and updated from the main menu if necessary, or from the server if the game is running.
 
 ---@class MCMProxy
-MCMProxy = _Class:Create("MCMProxy", nil, {
-    PendingSettingWrites = {},
-})
+MCMProxy = _Class:Create("MCMProxy", nil, {})
 
 ---Check if the game is in the main menu
 ---@return boolean
@@ -158,13 +156,7 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldE
     end
 
     -- Remote writes are fire-and-forget: responses can arrive after newer values.
-    -- Trust the MCM_INTERNAL_SETTING_SAVED broadcast instead. This callback only logs and clears pending state.
-    local requestKey = modUUID .. ":" .. settingId
-    local pendingWrite = {
-        value = value
-    }
-    self.PendingSettingWrites[requestKey] = pendingWrite
-
+    -- Trust the MCM_INTERNAL_SETTING_SAVED broadcast instead. This callback only logs.
     NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE:RequestToServer(
         {
             modUUID = modUUID,
@@ -172,11 +164,6 @@ function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldE
             value = value
         },
         function(response)
-            if self.PendingSettingWrites[requestKey] ~= pendingWrite then
-                return
-            end
-            self.PendingSettingWrites[requestKey] = nil
-
             if response and response.success then
                 MCMDebug(1, "Successfully set setting %s on server", settingId)
                 return
