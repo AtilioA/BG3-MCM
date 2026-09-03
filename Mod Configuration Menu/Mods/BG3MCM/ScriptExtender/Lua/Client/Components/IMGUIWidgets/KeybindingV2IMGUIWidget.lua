@@ -372,6 +372,15 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
 end
 
 ---Starts one keyboard or mouse capture session.
+---Resolves the live registry entry for the action being captured, if any. Capture must read `enabled`/`allowConflict` from the registry
+---@param current table|nil
+---@return KeybindingRegistryEntry|nil
+local function getRegistryAction(current)
+    if not current or not current.Mod or not current.Action then return nil end
+    local modRegistry = KeybindingsRegistry.GetRegistry()[current.Mod.ModUUID]
+    return modRegistry and modRegistry[current.Action.ActionId]
+end
+
 ---@param mod KeybindingUIMod
 ---@param action KeybindingUIAction
 ---@param inputType string
@@ -437,15 +446,6 @@ function KeybindingV2IMGUIWidget:UpdateCapturePreview()
         table.insert(parts, "[" .. (KeyPresentationMapping.Mapping[modifier] or modifier) .. "]")
     end
     button.Label = table.concat(parts, " + ") .. " + " .. ClientGlobals.LISTENING_INPUT_STRING
-end
-
----Resolves the live registry entry for the action being captured, if any. Capture must read `enabled`/`allowConflict` from the registry
----@param current table|nil
----@return KeybindingRegistryEntry|nil
-local function getRegistryAction(current)
-    if not current or not current.Mod or not current.Action then return nil end
-    local modRegistry = KeybindingsRegistry.GetRegistry()[current.Mod.ModUUID]
-    return modRegistry and modRegistry[current.Action.ActionId]
 end
 
 ---Warns when a newly selected combo exactly conflicts with another action.
