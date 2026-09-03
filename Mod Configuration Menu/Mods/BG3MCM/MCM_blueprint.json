@@ -453,12 +453,12 @@
                             "Id": "enable_blueprint_cache",
                             "Name": "Enable settings cache",
                             "Type": "checkbox",
-                            "Default": true,
-                            "Description": "Cache mod settings for faster lookups. Disable only if troubleshooting values that appear stale.",
+                            "Default": false,
+                            "Description": "Experimental mod settings cache for faster lookups.",
                             "VisibleIf": {
                                 "Conditions": [
                                     {
-                                        "ExpectedValue": "1",
+                                        "ExpectedValue": "2",
                                         "SettingId": "debug_level",
                                         "Operator": ">="
                                     }
