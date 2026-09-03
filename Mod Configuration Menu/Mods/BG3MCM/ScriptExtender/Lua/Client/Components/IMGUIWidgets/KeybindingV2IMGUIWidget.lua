@@ -602,14 +602,19 @@ function KeybindingV2IMGUIWidget:GetDefaultBindingLabel(action)
         or ClientGlobals.UNASSIGNED_KEYBOARD_MOUSE_STRING
 end
 
----Checks if a keybinding is set to its default value
+---Checks if a keybinding is set to its default value.
 ---@param action table The action to check
 ---@return boolean True if the binding is set to its default value, false otherwise
 function KeybindingV2IMGUIWidget:IsDefaultBinding(action)
-    local kbEqual = KeybindingConflictService:AreKeybindingsEqual(action.KeyboardMouseBinding,
-        action.DefaultKeyboardMouseBinding)
-    local mouseEqual = KeybindingConflictService:AreKeybindingsEqual(action.MouseBinding, action.DefaultMouseBinding)
-    return kbEqual and mouseEqual
+    local currentValue = {
+        Keyboard = action.KeyboardMouseBinding,
+        Mouse = action.MouseBinding
+    }
+    local defaultValue = {
+        Keyboard = action.DefaultKeyboardMouseBinding,
+        Mouse = action.DefaultMouseBinding
+    }
+    return KeybindingManager:AreBindingsEqual(currentValue, defaultValue)
         and action.Enabled == action.DefaultEnabled
         and action.AllowConflict == action.DefaultAllowConflict
 end

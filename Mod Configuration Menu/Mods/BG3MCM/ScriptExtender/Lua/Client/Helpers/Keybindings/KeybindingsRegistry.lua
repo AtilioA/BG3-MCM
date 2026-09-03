@@ -15,41 +15,6 @@ local keybindingsSubject = RX.BehaviorSubject.Create(registry)
 ---@type table<integer, KeybindingRegistryEntry[]>
 local activeMouseBindings = {}
 
----Normalizes a keyboard binding for exact comparisons.
----@param binding KeybindingKeyboardBinding|string|nil
----@return string|nil The normalized binding, or nil if invalid
-function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
-    if binding == nil or binding == "" then
-        return ""
-    end
-    if type(binding) ~= "table" or not binding.Key then
-        MCMWarn(0, "Invalid keyboard binding, expected a table with a 'Key' field.")
-        return nil
-    end
-    local modifiers = KeybindingManager:NormalizeModifiers(binding.ModifierKeys)
-    local scan = tostring(binding.Key):upper()
-    if #modifiers > 0 then
-        return table.concat(modifiers, "+") .. "+" .. scan
-    end
-    return scan
-end
-
----Returns a device-aware identity for an assigned binding.
----@param binding KeybindingKeyboardBinding|KeybindingMouseBinding|string|nil
----@return string|nil
-function KeybindingsRegistry.NormalizeBinding(binding)
-    if KeybindingManager:IsKeyboardBindingAssigned(binding) then
-        ---@cast binding KeybindingKeyboardBinding
-        return "keyboard:" .. KeybindingsRegistry.NormalizeKeyboardBinding(binding)
-    end
-    if KeybindingManager:IsMouseBindingAssigned(binding) then
-        ---@cast binding KeybindingMouseBinding
-        local modifiers = KeybindingManager:NormalizeModifiers(binding.ModifierKeys)
-        return "mouse:" .. tostring(binding.Button) .. ":" .. table.concat(modifiers, "+")
-    end
-    return nil
-end
-
 ---Canonicalizes a complete keybinding value to one active device or one empty keyboard binding.
 ---@param value KeybindingV2Value|nil
 ---@param fallbackEnabled? boolean
@@ -416,20 +381,18 @@ function KeybindingsRegistry.ShouldPreventAction(e, triggeredBindings, isKeyboar
     return true
 end
 
----Dispatches a keyboard event.
+---Dispatches a keyboard event through shared binding identity.
 ---@param e EclLuaKeyInputEvent
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
     local triggered = {}
+    local inputBinding = { Key = e.Key, ModifierKeys = e.Modifiers }
 
     for _modUUID, actions in pairs(registry) do
         for _actionId, binding in pairs(actions) do
             if type(binding) == "table" and KeybindingManager:IsKeyboardBindingAssigned(binding.keyboardBinding)
                 and canTriggerBinding(binding)
                 and shouldTriggerEvent(binding, e.Event, e.Repeat)
-                and KeybindingManager:IsKeybindingPressed(e, {
-                    ScanCode = binding.keyboardBinding.Key,
-                    Modifier = binding.keyboardBinding.ModifierKeys
-                }) then
+                and KeybindingManager:AreBindingsEqual(inputBinding, binding.keyboardBinding) then
                 table.insert(triggered, binding)
             end
         end
@@ -442,16 +405,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
     dispatchCallbacks(e, triggered, e.Event)
 end
 
----@param modifiers string[]
----@param required string[]
----@return boolean
-local function modifiersMatch(modifiers, required)
-    local actualIdentity = table.concat(KeybindingManager:NormalizeModifiers(modifiers), "+")
-    local requiredIdentity = table.concat(KeybindingManager:NormalizeModifiers(required), "+")
-    return actualIdentity == requiredIdentity
-end
-
----Dispatches a mouse press/release event using centrally tracked keyboard modifiers.
+---Dispatches a mouse press/release event using shared binding identity.
 ---@param e EclLuaMouseButtonEvent
 ---@param heldModifiers string[]
 function KeybindingsRegistry.DispatchMouseEvent(e, heldModifiers)
@@ -459,11 +413,11 @@ function KeybindingsRegistry.DispatchMouseEvent(e, heldModifiers)
     local matched = {}
 
     if e.Pressed then
+        local inputBinding = { Button = button, ModifierKeys = heldModifiers }
         for _modUUID, actions in pairs(registry) do
             for _actionId, binding in pairs(actions) do
                 if type(binding) == "table" and KeybindingManager:IsMouseBindingAssigned(binding.mouseBinding)
-                    and binding.mouseBinding.Button == button
-                    and modifiersMatch(heldModifiers, binding.mouseBinding.ModifierKeys)
+                    and KeybindingManager:AreBindingsEqual(inputBinding, binding.mouseBinding)
                     and canTriggerBinding(binding) then
                     table.insert(matched, binding)
                 end

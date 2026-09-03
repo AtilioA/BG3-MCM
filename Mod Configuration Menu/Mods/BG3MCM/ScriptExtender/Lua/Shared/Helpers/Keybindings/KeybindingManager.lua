@@ -124,6 +124,29 @@ function KeybindingManager:GetActiveV2Binding(value)
     return nil
 end
 
+---Returns one device-aware identity for an assigned keyboard or mouse binding.
+---@param value KeybindingV2Value|KeybindingKeyboardBinding|KeybindingMouseBinding|nil
+---@return string|nil
+function KeybindingManager:GetBindingIdentity(value)
+    local active = self:GetActiveV2Binding(value)
+    if not active then return nil end
+
+    local modifiers = table.concat(self:NormalizeModifiers(active.ModifierKeys), "+")
+    if self:IsMouseBindingAssigned(active) then
+        return "mouse:" .. tostring(active.Button) .. ":" .. modifiers
+    end
+
+    return "keyboard:" .. tostring(active.Key):upper() .. ":" .. modifiers
+end
+
+---Compares complete values or bindings by assigned device, primary input, and modifier identity.
+---@param value1 KeybindingV2Value|KeybindingKeyboardBinding|KeybindingMouseBinding|nil
+---@param value2 KeybindingV2Value|KeybindingKeyboardBinding|KeybindingMouseBinding|nil
+---@return boolean
+function KeybindingManager:AreBindingsEqual(value1, value2)
+    return self:GetBindingIdentity(value1) == self:GetBindingIdentity(value2)
+end
+
 ---Canonicalizes a complete keybinding value to one device and complete flags.
 ---@param value KeybindingV2Value|nil
 ---@param fallback? KeybindingV2Value
@@ -154,70 +177,6 @@ function KeybindingManager:CanonicalizeV2Value(value, fallback)
         canonical.Keyboard = { Key = "", ModifierKeys = {} }
     end
     return canonical
-end
-
--- Check if the event matches the keybinding (both key and modifiers)
-function KeybindingManager:IsKeybindingPressed(e, keybinding)
-    local scanCode = keybinding.ScanCode
-    local modifier = keybinding.Modifier
-
-    if type(scanCode) == "table" then
-        scanCode = scanCode[1]
-    end
-
-    if e.Key ~= scanCode then
-        return false
-    end
-
-    return self:IsModifierPressed(e, modifier)
-end
-
--- Returns a set (table with keys) of 'active modifiers' from a given modifiers list.
-function KeybindingManager:ExtractActiveModifiers(modifiers)
-    local activeModifiers = {}
-    for _, mod in ipairs(modifiers or {}) do
-        if type(mod) == "string" then
-            local normalizedModifier = mod:upper()
-            if self:IsActiveModifier(normalizedModifier) then
-                activeModifiers[normalizedModifier] = true
-            end
-        end
-    end
-    return activeModifiers
-end
-
--- Checks that all required modifiers are pressed.
-function KeybindingManager:IsModifierPressed(e, modifiers)
-    -- Normalize modifiers to a table
-    local mods = type(modifiers) == "table" and modifiers or { modifiers }
-    local requiredSet = {}
-    for _, mod in ipairs(mods) do
-        if type(mod) ~= "string" then
-            return false
-        end
-
-        local m = mod:upper()
-        if not self:IsModifierNull(m) then
-            if not self:IsActiveModifier(m) then return false end
-            requiredSet[m] = true
-        end
-    end
-
-    local eventSet = self:ExtractActiveModifiers(e.Modifiers)
-
-    -- Check that both sets are exactly equal:
-    for mod in pairs(requiredSet) do
-        if not eventSet[mod] then
-            return false
-        end
-    end
-    for mod in pairs(eventSet) do
-        if not requiredSet[mod] then
-            return false
-        end
-    end
-
-    return true
 end
 
 return KeybindingManager
