@@ -384,7 +384,7 @@ function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, 
     if activeCaptureWidget then return end
     activeCaptureWidget = self
     self.Widget.ListeningForInput = true
-    self.Widget.CurrentListeningAction = { Mod = mod, Action = action, InputType = inputType }
+    self.Widget.CurrentListeningAction = { Mod = mod, Action = action, InputType = inputType, CaptureButton = button }
     self.Widget.ClaimedInput = nil
     self.Widget.PreviousNoMouseInputs = MCM_WINDOW and MCM_WINDOW.NoMouseInputs or false
     if MCM_WINDOW then MCM_WINDOW.NoMouseInputs = true end
@@ -465,6 +465,22 @@ local function getRegistryAction(current)
     return modRegistry and modRegistry[current.Action.ActionId]
 end
 
+---Refreshes the capture button label with the currently held modifiers.
+function KeybindingV2IMGUIWidget:UpdateCapturePreview()
+    local current = self.Widget.CurrentListeningAction
+    if not current or not current.CaptureButton then return end
+    local held = InputCallbackManager.GetHeldModifiers()
+    if #held == 0 then
+        current.CaptureButton.Label = ClientGlobals.LISTENING_INPUT_STRING
+        return
+    end
+    local parts = {}
+    for _, modifier in ipairs(held) do
+        table.insert(parts, "[" .. (KeyPresentationMapping.Mapping[modifier] or modifier) .. "]")
+    end
+    current.CaptureButton.Label = table.concat(parts, " + ") .. " + " .. ClientGlobals.LISTENING_INPUT_STRING
+end
+
 ---Handles keyboard input during capture and claims both edges of the selected key.
 ---@param e EclLuaKeyInputEvent
 function KeybindingV2IMGUIWidget:HandleKeyInput(e)
@@ -477,8 +493,16 @@ function KeybindingV2IMGUIWidget:HandleKeyInput(e)
         return
     end
 
+    if KeybindingManager:IsActiveModifier(key) then
+        if not self.Widget.ListeningForInput or e.Repeat then return end
+        if e.Event ~= "KeyDown" and e.Event ~= "KeyUp" then return end
+        e:PreventAction()
+        e:StopPropagation()
+        self:UpdateCapturePreview()
+        return
+    end
+
     if not self.Widget.ListeningForInput or e.Event ~= "KeyDown" or e.Repeat then return end
-    if KeybindingManager:IsActiveModifier(key) then return end
 
     e:PreventAction()
     e:StopPropagation()
