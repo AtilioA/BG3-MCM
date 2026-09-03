@@ -171,8 +171,8 @@ function KeyPresentationMapping:GetViewKey(sdlKey)
     return self.Mapping[sdlKey:upper()] or sdlKey
 end
 
---- Returns the presentation string for a given SDL key.
---- @param keybinding table A table containing "Key" and "ModifierKeys".
+--- Returns the presentation string for a keyboard or mouse binding.
+--- @param keybinding table A table containing keyboard or mouse binding fields.
 --- @return string The view string; if no mapping is found, returns the original value.
 function KeyPresentationMapping:GetKBViewKey(keybinding)
     if not keybinding then
@@ -194,12 +194,8 @@ function KeyPresentationMapping:GetKBViewKey(keybinding)
     end
 
     local modifiers = {}
-    if keybinding.ModifierKeys then
-        for _, modifier in ipairs(keybinding.ModifierKeys) do
-            if modifier and modifier ~= "" then
-                table.insert(modifiers, "[" .. (self.Mapping[modifier:upper()] or modifier) .. "]")
-            end
-        end
+    for _, modifier in ipairs(KeybindingManager:NormalizeModifiers(keybinding.ModifierKeys)) do
+        table.insert(modifiers, "[" .. (self.Mapping[modifier] or modifier) .. "]")
     end
 
     return table.concat(modifiers, " + ") .. (next(modifiers) and " + " or "") .. keyStr
@@ -214,12 +210,8 @@ function KeyPresentationMapping:GetMouseViewKey(mouseBinding)
     local buttonStr = "[" .. (self.Mapping[buttonName] or buttonName) .. "]"
 
     local modifiers = {}
-    if mouseBinding.ModifierKeys then
-        for _, modifier in ipairs(mouseBinding.ModifierKeys) do
-            if modifier and modifier ~= "" and modifier ~= "NONE" then
-                table.insert(modifiers, "[" .. (self.Mapping[modifier:upper()] or modifier) .. "]")
-            end
-        end
+    for _, modifier in ipairs(KeybindingManager:NormalizeModifiers(mouseBinding.ModifierKeys)) do
+        table.insert(modifiers, "[" .. (self.Mapping[modifier] or modifier) .. "]")
     end
 
     return table.concat(modifiers, " + ") .. (next(modifiers) and " + " or "") .. buttonStr

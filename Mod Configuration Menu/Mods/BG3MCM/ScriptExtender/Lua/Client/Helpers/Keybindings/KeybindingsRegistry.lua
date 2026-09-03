@@ -27,13 +27,11 @@ function KeybindingsRegistry.NormalizeKeyboardBinding(binding)
         return nil
     end
     local modifiers = KeybindingManager:NormalizeModifiers(binding.ModifierKeys)
-    local mod = #modifiers > 0 and table.concat(modifiers, "+") or "NONE"
     local scan = tostring(binding.Key):upper()
-    if mod ~= "NONE" then
-        return mod .. "+" .. scan
-    else
-        return scan
+    if #modifiers > 0 then
+        return table.concat(modifiers, "+") .. "+" .. scan
     end
+    return scan
 end
 
 ---Returns a device-aware identity for an assigned binding.
