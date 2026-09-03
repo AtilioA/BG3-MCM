@@ -78,6 +78,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [Client vs. Server execution](#client-vs-server-execution)
     - [Inserting custom UI elements](#inserting-custom-ui-elements)
     - [Defining lists](#defining-lists)
+      - [list\_v2 schema reference](#list_v2-schema-reference)
       - [Inserting suggestions for ListV2 settings](#inserting-suggestions-for-listv2-settings)
   - [Listening to MCM events](#listening-to-mcm-events)
   - [How validation works](#how-validation-works)
@@ -402,14 +403,14 @@ If you need structured input, consider `list_v2` or multiple settings instead of
 - **Best for**: Managing collections (allow/deny lists, presets, etc.).
 - **Required fields**: `Default` (object). In practice, defaults are expected to follow the list format used by MCM (`Enabled` and an `Elements` array of `{ name, enabled }` entries).
 - **Optional fields**:
-  - `Options.PageSize`: Items shown per page (integer; schema bounds 5–20, defaults to 10 in schema examples).
-  - `Options.ShowSearchBar`: When `true`, shows a search bar for filtering items.
-  - `Options.ReadOnly`: When `true`, disables adding/removing items while still allowing toggles.
-  - `Options.AllowReordering`: When `true`, enables drag-to-reorder in the list UI.
+  - `Options.PageSize`: Items shown per page (integer; clamped between 5 and 20, defaults to 5 in code).
+  - `Options.ShowSearchBar`: Shows the search bar for filtering items (`true` by default; set to `false` to hide it).
+  - `Options.ReadOnly`: When `true`, hides the add-element input and reset button while still allowing toggles.
+  - `Options.AllowReordering`: When `true`, adds Move Up / Move Down buttons to each element.
   - `Options.Suggestions`: Array of strings shown as suggestions while typing (can also be injected dynamically via `MCM.List.InsertSuggestions`).
 - **Caveats**:
   - MCM automatically migrates old `list` settings to `list_v2` when the setting ID stays the same. Plan for this if you previously used `list`.
-  - For advanced behaviors (like dynamic suggestions), see the [list section](#defining-lists) and the `MCM.List` API.
+  - For advanced usecases (such as dynamic suggestions), the full value schema and the runtime shape returned by `MCM.Get` / `MCM.List.GetRaw`, see the [list_v2 schema reference](#list_v2-schema-reference) and the [list section](#defining-lists).
 
 #### color_picker
 
@@ -857,6 +858,67 @@ MCM 1.17 introduced `list_v2` to supersede the now deprecated `list` input type.
 > {.is-success}
 
 `MCM.List` contains useful methods for dealing with `list_v2` settings.
+
+#### list_v2 schema reference
+
+A `list_v2` setting's `Default` value is an object with two keys: `Enabled` (the list on/off toggle) and `Elements` (the entries). Element keys are always lowercase (`name`, `enabled`).
+
+Example blueprint entry:
+
+```json
+{
+  "Id": "ignore_weapons",
+  "Type": "list_v2",
+  "Name": "Ignored weapons",
+  "Description": "Weapons in this list are ignored.",
+  "Default": {
+    "Enabled": true,
+    "Elements": [
+      { "name": "weapon_name", "enabled": false },
+      { "name": "another_weapon_name", "enabled": true }
+    ]
+  },
+  "Options": {
+    "ReadOnly": false,
+    "ShowSearchBar": true,
+    "AllowReordering": true,
+    "PageSize": 10,
+    "Suggestions": ["weapon_name", "another_weapon_name"]
+  }
+}
+```
+
+**Default value keys**
+
+| Key | Type | Notes |
+| --- | --- | --- |
+| `Enabled` | boolean | Master switch for the whole list. |
+| `Elements` | array of objects | Each element must have `name` (a non-empty string) and optionally `enabled` (a boolean; defaults to `true` when omitted). Element keys must be lowercase. |
+
+**Options fields**
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `ReadOnly` | boolean | `false` | Hides the add-element input and the reset button. Per-item toggles stay available. |
+| `ShowSearchBar` | boolean | `true` | Shows the filter input above the list. Set to `false` to hide it. |
+| `AllowReordering` | boolean | `false` | Adds Move Up / Move Down buttons to each element. |
+| `PageSize` | integer | `5` | Elements shown per page. Clamped between 5 and 20. |
+| `Suggestions` | array of strings | `{}` | Fuzzy-matched suggestions shown in a collapsing header under the add input while typing. |
+
+**Value shape at runtime**
+
+MCM normalizes list values before they reach the API. `MCM.Get` and `MCM.List.GetRaw` return the lowercase shape below:
+
+```lua
+local value = MCM.Get("ignore_weapons") -- same shape as MCM.List.GetRaw("ignore_weapons")
+-- value = {
+--     enabled = true,
+--     elements = {
+--         { name = "weapon_name", enabled = false },
+--         { name = "another_weapon_name", enabled = true },
+--     },
+-- }
+```
 
 #### Inserting suggestions for ListV2 settings
 
