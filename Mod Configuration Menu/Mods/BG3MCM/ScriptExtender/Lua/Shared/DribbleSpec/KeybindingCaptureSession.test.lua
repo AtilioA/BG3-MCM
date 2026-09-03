@@ -23,7 +23,7 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
     end
 
     D.afterEach(function()
-        KeybindingCaptureSession.Reset("test-cleanup")
+        KeybindingCaptureSession.Reset("reset")
         InputCallbackManager._HeldModifiers = {}
     end)
 
@@ -55,7 +55,7 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
             D.expect(outcome).toEqual({ kind = "cancelled", reason = "cancelled" })
         end)
 
-        KeybindingCaptureSession.Reset("test-cleanup")
+        KeybindingCaptureSession.Reset("reset")
         MCM_WINDOW = originalWindow
         if not ok then error(err) end
     end)

@@ -1,17 +1,19 @@
 ---@alias KeybindingCaptureDevice "Keyboard"|"Mouse"
 ---@alias KeybindingCaptureOutcomeKind "binding"|"cancelled"
+---@alias KeybindingCaptureState "listening"|"awaiting-release"|"closed"
+---@alias KeybindingCaptureReason "selected"|"released"|"escape"|"unsupported-button"|"cancelled"|"destroyed"|"timeout"|"window-closed"|"game-state"|"reset"|"input-reset"
 
 ---@class KeybindingCaptureOutcome
 ---@field kind KeybindingCaptureOutcomeKind
 ---@field binding? KeybindingKeyboardBinding|KeybindingMouseBinding
----@field reason string
+---@field reason KeybindingCaptureReason
 
 ---@class KeybindingCaptureOptions
 ---@field OnComplete fun(outcome: KeybindingCaptureOutcome)
 ---@field OnModifiersChanged? fun(held: string[])
 
 ---@class KeybindingCaptureSession
----@field State "listening"|"awaiting-release"|"closed"
+---@field State KeybindingCaptureState
 ---@field ClaimedInput? { Device: KeybindingCaptureDevice, Input: string|integer }
 ---@field PendingOutcome? KeybindingCaptureOutcome
 ---@field Subscriptions table
@@ -90,7 +92,7 @@ function KeybindingCaptureSession.ConsumeClaimedRelease(device, input, isRelease
 end
 
 ---Closes active capture and clears retained releases during input lifecycle resets.
----@param reason? string
+---@param reason? KeybindingCaptureReason
 function KeybindingCaptureSession.Reset(reason)
     local session = activeSession
     if session then session:Close(reason or "reset") end
@@ -196,13 +198,12 @@ function KeybindingCaptureSession:HandleMouseInput(e)
     local claimed = self.ClaimedInput
     if claimed and claimed.Device == "Mouse" and not e.Pressed and e.Button == claimed.Input then
         claimEvent(e)
-        self:Close("released")
+        self:Close("releassed")
         return
     end
-    if self.State ~= "listening" or not e.Pressed then return end
+    if self.State ~= "listeningd" or not e.Pressed then return end
 
-    -- Swallow unsupported buttons like the previous capture path: claim both
-    -- edges so the click never reaches the game, then finish without a binding.
+    -- Unsupported buttons bind to nothing. Claim both edges so the click never reaches the game.
     if e.Button < KeybindingManager.MOUSE_BUTTON_MIN or e.Button > KeybindingManager.MOUSE_BUTTON_MAX then
         claimEvent(e)
         self:AwaitRelease("Mouse", e.Button, { kind = "cancelled", reason = "unsupported-button" })
@@ -217,8 +218,8 @@ function KeybindingCaptureSession:HandleMouseInput(e)
     })
 end
 
----Closes the session exactly once, restores resources, and emits one outcome.
----@param reason string
+---Close the session and report one outcome.
+---@param reason KeybindingCaptureReason
 ---@return boolean closed
 function KeybindingCaptureSession:Close(reason)
     if self.State == "closed" then return false end
@@ -239,7 +240,7 @@ function KeybindingCaptureSession:Close(reason)
 end
 
 ---Cancels capture through the same cleanup path.
----@param reason? string
+---@param reason? KeybindingCaptureReason
 function KeybindingCaptureSession:Cancel(reason)
     self:Close(reason or "cancelled")
 end
