@@ -166,8 +166,9 @@ function KeybindingsRegistry.UpdateBinding(modUUID, actionId, value, shouldEmitE
         return false
     end
 
-    -- The save event applies the accepted value back into the registry.
-    return MCMProxy:SetSettingValue(actionId, value, modUUID, nil, shouldEmitEvent) ~= false
+    -- The immediate acceptance outcome decides the boolean result.
+    local receipt = MCMProxy:SetSettingValue(actionId, value, modUUID, nil, shouldEmitEvent)
+    return receipt.accepted
 end
 
 ---Applies an authoritative saved or profile value to an existing registry entry.

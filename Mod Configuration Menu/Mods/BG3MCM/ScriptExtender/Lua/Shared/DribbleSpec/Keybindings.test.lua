@@ -137,7 +137,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         local saved = nil
         MCMProxy.SetSettingValue = function(_, _, value)
             saved = value
-            return true
+            return { accepted = true, state = "saved", value = value }
         end
 
         local ok, err = pcall(function()

@@ -135,7 +135,8 @@ end
 ---@return boolean success True if the setting was successfully updated
 local function Set_Impl(args)
     if Ext.IsClient() then
-        return MCMProxy:SetSettingValue(args.settingId, args.value, args.modUUID, nil, args.shouldEmitEvent)
+        local receipt = MCMProxy:SetSettingValue(args.settingId, args.value, args.modUUID, nil, args.shouldEmitEvent)
+        return receipt.accepted
     end
     return MCMAPI:SetSettingValue(args.settingId, args.value, args.modUUID, args.shouldEmitEvent)
 end

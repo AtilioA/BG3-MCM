@@ -73,23 +73,15 @@ function IMGUIAPI:InsertListV2Suggestions(settingId, suggestions, modUUID)
     widget.Widget.instance:RenderSearchResults()
 end
 
---- Send a message to the server to update a setting value
+--- Send a message to update a setting value through the setting-write module.
 ---@param settingId string The ID of the setting to update
 ---@param value any The new value of the setting
 ---@param modUUID string The UUID of the mod
----@param setUIValue? function A callback function to be called after the setting value is updated
----@return nil
+---@param setUIValue? fun(value: any) A callback used to reconcile the UI
+---@param shouldEmitEvent? boolean Whether to emit the setting saved event
+---@return SettingWriteReceipt receipt The immediate acceptance state
 function IMGUIAPI:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
-    MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
-
-    -- FIXME: this is leaking listeners?
-    ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
-        if data.modUUID == modUUID and data.settingId == settingId then
-            if setUIValue then
-                setUIValue(data.value)
-            end
-        end
-    end)
+    return MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
 end
 
 --- Send a message to the server to reset a setting value

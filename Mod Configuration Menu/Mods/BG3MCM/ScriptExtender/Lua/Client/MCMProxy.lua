@@ -2,6 +2,7 @@
 
 ---@class MCMProxy
 MCMProxy = _Class:Create("MCMProxy", nil, {
+    PendingSettingWrites = {},
 })
 
 ---Check if the game is in the main menu
@@ -129,50 +130,64 @@ function MCMProxy:SetEnumChoices(settingId, choices, choicesHandles, modUUID)
     return true
 end
 
---- Set a setting value
+---@alias SettingWriteState "saved"|"queued"|"rejected"
+
+---@class SettingWriteReceipt
+---@field accepted boolean Whether the write was accepted locally or queued for the server
+---@field state SettingWriteState The immediate state of the write
+---@field value? any The submitted value
+---@field error? string The rejection reason when available
+
+--- Set a setting value through the local or server adapter.
 ---@param settingId string The ID of the setting to set
 ---@param value any The value to set the setting to
 ---@param modUUID string The UUID of the mod to set the setting for
----@param setUIValue function|nil A function to set the UI value
+---@param setUIValue fun(value: any)|nil A function to reconcile the UI with the authoritative value
 ---@param shouldEmitEvent? boolean Whether to emit the setting saved event
----@return boolean accepted Whether the local save succeeded or the server request was queued
+---@return SettingWriteReceipt receipt The immediate acceptance state
 function MCMProxy:SetSettingValue(settingId, value, modUUID, setUIValue, shouldEmitEvent)
     if self:IsMainMenu() then
-        -- Handle locally
         local success = MCMAPI:SetSettingValue(settingId, value, modUUID, shouldEmitEvent)
         if success and setUIValue then
             setUIValue(value)
         end
-        return success
-    else
-        NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE:RequestToServer(
-            {
-                modUUID = modUUID,
-                settingId = settingId,
-                value = value
-            },
-            function(response)
-                if response.success then
-                    MCMDebug(1, "Successfully set setting %s on server", settingId)
-                    -- UI update is handled via ModEventManager subscription below
-                else
-                    MCMWarn(0, "Failed to set setting %s: %s", settingId, response.error or "Unknown error")
-                end
-            end
-        )
+        if success then
+            return { accepted = true, state = "saved", value = value }
+        end
+        return { accepted = false, state = "rejected", error = "Setting value was rejected" }
+    end
 
-        -- Check if server updated the setting (subscribe to mod event)
-        ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
-            if data.modUUID ~= modUUID or data.settingId ~= settingId then
+    -- Remote writes are fire-and-forget: responses can arrive after newer values.
+    -- Trust the MCM_INTERNAL_SETTING_SAVED broadcast instead. This callback only logs and clears pending state.
+    local requestKey = modUUID .. ":" .. settingId
+    local pendingWrite = {
+        value = value
+    }
+    self.PendingSettingWrites[requestKey] = pendingWrite
+
+    NetChannels.MCM_CLIENT_REQUEST_SET_SETTING_VALUE:RequestToServer(
+        {
+            modUUID = modUUID,
+            settingId = settingId,
+            value = value
+        },
+        function(response)
+            if self.PendingSettingWrites[requestKey] ~= pendingWrite then
+                return
+            end
+            self.PendingSettingWrites[requestKey] = nil
+
+            if response and response.success then
+                MCMDebug(1, "Successfully set setting %s on server", settingId)
                 return
             end
 
-            if setUIValue then
-                setUIValue(data.value)
-            end
-        end)
-        return true
-    end
+            MCMWarn(0, "Failed to set setting %s: %s", settingId,
+                response and response.error or "Unknown error")
+        end
+    )
+
+    return { accepted = true, state = "queued", value = value }
 end
 
 --- Reset a setting value
