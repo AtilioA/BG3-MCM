@@ -8,14 +8,15 @@ KeybindingConflictService = _Class:Create("KeybindingConflictService", nil)
 ---@param currentMod KeybindingUIMod
 ---@param currentAction KeybindingUIAction
 ---@param inputType string
+---@param nativeData? NativeKeybindingsResult Shared catalog for one table refresh; fetched when nil
 ---@return table|nil
-function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, currentAction, inputType)
+function KeybindingConflictService:CheckForConflicts(keybinding, currentMod, currentAction, inputType, nativeData)
     if inputType ~= "KeyboardMouse" or currentAction.AllowConflict
         or not KeybindingManager:GetActiveV2Binding(keybinding) then
         return nil
     end
     return self:CheckMCMForConflicts(keybinding, currentAction, currentMod and currentMod.ModUUID)
-        or self:CheckNativeForConflicts(keybinding)
+        or self:CheckNativeForConflicts(keybinding, nativeData)
 end
 
 ---Checks MCM-defined bindings for a conflict.
@@ -45,12 +46,13 @@ end
 
 ---Checks confidently mapped live native bindings for an exact conflict.
 ---@param keybinding KeybindingKeyboardBinding|KeybindingMouseBinding|KeybindingV2Value|nil
+---@param nativeData? NativeKeybindingsResult Shared catalog for one table refresh; fetched when nil
 ---@return table|nil
-function KeybindingConflictService:CheckNativeForConflicts(keybinding)
+function KeybindingConflictService:CheckNativeForConflicts(keybinding, nativeData)
     local active = KeybindingManager:GetActiveV2Binding(keybinding)
     if not active then return nil end
 
-    local nativeData = NativeKeybindings.GetAll()
+    nativeData = nativeData or NativeKeybindings.GetAll()
     for _, nativeAction in ipairs(nativeData.Public or {}) do
         for _, binding in ipairs(nativeAction.Bindings or {}) do
             local transformed = nil

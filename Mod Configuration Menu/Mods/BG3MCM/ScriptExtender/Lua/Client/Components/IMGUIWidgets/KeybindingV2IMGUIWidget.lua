@@ -1,5 +1,7 @@
 -- TODO: add another column to 'ignore conflicts'?
 
+local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
+
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 ---@field Widget table
 ---@field _registrySubscription any
@@ -188,6 +190,9 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
 
     self:SortFilteredActions()
 
+    -- One native catalog read for all rows below; rows reuse it via the conflict check.
+    local nativeData = NativeKeybindings.GetAll()
+
     -- Add hint text before rendering MCM keybindings (no native keybindings here)
     if #self.Widget.FilteredActions > 0 then
         local hintText = group:AddText(Ext.Loca.GetTranslatedString("haafdc7e359944b89905c4d536bfed7cda1gf"))
@@ -202,7 +207,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTables()
         modHeader.OnRightClick = function()
             IMGUIAPI:OpenModPage(nil, mod.ModUUID, true)
         end
-        self:RenderKeybindingTable(modHeader, mod)
+        self:RenderKeybindingTable(modHeader, mod, nativeData)
         table.insert(self.Widget.DynamicElements.ModHeaders, modHeader)
     end
 end
@@ -210,7 +215,8 @@ end
 ---Renders the keybinding table for a specific mod
 ---@param modGroup ExtuiGroup The IMGUI group to render the table in
 ---@param mod KeybindingUIMod The mod data containing actions to render
-function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
+---@param nativeData? NativeKeybindingsResult Shared catalog from the table refresh; fetched per row when nil
+function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod, nativeData)
     xpcall(function()
         local columns = 4
         local imguiTable = modGroup:AddTable("", columns)
@@ -343,7 +349,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod)
             -- Don't show red text if AllowConflict is enabled for this keybinding
             if not isDisabled then
                 local conflictKB = KeybindingConflictService:CheckForConflicts(getActiveActionBinding(action), mod, action,
-                    "KeyboardMouse")
+                    "KeyboardMouse", nativeData)
                 if conflictKB and not action.AllowConflict then
                     kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
 
