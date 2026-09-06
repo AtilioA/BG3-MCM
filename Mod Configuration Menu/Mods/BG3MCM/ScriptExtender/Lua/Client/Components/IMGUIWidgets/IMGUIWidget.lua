@@ -91,10 +91,13 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
 
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
     ---@cast widget IMGUIWidget
+    if widget == nil then
+        return nil
+    end
 
     local inputStyleName = UIStyle.InputStyleByType[settingType]
     if inputStyleName then
-        IMGUIHelpers:ApplyInputStyle(widget.Widget, inputStyleName)
+        widget:ApplyWidgetStyle(inputStyleName)
     end
 
     widget.Widget.IDContext = modUUID .. "_" .. setting:GetId()
@@ -160,6 +163,13 @@ end
 
 function IMGUIWidget:UpdateCurrentValue(value)
     error("IMGUIWidget:UpdateCurrentValue must be overridden in a derived class")
+end
+
+--- Apply the named input style to the underlying IMGUI element.
+--- Subclasses holding multiple elements (e.g. radio button arrays) override this.
+---@param styleName string
+function IMGUIWidget:ApplyWidgetStyle(styleName)
+    IMGUIHelpers:ApplyInputStyle(self.Widget, styleName)
 end
 
 --- Extract the value from the widget's OnChange event

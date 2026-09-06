@@ -75,6 +75,7 @@ UIStyle.TextStyles = {
 UIStyle.CustomTabStyles = {
     InputStyles = {
         Checkbox = "checkbox",
+        RadioButton = "radio",
         Combo = "combo",
         InputText = "default",
         InputInt = "default",
@@ -124,6 +125,9 @@ UIStyle.InputStyles = {
         ["FrameBorderSize"] = 1.0,
         ["FrameRounding"] = 0.0,
     },
+    ["radio"] = {
+        ["FrameBorderSize"] = 1.0,
+    },
     ["combo"] = {
         ["FrameBorderSize"] = 1.0,
         ["FrameRounding"] = 10,
@@ -140,6 +144,7 @@ UIStyle.InputStyleByType = {
     int = "default",
     float = "default",
     checkbox = "checkbox",
+    radio = "radio",
     text = "default",
     enum = "combo",
     slider_int = "slider_int",

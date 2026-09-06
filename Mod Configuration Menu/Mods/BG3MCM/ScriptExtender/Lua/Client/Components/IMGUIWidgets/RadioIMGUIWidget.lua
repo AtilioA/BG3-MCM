@@ -8,13 +8,21 @@ RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 ---@return RadioIMGUIWidget
 function RadioIMGUIWidget:new(group, setting, initialValue, modUUID)
     if not group or not setting or not modUUID then
-        return {}
+        return nil
     end
 
     local instance = setmetatable({}, { __index = RadioIMGUIWidget })
     instance.Widget = self:CreateRadioButtons(group, setting, initialValue)
     self:SetRadioButtonCallbacks(instance.Widget, setting, modUUID)
     return instance
+end
+
+--- Radio holds an array of buttons, so the style is applied to each button.
+---@param styleName string
+function RadioIMGUIWidget:ApplyWidgetStyle(styleName)
+    for _, button in ipairs(self.Widget) do
+        IMGUIHelpers:ApplyInputStyle(button, styleName)
+    end
 end
 
 ---@param group ExtuiGroup The IMGUI group to add the radio buttons to

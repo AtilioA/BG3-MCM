@@ -300,6 +300,7 @@ ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(data)
 
     IMGUIAPI:UpdateSettingUIValue(settingId, value, modUUID)
 
+    -- REVIEW: Might not be needeed anymore
     MCMClientState:SetClientStateValue(settingId, value, modUUID)
 
     IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
