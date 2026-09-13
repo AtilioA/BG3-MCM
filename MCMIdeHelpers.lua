@@ -233,13 +233,12 @@ MCM = {
 --- @field settingId string The ID of the setting
 --- @field defaultValue any The default value of the setting
 
---- Note: still unused by MCM
 --- @class MCM_Dynamic_Setting_Saved_Payload
 --- @field modUUID string The UUID of the mod
 --- @field key string The key ('id'/'name') of the setting
 --- @field oldValue any The old value of the setting
 --- @field value any The new value of the setting
---- @field storage string The type of storage ("ModVar", "ModConfig", etc.)
+--- @field storageType string The type of storage ("ModVar", "ModConfig", etc.)
 
 --- @class MCM_Profile_Created_Payload
 --- @field profileName string The name of the created profile

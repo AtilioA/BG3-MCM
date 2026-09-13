@@ -88,6 +88,7 @@ local function RegisterModEvents()
     local BG3DirName = Ext.Mod.GetMod(ModuleUUID).Info.Directory
 
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_SAVED)
+    Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_DYNAMIC_SETTING_SAVED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_SETTING_RESET)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_CREATED)
     Ext.RegisterModEvent(BG3DirName, EventChannels.MCM_PROFILE_ACTIVATED)
