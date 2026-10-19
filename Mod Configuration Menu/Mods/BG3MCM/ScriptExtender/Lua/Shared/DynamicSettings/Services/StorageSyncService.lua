@@ -55,7 +55,7 @@ local function isClientMainMenu()
     end
 
     local ok, state = pcall(Ext.Utils.GetGameState)
-    if ok and Ext.Enums and Ext.Enums.ClientGameState then
+    if ok then
         return state == Ext.Enums.ClientGameState["Menu"]
     end
 
