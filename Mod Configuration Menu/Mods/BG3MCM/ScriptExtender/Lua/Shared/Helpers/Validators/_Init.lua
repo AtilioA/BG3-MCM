@@ -1,5 +1,6 @@
 RequireFiles("Shared/Helpers/Validators/", {
     "FloatUtils",
+    "Validator",
     "CheckboxValidator",
     "EnumValidator",
     "EventButtonValidator",
