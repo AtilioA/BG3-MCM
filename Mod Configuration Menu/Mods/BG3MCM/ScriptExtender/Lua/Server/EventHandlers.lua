@@ -9,7 +9,7 @@ local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageS
 local function warnAboutNPAKM()
     if LoadOrderHealthCheck and LoadOrderHealthCheck.ShouldWarnAboutNPAKM and LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then
         local host = Osi.GetHostCharacter()
-        if host and Osi.OpenMessageBox then
+        if host then
             local message = Ext.Loca.GetTranslatedString("h41e2dbf1773848eca2001fde456cca4d0156")
             MCMWarn(0, message)
             Osi.OpenMessageBox(host, message)
