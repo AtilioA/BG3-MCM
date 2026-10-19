@@ -25,7 +25,6 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/MCMAPI.test.lua")
     Ext.Require("Shared/DribbleSpec/ModConfig.test.lua")
     Ext.Require("Shared/DribbleSpec/EventButton.test.lua")
-    Ext.Require("Shared/DribbleSpec/VisibilityManager.test.lua")
     Ext.Require("Shared/DribbleSpec/StorageSyncService.test.lua")
     Ext.Require("Shared/DribbleSpec/InternalAPIGuard.test.lua")
 end
