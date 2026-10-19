@@ -256,7 +256,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     end
 
     local modVersion = MCMUtils.FormatModVersion(ModuleUUID)
-    ---@class ExtuiWindow
+    ---@type ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     MCM_WINDOW.Scaling = "Scaled"
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
