@@ -1,4 +1,5 @@
 RequireFiles("Server/", {
+    "MCMUtils",
     "AuthorizedNetCommand",
     "MCMServer",
     "EventHandlers",
