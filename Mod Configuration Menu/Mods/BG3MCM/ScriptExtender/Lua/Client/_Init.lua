@@ -6,4 +6,5 @@ RequireFiles("Client/", {
     "MCMRendering",
     "IMGUIAPI",
     "SubscribedEvents",
+    "DribbleSpec/_Init",
 })
