@@ -32,6 +32,7 @@ ModConfig.MCMParamsFilename = "mcm_params.json"
 -- -- }
 
 --- Checks if a mod that has a blueprint has added MCM as a dependency. If it has not and MCM is not optional, a warning is logged.
+-- bg3-lint: allow BG3-MOVABLE -- shared config loading calls it; only the client logs the warning. FIXME: call it only from the client load path and move it to a Client/ ModConfig extension
 function ModConfig:CheckMCMDependency(modUUID, blueprint)
     -- Avoid unnecessary verbosity
     if Ext.IsServer() then return end

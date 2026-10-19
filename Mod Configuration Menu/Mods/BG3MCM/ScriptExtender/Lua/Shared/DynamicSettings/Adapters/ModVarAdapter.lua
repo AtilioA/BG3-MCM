@@ -38,6 +38,7 @@ ModVarAdapter.DEFAULTS = {
 --- Returns true when running on client while in main menu.
 --- Net sends are invalid in this state because there is no host to receive them.
 ---@return boolean
+-- bg3-lint: allow BG3-MOVABLE -- shared predicate; false on the server. FIXME: only the client branch calls this; split ModVarAdapter into a shared core plus Client/ and Server/ extensions, and move this to one client helper shared with StorageSyncService
 local function isClientMainMenu()
     if not Ext.IsClient() then
         return false

@@ -22,6 +22,7 @@ end
 --- Inject client-only method stubs into the mod table for server context
 ---@param modTable table The mod table to inject stubs into
 ---@param originalModUUID string The UUID of the mod
+-- bg3-lint: allow BG3-MOVABLE -- shared injection calls it; only the server needs client-only stubs. FIXME: if its caller runs only on the server, move both to Server/
 local function injectClientOnlyStubs(modTable, originalModUUID)
     if not Ext.IsServer() then return end
 

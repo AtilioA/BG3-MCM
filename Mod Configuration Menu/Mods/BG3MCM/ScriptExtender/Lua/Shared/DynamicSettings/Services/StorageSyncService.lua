@@ -42,6 +42,7 @@ local function parsePayload(payload)
 end
 
 ---@return boolean
+-- bg3-lint: allow BG3-MOVABLE -- shared predicate; false on the server. FIXME: only the client branch calls this; split StorageSyncService into a shared core plus Client/ and Server/ extensions, and move this to one client helper shared with ModVarAdapter
 local function isClientMainMenu()
     if not Ext.IsClient() then
         return false
@@ -63,6 +64,7 @@ local function isClientMainMenu()
 end
 
 ---@return integer|nil
+-- bg3-lint: allow BG3-MOVABLE -- shared sync code calls it; nil on the server. FIXME: only the client handler HandleServerSyncPayload calls this; move both to a Client/ StorageSyncService extension
 local function getLocalUserID()
     if not Ext.IsClient() then
         return nil
@@ -110,6 +112,7 @@ end
 
 ---@param payload StorageSyncPayload
 ---@param excludeUserID? integer
+-- bg3-lint: allow BG3-MOVABLE -- shared sync service calls it; only the server broadcasts. FIXME: only server branches call this; move it with the server request handler to a Server/ StorageSyncService extension
 function StorageSyncService:_syncToClients(payload, excludeUserID)
     if not Ext.IsServer() or self._testMode then
         return

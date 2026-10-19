@@ -87,6 +87,7 @@ end
 
 --- Initializes the notification window and sets up its components
 ---@return nil
+-- bg3-lint: context client -- only CreateIMGUINotification reaches this, after its server return
 function NotificationManager:InitializeNotificationWindow()
     self.IMGUIwindow = Ext.IMGUI.NewWindow(self.title)
     self.IMGUIwindow.IDContext = self.modUUID .. self.id
@@ -333,6 +334,7 @@ end
 ---@param options NotificationOptions Configuration options for the notification
 ---@param modUUID string The UUID of the mod creating the notification
 ---@return NotificationManager|nil The created notification or an existing one with matching title/message
+-- bg3-lint: allow BG3-MOVABLE -- Shared code notifies on both sides; TODO: send server notifications to clients over a net channel
 function NotificationManager:CreateIMGUINotification(id, severity, title, message, options, modUUID)
     if Ext.IsServer() then
         -- TODO: Ext.Net.PostMessageToClient
@@ -368,6 +370,7 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
     return newNotification
 end
 
+-- bg3-lint: allow BG3-MOVABLE -- mod tables are injected on both sides; TODO: inject on the server once server notifications exist
 function NotificationManager:InjectNotificationManagerToModTable(modUUID)
     if Ext.IsServer() then return end
     if modUUID == ModuleUUID then return end

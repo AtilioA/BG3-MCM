@@ -474,6 +474,7 @@ end
 --- Implementation: Register a callback function for an event button
 ---@param args MCMEventButtonCallbackArgs
 ---@return boolean success
+-- bg3-lint: allow BG3-MOVABLE -- the API table is built on both sides; false on the server
 local function EventButtonRegisterCallback_Impl(args)
     if Ext.IsServer() then return false end
     local success = MCMAPI:RegisterEventButtonCallback(args.modUUID, args.buttonId, args.callback)
@@ -492,6 +493,7 @@ end
 --- Implementation: Unregister a callback function for an event button
 ---@param args MCMEventButtonStateArgs
 ---@return boolean success
+-- bg3-lint: allow BG3-MOVABLE -- the API table is built on both sides; false on the server
 local function EventButtonUnregisterCallback_Impl(args)
     if Ext.IsServer() then return false end
     local success = MCMAPI:UnregisterEventButtonCallback(args.modUUID, args.buttonId)
@@ -510,6 +512,7 @@ end
 --- Implementation: Set the disabled state of an event button
 ---@param args MCMEventButtonSetDisabledArgs
 ---@return boolean success
+-- bg3-lint: allow BG3-MOVABLE -- the API table is built on both sides; false on the server
 local function EventButtonSetDisabled_Impl(args)
     if Ext.IsServer() then return false end
 

@@ -555,6 +555,7 @@ end
 ---@param feedbackType? string The type of feedback ("success", "error", "info", "warning"). Defaults to "info".
 ---@param durationInMs? number How long to display the feedback in milliseconds. Defaults to 5000ms.
 ---@return boolean success True if the feedback was shown successfully
+-- bg3-lint: allow BG3-MOVABLE -- public MCM API; warns when a mod calls it on the server
 function MCMAPI:ShowEventButtonFeedback(modUUID, settingId, message, feedbackType, durationInMs)
     if Ext.IsServer() then
         MCMWarn(0, "ShowEventButtonFeedback can only be called on the client")
