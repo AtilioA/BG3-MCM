@@ -125,7 +125,8 @@
 --- @field shouldEmitEvent? boolean Whether to emit the mod page open event
 
 --- @class MCMInsertModMenuTabArgs
---- @field tabName string The name of the tab to be inserted/add content to
+--- @field tabName? string The name of the tab to be inserted/add content to; required only when the tab does not exist yet
+--- @field tabId? string Blueprint TabId of the target tab; matches the tab regardless of language
 --- @field tabCallback fun(tab:ExtuiTabItem) Callback function to create the tab content
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 --- @field skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately
@@ -210,7 +211,7 @@
 --- @field Store MCMStoreAPI Store API for JSON persistence of non-blueprint settings
 --- @field OpenMCMWindow fun():nil Open the MCM window (client-only)
 --- @field CloseMCMWindow fun():nil Close the MCM window (client-only)
---- @field InsertModMenuTab fun(tabNameOrArgs:string|MCMInsertModMenuTabArgs, tabCallback?:fun(tab:ExtuiTabItem), modUUID?:string, skipDisclaimer?:boolean):nil Insert a new tab into the MCM (client-only)
+--- @field InsertModMenuTab fun(tabNameOrArgs:string|MCMInsertModMenuTabArgs|nil, tabCallback?:fun(tab:ExtuiTabItem), modUUID?:string, skipDisclaimer?:boolean, tabId?:string):nil Insert a new tab into the MCM (client-only)
 --- @field OpenModPage fun(tabNameOrArgs:string|MCMOpenModPageArgs, modUUID?:string, shouldEmitEvent?:boolean):nil Open a mod page in the MCM (client-only)
 
 --- @type MCMTable Table containing the MCM public API exposed to each mod.

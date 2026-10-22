@@ -31,11 +31,12 @@ end
 
 --- Insert a new tab for a mod in the MCM
 ---@param modUUID string The UUID of the mod
----@param tabName string The name of the tab to be inserted
+---@param tabName string|nil The name of the tab to be inserted, required only when the tab does not exist yet
 ---@param tabCallback function The callback function to create the tab
 ---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
+---@param tabId? string Blueprint TabId of the target tab; matches the tab regardless of language
 ---@return nil
-function IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer)
+function IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
     if not self.insertedTabs[modUUID] then
         self.insertedTabs[modUUID] = {}
     end
@@ -50,7 +51,7 @@ function IMGUIAPI:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer
     -- Register the new callback
     table.insert(self.insertedTabs[modUUID], tabCallback)
 
-    MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer)
+    MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
 end
 
 --- Insert search results for a list_v2 setting in the MCM

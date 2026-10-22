@@ -4,7 +4,7 @@
 --------------------------------------------
 
 ---@class RightPane
----@field parent ExtUiChildWindow
+---@field parent ExtuiChildWindow
 ---@field contentGroups table
 ---@field detachedWindows table
 ---@field currentMod table<string, any>
@@ -83,7 +83,7 @@ end
 
 ---@param tab ExtuiTabItem|nil
 ---@param targetId string
----@param targetName string
+---@param targetName string|nil
 ---@return boolean
 local function doesTabMatchCriteria(tab, targetId, targetName)
     if not tab then return false end
@@ -146,22 +146,56 @@ local function doesTabMatchCriteria(tab, targetId, targetName)
     return false
 end
 
-function RightPane:CreateTab(modUUID, tabName)
+---@param modTabBar ExtuiTabBar
+---@param tabId string
+---@return ExtuiTabItem|nil
+local function findTabById(modTabBar, tabId)
+    local normalizedTabId = DualPaneController:NormalizeTabName(tabId)
+    for _, existingTab in ipairs(modTabBar.Children) do
+        ---@cast existingTab ExtuiTabItem
+        if existingTab.UserData and DualPaneController:NormalizeTabName(existingTab.UserData.tabId) == normalizedTabId then
+            return existingTab
+        end
+    end
+    return nil
+end
+
+--- Return the mod tab matching tabId (checked first) or tabName; create it from tabName if none matches.
+---@param modUUID string
+---@param tabName string|nil Display name; required only when the tab does not exist yet
+---@param tabId? string Blueprint TabId of the target tab
+---@return ExtuiTabItem|nil
+function RightPane:CreateTab(modUUID, tabName, tabId)
     local group = self:GetModGroup(modUUID)
     local modTabBar = self:GetModTabBar(modUUID)
     if not group or not modTabBar then return nil end
 
-    local tabId = DualPaneController:GenerateTabId(modUUID, tabName)
+    if tabId then
+        local tabWithId = findTabById(modTabBar, tabId)
+        if tabWithId then return tabWithId end
+    end
+
+    if not tabName then
+        if tabId then
+            MCMWarn(1, "No tab with TabId '%s' for mod %s; pass tabName to create a new tab", tabId, modUUID)
+        else
+            MCMWarn(1, "Cannot insert a tab for mod %s: pass tabId or tabName", modUUID)
+        end
+        return nil
+    end
+
+    local generatedTabId = DualPaneController:GenerateTabId(modUUID, tabName)
     for _, existingTab in ipairs(modTabBar.Children) do
-        if doesTabMatchCriteria(existingTab, tabId, tabName) then
+        ---@cast existingTab ExtuiTabItem
+        if doesTabMatchCriteria(existingTab, generatedTabId, tabName) then
             return existingTab
         end
     end
 
     local tab = modTabBar:AddTabItem(tabName)
-    tab.IDContext = tabId
+    tab.IDContext = generatedTabId
     tab.UserData = tab.UserData or {}
-    tab.UserData.tabId = tabId
+    tab.UserData.tabId = tabId or generatedTabId
     tab.UserData.tabName = tabName
 
     tab.OnActivate = function()
@@ -178,9 +212,17 @@ function RightPane:CreateTab(modUUID, tabName)
     return tab
 end
 
-function RightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
-    local tab = self:CreateTab(modUUID, tabName)
+---@param modUUID string
+---@param tabName string|nil Display name; required only when the tab does not exist yet
+---@param callback fun(tab: ExtuiTabItem)
+---@param skipDisclaimer? boolean
+---@param tabId? string Blueprint TabId of the target tab
+---@return ExtuiTabItem|nil
+function RightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer, tabId)
+    local tab = self:CreateTab(modUUID, tabName, tabId)
     if not tab then return nil end
+
+    local resolvedTabName = tab.UserData.tabName or tabName
 
     if callback then
         tab.UserData.Callback = callback
@@ -200,7 +242,7 @@ function RightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
         IMGUIHelpers:ApplyCustomTabStyles(tab)
         ModEventManager:Emit(EventChannels.MCM_MOD_TAB_ADDED, {
             modUUID = modUUID,
-            tabName = tabName,
+            tabName = resolvedTabName,
             skipDisclaimer = skipDisclaimer
         })
     end

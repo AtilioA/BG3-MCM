@@ -36,11 +36,12 @@ end
 --- Insert a mod menu tab
 ---@param self MCMProxy
 ---@param modUUID string The UUID of the mod
----@param tabName string The name of the tab to be inserted
+---@param tabName string|nil The name of the tab to be inserted, required only when the tab does not exist yet
 ---@param tabCallback function The callback function to create the tab
 ---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
+---@param tabId? string Blueprint TabId of the target tab; matches the tab regardless of language
 ---@return nil
-function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer)
+function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
     local disclaimerTab, disclaimerElement
     local inserted = false
     local function handleGameState(gameState)
@@ -55,12 +56,12 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer
                     end
 
                     if skipDisclaimer == true then
-                        DualPane:InsertModTab(modUUID, tabName, tabCallback, skipDisclaimer)
+                        DualPane:InsertModTab(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
                     else
                         -- Add temporary message to inform users that custom MCM tabs are not available in the main menu
                         if disclaimerTab or disclaimerElement then return end
                         disclaimerTab, disclaimerElement = DualPane:CreateTabWithDisclaimer(
-                            modUUID, tabName, "h99e6c7f6eb9c43238ca27a89bb45b9690607"
+                            modUUID, tabName, "h99e6c7f6eb9c43238ca27a89bb45b9690607", tabId
                         )
                     end
                 end)
@@ -71,7 +72,7 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer
 
                 MCMClientState.UIReady:Subscribe(function(ready)
                     if ready then
-                        DualPane:InsertModTab(modUUID, tabName, tabCallback, skipDisclaimer)
+                        DualPane:InsertModTab(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
                         inserted = true
                     end
                 end)

@@ -190,7 +190,7 @@ local function isMatchingTab(modUUID, identifier, tab)
 
     return normalizedTabIdSuffix == normalizedIdentifier
         or normalizedStoredName == normalizedIdentifier
-        or storedId:find(normalizedIdentifier)
+        or DualPaneController:NormalizeTabName(storedId):find(normalizedIdentifier, 1, true) ~= nil
 end
 
 function DualPaneController:GenerateTabId(modUUID, tabName)
@@ -370,12 +370,22 @@ function DualPaneController:ToggleSidebar()
 end
 
 -- Tab management API; delegates to RightPane.
-function DualPaneController:CreateModTab(modUUID, tabName)
-    return self.rightPane:CreateTab(modUUID, tabName)
+---@param modUUID string The UUID of the mod
+---@param tabName string|nil The display name, required only when the tab does not exist yet
+---@param tabId? string Blueprint TabId of the target tab
+---@return ExtuiTabItem|nil
+function DualPaneController:CreateModTab(modUUID, tabName, tabId)
+    return self.rightPane:CreateTab(modUUID, tabName, tabId)
 end
 
-function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimerLocaKey)
-    local tab = self:CreateModTab(modUUID, tabName)
+---@param modUUID string The UUID of the mod
+---@param tabName string|nil The display name, required only when the tab does not exist yet
+---@param disclaimerLocaKey string Localization handle for the main-menu disclaimer text
+---@param tabId? string Blueprint TabId of the target tab
+---@return ExtuiTabItem|nil tab
+---@return ExtuiText|nil disclaimerElement
+function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimerLocaKey, tabId)
+    local tab = self:CreateModTab(modUUID, tabName, tabId)
     local disclaimerElement = nil
 
     if tab then
@@ -389,8 +399,14 @@ function DualPaneController:CreateTabWithDisclaimer(modUUID, tabName, disclaimer
     return tab, disclaimerElement
 end
 
-function DualPaneController:InsertModTab(modUUID, tabName, callback, skipDisclaimer)
-    return self.rightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer)
+---@param modUUID string
+---@param tabName string|nil Display name; required only when the tab does not exist yet
+---@param callback fun(tab: ExtuiTabItem)
+---@param skipDisclaimer? boolean
+---@param tabId? string Blueprint TabId of the target tab
+---@return ExtuiTabItem|nil
+function DualPaneController:InsertModTab(modUUID, tabName, callback, skipDisclaimer, tabId)
+    return self.rightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer, tabId)
 end
 
 -- Returns whether the mod uses a tabless special page.

@@ -653,7 +653,7 @@ These methods operate on the MCM window, and can be used to control the opening 
 | `MCM.OpenMCMWindow()` | Opens the MCM window | ✅ | ❌ |
 | `MCM.CloseMCMWindow()` | Closes the MCM window | ✅ | ❌ |
 | `MCM.OpenModPage(tabName, modUUID?, shouldEmitEvent?)` | Opens a specific mod's tab in the MCM window | ✅ | ❌ |
-| `MCM.InsertModMenuTab(tabName, tabCallback, modUUID?)` | Inserts a custom tab into the MCM window | ✅ | ❌ |
+| `MCM.InsertModMenuTab(tabName?, tabCallback, modUUID?, skipDisclaimer?, tabId?)` | Inserts a custom tab, or content into an existing tab, in the MCM window | ✅ | ❌ |
 
 #### Deprecated Functions
 
@@ -836,7 +836,7 @@ MCM allows mod authors to insert custom UI elements into the MCM UI. **This is o
 This can be done using the `InsertModMenuTab` function from the `MCM` global table added by MCM:
 
 ```lua
-MCM.InsertModMenuTab(ModuleUUID, "Tab name", function(tabHeader)
+MCM.InsertModMenuTab("Tab name", function(tabHeader)
     local myCustomWidget = tabHeader:AddButton("My custom widget")
     myCustomWidget.OnClick = function()
         _D("My custom widget was clicked!")
@@ -845,6 +845,19 @@ end)
 ```
 
 This will create a new tab or insert the content at the end of an existing one.
+
+To target a tab declared in your blueprint, pass its `TabId`. MCM matches the tab by that ID in every language, so no localized string is needed:
+
+```lua
+MCM.InsertModMenuTab({
+    tabId = "presets",
+    tabCallback = function(tabHeader)
+        tabHeader:AddText("Rendered inside the blueprint tab with TabId 'presets'.")
+    end,
+})
+```
+
+MCM checks `tabId` before `tabName`. `tabName` is only required when the tab does not exist yet: MCM then creates a tab with that label. The `modUUID` defaults to the calling mod.
 
 > You can define an entire tab's content — not just a widget — and call the `InsertModMenuTab` function to insert it into the MCM window, inside the space dedicated for your mod.
 > • For reference, [Mod Uninstaller](https://www.nexusmods.com/baldursgate3/mods/9701) uses both MCM-generated and custom IMGUI elements; there's also [EasyCheat](https://www.nexusmods.com/baldursgate3/mods/9827) that leverages the `InsertModMenuTab` method to add custom logic inside MCM.

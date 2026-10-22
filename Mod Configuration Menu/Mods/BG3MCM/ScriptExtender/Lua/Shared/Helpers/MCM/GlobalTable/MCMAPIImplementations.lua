@@ -95,7 +95,8 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@field shouldEmitEvent? boolean
 
 ---@class MCMInsertModMenuTabArgs
----@field tabName string
+---@field tabName? string Display name; required only when the tab does not exist yet
+---@field tabId? string Blueprint TabId of the target tab; matches regardless of language
 ---@field tabCallback function
 ---@field modUUID? string
 ---@field skipDisclaimer? boolean
@@ -640,7 +641,7 @@ end
 ---@param args MCMInsertModMenuTabArgs
 ---@return nil
 local function InsertModMenuTab_Impl(args)
-    IMGUIAPI:InsertModMenuTab(args.modUUID, args.tabName, args.tabCallback, args.skipDisclaimer)
+    IMGUIAPI:InsertModMenuTab(args.modUUID, args.tabName, args.tabCallback, args.skipDisclaimer, args.tabId)
 end
 
 --- Create client-only methods
@@ -675,14 +676,15 @@ function MCMAPIImplementations.addClientOnlyMethods(MCMInstance, originalModUUID
     )
 
     --- Insert a new tab for a mod in the MCM
-    ---@param tabName string|MCMInsertModMenuTabArgs The name of the tab to be inserted, or an argument table
+    ---@param tabName string|MCMInsertModMenuTabArgs|nil The name of the tab to be inserted (required only when the tab does not exist yet), or an argument table
     ---@param tabCallback function The callback function to create the tab
     ---@param modUUID? string The UUID of the mod, defaults to current mod
     ---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
+    ---@param tabId? string Blueprint TabId of the target tab; matches the tab regardless of language
     ---@return nil
     MCMInstance.InsertModMenuTab = MCMAPIUtils.WithFlexibleArgs(
         InsertModMenuTab_Impl,
-        { "tabName", "tabCallback", "modUUID", "skipDisclaimer" },
+        { "tabName", "tabCallback", "modUUID", "skipDisclaimer", "tabId" },
         { modUUID = originalModUUID }
     )
 end
