@@ -1,6 +1,7 @@
 ------------------------------------------------------------
 -- ModListVisibility
--- Splits present mod entries into the main list and Hidden mods, from the player's choices in the MCM state document.
+-- Splits present mod entries into the main list and Hidden mods: player choice, then author default, then visible.
+-- Only player choices are saved in the MCM state document, so updated author defaults still apply.
 ------------------------------------------------------------
 
 local STATE_VERSION = 1
@@ -29,18 +30,31 @@ function ModListVisibility:New(store)
     return obj
 end
 
+--- Read the player's saved choice for one mod
+---@private
+---@param modUUID string
+---@return boolean|nil hidden The player's explicit choice, or nil when there is none
+function ModListVisibility:getChoice(modUUID)
+    local ui = self.store.Get("UI")
+    local mod = ui and ui.Mods and ui.Mods[modUUID]
+    return mod and mod.HiddenFromList
+end
+
 --- Split present mod entries; both lists keep the input order
 ---@param modUUIDs string[] Present mod UUIDs, already sorted for the mod list
+---@param authorDefaults? table<string, boolean> Mod UUID -> blueprint HiddenFromList; a missing value means visible
 ---@return string[] main
 ---@return string[] hidden
 ---@return integer hiddenCount
-function ModListVisibility:Resolve(modUUIDs)
-    local ui = self.store.Get("UI")
-    local choices = ui and ui.Mods or {}
+function ModListVisibility:Resolve(modUUIDs, authorDefaults)
+    authorDefaults = authorDefaults or {}
     local main, hidden = {}, {}
     for _, modUUID in ipairs(modUUIDs) do
-        local choice = choices[modUUID]
-        if choice and choice.HiddenFromList == true then
+        local isHidden = self:getChoice(modUUID)
+        if isHidden == nil then
+            isHidden = authorDefaults[modUUID]
+        end
+        if isHidden == true then
             table.insert(hidden, modUUID)
         else
             table.insert(main, modUUID)
@@ -59,6 +73,27 @@ function ModListVisibility:SetHidden(modUUID, hidden)
     ui.Mods[modUUID].HiddenFromList = hidden
     if self.store.Get("Version") == nil then
         self.store.Set("Version", STATE_VERSION)
+    end
+    self.store.Set("UI", ui)
+end
+
+--- Check whether the player saved Hide or Show for one mod
+---@param modUUID string
+---@return boolean hasChoice Whether the player saved Hide or Show for the mod
+function ModListVisibility:HasChoice(modUUID)
+    return self:getChoice(modUUID) ~= nil
+end
+
+--- Remove the player's choice so the mod follows its author default again; other fields and mods stay in the document
+---@param modUUID string
+function ModListVisibility:UseDefault(modUUID)
+    if not self:HasChoice(modUUID) then
+        return
+    end
+    local ui = table.deepcopy(self.store.Get("UI"))
+    ui.Mods[modUUID].HiddenFromList = nil
+    if next(ui.Mods[modUUID]) == nil then
+        ui.Mods[modUUID] = nil
     end
     self.store.Set("UI", ui)
 end

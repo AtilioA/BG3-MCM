@@ -94,21 +94,25 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
     modNameText:SetColor("Text", UIStyle.TextStyles["SettingDescription"])
     self.modEntryMenu:AddSeparator()
 
+    --- Add a menu item that runs onClick, then rebuilds the mod-list navigation
+    ---@param handle string Localization handle of the item label
+    ---@param onClick fun() Saves the visibility change
+    local function addItem(handle, onClick)
+        local item = self.modEntryMenu:AddSelectable(Ext.Loca.GetTranslatedString(handle), nil, { 0, 28 })
+        item:SetStyle("SelectableTextAlign", 0, 0.5)
+        item.OnClick = function()
+            onClick()
+            -- Rebuild only the mod-list navigation; the open page stays open
+            self:RebuildModEntries(self.mods)
+        end
+    end
+
     local handle = isHidden and "h541de1bd8d8d4be8a188742c9011da27b110" or "h31655a10d04449dfb90946ebe22da383f8a2"
-    local item = self.modEntryMenu:AddSelectable(Ext.Loca.GetTranslatedString(handle), nil, { 0, 28 })
-    item:SetStyle("SelectableTextAlign", 0, 0.5)
-    item.OnClick = function()
-        self:SetModHidden(modUUID, not isHidden)
+    addItem(handle, function() self.visibility:SetHidden(modUUID, not isHidden) end)
+    if self.visibility:HasChoice(modUUID) then
+        addItem("h0a10978663a7479da0e68f9d87480b3ff65c", function() self.visibility:UseDefault(modUUID) end)
     end
     self.modEntryMenu:Open()
-end
-
---- Save a Hide or Show choice and rebuild only the mod-list navigation; the open page stays open
----@param modUUID string
----@param hidden boolean
-function LeftPane:SetModHidden(modUUID, hidden)
-    self.visibility:SetHidden(modUUID, hidden)
-    self:RebuildModEntries(self.mods)
 end
 
 --- Create mod entries in the given order
@@ -147,7 +151,11 @@ function LeftPane:RebuildModEntries(mods)
     self.hiddenModsHeader = nil
     self.mods = mods
 
-    local main, hidden, hiddenCount = self.visibility:Resolve(MCMUtils.SortModsByName(mods))
+    local authorDefaults = {}
+    for modUUID, modSettings in pairs(mods) do
+        authorDefaults[modUUID] = modSettings.blueprint and modSettings.blueprint:GetHiddenFromList()
+    end
+    local main, hidden, hiddenCount = self.visibility:Resolve(MCMUtils.SortModsByName(mods), authorDefaults)
     local createdUUIDs = {}
     self:createModEntries(main, self.modEntriesGroup, false, createdUUIDs)
     if hiddenCount > 0 then

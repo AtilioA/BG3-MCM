@@ -126,6 +126,7 @@
 ---@field ModName? string
 ---@field ModDescription? string
 ---@field KeybindingSortMode string
+---@field HiddenFromList? boolean
 ---@field Handles? table
 ---@field Tabs BlueprintTab[]
 ---@field Sections BlueprintSection[]

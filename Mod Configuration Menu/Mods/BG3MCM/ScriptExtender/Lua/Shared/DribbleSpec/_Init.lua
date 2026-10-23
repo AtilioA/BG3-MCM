@@ -19,6 +19,7 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/Smoke.test.lua")
     Ext.Require("Shared/DribbleSpec/BlueprintCache.test.lua")
     Ext.Require("Shared/DribbleSpec/DataPreprocessing.test.lua")
+    Ext.Require("Shared/DribbleSpec/BlueprintHiddenFromList.test.lua")
     Ext.Require("Shared/DribbleSpec/JsonLayer.test.lua")
     Ext.Require("Shared/DribbleSpec/Validators.test.lua")
     Ext.Require("Shared/DribbleSpec/ValidateAndFixSettings.test.lua")
@@ -27,5 +28,6 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/EventButton.test.lua")
     Ext.Require("Shared/DribbleSpec/StorageSyncService.test.lua")
     Ext.Require("Shared/DribbleSpec/StoreFileName.test.lua")
+    Ext.Require("Shared/DribbleSpec/StorageSyncRegistration.test.lua")
     Ext.Require("Shared/DribbleSpec/InternalAPIGuard.test.lua")
 end

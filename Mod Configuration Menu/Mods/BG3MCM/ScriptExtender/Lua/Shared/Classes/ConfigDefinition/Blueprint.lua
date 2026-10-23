@@ -20,6 +20,7 @@ KeybindingSortMode.DEFAULT = KeybindingSortMode.BLUEPRINT
 ---@field private Sections? BlueprintSection[]
 ---@field private Handles? table
 ---@field private KeybindingSortMode string
+---@field private HiddenFromList boolean
 Blueprint = _Class:Create("Blueprint", nil, {
     ModUUID = nil,
     ModName = nil,
@@ -30,7 +31,8 @@ Blueprint = _Class:Create("Blueprint", nil, {
     Sections = {},
     Settings = {},
     Handles = {},
-    KeybindingSortMode = KeybindingSortMode.DEFAULT
+    KeybindingSortMode = KeybindingSortMode.DEFAULT,
+    HiddenFromList = false
 })
 
 function Blueprint:GetModUUID()
@@ -47,6 +49,12 @@ end
 
 function Blueprint:GetKeybindingSortMode()
     return self.KeybindingSortMode
+end
+
+--- Author default for mod-list visibility
+---@return boolean hiddenFromList Whether the mod entry starts in Hidden mods
+function Blueprint:GetHiddenFromList()
+    return self.HiddenFromList
 end
 
 function Blueprint:GetModName()
@@ -138,6 +146,7 @@ function Blueprint:New(options)
     self.ModDescription = options.ModDescription or nil
     self.Handles = options.Handles or nil
     self.KeybindingSortMode = options.KeybindingSortMode or KeybindingSortMode.DEFAULT
+    self.HiddenFromList = options.HiddenFromList or false
     self.Tabs = {}
     self.Sections = {}
     self.Settings = {}

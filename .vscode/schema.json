@@ -57,6 +57,11 @@
             "default": "blueprint",
             "markdownDescription": "Controls how keybindings are ordered in the Hotkeys page for this blueprint."
         },
+        "HiddenFromList": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Whether this mod's entry starts in the Hidden mods group of the MCM mod list. Default is `false`. Use it for entries players rarely open, such as libraries. The mod stays active and its settings and keybindings still apply. A player's Hide or Show choice overrides this default until the player selects Use default visibility."
+        },
         "Tabs": {
             "type": "array",
             "items": {

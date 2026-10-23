@@ -192,6 +192,7 @@ function DataPreprocessing:PreprocessData(data, modUUID)
         ModName = data.ModName,
         ModDescription = data.ModDescription,
         KeybindingSortMode = data.KeybindingSortMode or KeybindingSortMode.DEFAULT,
+        HiddenFromList = data.HiddenFromList,
         Handles = data.Handles,
         Tabs = {},
         Sections = {},

@@ -92,4 +92,60 @@ D.describe("ModListVisibility", { tags = { "mod_list_visibility", "client", "uni
         D.expect(hiddenAfterShow).toEqual({})
         D.expect(store.values.UI.Mods[MOD_A]).toEqual({ HiddenFromList = false })
     end)
+
+    D.test("with no choice, the author default decides", function()
+        local store = FakeStore()
+        local visibility = ModListVisibility:New(store)
+
+        local main, hidden, hiddenCount = visibility:Resolve({ MOD_A, MOD_B, MOD_C }, { [MOD_A] = true, [MOD_B] = false })
+
+        D.expect(main).toEqual({ MOD_B, MOD_C })
+        D.expect(hidden).toEqual({ MOD_A })
+        D.expect(hiddenCount).toBe(1)
+        D.expect(store.values).toEqual({})
+    end)
+
+    D.test("explicit choices override the author default", function()
+        local visibility = ModListVisibility:New(FakeStore({
+            UI = UIWithChoices({ [MOD_A] = false, [MOD_B] = true })
+        }))
+
+        local main, hidden = visibility:Resolve({ MOD_A, MOD_B }, { [MOD_A] = true, [MOD_B] = false })
+
+        D.expect(main).toEqual({ MOD_A })
+        D.expect(hidden).toEqual({ MOD_B })
+    end)
+
+    D.test("Use default visibility removes the choice and keeps other state", function()
+        local store = FakeStore({
+            Version = 1,
+            UI = {
+                Other = "kept",
+                Mods = {
+                    [MOD_A] = { HiddenFromList = false, Other = "kept" },
+                    [MOD_B] = { HiddenFromList = false },
+                    [ABSENT_MOD] = { HiddenFromList = true },
+                },
+            },
+        })
+        local visibility = ModListVisibility:New(store)
+        D.expect(visibility:HasChoice(MOD_A)).toBe(true)
+        D.expect(visibility:HasChoice(MOD_C)).toBe(false)
+
+        visibility:UseDefault(MOD_A)
+        visibility:UseDefault(MOD_B)
+
+        D.expect(visibility:HasChoice(MOD_A)).toBe(false)
+        D.expect(visibility:HasChoice(MOD_B)).toBe(false)
+        local main, hidden = visibility:Resolve({ MOD_A, MOD_B }, { [MOD_A] = true })
+        D.expect(main).toEqual({ MOD_B })
+        D.expect(hidden).toEqual({ MOD_A })
+        D.expect(store.values).toEqual({
+            Version = 1,
+            UI = {
+                Other = "kept",
+                Mods = { [MOD_A] = { Other = "kept" }, [ABSENT_MOD] = { HiddenFromList = true } },
+            },
+        })
+    end)
 end)
