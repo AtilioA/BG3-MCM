@@ -78,6 +78,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         local registry = KeybindingsRegistry.GetRegistry()
         registry[TEST_MOD_UUID] = nil
         KeybindingsRegistry.ResetInputState()
+        KeybindingCaptureSession.Reset("reset")
         KeybindingsRegistry.GetSubject():OnNext(registry)
     end
 

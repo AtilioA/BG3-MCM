@@ -198,10 +198,10 @@ function KeybindingCaptureSession:HandleMouseInput(e)
     local claimed = self.ClaimedInput
     if claimed and claimed.Device == "Mouse" and not e.Pressed and e.Button == claimed.Input then
         claimEvent(e)
-        self:Close("releassed")
+        self:Close("released")
         return
     end
-    if self.State ~= "listeningd" or not e.Pressed then return end
+    if self.State ~= "listening" or not e.Pressed then return end
 
     -- Unsupported buttons bind to nothing. Claim both edges so the click never reaches the game.
     if e.Button < KeybindingManager.MOUSE_BUTTON_MIN or e.Button > KeybindingManager.MOUSE_BUTTON_MAX then

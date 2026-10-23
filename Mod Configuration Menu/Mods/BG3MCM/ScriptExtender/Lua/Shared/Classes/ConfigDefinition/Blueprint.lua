@@ -165,10 +165,13 @@ function Blueprint:New(options)
         end
     end
 
-    -- Denormalize ownership onto every setting so they carry mod UUID; needed for many operations that don't have access to the blueprint itself
-    for _, setting in pairs(self:GetAllSettings()) do
-        setting:SetModUUID(self.ModUUID)
-    end
+    -- Denormalize ownership onto every setting so they carry mod UUID; needed for many operations that don't have access to the blueprint itself.
+    -- Uses the uncached traversal so constructing a blueprint does not populate the shape index cache.
+    BlueprintShape:ForEachElement(self, function(element, elementType)
+        if elementType == "setting" then
+            element:SetModUUID(self:GetModUUID())
+        end
+    end)
 
     return self
 end
