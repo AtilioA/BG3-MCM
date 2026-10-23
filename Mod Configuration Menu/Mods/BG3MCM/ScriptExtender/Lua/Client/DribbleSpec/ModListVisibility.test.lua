@@ -74,11 +74,11 @@ D.describe("ModListVisibility", { tags = { "mod_list_visibility", "client", "uni
         D.expect(hiddenCount).toBe(1)
     end)
 
-    D.test("Hide and Show save an explicit choice and keep other choices", function()
+    D.test("hiding and showing save an explicit choice and keep other choices", function()
         local store = FakeStore({ UI = UIWithChoices({ [ABSENT_MOD] = true }) })
         local visibility = ModListVisibility:New(store)
 
-        visibility:Hide(MOD_A)
+        visibility:SetHidden(MOD_A, true)
         local _, hiddenAfterHide = visibility:Resolve({ MOD_A, MOD_B })
         D.expect(hiddenAfterHide).toEqual({ MOD_A })
         D.expect(store.values).toEqual({
@@ -86,7 +86,7 @@ D.describe("ModListVisibility", { tags = { "mod_list_visibility", "client", "uni
             UI = { Mods = { [ABSENT_MOD] = { HiddenFromList = true }, [MOD_A] = { HiddenFromList = true } } }
         })
 
-        visibility:Show(MOD_A)
+        visibility:SetHidden(MOD_A, false)
         local mainAfterShow, hiddenAfterShow = visibility:Resolve({ MOD_A, MOD_B })
         D.expect(mainAfterShow).toEqual({ MOD_A, MOD_B })
         D.expect(hiddenAfterShow).toEqual({})

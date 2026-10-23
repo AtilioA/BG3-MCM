@@ -49,11 +49,10 @@ function ModListVisibility:Resolve(modUUIDs)
     return main, hidden, #hidden
 end
 
---- Save an explicit choice for one mod; choices for other mods, present or not, stay in the document
----@private
+--- Save an explicit Hide (true) or Show (false) choice for one mod; choices for other mods, present or not, stay in the document
 ---@param modUUID string
 ---@param hidden boolean
-function ModListVisibility:saveChoice(modUUID, hidden)
+function ModListVisibility:SetHidden(modUUID, hidden)
     local ui = table.deepcopy(self.store.Get("UI") or {})
     ui.Mods = ui.Mods or {}
     ui.Mods[modUUID] = ui.Mods[modUUID] or {}
@@ -62,14 +61,4 @@ function ModListVisibility:saveChoice(modUUID, hidden)
         self.store.Set("Version", STATE_VERSION)
     end
     self.store.Set("UI", ui)
-end
-
----@param modUUID string
-function ModListVisibility:Hide(modUUID)
-    self:saveChoice(modUUID, true)
-end
-
----@param modUUID string
-function ModListVisibility:Show(modUUID)
-    self:saveChoice(modUUID, false)
 end

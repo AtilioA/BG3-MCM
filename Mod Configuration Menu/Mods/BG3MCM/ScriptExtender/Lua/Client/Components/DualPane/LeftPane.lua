@@ -6,7 +6,8 @@
 ---@field parent ExtuiStyledRenderable
 ---@field modEntriesGroup ExtuiGroup|nil Holds only mod entries, so they can be rebuilt without touching other entries
 ---@field hiddenModsGroup ExtuiGroup|nil Separator and Hidden mods header inside modEntriesGroup; nil when no present mod is hidden
----@field hiddenModsHeader ExtuiCollapsingHeader|nil Hidden mods header inside hiddenModsGroup
+---@field hiddenModsHeader ExtuiTree|nil Hidden mods header inside hiddenModsGroup
+---@field hiddenModsExpanded boolean Hidden mods expanded state, kept across navigation rebuilds and not saved
 ---@field modEntryMenu ExtuiPopup|nil Right-click menu shared by all mod entries
 ---@field mods table<string, ModSettings>|nil Mods from the last RebuildModEntries call
 ---@field visibility ModListVisibility
@@ -16,6 +17,7 @@ LeftPane = _Class:Create("LeftPane", nil, {
     modEntriesGroup = nil,
     hiddenModsGroup = nil,
     hiddenModsHeader = nil,
+    hiddenModsExpanded = false,
     modEntryMenu = nil,
     mods = nil,
     visibility = nil,
@@ -88,22 +90,25 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
     destroyChildren(self.modEntryMenu)
 
     -- Right-clicking does not select the entry, so name the mod the action applies to
-    local modName = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName())
-    modName:SetColor("Text", UIStyle.TextStyles["SettingDescription"])
+    local modNameText = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName())
+    modNameText:SetColor("Text", UIStyle.TextStyles["SettingDescription"])
     self.modEntryMenu:AddSeparator()
 
     local handle = isHidden and "h541de1bd8d8d4be8a188742c9011da27b110" or "h31655a10d04449dfb90946ebe22da383f8a2"
     local item = self.modEntryMenu:AddSelectable(Ext.Loca.GetTranslatedString(handle), nil, { 0, 28 })
     item:SetStyle("SelectableTextAlign", 0, 0.5)
     item.OnClick = function()
-        if isHidden then
-            self.visibility:Show(modUUID)
-        else
-            self.visibility:Hide(modUUID)
-        end
-        self:RebuildModEntries(self.mods)
+        self:SetModHidden(modUUID, not isHidden)
     end
     self.modEntryMenu:Open()
+end
+
+--- Save a Hide or Show choice and rebuild only the mod-list navigation; the open page stays open
+---@param modUUID string
+---@param hidden boolean
+function LeftPane:SetModHidden(modUUID, hidden)
+    self.visibility:SetHidden(modUUID, hidden)
+    self:RebuildModEntries(self.mods)
 end
 
 --- Create mod entries in the given order
@@ -130,7 +135,7 @@ function LeftPane:createModEntries(modUUIDs, container, isHidden, createdUUIDs)
     end
 end
 
---- Destroy and recreate the mod entries in name order, with hidden entries in a collapsed Hidden mods group; other entries and the right pane are not touched
+--- Destroy and recreate the mod entries in name order, with hidden entries in a Hidden mods group that keeps its expanded state; other entries and the right pane are not touched
 ---@param mods table<string, ModSettings>
 ---@return table<string, boolean> createdUUIDs Mod UUIDs whose entry was created
 function LeftPane:RebuildModEntries(mods)
@@ -149,9 +154,18 @@ function LeftPane:RebuildModEntries(mods)
         -- The rule separates Hidden mods from the main list without repeating the header label
         self.hiddenModsGroup = self.modEntriesGroup:AddGroup("MCM_HiddenMods")
         self.hiddenModsGroup:AddSeparator()
-        self.hiddenModsHeader = self.hiddenModsGroup:AddCollapsingHeader(
+        -- A tree in collapsing-header mode reports expand and collapse, so a rebuild can restore its state; AddCollapsingHeader cannot
+        local header = self.hiddenModsGroup:AddTree(
             VCString:InterpolateLocalizedMessage("h31b35bbef8544e26b213f5a93c926ecc7865", hiddenCount))
-        self:createModEntries(hidden, self.hiddenModsHeader, true, createdUUIDs)
+        header.CollapsingHeader = true
+        header:SetOpen(self.hiddenModsExpanded, "Always")
+        header.OnExpand = function() self.hiddenModsExpanded = true end
+        header.OnCollapse = function() self.hiddenModsExpanded = false end
+        self.hiddenModsHeader = header
+        self:createModEntries(hidden, header, true, createdUUIDs)
+    else
+        -- When the group comes back, it starts collapsed, so hiding the open mod never expands it
+        self.hiddenModsExpanded = false
     end
 
     if self.activeUUID then
