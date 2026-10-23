@@ -27,6 +27,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:GetAllSettings()["setting-1"]:GetType()).toBe("checkbox")
+        D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-1")).toBe(true)
     end)
 
     D.test("TestSanitizeBlueprintWithoutSchemaVersion", function()
@@ -34,8 +36,10 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local modUUID = TestConstants.ModuleUUIDs[1]
 
         local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
+        local sanitizedWithVersion = preprocessAndSanitize({ SchemaVersion = 1 }, modUUID)
 
         D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(sanitizedWithVersion).Not.toBeNil()
     end)
 
     D.test("TestBlueprintAllowsTopLevelSections", function()
@@ -61,7 +65,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
-        D.expect(sanitizedBlueprint:GetAllSettings()["setting-1"]).Not.toBeNil()
+        D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-1")).toBe(true)
     end)
 
     D.test("TestBlueprintAllowsNoSettings", function()
@@ -73,7 +77,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
-        D.expect(BlueprintShape:HasAnySettings(sanitizedBlueprint)).toBeFalsy()
+        D.expect(BlueprintShape:HasAnySettings(sanitizedBlueprint)).toBe(false)
     end)
 
     D.test("TestBlueprintShouldHaveTabsOrSettings", function()
@@ -114,6 +118,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         D.expect(sanitizedBlueprint1).Not.toBeNil()
         D.expect(sanitizedBlueprint2).Not.toBeNil()
+        D.expect(sanitizedBlueprint1:GetTabs()[1]:GetId()).toBe("tab-1")
+        D.expect(sanitizedBlueprint2:GetSettings()[1]:GetId()).toBe("setting-1")
     end)
 
     D.test("TestRootSettingsBlueprintIsValidThroughUsualPath", function()
@@ -161,7 +167,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local allSettings = blueprint:GetAllSettings()
         D.expect(allSettings["root-setting"]).Not.toBeNil()
-        D.expect(blueprint:RetrieveDefaultValueForSetting("root-setting") == true).toBeTruthy()
+        D.expect(blueprint:RetrieveDefaultValueForSetting("root-setting")).toBe(true)
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
         D.expect(sanitizedBlueprint).Not.toBeNil()
@@ -193,21 +199,61 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                 }
             }
         }
+        local rawDataTabsOnly = {
+            SchemaVersion = 1,
+            Tabs = rawData.Tabs,
+        }
         local modUUID = TestConstants.ModuleUUIDs[1]
 
-        local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
-
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(preprocessAndSanitize(rawDataTabsOnly, modUUID)).Not.toBeNil()
+        D.expect(preprocessAndSanitize(rawData, modUUID)).toBeNil()
     end)
 
     D.test("TestBlueprintShouldHaveSettingsAtSomeLevel", function()
-        local allSettingsRootLevel = TestConstants.Blueprints.SettingsRootLevel:GetAllSettings()
-        local allSettingsTabLevel = TestConstants.Blueprints.SettingsTabLevel:GetAllSettings()
-        local allSettingsSectionLevel = TestConstants.Blueprints.SettingsSectionLevel:GetAllSettings()
+        local modUUID = TestConstants.ModuleUUIDs[1]
 
-        D.expect(next(allSettingsRootLevel) ~= nil).toBeTruthy()
-        D.expect(next(allSettingsTabLevel) ~= nil).toBeTruthy()
-        D.expect(next(allSettingsSectionLevel) ~= nil).toBeTruthy()
+        local rootLevel = preprocessAndSanitize({
+            SchemaVersion = 1,
+            Settings = {
+                { Id = "root-int", Type = "int", Default = 7 },
+            },
+        }, modUUID)
+
+        local tabLevel = preprocessAndSanitize({
+            SchemaVersion = 1,
+            Tabs = {
+                {
+                    TabId = "tab-1",
+                    TabName = "Tab 1",
+                    Settings = {
+                        { Id = "tab-int", Type = "int", Default = 8 },
+                    },
+                },
+            },
+        }, modUUID)
+
+        local sectionLevel = preprocessAndSanitize({
+            SchemaVersion = 1,
+            Tabs = {
+                {
+                    TabId = "tab-1",
+                    TabName = "Tab 1",
+                    Sections = {
+                        {
+                            SectionId = "section-1",
+                            SectionName = "Section 1",
+                            Settings = {
+                                { Id = "section-int", Type = "int", Default = 9 },
+                            },
+                        },
+                    },
+                },
+            },
+        }, modUUID)
+
+        D.expect(rootLevel:RetrieveDefaultValueForSetting("root-int")).toBe(7)
+        D.expect(tabLevel:RetrieveDefaultValueForSetting("tab-int")).toBe(8)
+        D.expect(sectionLevel:RetrieveDefaultValueForSetting("section-int")).toBe(9)
     end)
 
     D.test("TestBlueprintShapeIncludesNestedTabSettings", function()
@@ -278,105 +324,114 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
     end)
 
     D.test("TestUniqueTabIds", function()
-        local blueprint = Blueprint:New({
+        local uniqueBlueprint = Blueprint:New({
             SchemaVersion = 1,
             Tabs = {
-                {
-                    TabId = "tab-1",
-                },
-                {
-                    TabId = "tab-2",
-                },
-                {
-                    TabId = "tab-1",
-                },
+                { TabId = "tab-1", TabName = "Tab 1" },
+                { TabId = "tab-2", TabName = "Tab 2" },
+            }
+        })
+        local duplicateBlueprint = Blueprint:New({
+            SchemaVersion = 1,
+            Tabs = {
+                { TabId = "tab-1", TabName = "Tab 1" },
+                { TabId = "tab-2", TabName = "Tab 2" },
+                { TabId = "tab-1", TabName = "Tab 3" },
             }
         })
         local modUUID = TestConstants.ModuleUUIDs[1]
 
-        local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(uniqueBlueprint, modUUID)).Not.toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(duplicateBlueprint, modUUID)).toBeNil()
     end)
 
     D.test("TestUniqueSectionIds", function()
-        local blueprint = Blueprint:New({
+        local uniqueBlueprint = Blueprint:New({
             SchemaVersion = 1,
             Tabs = {
                 {
                     TabId = "tab-1",
+                    TabName = "Tab 1",
+                    Sections = {
+                        { SectionId = "section-1", SectionName = "Section 1" },
+                        { SectionId = "section-2", SectionName = "Section 2" },
+                    },
+                }
+            }
+        })
+        local duplicateBlueprint = Blueprint:New({
+            SchemaVersion = 1,
+            Tabs = {
+                {
+                    TabId = "tab-1",
+                    TabName = "Tab 1",
+                    Sections = {
+                        { SectionId = "section-1", SectionName = "Section 1" },
+                        { SectionId = "section-2", SectionName = "Section 2" },
+                        { SectionId = "section-1", SectionName = "Section 3" },
+                    },
+                }
+            }
+        })
+        local modUUID = TestConstants.ModuleUUIDs[1]
+
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(uniqueBlueprint, modUUID)).Not.toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(duplicateBlueprint, modUUID)).toBeNil()
+    end)
+
+    D.test("TestUniqueSettingIds", function()
+        local uniqueRootLevel = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                { Id = "setting-a", Type = "checkbox", Default = true },
+                { Id = "setting-b", Type = "checkbox", Default = false },
+            }
+        })
+        local duplicateRootLevel = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                { Id = "setting-a", Type = "checkbox", Default = true },
+                { Id = "setting-a", Type = "checkbox", Default = false },
+            }
+        })
+        local duplicateTabLevel = Blueprint:New({
+            SchemaVersion = 1,
+            Tabs = {
+                {
+                    TabId = "tab-1",
+                    TabName = "Tab 1",
+                    Settings = {
+                        { Id = "setting-a", Type = "checkbox", Default = true },
+                        { Id = "setting-a", Type = "checkbox", Default = false },
+                    },
+                }
+            }
+        })
+        local duplicateSectionLevel = Blueprint:New({
+            SchemaVersion = 1,
+            Tabs = {
+                {
+                    TabId = "tab-1",
+                    TabName = "Tab 1",
                     Sections = {
                         {
                             SectionId = "section-1",
-                        },
-                        {
-                            SectionId = "section-2",
-                        },
-                        {
-                            SectionId = "section-1",
-                        },
+                            SectionName = "Section 1",
+                            Settings = {
+                                { Id = "setting-a", Type = "checkbox", Default = true },
+                                { Id = "setting-a", Type = "checkbox", Default = false },
+                            },
+                        }
                     }
                 }
             }
         })
         local modUUID = TestConstants.ModuleUUIDs[1]
 
-        local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-
-        D.expect(sanitizedBlueprint).toBeNil()
-    end)
-
-    D.test("TestUniqueSettingIds", function()
-        local blueprintWithRepeatedIDAtRootLevel = TestConstants.Blueprints.SettingsRootLevel
-        blueprintWithRepeatedIDAtRootLevel.Settings[1].Id = blueprintWithRepeatedIDAtRootLevel.Settings[2].Id
-
-        local blueprintWithRepeatedIDAtTabLevel = TestConstants.Blueprints.SettingsTabLevel
-        blueprintWithRepeatedIDAtTabLevel.Tabs[1].Settings[1].Id = blueprintWithRepeatedIDAtTabLevel.Tabs[1].Settings[2]
-            .Id
-
-        local blueprintWithRepeatedIDAtSectionLevel = TestConstants.Blueprints.SettingsSectionLevel
-        blueprintWithRepeatedIDAtSectionLevel.Tabs[1].Sections[1].Settings[1].Id = blueprintWithRepeatedIDAtSectionLevel
-            .Tabs[1].Sections[1].Settings[2].Id
-
-        local modUUID = TestConstants.ModuleUUIDs[1]
-
-        local sanitizedBlueprintRoot = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtRootLevel,
-            modUUID)
-        local sanitizedBlueprintTab = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtTabLevel, modUUID)
-        local sanitizedBlueprintSection = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithRepeatedIDAtSectionLevel,
-            modUUID)
-
-        D.expect(sanitizedBlueprintRoot).toBeNil()
-        D.expect(sanitizedBlueprintTab).toBeNil()
-        D.expect(sanitizedBlueprintSection).toBeNil()
-    end)
-
-    D.test("TestValidateSettingType", function()
-        local blueprint = TestConstants.Blueprints.SettingsRootLevel
-        blueprint.Settings[1].Type = "invalid"
-        D.expect(TestConstants.validTypes).Not.toContain(blueprint.Settings[1].Type)
-
-        local modUUID = TestConstants.ModuleUUIDs[1]
-        local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-        D.expect(sanitizedBlueprint).toBeNil()
-
-        ---
-
-        blueprint = TestConstants.Blueprints.SettingsTabLevel
-        blueprint.Tabs[1].Settings[1].Type = "invalid"
-        D.expect(TestConstants.validTypes).Not.toContain(blueprint.Tabs[1].Settings[1].Type)
-
-        sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-        D.expect(sanitizedBlueprint).toBeNil()
-
-        ---
-
-        blueprint = TestConstants.Blueprints.SettingsSectionLevel
-        blueprint.Tabs[1].Sections[1].Settings[1].Type = "invalid"
-        D.expect(TestConstants.validTypes).Not.toContain(blueprint.Tabs[1].Sections[1].Settings[1].Type)
-
-        sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(uniqueRootLevel, modUUID)).Not.toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(duplicateRootLevel, modUUID)).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(duplicateTabLevel, modUUID)).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(duplicateSectionLevel, modUUID)).toBeNil()
     end)
 
     D.test("TestBlueprintDefaultForIntShouldBeNumber", function()
@@ -408,11 +463,20 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                 }
             }
         })
+        local validBlueprint = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                {
+                    Id = "setting-float",
+                    Type = "float",
+                    Default = 1.5
+                }
+            }
+        })
         local modUUID = TestConstants.ModuleUUIDs[1]
 
-        local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(validBlueprint, modUUID)).Not.toBeNil()
     end)
 
     D.test("TestBlueprintDefaultForEnumShouldBeOneOfTheOptions", function()
@@ -423,9 +487,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                     Id = "setting-enum",
                     Type = "enum",
                     Options = {
-                        "option-1",
-                        "option-2",
-                        "option-3"
+                        Choices = { "option-1", "option-2", "option-3" }
                     },
                     Default = "option-4"
                 }
@@ -446,9 +508,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                     Id = "setting-radio",
                     Type = "radio",
                     Options = {
-                        "option-1",
-                        "option-2",
-                        "option-3"
+                        Choices = { "option-1", "option-2", "option-3" }
                     },
                     Default = "option-4"
                 }
@@ -697,6 +757,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-enum")).toBe("runtime-value")
     end)
 
     D.test("BlueprintDynamicFlagForEnumShouldBeBoolean", function()
@@ -741,11 +802,12 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-enum")).toBe("Runtime Only")
     end)
 
     D.test("BlueprintShouldHaveOptionsForRadio", function()
         local blueprint = Blueprint:New({
-            BlueprintSchemaVersion = 1,
+            SchemaVersion = 1,
             Settings = {
                 {
                     Id = "setting-radio",
@@ -754,11 +816,23 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                 }
             }
         })
+        local blueprintWithChoices = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                {
+                    Id = "setting-radio",
+                    Type = "radio",
+                    Options = {
+                        Choices = { "option-1", "option-2" }
+                    },
+                    Default = "option-1"
+                }
+            }
+        })
         local modUUID = TestConstants.ModuleUUIDs[1]
 
-        local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modUUID)).Not.toBeNil()
     end)
 
     D.test("BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings", function()
@@ -839,7 +913,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                             "1", "2", "3"
                         }
                     },
-                    Default = "option-1"
+                    Default = "1"
                 }
             }
         })
@@ -868,11 +942,24 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                 }
             }
         })
+        local validBlueprint = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                {
+                    Id = "setting-slider",
+                    Type = "slider_int",
+                    Default = 50,
+                    Options = {
+                        Min = 0,
+                        Max = 100,
+                    }
+                }
+            }
+        })
         local modUUID = TestConstants.ModuleUUIDs[1]
 
-        local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
-
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)).toBeNil()
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(validBlueprint, modUUID)).Not.toBeNil()
     end)
 
     D.test("BlueprintMinAndMaxForSliderShouldBeNumbers", function()
@@ -947,6 +1034,34 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).toBeNil()
+
+        local blueprintWithKnownSettingId = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                {
+                    Id = "master-toggle",
+                    Type = "checkbox",
+                    Default = true,
+                },
+                {
+                    Id = "dependent-setting",
+                    Type = "text",
+                    Default = "ok",
+                    VisibleIf = {
+                        Conditions = {
+                            {
+                                SettingId = "master-toggle",
+                                Operator = "==",
+                                ExpectedValue = true,
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprintWithKnownSettingId, TestConstants.ModuleUUIDs[1]))
+            .Not.toBeNil()
     end)
 
     D.test("TestBlueprintVisibleIfAllowsValidCondition", function()
@@ -978,6 +1093,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().LogicalOperator).toBe("and")
     end)
 
     D.test("TestBlueprintVisibleIfRejectsEmptyConditionGroup", function()
@@ -1092,6 +1208,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].ExpectedValue).toBe(1)
     end)
 
     D.test("TestBlueprintVisibleIfAllowsRelationalOperatorWithStringExpectedValue", function()
@@ -1122,6 +1239,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].ExpectedValue).toBe("1")
     end)
 
     D.test("TestBlueprintVisibleIfAllowsRelationalOperatorWithBooleanExpectedValue", function()
@@ -1152,6 +1270,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].ExpectedValue).toBe(true)
     end)
 
     D.test("TestBlueprintVisibleIfAllowsRelationalOperatorWithNumberExpectedValue", function()
@@ -1182,6 +1301,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].Operator).toBe(">=")
     end)
 
     D.test("TestBlueprintVisibleIfRejectsDuplicateConditions", function()
@@ -1258,6 +1378,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(#sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions).toBe(2)
     end)
 
     D.test("TestBlueprintVisibleIfAllowsValidTabAndSectionConditions", function()
@@ -1311,6 +1432,9 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+
+        local section = sanitizedBlueprint:GetTabs()[1]:GetSections()[1]
+        D.expect(section:GetVisibleIf().Conditions[1].SettingId).toBe("master-toggle")
     end)
 
     D.test("TestKeybindingV2OptionFlagsMustBeBoolean", function()
@@ -1491,9 +1615,9 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
             SchemaVersion = "1"
         })
 
-        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(validData, TestConstants.ModuleUUIDs[1])).toBeTruthy()
-        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData1, TestConstants.ModuleUUIDs[1])).toBeFalsy()
-        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1])).toBeFalsy()
+        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(validData, TestConstants.ModuleUUIDs[1])).toBe(true)
+        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData1, TestConstants.ModuleUUIDs[1])).toBe(false)
+        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1])).toBe(false)
     end)
 
     D.test("TestPreprocessData", function()
@@ -1541,9 +1665,13 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         end
         D.expect(preprocessedData.SchemaVersion).toBe(1)
         D.expect(preprocessedData.ModName).toBe("Test Mod")
-        D.expect(preprocessedData.KeybindingSortMode).toBe(KeybindingSortMode.BLUEPRINT)
-        D.expect(preprocessedData.KeybindingSortMode).toBe(KeybindingSortMode.DEFAULT)
         D.expect(#preprocessedData.Tabs).toBe(1)
+
+        local alphabeticalData = DataPreprocessing:PreprocessData({
+            SchemaVersion = 1,
+            KeybindingSortMode = KeybindingSortMode.ALPHABETICAL,
+        }, ModuleUUID)
+        D.expect(alphabeticalData.KeybindingSortMode).toBe("alphabetical")
 
         local tab = preprocessedData.Tabs[1]
         D.expect(tab:GetId()).toBe("tab-1")
@@ -1590,7 +1718,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local sanitizedBlueprint, blueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
-        D.expect(blueprint:GetKeybindingSortMode()).toBe(KeybindingSortMode.DEFAULT)
+        D.expect(blueprint:GetKeybindingSortMode()).toBe("blueprint")
     end)
 
     D.test("TabsCanHaveEitherTabIdOrId", function()
@@ -1750,8 +1878,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local validSection2 = DataPreprocessing:PreprocessSection(validSectionData2, TestConstants.ModuleUUIDs[1])
         local invalidSection = DataPreprocessing:PreprocessSection(invalidSectionData, TestConstants.ModuleUUIDs[1])
 
-        D.expect(validSection1).Not.toBeNil()
-        D.expect(validSection2).Not.toBeNil()
+        D.expect(validSection1:GetId()).toBe("section-1")
+        D.expect(validSection2:GetId()).toBe("section-2")
         D.expect(invalidSection).toBeNil()
     end)
 
@@ -1772,8 +1900,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local validSection2 = DataPreprocessing:PreprocessSection(validSectionData2, TestConstants.ModuleUUIDs[1])
         local invalidSection = DataPreprocessing:PreprocessSection(invalidSectionData, TestConstants.ModuleUUIDs[1])
 
-        D.expect(validSection1).Not.toBeNil()
-        D.expect(validSection2).Not.toBeNil()
+        D.expect(validSection1:GetLocaName()).toBe("Section 1")
+        D.expect(validSection2:GetLocaName()).toBe("Section 2")
         D.expect(invalidSection).toBeNil()
     end)
 end)

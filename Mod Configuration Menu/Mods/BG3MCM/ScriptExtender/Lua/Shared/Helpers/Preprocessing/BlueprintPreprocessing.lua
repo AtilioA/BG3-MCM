@@ -1154,6 +1154,16 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
             "Radio setting '" .. setting:GetId() .. "' must have 'Options.Choices' defined.")
         return false
     end
+
+    -- Radio choices are static, so the default must be one of them, as with enum settings.
+    if not table.contains(setting.Options.Choices, setting.Default) then
+        MCMWarn(0,
+            "Radio setting '" .. setting:GetId() ..
+            "' must have a 'Default' value that is one of the 'Options.Choices'. Please contact " ..
+            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        return false
+    end
+
     return true
 end
 
