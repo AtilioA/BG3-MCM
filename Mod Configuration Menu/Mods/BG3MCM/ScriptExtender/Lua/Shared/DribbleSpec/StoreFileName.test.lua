@@ -1,8 +1,10 @@
 -- Covers MCM.Store JSON placement via storageConfig.fileName (ADR 0002).
 -- Ext.IO cannot delete files; tests clear their keys so the fixture file holds no values afterwards.
 
-local TEST_FILE_NAME = "mcm_dribblespec_store_file.json"
-local OTHER_FILE_NAME = "mcm_dribblespec_store_other.json"
+-- Both realms share disk, but each JSON handler saves its own complete in-memory copy.
+local REALM = Ext.IsServer() and "server" or "client"
+local TEST_FILE_NAME = "mcm_dribblespec_store_file_" .. REALM .. ".json"
+local OTHER_FILE_NAME = "mcm_dribblespec_store_other_" .. REALM .. ".json"
 
 --- Path of a file in MCM's own Store directory, as documented for storageConfig.fileName.
 ---@param fileName string
@@ -25,7 +27,7 @@ end
 
 D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, function()
     D.test("TestStoreFileNameRoundTripsThroughNamedFile", function()
-        local varName = "dribblespec_store_file_round_trip"
+        local varName = "dribblespec_store_file_round_trip_" .. REALM
         D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME } })).toBe(true)
 
         MCM.Store.Set(varName, "stored-value")
@@ -41,7 +43,7 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, 
     end)
 
     D.test("TestStoreFileNameConflictKeepsFirstFile", function()
-        local varName = "dribblespec_store_file_conflict"
+        local varName = "dribblespec_store_file_conflict_" .. REALM
         D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME } })).toBe(true)
         D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME } })).toBe(true)
         D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = OTHER_FILE_NAME } })).toBe(false)
@@ -57,9 +59,9 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, 
     end)
 
     D.test("TestStoreFileNameRejectsDirectoryParts", function()
-        D.expect(MCM.Store.RegisterVar("dribblespec_store_file_path",
+        D.expect(MCM.Store.RegisterVar("dribblespec_store_file_path_" .. REALM,
             { storageConfig = { fileName = "sub/" .. TEST_FILE_NAME } })).toBe(false)
-        D.expect(MCM.Store.RegisterVar("dribblespec_store_file_path",
+        D.expect(MCM.Store.RegisterVar("dribblespec_store_file_path_" .. REALM,
             { storageConfig = { fileName = "..\\" .. TEST_FILE_NAME } })).toBe(false)
     end)
 end)
