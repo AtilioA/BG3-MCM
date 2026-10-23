@@ -625,4 +625,8 @@
     <content contentuid="h861b52b0eba84565aa41b19875c087d1fea6" version="1">[Detach]</content>
     <content contentuid="he66f0182055744419b01312c1d04dc85e906" version="1">[Reattach]</content>
     <content contentuid="h8be200f84a794856bf872e571f4410f19479" version="1">[Reset]</content>
+    <!-- Mod list visibility -->
+    <content contentuid="h31655a10d04449dfb90946ebe22da383f8a2" version="1">Hide</content>
+    <content contentuid="h541de1bd8d8d4be8a188742c9011da27b110" version="1">Show</content>
+    <content contentuid="h31b35bbef8544e26b213f5a93c926ecc7865" version="1">Hidden mods ([1])</content>
 </contentList>

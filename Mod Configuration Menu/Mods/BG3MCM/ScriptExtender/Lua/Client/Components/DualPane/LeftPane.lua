@@ -5,10 +5,20 @@
 ---@class LeftPane
 ---@field parent ExtuiStyledRenderable
 ---@field modEntriesGroup ExtuiGroup|nil Holds only mod entries, so they can be rebuilt without touching other entries
+---@field hiddenModsGroup ExtuiGroup|nil Separator and Hidden mods header inside modEntriesGroup; nil when no present mod is hidden
+---@field hiddenModsHeader ExtuiCollapsingHeader|nil Hidden mods header inside hiddenModsGroup
+---@field modEntryMenu ExtuiPopup|nil Right-click menu shared by all mod entries
+---@field mods table<string, ModSettings>|nil Mods from the last RebuildModEntries call
+---@field visibility ModListVisibility
 ---@field activeUUID string|nil UUID of the highlighted entry
 LeftPane = _Class:Create("LeftPane", nil, {
     parent = nil,
     modEntriesGroup = nil,
+    hiddenModsGroup = nil,
+    hiddenModsHeader = nil,
+    modEntryMenu = nil,
+    mods = nil,
+    visibility = nil,
     activeUUID = nil,
 })
 LeftPane.__index = LeftPane
@@ -16,6 +26,7 @@ LeftPane.__index = LeftPane
 function LeftPane:New(parent)
     local self = setmetatable({}, LeftPane)
     self.parent = parent -- Should:tm: be the menuScrollChildWindow
+    self.visibility = ModListVisibility:New(MCM.Store)
     return self
 end
 
@@ -50,33 +61,97 @@ function LeftPane:CreateMenuButton(text, description, uuid, parent)
     return button
 end
 
---- Destroy and recreate the mod entries in name order; other entries and the right pane are not touched
----@param mods table<string, ModSettings>
----@return table<string, boolean> createdUUIDs Mod UUIDs whose entry was created
-function LeftPane:RebuildModEntries(mods)
-    if not self.modEntriesGroup then
-        self.modEntriesGroup = self.parent:AddGroup("MCM_ModEntries")
+---@param container ExtuiTreeParent
+local function destroyChildren(container)
+    local oldChildren = {}
+    for _, child in ipairs(container.Children or {}) do
+        table.insert(oldChildren, child)
     end
-    local oldEntries = {}
-    for _, child in ipairs(self.modEntriesGroup.Children or {}) do
-        table.insert(oldEntries, child)
-    end
-    for _, child in ipairs(oldEntries) do
+    for _, child in ipairs(oldChildren) do
         child:Destroy()
     end
+end
 
-    local createdUUIDs = {}
-    for _, modUUID in ipairs(MCMUtils.SortModsByName(mods)) do
+--- Show the right-click menu for one mod entry; opening it does not select the mod
+---@param modUUID string
+---@param isHidden boolean Whether the entry is in Hidden mods
+function LeftPane:OpenModEntryMenu(modUUID, isHidden)
+    if not self.modEntryMenu then
+        -- Same frame as MCM tooltips, so both popovers read as one family
+        self.modEntryMenu = self.parent:AddPopup("MCM_ModEntryMenu")
+        self.modEntryMenu:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
+        self.modEntryMenu:SetStyle("PopupBorderSize", 2)
+        self.modEntryMenu:SetStyle("WindowPadding", 12, 10)
+        self.modEntryMenu:SetStyle("ItemSpacing", 8, 6)
+        self.modEntryMenu:SetSizeConstraints({ 200, 0 })
+    end
+    destroyChildren(self.modEntryMenu)
+
+    -- Right-clicking does not select the entry, so name the mod the action applies to
+    local modName = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName())
+    modName:SetColor("Text", UIStyle.TextStyles["SettingDescription"])
+    self.modEntryMenu:AddSeparator()
+
+    local handle = isHidden and "h541de1bd8d8d4be8a188742c9011da27b110" or "h31655a10d04449dfb90946ebe22da383f8a2"
+    local item = self.modEntryMenu:AddSelectable(Ext.Loca.GetTranslatedString(handle), nil, { 0, 28 })
+    item:SetStyle("SelectableTextAlign", 0, 0.5)
+    item.OnClick = function()
+        if isHidden then
+            self.visibility:Show(modUUID)
+        else
+            self.visibility:Hide(modUUID)
+        end
+        self:RebuildModEntries(self.mods)
+    end
+    self.modEntryMenu:Open()
+end
+
+--- Create mod entries in the given order
+---@private
+---@param modUUIDs string[]
+---@param container ExtuiTreeParent
+---@param isHidden boolean Whether the entries go in Hidden mods
+---@param createdUUIDs table<string, boolean> Receives the UUIDs whose entry was created
+function LeftPane:createModEntries(modUUIDs, container, isHidden, createdUUIDs)
+    for _, modUUID in ipairs(modUUIDs) do
         local success, err = xpcall(function()
-            local blueprint = mods[modUUID].blueprint
+            local blueprint = self.mods[modUUID].blueprint
             local modDescription = VCString:AddNewlinesAfterPeriods(blueprint:GetModDescription())
-            self:CreateMenuButton(blueprint:GetModName(), modDescription, modUUID, self.modEntriesGroup)
+            local button = self:CreateMenuButton(blueprint:GetModName(), modDescription, modUUID, container)
+            button.OnRightClick = function()
+                self:OpenModEntryMenu(modUUID, isHidden)
+            end
         end, debug.traceback)
         if success then
             createdUUIDs[modUUID] = true
         else
             MCMWarn(0, "Error creating mod entry for %s: %s", modUUID, err)
         end
+    end
+end
+
+--- Destroy and recreate the mod entries in name order, with hidden entries in a collapsed Hidden mods group; other entries and the right pane are not touched
+---@param mods table<string, ModSettings>
+---@return table<string, boolean> createdUUIDs Mod UUIDs whose entry was created
+function LeftPane:RebuildModEntries(mods)
+    if not self.modEntriesGroup then
+        self.modEntriesGroup = self.parent:AddGroup("MCM_ModEntries")
+    end
+    destroyChildren(self.modEntriesGroup)
+    self.hiddenModsGroup = nil
+    self.hiddenModsHeader = nil
+    self.mods = mods
+
+    local main, hidden, hiddenCount = self.visibility:Resolve(MCMUtils.SortModsByName(mods))
+    local createdUUIDs = {}
+    self:createModEntries(main, self.modEntriesGroup, false, createdUUIDs)
+    if hiddenCount > 0 then
+        -- The rule separates Hidden mods from the main list without repeating the header label
+        self.hiddenModsGroup = self.modEntriesGroup:AddGroup("MCM_HiddenMods")
+        self.hiddenModsGroup:AddSeparator()
+        self.hiddenModsHeader = self.hiddenModsGroup:AddCollapsingHeader(
+            VCString:InterpolateLocalizedMessage("h31b35bbef8544e26b213f5a93c926ecc7865", hiddenCount))
+        self:createModEntries(hidden, self.hiddenModsHeader, true, createdUUIDs)
     end
 
     if self.activeUUID then
@@ -86,7 +161,7 @@ function LeftPane:RebuildModEntries(mods)
 end
 
 --- Highlight the entry if its IDContext ends with the UUID; otherwise restore its normal look
----@param entry ExtuiStyledRenderable A child of the menu or of the mod entries group
+---@param entry ExtuiStyledRenderable A menu entry, a mod entry, or a Hidden mods entry
 ---@param uuid string
 ---@return nil
 local function applyActiveState(entry, uuid)
@@ -111,12 +186,19 @@ end
 function LeftPane:SetActiveItem(uuid)
     self.activeUUID = uuid
     for _, child in ipairs(self.parent.Children or {}) do
-        if child ~= self.modEntriesGroup then
+        if child ~= self.modEntriesGroup and child ~= self.modEntryMenu then
             applyActiveState(child, uuid)
         end
     end
     if self.modEntriesGroup then
         for _, child in ipairs(self.modEntriesGroup.Children or {}) do
+            if child ~= self.hiddenModsGroup then
+                applyActiveState(child, uuid)
+            end
+        end
+    end
+    if self.hiddenModsHeader then
+        for _, child in ipairs(self.hiddenModsHeader.Children or {}) do
             applyActiveState(child, uuid)
         end
     end
