@@ -125,7 +125,7 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
 
         D.expect(blueprint:GetAllSettings()["dynamic-enum"]:GetOptions().Choices).toEqual({ "option-1", "option-2" })
         D.expect(mods[modUUID].settingsValues["dynamic-enum"]).toBe("option-1")
-        D.expect(setSettingValueCalled).toBeFalsy()
+        D.expect(setSettingValueCalled).toBe(false)
     end)
 
     D.test("TestSameSettingIdIsScopedPerMod", function()
@@ -240,8 +240,12 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
                 AllowConflict = false
             }
             local success = MCMAPI:SetSettingValue(settingId, replacement, modUUID, false)
-            D.expect(success).toBeTruthy()
-            D.expect(MCMAPI:GetSettingValue(settingId, modUUID)).toEqual(replacement)
+            D.expect(success).toBe(true)
+            D.expect(MCMAPI:GetSettingValue(settingId, modUUID)).toEqual({
+                Keyboard = { Key = "J", ModifierKeys = { "RSHIFT", "LALT" } },
+                Enabled = true,
+                AllowConflict = false,
+            })
         end)
 
         MCMAPI.mods = originalMods

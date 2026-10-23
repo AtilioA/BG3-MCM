@@ -7,7 +7,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 
     D.test("TestValidEventButtonWithCooldown", function(ctx)
@@ -20,7 +20,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 
     D.test("TestValidEventButtonWithoutIcon", function(ctx)
@@ -34,7 +34,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 
     D.test("TestValidEventButtonWithIcon", function(ctx)
@@ -49,7 +49,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 
     D.test("TestValidEventButtonWithIconSize", function(ctx)
@@ -68,7 +68,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 
     D.test("TestValidEventButtonWithConfirmDialog", function(ctx)
@@ -86,7 +86,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 
     D.test("TestValidEventButtonWithAllOptions", function(ctx)
@@ -108,7 +108,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 
     D.test("TestInvalidEventButtonCooldownType", function(ctx)
@@ -121,7 +121,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonIconType", function(ctx)
@@ -134,7 +134,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonIconNameMissing", function(ctx)
@@ -152,7 +152,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonIconNameEmpty", function(ctx)
@@ -167,7 +167,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonIconSizeType", function(ctx)
@@ -183,7 +183,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonIconSizeMissingFields", function(ctx)
@@ -201,7 +201,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonConfirmDialogType", function(ctx)
@@ -214,7 +214,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonConfirmDialogFields", function(ctx)
@@ -232,7 +232,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestInvalidEventButtonConfirmDialogIncomplete", function(ctx)
@@ -248,7 +248,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeFalsy()
+        D.expect(isValid).toBe(false)
     end)
 
     D.test("TestEventButtonWithNegativeCooldown", function(ctx)
@@ -261,6 +261,6 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         })
 
         local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBeTruthy()
+        D.expect(isValid).toBe(true)
     end)
 end)

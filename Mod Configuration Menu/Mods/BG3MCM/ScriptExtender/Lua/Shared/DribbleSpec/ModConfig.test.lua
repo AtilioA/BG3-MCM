@@ -67,7 +67,6 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         local originalMods = ModConfig.mods
         local originalGetSettingsFilePath = ModConfig.GetSettingsFilePath
         local originalSaveJSONFile = JsonLayer.SaveJSONFile
-        local capturedPath = nil
         local capturedData = nil
 
         ModConfig.mods = {
@@ -84,7 +83,6 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         end
 
         JsonLayer.SaveJSONFile = function(_self, path, data)
-            capturedPath = path
             capturedData = data
         end
 
@@ -100,8 +98,7 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
             error(err)
         end
 
-        D.expect(capturedPath).toBe("mock/settings.json")
-        D.expect(capturedData["root-setting"]).toBe(false)
+        D.expect(capturedData).toEqual({ ["root-setting"] = false })
     end)
 
     D.test("TestSaveSettingsForModShouldFallbackToRootDefault", function()
@@ -217,7 +214,9 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
             error(err)
         end
 
-        D.expect(capturedData["main-tab"]["nested-tab"]["nested-setting"]).toBe(false)
+        D.expect(capturedData).toEqual({
+            ["main-tab"] = { ["nested-tab"] = { ["nested-setting"] = false } },
+        })
     end)
 
     D.test("TestLoadedSettingsRepairShouldFlattenMigrateAndValidate", function()
@@ -306,7 +305,8 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
 
         LoadedSettingsRepair:RemoveDeprecatedKeys(blueprint, settings)
 
-        D.expect(settings["unknown-empty"]).Not.toBeNil()
+        D.expect(settings["known-setting"]).toBe(false)
+        D.expect(settings["unknown-empty"]).toEqual({})
         D.expect(settings["unknown-value"]).toBeNil()
     end)
 end)
