@@ -6,11 +6,9 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = 42
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, 42)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, 42)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 42.5)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "42")).toBe(false)
     end)
 
     D.test("TestValidateFloatSetting", function(ctx)
@@ -20,11 +18,9 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = 3.14,
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, 3.14)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, 3.14)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 3)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "3.14")).toBe(false)
     end)
 
     D.test("TestValidateCheckboxAcceptsBooleanTrue", function(ctx)
@@ -34,8 +30,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = true,
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, true)
-        D.expect(isValid).toBeTruthy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, true)).toBe(true)
     end)
 
     D.test("TestValidateCheckboxAcceptsBooleanFalse", function(ctx)
@@ -45,8 +40,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = true,
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, false)
-        D.expect(isValid).toBeTruthy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, false)).toBe(true)
     end)
 
     D.test("TestValidateCheckboxRejectsNonBooleanTypes", function(ctx)
@@ -56,20 +50,14 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = true,
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, "invalid")).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "true")).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "false")).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 0)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 1)).toBe(false)
 
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "true")
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "false")
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 0)
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 1)
-        D.expect(isValid).toBeFalsy()
+        -- Presence on the boolean inputs the same setting accepts
+        D.expect(DataPreprocessing:ValidateSetting(setting, true)).toBe(true)
     end)
 
     D.test("TestValidateTextSetting", function(ctx)
@@ -79,17 +67,11 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = "hello",
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, "hello")
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 42)
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, true)
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, false)
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, "hello")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 42)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, true)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, false)).toBe(false)
     end)
 
     D.test("TestValidateEnumSetting", function(ctx)
@@ -102,11 +84,10 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, "option-1")
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, "option-1")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "option-3")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "invalid")).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 1)).toBe(false)
     end)
 
     D.test("TestValidateDynamicEnumSettingWithoutChoices", function(ctx)
@@ -119,11 +100,8 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid = DataPreprocessing:ValidateSetting(setting, "runtime-value")
-        D.expect(isValid).toBeTruthy()
-
-        isValid = DataPreprocessing:ValidateSetting(setting, 42)
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, "runtime-value")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 42)).toBe(false)
     end)
 
     D.test("TestValidateDynamicEnumSettingWithChoices", function(ctx)
@@ -137,11 +115,8 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid = DataPreprocessing:ValidateSetting(setting, "Karlach AEE")
-        D.expect(isValid).toBeTruthy()
-
-        isValid = DataPreprocessing:ValidateSetting(setting, true)
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, "Karlach AEE")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, true)).toBe(false)
     end)
 
     D.test("TestValidateRadioSetting", function(ctx)
@@ -154,11 +129,9 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, "option-1")
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, "option-1")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "option-3")).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "invalid")).toBe(false)
     end)
 
     D.test("TestValidateSliderIntSetting", function(ctx)
@@ -172,14 +145,13 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, 50)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 101)
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, 0)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 50)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 100)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 101)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, -1)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 50.5)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "50")).toBe(false)
     end)
 
     D.test("TestValidateSliderFloatSetting", function(ctx)
@@ -193,17 +165,11 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, 3.14)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 3)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 10.1)
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, 3.14)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 3)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 10.1)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, -0.1)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "3.14")).toBe(false)
     end)
 
     D.test("TestValidateDragIntSetting", function(ctx)
@@ -217,14 +183,12 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, 50)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 101)
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, 0)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 50)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 100)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 101)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, -1)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "50")).toBe(false)
     end)
 
     D.test("TestValidateDragFloatSetting", function(ctx)
@@ -238,17 +202,11 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, 3.14)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 3)
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, 10.1)
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, 3.14)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 3)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 10.1)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, -0.5)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "3.14")).toBe(false)
     end)
 
     D.test("TestValidateColorPickerSetting", function(ctx)
@@ -258,34 +216,20 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = { 1, 0, 0, 1 }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1 })
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1.1 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1 })).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 0, 0.5, 1, 0.25 })).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1.1 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "invalid")).toBe(false)
 
         -- Test non-normalized RGB inputs
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 255, 0, 0, 1 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 256, 0, 0, 1 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 2, 2, 2, 1 })
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 255, 0, 0, 1 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 256, 0, 0, 1 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 2, 2, 2, 1 })).toBe(false)
 
         -- Test RGB (without alpha) inputs
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 1, 0, 0 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 255, 0, 0 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 256, 0, 0 })
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 1, 0, 0 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 255, 0, 0 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 256, 0, 0 })).toBe(false)
     end)
 
     D.test("TestValidateColorEditSetting", function(ctx)
@@ -295,34 +239,20 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = { 1, 0, 0, 1 }
         })
 
-        local isValid, message = DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1 })
-        D.expect(isValid).toBeTruthy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1.1 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1 })).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 0, 0.5, 1, 0.25 })).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 1, 0, 0, 1.1 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "invalid")).toBe(false)
 
         -- Test non-normalized RGB inputs
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 255, 0, 0, 1 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 256, 0, 0, 1 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 2, 2, 2, 1 })
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 255, 0, 0, 1 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 256, 0, 0, 1 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 2, 2, 2, 1 })).toBe(false)
 
         -- Test RGB (without alpha) inputs
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 1, 0, 0 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 255, 0, 0 })
-        D.expect(isValid).toBeFalsy()
-
-        isValid, message = DataPreprocessing:ValidateSetting(setting, { 256, 0, 0 })
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 1, 0, 0 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 255, 0, 0 })).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { 256, 0, 0 })).toBe(false)
     end)
 
     D.test("TestValidateKeybindingV2Keyboard", function(ctx)
@@ -335,29 +265,36 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "INSERT", ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "A", ModifierKeys = { "LCTRL", "LSHIFT" } },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "P", ModifierKeys = { "LCtrl", "LShift" } },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "", ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
+
+        D.expect(KeybindingV2Validator.Validate(setting, {
+            Keyboard = { Key = "NOTAKEY", ModifierKeys = {} },
+            Enabled = true
+        })).toBe(false)
+
+        -- Scan codes are uppercase only
+        D.expect(KeybindingV2Validator.Validate(setting, {
+            Keyboard = { Key = "insert", ModifierKeys = {} },
+            Enabled = true
+        })).toBe(false)
     end)
 
     D.test("TestValidateKeybindingV2KeyboardModifierVariants", function(ctx)
@@ -384,18 +321,16 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         }
 
         for _, modifier in ipairs(validModifierVariants) do
-            local isValid = KeybindingV2Validator.Validate(setting, {
+            D.expect(KeybindingV2Validator.Validate(setting, {
                 Keyboard = { Key = "P", ModifierKeys = { modifier } },
                 Enabled = true
-            })
-            D.expect(isValid).toBeTruthy()
+            })).toBe(true)
         end
 
-        local mixedCaseComboIsValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "P", ModifierKeys = { "lctrl", "LShift" } },
             Enabled = true
-        })
-        D.expect(mixedCaseComboIsValid).toBeTruthy()
+        })).toBe(true)
     end)
 
     D.test("TestValidateKeybindingV2MouseModifierVariants", function(ctx)
@@ -422,11 +357,10 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         }
 
         for _, modifier in ipairs(validModifierVariants) do
-            local isValid = KeybindingV2Validator.Validate(setting, {
+            D.expect(KeybindingV2Validator.Validate(setting, {
                 Mouse = { Button = 3, ModifierKeys = { modifier } },
                 Enabled = true
-            })
-            D.expect(isValid).toBeTruthy()
+            })).toBe(true)
         end
     end)
 
@@ -440,12 +374,16 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "P", ModifierKeys = { "LCTRL_BAD" } },
             Enabled = true
-        })
+        })).toBe(false)
 
-        D.expect(isValid).toBeFalsy()
+        -- Presence on a supported modifier
+        D.expect(KeybindingV2Validator.Validate(setting, {
+            Keyboard = { Key = "P", ModifierKeys = { "LCTRL" } },
+            Enabled = true
+        })).toBe(true)
     end)
 
     D.test("TestValidateKeybindingV2InvalidModifierVariants", function(ctx)
@@ -473,17 +411,15 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         }
 
         for _, modifier in ipairs(invalidModifierVariants) do
-            local keyboardValid = KeybindingV2Validator.Validate(setting, {
+            D.expect(KeybindingV2Validator.Validate(setting, {
                 Keyboard = { Key = "P", ModifierKeys = { modifier } },
                 Enabled = true
-            })
-            D.expect(keyboardValid).toBeFalsy()
+            })).toBe(false)
 
-            local mouseValid = KeybindingV2Validator.Validate(setting, {
+            D.expect(KeybindingV2Validator.Validate(setting, {
                 Mouse = { Button = 3, ModifierKeys = { modifier } },
                 Enabled = true
-            })
-            D.expect(mouseValid).toBeFalsy()
+            })).toBe(false)
         end
     end)
 
@@ -497,35 +433,41 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Mouse = { Button = 1, ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Mouse = { Button = 3, ModifierKeys = { "LCTRL" } },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Mouse = { Button = 10, ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        -- Button 0 means unassigned, which is a legal stored value
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Mouse = { Button = 0, ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Mouse = { Button = 11, ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeFalsy()
+        })).toBe(false)
+
+        D.expect(KeybindingV2Validator.Validate(setting, {
+            Mouse = { Button = "3", ModifierKeys = {} },
+            Enabled = true
+        })).toBe(false)
+
+        D.expect(KeybindingV2Validator.Validate(setting, {
+            Mouse = { Button = 1.5, ModifierKeys = {} },
+            Enabled = true
+        })).toBe(false)
     end)
 
     D.test("TestValidateKeybindingV2XOR", function(ctx)
@@ -538,31 +480,27 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "INSERT", ModifierKeys = {} },
             Mouse = { Button = 1, ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeFalsy()
+        })).toBe(false)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "", ModifierKeys = {} },
             Mouse = { Button = 1, ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Keyboard = { Key = "A", ModifierKeys = {} },
             Mouse = { Button = 0, ModifierKeys = {} },
             Enabled = true
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = KeybindingV2Validator.Validate(setting, {
+        D.expect(KeybindingV2Validator.Validate(setting, {
             Enabled = true
-        })
-        D.expect(isValid).toBeFalsy()
+        })).toBe(false)
     end)
 
     D.test("TestValidateListV2Setting", function(ctx)
@@ -575,7 +513,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             }
         })
 
-        local isValid = DataPreprocessing:ValidateSetting(setting, {
+        D.expect(DataPreprocessing:ValidateSetting(setting, {
             enabled = true,
             elements = {
                 {
@@ -583,16 +521,14 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
                     enabled = true
                 }
             }
-        })
-        D.expect(isValid).toBeTruthy()
+        })).toBe(true)
 
-        isValid = DataPreprocessing:ValidateSetting(setting, {
+        D.expect(DataPreprocessing:ValidateSetting(setting, {
             enabled = "yes",
             elements = {}
-        })
-        D.expect(isValid).toBeFalsy()
+        })).toBe(false)
 
-        isValid = DataPreprocessing:ValidateSetting(setting, {
+        D.expect(DataPreprocessing:ValidateSetting(setting, {
             enabled = true,
             elements = {
                 {
@@ -600,8 +536,11 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
                     enabled = true
                 }
             }
-        })
-        D.expect(isValid).toBeFalsy()
+        })).toBe(false)
+
+        D.expect(DataPreprocessing:ValidateSetting(setting, {
+            enabled = true
+        })).toBe(false)
     end)
 
     D.test("TestValidateEventButtonSetting", function(ctx)
@@ -610,14 +549,9 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Type = "event_button"
         })
 
-        local isValid = DataPreprocessing:ValidateSetting(setting, nil)
-        D.expect(isValid).toBeTruthy()
-
-        isValid = DataPreprocessing:ValidateSetting(setting, { metadata = "ok" })
-        D.expect(isValid).toBeTruthy()
-
-        isValid = DataPreprocessing:ValidateSetting(setting, "invalid")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, nil)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, { metadata = "ok" })).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, "invalid")).toBe(false)
     end)
 
     D.test("TestNonExistentSetting", function(ctx)
@@ -627,7 +561,6 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = "unknown",
         })
 
-        local isValid = DataPreprocessing:ValidateSetting(setting, "unknown")
-        D.expect(isValid).toBeFalsy()
+        D.expect(DataPreprocessing:ValidateSetting(setting, "unknown")).toBe(false)
     end)
 end)

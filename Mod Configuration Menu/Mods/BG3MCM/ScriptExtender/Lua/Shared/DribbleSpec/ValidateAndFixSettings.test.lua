@@ -73,6 +73,9 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
         D.expect(fixedConfig["setting-2"]).toBe(42)
+        -- Settings missing from the stored config fall back to the blueprint default
+        D.expect(fixedConfig["setting-1"]).toBe(3.14)
+        D.expect(fixedConfig["setting-3"]).toBe(true)
     end)
 
     D.test("ShouldFixInvalidSettingsInsideTab", function(ctx)
@@ -142,11 +145,14 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
 
         local config = {
             ["setting-1"] = "true",
+            ["dynamic-only-setting"] = "kept",
         }
 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
         D.expect(fixedConfig["setting-1"]).toBe(true)
+        -- Values that are not part of the blueprint (dynamic settings) survive the repair
+        D.expect(fixedConfig["dynamic-only-setting"]).toBe("kept")
     end)
 
     D.test("ShouldKeepValidKeybindingV2WithUppercaseModifier", function(ctx)
@@ -281,7 +287,10 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
-        D.expect(fixedConfig["list-v2-setting"]).toBe(defaultListValue)
+        D.expect(fixedConfig["list-v2-setting"]).toEqual({
+            enabled = true,
+            elements = { { name = "Alpha", enabled = true } },
+        })
     end)
 
     D.test("ShouldKeepInvalidListV2ValueWhenDefaultIsAlsoInvalid", function(ctx)
@@ -326,7 +335,10 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
-        D.expect(fixedConfig["list-v2-setting"]).toBe(invalidConfigValue)
+        D.expect(fixedConfig["list-v2-setting"]).toEqual({
+            enabled = { "Gamma" },
+            elements = { { name = "Gamma", enabled = true } },
+        })
     end)
 
     D.test("ShouldKeepValidListV2Setting", function(ctx)
@@ -371,7 +383,13 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
-        D.expect(fixedConfig["list-v2-setting"]).toBe(validListValue)
+        D.expect(fixedConfig["list-v2-setting"]).toEqual({
+            enabled = true,
+            elements = {
+                { name = "Alpha", enabled = true },
+                { name = "Beta", enabled = false },
+            },
+        })
     end)
 
     D.test("ShouldKeepDynamicEnumStringValueUntilChoicesAreInjected", function(ctx)

@@ -1,5 +1,5 @@
 local function makeBlueprint()
-    return Blueprint:New({
+    local blueprint = Blueprint:New({
         ModUUID = TestConstants.ModuleUUIDs[1],
         SchemaVersion = 1,
         Settings = {
@@ -31,6 +31,9 @@ local function makeBlueprint()
             },
         },
     })
+    -- Cache tests start cold regardless of constructor traversal.
+    BlueprintCache:Invalidate(blueprint)
+    return blueprint
 end
 
     D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
@@ -196,6 +199,7 @@ end
                 },
             },
         })
+        BlueprintCache:Invalidate(blueprint)
         local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
         local setting = blueprint:GetSettingById("dynamic-enum")

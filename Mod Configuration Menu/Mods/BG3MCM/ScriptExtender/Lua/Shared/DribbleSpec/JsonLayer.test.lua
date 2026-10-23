@@ -7,7 +7,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "unit" } }, function()
                 "Example Author")
         end)
 
-        D.expect(ok).toBeFalsy()
+        D.expect(ok).toBe(false)
         D.expect(err.code).toBe("JSONParseError")
         D.expect(err.message).toBe(
             "Failed to load MCM blueprint JSON file for mod: Example Mod. Please contact Example Author about this issue.")
@@ -18,7 +18,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "unit" } }, function()
             JsonLayer:FileNotFoundError("Blueprint file not found for mod: %s", "Example Mod")
         end)
 
-        D.expect(ok).toBeFalsy()
+        D.expect(ok).toBe(false)
         D.expect(err.code).toBe("FileNotFoundError")
         D.expect(err.message).toBe("Blueprint file not found for mod: Example Mod")
     end)
