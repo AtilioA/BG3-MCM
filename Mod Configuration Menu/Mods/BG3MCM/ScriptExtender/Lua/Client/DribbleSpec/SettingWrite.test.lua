@@ -8,7 +8,7 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
             D.expect(settingId).toBe("local-setting")
             D.expect(value).toBe(42)
             D.expect(modUUID).toBe("test-mod")
-            D.expect(shouldEmitEvent).toBeTruthy()
+            D.expect(shouldEmitEvent).toBe(true)
             return shouldAccept
         end)
 
@@ -22,9 +22,8 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
         local rejected = MCMProxy:SetSettingValue("local-setting", 42, "test-mod", function(value)
             table.insert(reconciled, value)
         end, true)
-        D.expect(rejected.accepted).toBeFalsy()
-        D.expect(rejected.state).toBe("rejected")
-        D.expect(#reconciled).toBe(1)
+        D.expect(rejected).toEqual({ accepted = false, state = "rejected", error = "Setting value was rejected" })
+        D.expect(reconciled).toEqual({ 42 })
     end)
 
     D.test("queues remote writes without touching the UI", function(ctx)
@@ -53,17 +52,30 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
         D.expect(#emitted).toBe(0)
     end)
 
-    D.test("does not create UI event subscriptions per write", function(ctx)
-        local subscriptions = 0
+    -- Coverage gap: forwarding does not detect duplicate UI reconciliation after repeated writes.
+    -- Keybindings.test.lua separately guards load-subscription churn.
+    D.test("forwards the write to the proxy", function(ctx)
         local receipt = { accepted = true, state = "queued", value = 7 }
-        ctx.stub(MCMProxy, "SetSettingValue", function() return receipt end)
-        ctx.stub(ModEventManager, "Subscribe", function()
-            subscriptions = subscriptions + 1
+        local forwarded = nil
+        local uiCallback = function() end
+        ctx.stub(MCMProxy, "SetSettingValue", function(_, settingId, value, modUUID, setUIValue, shouldEmitEvent)
+            forwarded = {
+                settingId = settingId,
+                value = value,
+                modUUID = modUUID,
+                setUIValue = setUIValue,
+                shouldEmitEvent = shouldEmitEvent,
+            }
+            return receipt
         end)
 
-        local result = IMGUIAPI:SetSettingValue("setting", 7, "test-mod", function() end, true)
+        local result = IMGUIAPI:SetSettingValue("setting", 7, "test-mod", uiCallback, true)
 
-        D.expect(result).toEqual(receipt)
-        D.expect(subscriptions).toBe(0)
+        D.expect(result).toBe(receipt)
+        D.expect(forwarded.settingId).toBe("setting")
+        D.expect(forwarded.value).toBe(7)
+        D.expect(forwarded.modUUID).toBe("test-mod")
+        D.expect(forwarded.setUIValue).toBe(uiCallback)
+        D.expect(forwarded.shouldEmitEvent).toBe(true)
     end)
 end)

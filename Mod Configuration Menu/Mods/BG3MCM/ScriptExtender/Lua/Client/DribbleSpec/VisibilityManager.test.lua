@@ -22,7 +22,7 @@ D.describe("VisibilityManager", { tags = { "visibility", "unit" } }, function()
 
         for _, operator in ipairs(operators) do
             local result = evaluateSingleCondition(modUUID, operator, "10")
-            D.expect(result).toBeFalsy()
+            D.expect(result).toBe(false)
         end
     end)
 
@@ -36,10 +36,10 @@ D.describe("VisibilityManager", { tags = { "visibility", "unit" } }, function()
 
         for _, operator in ipairs(operators) do
             local stringResult = evaluateSingleCondition(modUUID, operator, "not-a-number")
-            D.expect(stringResult).toBeFalsy()
+            D.expect(stringResult).toBe(false)
 
             local boolResult = evaluateSingleCondition(modUUID, operator, true)
-            D.expect(boolResult).toBeFalsy()
+            D.expect(boolResult).toBe(false)
         end
     end)
 
@@ -50,10 +50,10 @@ D.describe("VisibilityManager", { tags = { "visibility", "unit" } }, function()
             return 10
         end)
 
-        D.expect(evaluateSingleCondition(modUUID, ">", 5)).toBeTruthy()
-        D.expect(evaluateSingleCondition(modUUID, "<", 20)).toBeTruthy()
-        D.expect(evaluateSingleCondition(modUUID, ">=", 10)).toBeTruthy()
-        D.expect(evaluateSingleCondition(modUUID, "<=", 10)).toBeTruthy()
+        D.expect(evaluateSingleCondition(modUUID, ">", 5)).toBe(true)
+        D.expect(evaluateSingleCondition(modUUID, "<", 20)).toBe(true)
+        D.expect(evaluateSingleCondition(modUUID, ">=", 10)).toBe(true)
+        D.expect(evaluateSingleCondition(modUUID, "<=", 10)).toBe(true)
     end)
 
     D.test("TestVisibilityLogicalOrOperator", function(ctx)
@@ -69,26 +69,16 @@ D.describe("VisibilityManager", { tags = { "visibility", "unit" } }, function()
                 { SettingId = "test-setting", Operator = "<", ExpectedValue = 20 },
             }
         })
-        D.expect(result).toBeTruthy()
+        D.expect(result).toBe(true)
     end)
 
-    -- D.test("TestVisibilityEmptyConditionsGroup", function(ctx)
-    --     local modUUID = TestConstants.ModuleUUIDs[1]
+    D.test("TestVisibilityEmptyConditionsGroupIsVisible", function()
+        local modUUID = ModuleUUID
 
-    --     local originalGetMod = Ext.Mod.GetMod
-    --     Ext.Mod.GetMod = function(_)
-    --         return { Info = { Name = "Visibility Test Mod", Author = "Visibility Test Author" } }
-    --     end
-    --     ctx.stub(MCMRendering, "GetClientStateValue", function(_, _)
-    --         return 10
-    --     end)
-
-    --     local result = VisibilityManager.evaluateGroup(modUUID, {
-    --         LogicalOperator = "and",
-    --         Conditions = {}
-    --     })
-    --     D.expect(result).toBeFalsy()
-
-    --     Ext.Mod.GetMod = originalGetMod
-    -- end)
+        local result = VisibilityManager.evaluateGroup(modUUID, {
+            LogicalOperator = "and",
+            Conditions = {}
+        })
+        D.expect(result).toBe(true)
+    end)
 end)

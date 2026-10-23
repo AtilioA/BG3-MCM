@@ -47,16 +47,15 @@ D.describe("keybinding native catalog reuse", { tags = { "keybinding_v2", "clien
 
     D.afterEach(Cleanup)
 
-    D.test("shared catalog matches per-row fetch results", function(ctx)
+    D.test("shared catalog stays stable when the live catalog changes", function(ctx)
         Register(MOD_A, { KeyboardAction("a1", "K") })
         Register(MOD_B, { KeyboardAction("b1", "K") })
 
-        local getAllCalls = 0
+        local nativeEventName = "NativeJump"
         ctx.stub(NativeKeybindings, "GetAll", function()
-            getAllCalls = getAllCalls + 1
             return {
                 Public = { {
-                    EventName = "NativeJump",
+                    EventName = nativeEventName,
                     Bindings = { { InputType = "Keyboard", InputId = "J", Modifiers = {} } }
                 } },
                 Internal = {}
@@ -68,7 +67,7 @@ D.describe("keybinding native catalog reuse", { tags = { "keybinding_v2", "clien
 
         -- One shared fetch, reused across rows.
         local nativeData = NativeKeybindings.GetAll()
-        D.expect(getAllCalls).toBe(1)
+        nativeEventName = "NativeFly"
 
         local sharedMcm = KeybindingConflictService:CheckForConflicts(
             { Key = "K", ModifierKeys = {} }, mod, action, "KeyboardMouse", nativeData)
@@ -76,22 +75,24 @@ D.describe("keybinding native catalog reuse", { tags = { "keybinding_v2", "clien
             { Key = "J", ModifierKeys = {} }, mod, action, "KeyboardMouse", nativeData)
         local sharedMiss = KeybindingConflictService:CheckForConflicts(
             { Key = "Z", ModifierKeys = {} }, mod, action, "KeyboardMouse", nativeData)
-        D.expect(getAllCalls).toBe(1)
 
-        D.expect(sharedMcm).toBeTruthy()
+        D.expect(type(sharedMcm)).toBe("table")
         D.expect(sharedMcm.ActionName).toBe("b1")
-        D.expect(sharedNative).toBeTruthy()
+        D.expect(sharedMcm.Keybinding.Key).toBe("K")
+        D.expect(sharedMcm.Keybinding.ModifierKeys).toEqual({})
+        D.expect(type(sharedNative)).toBe("table")
         D.expect(sharedNative.ActionName).toBe("NativeJump")
+        D.expect(sharedNative.Keybinding.Key).toBe("J")
         D.expect(sharedMiss).toBeNil()
 
-        -- Same queries without the shared catalog return the same results.
+        -- A fresh query sees the updated catalog; supplied catalogs keep their contents.
         local freshMcm = KeybindingConflictService:CheckForConflicts(
             { Key = "K", ModifierKeys = {} }, mod, action, "KeyboardMouse")
         local freshNative = KeybindingConflictService:CheckForConflicts(
             { Key = "J", ModifierKeys = {} }, mod, action, "KeyboardMouse")
-        D.expect(freshMcm).toBeTruthy()
-        D.expect(freshMcm.ActionName).toBe(sharedMcm.ActionName)
-        D.expect(freshNative).toBeTruthy()
-        D.expect(freshNative.ActionName).toBe(sharedNative.ActionName)
+        D.expect(freshMcm.ActionName).toBe("b1")
+        D.expect(freshMcm.Keybinding.Key).toBe("K")
+        D.expect(freshNative.ActionName).toBe("NativeFly")
+        D.expect(freshNative.Keybinding.Key).toBe("J")
     end)
 end)
