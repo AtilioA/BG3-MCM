@@ -282,13 +282,17 @@ function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, v
     end
 
     self:BeginRemoteApply()
-    adapter:SetValue(varName, value, moduleUUID, {
+    local saved = adapter:SetValue(varName, value, moduleUUID, {
         SyncToClient = false,
         SyncToServer = false,
         Server = true,
         Client = true,
     })
     self:EndRemoteApply()
+    -- A refused write (e.g. an unreadable JSON file) must not surface through the cache either
+    if saved == false then
+        return false
+    end
 
     self:SetCachedValue(storageType, moduleUUID, varName, value)
     self:EnsureDiscovered(storageType, moduleUUID, varName)

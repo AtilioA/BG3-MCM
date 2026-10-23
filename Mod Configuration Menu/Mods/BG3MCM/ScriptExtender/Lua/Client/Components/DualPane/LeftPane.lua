@@ -25,6 +25,11 @@ LeftPane = _Class:Create("LeftPane", nil, {
 })
 LeftPane.__index = LeftPane
 
+-- Wrap width of the protected-state message in the mod entry menu
+local PROTECTED_MESSAGE_WRAP_WIDTH = 320
+-- Same red as keybinding error text
+local PROTECTED_MESSAGE_COLOR = Color.NormalizedRGBA(255, 55, 55, 1)
+
 function LeftPane:New(parent)
     local self = setmetatable({}, LeftPane)
     self.parent = parent -- Should:tm: be the menuScrollChildWindow
@@ -105,6 +110,15 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
             -- Rebuild only the mod-list navigation; the open page stays open
             self:RebuildModEntries(self.mods)
         end
+    end
+
+    -- A protected MCM state document is kept unchanged, so explain why no choice is offered
+    if self.visibility:IsProtected() then
+        local message = self.modEntryMenu:AddText(Ext.Loca.GetTranslatedString("h6a34a2af2d8c47b781dc48d5b9881b61abcd"))
+        message.TextWrapPos = PROTECTED_MESSAGE_WRAP_WIDTH
+        message:SetColor("Text", PROTECTED_MESSAGE_COLOR)
+        self.modEntryMenu:Open()
+        return
     end
 
     local handle = isHidden and "h541de1bd8d8d4be8a188742c9011da27b110" or "h31655a10d04449dfb90946ebe22da383f8a2"

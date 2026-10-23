@@ -50,6 +50,14 @@ function IStorageAdapter:IsRegistered(key, moduleUUID)
     return true
 end
 
+--- Whether writes to (moduleUUID, key) can be saved. Example: JSON refuses writes to a file that failed to parse.
+---@param key string The key/variable name
+---@param moduleUUID string The UUID of the module
+---@return boolean writable
+function IStorageAdapter:IsWritable(key, moduleUUID)
+    return true
+end
+
 --- Run `fn` once this backend can serve real values. Example: "wait for the savegame before restoring values" timing lives here.
 ---@param fn fun() Callback to run when the adapter is ready
 function IStorageAdapter:RunWhenReady(fn)
@@ -72,6 +80,7 @@ end
 ---@param value StorageValue The value to write (nil to delete)
 ---@param moduleUUID string The UUID of the module
 ---@param storageConfig? StorageConfig Optional storage-specific configuration (e.g., SE ModVar parameters)
+---@return boolean? saved False when the backend refuses the write; nil or true otherwise
 function IStorageAdapter:SetValue(key, value, moduleUUID, storageConfig)
     MCMError(0, "IStorageAdapter:SetValue() not implemented")
 end

@@ -767,6 +767,18 @@ local function Store_Set_Impl(args)
     return SettingsService.Set(args.modUUID, args.var, args.value)
 end
 
+--- Implementation: Check whether a stored value can be saved
+---@param args MCMStoreGetArgs
+---@return boolean writable
+local function Store_IsWritable_Impl(args)
+    if not args.var then
+        MCMWarn(0, "MCM.Store.IsWritable: var is required")
+        return false
+    end
+
+    return SettingsService.IsWritable(args.modUUID, args.var)
+end
+
 --- Implementation: Get all stored values for a mod
 ---@param args MCMStoreGetAllArgs
 ---@return table<string, StorageValue>
@@ -807,6 +819,16 @@ function MCMAPIImplementations.createStoreAPI(originalModUUID)
     StoreAPI.Set = MCMAPIUtils.WithFlexibleArgs(
         Store_Set_Impl,
         { "var", "value", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    --- Check whether a stored value can be saved; false when its JSON file could not be parsed
+    ---@param varOrArgs string|MCMStoreGetArgs The variable name, or an argument table
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
+    ---@return boolean writable
+    StoreAPI.IsWritable = MCMAPIUtils.WithFlexibleArgs(
+        Store_IsWritable_Impl,
+        { "var", "modUUID" },
         { modUUID = originalModUUID }
     )
 

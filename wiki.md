@@ -73,6 +73,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [List API](#list-api)
       - [Store API](#store-api)
         - [Choose a JSON Store file](#choose-a-json-store-file)
+        - [Unreadable JSON Store files](#unreadable-json-store-files)
       - [Window and tab APIs](#window-and-tab-apis)
       - [Deprecated Functions](#deprecated-functions)
       - [Table-based arguments](#table-based-arguments)
@@ -143,6 +144,8 @@ The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
 `Version` identifies the document format. In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The group's expansion state is not part of this document.
 
 The recipient can change the arrangement through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
+
+If `MCM_state.json` cannot be parsed, or its `Version` is newer than this MCM supports, MCM keeps the file unchanged. Entries then follow their author defaults if the file is unreadable, and the right-click menu explains that menu choices cannot be saved instead of offering Hide, Show, or Use default visibility. Repair or delete the file, then reload.
 
 ## Features for mod authors
 
@@ -693,6 +696,7 @@ The JSON storage allows saving values to JSON files without needing to define a 
 | `MCM.Store.Get(var, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
 | `MCM.Store.Set(var, value, modUUID?)` | Sets a stored value with automatic persistence | ✅ | ✅ |
 | `MCM.Store.GetAll(modUUID?)` | Gets all stored key-value pairs for the mod | ✅ | ✅ |
+| `MCM.Store.IsWritable(var, modUUID?)` | Returns `false` when the variable's JSON file is [unreadable](#unreadable-json-store-files) | ✅ | ✅ |
 
 <details>
 <summary>Store API usage example</summary>
@@ -755,6 +759,10 @@ Re-registering a variable with the same file placement is allowed. A conflicting
 Register JSON variables on each receiving side before synchronized values arrive. MCM drops a remote JSON value for an unregistered variable with a warning, before writing or relaying it. It does not replay that value after a later registration. Ordinary ModVar behavior is unchanged.
 
 MCM uses this filename option for its own [MCM state document](#share-a-mod-list-arrangement).
+
+##### Unreadable JSON Store files
+
+If a JSON Store file cannot be parsed, MCM keeps it unchanged and logs a warning. Until the file is repaired or deleted and the game reloads, its variables read as their registered default (or `nil`), `MCM.Store.Set` returns `false`, and `MCM.Store.IsWritable` returns `false`. Other Store files and blueprint settings keep working.
 
 #### Window and tab APIs
 

@@ -9,6 +9,7 @@ local DEFAULT_FILE_NAME = "dynamic_settings.json"
 ---@field FilePath string
 ---@field Data table<string, StorageValue>
 ---@field Loaded boolean
+---@field Unreadable boolean The file failed to parse; MCM keeps it unchanged and refuses writes
 ---@field AutoSave boolean
 local SettingsFile = {}
 SettingsFile.__index = SettingsFile
@@ -23,6 +24,7 @@ function SettingsFile:new(moduleUUID, fileName, autoSave)
     o.FileName = fileName
     o.Data = {}
     o.Loaded = false
+    o.Unreadable = false
     -- Default to true if nil (sigh)
     o.AutoSave = (autoSave == nil) and true or autoSave
     o.FilePath = o:_generatePath()
@@ -61,11 +63,12 @@ function SettingsFile:Load()
     local content = Ext.IO.LoadFile(self.FilePath)
     if content and content ~= "" then
         local ok, parsed = pcall(Ext.Json.Parse, content)
-        if ok and parsed then
+        if ok and type(parsed) == "table" then
             self.Data = parsed
         else
-            MCMWarn(0, "JsonAdapter: Failed to parse JSON for: %s", self.FilePath)
+            MCMWarn(0, "JsonAdapter: Failed to parse JSON for: %s. MCM keeps the file unchanged and does not save values to it until it is repaired or deleted.", self.FilePath)
             self.Data = {}
+            self.Unreadable = true
         end
     else
         -- File doesn't exist yet, start empty
@@ -74,10 +77,16 @@ function SettingsFile:Load()
     self.Loaded = true
 end
 
---- Saves the current data to disk.
+--- Saves the current data to disk, unless the file is unreadable.
+---@return boolean saved
 function SettingsFile:Save()
+    if self.Unreadable then
+        MCMWarn(0, "JsonAdapter: Not saving to unreadable file: %s", self.FilePath)
+        return false
+    end
     local content = Ext.Json.Stringify(self.Data)
     Ext.IO.SaveFile(self.FilePath, content)
+    return true
 end
 
 function SettingsFile:Get(key)
@@ -85,17 +94,19 @@ function SettingsFile:Get(key)
     return self.Data[key]
 end
 
+---@return boolean saved False when the file is unreadable; the value is then not kept
 function SettingsFile:Set(key, value)
     self:Load()
-    if value == nil then
-        self.Data[key] = nil
-    else
-        self.Data[key] = value
+    if self.Unreadable then
+        MCMWarn(0, "JsonAdapter: Not saving '%s' to unreadable file: %s", key, self.FilePath)
+        return false
     end
+    self.Data[key] = value
 
     if self.AutoSave then
         self:Save()
     end
+    return true
 end
 
 -- =============================================================================
@@ -189,6 +200,16 @@ function JsonStorageManager:IsRegistered(key, moduleUUID)
     return byMod ~= nil and byMod[key] ~= nil
 end
 
+--- Whether the variable's file accepts writes; false when the file failed to parse.
+---@param key string
+---@param moduleUUID string
+---@return boolean writable
+function JsonStorageManager:IsWritable(key, moduleUUID)
+    local handler = self:_getFileHandler(moduleUUID, self:_resolveFileName(moduleUUID, key))
+    handler:Load()
+    return not handler.Unreadable
+end
+
 --- Read the raw Lua value
 ---@param key string
 ---@param moduleUUID string
@@ -211,24 +232,17 @@ end
 ---@param value StorageValue
 ---@param moduleUUID string
 ---@param storageConfig? table Optional storage configuration; the file comes from registration
+---@return boolean saved False when the variable's file is unreadable
 function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)
-    if not moduleUUID then return end
+    if not moduleUUID then return false end
 
     local handler = self:_getFileHandler(moduleUUID, self:_resolveFileName(moduleUUID, key))
+    if not handler:Set(key, value) then
+        return false
+    end
 
-    -- Merge defaults with provided config using IStorageAdapter logic
-    local config = self:ResolveConfig(storageConfig)
-
-    -- Write value to memory
-    handler:Load()
-    -- if value == nil then
-    --     handler.Data[key] = nil
-    -- else
-    --     handler.Data[key] = value
-    -- end
-    handler:Set(key, value)
-
-    StorageSyncService:OnLocalSet("json", moduleUUID, key, value, config)
+    StorageSyncService:OnLocalSet("json", moduleUUID, key, value, self:ResolveConfig(storageConfig))
+    return true
 end
 
 ---@return table<string, table<string, any>>

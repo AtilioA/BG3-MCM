@@ -437,6 +437,16 @@ function SettingsService.GetAllForStorageType(moduleUUID, storageType)
     return result
 end
 
+--- Whether a value for (moduleUUID, varName) can be saved; false when, for example, its JSON file failed to parse.
+---@param moduleUUID string The UUID of the module
+---@param varName string The name of the variable
+---@return boolean writable
+function SettingsService.IsWritable(moduleUUID, varName)
+    local storageType = SettingsService.ResolveStorageType(moduleUUID, varName, nil, "IsWritable")
+    local adapter = storageType and AdapterFactory.GetAdapter(storageType)
+    return adapter ~= nil and adapter:IsWritable(varName, moduleUUID)
+end
+
 --- SET: Write a new Lua value for (moduleUUID, varName), storage type auto-detected.
 ---@param moduleUUID string The UUID of the module
 ---@param varName string The name of the variable
@@ -514,8 +524,9 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
         -- Might not even be needed - will values get serialized for events?
         oldValue = table.deepcopy(oldValue)
     end
-    if adapter then
-        adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
+    -- A refused write (e.g. an unreadable JSON file) keeps the old value; the adapter logs why
+    if adapter and adapter:SetValue(varName, val, moduleUUID, entry.storageConfig) == false then
+        return false
     end
 
     -- Emit a setting saved event for any listeners

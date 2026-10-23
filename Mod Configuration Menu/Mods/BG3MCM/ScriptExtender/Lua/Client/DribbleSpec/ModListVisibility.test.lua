@@ -7,17 +7,20 @@ D.describe("ModListVisibility", { tags = { "mod_list_visibility", "client", "uni
 
     --- In-memory stand-in for MCM.Store, so tests never touch the player's MCM_state.json
     ---@param values? table<string, any> Initial Store values, e.g. { UI = ... }
+    ---@param unreadable? boolean Whether the state file failed to parse, so Store refuses writes
     ---@return table store
-    local function FakeStore(values)
+    local function FakeStore(values, unreadable)
         values = values or {}
         return {
             values = values,
             RegisterVar = function() return true end,
             Get = function(var) return values[var] end,
             Set = function(var, value)
+                if unreadable then return false end
                 values[var] = value
                 return true
             end,
+            IsWritable = function() return not unreadable end,
         }
     end
 
@@ -147,5 +150,40 @@ D.describe("ModListVisibility", { tags = { "mod_list_visibility", "client", "uni
                 Mods = { [MOD_A] = { Other = "kept" }, [ABSENT_MOD] = { HiddenFromList = true } },
             },
         })
+    end)
+
+    D.test("an unreadable state document resolves author defaults and refuses choices", function()
+        local store = FakeStore({}, true)
+        local visibility = ModListVisibility:New(store)
+
+        local main, hidden = visibility:Resolve({ MOD_A, MOD_B }, { [MOD_A] = true })
+        local hideSaved = visibility:SetHidden(MOD_B, true)
+
+        D.expect(visibility:IsProtected()).toBe(true)
+        D.expect(main).toEqual({ MOD_B })
+        D.expect(hidden).toEqual({ MOD_A })
+        D.expect(hideSaved).toBe(false)
+        D.expect(store.values).toEqual({})
+    end)
+
+    D.test("a newer-version state document stays unchanged", function()
+        local values = { Version = 2, UI = UIWithChoices({ [MOD_A] = false }) }
+        local store = FakeStore(values)
+        local visibility = ModListVisibility:New(store)
+
+        local hideSaved = visibility:SetHidden(MOD_A, true)
+        local showSaved = visibility:SetHidden(MOD_B, false)
+        local useDefaultSaved = visibility:UseDefault(MOD_A)
+
+        D.expect(visibility:IsProtected()).toBe(true)
+        D.expect({ hideSaved, showSaved, useDefaultSaved }).toEqual({ false, false, false })
+        D.expect(store.values).toEqual({ Version = 2, UI = UIWithChoices({ [MOD_A] = false }) })
+    end)
+
+    D.test("a readable current-version state document accepts choices", function()
+        local visibility = ModListVisibility:New(FakeStore({ Version = 1 }))
+
+        D.expect(visibility:IsProtected()).toBe(false)
+        D.expect(visibility:SetHidden(MOD_A, true)).toBe(true)
     end)
 end)

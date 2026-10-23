@@ -333,4 +333,5 @@
     <content contentuid="h541de1bd8d8d4be8a188742c9011da27b110" version="1">Mostrar</content>
     <content contentuid="h31b35bbef8544e26b213f5a93c926ecc7865" version="1">Mods escondidos ([1])</content>
     <content contentuid="h0a10978663a7479da0e68f9d87480b3ff65c" version="1">Usar visibilidade padrão</content>
+    <content contentuid="h6a34a2af2d8c47b781dc48d5b9881b61abcd" version="1">Não é possível salvar escolhas do menu, porque MCM_state.json está ilegível ou vem de uma versão mais nova do MCM. O MCM mantém o arquivo inalterado. Repare ou exclua o arquivo e depois recarregue.</content>
 </contentList>

@@ -199,6 +199,7 @@
 --- @field RegisterVar fun(varName:string, options?:MCMStoreRegisterOptions):boolean Register a dynamic variable for persistence
 --- @field Get fun(varNameOrArgs:string|MCMStoreGetArgs, modUUID?:string):StorageValue Get a stored value
 --- @field Set fun(varNameOrArgs:string|MCMStoreSetArgs, value?:StorageValue, modUUID?:string):boolean Set a stored value
+--- @field IsWritable fun(varNameOrArgs:string|MCMStoreGetArgs, modUUID?:string):boolean Check whether a stored value can be saved; false when its JSON file could not be parsed
 --- @field GetAll fun(modUUIDOrArgs?:string|MCMStoreGetAllArgs):table<string, StorageValue> Get all stored values for this mod
 
 --- @class MCMTable Table containing the Mod Configuration Menu (MCM) public API exposed to each mod.
