@@ -107,7 +107,7 @@ MCMAPIImplementations.CLIENT_ONLY_METHODS = {
 ---@field default? any The default value for the variable
 ---@field type? string Optional type hint ("boolean", "number", "string", "table")
 ---@field storage? StorageType Storage backend for this variable. Defaults to "json". Unknown values warn and fall back to "json".
----@field storageConfig? table Optional parameters (Server, Client, Persistent, SyncToClient, etc.)
+---@field storageConfig? StorageConfig Optional parameters (Server, Client, Persistent, SyncToClient, fileName for JSON, etc.)
 ---@field validate? fun(value: unknown): (boolean, string)? Optional validation function
 ---@field modUUID? string Optional mod UUID, defaults to caller mod
 

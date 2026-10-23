@@ -17,6 +17,7 @@
 ---@field SyncOnTick? boolean
 ---@field SyncOnWrite? boolean
 ---@field DontCache? boolean
+---@field fileName? string JSON storage only: file name (no directory parts) in the mod's Store directory. Defaults to dynamic_settings.json.
 
 ---Defines one condition controlling setting visibility.
 ---@class VisibleIfCondition

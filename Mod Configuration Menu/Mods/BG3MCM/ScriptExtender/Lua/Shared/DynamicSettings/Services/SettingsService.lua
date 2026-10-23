@@ -87,7 +87,7 @@ end
 ---@param moduleUUID string The UUID of the module
 ---@param varName string The name of the variable
 ---@param storageType string The type of storage ("ModVar", "ModConfig", "Json", etc.)
----@param definition? table { type=<"boolean"|"number"|"string"|"table">|nil, default=<any>|nil, validate=<fn>|nil, storageConfig=<table>|nil }
+---@param definition? table { type=<"boolean"|"number"|"string"|"table">|nil, default=<any>|nil, validate=<fn>|nil, storageConfig=<StorageConfig>|nil }
 ---@return boolean success True if registered successfully
 function SettingsService.Register(moduleUUID, varName, storageType, definition)
     if not moduleUUID then
@@ -107,6 +107,14 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
 
     definition = definition or {}
 
+    local adapter = AdapterFactory.GetAdapter(storageType)
+
+    -- Register the underlying storage prototype eagerly. This MUST happen now (i.e. when the mod calls MCM.Store.RegisterVar at bootstrap) so SE can restore a ModVar's persisted value BEFORE SessionLoaded.
+    -- A rejected registration (e.g. a conflicting JSON fileName) keeps the first entry; the adapter reports why.
+    if adapter and not adapter:EnsureRegistered(varName, moduleUUID, definition.storageConfig) then
+        return false
+    end
+
     local bucket = getStorageBucket(moduleUUID, storageType)
 
     -- Register the variable entry
@@ -124,15 +132,9 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
     end
     SettingsService.varToStorageType[moduleUUID][varName] = storageType
 
-    local adapter = AdapterFactory.GetAdapter(storageType)
     if not adapter then
         MCMWarn(0, "Register: No adapter found for storage type '%s'", storageType)
         return false
-    end
-
-    -- Register the underlying storage prototype eagerly. This MUST happen now (i.e. when the mod calls MCM.Store.RegisterVar at bootstrap) so SE can restore a ModVar's persisted value BEFORE SessionLoaded.
-    if adapter.EnsureRegistered then
-        adapter:EnsureRegistered(varName, moduleUUID, definition.storageConfig)
     end
 
     -- Seed the default only if no value exists. RunWhenReady lets backends (e.g. ModVar) evaluate AFTER the savegame value is restored, never clobbering it; backends such as JSON run immediately.

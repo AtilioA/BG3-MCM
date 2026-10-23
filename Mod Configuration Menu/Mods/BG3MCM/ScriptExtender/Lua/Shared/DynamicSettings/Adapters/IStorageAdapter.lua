@@ -34,8 +34,11 @@ end
 ---@param key string The key/variable name
 ---@param moduleUUID string The UUID of the module
 ---@param storageConfig? StorageConfig Optional storage-specific configuration (e.g., SE ModVar parameters)
+---@return boolean success False when the registration is rejected
+---@return string? message Reason for a rejection
 function IStorageAdapter:EnsureRegistered(key, moduleUUID, storageConfig)
     -- No registration required by default.
+    return true
 end
 
 --- Run `fn` once this backend can serve real values. Example: "wait for the savegame before restoring values" timing lives here.

@@ -99,6 +99,7 @@ end
 ---@param moduleUUID string The module UUID
 ---@param storageConfig? StorageConfig Optional SE configuration parameters
 ---@param skipBroadcast? boolean Internal use to prevent loops
+---@return boolean success
 function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skipBroadcast)
     -- Initialize tracking for this module if needed
     if not self._registered[moduleUUID] then
@@ -107,7 +108,7 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
 
     -- Skip if already registered
     if self._registered[moduleUUID][varName] then
-        return
+        return true
     end
 
     -- Merge user config with defaults using IStorageAdapter logic
@@ -145,6 +146,8 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
             NetChannels.MCM_ENSURE_MODVAR_REGISTERED:SendToServer(payload)
         end
     end
+
+    return true
 end
 
 --- Internal: Actually perform the GetValue operation (assumes SessionLoaded has fired)
@@ -166,8 +169,7 @@ function ModVarAdapter:_doGetValue(key, moduleUUID, storageConfig)
 end
 
 --- Read a ModVar for this moduleUUID and key. Returns raw Lua value or nil.
---- NOTE: If called before SessionLoaded, returns nil immediately and the actual
---- value will be available via callback if provided.
+--- NOTE: If called before SessionLoaded, returns nil immediately and the actual value will be available via callback if provided.
 ---@param key string The key to read
 ---@param moduleUUID string The UUID of the module
 ---@param storageConfig? StorageConfig Optional SE configuration parameters
