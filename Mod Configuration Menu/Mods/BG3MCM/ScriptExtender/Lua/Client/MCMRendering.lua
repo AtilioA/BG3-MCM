@@ -363,21 +363,20 @@ function MCMRendering:CreateProfileManagementHeader()
     end
 end
 
---- Create the main table and populate it with mod trees
+--- Create the mod list entries and render each mod page once
 ---@return nil
 function MCMRendering:CreateMainTable()
     DualPane.leftPane:AddMenuSeparator(Ext.Loca.GetTranslatedString("h47d091e82e1a475b86bbe31555121a22eca7"))
-    local sortedModKeys = MCMUtils.SortModsByName(self.mods)
-    for _, modUUID in ipairs(sortedModKeys) do
-        local success, err = xpcall(function()
-            local modName = self.mods[modUUID].blueprint:GetModName()
-            local modDescription = VCString:AddNewlinesAfterPeriods(self.mods[modUUID].blueprint:GetModDescription())
-            DualPane.leftPane:CreateMenuButton(modName, modDescription, modUUID)
-            self.mods[modUUID].widgets = {}
-            self:RenderMenuPageContent(modUUID)
-        end, debug.traceback)
-        if not success then
-            MCMWarn(0, "Error processing mod %s: %s", modUUID, err)
+    local createdUUIDs = DualPane.leftPane:RebuildModEntries(self.mods)
+    for _, modUUID in ipairs(MCMUtils.SortModsByName(self.mods)) do
+        if createdUUIDs[modUUID] then
+            local success, err = xpcall(function()
+                self.mods[modUUID].widgets = {}
+                self:RenderMenuPageContent(modUUID)
+            end, debug.traceback)
+            if not success then
+                MCMWarn(0, "Error processing mod %s: %s", modUUID, err)
+            end
         end
     end
     DualPane:SetVisibleFrame(ModuleUUID)
