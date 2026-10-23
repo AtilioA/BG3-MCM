@@ -274,6 +274,13 @@ function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, v
         return false
     end
 
+    -- An unregistered variable has no file on record, so writing would put it in the default file; the payload does not choose placement.
+    if not adapter:IsRegistered(varName, moduleUUID) then
+        MCMWarn(0, "StorageSyncService: ignored synced %s value '%s' for mod %s: the variable is not registered",
+            normalizeStorageType(storageType), varName, moduleUUID)
+        return false
+    end
+
     self:BeginRemoteApply()
     adapter:SetValue(varName, value, moduleUUID, {
         SyncToClient = false,

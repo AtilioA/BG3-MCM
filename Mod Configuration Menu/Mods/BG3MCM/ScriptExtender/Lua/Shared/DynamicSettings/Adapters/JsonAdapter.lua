@@ -180,6 +180,15 @@ function JsonStorageManager:EnsureRegistered(key, moduleUUID, storageConfig)
     return true
 end
 
+--- Whether the variable has a file on record from EnsureRegistered.
+---@param key string
+---@param moduleUUID string
+---@return boolean registered
+function JsonStorageManager:IsRegistered(key, moduleUUID)
+    local byMod = self._fileNames[moduleUUID]
+    return byMod ~= nil and byMod[key] ~= nil
+end
+
 --- Read the raw Lua value
 ---@param key string
 ---@param moduleUUID string

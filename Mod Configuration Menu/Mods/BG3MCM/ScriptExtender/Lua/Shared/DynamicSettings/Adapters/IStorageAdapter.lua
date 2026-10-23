@@ -41,6 +41,15 @@ function IStorageAdapter:EnsureRegistered(key, moduleUUID, storageConfig)
     return true
 end
 
+--- Whether (moduleUUID, key) is registered. Remote sync writes only registered variables.
+--- Default implementation accepts every variable; override it to drop remote values for unregistered variables.
+---@param key string The key/variable name
+---@param moduleUUID string The UUID of the module
+---@return boolean registered
+function IStorageAdapter:IsRegistered(key, moduleUUID)
+    return true
+end
+
 --- Run `fn` once this backend can serve real values. Example: "wait for the savegame before restoring values" timing lives here.
 ---@param fn fun() Callback to run when the adapter is ready
 function IStorageAdapter:RunWhenReady(fn)
