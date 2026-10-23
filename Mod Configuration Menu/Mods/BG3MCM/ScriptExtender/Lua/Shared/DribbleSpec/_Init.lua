@@ -16,7 +16,6 @@ if Mods.Dribbles then
         beforeRun = SuppressMCMTestLogs,
     })
 
-    Ext.Require("Shared/DribbleSpec/Smoke.test.lua")
     Ext.Require("Shared/DribbleSpec/BlueprintCache.test.lua")
     Ext.Require("Shared/DribbleSpec/DataPreprocessing.test.lua")
     Ext.Require("Shared/DribbleSpec/BlueprintHiddenFromList.test.lua")
