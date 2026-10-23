@@ -5,6 +5,7 @@ Baldur's Gate 3 Mod Configuration Menu (`BG3MCM` or MCM) is a mod framework crea
 Most importantly, **it allows authors to have a robust JSON-like configuration experience without spending hours writing a configuration system, and it's easy enough to integrate** that even novice modders can quickly add support for it in their own mods.
 
 This documentation is aimed at mod authors who want to integrate their mods with MCM. If you are a player looking to use MCM to configure mods, please refer to the [Nexus Mods page](https://www.nexusmods.com/baldursgate3/mods/9162 'MCM on Nexus Mods') for instructions. This documentation provides a centralized and thorough guide on the concepts behind MCM, the features it provides to mod authors, and how to integrate MCM into your mod.
+For mod-list visibility, see [Hide and show mod entries](#hide-and-show-mod-entries). Collection curators can [share a mod-list arrangement](#share-a-mod-list-arrangement).
 You can also use the table of contents below to navigate to a desired section.
 **You may also use this [custom GPT](https://chatgpt.com/g/g-69095e14686481918fb288289170e87b-mcmgpt) to ask questions about MCM.**
 
@@ -36,6 +37,8 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
 - [Mod Configuration Menu documentation](#mod-configuration-menu-documentation)
   - [Quick-start guide](#quick-start-guide)
   - [Table of Contents](#table-of-contents)
+  - [Hide and show mod entries](#hide-and-show-mod-entries)
+  - [Share a mod-list arrangement](#share-a-mod-list-arrangement)
   - [Features for mod authors](#features-for-mod-authors)
   - [Concepts](#concepts)
   - [Integrating MCM into your mod](#integrating-mcm-into-your-mod)
@@ -43,6 +46,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [The MCM Schema](#the-mcm-schema)
         - [IDE support](#ide-support)
         - [Schema main components](#schema-main-components)
+      - [HiddenFromList: Default mod-list visibility](#hiddenfromlist-default-mod-list-visibility)
       - [VisibleIf: Conditional visibility](#visibleif-conditional-visibility)
     - [Widget reference](#widget-reference)
       - [int](#int)
@@ -68,6 +72,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
       - [Enum API](#enum-api)
       - [List API](#list-api)
       - [Store API](#store-api)
+        - [Choose a JSON Store file](#choose-a-json-store-file)
       - [Window and tab APIs](#window-and-tab-apis)
       - [Deprecated Functions](#deprecated-functions)
       - [Table-based arguments](#table-based-arguments)
@@ -89,6 +94,55 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
     - [Example usage](#example-usage)
   - [MCM (1.23) integration showcase/demo](#mcm-123-integration-showcasedemo)
   - [Closing words](#closing-words)
+
+## Hide and show mod entries
+
+Right-click a mod entry in MCM's left pane and select **Hide** to move it out of the main mod list. **Hidden mods** appears at the bottom with a count, such as **Hidden mods (3)**. Expand the group to open a hidden mod's page. Right-click its entry and select **Show** to return it to the main list.
+
+Hidden mods stay active. Their settings still apply, their keybindings keep working, and the Hotkeys page still lists their keybindings. You can hide MCM's own mod entry too. Tools such as Hotkeys have no Hide action.
+
+Right-clicking an entry opens its menu without opening that mod's page. If you hide the mod whose page is open, the page stays open. Hidden entries use the same name order as the main list.
+
+The group keeps its expanded or collapsed state when MCM rebuilds the navigation after a visibility change. Hiding a mod does not expand the group. Each newly built MCM window starts with the group collapsed; MCM does not save its expansion state.
+
+MCM omits the group when nothing is hidden. The count includes only mod entries in your current load order. MCM keeps choices for uninstalled mods, so reinstalling them restores their visibility.
+
+After you save a Hide or Show choice, the entry's right-click menu also offers **Use default visibility**. Select it to remove your saved choice and follow the [author's default](#hiddenfromlist-default-mod-list-visibility) again. This action appears only while an explicit choice exists, including a choice supplied by a collection.
+
+Hide, Show, and Use default visibility are mouse-only actions. With a controller, you can still expand Hidden mods and open its entries through native controller navigation.
+
+MCM saves your choices automatically for your local installation. They stay the same across gameplay profiles and do not sync with multiplayer hosts or other players. To copy an arrangement to another installation, see [Share a mod-list arrangement](#share-a-mod-list-arrangement).
+
+## Share a mod-list arrangement
+
+Collection curators can arrange the list with [Hide and Show](#hide-and-show-mod-entries), then copy the saved `MCM_state.json` into their distribution. MCM saves this exact file automatically; no export step is needed. Mod authors can use the same process to share an arrangement, or set their own entry's [blueprint default](#hiddenfromlist-default-mod-list-visibility).
+
+The file lives in MCM's own Store directory:
+
+```text
+%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Script Extender\BG3MCM\Profiles\Default\BG3MCM\MCM_state.json
+```
+
+Install the file at that same path on the receiving installation. The `Default` path segment is fixed, even when another gameplay profile is active. This is local, installation-wide UI state, independent of gameplay profiles and multiplayer synchronization.
+
+The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
+
+```json
+{
+  "Version": 1,
+  "UI": {
+    "Mods": {
+      "01234567-89ab-cdef-0123-456789abcdef": {
+        "HiddenFromList": true
+      }
+    }
+  }
+}
+```
+
+`Version` identifies the document format. In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The group's expansion state is not part of this document.
+
+The recipient can change the arrangement through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
 
 ## Features for mod authors
 
@@ -246,6 +300,37 @@ Future versions of MCM might make this structure less strict, allowing nesting t
 {.is-info}
 
 </details>
+
+#### HiddenFromList: Default mod-list visibility
+
+Set the optional top-level boolean `HiddenFromList` in `MCM_blueprint.json` to choose the starting location of your mod's entry. It defaults to `false` (visible). Use `true` for entries players rarely open, such as libraries with debug settings. Place it alongside top-level fields such as `ModName` and `KeybindingSortMode`, rather than inside a tab or setting:
+
+```json
+{
+  "SchemaVersion": 1,
+  "ModName": "Example Library",
+  "HiddenFromList": true,
+  "Settings": [
+    {
+      "Id": "debug_logging",
+      "Name": "Debug logging",
+      "Type": "checkbox",
+      "Default": false,
+      "Tooltip": "Log extra information for troubleshooting."
+    }
+  ]
+}
+```
+
+MCM resolves mod-list visibility in this order:
+
+1. **Player choice:** An explicit Hide (`true`) or Show (`false`) takes precedence, including choices supplied by a collection.
+2. **Author default:** Without a player choice, MCM uses the blueprint's `HiddenFromList` value.
+3. **Visible fallback:** Without an author default, MCM shows the entry in the main list.
+
+Players who have no explicit choice follow updated author defaults on the next load. An explicit Show keeps an entry visible even if its author changes the default to hidden. [Use default visibility](#hide-and-show-mod-entries) removes the override instead of copying the current default into the saved state.
+
+This field only changes the entry's location in MCM. Settings and keybindings continue to work. For distribution of choices across multiple mods, see [Share a mod-list arrangement](#share-a-mod-list-arrangement).
 
 #### VisibleIf: Conditional visibility
 
@@ -597,7 +682,7 @@ The Store API allows mods to persist custom key-value data independently of the 
 The JSON storage allows saving values to JSON files without needing to define a blueprint. This is useful for storing save-independent data like user preferences and cache state.
 
 > • **JSON storage is the default**, making Store values global across save files unless `storage = "modvar"` is specified. `modvar` is still a WIP.
-> • Both backends support a `storageConfig` table using the exact same parameters as BG3SE native ModVars (`Client`, `Server`, `SyncToClient`, `SyncToServer`, `Persistent`, `WriteableOnClient`, `WriteableOnServer`).
+> • Both backends support a `storageConfig` table with BG3SE ModVar parameters (`Client`, `Server`, `SyncToClient`, `SyncToServer`, `Persistent`, `WriteableOnClient`, `WriteableOnServer`).
 > • For JSON storage, `SyncToClient` defaults to `true` and `SyncToServer` defaults to `false`. For example, explicitly set `SyncToServer = true` in your `storageConfig` if client-side modifications need to propagate back to the server during the same live session.
 > • The Store API is type-safe and supports custom validation.
 {.is-info}
@@ -643,6 +728,33 @@ MCM.Store.Set("difficulty_level", difficulty + 1)
 ```
 
 </details>
+
+##### Choose a JSON Store file
+
+For JSON storage, set `storageConfig.fileName` when registering a variable to choose its file inside your mod's existing Store directory. Use a filename only, such as `preferences.json`, with no directory parts or path separators. Omitting `fileName` uses `dynamic_settings.json`.
+
+```lua
+MCM.Store.RegisterVar("menu_preferences", {
+    type = "table",
+    default = {},
+    storage = "json",
+    storageConfig = {
+        fileName = "preferences.json"
+    }
+})
+
+-- Get and Set still use the variable name, without a filename.
+local preferences = MCM.Store.Get("menu_preferences")
+MCM.Store.Set("menu_preferences", { compact = true })
+```
+
+The Store directory is `Script Extender/BG3MCM/Profiles/Default/<your mod directory>/`, under `%LOCALAPPDATA%/Larian Studios/Baldur's Gate 3/`. The mod directory comes from your mod's `meta.lsx` Folder attribute. Choosing a filename changes placement within this directory. Variable names remain unique per mod across filenames; filenames do not create separate namespaces.
+
+Re-registering a variable with the same file placement is allowed. A conflicting registration with a different filename reports an error and returns `false`, keeping the original registration and file placement. `MCM.Store.Get` and `MCM.Store.Set` keep the same arguments and use the registered placement.
+
+Register JSON variables on each receiving side before synchronized values arrive. MCM drops a remote JSON value for an unregistered variable with a warning, before writing or relaying it. It does not replay that value after a later registration. Ordinary ModVar behavior is unchanged.
+
+MCM uses this filename option for its own [MCM state document](#share-a-mod-list-arrangement).
 
 #### Window and tab APIs
 
