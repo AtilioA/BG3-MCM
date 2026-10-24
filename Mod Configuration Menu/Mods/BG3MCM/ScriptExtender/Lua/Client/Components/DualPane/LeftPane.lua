@@ -85,6 +85,8 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
         -- Same frame as MCM tooltips, so both popovers read as one family
         self.modEntryMenu = self.parent:AddPopup("MCM_ModEntryMenu")
         self.modEntryMenu:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
+        -- The popup inherits the sidebar's auto-collapse fade, so keep it fully opaque
+        self.modEntryMenu:SetStyle("Alpha", 1)
         self.modEntryMenu:SetStyle("PopupBorderSize", 2)
         self.modEntryMenu:SetStyle("WindowPadding", 12, 10)
         self.modEntryMenu:SetStyle("ItemSpacing", 8, 6)
