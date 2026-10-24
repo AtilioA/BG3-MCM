@@ -219,6 +219,46 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         })
     end)
 
+    D.test("TestSaveAndReloadSettingsForModRestoresSavedValues", { tags = { "destructive" } }, function(ctx)
+        local modUUID = ModuleUUID
+        local settingId = "save-reload-checkbox"
+        local blueprint = Blueprint:New({
+            ModUUID = modUUID,
+            SchemaVersion = 1,
+            Settings = {
+                { Id = settingId, Type = "checkbox", Default = true },
+            },
+        })
+        local context = Ext.IsServer() and "server" or "client"
+        local directory = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+        local path = directory .. "/DribbleSpec/save-reload-" .. context .. ".json"
+        local previousContent = Ext.IO.LoadFile(path)
+        local originalMods = ModConfig.mods
+        local savedData
+        local reloadedValue
+        ModConfig.mods = {
+            [modUUID] = { blueprint = blueprint, settingsValues = { [settingId] = false } },
+        }
+        ctx.stub(ModConfig, "GetSettingsFilePath", function()
+            return path
+        end)
+
+        local ok, err = pcall(function()
+            ModConfig:SaveSettingsForMod(modUUID)
+            savedData = Ext.Json.Parse(Ext.IO.LoadFile(path))
+            ModConfig.mods[modUUID].settingsValues = { [settingId] = true }
+            ModConfig:LoadSettingsForMod(modUUID, blueprint)
+            reloadedValue = ModConfig.mods[modUUID].settingsValues[settingId]
+        end)
+        ModConfig.mods = originalMods
+        local restored, restoreError = pcall(Ext.IO.SaveFile, path, previousContent or "")
+        if not ok then error(err) end
+        if not restored then error(restoreError) end
+
+        D.expect(savedData).toEqual({ [settingId] = false })
+        D.expect(reloadedValue).toBe(false)
+    end)
+
     D.test("TestLoadedSettingsRepairShouldFlattenMigrateAndValidate", function()
         local modUUID = TestConstants.ModuleUUIDs[1]
         local blueprint = Blueprint:New({
@@ -250,6 +290,7 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
 
         D.expect(repaired["list-v2-setting"].enabled).toBe(true)
         D.expect(repaired["list-v2-setting"].elements[1].name).toBe("Alpha")
+        D.expect(repaired["list-v2-setting"].elements[2].name).toBe("Beta")
         D.expect(repaired["int-setting"]).toBe(42)
     end)
 

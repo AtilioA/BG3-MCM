@@ -1,10 +1,15 @@
 -- Covers MCM.Store JSON placement via storageConfig.fileName (ADR 0002).
--- Ext.IO cannot delete files; tests clear their keys so the fixture file holds no values afterwards.
+-- Ext.IO cannot delete files; these tests restore the fixture files' prior bytes after each test.
 
 -- Both contexts share disk, but each JSON handler saves its own complete in-memory copy.
+local DEFAULT_FILE_NAME = "dynamic_settings.json"
 local CONTEXT = Ext.IsServer() and "server" or "client"
 local TEST_FILE_NAME = "mcm_dribblespec_store_file_" .. CONTEXT .. ".json"
 local OTHER_FILE_NAME = "mcm_dribblespec_store_other_" .. CONTEXT .. ".json"
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
 
 --- Path of a file in MCM's own Store directory, as documented for storageConfig.fileName.
 ---@param fileName string
@@ -26,16 +31,36 @@ local function ReadStoreFile(fileName)
 end
 
 D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, function()
+    local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
+
+    D.beforeEach(function()
+        syncStateFixture:Isolate()
+        syncStateFixture:RememberFile(StoreFilePath(DEFAULT_FILE_NAME))
+    end)
+
+    D.afterEach(function()
+        syncStateFixture:Restore()
+    end)
+
+    local function registerFixtureVar(varName, options)
+        return MCM.Store.RegisterVar(varName, options)
+    end
+
+    local function rememberFile(fileName)
+        syncStateFixture:RememberFile(StoreFilePath(fileName))
+    end
+
     D.test("TestStoreFileNameRoundTripsThroughNamedFile", function()
         local varName = "dribblespec_store_file_round_trip_" .. CONTEXT
-        D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME } })).toBe(true)
+        D.expect(registerFixtureVar(varName, {
+            storageConfig = { fileName = TEST_FILE_NAME, SyncToClient = false, SyncToServer = false },
+        })).toBe(true)
 
+        rememberFile(TEST_FILE_NAME)
         MCM.Store.Set(varName, "stored-value")
         local namedFileValue = ReadStoreFile(TEST_FILE_NAME)[varName]
         local defaultFileValue = ReadStoreFile("dynamic_settings.json")[varName]
         local storedValue = MCM.Store.Get(varName)
-
-        MCM.Store.Set(varName, nil)
 
         D.expect(storedValue).toBe("stored-value")
         D.expect(namedFileValue).toBe("stored-value")
@@ -44,24 +69,30 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, 
 
     D.test("TestStoreFileNameConflictKeepsFirstFile", function()
         local varName = "dribblespec_store_file_conflict_" .. CONTEXT
-        D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME } })).toBe(true)
-        D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME } })).toBe(true)
-        D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = OTHER_FILE_NAME } })).toBe(false)
+        D.expect(registerFixtureVar(varName, {
+            storageConfig = { fileName = TEST_FILE_NAME, SyncToClient = false, SyncToServer = false },
+        })).toBe(true)
+        D.expect(registerFixtureVar(varName, {
+            storageConfig = { fileName = TEST_FILE_NAME, SyncToClient = false, SyncToServer = false },
+        })).toBe(true)
+        D.expect(registerFixtureVar(varName, {
+            storageConfig = { fileName = OTHER_FILE_NAME, SyncToClient = false, SyncToServer = false },
+        })).toBe(false)
 
+        rememberFile(TEST_FILE_NAME)
+        rememberFile(OTHER_FILE_NAME)
         MCM.Store.Set(varName, 7)
         local namedFileValue = ReadStoreFile(TEST_FILE_NAME)[varName]
         local otherFileValue = ReadStoreFile(OTHER_FILE_NAME)[varName]
-
-        MCM.Store.Set(varName, nil)
 
         D.expect(namedFileValue).toBe(7)
         D.expect(otherFileValue).toBeNil()
     end)
 
     D.test("TestStoreFileNameRejectsDirectoryParts", function()
-        D.expect(MCM.Store.RegisterVar("dribblespec_store_file_path_" .. CONTEXT,
+        D.expect(registerFixtureVar("dribblespec_store_file_path_" .. CONTEXT,
             { storageConfig = { fileName = "sub/" .. TEST_FILE_NAME } })).toBe(false)
-        D.expect(MCM.Store.RegisterVar("dribblespec_store_file_path_" .. CONTEXT,
+        D.expect(registerFixtureVar("dribblespec_store_file_path_" .. CONTEXT,
             { storageConfig = { fileName = "..\\" .. TEST_FILE_NAME } })).toBe(false)
     end)
 end)

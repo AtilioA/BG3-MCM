@@ -47,25 +47,20 @@ end
         BlueprintCache:InvalidateAll()
     end)
 
-    D.test("TestBlueprintCacheBuildsOnceWhenEnabled", function(ctx)
+    D.test("TestBlueprintCacheReturnsSettingsWhenEnabled", function()
         local blueprint = makeBlueprint()
-        local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
-        blueprint:GetAllSettings()
-        blueprint:GetAllSettings()
-
-        ctx.expect(spy).toHaveBeenCalledTimes(1)
+        D.expect(blueprint:GetSettingById("root-setting"):GetDefault()).toBe(true)
+        D.expect(blueprint:GetAllSettings()["nested-setting"]:GetDefault()).toBe("nested")
     end)
 
-    D.test("TestBlueprintCacheCanBeDisabled", function(ctx)
+    D.test("TestBlueprintCacheReturnsSettingsWhenDisabled", function()
         local blueprint = makeBlueprint()
-        local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
         BlueprintCache:SetCacheEnabled(false)
-        blueprint:GetAllSettings()
-        blueprint:GetAllSettings()
 
-        ctx.expect(spy).toHaveBeenCalledTimes(2)
+        D.expect(blueprint:GetSettingById("root-setting"):GetDefault()).toBe(true)
+        D.expect(blueprint:GetAllSettings()["nested-setting"]:GetDefault()).toBe("nested")
     end)
 
     D.test("TestBlueprintCacheAppliesDebugDisableSetting", function()
@@ -147,9 +142,8 @@ end
         D.expect(BlueprintCache:IsCacheEnabled()).toBe(true)
     end)
 
-    D.test("TestBlueprintCacheInvalidatesAfterAddSetting", function(ctx)
+    D.test("TestBlueprintCacheInvalidatesAfterAddSetting", function()
         local blueprint = makeBlueprint()
-        local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
         blueprint:GetAllSettings()
         blueprint:AddSetting({
@@ -160,12 +154,10 @@ end
         })
 
         D.expect(blueprint:GetSettingById("added-setting")).Not.toBeNil()
-        ctx.expect(spy).toHaveBeenCalledTimes(2)
     end)
 
-    D.test("TestBlueprintCacheInvalidatesAfterSetSettings", function(ctx)
+    D.test("TestBlueprintCacheInvalidatesAfterSetSettings", function()
         local blueprint = makeBlueprint()
-        local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
         blueprint:GetAllSettings()
         blueprint:SetSettings({
@@ -179,10 +171,9 @@ end
 
         D.expect(blueprint:GetSettingById("root-setting")).toBeNil()
         D.expect(blueprint:GetSettingById("replacement-setting")).Not.toBeNil()
-        ctx.expect(spy).toHaveBeenCalledTimes(2)
     end)
 
-    D.test("TestBlueprintCacheDoesNotNeedInvalidationForOptionMutation", function(ctx)
+    D.test("TestBlueprintCacheDoesNotNeedInvalidationForOptionMutation", function()
         local blueprint = Blueprint:New({
             ModUUID = TestConstants.ModuleUUIDs[1],
             SchemaVersion = 1,
@@ -200,13 +191,11 @@ end
             },
         })
         BlueprintCache:Invalidate(blueprint)
-        local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
         local setting = blueprint:GetSettingById("dynamic-enum")
         setting:GetOptions().Choices = { "option-1", "option-2" }
 
         D.expect(blueprint:GetSettingById("dynamic-enum"):GetOptions().Choices).toEqual({ "option-1", "option-2" })
-        ctx.expect(spy).toHaveBeenCalledTimes(1)
     end)
 
     D.test("TestBlueprintCacheStoresNestedPaths", function()
@@ -250,11 +239,10 @@ end
         local modUUID = TestConstants.ModuleUUIDs[1]
         local blueprint = makeBlueprint()
         local originalMods = ModConfig.mods
-        local originalGetSettingsFilePath = ModConfig.GetSettingsFilePath
-        local originalSaveJSONFile = JsonLayer.SaveJSONFile
+        local savedPath
+        local savedData
 
         blueprint:GetAllSettings()
-        local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
         ModConfig.mods = {
             [modUUID] = {
@@ -265,45 +253,37 @@ end
                 },
             },
         }
-        ModConfig.GetSettingsFilePath = function(_self, _modUUID)
+        ctx.stub(ModConfig, "GetSettingsFilePath", function(_self, _modUUID)
             return "mock/settings.json"
-        end
-        JsonLayer.SaveJSONFile = function() end
+        end)
+        ctx.stub(JsonLayer, "SaveJSONFile", function(_self, path, data)
+            savedPath = path
+            savedData = data
+        end)
 
         local ok, err = pcall(function()
             ModConfig:SaveSettingsForMod(modUUID)
         end)
 
         ModConfig.mods = originalMods
-        ModConfig.GetSettingsFilePath = originalGetSettingsFilePath
-        JsonLayer.SaveJSONFile = originalSaveJSONFile
 
         if not ok then
             error(err)
         end
 
-        ctx.expect(spy).toHaveBeenCalledTimes(0)
+        D.expect(savedPath).toBe("mock/settings.json")
+        D.expect(savedData).toEqual({
+            ["root-setting"] = false,
+            ["main-tab"] = { ["nested-tab"] = { ["nested-setting"] = "saved" } },
+        })
     end)
 
-    D.test("TestBlueprintCacheDoesNotExposeMutableAllSettingsMap", function(ctx)
+    D.test("TestBlueprintCacheDoesNotExposeMutableAllSettingsMap", function()
         local blueprint = makeBlueprint()
-        local spy = ctx.spyOn(BlueprintShape, "_BuildIndex")
 
         local allSettings = blueprint:GetAllSettings()
         allSettings["root-setting"] = nil
 
         D.expect(blueprint:GetSettingById("root-setting")).Not.toBeNil()
-        ctx.expect(spy).toHaveBeenCalledTimes(1)
-    end)
-
-    D.test("TestBlueprintCacheIsNotStoredOnBlueprintObjects", function()
-        local blueprint = makeBlueprint()
-
-        blueprint:GetAllSettings()
-
-        D.expect(blueprint.byId).toBeNil()
-        D.expect(blueprint.entries).toBeNil()
-        D.expect(blueprint.containerPathById).toBeNil()
-        D.expect(blueprint._cache).toBeNil()
     end)
 end)

@@ -102,7 +102,7 @@ local function deepCopyStores(stores)
         for moduleUUID, vars in pairs(mods or {}) do
             copy[storageType][moduleUUID] = {}
             for varName, value in pairs(vars or {}) do
-                copy[storageType][moduleUUID][varName] = value
+                copy[storageType][moduleUUID][varName] = table.deepcopy(value)
             end
         end
     end
@@ -166,7 +166,11 @@ function StorageSyncService:GetCachedValue(storageType, moduleUUID, varName)
     local normalizedStorageType = normalizeStorageType(storageType)
     local byStorage = self._cache[normalizedStorageType]
     local byMod = byStorage and byStorage[moduleUUID]
-    return byMod and byMod[varName] or nil
+    if byMod then
+        return byMod[varName]
+    end
+
+    return nil
 end
 
 function StorageSyncService:BeginRemoteApply()

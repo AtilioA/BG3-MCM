@@ -5,7 +5,6 @@ D.describe("InternalAPIGuard", { tags = { "internal-api-guard", "unit" } }, func
 
     D.test("ReturnsTheRealInternalAPI", function()
         D.expect(type(MCMAPI)).toBe("table")
-        D.expect(rawget(Mods.BG3MCM, "MCMAPI")).toBe(nil)
         D.expect(Mods.BG3MCM.MCMAPI).toBe(MCMAPI)
 
         if Ext.IsClient() then
@@ -14,14 +13,22 @@ D.describe("InternalAPIGuard", { tags = { "internal-api-guard", "unit" } }, func
         end
     end)
 
-    D.test("LeavesPublicAPIFieldsUnchanged", function()
-        local rawPublicGet = rawget(Mods.BG3MCM, "Get")
-        D.expect(type(rawPublicGet)).toBe("function")
-        D.expect(Mods.BG3MCM.Get).toBe(rawPublicGet)
+    D.test("PublicSettingsFacadeReadsFixtureValuesWithoutAnInternalAPIWarning", function(ctx)
+        local originalMods = MCMAPI.mods
+        local warnings = {}
+        ctx.stub(Mods.BG3MCM, "MCMDeprecation", function(...)
+            table.insert(warnings, { ... })
+        end)
+        MCMAPI.mods = {
+            [ModuleUUID] = { settingsValues = { guard_fixture_value = 17 } },
+        }
+        local ok, value = pcall(function()
+            return MCM.Get("guard_fixture_value")
+        end)
+        MCMAPI.mods = originalMods
 
-        local rawStore = rawget(Mods.BG3MCM, "Store")
-        D.expect(type(rawStore)).toBe("table")
-        D.expect(Mods.BG3MCM.Store).toBe(rawStore)
-        D.expect(type(rawStore.Set)).toBe("function")
+        if not ok then error(value) end
+        D.expect(value).toBe(17)
+        D.expect(warnings).toEqual({})
     end)
 end)

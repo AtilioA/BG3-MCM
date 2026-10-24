@@ -1,3 +1,5 @@
+local TableInjector = Ext.Require("Shared/Helpers/MCM/GlobalTable/TableInjector.lua")
+
 D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
     local function CreateDynamicEnumBlueprint(defaultValue, currentValue)
         local modUUID = TestConstants.ModuleUUIDs[1]
@@ -98,12 +100,10 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         local originalModConfigMods = ModConfig.mods
         local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
         local originalEmit = ModEventManager.Emit
-        local setSettingValueCalled = false
 
         MCMAPI.mods = mods
         ModConfig.mods = {}
         ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
-            setSettingValueCalled = true
             self.mods = self.mods or {}
             self.mods[targetModUUID] = self.mods[targetModUUID] or {}
             self.mods[targetModUUID].settingsValues = settings
@@ -125,7 +125,74 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
 
         D.expect(blueprint:GetAllSettings()["dynamic-enum"]:GetOptions().Choices).toEqual({ "option-1", "option-2" })
         D.expect(mods[modUUID].settingsValues["dynamic-enum"]).toBe("option-1")
-        D.expect(setSettingValueCalled).toBe(false)
+    end)
+
+    D.test("TestPublicFacadeSetReadsBackAndDeliversSavedEvent", function(ctx)
+        ctx.requireClient()
+
+        local modUUID = TestConstants.ModuleUUIDs[1]
+        local settingId = "public-facade-checkbox"
+        local blueprint = Blueprint:New({
+            ModUUID = modUUID,
+            SchemaVersion = 1,
+            Settings = {
+                BlueprintSetting:New({
+                    Id = settingId,
+                    Name = "Public facade checkbox",
+                    Type = "checkbox",
+                    Default = true,
+                }),
+            },
+        })
+        local mod = {
+            blueprint = blueprint,
+            settingsValues = { [settingId] = true },
+        }
+        local originalMods = MCMAPI.mods
+        local originalModConfigMods = ModConfig.mods
+        local receivedEvents = {}
+        local subscriptionIndex
+        local initialValue
+        local setResult
+        local readbackValue
+        local facadeTable = {}
+        local publicMCM
+
+        local ok, err = pcall(function()
+            MCMAPI.mods = { [modUUID] = mod }
+            ModConfig.mods = { [modUUID] = mod }
+            ctx.stub(MCMProxy, "IsMainMenu", function() return true end)
+            ctx.stub(ModConfig, "SaveSettingsForMod", function() end)
+            subscriptionIndex = ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(eventData)
+                table.insert(receivedEvents, eventData)
+            end)
+            publicMCM = TableInjector.injectSharedMCMTable(facadeTable, modUUID)
+
+            initialValue = publicMCM.Get(settingId)
+            setResult = publicMCM.Set({
+                settingId = settingId,
+                value = false,
+                shouldEmitEvent = true,
+            })
+            readbackValue = publicMCM.Get(settingId)
+        end)
+
+        if subscriptionIndex then
+            pcall(ModEventManager.Unsubscribe, ModEventManager, EventChannels.MCM_SETTING_SAVED, subscriptionIndex)
+        end
+        MCMAPI.mods = originalMods
+        ModConfig.mods = originalModConfigMods
+
+        if not ok then
+            error(err)
+        end
+
+        D.expect(initialValue).toBe(true)
+        D.expect(setResult).toBe(true)
+        D.expect(readbackValue).toBe(false)
+        D.expect(receivedEvents).toEqual({
+            { modUUID = modUUID, settingId = settingId, value = false, oldValue = true },
+        })
     end)
 
     D.test("TestSameSettingIdIsScopedPerMod", function()
