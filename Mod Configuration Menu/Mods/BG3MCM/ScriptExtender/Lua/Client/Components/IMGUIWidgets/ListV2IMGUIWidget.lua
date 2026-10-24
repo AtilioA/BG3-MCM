@@ -696,12 +696,10 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
         self:ApplyDisabledStyle(addButton)
     end
 
-    -- Add Collapsible Header for suggestions/search results
-    if not self.Widget.SearchResultsGroup then
-        self.Widget.SearchResultsGroup = inputGroup:AddGroup("SearchResultsGroup_" .. self.Widget.Setting.Id)
-        self.Widget.SearchResultsGroup.IDContext = self.Widget.ModUUID ..
-            "_SearchResultsGroup_" .. self.Widget.Setting.Id
-    end
+    -- Recreate the search results group: Refresh() destroys the previous one with the rest of InputGroup
+    self.Widget.SearchResultsGroup = inputGroup:AddGroup("SearchResultsGroup_" .. self.Widget.Setting.Id)
+    self.Widget.SearchResultsGroup.IDContext = self.Widget.ModUUID ..
+        "_SearchResultsGroup_" .. self.Widget.Setting.Id
 
     self:RenderSearchResults()
 end
@@ -1084,9 +1082,6 @@ function ListV2IMGUIWidget:RenderSearchResults()
     if not self.Widget.SearchResults or #self.Widget.SearchResults == 0 then
         return
     end
-
-    self.Widget.SearchResultsGroup = self.Widget.InputGroup:AddGroup("SearchResultsGroup_" .. self.Widget.Setting.Id)
-
 
     local searchResultsGroup = self.Widget.SearchResultsGroup
     -- Add "suggestions" collapsing header
