@@ -221,7 +221,7 @@ function Noesis:MonitorMainMenuButtonPress()
             local mainMenuButton = Noesis:FindMCMMainMenuButton(isController)
             if not mainMenuButton then
                 MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
-                return false
+                return
             end
             if hideButton then
                 mainMenuButton:SetProperty("Visibility", "Collapsed")

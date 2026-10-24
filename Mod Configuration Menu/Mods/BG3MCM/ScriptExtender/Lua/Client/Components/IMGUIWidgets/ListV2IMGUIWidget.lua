@@ -238,16 +238,14 @@ function ListV2IMGUIWidget:CreateTable(tableGroup)
         imguiTable:SetColor("TableRowBgAlt", Color.NormalizedRGBA(133, 74, 38, 0.15))
     end
 
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7268106aaf6f4d1d90f279554082e1faedbd"), "WidthFixed",
-        IMGUIWidget:GetIconSizes()[1])
+    -- Auto-fit action columns to their labels and controls instead of a single icon.
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7268106aaf6f4d1d90f279554082e1faedbd"), "WidthFixed")
     if self.Widget.AllowReordering then
-        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7b51e015aaa54af789c1ee0c3fbfa48eabb5"), "WidthFixed",
-            IMGUIWidget:GetIconSizes()[1])
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h7b51e015aaa54af789c1ee0c3fbfa48eabb5"), "WidthFixed")
     end
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"), "WidthStretch")
     if not self.Widget.ReadOnly then
-        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0"), "WidthFixed",
-            IMGUIWidget:GetIconSizes()[1])
+        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0"), "WidthFixed")
     end
 
     if not self.Widget.Enabled then
@@ -262,6 +260,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:AddTableHeader(imguiTable)
     local headerRow = imguiTable:AddRow()
+    headerRow.TextWrapPos = -1
     headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h7268106aaf6f4d1d90f279554082e1faedbd"))
     if self.Widget.AllowReordering then
         headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h7b51e015aaa54af789c1ee0c3fbfa48eabb5"))
@@ -719,8 +718,7 @@ function ListV2IMGUIWidget:CreateSearchResultsTable(parentGroup)
     end
 
     imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"), "WidthStretch")
-    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"), "WidthFixed",
-        IMGUIWidget:GetIconSizes()[1])
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"), "WidthFixed")
 
     return imguiTable
 end
@@ -730,6 +728,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:AddSearchResultsTableHeader(imguiTable)
     local headerRow = imguiTable:AddRow()
+    headerRow.TextWrapPos = -1
     headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h917591f3d3984b62a13f0c6cd6a8d2710de6"))
     headerRow:AddCell():AddText(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"))
 end
