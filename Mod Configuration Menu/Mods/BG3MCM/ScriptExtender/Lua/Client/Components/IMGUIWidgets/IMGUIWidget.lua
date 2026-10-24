@@ -29,9 +29,6 @@ end
 ---@return vec2 - A table containing the icon sizes, e.g. { 32, 32 }
 function IMGUIWidget:GetIconSizes(multiplier)
     multiplier = multiplier or 1
-    local viewportSize = Ext.IMGUI.GetViewportSize()
-    local baseIconSize = self:EstimateIconSize(viewportSize[2])
-
     -- Calculate font size scaling
     local fontSizeScaling = 1.0
     local currentFontSize = MCMClientState:GetMCMFontSize()
@@ -73,20 +70,21 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
     -- That prohibits knowing class details before rendering. This is a workaround to avoid a major refactoring.
     local options = setting:GetOptions()
     local settingType = setting:GetType()
+    local title
     if settingType == "checkbox" then
         -- Only create normal title if InlineTitle is explicitly false
         if options and options.InlineTitle == false then
-            self:CreateTitle(group, widgetName)
+            title = self:CreateTitle(group, widgetName)
         end
     elseif settingType == "event_button" then
         -- For event_button, avoid duplicate text: if neither Label nor Icon are provided, do not create a separate title.
         local hasLabel = EventButtonIMGUIWidget:HasLabel(setting)
         local hasIcon = EventButtonIMGUIWidget:HasIcon(setting)
         if hasLabel or hasIcon then
-            self:CreateTitle(group, widgetName)
+            title = self:CreateTitle(group, widgetName)
         end
     else
-        self:CreateTitle(group, widgetName)
+        title = self:CreateTitle(group, widgetName)
     end
 
     local widget = widgetClass:new(group, setting, initialValue, modUUID)
@@ -133,7 +131,8 @@ function IMGUIWidget:Create(group, setting, initialValue, modUUID, widgetClass)
         self:AddResetButton(group, setting, modUUID)
     end
 
-    self:InitializeWidget(widget, group, setting)
+    local description = self:InitializeWidget(widget, group, setting)
+    self:BindTitleHover(group, title or (widget.UserData and widget.UserData.LabelWidget), description)
 
     -- Now intercept OnChange handlers if needed
     -- We do this after initialization because some widgets might set up their OnChange handlers during initialization
@@ -272,7 +271,26 @@ function IMGUIWidget:InitializeWidget(widget, group, setting)
         self:SetupTooltip(widget.Widget, setting)
     end
 
-    self:SetupDescription(widget.Widget, group, setting)
+    return self:SetupDescription(widget.Widget, group, setting)
+end
+
+--- Brighten the title and description while the setting group is hovered
+---@param group ExtuiGroup
+---@param title ExtuiText|nil
+---@param description ExtuiText|nil
+function IMGUIWidget:BindTitleHover(group, title, description)
+    if not title and not description then return end
+    local onEnter, onLeave = group.OnHoverEnter, group.OnHoverLeave
+    group.OnHoverEnter = function(...)
+        if title then IMGUIHelpers:ApplyTextStyle(title, "SettingTitleHovered") end
+        if description then IMGUIHelpers:ApplyTextStyle(description, "SettingDescriptionHovered") end
+        if onEnter then onEnter(...) end
+    end
+    group.OnHoverLeave = function(...)
+        if title then IMGUIHelpers:ApplyTextStyle(title, "SettingTitle") end
+        if description then IMGUIHelpers:ApplyTextStyle(description, "SettingDescription") end
+        if onLeave then onLeave(...) end
+    end
 end
 
 --- Add a reset button to the widget
@@ -331,7 +349,7 @@ end
 ---@param widget ExtuiStyledRenderable
 ---@param group ExtuiGroup
 ---@param setting BlueprintSetting
----@return nil
+---@return ExtuiText|nil
 function IMGUIWidget:SetupDescription(widget, group, setting)
     if not setting:GetDescription() or setting:GetDescription() == "" then
         MCMDebug(2, "No description found for setting: %s", setting:GetId())
@@ -359,6 +377,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
     addedDescription.IDContext = group.IDContext .. "_Description"
 
     IMGUIHelpers:ApplyTextStyle(addedDescription, "SettingDescription")
+    return addedDescription
 end
 
 --- Applies a disabled style to an IMGUI element

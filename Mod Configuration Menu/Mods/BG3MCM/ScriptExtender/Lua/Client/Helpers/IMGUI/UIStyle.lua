@@ -68,8 +68,10 @@ UIStyle.Colors = {
 UIStyle.Colors["Border"] = UIStyle.Colors["ScrollbarGrab"]
 
 UIStyle.TextStyles = {
-    ["SettingTitle"] = Color.NormalizedRGBA(250, 240, 220, 1.0),
-    ["SettingDescription"] = Color.NormalizedRGBA(190, 170, 150, 1.0),
+    ["SettingTitle"] = Color.NormalizedRGBA(250, 240, 220, 0.9),
+    ["SettingTitleHovered"] = Color.NormalizedRGBA(255, 250, 240, 1.0),
+    ["SettingDescription"] = Color.NormalizedRGBA(190, 170, 150, 0.9),
+    ["SettingDescriptionHovered"] = Color.NormalizedRGBA(210, 192, 172, 1.0),
     ["Error"] = Color.NormalizedRGBA(255, 55, 55, 1),
 }
 
