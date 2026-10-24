@@ -3,11 +3,16 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
         return {
             Event = eventType,
             Key = key,
+            Modifiers = {},
             Repeat = false,
+            Stopped = false,
             prevented = false,
             stopped = false,
             PreventAction = function(self) self.prevented = true end,
-            StopPropagation = function(self) self.stopped = true end
+            StopPropagation = function(self)
+                self.stopped = true
+                self.Stopped = true
+            end
         }
     end
 
@@ -15,62 +20,94 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
         return {
             Pressed = pressed,
             Button = button,
+            Stopped = false,
             prevented = false,
             stopped = false,
             PreventAction = function(self) self.prevented = true end,
-            StopPropagation = function(self) self.stopped = true end
+            StopPropagation = function(self)
+                self.stopped = true
+                self.Stopped = true
+            end
         }
     end
 
-    D.afterEach(function()
-        KeybindingCaptureSession.Reset("reset")
+    local originalWindow
+    local capturedWindow = false
+    local heldModifiersBefore
+    local ownsCaptureState = false
+
+    D.beforeEach(function(ctx)
+        if KeybindingCaptureSession.IsActive() then
+            ctx.skip("A player capture session is already active")
+        end
+        ownsCaptureState = true
+        heldModifiersBefore = InputCallbackManager._HeldModifiers
         InputCallbackManager._HeldModifiers = {}
     end)
 
-    D.test("owns one session and restores all temporary resources", function()
-        local originalWindow = MCM_WINDOW
-        local testWindow = { NoMouseInputs = false }
-        local outcome = nil
-        MCM_WINDOW = testWindow
-
-        local ok, err = pcall(function()
-            local session = KeybindingCaptureSession.Start({
-                OnComplete = function(value) outcome = value end
-            })
-
-            D.expect(session).Not.toBeNil()
-            D.expect(KeybindingCaptureSession.IsActive()).toBeTruthy()
-            D.expect(testWindow.NoMouseInputs).toBeTruthy()
-            D.expect(session.Subscriptions.KeyInput).Not.toBeNil()
-            D.expect(session.Subscriptions.MouseButtonInput).Not.toBeNil()
-            D.expect(session.Subscriptions.WindowClosed).Not.toBeNil()
-            D.expect(session.Subscriptions.GameStateChanged).Not.toBeNil()
-            D.expect(session.Subscriptions.Timeout).Not.toBeNil()
-            D.expect(KeybindingCaptureSession.Start({ OnComplete = function() end })).toBeNil()
-
-            session:Cancel("cancelled")
-            D.expect(KeybindingCaptureSession.IsActive()).toBeFalsy()
-            D.expect(testWindow.NoMouseInputs).toBeFalsy()
-            D.expect(next(session.Subscriptions)).toBeNil()
-            D.expect(outcome).toEqual({ kind = "cancelled", reason = "cancelled" })
-        end)
-
+    D.afterEach(function()
+        if not ownsCaptureState then return end
+        ownsCaptureState = false
         KeybindingCaptureSession.Reset("reset")
-        MCM_WINDOW = originalWindow
-        if not ok then error(err) end
+        InputCallbackManager._HeldModifiers = heldModifiersBefore or {}
+        heldModifiersBefore = nil
+        if capturedWindow then
+            MCM_WINDOW = originalWindow
+            capturedWindow = false
+        end
+    end)
+
+    D.test("restores window input and completes once on cancellation and window close", function()
+        originalWindow = MCM_WINDOW
+        capturedWindow = true
+        local window = { NoMouseInputs = false }
+        local outcomes = {}
+        MCM_WINDOW = window
+
+        local session = KeybindingCaptureSession.Start({
+            OnComplete = function(value) table.insert(outcomes, value) end,
+        })
+        D.expect(session).Not.toBeNil()
+        D.expect(window.NoMouseInputs).toBe(true)
+        D.expect(KeybindingCaptureSession.Start({ OnComplete = function() end })).toBeNil()
+
+        session:Cancel("cancelled")
+        session:Cancel("cancelled")
+        session:HandleKeyInput(KeyEvent("KeyUp", "K"))
+        D.expect(KeybindingCaptureSession.IsActive()).toBe(false)
+        D.expect(window.NoMouseInputs).toBe(false)
+        D.expect(outcomes).toEqual({ { kind = "cancelled", reason = "cancelled" } })
+
+        local nextSession = KeybindingCaptureSession.Start({
+            OnComplete = function(value) table.insert(outcomes, value) end,
+        })
+        D.expect(window.NoMouseInputs).toBe(true)
+        nextSession:HandleMouseInput(MouseEvent(true, 8))
+        Ext.ModEvents["BG3MCM"][EventChannels.MCM_WINDOW_CLOSED]:Throw({})
+        D.expect(KeybindingCaptureSession.IsActive()).toBe(false)
+        D.expect(window.NoMouseInputs).toBe(false)
+        D.expect(outcomes).toEqual({
+            { kind = "cancelled", reason = "cancelled" },
+            { kind = "binding", binding = { Button = 8, ModifierKeys = {} }, reason = "window-closed" },
+        })
+        Ext.ModEvents["BG3MCM"][EventChannels.MCM_WINDOW_CLOSED]:Throw({})
+        D.expect(#outcomes).toBe(2)
     end)
 
     D.test("returns a keyboard binding after the claimed release", function()
         local outcome = nil
+        local completions = 0
         InputCallbackManager._HeldModifiers = { LCTRL = true }
         local session = KeybindingCaptureSession.Start({
-            OnComplete = function(value) outcome = value end
+            OnComplete = function(value)
+                completions = completions + 1
+                outcome = value
+            end
         })
 
         local press = KeyEvent("KeyDown", "k")
         session:HandleKeyInput(press)
         D.expect(outcome).toBeNil()
-        D.expect(session.State).toBe("awaiting-release")
         D.expect(press.prevented).toBeTruthy()
         D.expect(press.stopped).toBeTruthy()
 
@@ -85,15 +122,23 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
         D.expect(release.stopped).toBeTruthy()
         D.expect(KeybindingCaptureSession.ConsumeClaimedRelease("Keyboard", "K", true)).toBeTruthy()
         D.expect(KeybindingCaptureSession.ConsumeClaimedRelease("Keyboard", "K", true)).toBeFalsy()
+        session:Cancel("cancelled")
+        session:HandleKeyInput(KeyEvent("KeyUp", "K"))
+        D.expect(completions).toBe(1)
     end)
 
-    D.test("hands a mouse release to global input after timeout cleanup", function()
+    D.test("retains the selected mouse release when closed with a timeout reason", function()
         local outcome = nil
+        local completions = 0
         local session = KeybindingCaptureSession.Start({
-            OnComplete = function(value) outcome = value end
+            OnComplete = function(value)
+                completions = completions + 1
+                outcome = value
+            end
         })
 
         session:HandleMouseInput(MouseEvent(true, 8))
+        session:Cancel("timeout")
         session:Cancel("timeout")
 
         D.expect(outcome).toEqual({
@@ -103,18 +148,25 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
         })
         D.expect(KeybindingCaptureSession.IsActive()).toBeFalsy()
         D.expect(KeybindingCaptureSession.ConsumeClaimedRelease("Mouse", 8, true)).toBeTruthy()
+        D.expect(completions).toBe(1)
     end)
 
     D.test("returns escape as a cancellation outcome", function()
         local outcome = nil
+        local completions = 0
         local session = KeybindingCaptureSession.Start({
-            OnComplete = function(value) outcome = value end
+            OnComplete = function(value)
+                completions = completions + 1
+                outcome = value
+            end
         })
 
         session:HandleKeyInput(KeyEvent("KeyDown", "ESCAPE"))
         session:HandleKeyInput(KeyEvent("KeyUp", "ESCAPE"))
+        session:Cancel("cancelled")
 
         D.expect(outcome).toEqual({ kind = "cancelled", reason = "escape" })
         D.expect(KeybindingCaptureSession.IsActive()).toBeFalsy()
+        D.expect(completions).toBe(1)
     end)
 end)

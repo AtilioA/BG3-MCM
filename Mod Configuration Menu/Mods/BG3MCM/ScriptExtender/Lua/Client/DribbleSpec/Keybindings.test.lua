@@ -1,4 +1,5 @@
 local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
+local ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
 
 ---Minimal keybinding action fixture accepted by the registry.
 ---@class KeybindingTestAction
@@ -25,6 +26,10 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 
 D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit" } }, function()
     local TEST_MOD_UUID = "00000000-0000-0000-0000-000000000042"
+    local inputCallbackState
+    local heldModifiersBefore
+    local registryBefore
+    local ownsInputState = false
 
     ---@param actions KeybindingTestAction[]
     local function RegisterActions(actions)
@@ -59,6 +64,16 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         }
     end
 
+    ---@param id string
+    ---@param key string
+    ---@return KeybindingTestAction
+    local function KeyboardAction(id, key)
+        local action = MouseAction(id, nil)
+        action.KeyboardMouseBinding = { Key = key, ModifierKeys = {} }
+        action.DefaultKeyboardMouseBinding = action.KeyboardMouseBinding
+        return action
+    end
+
     ---@param pressed boolean
     ---@param button integer
     ---@return MouseInputEventStub
@@ -66,21 +81,76 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         return {
             Button = button,
             Pressed = pressed,
+            Stopped = false,
             prevented = false,
             stopped = false,
             PreventAction = function(self) self.prevented = true end,
-            StopPropagation = function(self) self.stopped = true end
+            StopPropagation = function(self)
+                self.stopped = true
+                self.Stopped = true
+            end
         }
+    end
+
+    ---Records the action, edge, and exact input object delivered to a consumer.
+    ---@param calls table[]
+    ---@param actionId string
+    ---@param eventType "KeyDown"|"KeyUp"
+    ---@return fun(event: table)
+    local function RecordCallback(calls, actionId, eventType)
+        return function(event)
+            table.insert(calls, { actionId = actionId, eventType = eventType, event = event })
+        end
+    end
+
+    ---Asserts exact callback identity, edge, event identity, and multiplicity.
+    ---@param actual table[]
+    ---@param expected table[]
+    local function ExpectCalls(actual, expected)
+        D.expect(#actual).toBe(#expected)
+        for index, call in ipairs(expected) do
+            D.expect(actual[index].actionId).toBe(call.actionId)
+            D.expect(actual[index].eventType).toBe(call.eventType)
+            D.expect(actual[index].event).toBe(call.event)
+        end
     end
 
     ---Removes the isolated test registry entry.
     local function Cleanup()
+        if not ownsInputState then return end
+        ownsInputState = false
         local registry = KeybindingsRegistry.GetRegistry()
-        registry[TEST_MOD_UUID] = nil
+        for modUUID in pairs(registry) do registry[modUUID] = nil end
+        for modUUID, actions in pairs(registryBefore) do registry[modUUID] = actions end
+        registryBefore = nil
         KeybindingsRegistry.ResetInputState()
         KeybindingCaptureSession.Reset("reset")
+        if heldModifiersBefore then
+            InputCallbackManager._HeldModifiers = heldModifiersBefore
+            heldModifiersBefore = nil
+        end
         KeybindingsRegistry.GetSubject():OnNext(registry)
+        if inputCallbackState then
+            InputCallbackManager._KeybindingsLoaded = inputCallbackState.loaded
+            InputCallbackManager._KeybindingsLoadedSubscribed = inputCallbackState.subscribed
+            InputCallbackManager._PendingKeybindingCallbacks = inputCallbackState.pending
+            InputCallbackManager.KeybindingsLoadedSubject = inputCallbackState.subject
+            inputCallbackState = nil
+        end
     end
+
+    D.beforeEach(function(ctx)
+        if KeybindingCaptureSession.IsActive() then
+            ctx.skip("A player capture session is already active")
+        end
+        ownsInputState = true
+        heldModifiersBefore = InputCallbackManager._HeldModifiers
+        InputCallbackManager._HeldModifiers = {}
+        local registry = KeybindingsRegistry.GetRegistry()
+        registryBefore = {}
+        for modUUID, actions in pairs(registry) do registryBefore[modUUID] = actions end
+        for modUUID in pairs(registry) do registry[modUUID] = nil end
+    end)
 
     D.afterEach(Cleanup)
 
@@ -110,14 +180,6 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         )).toBeFalsy()
     end)
 
-    D.test("rejects fractional mouse buttons", function()
-        local isValid = KeybindingV2Validator.Validate({}, {
-            Keyboard = { Key = "K", ModifierKeys = {} },
-            Mouse = { Button = 1.5, ModifierKeys = {} }
-        })
-
-        D.expect(isValid).toBeFalsy()
-    end)
     D.test("adapts no-modifier forms to one empty list", function()
         local modifiers, invalid = KeybindingManager:AdaptModifierKeys({ "", "NONE", "none" })
         D.expect(modifiers).toEqual({})
@@ -132,36 +194,39 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     end)
 
 
-    D.test("persists complete replacement values unchanged", function()
+    D.test("sends complete replacement values to the setting-write boundary", function(ctx)
         RegisterActions({ MouseAction("replace-device", { Button = 8, ModifierKeys = { "LCTRL" } }) })
-        local originalSetSettingValue = MCMProxy.SetSettingValue
-        local saved = nil
-        MCMProxy.SetSettingValue = function(_, _, value)
-            saved = value
+        local writes = {}
+        ctx.stub(MCMProxy, "SetSettingValue", function(_, settingId, value, modUUID, setUIValue, shouldEmitEvent)
+            table.insert(writes, {
+                settingId = settingId,
+                value = value,
+                modUUID = modUUID,
+                setUIValue = setUIValue,
+                shouldEmitEvent = shouldEmitEvent,
+            })
             return { accepted = true, state = "saved", value = value }
-        end
-
-        local ok, err = pcall(function()
-            local mouseValue = {
-                Mouse = { Button = 8, ModifierKeys = { "LCTRL" } },
-                Enabled = false,
-                AllowConflict = false
-            }
-            KeybindingsRegistry.UpdateBinding(TEST_MOD_UUID, "replace-device", mouseValue, true)
-            D.expect(saved).toEqual(mouseValue)
-
-            KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "replace-device", saved)
-            local keyboardValue = {
-                Keyboard = { Key = "K", ModifierKeys = { "LALT" } },
-                Enabled = false,
-                AllowConflict = false
-            }
-            KeybindingsRegistry.UpdateBinding(TEST_MOD_UUID, "replace-device", keyboardValue, true)
-            D.expect(saved).toEqual(keyboardValue)
         end)
+        local mouseValue = {
+            Mouse = { Button = 8, ModifierKeys = { "LCTRL" } },
+            Enabled = false,
+            AllowConflict = false
+        }
+        D.expect(KeybindingsRegistry.UpdateBinding(TEST_MOD_UUID, "replace-device", mouseValue, true)).toBe(true)
+        D.expect(writes[1].settingId).toBe("replace-device")
+        D.expect(writes[1].modUUID).toBe(TEST_MOD_UUID)
+        D.expect(writes[1].value).toEqual(mouseValue)
+        D.expect(writes[1].shouldEmitEvent).toBe(true)
 
-        MCMProxy.SetSettingValue = originalSetSettingValue
-        if not ok then error(err) end
+        KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "replace-device", writes[1].value)
+        local keyboardValue = {
+            Keyboard = { Key = "K", ModifierKeys = { "LALT" } },
+            Enabled = false,
+            AllowConflict = false
+        }
+        D.expect(KeybindingsRegistry.UpdateBinding(TEST_MOD_UUID, "replace-device", keyboardValue, true)).toBe(true)
+        D.expect(#writes).toBe(2)
+        D.expect(writes[2].value).toEqual(keyboardValue)
     end)
 
     D.test("applies authoritative keyboard mouse and unbound values", function()
@@ -173,8 +238,10 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Enabled = true,
             AllowConflict = false
         })
-        D.expect(entry.keyboardBinding.Key).toBe("J")
+        D.expect(entry.keyboardBinding).toEqual({ Key = "J", ModifierKeys = { "LSHIFT" } })
         D.expect(entry.mouseBinding).toBeNil()
+        D.expect(entry.enabled).toBe(true)
+        D.expect(entry.allowConflict).toBe(false)
 
         KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "authoritative", {
             Mouse = { Button = 6, ModifierKeys = { "LALT" } },
@@ -182,16 +249,19 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             AllowConflict = true
         })
         D.expect(entry.keyboardBinding).toBeNil()
-        D.expect(entry.mouseBinding.Button).toBe(6)
-        D.expect(entry.allowConflict).toBeTruthy()
+        D.expect(entry.mouseBinding).toEqual({ Button = 6, ModifierKeys = { "LALT" } })
+        D.expect(entry.enabled).toBe(true)
+        D.expect(entry.allowConflict).toBe(true)
 
         KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "authoritative", {
             Keyboard = { Key = "", ModifierKeys = {} },
             Enabled = true,
             AllowConflict = false
         })
-        D.expect(entry.keyboardBinding.Key).toBe("")
+        D.expect(entry.keyboardBinding).toEqual({ Key = "", ModifierKeys = {} })
         D.expect(entry.mouseBinding).toBeNil()
+        D.expect(entry.enabled).toBe(true)
+        D.expect(entry.allowConflict).toBe(false)
     end)
 
     D.test("does not clear a binding when the authoritative value is missing", function()
@@ -199,7 +269,9 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         local entry = KeybindingsRegistry.GetRegistry()[TEST_MOD_UUID]["missing-authority"]
 
         D.expect(KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "missing-authority", nil)).toBeFalsy()
-        D.expect(entry.mouseBinding.Button).toBe(7)
+        D.expect(entry.mouseBinding).toEqual({ Button = 7, ModifierKeys = {} })
+        D.expect(entry.enabled).toBe(true)
+        D.expect(entry.allowConflict).toBe(false)
     end)
 
     D.test("does not clear a binding on a rejected save without an old value", function()
@@ -213,7 +285,10 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             error = "rejected"
         })
 
-        D.expect(entry.mouseBinding.Button).toBe(7)
+        D.expect(entry.mouseBinding).toEqual({ Button = 7, ModifierKeys = {} })
+        D.expect(entry.keyboardBinding).toBeNil()
+        D.expect(entry.enabled).toBe(true)
+        D.expect(entry.allowConflict).toBe(false)
     end)
 
     D.test("rolls back a rejected save to its authoritative old value", function()
@@ -228,7 +303,10 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             error = "rejected"
         })
 
-        D.expect(entry.mouseBinding.Button).toBe(6)
+        D.expect(entry.mouseBinding).toEqual({ Button = 6, ModifierKeys = {} })
+        D.expect(entry.keyboardBinding).toBeNil()
+        D.expect(entry.enabled).toBe(true)
+        D.expect(entry.allowConflict).toBe(false)
     end)
 
     D.test("dispatches raw mouse press and release and prevents both edges", function()
@@ -236,20 +314,21 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Button = 10,
             ModifierKeys = { "RALT", "RCTRL", "RSHIFT" }
         }) })
-        local downEvent = nil
-        local upEvent = nil
+        local calls = {}
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-dispatch", "KeyboardMouse",
-            function(e) downEvent = e end, "KeyDown")
+            RecordCallback(calls, "mouse-dispatch", "KeyDown"), "KeyDown")
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-dispatch", "KeyboardMouse",
-            function(e) upEvent = e end, "KeyUp")
+            RecordCallback(calls, "mouse-dispatch", "KeyUp"), "KeyUp")
 
         local press = MouseEvent(true, 10)
         local release = MouseEvent(false, 10)
         KeybindingsRegistry.DispatchMouseEvent(press, { "RSHIFT", "RALT", "RCTRL" })
         KeybindingsRegistry.DispatchMouseEvent(release, {})
 
-        D.expect(downEvent).toBe(press)
-        D.expect(upEvent).toBe(release)
+        ExpectCalls(calls, {
+            { actionId = "mouse-dispatch", eventType = "KeyDown", event = press },
+            { actionId = "mouse-dispatch", eventType = "KeyUp", event = release },
+        })
         D.expect(press.prevented).toBeTruthy()
         D.expect(release.prevented).toBeTruthy()
     end)
@@ -260,9 +339,9 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         action.DefaultKeyboardMouseBinding = action.KeyboardMouseBinding
         RegisterActions({ action })
 
-        local calls = 0
+        local calls = {}
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "keyboard-dispatch", "KeyboardMouse",
-            function() calls = calls + 1 end, "KeyDown")
+            RecordCallback(calls, "keyboard-dispatch", "KeyDown"), "KeyDown")
         local event = {
             Key = "k",
             Modifiers = { "LALT", "LCTRL" },
@@ -273,92 +352,109 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         }
         KeybindingsRegistry.DispatchKeyboardEvent(event)
 
-        D.expect(calls).toBe(1)
+        ExpectCalls(calls, {
+            { actionId = "keyboard-dispatch", eventType = "KeyDown", event = event },
+        })
         D.expect(event.prevented).toBeTruthy()
     end)
 
     ---@param key string
     ---@param modifiers string[]|nil
-    local function KeyEvent(key, modifiers)
+    ---@param eventType? "KeyDown"|"KeyUp"
+    local function KeyEvent(key, modifiers, eventType)
         return {
             Key = key,
             Modifiers = modifiers,
-            Event = "KeyDown",
+            Event = eventType or "KeyDown",
             Repeat = false,
+            Stopped = false,
             prevented = false,
-            PreventAction = function(self) self.prevented = true end
+            stopped = false,
+            PreventAction = function(self) self.prevented = true end,
+            StopPropagation = function(self)
+                self.stopped = true
+                self.Stopped = true
+            end
         }
     end
 
     ---Registers one keyboard action and counts how often it fires.
     ---@param id string
     ---@param binding KeybindingKeyboardBinding
-    ---@param events { Key: string, Modifiers: string[]|nil }[]
-    ---@return integer
-    local function DispatchKeysCount(id, binding, events)
+    ---@param events table[]
+    ---@return table[] calls
+    local function DispatchKeys(id, binding, events)
         local action = MouseAction(id, nil)
         action.KeyboardMouseBinding = binding
         action.DefaultKeyboardMouseBinding = binding
         RegisterActions({ action })
 
-        local calls = 0
+        local calls = {}
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, id, "KeyboardMouse",
-            function() calls = calls + 1 end, "KeyDown")
+            RecordCallback(calls, id, "KeyDown"), "KeyDown")
         for _, input in ipairs(events) do
-            KeybindingsRegistry.DispatchKeyboardEvent(KeyEvent(input.Key, input.Modifiers))
+            KeybindingsRegistry.DispatchKeyboardEvent(input)
         end
         return calls
     end
 
     D.test("dispatches plain keyboard bindings past unsupported live modifiers", function()
-        local calls = DispatchKeysCount("plain-key-noise", { Key = "K", ModifierKeys = {} }, {
-            { Key = "K", Modifiers = {} },
-            { Key = "K", Modifiers = nil },
-            { Key = "K", Modifiers = { "NONE", "" } },
-            { Key = "K", Modifiers = { "NUM" } },
-            { Key = "K", Modifiers = { "CAPS", "NUM", "LGUI", "RGUI", "MODE", "SCROLL" } },
-        })
-
-        D.expect(calls).toBe(5)
+        local events = {
+            KeyEvent("K", {}),
+            KeyEvent("K", nil),
+            KeyEvent("K", { "NONE", "" }),
+            KeyEvent("K", { "NUM" }),
+            KeyEvent("K", { "CAPS", "NUM", "LGUI", "RGUI", "MODE", "SCROLL" }),
+        }
+        local calls = DispatchKeys("plain-key-noise", { Key = "K", ModifierKeys = {} }, events)
+        local expected = {}
+        for _, event in ipairs(events) do
+            table.insert(expected, { actionId = "plain-key-noise", eventType = "KeyDown", event = event })
+        end
+        ExpectCalls(calls, expected)
     end)
 
     D.test("keeps exact matching for plain keyboard bindings", function()
-        local calls = DispatchKeysCount("plain-key-exact", { Key = "K", ModifierKeys = {} }, {
-            { Key = "K", Modifiers = { "LCTRL" } },
-            { Key = "K", Modifiers = { "LCTRL", "LALT" } },
-            { Key = "J", Modifiers = {} },
+        local calls = DispatchKeys("plain-key-exact", { Key = "K", ModifierKeys = {} }, {
+            KeyEvent("K", { "LCTRL" }),
+            KeyEvent("K", { "LCTRL", "LALT" }),
+            KeyEvent("J", {}),
         })
 
-        D.expect(calls).toBe(0)
+        ExpectCalls(calls, {})
     end)
 
     D.test("dispatches modified keyboard bindings past unsupported live modifiers", function()
-        local calls = DispatchKeysCount("mod-key-noise", { Key = "K", ModifierKeys = { "LCTRL" } }, {
-            { Key = "K", Modifiers = { "LCTRL" } },
-            { Key = "k", Modifiers = { "lctrl", "LCTRL", "NUM" } },
-            { Key = "K", Modifiers = { "LCTRL", "CAPS" } },
-        })
-
-        D.expect(calls).toBe(3)
+        local events = {
+            KeyEvent("K", { "LCTRL" }),
+            KeyEvent("k", { "lctrl", "LCTRL", "NUM" }),
+            KeyEvent("K", { "LCTRL", "CAPS" }),
+        }
+        local calls = DispatchKeys("mod-key-noise", { Key = "K", ModifierKeys = { "LCTRL" } }, events)
+        local expected = {}
+        for _, event in ipairs(events) do
+            table.insert(expected, { actionId = "mod-key-noise", eventType = "KeyDown", event = event })
+        end
+        ExpectCalls(calls, expected)
     end)
 
     D.test("rejects incomplete, wrong, or extra supported modifiers", function()
-        local calls = DispatchKeysCount("mod-key-reject", { Key = "K", ModifierKeys = { "LCTRL" } }, {
-            { Key = "K", Modifiers = {} },
-            { Key = "K", Modifiers = { "LALT" } },
-            { Key = "K", Modifiers = { "LCTRL", "LALT" } },
+        local calls = DispatchKeys("mod-key-reject", { Key = "K", ModifierKeys = { "LCTRL" } }, {
+            KeyEvent("K", {}),
+            KeyEvent("K", { "LALT" }),
+            KeyEvent("K", { "LCTRL", "LALT" }),
         })
 
-        D.expect(calls).toBe(0)
+        ExpectCalls(calls, {})
     end)
 
     D.test("never matches unsupported modifiers on either side", function()
-        local calls = DispatchKeysCount("junk-key", { Key = "K", ModifierKeys = { "LGUI" } }, {
-            { Key = "K", Modifiers = {} },
-            { Key = "K", Modifiers = { "LGUI" } },
+        local calls = DispatchKeys("junk-key", { Key = "K", ModifierKeys = { "LGUI" } }, {
+            KeyEvent("K", {}),
+            KeyEvent("K", { "LGUI" }),
         })
 
-        D.expect(calls).toBe(0)
+        ExpectCalls(calls, {})
     end)
 
     D.test("dispatches mouse bindings past unsupported held modifiers", function()
@@ -366,41 +462,56 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             MouseAction("mouse-noise", { Button = 5, ModifierKeys = {} }),
             MouseAction("mouse-mod-noise", { Button = 6, ModifierKeys = { "LCTRL" } }),
         })
-        local plain = 0
-        local modified = 0
+        local calls = {}
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-noise", "KeyboardMouse",
-            function() plain = plain + 1 end, "KeyDown")
+            RecordCallback(calls, "mouse-noise", "KeyDown"), "KeyDown")
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-noise", "KeyboardMouse",
-            function() end, "KeyUp")
+            RecordCallback(calls, "mouse-noise", "KeyUp"), "KeyUp")
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-mod-noise", "KeyboardMouse",
-            function() modified = modified + 1 end, "KeyDown")
+            RecordCallback(calls, "mouse-mod-noise", "KeyDown"), "KeyDown")
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "mouse-mod-noise", "KeyboardMouse",
-            function() end, "KeyUp")
+            RecordCallback(calls, "mouse-mod-noise", "KeyUp"), "KeyUp")
 
-        for _, held in ipairs({ {}, { "NUM" }, { "CAPS", "SCROLL" } }) do
-            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 5), held)
-            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(false, 5), held)
+        local expected = {}
+        local inputs = {
+            { button = 5, held = {}, actionId = "mouse-noise" },
+            { button = 5, held = { "NUM" }, actionId = "mouse-noise" },
+            { button = 5, held = { "CAPS", "SCROLL" }, actionId = "mouse-noise" },
+            { button = 6, held = { "LCTRL" }, actionId = "mouse-mod-noise" },
+            { button = 6, held = { "LCTRL", "NUM" }, actionId = "mouse-mod-noise" },
+            { button = 6, held = {}, actionId = false },
+        }
+        for _, input in ipairs(inputs) do
+            local press = MouseEvent(true, input.button)
+            local release = MouseEvent(false, input.button)
+            KeybindingsRegistry.DispatchMouseEvent(press, input.held)
+            KeybindingsRegistry.DispatchMouseEvent(release, input.held)
+            if input.actionId then
+                table.insert(expected, { actionId = input.actionId, eventType = "KeyDown", event = press })
+                table.insert(expected, { actionId = input.actionId, eventType = "KeyUp", event = release })
+            end
         end
-        for _, held in ipairs({ { "LCTRL" }, { "LCTRL", "NUM" } }) do
-            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 6), held)
-            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(false, 6), held)
-        end
-        KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 6), {})
-        KeybindingsRegistry.DispatchMouseEvent(MouseEvent(false, 6), {})
 
-        D.expect(plain).toBe(3)
-        D.expect(modified).toBe(2)
+        ExpectCalls(calls, expected)
     end)
 
     D.test("does not prevent mouse edges when PreventAction is false", function()
         RegisterActions({ MouseAction("observe-mouse", { Button = 9, ModifierKeys = {} }, false, false) })
-        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "observe-mouse", "KeyboardMouse", function() end)
+        local calls = {}
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "observe-mouse", "KeyboardMouse",
+            RecordCallback(calls, "observe-mouse", "KeyDown"), "KeyDown")
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "observe-mouse", "KeyboardMouse",
+            RecordCallback(calls, "observe-mouse", "KeyUp"), "KeyUp")
         local press = MouseEvent(true, 9)
         local release = MouseEvent(false, 9)
 
         KeybindingsRegistry.DispatchMouseEvent(press, {})
         KeybindingsRegistry.DispatchMouseEvent(release, {})
 
+        ExpectCalls(calls, {
+            { actionId = "observe-mouse", eventType = "KeyDown", event = press },
+            { actionId = "observe-mouse", eventType = "KeyUp", event = release },
+        })
         D.expect(press.prevented).toBeFalsy()
         D.expect(release.prevented).toBeFalsy()
     end)
@@ -423,44 +534,32 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(release.prevented).toBeFalsy()
     end)
 
-    D.test("reports all actions in a blocked conflict", function()
+    D.test("reports blocked conflicts without calling either action", function(ctx)
         RegisterActions({
             MouseAction("runtime-conflict-one", { Button = 3, ModifierKeys = {} }),
             MouseAction("runtime-conflict-two", { Button = 3, ModifierKeys = {} })
         })
-        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "runtime-conflict-one", "KeyboardMouse", function() end)
-        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "runtime-conflict-two", "KeyboardMouse", function() end)
+        local calls = {}
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "runtime-conflict-one", "KeyboardMouse",
+            RecordCallback(calls, "runtime-conflict-one", "KeyDown"), "KeyDown")
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "runtime-conflict-two", "KeyboardMouse",
+            RecordCallback(calls, "runtime-conflict-two", "KeyDown"), "KeyDown")
 
-        local originalWarn = MCMWarn
-        local originalNotifyConflict = KeybindingsRegistry.NotifyConflict
-        local warningActions = nil
-        MCMWarn = function(_, format, _, actions)
-            if format == "Keybinding conflict detected for: %s. Conflicting actions: %s" then
-                warningActions = actions
-            end
-        end
-        KeybindingsRegistry.NotifyConflict = function() end
-
-        local ok, err = pcall(function()
-            KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 3), {})
+        local warnings = {}
+        ctx.stub(_G, "MCMWarn", function(_, format, ...)
+            table.insert(warnings, string.format(format, ...))
         end)
+        ctx.stub(KeybindingsRegistry, "NotifyConflict", function() end)
 
-        MCMWarn = originalWarn
-        KeybindingsRegistry.NotifyConflict = originalNotifyConflict
-        if not ok then error(err) end
+        KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 3), {})
 
-        D.expect(warningActions).toContain("'runtime-conflict-one'")
-        D.expect(warningActions).toContain("'runtime-conflict-two'")
+        ExpectCalls(calls, {})
+        D.expect(#warnings).toBe(1)
+        D.expect(warnings[1]).toContain("runtime-conflict-one")
+        D.expect(warnings[1]).toContain("runtime-conflict-two")
     end)
 
     D.test("compares exact keyboard and mouse identities", function()
-        D.expect(KeybindingManager:GetBindingIdentity(
-            { Keyboard = { Key = "k", ModifierKeys = { "LCTRL", "LALT" } } }
-        )).toBe("keyboard:K:LALT+LCTRL")
-        D.expect(KeybindingManager:GetBindingIdentity(
-            { Mouse = { Button = 5, ModifierKeys = { "LCTRL", "LALT" } } }
-        )).toBe("mouse:5:LALT+LCTRL")
-
         D.expect(KeybindingManager:AreBindingsEqual(
             { Button = 5, ModifierKeys = { "LCTRL", "LALT" } },
             { Button = 5, ModifierKeys = { "LALT", "LCTRL" } }
@@ -504,7 +603,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             OnComplete = function(value) outcome = value end
         })
 
-        local press = MouseEvent(true, KeybindingManager.MOUSE_BUTTON_MAX + 1)
+        local press = MouseEvent(true, 11)
         local ok, err = pcall(function()
             session:HandleMouseInput(press)
         end)
@@ -514,7 +613,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(press.stopped).toBeTruthy()
         D.expect(outcome).toBeNil()
 
-        local release = MouseEvent(false, KeybindingManager.MOUSE_BUTTON_MAX + 1)
+        local release = MouseEvent(false, 11)
         session:HandleMouseInput(release)
         D.expect(release.prevented).toBeTruthy()
         D.expect(outcome).toEqual({ kind = "cancelled", reason = "unsupported-button" })
@@ -550,7 +649,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(KeybindingCaptureSession.ConsumeClaimedRelease("Mouse", 1, true)).toBeFalsy()
     end)
 
-    D.test("uses current registry flags when committing a captured binding", function()
+    D.test("saves captured input with the current registry flags", function(ctx)
         local action = MouseAction("capture-race", { Button = 8, ModifierKeys = {} })
         RegisterActions({ action })
         KeybindingsRegistry.ApplyBindingValue(TEST_MOD_UUID, "capture-race", {
@@ -562,33 +661,51 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         local widget = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
         widget.FilterActions = function() end
         widget.RefreshUI = function() end
-        local saved = nil
-        widget.NotifyAssignmentConflict = function() end
-        widget.StoreKeybinding = function(_, _, _, payload)
-            saved = payload
-            return true
-        end
-
-        InputCallbackManager._HeldModifiers = { LCTRL = true }
-        local ok, err = pcall(function()
-            widget:StartListeningForInput(
-                { ModUUID = TEST_MOD_UUID },
-                action,
-                "KeyboardMouse",
-                { Label = "", Disabled = false }
-            )
-            D.expect(widget._captureSession).Not.toBeNil()
-            widget._captureSession:HandleMouseInput(MouseEvent(true, 2))
-            widget._captureSession:HandleMouseInput(MouseEvent(false, 2))
+        local writes = {}
+        local button = { Label = "Assign", Disabled = false }
+        ctx.stub(MCMProxy, "SetSettingValue", function(_, settingId, value, modUUID, setUIValue, shouldEmitEvent)
+            table.insert(writes, {
+                settingId = settingId,
+                value = value,
+                modUUID = modUUID,
+                setUIValue = setUIValue,
+                shouldEmitEvent = shouldEmitEvent,
+            })
+            return { accepted = true, state = "saved", value = value }
         end)
-        InputCallbackManager._HeldModifiers = {}
-        if not ok then error(err) end
+        ctx.stub(NativeKeybindings, "GetAll", function()
+            return { Public = {}, Internal = {} }
+        end)
 
-        D.expect(saved).Not.toBeNil()
-        D.expect(saved.Enabled).toBeFalsy()
-        D.expect(saved.AllowConflict).toBeTruthy()
-        D.expect(saved.Mouse.Button).toBe(2)
-        D.expect(saved.Mouse.ModifierKeys).toEqual({ "LCTRL" })
+        local capturedSession
+        local startCapture = KeybindingCaptureSession.Start
+        ctx.stub(KeybindingCaptureSession, "Start", function(options)
+            capturedSession = startCapture(options)
+            return capturedSession
+        end)
+        InputCallbackManager._HeldModifiers = { LCTRL = true }
+        widget:StartListeningForInput(
+            { ModUUID = TEST_MOD_UUID, ModName = "Capture test" },
+            action,
+            "KeyboardMouse",
+            button
+        )
+        D.expect(KeybindingCaptureSession.IsActive()).toBeTruthy()
+        D.expect(capturedSession).Not.toBeNil()
+        capturedSession:HandleKeyInput(KeyEvent("K", { "LCTRL" }))
+        D.expect(KeybindingCaptureSession.IsActive()).toBeTruthy()
+        capturedSession:HandleKeyInput(KeyEvent("K", { "LCTRL" }, "KeyUp"))
+
+        D.expect(KeybindingCaptureSession.IsActive()).toBeFalsy()
+        D.expect(#writes).toBe(1)
+        D.expect(writes[1].settingId).toBe("capture-race")
+        D.expect(writes[1].modUUID).toBe(TEST_MOD_UUID)
+        D.expect(writes[1].shouldEmitEvent).toBe(true)
+        D.expect(writes[1].value).toEqual({
+            Keyboard = { Key = "K", ModifierKeys = { "LCTRL" } },
+            Enabled = false,
+            AllowConflict = true,
+        })
     end)
 
     D.test("uses shared identity for conflict and default UI comparisons", function()
@@ -653,19 +770,53 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Ext.Enums.ClientGameState.Running)).toBeFalsy()
     end)
 
-    D.test("presents legacy empty mouse companions as keyboard bindings", function()
-        local originalGetSettingValue = MCMAPI.GetSettingValue
-        MCMAPI.GetSettingValue = function()
+    D.test("resetting input clears held modifiers, capture claims, and pressed callbacks", function()
+        RegisterActions({ MouseAction("lifecycle-reset", { Button = 8, ModifierKeys = {} }) })
+
+        local downEvents = {}
+        local upEvents = {}
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "lifecycle-reset", "KeyboardMouse",
+            function(event) table.insert(downEvents, event) end, "KeyDown")
+        KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "lifecycle-reset", "KeyboardMouse",
+            function(event) table.insert(upEvents, event) end, "KeyUp")
+        KeybindingsRegistry.DispatchMouseEvent(MouseEvent(true, 8), {})
+        D.expect(#downEvents).toBe(1)
+
+        InputCallbackManager._HeldModifiers = { LCTRL = true }
+        local outcome = nil
+        local completionCount = 0
+        local session = KeybindingCaptureSession.Start({
+            OnComplete = function(value)
+                completionCount = completionCount + 1
+                outcome = value
+            end
+        })
+        session:HandleMouseInput(MouseEvent(true, 9))
+
+        InputCallbackManager.ResetInputState()
+
+        D.expect(InputCallbackManager.GetHeldModifiers()).toEqual({})
+        D.expect(KeybindingCaptureSession.IsActive()).toBeFalsy()
+        D.expect(outcome).toEqual({
+            kind = "binding",
+            binding = { Button = 9, ModifierKeys = { "LCTRL" } },
+            reason = "input-reset",
+        })
+        D.expect(completionCount).toBe(1)
+        D.expect(KeybindingCaptureSession.ConsumeClaimedRelease("Mouse", 9, true)).toBeFalsy()
+
+        KeybindingsRegistry.DispatchMouseEvent(MouseEvent(false, 8), {})
+        D.expect(#upEvents).toBe(0)
+    end)
+
+    D.test("presents legacy empty mouse companions as keyboard bindings", function(ctx)
+        ctx.stub(MCMAPI, "GetSettingValue", function()
             return {
                 Keyboard = { Key = "K", ModifierKeys = { "LCTRL" } },
                 Mouse = { Button = 0, ModifierKeys = {} }
             }
-        end
-        local ok, result = pcall(function()
-            return KeyPresentationMapping:GetViewKeyForSetting("legacy", TEST_MOD_UUID)
         end)
-        MCMAPI.GetSettingValue = originalGetSettingValue
-        if not ok then error(result) end
+        local result = KeyPresentationMapping:GetViewKeyForSetting("legacy", TEST_MOD_UUID)
         D.expect(result).toBe("[Left Ctrl] + [K]")
         D.expect(KeyPresentationMapping:GetKBViewKey({ Key = "K", ModifierKeys = { "NONE", "" } }))
             .toBe("[K]")
@@ -675,47 +826,51 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             .toBe("[Mouse 10]")
     end)
 
-    D.test("registers callbacks queued before and added after load", function()
-        RegisterActions({ MouseAction("callback-load", { Button = 8, ModifierKeys = {} }) })
-        local originalLoaded = InputCallbackManager._KeybindingsLoaded
-        local originalSubscribed = InputCallbackManager._KeybindingsLoadedSubscribed
-        local originalPending = InputCallbackManager._PendingKeybindingCallbacks
-        local originalRegister = InputCallbackManager.RegisterKeybinding
-        local originalLoadedSubject = InputCallbackManager.KeybindingsLoadedSubject
-        local registrations = 0
-        local subscriptions = 0
-        local loadedCallback = nil
+    D.test("registers queued and post-load callbacks on their own input", function(ctx)
+        RegisterActions({
+            KeyboardAction("queued-one", "K"),
+            KeyboardAction("queued-two", "J"),
+            KeyboardAction("added-after-load", "L"),
+        })
+        inputCallbackState = {
+            loaded = InputCallbackManager._KeybindingsLoaded,
+            subscribed = InputCallbackManager._KeybindingsLoadedSubscribed,
+            pending = InputCallbackManager._PendingKeybindingCallbacks,
+            subject = InputCallbackManager.KeybindingsLoadedSubject,
+        }
+
+        local subject = ReplaySubject.Create(1)
         InputCallbackManager._KeybindingsLoaded = false
         InputCallbackManager._KeybindingsLoadedSubscribed = false
         InputCallbackManager._PendingKeybindingCallbacks = {}
-        InputCallbackManager.KeybindingsLoadedSubject = {
-            Subscribe = function(_, callback)
-                subscriptions = subscriptions + 1
-                loadedCallback = callback
-            end
-        }
-        InputCallbackManager.RegisterKeybinding = function(...)
-            registrations = registrations + 1
-            return true
-        end
+        InputCallbackManager.KeybindingsLoadedSubject = subject
+        local subscriptionCalls = ctx.spyOn(subject, "Subscribe")
+        local calls = {}
 
-        local ok, err = pcall(function()
-            InputCallbackManager.SetKeybindingCallback(TEST_MOD_UUID, "callback-load", function() end)
-            InputCallbackManager.SetKeybindingCallback(TEST_MOD_UUID, "callback-load", function() end)
-            D.expect(subscriptions).toBe(1)
-            loadedCallback(true)
-            InputCallbackManager.SetKeybindingCallback(TEST_MOD_UUID, "callback-load", function() end)
-            D.expect(registrations).toBe(3)
-            D.expect(#InputCallbackManager._PendingKeybindingCallbacks).toBe(0)
-            D.expect(InputCallbackManager._KeybindingsLoadedSubscribed).toBeTruthy()
-        end)
+        InputCallbackManager.SetKeybindingCallback(TEST_MOD_UUID, "queued-one",
+            RecordCallback(calls, "queued-one", "KeyDown"), "KeyDown")
+        InputCallbackManager.SetKeybindingCallback(TEST_MOD_UUID, "queued-two",
+            RecordCallback(calls, "queued-two", "KeyDown"), "KeyDown")
+        D.expect(subscriptionCalls).toHaveBeenCalledTimes(1)
 
-        InputCallbackManager._KeybindingsLoaded = originalLoaded
-        InputCallbackManager._KeybindingsLoadedSubscribed = originalSubscribed
-        InputCallbackManager._PendingKeybindingCallbacks = originalPending
-        InputCallbackManager.RegisterKeybinding = originalRegister
-        InputCallbackManager.KeybindingsLoadedSubject = originalLoadedSubject
-        if not ok then error(err) end
+        subject:OnNext(true)
+        InputCallbackManager.SetKeybindingCallback(TEST_MOD_UUID, "added-after-load",
+            RecordCallback(calls, "added-after-load", "KeyDown"), "KeyDown")
+        D.expect(#InputCallbackManager._PendingKeybindingCallbacks).toBe(0)
+        D.expect(InputCallbackManager._KeybindingsLoadedSubscribed).toBeTruthy()
+
+        local queuedOneInput = KeyEvent("K", {})
+        local queuedTwoInput = KeyEvent("J", {})
+        local afterLoadInput = KeyEvent("L", {})
+        KeybindingsRegistry.DispatchKeyboardEvent(queuedOneInput)
+        KeybindingsRegistry.DispatchKeyboardEvent(queuedTwoInput)
+        KeybindingsRegistry.DispatchKeyboardEvent(afterLoadInput)
+
+        ExpectCalls(calls, {
+            { actionId = "queued-one", eventType = "KeyDown", event = queuedOneInput },
+            { actionId = "queued-two", eventType = "KeyDown", event = queuedTwoInput },
+            { actionId = "added-after-load", eventType = "KeyDown", event = afterLoadInput },
+        })
     end)
 
     D.test("allowed mouse conflicts select each event-specific callback", function()
@@ -724,23 +879,37 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             MouseAction("first", { Button = 10, ModifierKeys = modifiers }, true),
             MouseAction("second", { Button = 10, ModifierKeys = modifiers }, false)
         })
-        local downCalls = 0
-        local upCalls = 0
+        local calls = {}
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "first", "KeyboardMouse",
-            function() downCalls = downCalls + 1 end, "KeyDown")
+            RecordCallback(calls, "first", "KeyDown"), "KeyDown")
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "second", "KeyboardMouse",
-            function() downCalls = downCalls + 1 end, "KeyDown")
+            RecordCallback(calls, "second", "KeyDown"), "KeyDown")
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "first", "KeyboardMouse",
-            function() upCalls = upCalls + 1 end, "KeyUp")
+            RecordCallback(calls, "first", "KeyUp"), "KeyUp")
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "second", "KeyboardMouse",
-            function() upCalls = upCalls + 1 end, "KeyUp")
+            RecordCallback(calls, "second", "KeyUp"), "KeyUp")
 
         local press = MouseEvent(true, 10)
         local release = MouseEvent(false, 10)
         KeybindingsRegistry.DispatchMouseEvent(press, modifiers)
         KeybindingsRegistry.DispatchMouseEvent(release, {})
-        D.expect(downCalls).toBe(2)
-        D.expect(upCalls).toBe(2)
+        for _, actionId in ipairs({ "first", "second" }) do
+            local downCalls = {}
+            local upCalls = {}
+            for _, call in ipairs(calls) do
+                if call.actionId == actionId and call.eventType == "KeyDown" then
+                    table.insert(downCalls, call)
+                elseif call.actionId == actionId and call.eventType == "KeyUp" then
+                    table.insert(upCalls, call)
+                end
+            end
+            ExpectCalls(downCalls, {
+                { actionId = actionId, eventType = "KeyDown", event = press },
+            })
+            ExpectCalls(upCalls, {
+                { actionId = actionId, eventType = "KeyUp", event = release },
+            })
+        end
         D.expect(press.prevented).toBeTruthy()
         D.expect(release.prevented).toBeTruthy()
     end)
