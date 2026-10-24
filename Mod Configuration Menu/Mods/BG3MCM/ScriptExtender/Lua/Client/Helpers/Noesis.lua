@@ -4,6 +4,9 @@ MCM_BUTTON_HANDLE_ORIGINAL_CONTENT = Ext.Loca.GetTranslatedString("h8e2c39a3f3c0
 
 local isSearchingForMCMButton = false
 
+Ext.UI.RegisterType("GameMenuMCMButtonDC", { CustomEvent = { Type = "Command" } })
+Ext.UI.RegisterType("MainMenuMCMButtonDC", { CustomEvent = { Type = "Command" } })
+
 --- Thanks Norbyte for these!
 local function findNoesisElementByName(element, name)
     if not element then
@@ -24,6 +27,7 @@ local function findNoesisElementByName(element, name)
     return nil
 end
 
+--- Consume the returned object in the same Ext.UI.Defer callback.
 function Noesis:FindWidgetChild(widgetName, name)
     local uiRoot = Ext.UI.GetRoot()
     if not uiRoot then
@@ -135,24 +139,26 @@ local function handleMCMButtonPress(button, hasServer)
     local revertTime = 15000
     local isMessageUpdated = false
 
-    local function onPointerDown(a, b)
-        pressCount = pressCount + 1
-        if pressCount > pressLimit then
-            MCMWarn(0,
-                "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-            updateButtonMessage(Ext.Loca.GetTranslatedString("h354808a337024c99b6149d5d1b11934bd36e"),
-                revertTime, isMessageUpdated)
-            if hasServer then
-                NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION:SendToServer({})
+    local function onPointerDown()
+        Ext.OnNextTick(function()
+            pressCount = pressCount + 1
+            if pressCount > pressLimit then
+                MCMWarn(0,
+                    "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
+                updateButtonMessage(Ext.Loca.GetTranslatedString("h354808a337024c99b6149d5d1b11934bd36e"),
+                    revertTime, isMessageUpdated)
+                if hasServer then
+                    NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION:SendToServer({})
+                end
+            else
+                Ext.Timer.WaitFor(timeWindow, function()
+                    pressCount = 0
+                end)
+                MCMPrint(1,
+                    "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
             end
-        else
-            Ext.Timer.WaitFor(timeWindow, function()
-                pressCount = 0
-            end)
-            MCMPrint(1,
-                "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-        end
-        -- IMGUIAPI:ToggleMCMWindow(false)
+            -- IMGUIAPI:ToggleMCMWindow(false)
+        end)
     end
 
     -- Unsubscribes automatically after the lifetime expires
@@ -175,32 +181,23 @@ function Noesis:MonitorMCMGameMenuButtonPress(isController)
     end
 
     isSearchingForMCMButton = true
+    local bound = false
     VCTimer:CallWithInterval(function()
-        local MCMButton = nil
-        MCMButton = Noesis:FindMCMGameMenuButton(isController)
-        if not MCMButton then
-            MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
-            return nil
-        end
-        isSearchingForMCMButton = false
-        -- if hasRegisteredGameMenuHandler then
-        --     MCMWarn(0, "GameMenuMCMButtonDC already registered. Skipping registration.")
-        --     return true
-        -- end
-
-        Ext.UI.RegisterType("GameMenuMCMButtonDC", {
-            CustomEvent = { Type = "Command" },
-        })
-        local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC")
-        ctx.CustomEvent:SetHandler(function()
-            IMGUIAPI:ToggleMCMWindow(false)
+        if bound then return true end
+        Ext.UI.Defer(function()
+            if bound then return end
+            local button = Noesis:FindMCMGameMenuButton(isController)
+            if not button then
+                MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
+                return
+            end
+            bound = true
+            local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC")
+            ctx.CustomEvent:SetHandler(function() IMGUIAPI:ToggleMCMWindow(false) end)
+            button.DataContext = ctx
+            -- Kept for troubleshooting purposes (shows warning)
+            Noesis:HandleGameMenuMCMButtonPress(button)
         end)
-        MCMButton.DataContext = ctx
-
-        -- Kept for troubleshooting purposes (shows warning)
-        Noesis:HandleGameMenuMCMButtonPress(MCMButton)
-
-        return MCMButton
     end, 100, 1000)
 
     -- Reset the flag after the total time in case no button was found
@@ -210,34 +207,36 @@ function Noesis:MonitorMCMGameMenuButtonPress(isController)
 end
 
 function Noesis:MonitorMainMenuButtonPress()
+    local bound = false
+    local pending = false
     VCTimer:ExecuteWithIntervalUntilCondition(function()
-        -- UI root not ready yet? retry next interval
-        if not Ext.UI.GetRoot() then
-            return false
-        end
+        if bound then return true end
+        if pending then return false end
         local isController = Gamepad.IsHostUsingGamepad()
+        local hideButton = MCM.Get("hide_main_menu_mcm_button")
+        pending = true
+        Ext.UI.Defer(function()
+            pending = false
+            if bound then return end
+            local mainMenuButton = Noesis:FindMCMMainMenuButton(isController)
+            if not mainMenuButton then
+                MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
+                return false
+            end
+            if hideButton then
+                mainMenuButton:SetProperty("Visibility", "Collapsed")
+            end
 
-        local mainMenuButton = Noesis:FindMCMMainMenuButton(isController)
-        if not mainMenuButton then
-            MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
-            return false
-        end
-        if MCM.Get("hide_main_menu_mcm_button") then
-            mainMenuButton:SetProperty("Visibility", "Collapsed")
-        end
+            local ctx = Ext.UI.Instantiate("se::MainMenuMCMButtonDC")
+            ctx.CustomEvent:SetHandler(function()
+                IMGUIAPI:ToggleMCMWindow(false)
+            end)
+            mainMenuButton.DataContext = ctx
 
-        Ext.UI.RegisterType("MainMenuMCMButtonDC", {
-            CustomEvent = { Type = "Command" }
-        })
+            self:HandleMainMenuMCMButtonPress(mainMenuButton)
 
-        local ctx = Ext.UI.Instantiate("se::MainMenuMCMButtonDC")
-        ctx.CustomEvent:SetHandler(function()
-            IMGUIAPI:ToggleMCMWindow(false)
+            bound = true
         end)
-        mainMenuButton.DataContext = ctx
-
-        self:HandleMainMenuMCMButtonPress(mainMenuButton)
-
-        return mainMenuButton ~= nil
+        return false
     end, 2000, function() return not MCMProxy:IsMainMenu() end)
 end
