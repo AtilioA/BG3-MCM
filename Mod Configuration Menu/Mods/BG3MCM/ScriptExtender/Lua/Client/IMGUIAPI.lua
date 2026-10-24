@@ -12,17 +12,13 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
         return
     end
 
-    -- The typeface is global, so it must not depend on the MCM window existing
-    if settingId == 'typeface' then
-        MCMClientState:ApplyGlobalTypeface()
+    -- The font is global, so it must not depend on the MCM window existing
+    if settingId == 'typeface' or settingId == 'font_size' then
+        MCMClientState:ApplyGlobalFont()
     end
 
     if not MCM_WINDOW then
         return
-    end
-
-    if settingId == 'font_size' then
-        MCMClientState:SetMCMFontSize(value)
     end
 
     -- if settingId == "toggle_mcm_sidebar_keybinding" then

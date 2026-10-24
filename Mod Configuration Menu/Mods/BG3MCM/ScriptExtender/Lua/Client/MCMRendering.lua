@@ -59,27 +59,14 @@ function MCMRendering:GetMCMFontSize()
     return MCMClientState:GetClientStateValue("font_size", ModuleUUID)
 end
 
-function MCMRendering:GetMCMTypeface()
-    local family = MCMClientState:GetClientStateValue("typeface", ModuleUUID)
-    if family == nil then return "" end
-    return family
-end
-
---- Sets the font size for the MCM window
---- @param size string|nil The font size
-function MCMRendering:SetMCMFontSize(size)
-    if not MCM_WINDOW then return end
-    if not size then return end
-
-    IMGUIHelpers.SetFont(MCM_WINDOW, size)
-end
-
---- Applies the saved typeface to the built-in IMGUI fonts used by MCM and other mods
-function MCMRendering:ApplyGlobalTypeface()
-    local typeface = self:GetMCMTypeface()
-    local success, errorMessage = Font.ApplyGlobalTypeface(typeface)
+--- Applies the saved typeface and font size to the built-in IMGUI fonts used by MCM and other mods
+function MCMRendering:ApplyGlobalFont()
+    local typeface = MCMClientState:GetClientStateValue("typeface", ModuleUUID)
+    local fontSize = MCMClientState:GetClientStateValue("font_size", ModuleUUID)
+    local success, errorMessage = Font.ApplyGlobalFont(typeface, fontSize)
     if not success then
-        MCMWarn(0, "Could not apply IMGUI font '%s': %s", typeface, errorMessage)
+        MCMWarn(0, "Could not apply IMGUI font '%s' at size '%s': %s",
+            tostring(typeface), tostring(fontSize), errorMessage)
     end
 end
 
@@ -244,8 +231,6 @@ function MCMRendering:CreateMainIMGUIWindow()
     ---@type ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     MCM_WINDOW.Scaling = "Scaled"
-    local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
-    IMGUIHelpers.SetFont(MCM_WINDOW, sizeSetting)
 
     MCM_WINDOW.AlwaysAutoResize = false
 
@@ -298,7 +283,7 @@ function MCMRendering:LoadMods(mods)
     self.mods = mods or {}
     self:ConvertModTablesToBlueprints()
     -- Apply before the window guard below, so other mods get the font even when MCM is never opened
-    self:ApplyGlobalTypeface()
+    self:ApplyGlobalFont()
 
     -- if MCM_WINDOW then MCM_WINDOW:Destroy() end
     local createdWindow = self:CreateMainIMGUIWindow()

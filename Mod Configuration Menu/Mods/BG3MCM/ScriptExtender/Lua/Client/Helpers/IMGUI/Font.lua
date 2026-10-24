@@ -26,9 +26,17 @@ local FONT_DEFINITIONS = {
     ["OpenDyslexic"] = "Mods/BG3MCM/Assets/Fonts/OpenDyslexic/OpenDyslexic.ttf",
 }
 
--- Last typeface fully applied to the built-in entries in this Lua context
----@type string|nil
-local appliedTypeface = nil
+---@class AppliedGlobalFont
+---@field typeface string FONT_DEFINITIONS key
+---@field sizeKey string FONT_SIZE_OPTIONS key
+
+-- Restore target for a failed load when this Lua context has not applied a font yet (the setting defaults)
+---@type AppliedGlobalFont
+local NATIVE_BASELINE = { typeface = "", sizeKey = "Default" }
+
+-- Last font fully applied to the built-in entries in this Lua context
+---@type AppliedGlobalFont|nil
+local appliedFont = nil
 
 -- Helpers
 local function _normalizeSizeKey(fontSize)
@@ -93,54 +101,61 @@ local function getBuiltinSizeOrder()
     return FONT_SIZE_ORDER
 end
 
----@param typeface string
+---@param font AppliedGlobalFont
 ---@return string
-local function describeTypeface(typeface)
-    return typeface == "" and "native" or typeface
+local function describeFont(font)
+    local family = font.typeface == "" and "native" or font.typeface
+    return string.format("%s/%s", family, font.sizeKey)
 end
 
---- Load a font file into every built-in entry, stopping at the first failure
----@param fontPath string
+--- Load a font into every built-in entry at one size, stopping at the first failure
+---@param font AppliedGlobalFont
 ---@return string|nil failedKey
-local function loadBuiltinEntries(fontPath)
-    for _, sizeKey in ipairs(getBuiltinSizeOrder()) do
-        if not Ext.IMGUI.LoadFont(sizeKey, fontPath, Font.FONT_SIZE_OPTIONS[sizeKey]) then
-            return sizeKey
+local function loadBuiltinEntries(font)
+    local fontPath = FONT_DEFINITIONS[font.typeface]
+    local sizeValue = Font.FONT_SIZE_OPTIONS[font.sizeKey]
+    for _, builtinName in ipairs(getBuiltinSizeOrder()) do
+        if not Ext.IMGUI.LoadFont(builtinName, fontPath, sizeValue) then
+            return builtinName
         end
     end
     return nil
 end
 
---- Replace BG3SE's shared built-in fonts with a typeface, keeping each entry's size.
---- This reaches every IMGUI window that uses the built-in fonts, including other mods' windows.
+--- Replace BG3SE's shared built-in fonts with one typeface at one size.
+--- Every built-in name then refers to the same family and size, so this reaches every IMGUI window that uses the built-in fonts, including other mods' windows.
 --- Fonts that other mods load under their own names are not changed.
---- On partial failure, restores the last fully applied typeface (native if none).
+--- On partial failure, restores the last fully applied font (NATIVE_BASELINE if none).
 ---@param typeface string|nil A FONT_DEFINITIONS key; nil or "" selects the native font
+---@param fontSize string|number|nil A FONT_SIZE_OPTIONS key or its pixel value
 ---@return boolean success
 ---@return string|nil errorMessage
-function Font.ApplyGlobalTypeface(typeface)
+function Font.ApplyGlobalFont(typeface, fontSize)
     typeface = typeface or ""
-    local fontPath = FONT_DEFINITIONS[typeface]
-    if not fontPath then
+    if not FONT_DEFINITIONS[typeface] then
         return false, string.format("Unknown font typeface '%s'", tostring(typeface))
     end
+    local sizeKey = Font.GetSizeKey(fontSize)
+    if not sizeKey then
+        return false, string.format("Unknown font size '%s'", tostring(fontSize))
+    end
 
-    local failedKey = loadBuiltinEntries(fontPath)
+    local font = { typeface = typeface, sizeKey = sizeKey }
+    local failedKey = loadBuiltinEntries(font)
     if not failedKey then
-        appliedTypeface = typeface
+        appliedFont = font
         return true, nil
     end
 
-    local message = string.format("Failed to load font '%s' for built-in font '%s'",
-        describeTypeface(typeface), failedKey)
-    local previousTypeface = appliedTypeface or ""
-    local restoreFailedKey = loadBuiltinEntries(FONT_DEFINITIONS[previousTypeface])
+    local message = string.format("Failed to load font '%s' for built-in font '%s'", describeFont(font), failedKey)
+    local previousFont = appliedFont or NATIVE_BASELINE
+    local restoreFailedKey = loadBuiltinEntries(previousFont)
     if restoreFailedKey then
-        appliedTypeface = nil
+        appliedFont = nil
         return false, string.format("%s; restoring font '%s' also failed at '%s'",
-            message, describeTypeface(previousTypeface), restoreFailedKey)
+            message, describeFont(previousFont), restoreFailedKey)
     end
 
-    appliedTypeface = previousTypeface
-    return false, string.format("%s; restored font '%s'", message, describeTypeface(previousTypeface))
+    appliedFont = previousFont
+    return false, string.format("%s; restored font '%s'", message, describeFont(previousFont))
 end
