@@ -219,52 +219,41 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         })
     end)
 
-    D.test("TestSaveAndReloadSettingsForModRestoresSavedValues", function(ctx)
-        local modUUID = TestConstants.ModuleUUIDs[1]
+    D.test("TestSaveAndReloadSettingsForModRestoresSavedValues", { tags = { "destructive" } }, function(ctx)
+        local modUUID = ModuleUUID
         local settingId = "save-reload-checkbox"
         local blueprint = Blueprint:New({
             ModUUID = modUUID,
             SchemaVersion = 1,
             Settings = {
-                BlueprintSetting:New({
-                    Id = settingId,
-                    Type = "checkbox",
-                    Default = true,
-                }),
+                { Id = settingId, Type = "checkbox", Default = true },
             },
         })
+        local context = Ext.IsServer() and "server" or "client"
+        local directory = Ext.Mod.GetMod(ModuleUUID).Info.Directory
+        local path = directory .. "/DribbleSpec/save-reload-" .. context .. ".json"
+        local previousContent = Ext.IO.LoadFile(path)
         local originalMods = ModConfig.mods
         local savedData
         local reloadedValue
-
         ModConfig.mods = {
-            [modUUID] = {
-                blueprint = blueprint,
-                settingsValues = { [settingId] = false },
-            },
+            [modUUID] = { blueprint = blueprint, settingsValues = { [settingId] = false } },
         }
-        ctx.stub(ModConfig, "GetSettingsFilePath", function(_self, _modUUID)
-            return "mock/save-reload-settings.json"
-        end)
-        ctx.stub(JsonLayer, "SaveJSONFile", function(_self, _path, data)
-            savedData = table.deepcopy(data)
-        end)
-        ctx.stub(JsonLayer, "LoadJSONFile", function(_self, _path)
-            return table.deepcopy(savedData)
+        ctx.stub(ModConfig, "GetSettingsFilePath", function()
+            return path
         end)
 
         local ok, err = pcall(function()
             ModConfig:SaveSettingsForMod(modUUID)
+            savedData = Ext.Json.Parse(Ext.IO.LoadFile(path))
             ModConfig.mods[modUUID].settingsValues = { [settingId] = true }
             ModConfig:LoadSettingsForMod(modUUID, blueprint)
             reloadedValue = ModConfig.mods[modUUID].settingsValues[settingId]
         end)
-
         ModConfig.mods = originalMods
-
-        if not ok then
-            error(err)
-        end
+        local restored, restoreError = pcall(Ext.IO.SaveFile, path, previousContent or "")
+        if not ok then error(err) end
+        if not restored then error(restoreError) end
 
         D.expect(savedData).toEqual({ [settingId] = false })
         D.expect(reloadedValue).toBe(false)

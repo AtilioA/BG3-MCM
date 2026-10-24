@@ -114,7 +114,11 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
             moduleUUID = moduleUUID,
             varName = varName,
             value = "local-value",
-            storageConfig = JsonAdapter:ResolveConfig({ SyncToServer = true, SyncToClient = true }),
+            storageConfig = {
+                Server = true, Client = true,
+                WriteableOnServer = true, WriteableOnClient = true,
+                Persistent = true, SyncToClient = true, SyncToServer = true,
+            },
         })
 
         StorageSyncService:HandleServerSyncPayload({

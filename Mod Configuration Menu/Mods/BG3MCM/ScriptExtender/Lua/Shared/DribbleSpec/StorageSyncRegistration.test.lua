@@ -37,21 +37,15 @@ local function ReadStoreFile(fileName)
 end
 
 D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit", "destructive" } }, function()
-    local varsToClear
     local filesToRestore
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
     D.beforeEach(function()
-        varsToClear = {}
         filesToRestore = {}
         syncStateFixture:Isolate()
     end)
 
     D.afterEach(function()
-        for _, varName in ipairs(varsToClear) do
-            pcall(MCM.Store.Set, { var = varName, value = nil, modUUID = ModuleUUID })
-        end
-
         for fileName, snapshot in pairs(filesToRestore) do
             pcall(Ext.IO.SaveFile, StoreFilePath(fileName), snapshot.content or "")
         end
@@ -60,7 +54,6 @@ D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit
     end)
 
     local function registerFixtureVar(varName, options)
-        table.insert(varsToClear, varName)
         return MCM.Store.RegisterVar(varName, options)
     end
 
@@ -95,9 +88,9 @@ D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit
     D.test("TestRemoteJsonValueForRegisteredVariableGoesToRegisteredFile", function()
         local varName = "dribblespec_sync_registered_file_" .. CONTEXT
         rememberFile(TEST_FILE_NAME)
-        -- SyncToServer lets the server context accept the value; no client echo is needed here.
+        -- Both receiving contexts accept this fixture; remote application must not echo it.
         D.expect(registerFixtureVar(varName, {
-            storageConfig = { fileName = TEST_FILE_NAME, SyncToServer = true, SyncToClient = false },
+            storageConfig = { fileName = TEST_FILE_NAME, SyncToServer = true, SyncToClient = true },
         })).toBe(true)
 
         local applied = StorageSyncService:ApplyRemoteValue("json", ModuleUUID, varName, "remote-value")

@@ -3,7 +3,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
 
     D.beforeEach(function()
         previousModUUID = BlueprintPreprocessing.currentmodUUID
-        BlueprintPreprocessing.currentmodUUID = TestConstants.ModuleUUIDs[1]
+        BlueprintPreprocessing.currentmodUUID = ModuleUUID
     end)
 
     D.afterEach(function()

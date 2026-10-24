@@ -18,21 +18,15 @@ local function StoreFilePath(fileName)
 end
 
 D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive" } }, function()
-    local varsToClear
     local filesToRestore
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
     D.beforeEach(function()
-        varsToClear = {}
         filesToRestore = {}
         syncStateFixture:Isolate()
     end)
 
     D.afterEach(function()
-        for _, varName in ipairs(varsToClear) do
-            pcall(MCM.Store.Set, { var = varName, value = nil, modUUID = ModuleUUID })
-        end
-
         for fileName, snapshot in pairs(filesToRestore) do
             pcall(Ext.IO.SaveFile, StoreFilePath(fileName), snapshot.content or "")
         end
@@ -47,7 +41,6 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive
     end
 
     local function registerFixtureVar(varName, options)
-        table.insert(varsToClear, varName)
         return MCM.Store.RegisterVar(varName, options)
     end
 
