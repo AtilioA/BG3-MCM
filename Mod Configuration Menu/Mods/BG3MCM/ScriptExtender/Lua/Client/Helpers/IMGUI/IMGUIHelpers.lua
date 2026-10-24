@@ -1,5 +1,22 @@
 IMGUIHelpers = {}
 
+--- Set the font size for a window
+--- @param window ExtuiWindow|nil The window to set the font for
+--- @param size string|nil The font size
+function IMGUIHelpers.SetFont(window, size)
+    if not window then
+        return
+    end
+
+    local fontName = Font.GetSizeKey(size)
+    if not fontName then
+        MCMWarn(1, "Invalid font size '%s', skipping font setting.", tostring(size))
+        return
+    end
+
+    window.Font = fontName
+end
+
 --- Add a tooltip to a button
 ---@param imguiObject ExtuiStyledRenderable
 ---@param tooltipText string|nil Text to display; may be empty to create an unpopulated tooltip for callers that add children themselves

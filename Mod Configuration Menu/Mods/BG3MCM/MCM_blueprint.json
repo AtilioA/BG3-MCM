@@ -46,8 +46,8 @@
                             "Name": "Font size",
                             "Type": "enum",
                             "Default": "Default",
-                            "Description": "Set the IMGUI font size for MCM and other mods.",
-                            "Tooltip": "Changes the text size in MCM and other mods that use the standard IMGUI fonts. Mods with custom fonts keep their sizes.\nNOTE: Icons will only have correct scale after loading a save.",
+                            "Description": "Set the IMGUI font size.",
+                            "Tooltip": "Changes the text size in MCM. To also change it in other mods, turn on 'Apply font size to all mods'.\nNOTE: Icons will only have correct scale after loading a save.",
                             "Options": {
                                 "Choices": [
                                     "Tiny",
@@ -70,6 +70,17 @@
                                     "h0216f2c4d63f4915b25cd7f24b8396e3aff1",
                                     "ha93072e1b30e40ad9461191e5635882dbc2e"
                                 ]
+                            }
+                        },
+                        {
+                            "Id": "font_size_all_mods",
+                            "Name": "Apply font size to all mods",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Tooltip": "When on, other mods that use the standard IMGUI fonts also use the selected font size. When off, only MCM uses it. Mods with custom fonts keep their sizes.",
+                            "Handles": {
+                                "NameHandle": "h9266f4cfed894abda9378f2c27275e9bdcbc",
+                                "TooltipHandle": "h1429519a1daa4a6abc00bc7142163f1bb307"
                             }
                         },
                         {

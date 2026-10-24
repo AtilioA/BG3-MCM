@@ -59,15 +59,19 @@ function MCMRendering:GetMCMFontSize()
     return MCMClientState:GetClientStateValue("font_size", ModuleUUID)
 end
 
---- Applies the saved typeface and font size to the built-in IMGUI fonts used by MCM and other mods
-function MCMRendering:ApplyGlobalFont()
+--- Applies the saved typeface to the built-in IMGUI fonts used by MCM and other mods, and the font size to MCM or to all of them
+function MCMRendering:ApplyFontSettings()
     local typeface = MCMClientState:GetClientStateValue("typeface", ModuleUUID)
     local fontSize = MCMClientState:GetClientStateValue("font_size", ModuleUUID)
-    local success, errorMessage = Font.ApplyGlobalFont(typeface, fontSize)
+    local sizeAllMods = MCMClientState:GetClientStateValue("font_size_all_mods", ModuleUUID) ~= false
+    local success, errorMessage = Font.ApplyGlobalFont(typeface, sizeAllMods and fontSize or nil)
     if not success then
         MCMWarn(0, "Could not apply IMGUI font '%s' at size '%s': %s",
             tostring(typeface), tostring(fontSize), errorMessage)
     end
+
+    -- When the size applies to all mods, every built-in name has that size, so this has no visible effect
+    IMGUIHelpers.SetFont(MCM_WINDOW, fontSize)
 end
 
 --- Returns the name of the mod with the given UUID
@@ -231,6 +235,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     ---@type ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     MCM_WINDOW.Scaling = "Scaled"
+    IMGUIHelpers.SetFont(MCM_WINDOW, self:GetMCMFontSize())
 
     MCM_WINDOW.AlwaysAutoResize = false
 
@@ -283,7 +288,7 @@ function MCMRendering:LoadMods(mods)
     self.mods = mods or {}
     self:ConvertModTablesToBlueprints()
     -- Apply before the window guard below, so other mods get the font even when MCM is never opened
-    self:ApplyGlobalFont()
+    self:ApplyFontSettings()
 
     -- if MCM_WINDOW then MCM_WINDOW:Destroy() end
     local createdWindow = self:CreateMainIMGUIWindow()

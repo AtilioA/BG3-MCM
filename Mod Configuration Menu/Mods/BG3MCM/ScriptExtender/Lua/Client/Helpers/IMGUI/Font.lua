@@ -28,7 +28,7 @@ local FONT_DEFINITIONS = {
 
 ---@class AppliedGlobalFont
 ---@field typeface string FONT_DEFINITIONS key
----@field sizeKey string FONT_SIZE_OPTIONS key
+---@field sizeKey string|nil FONT_SIZE_OPTIONS key for every entry; nil keeps each entry at its own size
 
 -- Restore target for a failed load when this Lua context has not applied a font yet (the setting defaults)
 ---@type AppliedGlobalFont
@@ -105,16 +105,16 @@ end
 ---@return string
 local function describeFont(font)
     local family = font.typeface == "" and "native" or font.typeface
-    return string.format("%s/%s", family, font.sizeKey)
+    return string.format("%s/%s", family, font.sizeKey or "own sizes")
 end
 
---- Load a font into every built-in entry at one size, stopping at the first failure
+--- Load a font into every built-in entry, stopping at the first failure
 ---@param font AppliedGlobalFont
 ---@return string|nil failedKey
 local function loadBuiltinEntries(font)
     local fontPath = FONT_DEFINITIONS[font.typeface]
-    local sizeValue = Font.FONT_SIZE_OPTIONS[font.sizeKey]
     for _, builtinName in ipairs(getBuiltinSizeOrder()) do
+        local sizeValue = Font.FONT_SIZE_OPTIONS[font.sizeKey or builtinName]
         if not Ext.IMGUI.LoadFont(builtinName, fontPath, sizeValue) then
             return builtinName
         end
@@ -122,12 +122,12 @@ local function loadBuiltinEntries(font)
     return nil
 end
 
---- Replace BG3SE's shared built-in fonts with one typeface at one size.
---- Every built-in name then refers to the same family and size, so this reaches every IMGUI window that uses the built-in fonts, including other mods' windows.
+--- Replace BG3SE's shared built-in fonts with one typeface, at one size or at each entry's own size.
+--- This reaches every IMGUI window that uses the built-in fonts, including other mods' windows.
 --- Fonts that other mods load under their own names are not changed.
 --- On partial failure, restores the last fully applied font (NATIVE_BASELINE if none).
 ---@param typeface string|nil A FONT_DEFINITIONS key; nil or "" selects the native font
----@param fontSize string|number|nil A FONT_SIZE_OPTIONS key or its pixel value
+---@param fontSize string|number|nil A FONT_SIZE_OPTIONS key or its pixel value; nil keeps each entry at its own size
 ---@return boolean success
 ---@return string|nil errorMessage
 function Font.ApplyGlobalFont(typeface, fontSize)
@@ -136,7 +136,7 @@ function Font.ApplyGlobalFont(typeface, fontSize)
         return false, string.format("Unknown font typeface '%s'", tostring(typeface))
     end
     local sizeKey = Font.GetSizeKey(fontSize)
-    if not sizeKey then
+    if fontSize ~= nil and not sizeKey then
         return false, string.format("Unknown font size '%s'", tostring(fontSize))
     end
 

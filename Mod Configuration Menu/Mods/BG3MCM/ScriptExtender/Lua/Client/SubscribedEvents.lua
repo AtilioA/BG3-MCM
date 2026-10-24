@@ -347,7 +347,7 @@ ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
     end
 
     if newSettings[ModuleUUID] then
-        MCMClientState:ApplyGlobalFont()
+        MCMClientState:ApplyFontSettings()
     end
 end)
 

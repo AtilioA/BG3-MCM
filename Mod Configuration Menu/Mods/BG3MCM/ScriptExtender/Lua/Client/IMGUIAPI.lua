@@ -13,8 +13,8 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     end
 
     -- The font is global, so it must not depend on the MCM window existing
-    if settingId == 'typeface' or settingId == 'font_size' then
-        MCMClientState:ApplyGlobalFont()
+    if settingId == 'typeface' or settingId == 'font_size' or settingId == 'font_size_all_mods' then
+        MCMClientState:ApplyFontSettings()
     end
 
     if not MCM_WINDOW then
