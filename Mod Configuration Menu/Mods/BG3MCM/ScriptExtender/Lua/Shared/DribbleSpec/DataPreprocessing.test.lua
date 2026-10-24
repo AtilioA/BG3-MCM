@@ -66,6 +66,11 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
         D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-1")).toBe(true)
+        local section = sanitizedBlueprint:GetSections()[1]
+        D.expect(section:GetId()).toBe("section-1")
+        D.expect(section:GetLocaName()).toBe("Section 1")
+        D.expect(#section:GetSettings()).toBe(1)
+        D.expect(section:GetSettings()[1]:GetId()).toBe("setting-1")
     end)
 
     D.test("TestBlueprintAllowsNoSettings", function()
@@ -287,6 +292,15 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         D.expect(blueprint).Not.toBeNil()
         D.expect(blueprint:GetAllSettings()["nested-setting"]).Not.toBeNil()
         D.expect(blueprint:RetrieveDefaultValueForSetting("nested-setting")).toBe(true)
+
+        local topLevelTab = blueprint:GetTabs()[1]
+        D.expect(topLevelTab:GetId()).toBe("tab-1")
+        D.expect(#topLevelTab:GetTabs()).toBe(1)
+
+        local nestedTab = topLevelTab:GetTabs()[1]
+        D.expect(nestedTab:GetId()).toBe("nested-tab-1")
+        D.expect(#nestedTab:GetSettings()).toBe(1)
+        D.expect(nestedTab:GetSettings()[1]:GetId()).toBe("nested-setting")
     end)
 
     D.test("TestValidateAndFixSettingsIncludesNestedTabSettings", function()
@@ -849,6 +863,19 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                 }
             }
         })
+        local blueprintWithInvalidChoiceType = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                {
+                    Id = "setting-enum",
+                    Type = "enum",
+                    Options = {
+                        Choices = { "option-1", 2 }
+                    },
+                    Default = "option-1"
+                }
+            }
+        })
         local blueprintWithChoices = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -857,7 +884,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                     Type = "enum",
                     Options = {
                         Choices = {
-                            1, 2, 3
+                            "option-1", "option-2"
                         }
                     },
                     Default = "option-1"
@@ -867,10 +894,13 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local modUUID = TestConstants.ModuleUUIDs[1]
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+        local sanitizedBlueprintWithInvalidChoiceType = BlueprintPreprocessing:SanitizeBlueprint(
+            blueprintWithInvalidChoiceType, modUUID)
         local sanitizedBlueprintWithChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modUUID)
 
         D.expect(sanitizedBlueprint).toBeNil()
-        D.expect(sanitizedBlueprintWithChoices).toBeNil()
+        D.expect(sanitizedBlueprintWithInvalidChoiceType).toBeNil()
+        D.expect(sanitizedBlueprintWithChoices).Not.toBeNil()
     end)
 
     D.test("BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings", function()
@@ -887,6 +917,19 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                 }
             }
         })
+        local blueprintWithInvalidChoiceType = Blueprint:New({
+            SchemaVersion = 1,
+            Settings = {
+                {
+                    Id = "setting-radio",
+                    Type = "radio",
+                    Options = {
+                        Choices = { "option-1", 2 }
+                    },
+                    Default = "option-1"
+                }
+            }
+        })
         local blueprintWithChoices = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -895,38 +938,23 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                     Type = "radio",
                     Options = {
                         Choices = {
-                            1, 2, 3
+                            "option-1", "option-2"
                         }
                     },
                     Default = "option-1"
                 }
             }
         })
-        local blueprintWithStringChoices = Blueprint:New({
-            SchemaVersion = 1,
-            Settings = {
-                {
-                    Id = "setting-radio",
-                    Type = "radio",
-                    Options = {
-                        Choices = {
-                            "1", "2", "3"
-                        }
-                    },
-                    Default = "1"
-                }
-            }
-        })
         local modUUID = TestConstants.ModuleUUIDs[1]
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
+        local sanitizedBlueprintWithInvalidChoiceType = BlueprintPreprocessing:SanitizeBlueprint(
+            blueprintWithInvalidChoiceType, modUUID)
         local sanitizedBlueprintWithChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithChoices, modUUID)
-        local sanitizedBlueprintWithStringChoices = BlueprintPreprocessing:SanitizeBlueprint(blueprintWithStringChoices,
-            modUUID)
 
         D.expect(sanitizedBlueprint).toBeNil()
-        D.expect(sanitizedBlueprintWithChoices).toBeNil()
-        D.expect(sanitizedBlueprintWithStringChoices).Not.toBeNil()
+        D.expect(sanitizedBlueprintWithInvalidChoiceType).toBeNil()
+        D.expect(sanitizedBlueprintWithChoices).Not.toBeNil()
     end)
 
     D.test("BlueprintShouldHaveMinAndMaxForSlider", function()
@@ -993,8 +1021,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
                     Type = "slider_int",
                     Default = 50,
                     Options = {
-                        Min = 100,
-                        Max = 0
+                        Min = 50,
+                        Max = 50
                     }
                 }
             }
@@ -1378,7 +1406,16 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
-        D.expect(#sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions).toBe(2)
+
+        local visibleIf = sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf()
+        D.expect(visibleIf.LogicalOperator).toBe("or")
+        D.expect(#visibleIf.Conditions).toBe(2)
+        D.expect(visibleIf.Conditions[1].SettingId).toBe("master-toggle")
+        D.expect(visibleIf.Conditions[1].Operator).toBe("==")
+        D.expect(visibleIf.Conditions[1].ExpectedValue).toBe(true)
+        D.expect(visibleIf.Conditions[2].SettingId).toBe("mode")
+        D.expect(visibleIf.Conditions[2].Operator).toBe("==")
+        D.expect(visibleIf.Conditions[2].ExpectedValue).toBe("expert")
     end)
 
     D.test("TestBlueprintVisibleIfAllowsValidTabAndSectionConditions", function()
@@ -1433,8 +1470,14 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
 
-        local section = sanitizedBlueprint:GetTabs()[1]:GetSections()[1]
+        local tab = sanitizedBlueprint:GetTabs()[1]
+        local section = tab:GetSections()[1]
+        D.expect(tab:GetVisibleIf().Conditions[1].SettingId).toBe("master-toggle")
+        D.expect(tab:GetVisibleIf().Conditions[1].Operator).toBe("==")
+        D.expect(tab:GetVisibleIf().Conditions[1].ExpectedValue).toBe(true)
         D.expect(section:GetVisibleIf().Conditions[1].SettingId).toBe("master-toggle")
+        D.expect(section:GetVisibleIf().Conditions[1].Operator).toBe("==")
+        D.expect(section:GetVisibleIf().Conditions[1].ExpectedValue).toBe(true)
     end)
 
     D.test("TestKeybindingV2OptionFlagsMustBeBoolean", function()
@@ -1903,5 +1946,40 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         D.expect(validSection1:GetLocaName()).toBe("Section 1")
         D.expect(validSection2:GetLocaName()).toBe("Section 2")
         D.expect(invalidSection).toBeNil()
+    end)
+
+    D.test("SectionIdAndNameAliasesSurviveTheBlueprintPipeline", function()
+        local rawData = {
+            SchemaVersion = 1,
+            Tabs = {
+                {
+                    TabId = "alias-tab",
+                    TabName = "Alias Tab",
+                    Sections = {
+                        {
+                            Id = "alias-section",
+                            Name = "Alias Section",
+                            Settings = {
+                                {
+                                    Id = "alias-setting",
+                                    Type = "checkbox",
+                                    Default = true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }
+
+        local sanitizedBlueprint = preprocessAndSanitize(rawData, TestConstants.ModuleUUIDs[1])
+
+        D.expect(sanitizedBlueprint).Not.toBeNil()
+        local section = sanitizedBlueprint:GetTabs()[1]:GetSections()[1]
+        D.expect(section:GetId()).toBe("alias-section")
+        D.expect(section:GetLocaName()).toBe("Alias Section")
+        D.expect(#section:GetSettings()).toBe(1)
+        D.expect(section:GetSettings()[1]:GetId()).toBe("alias-setting")
+        D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("alias-setting")).toBe(true)
     end)
 end)
