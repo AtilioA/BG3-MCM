@@ -561,6 +561,14 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = "unknown",
         })
 
-        D.expect(DataPreprocessing:ValidateSetting(setting, "unknown")).toBe(false)
+        local previousModUUID = BlueprintPreprocessing.currentmodUUID
+        local ok, isValid = pcall(function()
+            BlueprintPreprocessing.currentmodUUID = ModuleUUID
+            return DataPreprocessing:ValidateSetting(setting, "unknown")
+        end)
+        BlueprintPreprocessing.currentmodUUID = previousModUUID
+
+        D.expect(ok).toBe(true)
+        D.expect(isValid).toBe(false)
     end)
 end)

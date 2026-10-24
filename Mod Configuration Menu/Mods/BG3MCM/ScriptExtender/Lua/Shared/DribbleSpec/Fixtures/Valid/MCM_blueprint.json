@@ -1,0 +1,12 @@
+{
+  "SchemaVersion": 1,
+  "ModName": "Loader Fixture",
+  "Settings": [
+    {
+      "Id": "loader-fixture-checkbox",
+      "Name": "Loader Fixture Checkbox",
+      "Type": "checkbox",
+      "Default": true
+    }
+  ]
+}
