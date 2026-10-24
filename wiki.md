@@ -37,8 +37,6 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
 - [Mod Configuration Menu documentation](#mod-configuration-menu-documentation)
   - [Quick-start guide](#quick-start-guide)
   - [Table of Contents](#table-of-contents)
-  - [Hide and show mod entries](#hide-and-show-mod-entries)
-  - [Share mod-list visibility](#share-mod-list-visibility)
   - [Features for mod authors](#features-for-mod-authors)
   - [Concepts](#concepts)
   - [Integrating MCM into your mod](#integrating-mcm-into-your-mod)
@@ -94,68 +92,9 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
     - [Features](#features)
     - [Example usage](#example-usage)
   - [MCM (1.23) integration showcase/demo](#mcm-123-integration-showcasedemo)
+  - [Hide and show mod entries](#hide-and-show-mod-entries)
+  - [Share mod-list visibility](#share-mod-list-visibility)
   - [Closing words](#closing-words)
-
-## Hide and show mod entries
-
-Right-click a mod entry in MCM's left pane and select **Hide** to move it out of the main mod list. **Hidden mods** appears at the bottom with a count, such as **Hidden mods (3)**. Expand the group to open a hidden mod's page. Right-click its entry and select **Show** to return it to the main list.
-
-Hidden mods stay active. Their settings still apply, their keybindings keep working, and the Hotkeys page still lists their keybindings. You can hide MCM's own mod entry too. Tools such as Hotkeys have no Hide action.
-
-Right-clicking an entry opens its menu without opening that mod's page. If you hide the mod whose page is open, the page stays open. Hidden entries use the same name order as the main list.
-
-The group keeps its expanded or collapsed state when MCM rebuilds the navigation after a visibility change. Hiding a mod does not expand the group. Each newly built MCM window starts with the group collapsed; MCM does not save its expansion state.
-
-MCM omits the group when nothing is hidden. The count includes only mod entries in your current load order. MCM keeps choices for uninstalled mods, so reinstalling them restores their visibility.
-
-The right-click menu offers one action: Hide or Show. When that action matches the [author's default](#hiddenfromlist-default-mod-list-visibility), its label ends with **(Default)**, such as **Show (Default)**. Select it to remove your saved choice and follow the author's default again. A marked action appears only after you save a choice that differs from the author's default. If your saved choice already matches the author's default, the menu offers only the opposite action. This also applies to a choice supplied by a collection.
-
-Hide, Show, and their **(Default)** forms are mouse-only actions. With a controller, you can still expand Hidden mods and open its entries through native controller navigation.
-
-MCM saves your choices automatically for your local installation. They stay the same across gameplay profiles and do not sync with multiplayer hosts or other players. To copy your mod-list visibility to another installation, see [Share mod-list visibility](#share-mod-list-visibility).
-
-## Share mod-list visibility
-
-Collection curators can set mod-list visibility with [Hide and Show](#hide-and-show-mod-entries), then copy the saved `MCM_state.json` into their distribution files. MCM saves this exact file automatically; no export step is needed. Mod authors can use the same process to share mod-list visibility, or set their own entry's [blueprint default](#hiddenfromlist-default-mod-list-visibility).
-
-The file lives in MCM's own Store directory:
-
-```text
-%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Script Extender\BG3MCM\Profiles\Default\BG3MCM\MCM_state.json
-```
-
-Install the file at that same path on the receiving installation. The `Default` path segment is fixed, even when another gameplay profile is active. This is local, installation-wide UI state, independent of gameplay profiles and multiplayer synchronization.
-
-The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
-
-```json
-{
-  "Version": 1,
-  "UI": {
-    "Mods": {
-      "01234567-89ab-cdef-0123-456789abcdef": {
-        "HiddenFromList": true
-      }
-    }
-  }
-}
-```
-
-`Version` identifies the document format. In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The group's expansion state is not part of this document.
-
-Choose an entry for each mod based on what you want:
-
-| Goal | Entry in `UI.Mods` |
-| --- | --- |
-| Hide the mod | `"HiddenFromList": true` |
-| Show the mod, even if its author hides it by default | `"HiddenFromList": false` |
-| Follow the author's default, including future changes to it | Omit the mod |
-
-When you select Show in MCM, MCM saves `false`, so the saved file also overrides author defaults. Before you ship the file, remove each `false` entry for a mod whose author default you want to keep.
-
-The recipient can change the visibility through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
-
-If `MCM_state.json` cannot be parsed, or its `Version` is newer than this MCM supports, MCM keeps the file unchanged. Entries then follow their author defaults if the file is unreadable, and the right-click menu explains that menu choices cannot be saved instead of offering Hide or Show. Repair or delete the file, then reload.
 
 ## Features for mod authors
 
@@ -1275,6 +1214,63 @@ Analogous functions are available for other severity levels (e.g., `Notification
 The demo below showcases the different types of config options that can be used (almost all of them as of v1.23). The demo also shows how to insert custom UI elements into the menu, how to listen and react to MCM events, and how to register callbacks for keybinding actions.
 
 [MCM Demo 1.23.zip](/tutorials/frameworks/mcm/mcm_demo_1.23.zip)
+
+## Hide and show mod entries
+
+Right-click a mod entry in MCM's left pane and select **Hide** to move it out of the main mod list. **Hidden mods** appears at the bottom with a count, such as **Hidden mods (3)**. Expand the group to open a hidden mod's page. Right-click its entry and select **Show** to return it to the main list.
+
+Hidden mods stay active. Their settings still apply, their keybindings keep working, and the Hotkeys page still lists their keybindings. You can hide MCM's own mod entry too. Tools such as Hotkeys have no Hide action.
+
+The group keeps its expanded or collapsed state when MCM rebuilds the navigation after a visibility change. Each newly built MCM window starts with the group collapsed. MCM omits the group when nothing is hidden. The count includes only mod entries in your current load order. MCM keeps choices for uninstalled mods, so reinstalling them restores their visibility.
+
+The right-click menu offers one action: Hide or Show. When that action matches the [author's default](#hiddenfromlist-default-mod-list-visibility), its label ends with **(Default)**, such as **Show (Default)**. Select it to remove your saved choice and follow the author's default again. A marked action appears only after you save a choice that differs from the author's default. If your saved choice already matches the author's default, the menu offers only the opposite action. This also applies to a choice supplied by a collection.
+
+Hide, Show, and their **(Default)** forms are mouse-only actions. With a controller, you can still expand Hidden mods and open its entries through native controller navigation.
+
+MCM saves your choices automatically for your local installation. They stay the same across gameplay profiles and do not sync with multiplayer hosts or other players. To copy your mod-list visibility to another installation, see [Share mod-list visibility](#share-mod-list-visibility).
+
+## Share mod-list visibility
+
+Collection curators can set mod-list visibility with [Hide and Show](#hide-and-show-mod-entries), then copy the saved `MCM_state.json` into their distribution files. MCM saves this exact file automatically; no export step is needed. Mod authors can use the same process to share mod-list visibility, or set their own entry's [blueprint default](#hiddenfromlist-default-mod-list-visibility).
+
+The file lives in MCM's own settings directory:
+
+```text
+%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Script Extender\BG3MCM\Profiles\Default\BG3MCM\MCM_state.json
+```
+
+Install the file at that same path on the receiving installation. The `Default` path segment is fixed, even when another gameplay profile is active (WIP). This is local, installation-wide UI state, independent of gameplay profiles and multiplayer synchronization.
+
+The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
+
+```json
+{
+  "Version": 1,
+  "UI": {
+    "Mods": {
+      "01234567-89ab-cdef-0123-456789abcdef": {
+        "HiddenFromList": true
+      }
+    }
+  }
+}
+```
+
+`Version` identifies the document format. In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The group's expansion state is not part of this document.
+
+Choose an entry for each mod based on what you want:
+
+| Goal | Entry in `UI.Mods` |
+| --- | --- |
+| Hide the mod | `"HiddenFromList": true` |
+| Show the mod, even if its author hides it by default | `"HiddenFromList": false` |
+| Follow the author's default, including future changes to it | Omit the mod |
+
+When you select Show in MCM, MCM saves `false`, so the saved file also overrides author defaults. Before you ship the file, remove each `false` entry for a mod whose author default you want to keep.
+
+The recipient can change the visibility through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
+
+If `MCM_state.json` cannot be parsed, or its `Version` is newer than this MCM supports, MCM keeps the file unchanged. Entries then follow their author defaults if the file is unreadable, and the right-click menu explains that menu choices cannot be saved instead of offering Hide or Show. Repair or delete the file, then reload.
 
 ## Closing words
 
