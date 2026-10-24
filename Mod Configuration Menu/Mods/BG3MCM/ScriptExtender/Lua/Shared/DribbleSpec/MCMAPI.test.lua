@@ -150,6 +150,7 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         }
         local originalMods = MCMAPI.mods
         local originalModConfigMods = ModConfig.mods
+        local originalClientMods = MCMClientState.mods
         local receivedEvents = {}
         local subscriptionIndex
         local initialValue
@@ -161,6 +162,7 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         local ok, err = pcall(function()
             MCMAPI.mods = { [modUUID] = mod }
             ModConfig.mods = { [modUUID] = mod }
+            MCMClientState.mods = {}
             ctx.stub(MCMProxy, "IsMainMenu", function() return true end)
             ctx.stub(ModConfig, "SaveSettingsForMod", function() end)
             subscriptionIndex = ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(eventData)
@@ -182,6 +184,7 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         end
         MCMAPI.mods = originalMods
         ModConfig.mods = originalModConfigMods
+        MCMClientState.mods = originalClientMods
 
         if not ok then
             error(err)

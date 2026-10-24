@@ -16,6 +16,7 @@ D.describe("VisibilityManager", { tags = { "visibility", "unit" } }, function()
 
     D.afterEach(function()
         if not visibilityFixture then return end
+        MCMClientState.mods = visibilityFixture.clientMods
 
         local modElements = VisibilityManager.registered[visibilityFixture.modUUID]
         if modElements then
@@ -130,7 +131,9 @@ D.describe("VisibilityManager", { tags = { "visibility", "unit" } }, function()
             modUUID = modUUID,
             widget = widget,
             hadModElements = modElements ~= nil,
+            clientMods = MCMClientState.mods,
         }
+        MCMClientState.mods = {}
 
         ctx.stub(MCMRendering, "GetClientStateValue", function(_, requestedSettingId, requestedModUUID)
             if requestedSettingId ~= settingId then return nil end
