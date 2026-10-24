@@ -35,6 +35,7 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
             function(_, payload, callback)
                 D.expect(payload.settingId).toBe("remote-setting")
                 D.expect(payload.value).toBe("second")
+                D.expect(payload.modUUID).toBe("test-mod")
                 reply = callback
             end)
         ctx.stub(ModEventManager, "Emit", function(_, eventName, payload, bothContexts)

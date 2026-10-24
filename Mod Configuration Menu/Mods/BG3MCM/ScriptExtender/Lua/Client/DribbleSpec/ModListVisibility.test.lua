@@ -181,9 +181,15 @@ D.describe("ModListVisibility", { tags = { "mod_list_visibility", "client", "uni
     end)
 
     D.test("a readable current-version state document accepts choices", function()
-        local visibility = ModListVisibility:New(FakeStore({ Version = 1 }))
+        local store = FakeStore({ Version = 1 })
+        local visibility = ModListVisibility:New(store)
 
         D.expect(visibility:IsProtected()).toBe(false)
         D.expect(visibility:SetHidden(MOD_A, true)).toBe(true)
+        D.expect(visibility:HasChoice(MOD_A)).toBe(true)
+        local main, hidden = visibility:Resolve({ MOD_A, MOD_B })
+        D.expect(main).toEqual({ MOD_B })
+        D.expect(hidden).toEqual({ MOD_A })
+        D.expect(store.values.UI.Mods[MOD_A]).toEqual({ HiddenFromList = true })
     end)
 end)
