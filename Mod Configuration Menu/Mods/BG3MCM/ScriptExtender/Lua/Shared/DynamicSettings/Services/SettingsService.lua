@@ -163,6 +163,16 @@ function SettingsService.GetStorageType(moduleUUID, varName)
     return nil
 end
 
+--- Get the storageConfig a variable was registered with
+---@param moduleUUID string
+---@param varName string
+---@return StorageConfig|nil storageConfig The registered config, or nil if the variable is not registered or has none
+function SettingsService.GetStorageConfig(moduleUUID, varName)
+    local storageType = SettingsService.GetStorageType(moduleUUID, varName)
+    local entry = storageType and getStorageBucket(moduleUUID, storageType)[varName]
+    return entry and entry.storageConfig or nil
+end
+
 --- Resolve the storage type for a variable, either from provided arg or auto-detection
 ---@param moduleUUID string
 ---@param varName string

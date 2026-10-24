@@ -281,6 +281,18 @@ function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, v
         return false
     end
 
+    -- The receiver's own registration decides sync; senders (e.g. the bootstrap) may include values that are not synced toward this context.
+    local registeredConfig = adapter:ResolveConfig(SettingsService.GetStorageConfig(moduleUUID, varName))
+    local syncsHere = registeredConfig.SyncToClient
+    if Ext.IsServer() then
+        syncsHere = registeredConfig.SyncToServer
+    end
+    if syncsHere ~= true then
+        MCMDebug(1, "StorageSyncService: ignored synced %s value '%s' for mod %s: the variable does not sync to this context",
+            normalizeStorageType(storageType), varName, moduleUUID)
+        return false
+    end
+
     self:BeginRemoteApply()
     local saved = adapter:SetValue(varName, value, moduleUUID, {
         SyncToClient = false,

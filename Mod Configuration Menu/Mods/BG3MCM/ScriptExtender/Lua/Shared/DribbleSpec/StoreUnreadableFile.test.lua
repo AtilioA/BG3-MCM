@@ -1,7 +1,7 @@
 -- Covers MCM.Store protection of JSON Store files that cannot be parsed (ADR 0003).
 -- Each test uses its own fixture file, because MCM keeps a loaded file in memory until the next reset.
--- Both realms share disk, but each JSON handler saves its own complete in-memory copy.
-local REALM = Ext.IsServer() and "server" or "client"
+-- Both contexts share disk, but each JSON handler saves its own complete in-memory copy.
+local CONTEXT = Ext.IsServer() and "server" or "client"
 
 local UNREADABLE_CONTENT = '{"dribblespec_store_unreadable": tru'
 
@@ -15,8 +15,8 @@ end
 
 D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive" } }, function()
     D.test("TestStoreKeepsUnparsableFileUnchangedAfterSet", function()
-        local fileName = "mcm_dribblespec_store_unreadable_set_" .. REALM .. ".json"
-        local varName = "dribblespec_store_unreadable_set_" .. REALM
+        local fileName = "mcm_dribblespec_store_unreadable_set_" .. CONTEXT .. ".json"
+        local varName = "dribblespec_store_unreadable_set_" .. CONTEXT
         Ext.IO.SaveFile(StoreFilePath(fileName), UNREADABLE_CONTENT)
         MCM.Store.RegisterVar(varName, { storageConfig = { fileName = fileName } })
 
@@ -29,10 +29,10 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive
     end)
 
     D.test("TestStoreUnparsableFileDoesNotBlockOtherFiles", function()
-        local unreadableFileName = "mcm_dribblespec_store_unreadable_other_" .. REALM .. ".json"
-        local readableFileName = "mcm_dribblespec_store_readable_other_" .. REALM .. ".json"
-        local unreadableVar = "dribblespec_store_unreadable_other_" .. REALM
-        local readableVar = "dribblespec_store_readable_other_" .. REALM
+        local unreadableFileName = "mcm_dribblespec_store_unreadable_other_" .. CONTEXT .. ".json"
+        local readableFileName = "mcm_dribblespec_store_readable_other_" .. CONTEXT .. ".json"
+        local unreadableVar = "dribblespec_store_unreadable_other_" .. CONTEXT
+        local readableVar = "dribblespec_store_readable_other_" .. CONTEXT
         Ext.IO.SaveFile(StoreFilePath(unreadableFileName), UNREADABLE_CONTENT)
         MCM.Store.RegisterVar(unreadableVar, { storageConfig = { fileName = unreadableFileName } })
         MCM.Store.RegisterVar(readableVar, { storageConfig = { fileName = readableFileName } })

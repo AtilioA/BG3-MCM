@@ -51,7 +51,8 @@ D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit
 
     D.test("TestRemoteJsonValueForRegisteredVariableGoesToRegisteredFile", function()
         local varName = "dribblespec_sync_registered_file"
-        D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME } })).toBe(true)
+        -- SyncToServer lets the server context accept the value; JSON syncs to clients by default
+        D.expect(MCM.Store.RegisterVar(varName, { storageConfig = { fileName = TEST_FILE_NAME, SyncToServer = true } })).toBe(true)
 
         local applied = StorageSyncService:ApplyRemoteValue("json", ModuleUUID, varName, "remote-value")
         local namedFileValue = ReadStoreFile(TEST_FILE_NAME)[varName]
