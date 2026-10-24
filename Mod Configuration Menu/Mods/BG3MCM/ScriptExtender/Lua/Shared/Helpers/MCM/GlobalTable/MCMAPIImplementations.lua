@@ -270,18 +270,29 @@ function MCMAPIImplementations.createKeybindingAPI(originalModUUID)
     return KeybindingAPI
 end
 
---- Implementation: Get a table of enabled items in a list setting
+--- Implementation: Get the names of enabled items in a list setting, in list order
 ---@param args MCMListGetArgs
----@return table<string, boolean> enabledItems
-local function ListGetEnabled_Impl(args)
+---@return string[] enabledNames
+local function ListGetEnabledNames_Impl(args)
     local setting = MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
-    local enabledItems = {}
+    local enabledNames = {}
     if setting and setting.enabled and setting.elements then
         for _, element in ipairs(setting.elements) do
             if element.enabled then
-                enabledItems[element.name] = true
+                table.insert(enabledNames, element.name)
             end
         end
+    end
+    return enabledNames
+end
+
+--- Implementation: Get a set of enabled items in a list setting
+---@param args MCMListGetArgs
+---@return table<string, true> enabledItems
+local function ListGetEnabled_Impl(args)
+    local enabledItems = {}
+    for _, name in ipairs(ListGetEnabledNames_Impl(args)) do
+        enabledItems[name] = true
     end
     return enabledItems
 end
@@ -395,12 +406,22 @@ end
 function MCMAPIImplementations.createListAPI(originalModUUID)
     local ListAPI = {}
 
-    --- Get a table of enabled items in a list setting
+    --- Get a set of enabled items in a list setting
     ---@param listSettingId string|MCMListGetArgs The ID of the list setting, or an argument table
     ---@param modUUID? string Optional mod UUID, defaults to current mod
-    ---@return table<string, boolean> enabledItems - A table where keys are enabled item names and values are true
+    ---@return table<string, true> enabledItems - A set where keys are enabled item names and values are always true
     ListAPI.GetEnabled = MCMAPIUtils.WithFlexibleArgs(
         ListGetEnabled_Impl,
+        { "listSettingId", "modUUID" },
+        { modUUID = originalModUUID }
+    )
+
+    --- Get the names of enabled items in a list setting, in list order
+    ---@param listSettingId string|MCMListGetArgs The ID of the list setting, or an argument table
+    ---@param modUUID? string Optional mod UUID, defaults to current mod
+    ---@return string[] enabledNames - An array of enabled item names in the user's list order
+    ListAPI.GetEnabledNames = MCMAPIUtils.WithFlexibleArgs(
+        ListGetEnabledNames_Impl,
         { "listSettingId", "modUUID" },
         { modUUID = originalModUUID }
     )

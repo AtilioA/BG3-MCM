@@ -151,7 +151,8 @@
 --- @field SetChoices fun(settingIdOrArgs:string|MCMEnumSetChoicesArgs, choices?:string[], choicesHandles?:string[], modUUID?:string):boolean Update enum choices at runtime
 
 --- @class MCMListAPI List setting-related API methods
---- @field GetEnabled fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table<string, boolean> Get all enabled items in a list setting
+--- @field GetEnabled fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table<string, true> Get a set of enabled item names (keys are names, values are always true)
+--- @field GetEnabledNames fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):string[] Get enabled item names as an array, in list order
 --- @field GetRaw fun(listSettingIdOrArgs:string|MCMListGetArgs, modUUID?:string):table|nil Get the raw list setting data structure
 --- @field IsEnabled fun(listSettingIdOrArgs:string|MCMListIsEnabledArgs, itemName?:string, modUUID?:string):boolean Check if a specific item is enabled
 --- @field SetEnabled fun(listSettingIdOrArgs:string|MCMListSetEnabledArgs, itemName?:string, enabled?:boolean, modUUID?:string, shouldEmitEvent?:boolean):boolean Update the enabled state of an item

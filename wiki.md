@@ -621,11 +621,29 @@ These methods operate on `list_v2` settings.
 
 | Function | Description | Client | Server |
 | ---------- | ------------- | :------: | :------: |
-| `MCM.List.GetEnabled(listSettingId, modUUID?)` | Gets a table of enabled items in a list | ✅ | ✅ |
+| `MCM.List.GetEnabled(listSettingId, modUUID?)` | Gets a set of enabled items: keys are item names, values are always `true` | ✅ | ✅ |
+| `MCM.List.GetEnabledNames(listSettingId, modUUID?)` | Gets an array of enabled item names, in list order | ✅ | ✅ |
 | `MCM.List.GetRaw(listSettingId, modUUID?)` | Gets raw list setting data | ✅ | ✅ |
 | `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Checks if a specific item is enabled in a list | ✅ | ✅ |
 | `MCM.List.SetEnabled(listSettingId, itemName, enabled, modUUID?, shouldEmitEvent?)` | Sets the enabled state of a list item | ✅ | ✅ |
 | `MCM.List.InsertSuggestions(listSettingId, suggestions, modUUID?)` | Inserts suggestions below the input of a `list_v2` widget | ✅ | ❌ |
+
+Both getters return only enabled items, and return nothing when the whole list is disabled. `GetEnabled` is a set, so iterate its keys. Use `GetEnabledNames` when you need an array or the user's order:
+
+```lua
+-- Set: the item name is the key; the value is always true
+for name in pairs(MCM.List.GetEnabled("my_list")) do
+    _P(name)
+end
+if MCM.List.GetEnabled("my_list")["SomeStatus"] then
+    -- "SomeStatus" is enabled
+end
+
+-- Array: values are item names, in list order
+for _, name in ipairs(MCM.List.GetEnabledNames("my_list")) do
+    _P(name)
+end
+```
 
 #### Store API
 
