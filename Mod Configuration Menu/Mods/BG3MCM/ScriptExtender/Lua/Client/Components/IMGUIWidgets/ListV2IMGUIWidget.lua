@@ -143,7 +143,7 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     local text = self.Widget.ConfirmationPopup:AddText(Ext.Loca.GetTranslatedString(
         "h60c5e6f97c914061887ad783cccf5ac3371f"))
-    text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+    text:SetColor("Text", UIStyle.TextStyles.Error)
 
     local confirmButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hb2adccb2f863414991f8475d5b394dbb5f65"))
@@ -1034,7 +1034,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
 
     local text = self.Widget.ResetConfirmationPopup:AddText(
         Ext.Loca.GetTranslatedString("h983f2fd776cd40ab844efcca6300d9c87eb5"))
-    text:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+    text:SetColor("Text", UIStyle.TextStyles.Error)
 
     local confirmButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hc22c8995c3d34cb69b677e2c52a7ec3a4691"))

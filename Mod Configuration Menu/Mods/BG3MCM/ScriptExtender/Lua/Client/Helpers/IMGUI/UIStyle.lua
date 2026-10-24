@@ -70,6 +70,7 @@ UIStyle.Colors["Border"] = UIStyle.Colors["ScrollbarGrab"]
 UIStyle.TextStyles = {
     ["SettingTitle"] = Color.NormalizedRGBA(250, 240, 220, 1.0),
     ["SettingDescription"] = Color.NormalizedRGBA(190, 170, 150, 1.0),
+    ["Error"] = Color.NormalizedRGBA(255, 55, 55, 1),
 }
 
 UIStyle.CustomTabStyles = {

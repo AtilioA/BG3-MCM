@@ -202,7 +202,7 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
         MCMError(0, "Error rendering category %s: %s", catName, err)
         local errorText = categoryHeader:AddText(VCString:InterpolateLocalizedMessage("hfd82935321af4ad0b327de79a102776acf5f",
             err))
-        errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+        errorText:SetColor("Text", UIStyle.TextStyles.Error)
     end)
 end
 

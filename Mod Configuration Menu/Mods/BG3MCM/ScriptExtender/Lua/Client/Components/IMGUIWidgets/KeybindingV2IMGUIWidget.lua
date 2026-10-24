@@ -351,7 +351,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod, nativeData
                 local conflictKB = KeybindingConflictService:CheckForConflicts(getActiveActionBinding(action), mod, action,
                     "KeyboardMouse", nativeData)
                 if conflictKB and not action.AllowConflict then
-                    kbButton:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+                    kbButton:SetColor("Text", UIStyle.TextStyles.Error)
 
                     -- Add conflict text below the button
                     local conflictText = VCString:InterpolateLocalizedMessage(
@@ -362,7 +362,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod, nativeData
                     -- Add the conflict text below the keybinding button
                     local conflictLabel = kbCell:AddText(conflictText)
                     conflictLabel.TextWrapPos = 0
-                    conflictLabel:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+                    conflictLabel:SetColor("Text", UIStyle.TextStyles.Error)
                 end
             end
         end
@@ -373,7 +373,7 @@ function KeybindingV2IMGUIWidget:RenderKeybindingTable(modGroup, mod, nativeData
 
         local errorText = modGroup:AddText(VCString:InterpolateLocalizedMessage("hd8524a99cb1f41059b7e2aa9c543e68ad7g7",
             err))
-        errorText:SetColor("Text", Color.NormalizedRGBA(255, 55, 55, 1))
+        errorText:SetColor("Text", UIStyle.TextStyles.Error)
     end)
 end
 
