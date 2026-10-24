@@ -31,24 +31,14 @@ local function ReadStoreFile(fileName)
 end
 
 D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, function()
-    local filesToRestore
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
     D.beforeEach(function()
-        filesToRestore = {
-            [DEFAULT_FILE_NAME] = { content = Ext.IO.LoadFile(StoreFilePath(DEFAULT_FILE_NAME)) },
-        }
         syncStateFixture:Isolate()
+        syncStateFixture:RememberFile(StoreFilePath(DEFAULT_FILE_NAME))
     end)
 
     D.afterEach(function()
-        for fileName, snapshot in pairs(filesToRestore) do
-            local path = StoreFilePath(fileName)
-            if Ext.IO.LoadFile(path) ~= snapshot.content then
-                pcall(Ext.IO.SaveFile, path, snapshot.content or "")
-            end
-        end
-
         syncStateFixture:Restore()
     end)
 
@@ -57,9 +47,7 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, 
     end
 
     local function rememberFile(fileName)
-        if filesToRestore[fileName] == nil then
-            filesToRestore[fileName] = { content = Ext.IO.LoadFile(StoreFilePath(fileName)) }
-        end
+        syncStateFixture:RememberFile(StoreFilePath(fileName))
     end
 
     D.test("TestStoreFileNameRoundTripsThroughNamedFile", function()

@@ -14,18 +14,12 @@ end
 
 D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function()
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
-    local fileSnapshot
 
     D.beforeEach(function()
-        fileSnapshot = nil
         syncStateFixture:Isolate()
     end)
 
     D.afterEach(function()
-        if fileSnapshot then
-            pcall(Ext.IO.SaveFile, fileSnapshot.path, fileSnapshot.content or "")
-        end
-
         syncStateFixture:Restore()
     end)
 
@@ -167,7 +161,7 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         local varName = "dribblespec_cache_false_conflict_" .. CONTEXT
         local fileName = "mcm_dribblespec_cache_conflict_" .. CONTEXT .. ".json"
         local path = StoreFilePath(fileName)
-        fileSnapshot = { path = path, content = Ext.IO.LoadFile(path) }
+        syncStateFixture:RememberFile(path)
 
         D.expect(JsonAdapter:EnsureRegistered(varName, moduleUUID, { fileName = fileName })).toBe(true)
         D.expect(Ext.IO.SaveFile(path, Ext.Json.Stringify({ [varName] = true }))).toBe(true)
