@@ -2,6 +2,7 @@
 -- Ext.IO cannot delete files; these tests restore the fixture files' prior bytes after each test.
 
 -- Both contexts share disk, but each JSON handler saves its own complete in-memory copy.
+local DEFAULT_FILE_NAME = "dynamic_settings.json"
 local CONTEXT = Ext.IsServer() and "server" or "client"
 local TEST_FILE_NAME = "mcm_dribblespec_store_file_" .. CONTEXT .. ".json"
 local OTHER_FILE_NAME = "mcm_dribblespec_store_other_" .. CONTEXT .. ".json"
@@ -34,13 +35,18 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, 
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
     D.beforeEach(function()
-        filesToRestore = {}
+        filesToRestore = {
+            [DEFAULT_FILE_NAME] = { content = Ext.IO.LoadFile(StoreFilePath(DEFAULT_FILE_NAME)) },
+        }
         syncStateFixture:Isolate()
     end)
 
     D.afterEach(function()
         for fileName, snapshot in pairs(filesToRestore) do
-            pcall(Ext.IO.SaveFile, StoreFilePath(fileName), snapshot.content or "")
+            local path = StoreFilePath(fileName)
+            if Ext.IO.LoadFile(path) ~= snapshot.content then
+                pcall(Ext.IO.SaveFile, path, snapshot.content or "")
+            end
         end
 
         syncStateFixture:Restore()

@@ -41,13 +41,18 @@ D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
     D.beforeEach(function()
-        filesToRestore = {}
+        filesToRestore = {
+            [DEFAULT_FILE_NAME] = { content = Ext.IO.LoadFile(StoreFilePath(DEFAULT_FILE_NAME)) },
+        }
         syncStateFixture:Isolate()
     end)
 
     D.afterEach(function()
         for fileName, snapshot in pairs(filesToRestore) do
-            pcall(Ext.IO.SaveFile, StoreFilePath(fileName), snapshot.content or "")
+            local path = StoreFilePath(fileName)
+            if Ext.IO.LoadFile(path) ~= snapshot.content then
+                pcall(Ext.IO.SaveFile, path, snapshot.content or "")
+            end
         end
 
         syncStateFixture:Restore()
