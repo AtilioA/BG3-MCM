@@ -50,13 +50,15 @@ end
 ---@return boolean|nil hidden The player's explicit choice, or nil when there is none
 function ModListVisibility:getChoice(modUUID)
     local ui = self.store.Get("UI")
-    local mods = type(ui) == "table" and ui.Mods
-    local mod = type(mods) == "table" and mods[modUUID]
-    local hidden = type(mod) == "table" and mod.HiddenFromList
-    if type(hidden) == "boolean" then
-        return hidden
+    -- Guard each level: the document is player-editable, and `and` chains would turn a missing level into false (Show)
+    if type(ui) ~= "table" or type(ui.Mods) ~= "table" or type(ui.Mods[modUUID]) ~= "table" then
+        return nil
     end
-    return nil
+    local hidden = ui.Mods[modUUID].HiddenFromList
+    if type(hidden) ~= "boolean" then
+        return nil
+    end
+    return hidden
 end
 
 --- Split present mod entries; both lists keep the input order
