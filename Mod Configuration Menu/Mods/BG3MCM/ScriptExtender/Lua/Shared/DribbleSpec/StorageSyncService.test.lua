@@ -80,8 +80,11 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
             ctx.skip("A client user ID is required to verify origin filtering")
         end
 
-        local moduleUUID = TestConstants.ModuleUUIDs[1]
+        local moduleUUID = ModuleUUID
         local varName = "dribblespec_sync_flow_fixture"
+        local fileName = "mcm_dribblespec_sync_flow_" .. CONTEXT .. ".json"
+        syncStateFixture:RememberFile(StoreFilePath(fileName))
+        syncStateFixture:RememberFile(StoreFilePath("dynamic_settings.json"))
         local sent = {}
 
         ctx.stub(MCMProxy, "IsMainMenu", function() return false end)
@@ -92,10 +95,10 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
 
         D.expect(MCM.Store.RegisterVar(varName, {
             modUUID = moduleUUID,
-            storageConfig = { SyncToServer = true, SyncToClient = true },
+            storageConfig = { fileName = fileName, SyncToServer = true, SyncToClient = true },
         })).toBe(true)
 
-        local fileHandler = JsonAdapter:_getFileHandler(moduleUUID, "dynamic_settings.json")
+        local fileHandler = JsonAdapter:_getFileHandler(moduleUUID, fileName)
         fileHandler.Data = {}
         fileHandler.Loaded = true
         fileHandler.AutoSave = false
@@ -109,6 +112,7 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
             varName = varName,
             value = "local-value",
             storageConfig = {
+                fileName = fileName,
                 Server = true, Client = true,
                 WriteableOnServer = true, WriteableOnClient = true,
                 Persistent = true, SyncToClient = true, SyncToServer = true,
