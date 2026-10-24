@@ -164,7 +164,8 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
                     Type = "keybinding_v2",
                     Default = {
                         Keyboard = { Key = "INSERT", ModifierKeys = {} },
-                        Enabled = true
+                        Enabled = true,
+                        AllowConflict = false,
                     }
                 })
             }
@@ -176,14 +177,18 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
                     Key = "P",
                     ModifierKeys = { "LCTRL" }
                 },
-                Enabled = true
+                Enabled = true,
+                AllowConflict = false,
             }
         }
 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
-        D.expect(fixedConfig["open_cpf"].Keyboard.Key).toBe("P")
-        D.expect(fixedConfig["open_cpf"].Keyboard.ModifierKeys[1]).toBe("LCTRL")
+        D.expect(fixedConfig["open_cpf"]).toEqual({
+            Keyboard = { Key = "P", ModifierKeys = { "LCTRL" } },
+            Enabled = true,
+            AllowConflict = false,
+        })
     end)
 
     D.test("ShouldKeepValidKeybindingV2WithModifierVariants", function(ctx)
@@ -195,7 +200,8 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
                     Type = "keybinding_v2",
                     Default = {
                         Keyboard = { Key = "INSERT", ModifierKeys = {} },
-                        Enabled = true
+                        Enabled = true,
+                        AllowConflict = false,
                     }
                 })
             }
@@ -210,13 +216,17 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
                         Key = "P",
                         ModifierKeys = { modifier }
                     },
-                    Enabled = true
+                    Enabled = true,
+                    AllowConflict = false,
                 }
             }
 
             local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
-            D.expect(fixedConfig["open_cpf"].Keyboard.Key).toBe("P")
-            D.expect(fixedConfig["open_cpf"].Keyboard.ModifierKeys[1]).toBe(modifier)
+            D.expect(fixedConfig["open_cpf"]).toEqual({
+                Keyboard = { Key = "P", ModifierKeys = { modifier } },
+                Enabled = true,
+                AllowConflict = false,
+            })
         end
     end)
 
@@ -229,7 +239,8 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
                     Type = "keybinding_v2",
                     Default = {
                         Keyboard = { Key = "INSERT", ModifierKeys = {} },
-                        Enabled = true
+                        Enabled = true,
+                        AllowConflict = false,
                     }
                 })
             }
@@ -241,14 +252,18 @@ D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, 
                     Key = "P",
                     ModifierKeys = { "LCTRL_BAD" }
                 },
-                Enabled = true
+                Enabled = true,
+                AllowConflict = true,
             }
         }
 
         local fixedConfig = DataPreprocessing:ValidateAndFixSettings(blueprint, config)
 
-        D.expect(fixedConfig["open_cpf"].Keyboard.Key).toBe("INSERT")
-        D.expect(#fixedConfig["open_cpf"].Keyboard.ModifierKeys).toBe(0)
+        D.expect(fixedConfig["open_cpf"]).toEqual({
+            Keyboard = { Key = "INSERT", ModifierKeys = {} },
+            Enabled = true,
+            AllowConflict = false,
+        })
     end)
 
     D.test("ShouldFixInvalidListV2Setting", function(ctx)

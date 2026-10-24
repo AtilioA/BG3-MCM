@@ -1,4 +1,15 @@
 D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, function()
+    local previousModUUID
+
+    D.beforeEach(function()
+        previousModUUID = BlueprintPreprocessing.currentmodUUID
+        BlueprintPreprocessing.currentmodUUID = TestConstants.ModuleUUIDs[1]
+    end)
+
+    D.afterEach(function()
+        BlueprintPreprocessing.currentmodUUID = previousModUUID
+    end)
+
     D.test("TestValidEventButtonMinimal", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-event-button-minimal",
@@ -95,6 +106,7 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
             Type = "event_button",
             Options = {
                 Cooldown = 5.0,
+                Label = "Run Action",
                 Icon = {
                     Name = "Icon_Item_Scroll_01"
                 },
@@ -217,38 +229,57 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
         D.expect(isValid).toBe(false)
     end)
 
-    D.test("TestInvalidEventButtonConfirmDialogFields", function(ctx)
-        local setting = BlueprintSetting:New({
-            Id = "test-event-button-invalid-confirm-fields",
-            Type = "event_button",
-            Options = {
-                ConfirmDialog = {
-                    Title = 123,
-                    Message = true,
-                    ConfirmText = 456,
-                    CancelText = 789
-                }
-            }
+    local confirmDialogFields = { "Title", "Message", "ConfirmText", "CancelText" }
+    local validConfirmDialog = {
+        Title = "Confirm Action",
+        Message = "Are you sure you want to perform this action?",
+        ConfirmText = "Yes",
+        CancelText = "No",
+    }
+
+    for _, field in ipairs(confirmDialogFields) do
+        local fieldName = field
+
+        D.test("TestInvalidEventButtonConfirmDialog" .. fieldName .. "Type", function()
+            local dialog = table.deepcopy(validConfirmDialog)
+            dialog[fieldName] = 123
+            local setting = BlueprintSetting:New({
+                Id = "test-event-button-invalid-confirm-" .. string.lower(fieldName) .. "-type",
+                Type = "event_button",
+                Options = { ConfirmDialog = dialog },
+            })
+
+            D.expect(BlueprintPreprocessing:ValidateEventButtonSetting(setting)).toBe(false)
+        end)
+
+        D.test("TestInvalidEventButtonConfirmDialogMissing" .. fieldName, function()
+            local dialog = table.deepcopy(validConfirmDialog)
+            dialog[fieldName] = nil
+            local setting = BlueprintSetting:New({
+                Id = "test-event-button-invalid-confirm-missing-" .. string.lower(fieldName),
+                Type = "event_button",
+                Options = { ConfirmDialog = dialog },
+            })
+
+            D.expect(BlueprintPreprocessing:ValidateEventButtonSetting(setting)).toBe(false)
+        end)
+    end
+
+    D.test("TestSanitizeBlueprintDispatchesEventButtonValidation", function()
+        local modUUID = TestConstants.ModuleUUIDs[1]
+        local blueprint = Blueprint:New({
+            ModUUID = modUUID,
+            SchemaVersion = 1,
+            Settings = {
+                BlueprintSetting:New({
+                    Id = "invalid-event-button-dispatch",
+                    Type = "event_button",
+                    Options = { Cooldown = "not-a-number" },
+                }),
+            },
         })
 
-        local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBe(false)
-    end)
-
-    D.test("TestInvalidEventButtonConfirmDialogIncomplete", function(ctx)
-        local setting = BlueprintSetting:New({
-            Id = "test-event-button-invalid-confirm-incomplete",
-            Type = "event_button",
-            Options = {
-                ConfirmDialog = {
-                    Title = "Confirm Action",
-                    Message = "Are you sure you want to perform this action?",
-                }
-            }
-        })
-
-        local isValid = BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-        D.expect(isValid).toBe(false)
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)).toBeNil()
     end)
 
     D.test("TestEventButtonWithNegativeCooldown", function(ctx)
