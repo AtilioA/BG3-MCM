@@ -1,6 +1,7 @@
 Font = {}
 
 -- Key-value map of logical size -> numeric value (px)
+-- These are also BG3SE's built-in font names; the engine's implicit default is Medium, not Default.
 Font.FONT_SIZE_OPTIONS = {
     Tiny = 24.0,
     Small = 28.0,
@@ -13,16 +14,21 @@ Font.FONT_SIZE_OPTIONS = {
 -- Stable order for stepping operations (smallest to largest)
 local FONT_SIZE_ORDER = { "Tiny", "Small", "Medium", "Default", "Large", "Big" }
 
+-- BG3SE loads only these built-in entries for languages with large glyph sets (IMGUIManager::InitializeUI)
+local REDUCED_ATLAS_SIZE_ORDER = { "Medium", "Default", "Large" }
+local REDUCED_ATLAS_LANGUAGES = { Japanese = true, Chinese = true, ChineseTraditional = true }
+
 -- Font definitions: typeface -> file path
+-- The empty typeface makes BG3SE load its native, language-specific font and glyph ranges.
 local FONT_DEFINITIONS = {
+    [""] = "",
     ["Inter-Regular"] = "Mods/BG3MCM/Assets/Fonts/Inter/Inter-Regular.ttf",
     ["OpenDyslexic"] = "Mods/BG3MCM/Assets/Fonts/OpenDyslexic/OpenDyslexic.ttf",
 }
 
--- Track which fonts have been loaded
--- Might not be strictly necessary, but avoids re
--- Key format: "TypefaceSizeKey" (e.g., "Inter-RegularDefault")
-local loadedFonts = {}
+-- Last typeface fully applied to the built-in entries in this Lua context
+---@type string|nil
+local appliedTypeface = nil
 
 -- Helpers
 local function _normalizeSizeKey(fontSize)
@@ -53,18 +59,23 @@ function Font.GetFontSizeOptions()
 end
 
 function Font.IsValidFontSize(fontSize)
-    if fontSize == nil then
-        return false
-    end
+    return Font.GetSizeKey(fontSize) ~= nil
+end
 
+--- Return the built-in font name for a size, or nil if the size is unknown
+---@param fontSize string|number|nil The font size key (e.g., "Default", "large") or its pixel value
+---@return string|nil
+function Font.GetSizeKey(fontSize)
     local key = _normalizeSizeKey(fontSize)
-    if key == nil then return false end
-    return Font.FONT_SIZE_OPTIONS[key] ~= nil
+    if key and Font.FONT_SIZE_OPTIONS[key] then
+        return key
+    end
+    return nil
 end
 
 function Font.GetSizeValue(fontSize)
-    local key = _normalizeSizeKey(fontSize)
-    if key and Font.FONT_SIZE_OPTIONS[key] then
+    local key = Font.GetSizeKey(fontSize)
+    if key then
         return Font.FONT_SIZE_OPTIONS[key]
     end
 
@@ -74,66 +85,62 @@ function Font.GetSizeValue(fontSize)
     return nil
 end
 
--- Compose a font resource name by appending the size key
-function Font.GetFontNameWithSizeSuffix(typeface, fontSize)
-    if typeface == nil then return nil end
-    local size = _normalizeSizeKey(fontSize)
-    if size == nil then
-        return tostring(typeface)
+---@return string[]
+local function getBuiltinSizeOrder()
+    if REDUCED_ATLAS_LANGUAGES[Ext.Utils.GetGlobalSwitches().Language] then
+        return REDUCED_ATLAS_SIZE_ORDER
     end
-    return string.format("%s%s", tostring(typeface), VCString.ToTitleCase(size))
+    return FONT_SIZE_ORDER
 end
 
---- Lazily load a font if it hasn't been loaded yet
---- Only used for loading custom fonts (default font is always available)
---- @param typeface string The typeface name (e.g., "Inter-Regular", "OpenDyslexic")
---- @param fontSize string The font size key (e.g., "Default", "Large")
---- @return boolean True if font was loaded or already loaded, false if font doesn't exist
-function Font.EnsureFontLoaded(typeface, fontSize)
-    -- Empty/nil typeface means use default IMGUI font (no loading needed)
-    if not typeface or typeface == "" then
-        return true
-    end
+---@param typeface string
+---@return string
+local function describeTypeface(typeface)
+    return typeface == "" and "native" or typeface
+end
 
-    -- Normalize the size key
-    local sizeKey = _normalizeSizeKey(fontSize)
-    if not sizeKey or not Font.FONT_SIZE_OPTIONS[sizeKey] then
-        MCMWarn(0, "Invalid font size: %s", fontSize)
-        return false
+--- Load a font file into every built-in entry, stopping at the first failure
+---@param fontPath string
+---@return string|nil failedKey
+local function loadBuiltinEntries(fontPath)
+    for _, sizeKey in ipairs(getBuiltinSizeOrder()) do
+        if not Ext.IMGUI.LoadFont(sizeKey, fontPath, Font.FONT_SIZE_OPTIONS[sizeKey]) then
+            return sizeKey
+        end
     end
+    return nil
+end
 
-    -- Check if this font definition exists
+--- Replace BG3SE's shared built-in fonts with a typeface, keeping each entry's size.
+--- This reaches every IMGUI window that uses the built-in fonts, including other mods' windows.
+--- Fonts that other mods load under their own names are not changed.
+--- On partial failure, restores the last fully applied typeface (native if none).
+---@param typeface string|nil A FONT_DEFINITIONS key; nil or "" selects the native font
+---@return boolean success
+---@return string|nil errorMessage
+function Font.ApplyGlobalTypeface(typeface)
+    typeface = typeface or ""
     local fontPath = FONT_DEFINITIONS[typeface]
     if not fontPath then
-        MCMWarn(0, "Unknown font typeface: %s", typeface)
-        return false
+        return false, string.format("Unknown font typeface '%s'", tostring(typeface))
     end
 
-    -- Create tracking key
-    local fullFontName = Font.GetFontNameWithSizeSuffix(typeface, sizeKey)
-    if not fullFontName then
-        MCMWarn(0, "Failed to generate font name for: %s %s", typeface, sizeKey)
-        return false
+    local failedKey = loadBuiltinEntries(fontPath)
+    if not failedKey then
+        appliedTypeface = typeface
+        return true, nil
     end
 
-    local sizeValue = Font.FONT_SIZE_OPTIONS[sizeKey]
-    -- local _successDefaultOverride = Ext.IMGUI.LoadFont("Default", fontPath, sizeValue)
-
-    -- Check if already loaded
-    if loadedFonts[fullFontName] then
-        return true
+    local message = string.format("Failed to load font '%s' for built-in font '%s'",
+        describeTypeface(typeface), failedKey)
+    local previousTypeface = appliedTypeface or ""
+    local restoreFailedKey = loadBuiltinEntries(FONT_DEFINITIONS[previousTypeface])
+    if restoreFailedKey then
+        appliedTypeface = nil
+        return false, string.format("%s; restoring font '%s' also failed at '%s'",
+            message, describeTypeface(previousTypeface), restoreFailedKey)
     end
 
-    MCMDebug(2, "Loading font: %s from %s at size %s", fullFontName, fontPath, sizeValue)
-    local successLoad = Ext.IMGUI.LoadFont(fullFontName, fontPath, sizeValue)
-
-    if not successLoad then
-        MCMWarn(0, "Failed to load font: %s from %s at size %s", fullFontName, fontPath, sizeValue)
-        return false
-    end
-
-    -- Mark as loaded
-    loadedFonts[fullFontName] = true
-
-    return true
+    appliedTypeface = previousTypeface
+    return false, string.format("%s; restored font '%s'", message, describeTypeface(previousTypeface))
 end

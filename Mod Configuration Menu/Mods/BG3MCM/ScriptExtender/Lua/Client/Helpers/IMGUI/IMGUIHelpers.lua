@@ -1,26 +1,21 @@
 IMGUIHelpers = {}
 
---- Set the font for a window
+--- Set the font size for a window
+--- The built-in font names carry the global typeface (see Font.ApplyGlobalTypeface).
 --- @param window ExtuiWindow The window to set the font for
---- @param family string|nil The font family
 --- @param size string|nil The font size
-function IMGUIHelpers.SetFont(window, family, size)
+function IMGUIHelpers.SetFont(window, size)
     if not window then
         MCMWarn(1, "Window is nil, skipping font setting.")
         return
     end
-    if not family or not size then
-        MCMWarn(1, "Family or size is nil, skipping font setting.")
-        return
-    end
 
-    local fontName = Font.GetFontNameWithSizeSuffix(family, size)
+    local fontName = Font.GetSizeKey(size)
     if not fontName then
-        MCMWarn(1, "Failed to get font name for %s %s", family, size)
+        MCMWarn(1, "Invalid font size '%s', skipping font setting.", tostring(size))
         return
     end
 
-    Font.EnsureFontLoaded(family, size)
     window.Font = fontName
 end
 

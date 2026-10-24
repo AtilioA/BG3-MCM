@@ -345,6 +345,11 @@ ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
             IMGUIAPI:UpdateSettingUIValue(settingId, settingValue, modUUID)
         end
     end
+
+    if newSettings[ModuleUUID] then
+        MCMClientState:ApplyGlobalTypeface()
+        MCMClientState:SetMCMFontSize(MCMClientState:GetClientStateValue("font_size", ModuleUUID))
+    end
 end)
 
 MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)

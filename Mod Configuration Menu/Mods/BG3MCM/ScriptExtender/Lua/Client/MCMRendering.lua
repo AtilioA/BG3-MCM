@@ -65,37 +65,22 @@ function MCMRendering:GetMCMTypeface()
     return family
 end
 
-function MCMRendering:SetFont(family, size)
-    IMGUIHelpers.SetFont(MCM_WINDOW, family, size)
-end
-
---- Returns the current font family and size
---- @return string|nil - The font family
---- @return string|nil - The font size
-function MCMRendering:GetMCMFont()
-    return self:GetMCMTypeface(), self:GetMCMFontSize()
-end
-
 --- Sets the font size for the MCM window
 --- @param size string|nil The font size
 function MCMRendering:SetMCMFontSize(size)
     if not MCM_WINDOW then return end
     if not size then return end
 
-    local family = self:GetMCMTypeface()
-
-    self:SetFont(family, size)
+    IMGUIHelpers.SetFont(MCM_WINDOW, size)
 end
 
---- Sets the font family for the MCM window
---- @param family string|nil The font family
-function MCMRendering:SetMCMTypeface(family)
-    if not MCM_WINDOW then return end
-    if not family then return end
-
-    local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
-
-    self:SetFont(family, sizeSetting)
+--- Applies the saved typeface to the built-in IMGUI fonts used by MCM and other mods
+function MCMRendering:ApplyGlobalTypeface()
+    local typeface = self:GetMCMTypeface()
+    local success, errorMessage = Font.ApplyGlobalTypeface(typeface)
+    if not success then
+        MCMWarn(0, "Could not apply IMGUI font '%s': %s", typeface, errorMessage)
+    end
 end
 
 --- Returns the name of the mod with the given UUID
@@ -260,9 +245,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     MCM_WINDOW.Scaling = "Scaled"
     local sizeSetting = MCMClientState:GetClientStateValue("font_size", ModuleUUID) or "Default"
-    local family = MCMClientState:GetClientStateValue("typeface", ModuleUUID) or ""
-
-    self:SetFont(family, sizeSetting)
+    IMGUIHelpers.SetFont(MCM_WINDOW, sizeSetting)
 
     MCM_WINDOW.AlwaysAutoResize = false
 
@@ -314,6 +297,8 @@ end
 function MCMRendering:LoadMods(mods)
     self.mods = mods or {}
     self:ConvertModTablesToBlueprints()
+    -- Apply before the window guard below, so other mods get the font even when MCM is never opened
+    self:ApplyGlobalTypeface()
 
     -- if MCM_WINDOW then MCM_WINDOW:Destroy() end
     local createdWindow = self:CreateMainIMGUIWindow()

@@ -307,9 +307,7 @@ local function createDetachedWindow(name)
     local minSize = Ext.IMGUI.GetViewportSize()
     detachedWindow:SetStyle("WindowMinSize", minSize[1] / 6, minSize[2] / 6)
 
-    -- Get user's font settings and ensure font is loaded
-    local family, size = MCMRendering:GetMCMFont()
-    IMGUIHelpers.SetFont(detachedWindow, family, size)
+    IMGUIHelpers.SetFont(detachedWindow, MCMRendering:GetMCMFontSize())
 
     return detachedWindow
 end
