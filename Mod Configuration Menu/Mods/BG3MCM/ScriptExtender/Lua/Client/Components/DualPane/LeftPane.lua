@@ -27,6 +27,8 @@ LeftPane.__index = LeftPane
 
 -- Wrap width of the protected-state message in the mod entry menu
 local PROTECTED_MESSAGE_WRAP_WIDTH = 320
+-- Template that marks the menu item matching the author default, such as "Hide (Default)"
+local DEFAULT_SUFFIX_HANDLE = "hcb10ab3d15cd177683b0b8c2076b4499ccdc"
 
 function LeftPane:New(parent)
     local self = setmetatable({}, LeftPane)
@@ -100,10 +102,10 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
     self.modEntryMenu:AddSeparator()
 
     --- Add a menu item that runs onClick, then rebuilds the mod-list navigation
-    ---@param handle string Localization handle of the item label
-    ---@param onClick fun() Saves the visibility change
-    local function addItem(handle, onClick)
-        local item = self.modEntryMenu:AddSelectable(Ext.Loca.GetTranslatedString(handle), nil, { 0, 28 })
+    ---@param label string Translated item label
+    ---@param onClick fun() Saves the visibility change, or removes the player's choice
+    local function addItem(label, onClick)
+        local item = self.modEntryMenu:AddSelectable(label, nil, { 0, 28 })
         item:SetStyle("SelectableTextAlign", 0, 0.5)
         item.OnClick = function()
             onClick()
@@ -121,11 +123,21 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
         return
     end
 
-    local handle = isHidden and "h541de1bd8d8d4be8a188742c9011da27b110" or "h31655a10d04449dfb90946ebe22da383f8a2"
-    addItem(handle, function() self.visibility:SetHidden(modUUID, not isHidden) end)
-    if self.visibility:HasChoice(modUUID) then
-        addItem("h0a10978663a7479da0e68f9d87480b3ff65c", function() self.visibility:UseDefault(modUUID) end)
+    -- One action moves the entry to the other list; when that target is the author default, it removes the player's choice instead
+    local targetHidden = not isHidden
+    local authorHidden = self.mods[modUUID].blueprint:GetHiddenFromList() == true
+    local matchesDefault = targetHidden == authorHidden
+    local label = Ext.Loca.GetTranslatedString(targetHidden and "h31655a10d04449dfb90946ebe22da383f8a2" or "h541de1bd8d8d4be8a188742c9011da27b110")
+    if matchesDefault then
+        label = VCString:InterpolateLocalizedMessage(DEFAULT_SUFFIX_HANDLE, label)
     end
+    addItem(label, function()
+        if matchesDefault then
+            self.visibility:UseDefault(modUUID)
+        else
+            self.visibility:SetHidden(modUUID, targetHidden)
+        end
+    end)
     self.modEntryMenu:Open()
 end
 

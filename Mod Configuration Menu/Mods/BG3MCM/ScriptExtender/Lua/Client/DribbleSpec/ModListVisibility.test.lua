@@ -119,7 +119,7 @@ D.describe("ModListVisibility", { tags = { "mod_list_visibility", "client", "uni
         D.expect(hidden).toEqual({ MOD_B })
     end)
 
-    D.test("Use default visibility removes the choice and keeps other state", function()
+    D.test("UseDefault removes the choice and keeps other state", function()
         local store = FakeStore({
             Version = 1,
             UI = {

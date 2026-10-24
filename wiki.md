@@ -108,9 +108,9 @@ The group keeps its expanded or collapsed state when MCM rebuilds the navigation
 
 MCM omits the group when nothing is hidden. The count includes only mod entries in your current load order. MCM keeps choices for uninstalled mods, so reinstalling them restores their visibility.
 
-After you save a Hide or Show choice, the entry's right-click menu also offers **Use default visibility**. Select it to remove your saved choice and follow the [author's default](#hiddenfromlist-default-mod-list-visibility) again. This action appears only while an explicit choice exists, including a choice supplied by a collection.
+The right-click menu offers one action: Hide or Show. When that action matches the [author's default](#hiddenfromlist-default-mod-list-visibility), its label ends with **(Default)**, such as **Show (Default)**. Select it to remove your saved choice and follow the author's default again. A marked action appears only after you save a choice that differs from the author's default. If your saved choice already matches the author's default, the menu offers only the opposite action. This also applies to a choice supplied by a collection.
 
-Hide, Show, and Use default visibility are mouse-only actions. With a controller, you can still expand Hidden mods and open its entries through native controller navigation.
+Hide, Show, and their **(Default)** forms are mouse-only actions. With a controller, you can still expand Hidden mods and open its entries through native controller navigation.
 
 MCM saves your choices automatically for your local installation. They stay the same across gameplay profiles and do not sync with multiplayer hosts or other players. To copy an arrangement to another installation, see [Share a mod-list arrangement](#share-a-mod-list-arrangement).
 
@@ -145,7 +145,7 @@ The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
 
 The recipient can change the arrangement through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
 
-If `MCM_state.json` cannot be parsed, or its `Version` is newer than this MCM supports, MCM keeps the file unchanged. Entries then follow their author defaults if the file is unreadable, and the right-click menu explains that menu choices cannot be saved instead of offering Hide, Show, or Use default visibility. Repair or delete the file, then reload.
+If `MCM_state.json` cannot be parsed, or its `Version` is newer than this MCM supports, MCM keeps the file unchanged. Entries then follow their author defaults if the file is unreadable, and the right-click menu explains that menu choices cannot be saved instead of offering Hide or Show. Repair or delete the file, then reload.
 
 ## Features for mod authors
 
@@ -331,7 +331,7 @@ MCM resolves mod-list visibility in this order:
 2. **Author default:** Without a player choice, MCM uses the blueprint's `HiddenFromList` value.
 3. **Visible fallback:** Without an author default, MCM shows the entry in the main list.
 
-Players who have no explicit choice follow updated author defaults on the next load. An explicit Show keeps an entry visible even if its author changes the default to hidden. [Use default visibility](#hide-and-show-mod-entries) removes the override instead of copying the current default into the saved state.
+Players who have no explicit choice follow updated author defaults on the next load. An explicit Show keeps an entry visible even if its author changes the default to hidden. Selecting the **(Default)** action in the right-click menu ([Hide and Show mod entries](#hide-and-show-mod-entries)) removes the override instead of copying the current default into the saved state.
 
 This field only changes the entry's location in MCM. Settings and keybindings continue to work. For distribution of choices across multiple mods, see [Share a mod-list arrangement](#share-a-mod-list-arrangement).
 
