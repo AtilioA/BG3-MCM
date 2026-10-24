@@ -407,7 +407,7 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
         VCString:InterpolateLocalizedMessage("hb5b5a421b3504260bcd72028b4311c4352a8", element.name),
         self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
 
-    if not self.Widget.Enabled or element.enabled == false then
+    if not self.Widget.Enabled then
         removeButton.Disabled = true
         self:ApplyDisabledStyle(removeButton)
     end
