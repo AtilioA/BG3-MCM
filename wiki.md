@@ -87,7 +87,7 @@ If you're interested in keybindings, see *[Adding a keybinding](#adding-a-keybin
   - [Listening to MCM events](#listening-to-mcm-events)
   - [How validation works](#how-validation-works)
   - [Localization support](#localization-support)
-  - [TODO: ported IMGUI icons](#todo-ported-imgui-icons)
+  - [Ported IMGUI icons](#ported-imgui-icons)
   - [Notification API](#notification-api)
     - [Features](#features)
     - [Example usage](#example-usage)
@@ -1174,9 +1174,57 @@ This is achieved through the use of "handles" - unique identifiers that can be u
 
 The [BG3 Mod Helper](https://marketplace.visualstudio.com/items?itemName=ghostboats.bg3-mod-helper) extension can help you create localization files and mass replace strings with handles conveniently added to your localization files.
 
-## TODO: ported IMGUI icons
+## Ported IMGUI icons
 
---
+MCM ships three texture atlases with icons ported from the vanilla UI. MCM registers these atlases as IMGUI icon atlases, so any mod that loads with MCM can use their icons by name.
+
+| Atlas | Texture size | Icon sizes | Icons | Contents |
+| --- | --- | --- | --- | --- |
+| `UIBasic_24-96` | 2048 × 2048 | 24–96 px | 287 | Buttons, arrows, damage and resistance types, dice, status markers |
+| `UIBasic_128-144` | 1024 × 1024 | 128–144 px | 46 | Class resources, spell slots, action and passive backgrounds |
+| `UIOrigin_Portraits` | 1024 × 1024 | 152 px | 11 | Origin companion portraits |
+
+To use an icon, pass its name to any IMGUI function that takes an icon:
+
+```lua
+group:AddImage("ico_exclamation_01", { 32, 32 })
+group:AddImageButton("Reset", "ico_randomize_d", { 32, 32 })
+```
+
+You can also use these names in a blueprint, for example in an [`event_button`](#event_button) `Options.Icon.Name`.
+
+Most names end with a state suffix: `_d` (default), `_h` (hover), `_p` (pressed), or `_disabled`.
+
+> If IMGUI cannot find an icon, it creates the image with an empty `Image.Icon`. Check for that and fall back to a text button, as MCM does:
+> ```lua
+> local button = group:AddImageButton("Reset", "ico_randomize_d", { 32, 32 })
+> if not button.Image or button.Image.Icon == "" then
+>     button:Destroy()
+>     button = group:AddButton("Reset")
+> end
+> ```
+{.is-info}
+
+<details>
+<summary><code>UIBasic_24-96</code> icon names</summary>
+
+`btn_close_d`, `btn_close_h`, `campFollowers_btn_ico_h`, `ico_actionAcid`, `ico_actionCold`, `ico_actionFire`, `ico_actionForce`, `ico_actionLightening`, `ico_actionNecrotic`, `ico_actionTarget`, `ico_advantage`, `ico_alwaysPrepared`, `ico_avatarCloset_d`, `ico_avatarCloset_h`, `ico_balance_d`, `ico_balance_h`, `ico_balance_indicator`, `ico_browse`, `ico_browseSmall_d`, `ico_browseSmall_h`, `ico_btn_check`, `ico_btn_cross_d`, `ico_btn_cross_h`, `ico_btn_load_d`, `ico_btn_load_h`, `ico_buffed`, `ico_campStash_d`, `ico_campStash_h`, `ico_camp_d`, `ico_camp_disabled`, `ico_camp_h`, `ico_cancel`, `ico_cancel_h`, `ico_cast_roll`, `ico_cast_saving`, `ico_class`, `ico_classAction`, `ico_classCantrip`, `ico_close_d`, `ico_close_h`, `ico_combatlog_d`, `ico_combatlog_h`, `ico_combatlog_h_1`, `ico_concentration`, `ico_concertina`, `ico_d10`, `ico_d12`, `ico_d20`, `ico_d20_small`, `ico_d4`, `ico_d6`, `ico_d8`, `ico_dead`, `ico_debuffed`, `ico_died`, `ico_disadvantage`, `ico_dmg_acid`, `ico_dmg_blunt`, `ico_dmg_cold`, `ico_dmg_fire`, `ico_dmg_force`, `ico_dmg_lightning`, `ico_dmg_magic`, `ico_dmg_necrotic`, `ico_dmg_piercing`, `ico_dmg_poison`, `ico_dmg_psychic`, `ico_dmg_radiant`, `ico_dmg_slashing`, `ico_dmg_spell`, `ico_dmg_thunder`, `ico_downArrow_h`, `ico_downed`, `ico_duration`, `ico_edit_d`, `ico_edit_h`, `ico_equipment_d`, `ico_equipment_h`, `ico_exclamation_01`, `ico_exclamation_02`, `ico_exit_d`, `ico_exit_h`, `ico_exit_HL`, `ico_expertise`, `ico_extraHP`, `ico_filter`, `ico_flee`, `ico_galeConsumeTT`, `ico_gold`, `ico_healing`, `ico_heavyWeight`, `ico_host`, `ico_identity_d`, `ico_identity_h`, `ico_identity_p`, `ico_illithid`, `ico_illithid_active_d`, `ico_imbalance_indicator`, `ico_initiative`, `ico_inventory_d`, `ico_inventory_disabled`, `ico_inventory_h`, `ico_inventory_p`, `ico_kick`, `ico_knownSpells_lvl_01`, `ico_knownSpells_lvl_02`, `ico_knownSpells_lvl_03`, `ico_knownSpells_lvl_04`, `ico_knownSpells_lvl_05`, `ico_knownSpells_lvl_06`, `ico_knownSpells_lvl_07`, `ico_knownSpells_lvl_08`, `ico_knownSpells_lvl_09`, `ico_lan_h`, `ico_learnSpells_d`, `ico_learnSpells_disabled`, `ico_learnSpells_h`, `ico_learnSpells_p`, `ico_levelUp_d`, `ico_levelUp_h`, `ico_lightWeight`, `ico_loading`, `ico_locked`, `ico_lock_active_off_d`, `ico_lock_active_on_d`, `ico_lock_disabled_d`, `ico_lock_disabled_h`, `ico_lock_enabled_d`, `ico_lock_enabled_h`, `ico_lock_inactive_off_d`, `ico_lock_inactive_on_d`, `ico_longRest_d`, `ico_longRest_disabled`, `ico_longRest_h`, `ico_magicalProperties`, `ico_map_d`, `ico_map_h`, `ico_melee`, `ico_menu_d`, `ico_menu_h`, `ico_min_d`, `ico_min_h`, `ico_mirror_d`, `ico_mirror_h`, `ico_mode_combat`, `ico_mode_dialogue`, `ico_mode_FTB`, `ico_mode_trade`, `ico_online_h`, `ico_party_d`, `ico_party_h`, `ico_plus_d`, `ico_plus_h`, `ico_popup_d`, `ico_popup_h`, `ico_portal`, `ico_preparedList`, `ico_proficiency`, `ico_prof_armour`, `ico_prof_martial`, `ico_prof_music`, `ico_prof_simple`, `ico_race`, `ico_race_h`, `ico_randomize_d`, `ico_randomize_h`, `ico_ranged`, `ico_reset_d`, `ico_resistance_acid`, `ico_resistance_blunt`, `ico_resistance_cold`, `ico_resistance_fire`, `ico_resistance_force`, `ico_resistance_lightning`, `ico_resistance_necrotic`, `ico_resistance_piercing`, `ico_resistance_poison`, `ico_resistance_psychic`, `ico_resistance_radiant`, `ico_resistance_slashing`, `ico_resistance_spell`, `ico_resistance_thunder`, `ico_resource_inspirationPoint`, `ico_resource_inspirationPoint_tile`, `ico_reward`, `ico_rotate_d`, `ico_rotate_h`, `ico_search`, `ico_secret`, `ico_secret_h`, `ico_skills`, `ico_sorcerer`, `ico_sort`, `ico_spellAttackBonus`, `ico_spellSaveDC`, `ico_spells_active_d`, `ico_tab_all`, `ico_tab_all_active`, `ico_tab_buyback`, `ico_tab_buyback_active`, `ico_tab_EQ`, `ico_tab_EQ_active`, `ico_tab_wares`, `ico_tab_wares_active`, `ICO_TadpoleGold`, `ico_tick_active_d`, `ico_tick_active_h`, `ico_tick_d`, `ico_tick_disabled`, `ico_tick_h`, `ico_tick_inactive_d`, `ico_trader_d`, `ico_trader_h`, `ico_trade_d`, `ico_trade_h`, `ico_visibility_d`, `ico_visibility_h`, `ico_visibility_none_d`, `ico_visibility_none_h`, `ico_war`, `ico_zoomIn_d`, `ico_zoomIn_h`, `ico_zoomOut_d`, `ico_zoomOut_h`, `input_dropDownArrow_d`, `input_dropDownArrow_h`, `input_dropUpArrow_d`, `input_dropUpArrow_h`, `input_slider_arrowL_d`, `input_slider_arrowL_h`, `input_slider_arrowR_d`, `input_slider_arrowR_h`, `levelUp_exclamation_h1`, `levelUp_exclamation_h2`, `levelUp_hp_h1`, `levelUp_hp_h2`, `levelUp_sideArrow_h1`, `levelUp_sideArrow_h2`, `num_01`, `num_02`, `num_03`, `num_04`, `num_05`, `num_06`, `num_07`, `num_08`, `num_09`, `num_10`, `panner_down_d`, `panner_down_disabled`, `panner_down_h`, `panner_left_d`, `panner_left_disabled`, `panner_left_h`, `panner_right_d`, `panner_right_disabled`, `panner_right_h`, `panner_up_d`, `panner_up_disabled`, `panner_up_h`, `passiveRollIndicator_d20`, `popin_closeIco_d`, `popin_closeIco_h`, `popin_closeIco_p`, `proficient_ability`, `scroll_down_d`, `scroll_down_disabled`, `scroll_down_h`, `scroll_h_down_d`, `scroll_h_down_disabled`, `scroll_h_down_h`, `scroll_h_up_d`, `scroll_h_up_disabled`, `scroll_h_up_h`, `scroll_up_d`, `scroll_up_disabled`, `scroll_up_h`, `talkNotice_d`, `talkNotice_h`, `toggle_down_d`, `toggle_down_h`, `tutorial_warning_red`, `tutorial_warning_yellow`, `vendorAttitude_01`, `vendorAttitude_02`, `vendorAttitude_03`, `vendorAttitude_04`
+
+</details>
+
+<details>
+<summary><code>UIBasic_128-144</code> icon names</summary>
+
+`ap_d`, `avatar_crown`, `bap_d`, `controlPassive_bg`, `control_bg`, `damagePassive_bg`, `debuffPassive_bg`, `fireDamagePassive_bg`, `fireDamage_bg`, `heaingPassive_bg`, `heal_bg`, `ico_campFire_active`, `ico_campFire_inactive`, `ico_classRes_arcaneRecovery_d`, `ico_classRes_channelDivinity_d`, `ico_classRes_channelOath`, `ico_classRes_FungalInfestationCharge`, `ico_classRes_inspiration`, `ico_classRes_ki`, `ico_classRes_LayOnHands`, `ico_classRes_luck`, `ico_classRes_NaturalRecovery`, `ico_classRes_rage`, `ico_classRes_sorc_d`, `ico_classRes_superiorityDice_d`, `ico_classRes_tidesOfChaos_d`, `ico_classRes_warPriest`, `ico_classRes_wildshape`, `ico_mini_spellSlot`, `ico_mini_spellSlot_reaction_d`, `ico_mini_spellSlot_warlock`, `ico_speed`, `lightening_bg`, `metaMagic_bg`, `monster_bg`, `necroDamagePassive_bg`, `nonElementalResistancePassive_bg`, `radiance_bg`, `spell_bg`, `summon_bg`, `tadpole_bg`, `utilityPassive_bg`, `utility_bg`, `weaponAction_bg`, `weaponBonusAction_bg`, `weaponDamagePassive_bg`
+
+</details>
+
+<details>
+<summary><code>UIOrigin_Portraits</code> icon names</summary>
+
+`EC_Portrait_Astarion`, `EC_Portrait_Gale`, `EC_Portrait_Generic`, `EC_Portrait_Halsin`, `EC_Portrait_Jaheira`, `EC_Portrait_Karlach`, `EC_Portrait_Laezel`, `EC_Portrait_Minsc`, `EC_Portrait_Minthara`, `EC_Portrait_ShadowHeart`, `EC_Portrait_Wyll`
+
+</details>
 
 ## Notification API
 
