@@ -69,6 +69,14 @@ function ModVarAdapter:RunWhenReady(fn)
     end
 end
 
+--- The server owns defaults because it restores saved values. A client's nil can precede the sync, and a client default with SyncToServer can overwrite the save.
+--- A client-only ModVar (`Server = false`) is owned by the client.
+---@param storageConfig? StorageConfig Optional SE configuration parameters
+---@return boolean owns
+function ModVarAdapter:OwnsDefaults(storageConfig)
+    return Ext.IsServer() == self:ResolveConfig(storageConfig).Server
+end
+
 --- Ensure a ModVar is registered with SE if not already registered.
 --- Uses exact SE parameter names for compatibility.
 ---@param varName string The variable name to register

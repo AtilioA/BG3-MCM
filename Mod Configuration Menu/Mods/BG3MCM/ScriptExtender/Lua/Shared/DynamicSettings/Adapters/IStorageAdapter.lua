@@ -64,6 +64,13 @@ function IStorageAdapter:RunWhenReady(fn)
     fn()
 end
 
+--- Whether this context seeds and repairs defaults for a variable. Default implementation lets every context initialize its local value (e.g. JSON).
+---@param storageConfig? StorageConfig Optional storage-specific configuration
+---@return boolean owns
+function IStorageAdapter:OwnsDefaults(storageConfig)
+    return true
+end
+
 --- Read the raw Lua value (boolean/number/string/table/etc.) for (moduleUUID, key).
 --- Returns nil if the variable is not set.
 ---@param key string The key to read

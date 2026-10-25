@@ -30,5 +30,6 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/StoreUnreadableFile.test.lua")
     Ext.Require("Shared/DribbleSpec/StorageSyncRegistration.test.lua")
     Ext.Require("Shared/DribbleSpec/StorageSyncLocalOnly.test.lua")
+    Ext.Require("Shared/DribbleSpec/StoreModVarDefaults.test.lua")
     Ext.Require("Shared/DribbleSpec/InternalAPIGuard.test.lua")
 end

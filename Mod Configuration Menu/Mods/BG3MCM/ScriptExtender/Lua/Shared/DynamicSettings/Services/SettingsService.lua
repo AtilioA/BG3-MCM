@@ -138,7 +138,7 @@ function SettingsService.Register(moduleUUID, varName, storageType, definition)
     end
 
     -- Seed the default only if no value exists. RunWhenReady lets backends (e.g. ModVar) evaluate AFTER the savegame value is restored, never clobbering it; backends such as JSON run immediately.
-    if definition.default ~= nil then
+    if definition.default ~= nil and adapter:OwnsDefaults(definition.storageConfig) then
         adapter:RunWhenReady(function()
             if adapter:GetValue(varName, moduleUUID, definition.storageConfig) == nil then
                 adapter:SetValue(varName, definition.default, moduleUUID, definition.storageConfig)
@@ -280,6 +280,9 @@ function SettingsService.PromoteVariable(moduleUUID, varName, storageType, defin
     local adapter                 = AdapterFactory.GetAdapter(storageType)
     if adapter then
         adapter:EnsureRegistered(varName, moduleUUID, definition.storageConfig)
+        if not adapter:OwnsDefaults(definition.storageConfig) then
+            return
+        end
 
         -- RunWhenReady so ModVar evaluates the value AFTER restore (no clobber).
         adapter:RunWhenReady(function()

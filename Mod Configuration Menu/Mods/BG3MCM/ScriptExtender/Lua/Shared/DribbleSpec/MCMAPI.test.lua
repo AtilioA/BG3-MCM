@@ -193,9 +193,13 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         D.expect(initialValue).toBe(true)
         D.expect(setResult).toBe(true)
         D.expect(readbackValue).toBe(false)
-        D.expect(receivedEvents).toEqual({
-            { modUUID = modUUID, settingId = settingId, value = false, oldValue = true },
-        })
+        -- The payload also carries the legacy modGUID alias, so assert the documented fields only
+        D.expect(#receivedEvents).toBe(1)
+        local savedEvent = receivedEvents[1]
+        D.expect(savedEvent.modUUID).toBe(modUUID)
+        D.expect(savedEvent.settingId).toBe(settingId)
+        D.expect(savedEvent.value).toBe(false)
+        D.expect(savedEvent.oldValue).toBe(true)
     end)
 
     D.test("TestSameSettingIdIsScopedPerMod", function()
