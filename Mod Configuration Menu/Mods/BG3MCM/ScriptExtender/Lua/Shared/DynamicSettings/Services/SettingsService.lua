@@ -279,9 +279,7 @@ function SettingsService.PromoteVariable(moduleUUID, varName, storageType, defin
     -- Ensure the storage prototype is registered, then seed/repair the default.
     local adapter                 = AdapterFactory.GetAdapter(storageType)
     if adapter then
-        if adapter.EnsureRegistered then
-            adapter:EnsureRegistered(varName, moduleUUID, definition.storageConfig)
-        end
+        adapter:EnsureRegistered(varName, moduleUUID, definition.storageConfig)
 
         -- RunWhenReady so ModVar evaluates the value AFTER restore (no clobber).
         adapter:RunWhenReady(function()
