@@ -13,8 +13,13 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     end
 
     -- The font is global, so it must not depend on the MCM window existing
-    if settingId == 'typeface' or settingId == 'font_size' or settingId == 'font_size_all_mods' then
+    if settingId == 'typeface' or settingId == 'font_size' or settingId == 'font_style_all_mods' then
         MCMClientState:ApplyFontSettings()
+    end
+
+    -- Apply window opacity setting
+    if settingId == 'window_opacity' then
+        MCMClientState:ApplyWindowOpacity()
     end
 
     if not MCM_WINDOW then
@@ -147,10 +152,6 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
     end
 
     -- Toggle detached windows if the setting is enabled
-    if not DualPane or not DualPane.rightPane or not DualPane.rightPane.detachedWindows then
-        return
-    end
-
     local toggleDetachedOpt = MCMAPI:GetSettingValue("toggle_detached_with_main", ModuleUUID)
 
     if not toggleDetachedOpt then
@@ -158,15 +159,13 @@ function IMGUIAPI:ToggleMCMWindow(playSound)
     end
 
     for _, detachedWin in pairs(DualPane.rightPane.detachedWindows) do
-        if detachedWin then
-            -- Set detached window visibility to match the new state of the main MCM window
-            detachedWin.Visible = MCM_WINDOW.Visible
-        end
+        -- Set detached window visibility to match the new state of the main MCM window
+        detachedWin.Visible = MCM_WINDOW.Visible
     end
 end
 
 function IMGUIAPI:OpenModPage(tabName, modUUID, shouldEmitEvent)
-    if not DualPane or not DualPane.leftPane then
+    if not DualPane then
         MCMError(0, "Tried to open mod page, but DualPane doesn't exist")
         return
     end
@@ -244,11 +243,6 @@ end
 function IMGUIAPI:ToggleMCMSidebar()
     if not MCM_WINDOW then
         MCMError(0, "Tried to toggle MCM sidebar, but it doesn't exist")
-        return
-    end
-
-    if not DualPane then
-        MCMError(0, "Tried to toggle MCM sidebar, but DualPane doesn't exist")
         return
     end
 

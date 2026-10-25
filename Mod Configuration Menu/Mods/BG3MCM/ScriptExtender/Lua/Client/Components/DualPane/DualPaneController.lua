@@ -21,6 +21,7 @@
 ---@field menuCell ExtuiTableCell
 ---@field contentCell ExtuiTableCell
 ---@field lastExpandedWidth number
+---@field windowOpacity number Base alpha of the sidebar when fully shown (window_opacity setting)
 DualPaneController = _Class:Create("DualPaneController", nil, {
     window = nil,
     leftPane = nil,
@@ -36,6 +37,7 @@ DualPaneController = _Class:Create("DualPaneController", nil, {
     menuCell = nil,
     contentCell = nil,
     lastExpandedWidth = nil,
+    windowOpacity = 1,
 })
 DualPaneController.__index = DualPaneController
 
@@ -53,6 +55,10 @@ end
 TARGET_WIDTH_COLLAPSED = 0
 HOVER_DELAY_MS = 5000
 
+local SIDEBAR_FADE_START_FACTOR = 0.8
+local SIDEBAR_FADE_END_FACTOR = 0.33
+local MILLISECONDS_PER_SECOND = 1000
+
 --- @type HeaderActions|nil
 HeaderActionsInstance = nil
 
@@ -64,24 +70,30 @@ function GetAnimationDuration()
     return MCM.Get("animation_duration")
 end
 
+---@return number
 local function GetMenuColumnWidth()
-    return MCM.Get("sidebar_width")
+    return MCM.Get("sidebar_width") --[[@as number]]
 end
 
 -- Helper: Check if collapse or fade should be skipped due to detached right pane
 function DualPaneController:_shouldSkipCollapseOrFade()
-    return self.rightPane and self.rightPane:IsCurrentModDetached()
+    return self.rightPane:IsCurrentModDetached()
 end
 
 -- Helper: Generic animation for sidebar transitions
 -- This function animates both the width (of the column) and the alpha (of the menuScrollChildWindow)
 -- It stops if the current animation state no longer matches the expected state.
-function DualPaneController:animateSidebar(targetWidth, targetAlpha, expectedState, onComplete)
+---@param targetWidth number
+---@param targetAlphaFactor number Sidebar alpha relative to windowOpacity
+---@param expectedState string
+---@param onComplete fun()|nil
+---@return nil
+function DualPaneController:animateSidebar(targetWidth, targetAlphaFactor, expectedState, onComplete)
     local colDef = self.mainLayoutTable.ColumnDefs[1]
 
     -- Capture starting state
     local startWidth = colDef.Width
-    local startAlpha = self.menuScrollChildWindow:GetStyle("Alpha")
+    local startAlphaFactor = self.menuScrollChildWindow:GetStyle("Alpha") / self.windowOpacity
     local startTime = Ext.Timer.MonotonicTime()
 
     local function step()
@@ -102,7 +114,8 @@ function DualPaneController:animateSidebar(targetWidth, targetAlpha, expectedSta
         -- Update width and alpha
         colDef.Width = Animation.Lerp(startWidth, targetWidth, t)
 
-        self.menuScrollChildWindow:SetStyle("Alpha", Animation.Lerp(startAlpha, targetAlpha, t))
+        self.menuScrollChildWindow:SetStyle("Alpha",
+            Animation.Lerp(startAlphaFactor, targetAlphaFactor, t) * self.windowOpacity)
 
         if progress < 1.0 then
             -- Schedule next frame (0 delay waits for next tick)
@@ -110,12 +123,22 @@ function DualPaneController:animateSidebar(targetWidth, targetAlpha, expectedSta
         else
             -- Ensure exact final values
             colDef.Width = targetWidth
-            self.menuScrollChildWindow:SetStyle("Alpha", targetAlpha)
+            self.menuScrollChildWindow:SetStyle("Alpha", targetAlphaFactor * self.windowOpacity)
             if onComplete then onComplete() end
         end
     end
 
     step()
+end
+
+--- Updates pane opacity while preserving the sidebar's current fade or transition progress.
+---@param opacity number Validated window_opacity setting (greater than zero)
+---@return nil
+function DualPaneController:SetWindowOpacity(opacity)
+    local alphaFactor = self.menuScrollChildWindow:GetStyle("Alpha") / self.windowOpacity
+    self.windowOpacity = opacity
+    self.contentScrollChildWindow:SetStyle("Alpha", opacity)
+    self.menuScrollChildWindow:SetStyle("Alpha", alphaFactor * opacity)
 end
 
 -- Setup hover event handlers
@@ -157,9 +180,7 @@ function DualPaneController:initLayout()
     self.mainLayoutTable:AddColumn("Menu", "WidthFixed", GetMenuColumnWidth())
     self.mainLayoutTable:AddColumn("Content", "WidthStretch")
 
-    if self.mainLayoutTable.SetStyle then
-        self.mainLayoutTable:SetStyle("CellPadding", 2)
-    end
+    self.mainLayoutTable:SetStyle("CellPadding", 2)
     local row = self.mainLayoutTable:AddRow()
     local menuCell = row:AddCell()
     local contentCell = row:AddCell()
@@ -209,36 +230,36 @@ function DualPaneController:AttachHoverListeners()
                 self.isHovered = true
                 self.userHasInteracted = true
                 self:CancelAutoCollapse()
-                self.menuScrollChildWindow:SetStyle("Alpha", 1)
+                self.menuScrollChildWindow:SetStyle("Alpha", self.windowOpacity)
             end,
             function()
                 local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
                 if not enabledAutoCollapse then return end
                 self.isHovered = false
                 self:ScheduleAutoCollapse()
-                self:FadeSidebarOutAlpha(HOVER_DELAY_MS / 1000)
+                self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
             end
         )
     else
-        if HeaderActionsInstance.expandBtn then
-            self:setupHoverHandlers(
-                HeaderActionsInstance.expandBtn,
-                function()
-                    local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
-                    if not enabledHover then return end
-                    self.isHovered = true
-                    self.userHasInteracted = true
-                    self:CancelAutoCollapse()
-                    self:Expand()
-                end,
-                nil
-            )
-        end
+        self:setupHoverHandlers(
+            HeaderActionsInstance.expandBtn,
+            function()
+                local enabledHover = MCMAPI:GetSettingValue("enable_hover", ModuleUUID)
+                if not enabledHover then return end
+                self.isHovered = true
+                self.userHasInteracted = true
+                self:CancelAutoCollapse()
+                self:Expand()
+            end,
+            nil
+        )
     end
 end
 
 -- Gradually fade the menuScrollChildWindow's alpha to a target value over a given duration (in seconds).
 -- Used for auto collapse.
+---@param durationInS number
+---@return nil
 function DualPaneController:FadeSidebarOutAlpha(durationInS)
     local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
     if not enabledAutoCollapse then return end
@@ -246,15 +267,13 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
     -- Prevent fade out if the right pane content is detached
     if self:_shouldSkipCollapseOrFade() then
         MCMDebug(3, "Right pane is detached, skipping sidebar fade out.")
-        self.menuScrollChildWindow:SetStyle("Alpha", 1)
+        self.menuScrollChildWindow:SetStyle("Alpha", self.windowOpacity)
         return
     end
 
-    local targetAlpha = 0.33
-    self.menuScrollChildWindow:SetStyle("Alpha", 0.8)
+    self.menuScrollChildWindow:SetStyle("Alpha", SIDEBAR_FADE_START_FACTOR * self.windowOpacity)
 
-    local startAlpha = self.menuScrollChildWindow:GetStyle("Alpha")
-    local durationMs = durationInS * 1000
+    local durationMs = durationInS * MILLISECONDS_PER_SECOND
     local startTime = Ext.Timer.MonotonicTime()
 
     local function stepFade()
@@ -268,13 +287,14 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
         local progress = math.min(elapsed / durationMs, 1.0)
 
         -- Calculate new Alpha
-        local currentAlpha = Animation.Lerp(startAlpha, targetAlpha, progress)
+        local currentAlpha = Animation.Lerp(SIDEBAR_FADE_START_FACTOR, SIDEBAR_FADE_END_FACTOR, progress) *
+            self.windowOpacity
         self.menuScrollChildWindow:SetStyle("Alpha", currentAlpha)
 
         if progress < 1.0 then
             Ext.Timer.WaitFor(0, stepFade)
         else
-            self.menuScrollChildWindow:SetStyle("Alpha", targetAlpha)
+            self.menuScrollChildWindow:SetStyle("Alpha", SIDEBAR_FADE_END_FACTOR * self.windowOpacity)
         end
     end
 
@@ -319,8 +339,6 @@ function DualPaneController:Expand()
     HeaderActionsInstance:UpdateToggleButtons(false)
     self.menuScrollChildWindow.Visible = true
     self.menuScrollChildWindow:SetFocus()
-    -- Use the last expanded width instead of the fixed TARGET_WIDTH_EXPANDED
-    -- local targetWidth = self.lastExpandedWidth or GetMenuColumnWidth()
     local targetWidth = GetMenuColumnWidth()
 
     self:animateSidebar(targetWidth, 1, "expand", function()
@@ -492,7 +510,7 @@ function DualPaneController:OpenModPage(modUUID, tabIdentifier, shouldEmitEvent,
 end
 
 function DualPaneController:_getContentGroup(identifier)
-    return self.rightPane and self.rightPane.contentGroups and self.rightPane.contentGroups[identifier] or nil
+    return self.rightPane.contentGroups[identifier]
 end
 
 function DualPaneController:_findKeybindingsGroup(hotkeysGroup)
@@ -545,13 +563,11 @@ end
 ---@param modUUID string|nil Optional mod UUID to focus in the Hotkeys page; defaults to current mod
 function DualPaneController:OpenKeybindingsPage(modUUID)
     -- Resolve target mod UUID
-    if not modUUID and self.rightPane and self.rightPane.currentMod then
+    if not modUUID then
         modUUID = self.rightPane.currentMod.modUUID
     end
 
-    if IMGUIAPI and IMGUIAPI.OpenMCMWindow then
-        IMGUIAPI:OpenMCMWindow(true)
-    end
+    IMGUIAPI:OpenMCMWindow(true)
 
     self:OpenModPage(ClientGlobals.MCM_HOTKEYS, nil, false, nil, true)
 

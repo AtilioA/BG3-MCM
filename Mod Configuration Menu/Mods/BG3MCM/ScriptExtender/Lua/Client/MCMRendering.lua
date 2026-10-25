@@ -63,7 +63,7 @@ end
 function MCMRendering:ApplyFontSettings()
     local typeface = MCMClientState:GetClientStateValue("typeface", ModuleUUID)
     local fontSize = MCMClientState:GetClientStateValue("font_size", ModuleUUID)
-    local sizeAllMods = MCMClientState:GetClientStateValue("font_size_all_mods", ModuleUUID) ~= false
+    local sizeAllMods = MCMClientState:GetClientStateValue("font_style_all_mods", ModuleUUID) ~= false
     local success, errorMessage = Font.ApplyGlobalFont(typeface, sizeAllMods and fontSize or nil)
     if not success then
         MCMWarn(0, "Could not apply IMGUI font '%s' at size '%s': %s",
@@ -72,6 +72,18 @@ function MCMRendering:ApplyFontSettings()
 
     -- When the size applies to all mods, every built-in name has that size, so this has no visible effect
     IMGUIHelpers.SetFont(MCM_WINDOW, fontSize)
+end
+
+--- Applies the window opacity (base opacity) setting to the MCM window and its child panes.
+---@return nil
+function MCMRendering:ApplyWindowOpacity()
+    if not MCM_WINDOW then
+        return
+    end
+
+    local opacity = MCM.Get("window_opacity")
+    MCM_WINDOW:SetStyle("Alpha", opacity)
+    DualPane:SetWindowOpacity(opacity)
 end
 
 --- Returns the name of the mod with the given UUID
@@ -295,6 +307,7 @@ function MCMRendering:LoadMods(mods)
     if not createdWindow then
         return
     end
+    self:ApplyWindowOpacity()
     self:CreateModMenu()
     self:NotifyMCMWindowReady()
 end
@@ -590,13 +603,8 @@ function MCMRendering:GetAllKeybindings()
 end
 
 --- Creates the keybindings page in the MCM UI
----@return ExtuiGroup|nil The created hotkeys group
+---@return ExtuiGroup The created hotkeys group
 function MCMRendering:CreateKeybindingsPage()
-    if not DualPane then
-        MCMWarn(1, "DualPane is not available, skipping keybindings page creation.")
-        return nil
-    end
-
     -- Delegate keybindings page creation to KeybindingsUI
     local hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
 

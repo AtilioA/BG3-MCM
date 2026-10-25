@@ -348,6 +348,7 @@ ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function(data)
 
     if newSettings[ModuleUUID] then
         MCMClientState:ApplyFontSettings()
+        MCMClientState:ApplyWindowOpacity()
     end
 end)
 
