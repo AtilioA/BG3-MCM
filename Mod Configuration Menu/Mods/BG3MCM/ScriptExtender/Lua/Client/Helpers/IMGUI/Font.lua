@@ -30,9 +30,9 @@ local FONT_DEFINITIONS = {
 ---@field typeface string FONT_DEFINITIONS key
 ---@field sizeKey string|nil FONT_SIZE_OPTIONS key for every entry; nil keeps each entry at its own size
 
--- Restore target for a failed load when this Lua context has not applied a font yet (the setting defaults)
+-- Restore target for a failed load when this Lua context has not applied a font yet: the engine's native fonts at their own sizes
 ---@type AppliedGlobalFont
-local NATIVE_BASELINE = { typeface = "", sizeKey = "Default" }
+local NATIVE_BASELINE = { typeface = "", sizeKey = nil }
 
 -- Last font fully applied to the built-in entries in this Lua context
 ---@type AppliedGlobalFont|nil
