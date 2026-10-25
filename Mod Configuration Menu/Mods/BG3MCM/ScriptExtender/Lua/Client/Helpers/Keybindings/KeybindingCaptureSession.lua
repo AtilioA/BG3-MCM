@@ -24,6 +24,25 @@
 KeybindingCaptureSession = {}
 KeybindingCaptureSession.__index = KeybindingCaptureSession
 
+---@type table<string, KeybindingCaptureState>
+local CaptureState = { Listening = "listening", AwaitingRelease = "awaiting-release", Closed = "closed" }
+
+---@type table<string, KeybindingCaptureReason>
+KeybindingCaptureSession.Reason = {
+    Selected = "selected",
+    Released = "released",
+    Escape = "escape",
+    UnsupportedButton = "unsupported-button",
+    Cancelled = "cancelled",
+    Destroyed = "destroyed",
+    Timeout = "timeout",
+    WindowClosed = "window-closed",
+    GameState = "game-state",
+    Reset = "reset",
+    InputReset = "input-reset",
+}
+local Reason = KeybindingCaptureSession.Reason
+
 local activeSession = nil
 local releaseClaims = { Keyboard = nil, Mouse = nil }
 local CAPTURE_TIMEOUT_MS = 10000
@@ -54,7 +73,7 @@ function KeybindingCaptureSession.Start(options)
     end
 
     local session = setmetatable({
-        State = "listening",
+        State = CaptureState.Listening,
         Subscriptions = {},
         Window = MCM_WINDOW,
         PreviousNoMouseInputs = MCM_WINDOW and MCM_WINDOW.NoMouseInputs == true or false,
@@ -95,7 +114,7 @@ end
 ---@param reason? KeybindingCaptureReason
 function KeybindingCaptureSession.Reset(reason)
     local session = activeSession
-    if session then session:Close(reason or "reset") end
+    if session then session:Close(reason or Reason.Reset) end
     releaseClaims.Keyboard = nil
     releaseClaims.Mouse = nil
 end
@@ -106,14 +125,14 @@ function KeybindingCaptureSession:RegisterSubscriptions()
     subscriptions.KeyInput = Ext.Events.KeyInput:Subscribe(function(e) self:HandleKeyInput(e) end)
     subscriptions.MouseButtonInput = Ext.Events.MouseButtonInput:Subscribe(function(e) self:HandleMouseInput(e) end)
     subscriptions.WindowClosed = ModEventManager:Subscribe(EventChannels.MCM_WINDOW_CLOSED, function()
-        self:Close("window-closed")
+        self:Close(Reason.WindowClosed)
     end)
     subscriptions.GameStateChanged = Ext.Events.GameStateChanged:Subscribe(function(e)
-        if InputCallbackManager.IsInputCleanupGameState(e.ToState) then self:Close("game-state") end
+        if InputCallbackManager.IsInputCleanupGameState(e.ToState) then self:Close(Reason.GameState) end
     end)
     subscriptions.Timeout = Ext.Timer.WaitFor(CAPTURE_TIMEOUT_MS, function()
         subscriptions.Timeout = nil
-        self:Close("timeout")
+        self:Close(Reason.Timeout)
     end)
 end
 
@@ -146,7 +165,7 @@ end
 ---@param input string|integer
 ---@param outcome KeybindingCaptureOutcome
 function KeybindingCaptureSession:AwaitRelease(device, input, outcome)
-    self.State = "awaiting-release"
+    self.State = CaptureState.AwaitingRelease
     self.ClaimedInput = { Device = device, Input = input }
     self.PendingOutcome = outcome
     claimRelease(device, input)
@@ -154,7 +173,7 @@ end
 
 ---Notifies the owner that held modifiers changed while listening.
 function KeybindingCaptureSession:NotifyModifiersChanged()
-    if self.State ~= "listening" then return end
+    if self.State ~= CaptureState.Listening then return end
     if self.OnModifiersChanged then
         self.OnModifiersChanged(InputCallbackManager.GetHeldModifiers())
     end
@@ -167,7 +186,7 @@ function KeybindingCaptureSession:HandleKeyInput(e)
     local claimed = self.ClaimedInput
     if claimed and claimed.Device == "Keyboard" and e.Event == "KeyUp" and key == claimed.Input then
         claimEvent(e)
-        self:Close("released")
+        self:Close(Reason.Released)
         return
     end
 
@@ -178,18 +197,18 @@ function KeybindingCaptureSession:HandleKeyInput(e)
         return
     end
 
-    if self.State ~= "listening" or e.Event ~= "KeyDown" or e.Repeat then return end
+    if self.State ~= CaptureState.Listening or e.Event ~= "KeyDown" or e.Repeat then return end
 
     claimEvent(e)
     if key == "ESCAPE" then
-        self:AwaitRelease("Keyboard", key, { kind = "cancelled", reason = "escape" })
+        self:AwaitRelease("Keyboard", key, { kind = "cancelled", reason = Reason.Escape })
         return
     end
 
     local binding = key == "BACKSPACE"
         and { Key = "", ModifierKeys = {} }
         or { Key = key, ModifierKeys = InputCallbackManager.GetHeldModifiers() }
-    self:AwaitRelease("Keyboard", key, { kind = "binding", binding = binding, reason = "selected" })
+    self:AwaitRelease("Keyboard", key, { kind = "binding", binding = binding, reason = Reason.Selected })
 end
 
 ---Handles mouse capture and records one binding outcome.
@@ -198,15 +217,15 @@ function KeybindingCaptureSession:HandleMouseInput(e)
     local claimed = self.ClaimedInput
     if claimed and claimed.Device == "Mouse" and not e.Pressed and e.Button == claimed.Input then
         claimEvent(e)
-        self:Close("released")
+        self:Close(Reason.Released)
         return
     end
-    if self.State ~= "listening" or not e.Pressed then return end
+    if self.State ~= CaptureState.Listening or not e.Pressed then return end
 
     -- Unsupported buttons bind to nothing. Claim both edges so the click never reaches the game.
     if e.Button < KeybindingManager.MOUSE_BUTTON_MIN or e.Button > KeybindingManager.MOUSE_BUTTON_MAX then
         claimEvent(e)
-        self:AwaitRelease("Mouse", e.Button, { kind = "cancelled", reason = "unsupported-button" })
+        self:AwaitRelease("Mouse", e.Button, { kind = "cancelled", reason = Reason.UnsupportedButton })
         return
     end
 
@@ -214,7 +233,7 @@ function KeybindingCaptureSession:HandleMouseInput(e)
     self:AwaitRelease("Mouse", e.Button, {
         kind = "binding",
         binding = { Button = e.Button, ModifierKeys = InputCallbackManager.GetHeldModifiers() },
-        reason = "selected"
+        reason = Reason.Selected
     })
 end
 
@@ -222,14 +241,14 @@ end
 ---@param reason KeybindingCaptureReason
 ---@return boolean closed
 function KeybindingCaptureSession:Close(reason)
-    if self.State == "closed" then return false end
-    self.State = "closed"
+    if self.State == CaptureState.Closed then return false end
+    self.State = CaptureState.Closed
     self:UnregisterSubscriptions()
     if self.Window then self.Window.NoMouseInputs = self.PreviousNoMouseInputs end
     if activeSession == self then activeSession = nil end
 
     local outcome = self.PendingOutcome or { kind = "cancelled", reason = reason }
-    if outcome.reason == "selected" then outcome.reason = reason end
+    if outcome.reason == Reason.Selected then outcome.reason = reason end
     self.ClaimedInput = nil
     self.PendingOutcome = nil
     self.Window = nil
@@ -242,7 +261,7 @@ end
 ---Cancels capture through the same cleanup path.
 ---@param reason? KeybindingCaptureReason
 function KeybindingCaptureSession:Cancel(reason)
-    self:Close(reason or "cancelled")
+    self:Close(reason or Reason.Cancelled)
 end
 
 return KeybindingCaptureSession

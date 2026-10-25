@@ -415,7 +415,7 @@ function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, 
                 self:StoreKeybinding(mod, action, payload)
             end
 
-            if outcome.reason ~= "destroyed" then
+            if outcome.reason ~= KeybindingCaptureSession.Reason.Destroyed then
                 self:FilterActions()
                 self:RefreshUI()
             end
