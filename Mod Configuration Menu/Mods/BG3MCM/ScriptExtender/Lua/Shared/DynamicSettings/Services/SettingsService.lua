@@ -510,7 +510,10 @@ function SettingsService.Set(moduleUUID, varName, newValue, storageType)
         -- If it's defined as nil, we should return nil...
         if entry.default ~= nil and adapter then
             val = entry.default
-            adapter:SetValue(varName, val, moduleUUID, entry.storageConfig)
+            -- A refused write keeps the old value, so there is no save to report
+            if adapter:SetValue(varName, val, moduleUUID, entry.storageConfig) == false then
+                return false
+            end
 
             -- Emit a setting saved event for the correction
             ModEventManager:Emit(
