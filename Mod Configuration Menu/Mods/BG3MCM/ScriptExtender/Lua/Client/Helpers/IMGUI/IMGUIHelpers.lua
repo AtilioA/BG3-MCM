@@ -203,3 +203,21 @@ function IMGUIHelpers:ApplyDefaultStylesToIMGUIElement(element)
     end
     self:ApplyStyleVars(element, UIStyle.Styles)
 end
+
+--- Destroy every child of a container; a missing or already destroyed container is skipped
+---@param container ExtuiTreeParent|nil
+function IMGUIHelpers.DestroyChildren(container)
+    if not container then return end
+    xpcall(function()
+        -- Copy first: destroying a child shrinks Children while it is iterated
+        local children = {}
+        for _, child in ipairs(container.Children or {}) do
+            table.insert(children, child)
+        end
+        for _, child in ipairs(children) do
+            child:Destroy()
+        end
+    end, function(err)
+        MCMDebug(1, "Error destroying children: %s", err)
+    end)
+end

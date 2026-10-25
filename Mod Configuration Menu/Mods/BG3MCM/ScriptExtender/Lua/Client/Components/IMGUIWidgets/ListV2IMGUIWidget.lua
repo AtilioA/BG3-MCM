@@ -920,30 +920,14 @@ function ListV2IMGUIWidget:TryAddElement(name)
     return true, "added"
 end
 
----Clears all child elements from an IMGUI group
----@param group ExtuiGroup The group to clear
----@return nil
-local function clearGroup(group)
-    xpcall(function()
-        if not group then
-            return
-        end
-        for _, child in ipairs(group.Children or {}) do
-            child:Destroy()
-        end
-    end, function(err)
-        MCMDebug(1, "Error clearing group: %s", err)
-    end)
-end
-
 ---Refreshes the entire widget, re-rendering all components
 ---@return nil
 function ListV2IMGUIWidget:Refresh()
-    -- clearGroup(self.Widget.HeaderGroup)
-    clearGroup(self.Widget.TableGroup)
+    -- IMGUIHelpers.DestroyChildren(self.Widget.HeaderGroup)
+    IMGUIHelpers.DestroyChildren(self.Widget.TableGroup)
     if not self.Widget.ReadOnly then
-        clearGroup(self.Widget.InputGroup)
-        clearGroup(self.Widget.ResetGroup)
+        IMGUIHelpers.DestroyChildren(self.Widget.InputGroup)
+        IMGUIHelpers.DestroyChildren(self.Widget.ResetGroup)
     end
     -- self:RenderHeader()
     self:RenderList()
@@ -956,7 +940,7 @@ end
 ---Refreshes only the list table without re-rendering the header or input sections
 ---@return nil
 function ListV2IMGUIWidget:RefreshList()
-    clearGroup(self.Widget.TableGroup)
+    IMGUIHelpers.DestroyChildren(self.Widget.TableGroup)
     self:RenderList()
 end
 
@@ -1068,7 +1052,7 @@ end
 ---Renders the search results below the input field
 ---@return nil
 function ListV2IMGUIWidget:RenderSearchResults()
-    clearGroup(self.Widget.SearchResultsGroup)
+    IMGUIHelpers.DestroyChildren(self.Widget.SearchResultsGroup)
 
     -- Only render if there is search text
     if not self.Widget.NewElementName or self.Widget.NewElementName == "" then

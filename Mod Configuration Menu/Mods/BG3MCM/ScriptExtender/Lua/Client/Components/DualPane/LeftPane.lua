@@ -68,17 +68,6 @@ function LeftPane:CreateMenuButton(text, description, uuid, parent)
     return button
 end
 
----@param container ExtuiTreeParent
-local function destroyChildren(container)
-    local oldChildren = {}
-    for _, child in ipairs(container.Children or {}) do
-        table.insert(oldChildren, child)
-    end
-    for _, child in ipairs(oldChildren) do
-        child:Destroy()
-    end
-end
-
 --- Show the right-click menu for one mod entry; opening it does not select the mod
 ---@param modUUID string
 ---@param isHidden boolean Whether the entry is in Hidden mods
@@ -94,7 +83,7 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
         self.modEntryMenu:SetStyle("ItemSpacing", 8, 6)
         self.modEntryMenu:SetSizeConstraints({ 200, 0 })
     end
-    destroyChildren(self.modEntryMenu)
+    IMGUIHelpers.DestroyChildren(self.modEntryMenu)
 
     -- Right-clicking does not select the entry, so name the mod the action applies to
     local modNameText = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName())
@@ -172,7 +161,7 @@ function LeftPane:RebuildModEntries(mods)
     if not self.modEntriesGroup then
         self.modEntriesGroup = self.parent:AddGroup("MCM_ModEntries")
     end
-    destroyChildren(self.modEntriesGroup)
+    IMGUIHelpers.DestroyChildren(self.modEntriesGroup)
     self.hiddenModsGroup = nil
     self.hiddenModsHeader = nil
     self.mods = mods
