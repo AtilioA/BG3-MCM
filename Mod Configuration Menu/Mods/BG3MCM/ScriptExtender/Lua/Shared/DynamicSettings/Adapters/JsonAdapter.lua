@@ -66,7 +66,7 @@ function SettingsFile:Load()
         if ok and type(parsed) == "table" then
             self.Data = parsed
         else
-            MCMWarn(0, "JsonAdapter: Failed to parse JSON for: %s. MCM keeps the file unchanged and does not save values to it until it is repaired or deleted.", self.FilePath)
+            MCMWarn(0, "JsonAdapter: Failed to parse JSON for: %s. MCM keeps the file unchanged and does not save values to it. Repair or delete the file, then reload.", self.FilePath)
             self.Data = {}
             self.Unreadable = true
         end
@@ -81,7 +81,7 @@ end
 ---@return boolean saved
 function SettingsFile:Save()
     if self.Unreadable then
-        MCMWarn(0, "JsonAdapter: Not saving to unreadable file: %s", self.FilePath)
+        MCMDebug(1, "JsonAdapter: Not saving to unreadable file: %s", self.FilePath)
         return false
     end
     local content = Ext.Json.Stringify(self.Data)
@@ -98,7 +98,7 @@ end
 function SettingsFile:Set(key, value)
     self:Load()
     if self.Unreadable then
-        MCMWarn(0, "JsonAdapter: Not saving '%s' to unreadable file: %s", key, self.FilePath)
+        MCMDebug(1, "JsonAdapter: Not saving '%s' to unreadable file: %s", key, self.FilePath)
         return false
     end
     self.Data[key] = value
