@@ -66,10 +66,6 @@ function Font.GetFontSizeOptions()
     return out
 end
 
-function Font.IsValidFontSize(fontSize)
-    return Font.GetSizeKey(fontSize) ~= nil
-end
-
 --- Return the built-in font name for a size, or nil if the size is unknown
 ---@param fontSize string|number|nil The font size key (e.g., "Default", "large") or its pixel value
 ---@return string|nil
