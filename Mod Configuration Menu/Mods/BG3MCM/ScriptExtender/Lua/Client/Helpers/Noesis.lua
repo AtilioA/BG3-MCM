@@ -2,8 +2,6 @@ Noesis = {}
 
 MCM_BUTTON_HANDLE_ORIGINAL_CONTENT = Ext.Loca.GetTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7")
 
-local isSearchingForMCMButton = false
-
 Ext.UI.RegisterType("GameMenuMCMButtonDC", { CustomEvent = { Type = "Command" } })
 Ext.UI.RegisterType("MainMenuMCMButtonDC", { CustomEvent = { Type = "Command" } })
 
@@ -40,24 +38,13 @@ function Noesis:FindWidgetChild(widgetName, name)
         return nil
     end
 
-    local ok, result = xpcall(function()
-        for i = 1, root.ChildrenCount do
-            local widget = root:Child(i)
-            if widget.Name == widgetName then
-                return findNoesisElementByName(widget, name)
-            end
+    for i = 1, root.ChildrenCount do
+        local widget = root:Child(i)
+        if widget.Name == widgetName then
+            return findNoesisElementByName(widget, name)
         end
-        return nil
-    end, function(err)
-        MCMError(0, "Error finding widget: %s", err)
-        return nil
-    end)
-
-    if ok then
-        return result
-    else
-        return nil
     end
+    return nil
 end
 
 function Noesis:FindMCMGameMenuButton(isController)
@@ -117,7 +104,8 @@ function Noesis:FindMCMMainMenuButton_c()
 end
 
 -- TODO: move this to a separate file
-local function updateButtonMessage(newMessage, revertTime, isMessageUpdated)
+local isMessageUpdated = false
+local function updateButtonMessage(newMessage, revertTime)
     if isMessageUpdated then
         return
     end
@@ -137,23 +125,22 @@ local function handleMCMButtonPress(button, hasServer)
     local pressLimit = 4
     local timeWindow = 5000
     local revertTime = 15000
-    local isMessageUpdated = false
 
     local function onPointerDown()
         Ext.OnNextTick(function()
             pressCount = pressCount + 1
+            if pressCount == 1 then
+                Ext.Timer.WaitFor(timeWindow, function() pressCount = 0 end)
+            end
             if pressCount > pressLimit then
                 MCMWarn(0,
                     "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
                 updateButtonMessage(Ext.Loca.GetTranslatedString("h354808a337024c99b6149d5d1b11934bd36e"),
-                    revertTime, isMessageUpdated)
+                    revertTime)
                 if hasServer then
                     NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION:SendToServer({})
                 end
             else
-                Ext.Timer.WaitFor(timeWindow, function()
-                    pressCount = 0
-                end)
                 MCMPrint(1,
                     "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
             end
@@ -173,25 +160,21 @@ function Noesis:HandleMainMenuMCMButtonPress(button)
     handleMCMButtonPress(button, false)
 end
 
---- Handles search of MCM button on game menu.
+--- Binds the MCM button of each game menu widget that appears during a short search window.
+--- The game creates a new widget on each open, so a search started by a closing ESC must not stop at the old widget.
 --- @param isController boolean - Whether to search for the button on controller UI or not
 function Noesis:MonitorMCMGameMenuButtonPress(isController)
-    if isSearchingForMCMButton then
-        return
-    end
-
-    isSearchingForMCMButton = true
-    local bound = false
     VCTimer:CallWithInterval(function()
-        if bound then return true end
         Ext.UI.Defer(function()
-            if bound then return end
             local button = Noesis:FindMCMGameMenuButton(isController)
             if not button then
                 MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
                 return
             end
-            bound = true
+            local dataContext = button.DataContext
+            if dataContext and dataContext.Type == "se::GameMenuMCMButtonDC" then
+                return
+            end
             local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC")
             ctx.CustomEvent:SetHandler(function() IMGUIAPI:ToggleMCMWindow(false) end)
             button.DataContext = ctx
@@ -199,11 +182,6 @@ function Noesis:MonitorMCMGameMenuButtonPress(isController)
             Noesis:HandleGameMenuMCMButtonPress(button)
         end)
     end, 100, 1000)
-
-    -- Reset the flag after the total time in case no button was found
-    Ext.Timer.WaitFor(1000, function()
-        isSearchingForMCMButton = false
-    end)
 end
 
 function Noesis:MonitorMainMenuButtonPress()
