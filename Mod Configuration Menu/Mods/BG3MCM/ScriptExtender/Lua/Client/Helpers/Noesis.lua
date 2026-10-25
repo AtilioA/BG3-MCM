@@ -217,7 +217,6 @@ function Noesis:MonitorMainMenuButtonPress()
         pending = true
         Ext.UI.Defer(function()
             pending = false
-            if bound then return end
             local mainMenuButton = Noesis:FindMCMMainMenuButton(isController)
             if not mainMenuButton then
                 MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
