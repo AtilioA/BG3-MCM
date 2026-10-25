@@ -53,8 +53,7 @@ function HeaderActions:New(parent)
         Ext.Loca.GetTranslatedString("h5270f62d04b243b6b9ea0473bd610aa72b0e"), headerActionButtonSizeMultiplier)
     self.detachBtn.SameLine = true
     self.detachBtn.OnClick = function()
-        if DualPane.rightPane and DualPane.rightPane.currentMod and
-            DualPane.rightPane.currentMod.group and DualPane.rightPane.currentMod.modUUID then
+        if DualPane.rightPane.currentMod.group and DualPane.rightPane.currentMod.modUUID then
             local modUUID = DualPane.rightPane.currentMod.modUUID
             DualPane.rightPane:DetachModGroup(modUUID)
             self:UpdateDetachButtons(modUUID)
@@ -67,8 +66,7 @@ function HeaderActions:New(parent)
     self.reattachBtn.SameLine = true
     self.reattachBtn.Visible = false
     self.reattachBtn.OnClick = function()
-        if DualPane.rightPane and DualPane.rightPane.currentMod and
-            DualPane.rightPane.currentMod.group and DualPane.rightPane.currentMod.modUUID then
+        if DualPane.rightPane.currentMod.group and DualPane.rightPane.currentMod.modUUID then
             local modUUID = DualPane.rightPane.currentMod.modUUID
             DualPane.rightPane:ReattachModGroup(modUUID)
             self:UpdateDetachButtons(modUUID)
@@ -83,15 +81,12 @@ function HeaderActions:New(parent)
     self.keybindingsIndicator.Disabled = false
     self.keybindingsIndicator.Visible = false
     self.keybindingsIndicator.OnClick = function()
-        if not DualPane or not DualPane.rightPane or not DualPane.rightPane.currentMod then return end
         local modUUID = DualPane.rightPane.currentMod.modUUID
         if not modUUID or modUUID == "" then return end
 
         -- Navigate to the Hotkeys page
         -- TODO: focus the mod
-        if DualPane and DualPane.OpenKeybindingsPage then
-            DualPane:OpenKeybindingsPage(modUUID)
-        end
+        DualPane:OpenKeybindingsPage(modUUID)
     end
 
     -- React to keybindings registry updates so the indicator stays in sync.
@@ -129,11 +124,6 @@ end
 -- Update the visibility of toggle buttons based on whether the sidebar is collapsed.
 -- If isCollapsed is true then show the expand button; otherwise, show the collapse button.
 function HeaderActions:UpdateToggleButtons(isCollapsed)
-    if self.expandBtn == nil or self.collapseBtn == nil then
-        MCMError(0, "HeaderActions:UpdateToggleButtons: self.expandBtn or self.collapseBtn is nil")
-        return
-    end
-
     if isCollapsed then
         self.expandBtn.Visible = true
         self.collapseBtn.Visible = false
@@ -146,22 +136,15 @@ end
 -- Update the detach/reattach buttons based on the current mod's detachment state
 -- This function should be called whenever switching mods or changing detachment state
 function HeaderActions:UpdateDetachButtons(modUUID)
-    if not DualPane or not DualPane.rightPane then return end
-
-    if self.detachBtn == nil or self.reattachBtn == nil then
-        MCMError(0, "HeaderActions:UpdateDetachButtons: self.detachBtn or self.reattachBtn is nil")
-        return
-    end
-
     -- If no modUUID is provided, use the current mod
-    if not modUUID and DualPane.rightPane.currentMod then
+    if not modUUID then
         modUUID = DualPane.rightPane.currentMod.modUUID
     end
 
     if not modUUID then return end
 
     -- Check if the mod is detached
-    local isDetached = DualPane.rightPane.detachedWindows and DualPane.rightPane.detachedWindows[modUUID] ~= nil
+    local isDetached = DualPane.rightPane.detachedWindows[modUUID] ~= nil
 
     -- Update button visibility
     self.detachBtn.Visible = not isDetached
@@ -173,10 +156,8 @@ end
 --- Updates the keybinding indicator visibility and tooltip for the current or provided mod
 ---@param modUUID string|nil
 function HeaderActions:UpdateKeybindingIndicator(modUUID)
-    if not self.keybindingsIndicator then return end
-
-    -- Resolve modUUID from current context if not provided
-    if (not modUUID) and DualPane and DualPane.rightPane and DualPane.rightPane.currentMod then
+    -- The registry emits during header construction, before DualPane is assigned.
+    if not modUUID and DualPane then
         modUUID = DualPane.rightPane.currentMod.modUUID
     end
 

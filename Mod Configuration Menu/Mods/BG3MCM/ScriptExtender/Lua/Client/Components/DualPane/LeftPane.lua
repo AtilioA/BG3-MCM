@@ -54,7 +54,7 @@ function LeftPane:CreateMenuButton(text, description, uuid, parent)
     button:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     button.OnClick = function()
         -- Auto-reattach if mod is currently detached
-        if DualPane and DualPane.rightPane and DualPane.rightPane.detachedWindows and DualPane.rightPane.detachedWindows[uuid] then
+        if DualPane.rightPane.detachedWindows[uuid] then
             DualPane.rightPane:ReattachModGroup(uuid)
         end
         DualPane:SwitchVisibleContent(button, uuid)
@@ -87,14 +87,14 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
 
     -- Right-clicking does not select the entry, so name the mod the action applies to
     local modNameText = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName())
-    modNameText:SetColor("Text", UIStyle.TextStyles["SettingDescription"])
+    modNameText:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     self.modEntryMenu:AddSeparator()
 
     --- Add a menu item that runs onClick, then rebuilds the mod-list navigation
-    ---@param label string Translated item label
+    ---@param label string Translated item label, shown after a bullet
     ---@param onClick fun() Saves the visibility change, or removes the player's choice
     local function addItem(label, onClick)
-        local item = self.modEntryMenu:AddSelectable(label, nil, { 0, 28 })
+        local item = self.modEntryMenu:AddSelectable("• " .. label, nil, { 0, 28 })
         item:SetStyle("SelectableTextAlign", 0, 0.5)
         item.OnClick = function()
             onClick()
@@ -102,6 +102,17 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
             self:RebuildModEntries(self.mods)
         end
     end
+
+    -- Detach and attach do not change visibility, so they stay available in the protected state
+    local isDetached = DualPane.rightPane.detachedWindows[modUUID] ~= nil
+    addItem(Ext.Loca.GetTranslatedString(isDetached and "hc2133fbab6fb47a9a4f71e83a715780237e1" or "hee272f8489fe4bc7a5591935c5710013efc0"), function()
+        if isDetached then
+            DualPane.rightPane:ReattachModGroup(modUUID)
+        else
+            DualPane.rightPane:DetachModGroup(modUUID)
+        end
+    end)
+    self.modEntryMenu:AddSeparator()
 
     -- A protected MCM state document is kept unchanged, so explain why no choice is offered
     if self.visibility:IsProtected() then

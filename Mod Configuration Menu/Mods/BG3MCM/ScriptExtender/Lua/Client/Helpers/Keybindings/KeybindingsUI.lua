@@ -5,7 +5,7 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 
 ---@class KeybindingsUI
 ---@field GetAllKeybindings fun(self: KeybindingsUI): table<string, table>
----@field CreateKeybindingsPage fun(self: KeybindingsUI, dualPane: DualPane): any
+---@field CreateKeybindingsPage fun(dualPane: DualPaneController): ExtuiGroup
 ---@field GetNativeKeybindings fun(self: KeybindingsUI): table[]
 ---@field KeybindingWidget? KeybindingV2IMGUIWidget
 
@@ -175,32 +175,19 @@ end
 
 --- Creates the keybindings page in the MCM UI
 ---@param dualPane DualPaneController The dual pane controller to add the keybindings to
----@return any The created hotkeys group
+---@return ExtuiGroup The created hotkeys group
 function KeybindingsUI.CreateKeybindingsPage(dualPane)
-    if not dualPane then
-        MCMDebug(1, "Invalid dualPane parameter in CreateKeybindingsPage")
-        return {}
-    end
-
     if KeybindingsUI.KeybindingWidget then
         KeybindingsUI.KeybindingWidget:Destroy()
         KeybindingsUI.KeybindingWidget = nil
     end
 
     -- Create a dedicated "Hotkeys" menu section using the new interface
-    local success, hotkeysGroup = pcall(function()
-        return dualPane:AddMenuSectionWithContent(
-            Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"),
-            Ext.Loca.GetTranslatedString("h68e7c491c9ff4a02b2b099889c482fc323a0"),
-            ClientGlobals.MCM_HOTKEYS or "MCM_HOTKEYS"
-        )
-    end)
-
-
-    if not success or not hotkeysGroup then
-        MCMDebug(1, "Failed to create hotkeys group in CreateKeybindingsPage")
-        return {}
-    end
+    local hotkeysGroup = dualPane:AddMenuSectionWithContent(
+        Ext.Loca.GetTranslatedString("hb20ef6573e4b42329222dcae8e6809c9ab0c"),
+        Ext.Loca.GetTranslatedString("h68e7c491c9ff4a02b2b099889c482fc323a0"),
+        ClientGlobals.MCM_HOTKEYS
+    )
 
     -- Create search bar group at the top
     local searchBarGroup = hotkeysGroup:AddGroup("Search Keybindings")

@@ -154,7 +154,7 @@ end
 function VCTimer:Throttle(intervalInMs, func)
     local lastRun = -math.huge
     local timer = nil
-    local pendingArgs = nil
+    local pendingArgs = {}
 
     local function run()
         timer = nil

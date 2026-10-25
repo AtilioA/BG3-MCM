@@ -45,19 +45,13 @@ end
 function GamepadInputHandler:HandleBackButton(e)
     e:PreventAction()
 
-    if DualPane then
-        DualPane:ToggleSidebar()
-        MCMDebug(2, "Gamepad: Toggled sidebar with Back button")
-    end
+    DualPane:ToggleSidebar()
+    MCMDebug(2, "Gamepad: Toggled sidebar with Back button")
 end
 
 function GamepadInputHandler:GetCurrentModTabBar()
-    if not DualPane or not DualPane.rightPane then
-        return nil
-    end
-
     local currentMod = DualPane.rightPane.currentMod
-    if not currentMod or not currentMod.modUUID then
+    if not currentMod.modUUID then
         return nil
     end
 

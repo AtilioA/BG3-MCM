@@ -30,7 +30,6 @@ end
 
 --- Focuses the first focusable element in a tab's content
 function RightPane:FocusModContentChildWindow()
-    if not self.parent then return end
     self.parent:SetFocus()
     return true
 end
@@ -61,7 +60,7 @@ end
 --- @param modUUID any
 --- @return nil|ExtuiTabBar
 function RightPane:GetModTabBar(modUUID)
-    if not self.contentGroups or not self.contentGroups[modUUID] then
+    if not self.contentGroups[modUUID] then
         return nil
     end
 
@@ -273,13 +272,9 @@ function RightPane:SetVisibleGroup(modUUID)
         }
 
         -- Use HeaderActions to update detach/reattach buttons based on current mod
-        if HeaderActionsInstance then
-            HeaderActionsInstance:UpdateDetachButtons(modUUID)
-            -- Also refresh keybinding indicator for the newly selected mod
-            if HeaderActionsInstance.UpdateKeybindingIndicator then
-                HeaderActionsInstance:UpdateKeybindingIndicator(modUUID)
-            end
-        end
+        HeaderActionsInstance:UpdateDetachButtons(modUUID)
+        -- Also refresh keybinding indicator for the newly selected mod
+        HeaderActionsInstance:UpdateKeybindingIndicator(modUUID)
     end
 end
 
@@ -341,14 +336,14 @@ function RightPane:DetachModGroup(modUUID)
     MCMDebug(1, "Detaching mod group %s with handle %s", modUUID, group.Handle)
     parent:DetachChild(group)
     newWindow:AttachChild(group)
+    -- A group of a non-selected mod is hidden, and SetVisibleGroup skips detached groups
+    group.Visible = true
     self.detachedWindows[modUUID] = newWindow
     newWindow.Closeable = true
     newWindow.OnClose = function() self:ReattachModGroup(modUUID) end
 
     -- Update button visibility through HeaderActions
-    if HeaderActionsInstance then
-        HeaderActionsInstance:UpdateDetachButtons(modUUID)
-    end
+    HeaderActionsInstance:UpdateDetachButtons(modUUID)
 
     DualPane:Expand()
 end
@@ -409,15 +404,13 @@ function RightPane:ReattachModGroup(modUUID)
     self.detachedWindows[modUUID] = nil
 
     -- Update button visibility through HeaderActions
-    if HeaderActionsInstance then
-        HeaderActionsInstance:UpdateDetachButtons(modUUID)
-    end
+    HeaderActionsInstance:UpdateDetachButtons(modUUID)
 end
 
 --- Checks if the currently active mod's content is detached.
 --- @return boolean true if the current mod is detached, false otherwise.
 function RightPane:IsCurrentModDetached()
-    if self.currentMod and self.currentMod.modUUID then
+    if self.currentMod.modUUID then
         return self.detachedWindows[self.currentMod.modUUID] ~= nil
     end
     return false
@@ -426,9 +419,7 @@ end
 -- Update header buttons visibility based on detachment state
 -- Legacy function, use HeaderActions:UpdateDetachButtons instead
 function RightPane:UpdateDetachButtons()
-    if HeaderActionsInstance then
-        if self.currentMod and self.currentMod.modUUID then
-            HeaderActionsInstance:UpdateDetachButtons(self.currentMod.modUUID)
-        end
+    if self.currentMod.modUUID then
+        HeaderActionsInstance:UpdateDetachButtons(self.currentMod.modUUID)
     end
 end
