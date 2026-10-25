@@ -26,7 +26,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
-    instance.Widget.OnChange = VCTimer:Throttle(50, function(value)
+    instance.Widget.OnChange = VCTimer:Throttle(33, function(value)
         IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
     end)
     instance.Widget.SameLine = true
@@ -54,7 +54,7 @@ function SliderIntIMGUIWidget:UpdateCurrentValue(value)
 end
 
 --- @param widget IMGUIWidget
---- @param setting Setting
+--- @param setting BlueprintSetting
 function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
     return IMGUIHelpers.AddTooltipWithRange(widget, setting, "%s")
 end
