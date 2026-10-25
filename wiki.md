@@ -725,6 +725,8 @@ Re-registering a variable with the same file placement is allowed. A conflicting
 
 Register JSON variables on each receiving side before synchronized values arrive. MCM drops a remote JSON value for an unregistered variable with a warning, before writing or relaying it. It does not replay that value after a later registration. Ordinary ModVar behavior is unchanged.
 
+Register each variable with the same `storageConfig` on the server and the client. The receiving side's own registration decides whether a synced value applies, and the server's registration decides whether a client write is relayed to other clients. A sync flag set only on the sending side has no effect.
+
 MCM uses this filename option for its own [MCM state document](#share-mod-list-visibility).
 
 ##### Unreadable JSON Store files

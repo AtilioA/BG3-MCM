@@ -337,7 +337,8 @@ function StorageSyncService:HandleClientSet(data, userID)
         return { success = false, error = "Unknown storageType" }
     end
 
-    local resolvedConfig = adapter.ResolveConfig and adapter:ResolveConfig(payload.storageConfig) or payload.storageConfig or {}
+    -- The server's own registration decides the rebroadcast; a client cannot widen it through its payload
+    local resolvedConfig = adapter:ResolveConfig(SettingsService.GetStorageConfig(moduleUUID, varName))
 
     -- last-write-wins: server accepts latest arriving write
     local didApply = self:ApplyRemoteValue(storageType, moduleUUID, varName, payload.value, resolvedConfig)
