@@ -144,3 +144,35 @@ function VCTimer:Debounce(delayInMs, func)
         end)
     end
 end
+
+--- Creates a throttled version of the provided function.
+--- The throttled function runs `func` at most once every `intervalInMs` milliseconds while calls continue.
+--- Calls inside the interval are coalesced, and a trailing call runs with the latest arguments.
+--- @param intervalInMs integer The minimum time in milliseconds between executions of `func`.
+--- @param func function The function to throttle.
+--- @return function - A throttled version of `func`.
+function VCTimer:Throttle(intervalInMs, func)
+    local lastRun = -math.huge
+    local timer = nil
+    local pendingArgs = nil
+
+    local function run()
+        timer = nil
+        lastRun = Ext.Utils.MonotonicTime()
+        func(table.unpack(pendingArgs))
+    end
+
+    return function(...)
+        pendingArgs = { ... }
+        if timer then
+            return
+        end
+
+        local wait = intervalInMs - (Ext.Utils.MonotonicTime() - lastRun)
+        if wait <= 0 then
+            run()
+        else
+            timer = Ext.Timer.WaitFor(wait, run)
+        end
+    end
+end

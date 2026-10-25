@@ -26,7 +26,7 @@ function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Actual slider
     instance.Widget = group:AddSliderInt("", initialValue, setting.Options.Min, setting.Options.Max)
-    instance.Widget.OnChange = VCTimer:Debounce(50, function(value)
+    instance.Widget.OnChange = VCTimer:Throttle(50, function(value)
         IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
     end)
     instance.Widget.SameLine = true
