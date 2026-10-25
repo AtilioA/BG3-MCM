@@ -24,7 +24,7 @@
     <!-- bg3-lint: allow BG3-LOCA-UNUSED: keep -->
     <content contentuid="h204a4196566b44eb8070bc8b5d36edde1c1d" version="1">Make the MCM window more transparent while interacting with game elements.</content>
     <content contentuid="h9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b" version="1">Window opacity</content>
-    <content contentuid="h1b2c3d4e5f67890abcdef0123456789abcd" version="1">Controls the transparency of the MCM window. Lower values make the window more transparent.</content>
+    <content contentuid="h1b2c3d4e5f67890abcdef0123456789abcd" version="1">Additional transparency control of the MCM window. Lower values make the window more transparent.</content>
     <content contentuid="h119ee473f3f6444b887ed4e2a2fdb97b9fea" version="1">Host-only mode</content>
     <content contentuid="h48d5ce6ebd8144649e72da14b64214a9b57f" version="1">Allow only the host to change settings in multiplayer games.</content>
     <content contentuid="hb7ee77283bd94bd5b9d3fe696b45e85ae804" version="1">Profile management</content>
@@ -645,7 +645,8 @@
     <content contentuid="h9db97044cb044d15b12a4edf05f463154812" version="1">[Show sidebar]</content>
     <content contentuid="h861b52b0eba84565aa41b19875c087d1fea6" version="1">[Detach]</content>
     <content contentuid="he66f0182055744419b01312c1d04dc85e906" version="1">[Reattach]</content>
-    <content contentuid="hee272f8489fe4bc7a5591935c5710013efc0" version="1">Detach mod</content>
+    <content contentuid="hee272f8489fe4bc7a5591935c5710013efc0" version="1">Detach page</content>
+    <content contentuid="h70c2cfe1a408491b8190b0bdfe7be9eb7116" version="1">Reattach page</content>
     <content contentuid="h8be200f84a794856bf872e571f4410f19479" version="1">[Reset]</content>
     <!-- Mod list visibility -->
     <content contentuid="h31655a10d04449dfb90946ebe22da383f8a2" version="1">Hide</content>
