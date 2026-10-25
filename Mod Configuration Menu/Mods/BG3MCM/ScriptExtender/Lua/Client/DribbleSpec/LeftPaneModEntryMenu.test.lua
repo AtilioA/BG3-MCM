@@ -28,6 +28,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local popup = { Children = {}, items = {} }
         function popup:AddText() return { SetColor = noop } end
         function popup:AddSeparator() end
+        function popup:AddBulletText() return { SetColor = noop } end
         function popup:AddSelectable(label)
             local item = { Label = label, SetStyle = noop }
             table.insert(self.items, item)

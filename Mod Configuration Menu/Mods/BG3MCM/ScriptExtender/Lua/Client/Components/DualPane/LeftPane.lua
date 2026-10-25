@@ -90,11 +90,14 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
     modNameText:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     self.modEntryMenu:AddSeparator()
 
-    --- Add a menu item that runs onClick, then rebuilds the mod-list navigation
-    ---@param label string Translated item label, shown after a bullet
+    --- Add a bulleted menu item that runs onClick, then rebuilds the mod-list navigation
+    ---@param label string Translated item label
     ---@param onClick fun() Saves the visibility change, or removes the player's choice
     local function addItem(label, onClick)
-        local item = self.modEntryMenu:AddSelectable("• " .. label, nil, { 0, 28 })
+        -- The bullet is text only, so the selectable on its line keeps the hover highlight and click area
+        self.modEntryMenu:AddBulletText("")
+        local item = self.modEntryMenu:AddSelectable(label, nil, { 0, 28 })
+        item.SameLine = true
         item:SetStyle("SelectableTextAlign", 0, 0.5)
         item.OnClick = function()
             onClick()
@@ -105,7 +108,7 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
 
     -- Detach and attach do not change visibility, so they stay available in the protected state
     local isDetached = DualPane.rightPane.detachedWindows[modUUID] ~= nil
-    addItem(Ext.Loca.GetTranslatedString(isDetached and "hc2133fbab6fb47a9a4f71e83a715780237e1" or "hee272f8489fe4bc7a5591935c5710013efc0"), function()
+    addItem(Ext.Loca.GetTranslatedString(isDetached and "h70c2cfe1a408491b8190b0bdfe7be9eb7116" or "hee272f8489fe4bc7a5591935c5710013efc0"), function()
         if isDetached then
             DualPane.rightPane:ReattachModGroup(modUUID)
         else
