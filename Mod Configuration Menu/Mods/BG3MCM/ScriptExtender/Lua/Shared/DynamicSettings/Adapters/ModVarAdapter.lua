@@ -35,30 +35,6 @@ ModVarAdapter.DEFAULTS = {
     DontCache = false
 }
 
---- Returns true when running on client while in main menu.
---- Net sends are invalid in this state because there is no host to receive them.
----@return boolean
--- bg3-lint: allow BG3-MOVABLE -- shared predicate; false on the server. FIXME: only the client branch calls this; split ModVarAdapter into a shared core plus Client/ and Server/ extensions, and move this to one client helper shared with StorageSyncService
-local function isClientMainMenu()
-    if not Ext.IsClient() then
-        return false
-    end
-
-    if MCMProxy and MCMProxy.IsMainMenu then
-        local ok, isMenu = pcall(MCMProxy.IsMainMenu)
-        if ok then
-            return isMenu == true
-        end
-    end
-
-    local ok, state = pcall(Ext.Utils.GetGameState)
-    if ok then
-        return state == Ext.Enums.ClientGameState["Menu"]
-    end
-
-    return false
-end
-
 -- Subscribe to SessionLoaded to process pending operations
 Ext.Events.SessionLoaded:Subscribe(function()
     ModVarAdapter._sessionLoaded = true
@@ -139,7 +115,7 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
         }
         if Ext.IsServer() then
             NetChannels.MCM_ENSURE_MODVAR_REGISTERED:Broadcast(payload)
-        elseif isClientMainMenu() then
+        elseif MCMUtils.IsClientMainMenu() then
             MCMDebug(3,
                 "ModVarAdapter: Skipping server registration relay for '%s' while in main menu", varName)
         else

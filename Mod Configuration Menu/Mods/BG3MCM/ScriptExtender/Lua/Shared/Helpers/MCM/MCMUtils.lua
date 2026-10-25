@@ -7,6 +7,29 @@ MCMUtils = {}
 MCMUtils.NPAKMWarned = false
 
 
+--- Returns true when running on the client while in the main menu, where net sends have no host to receive them
+---@return boolean
+-- bg3-lint: allow BG3-MOVABLE -- shared predicate; false on the server. FIXME: only client branches of shared Store code call this; move it with them to a Client/ extension
+function MCMUtils.IsClientMainMenu()
+    if not Ext.IsClient() then
+        return false
+    end
+
+    if MCMProxy and MCMProxy.IsMainMenu then
+        local ok, inMenu = pcall(MCMProxy.IsMainMenu)
+        if ok then
+            return inMenu == true
+        end
+    end
+
+    local ok, state = pcall(Ext.Utils.GetGameState)
+    if ok then
+        return state == Ext.Enums.ClientGameState["Menu"]
+    end
+
+    return false
+end
+
 --- Sorts the mods by name and returns a sorted array of mod GUIDs, with MCM placed first
 ---@param mods table The table of mods to sort
 ---@return table The sorted array of mod GUIDs

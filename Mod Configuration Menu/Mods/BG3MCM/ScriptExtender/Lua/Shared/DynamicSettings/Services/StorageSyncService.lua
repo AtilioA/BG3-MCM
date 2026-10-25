@@ -41,28 +41,6 @@ local function parsePayload(payload)
     return nil
 end
 
----@return boolean
--- bg3-lint: allow BG3-MOVABLE -- shared predicate; false on the server. FIXME: only the client branch calls this; split StorageSyncService into a shared core plus Client/ and Server/ extensions, and move this to one client helper shared with ModVarAdapter
-local function isClientMainMenu()
-    if not Ext.IsClient() then
-        return false
-    end
-
-    if MCMProxy and MCMProxy.IsMainMenu then
-        local ok, inMenu = pcall(MCMProxy.IsMainMenu)
-        if ok then
-            return inMenu == true
-        end
-    end
-
-    local ok, state = pcall(Ext.Utils.GetGameState)
-    if ok then
-        return state == Ext.Enums.ClientGameState["Menu"]
-    end
-
-    return false
-end
-
 ---@return integer|nil
 -- bg3-lint: allow BG3-MOVABLE -- shared sync code calls it; nil on the server. FIXME: only the client handler HandleServerSyncPayload calls this; move both to a Client/ StorageSyncService extension
 local function getLocalUserID()
@@ -257,7 +235,7 @@ function StorageSyncService:OnLocalSet(storageType, moduleUUID, varName, value, 
         return
     end
 
-    if isClientMainMenu() then
+    if MCMUtils.IsClientMainMenu() then
         return
     end
 
