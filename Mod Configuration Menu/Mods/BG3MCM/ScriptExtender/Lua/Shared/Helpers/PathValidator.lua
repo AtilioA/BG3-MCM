@@ -11,8 +11,8 @@ PathValidator = _Class:Create("PathValidator", nil, {
         "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
         "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
     },
-    -- Unix invalid characters: NUL and /
-    UNIX_INVALID_CHARS = { "\0", "/" }
+    -- Unix invalid character: /
+    UNIX_INVALID_CHARS = { "/" }
 })
 
 --- Check if a string contains any invalid path characters for the given OS
@@ -44,6 +44,11 @@ function PathValidator:IsValidPathComponent(str, isWindows)
         end
     end
 
+    -- SE Ext.IO rejects control bytes, and its signed-char check also rejects non-ASCII bytes
+    if str:find("[^\32-\126]") then
+        return false, "Path can only contain ASCII letters, digits, and symbols"
+    end
+
     -- Windows-specific checks
     if isWindows then
         -- Check for reserved names (case-insensitive)
@@ -54,9 +59,9 @@ function PathValidator:IsValidPathComponent(str, isWindows)
             end
         end
 
-        -- Check for trailing period or space (Windows doesn't allow this)
-        if str:match("%.$") or str:match("%s$") then
-            return false, "Path cannot end with a period or space"
+        -- Check for trailing period (Windows doesn't allow this)
+        if str:match("%.$") then
+            return false, "Path cannot end with a period"
         end
     end
 
