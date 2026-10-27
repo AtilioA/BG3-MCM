@@ -50,8 +50,9 @@ return function(storageSyncService, jsonAdapter, settingsService)
         local failures = {}
         for path, snapshot in pairs(filesToRestore) do
             if Ext.IO.LoadFile(path) ~= snapshot.content then
-                local restored = pcall(Ext.IO.SaveFile, path, snapshot.content or "")
-                if not restored or Ext.IO.LoadFile(path) ~= (snapshot.content or "") then
+                local expectedContent = snapshot.content or ""
+                local restored = Ext.IO.SaveFile(path, expectedContent)
+                if not restored or Ext.IO.LoadFile(path) ~= expectedContent then
                     table.insert(failures, path)
                 end
             end

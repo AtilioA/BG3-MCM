@@ -604,10 +604,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         })
 
         local press = MouseEvent(true, 11)
-        local ok, err = pcall(function()
-            session:HandleMouseInput(press)
-        end)
-        if not ok then error(err) end
+        session:HandleMouseInput(press)
 
         D.expect(press.prevented).toBeTruthy()
         D.expect(press.stopped).toBeTruthy()

@@ -1,6 +1,34 @@
 local TableInjector = Ext.Require("Shared/Helpers/MCM/GlobalTable/TableInjector.lua")
 
 D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
+    local originalMCMAPIMods
+    local originalModConfigMods
+    local previousClientMods
+    local capturedClientMods = false
+    local subscriptionIndex
+
+    D.beforeEach(function()
+        originalMCMAPIMods = MCMAPI.mods
+        originalModConfigMods = ModConfig.mods
+    end)
+
+    D.afterEach(function()
+        MCMAPI.mods = originalMCMAPIMods
+        ModConfig.mods = originalModConfigMods
+
+        if capturedClientMods then
+            MCMClientState.mods = previousClientMods
+            previousClientMods = nil
+            capturedClientMods = false
+        end
+
+        if subscriptionIndex then
+            local index = subscriptionIndex
+            subscriptionIndex = nil
+            ModEventManager:Unsubscribe(EventChannels.MCM_SETTING_SAVED, index)
+        end
+    end)
+
     local function CreateDynamicEnumBlueprint(defaultValue, currentValue)
         local modUUID = TestConstants.ModuleUUIDs[1]
         local blueprint = Blueprint:New({
@@ -28,100 +56,55 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         }
     end
 
-    D.test("TestSetEnumChoicesShouldFallbackInvalidValueToDefault", function()
+    D.test("TestSetEnumChoicesShouldFallbackInvalidValueToDefault", function(ctx)
         local modUUID, blueprint, mods = CreateDynamicEnumBlueprint("option-2", "manually-edited-value")
-        local originalMods = MCMAPI.mods
-        local originalModConfigMods = ModConfig.mods
-        local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
-        local originalEmit = ModEventManager.Emit
 
         MCMAPI.mods = mods
         ModConfig.mods = {}
-        ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
+        ctx.stub(ModConfig, "UpdateAllSettingsForMod", function(self, targetModUUID, settings)
             self.mods = self.mods or {}
             self.mods[targetModUUID] = self.mods[targetModUUID] or {}
             self.mods[targetModUUID].settingsValues = settings
-        end
-        ModEventManager.Emit = function(...) end
-
-        local ok, err = pcall(function()
-            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
         end)
+        ctx.stub(ModEventManager, "Emit", function(...) end)
 
-        MCMAPI.mods = originalMods
-        ModConfig.mods = originalModConfigMods
-        ModConfig.UpdateAllSettingsForMod = originalUpdateAllSettingsForMod
-        ModEventManager.Emit = originalEmit
-
-        if not ok then
-            error(err)
-        end
+        MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
 
         D.expect(blueprint:GetAllSettings()["dynamic-enum"]:GetOptions().Choices).toEqual({ "option-1", "option-2" })
         D.expect(mods[modUUID].settingsValues["dynamic-enum"]).toBe("option-2")
     end)
 
-    D.test("TestSetEnumChoicesShouldFallbackInvalidValueToFirstChoiceWhenDefaultIsUnavailable", function()
+    D.test("TestSetEnumChoicesShouldFallbackInvalidValueToFirstChoiceWhenDefaultIsUnavailable", function(ctx)
         local modUUID, blueprint, mods = CreateDynamicEnumBlueprint("missing-default", "manually-edited-value")
-        local originalMods = MCMAPI.mods
-        local originalModConfigMods = ModConfig.mods
-        local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
-        local originalEmit = ModEventManager.Emit
 
         MCMAPI.mods = mods
         ModConfig.mods = {}
-        ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
+        ctx.stub(ModConfig, "UpdateAllSettingsForMod", function(self, targetModUUID, settings)
             self.mods = self.mods or {}
             self.mods[targetModUUID] = self.mods[targetModUUID] or {}
             self.mods[targetModUUID].settingsValues = settings
-        end
-        ModEventManager.Emit = function(...) end
-
-        local ok, err = pcall(function()
-            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
         end)
+        ctx.stub(ModEventManager, "Emit", function(...) end)
 
-        MCMAPI.mods = originalMods
-        ModConfig.mods = originalModConfigMods
-        ModConfig.UpdateAllSettingsForMod = originalUpdateAllSettingsForMod
-        ModEventManager.Emit = originalEmit
-
-        if not ok then
-            error(err)
-        end
+        MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
 
         D.expect(blueprint:GetAllSettings()["dynamic-enum"]:GetOptions().Choices).toEqual({ "option-1", "option-2" })
         D.expect(mods[modUUID].settingsValues["dynamic-enum"]).toBe("option-1")
     end)
 
-    D.test("TestSetEnumChoicesShouldPreserveValidValue", function()
+    D.test("TestSetEnumChoicesShouldPreserveValidValue", function(ctx)
         local modUUID, blueprint, mods = CreateDynamicEnumBlueprint("option-1", "option-1")
-        local originalMods = MCMAPI.mods
-        local originalModConfigMods = ModConfig.mods
-        local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
-        local originalEmit = ModEventManager.Emit
 
         MCMAPI.mods = mods
         ModConfig.mods = {}
-        ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
+        ctx.stub(ModConfig, "UpdateAllSettingsForMod", function(self, targetModUUID, settings)
             self.mods = self.mods or {}
             self.mods[targetModUUID] = self.mods[targetModUUID] or {}
             self.mods[targetModUUID].settingsValues = settings
-        end
-        ModEventManager.Emit = function(...) end
-
-        local ok, err = pcall(function()
-            MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
         end)
+        ctx.stub(ModEventManager, "Emit", function(...) end)
 
-        MCMAPI.mods = originalMods
-        ModConfig.mods = originalModConfigMods
-        ModConfig.UpdateAllSettingsForMod = originalUpdateAllSettingsForMod
-        ModEventManager.Emit = originalEmit
-
-        if not ok then
-            error(err)
-        end
+        MCMAPI:SetEnumChoices("dynamic-enum", { "option-1", "option-2" }, nil, modUUID)
 
         D.expect(blueprint:GetAllSettings()["dynamic-enum"]:GetOptions().Choices).toEqual({ "option-1", "option-2" })
         D.expect(mods[modUUID].settingsValues["dynamic-enum"]).toBe("option-1")
@@ -148,47 +131,32 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
             blueprint = blueprint,
             settingsValues = { [settingId] = true },
         }
-        local originalMods = MCMAPI.mods
-        local originalModConfigMods = ModConfig.mods
-        local originalClientMods = MCMClientState.mods
         local receivedEvents = {}
-        local subscriptionIndex
         local initialValue
         local setResult
         local readbackValue
         local facadeTable = {}
         local publicMCM
 
-        local ok, err = pcall(function()
-            MCMAPI.mods = { [modUUID] = mod }
-            ModConfig.mods = { [modUUID] = mod }
-            MCMClientState.mods = {}
-            ctx.stub(MCMProxy, "IsMainMenu", function() return true end)
-            ctx.stub(ModConfig, "SaveSettingsForMod", function() end)
-            subscriptionIndex = ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(eventData)
-                table.insert(receivedEvents, eventData)
-            end)
-            publicMCM = TableInjector.injectSharedMCMTable(facadeTable, modUUID)
-
-            initialValue = publicMCM.Get(settingId)
-            setResult = publicMCM.Set({
-                settingId = settingId,
-                value = false,
-                shouldEmitEvent = true,
-            })
-            readbackValue = publicMCM.Get(settingId)
+        previousClientMods = MCMClientState.mods
+        capturedClientMods = true
+        MCMAPI.mods = { [modUUID] = mod }
+        ModConfig.mods = { [modUUID] = mod }
+        MCMClientState.mods = {}
+        ctx.stub(MCMProxy, "IsMainMenu", function() return true end)
+        ctx.stub(ModConfig, "SaveSettingsForMod", function() end)
+        subscriptionIndex = ModEventManager:Subscribe(EventChannels.MCM_SETTING_SAVED, function(eventData)
+            table.insert(receivedEvents, eventData)
         end)
+        publicMCM = TableInjector.injectSharedMCMTable(facadeTable, modUUID)
 
-        if subscriptionIndex then
-            pcall(ModEventManager.Unsubscribe, ModEventManager, EventChannels.MCM_SETTING_SAVED, subscriptionIndex)
-        end
-        MCMAPI.mods = originalMods
-        ModConfig.mods = originalModConfigMods
-        MCMClientState.mods = originalClientMods
-
-        if not ok then
-            error(err)
-        end
+        initialValue = publicMCM.Get(settingId)
+        setResult = publicMCM.Set({
+            settingId = settingId,
+            value = false,
+            shouldEmitEvent = true,
+        })
+        readbackValue = publicMCM.Get(settingId)
 
         D.expect(initialValue).toBe(true)
         D.expect(setResult).toBe(true)
@@ -202,15 +170,10 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
         D.expect(savedEvent.oldValue).toBe(true)
     end)
 
-    D.test("TestSameSettingIdIsScopedPerMod", function()
+    D.test("TestSameSettingIdIsScopedPerMod", function(ctx)
         local firstModUUID = TestConstants.ModuleUUIDs[1]
         local secondModUUID = TestConstants.ModuleUUIDs[2]
         local settingId = "shared-setting-id"
-        local originalMods = MCMAPI.mods
-        local originalModConfigMods = ModConfig.mods
-        local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
-        local originalEmit = ModEventManager.Emit
-
         local function makeBlueprint(modUUID, defaultValue)
             return Blueprint:New({
                 ModUUID = modUUID,
@@ -243,33 +206,22 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
 
         MCMAPI.mods = mods
         ModConfig.mods = mods
-        ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
+        ctx.stub(ModConfig, "UpdateAllSettingsForMod", function(self, targetModUUID, settings)
             self.mods[targetModUUID].settingsValues = settings
-        end
-        ModEventManager.Emit = function(...) end
-
-        local ok, err = pcall(function()
-            D.expect(MCMAPI:GetSettingValue(settingId, firstModUUID)).toBe(false)
-            D.expect(MCMAPI:GetSettingValue(settingId, secondModUUID)).toBe(false)
-
-            local success = MCMAPI:SetSettingValue(settingId, true, firstModUUID, false)
-
-            D.expect(success).toBe(true)
-            D.expect(MCMAPI:GetSettingValue(settingId, firstModUUID)).toBe(true)
-            D.expect(MCMAPI:GetSettingValue(settingId, secondModUUID)).toBe(false)
         end)
+        ctx.stub(ModEventManager, "Emit", function(...) end)
 
-        MCMAPI.mods = originalMods
-        ModConfig.mods = originalModConfigMods
-        ModConfig.UpdateAllSettingsForMod = originalUpdateAllSettingsForMod
-        ModEventManager.Emit = originalEmit
+        D.expect(MCMAPI:GetSettingValue(settingId, firstModUUID)).toBe(false)
+        D.expect(MCMAPI:GetSettingValue(settingId, secondModUUID)).toBe(false)
 
-        if not ok then
-            error(err)
-        end
+        local success = MCMAPI:SetSettingValue(settingId, true, firstModUUID, false)
+
+        D.expect(success).toBe(true)
+        D.expect(MCMAPI:GetSettingValue(settingId, firstModUUID)).toBe(true)
+        D.expect(MCMAPI:GetSettingValue(settingId, secondModUUID)).toBe(false)
     end)
 
-    D.test("TestSetKeybindingV2UsesReplacementValue", function()
+    D.test("TestSetKeybindingV2UsesReplacementValue", function(ctx)
         local modUUID = TestConstants.ModuleUUIDs[1]
         local settingId = "canonical-keybinding"
         local blueprint = Blueprint:New({
@@ -296,36 +248,24 @@ D.describe("MCMAPI", { tags = { "mcmapi", "unit" } }, function()
                 }
             }
         }
-        local originalMods = MCMAPI.mods
-        local originalModConfigMods = ModConfig.mods
-        local originalUpdateAllSettingsForMod = ModConfig.UpdateAllSettingsForMod
-        local originalEmit = ModEventManager.Emit
         MCMAPI.mods = mods
         ModConfig.mods = mods
-        ModConfig.UpdateAllSettingsForMod = function(self, targetModUUID, settings)
+        ctx.stub(ModConfig, "UpdateAllSettingsForMod", function(self, targetModUUID, settings)
             self.mods[targetModUUID].settingsValues = settings
-        end
-        ModEventManager.Emit = function(...) end
-
-        local ok, err = pcall(function()
-            local replacement = {
-                Keyboard = { Key = "J", ModifierKeys = { "RSHIFT", "LALT" } },
-                Enabled = true,
-                AllowConflict = false
-            }
-            local success = MCMAPI:SetSettingValue(settingId, replacement, modUUID, false)
-            D.expect(success).toBe(true)
-            D.expect(MCMAPI:GetSettingValue(settingId, modUUID)).toEqual({
-                Keyboard = { Key = "J", ModifierKeys = { "RSHIFT", "LALT" } },
-                Enabled = true,
-                AllowConflict = false,
-            })
         end)
+        ctx.stub(ModEventManager, "Emit", function(...) end)
 
-        MCMAPI.mods = originalMods
-        ModConfig.mods = originalModConfigMods
-        ModConfig.UpdateAllSettingsForMod = originalUpdateAllSettingsForMod
-        ModEventManager.Emit = originalEmit
-        if not ok then error(err) end
+        local replacement = {
+            Keyboard = { Key = "J", ModifierKeys = { "RSHIFT", "LALT" } },
+            Enabled = true,
+            AllowConflict = false
+        }
+        local success = MCMAPI:SetSettingValue(settingId, replacement, modUUID, false)
+        D.expect(success).toBe(true)
+        D.expect(MCMAPI:GetSettingValue(settingId, modUUID)).toEqual({
+            Keyboard = { Key = "J", ModifierKeys = { "RSHIFT", "LALT" } },
+            Enabled = true,
+            AllowConflict = false,
+        })
     end)
 end)

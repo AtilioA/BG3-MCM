@@ -1,4 +1,40 @@
 D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
+    local originalMods
+    local filesToRestore = {}
+
+    D.beforeEach(function()
+        originalMods = ModConfig.mods
+        filesToRestore = {}
+    end)
+
+    D.afterEach(function()
+        local failures = {}
+        for path, snapshot in pairs(filesToRestore) do
+            if Ext.IO.LoadFile(path) ~= snapshot.content then
+                local expectedContent = snapshot.content or ""
+                local restored = Ext.IO.SaveFile(path, expectedContent)
+                local readback = Ext.IO.LoadFile(path)
+                if not restored or readback ~= expectedContent then
+                    local failure = path
+                    if not restored then
+                        failure = failure .. " (SaveFile returned false)"
+                    end
+                    if readback ~= expectedContent then
+                        failure = failure .. " (readback mismatch)"
+                    end
+                    table.insert(failures, failure)
+                end
+            end
+        end
+
+        ModConfig.mods = originalMods
+        filesToRestore = {}
+
+        if #failures > 0 then
+            error("Failed to restore DribbleSpec ModConfig fixture files: " .. table.concat(failures, ", "))
+        end
+    end)
+
     D.test("TestAddKeysMissingFromBlueprintShouldUseOldIdOnlyIfNoValueOnCurrentId", function()
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
@@ -47,7 +83,7 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         D.expect(settings["setting1"]).toBe(oldValue)
     end)
 
-    D.test("TestSaveSettingsForModShouldPersistRootSettings", function()
+    D.test("TestSaveSettingsForModShouldPersistRootSettings", function(ctx)
         local modUUID = TestConstants.ModuleUUIDs[1]
         local rawData = {
             SchemaVersion = 1,
@@ -64,9 +100,6 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         local preprocessedData = DataPreprocessing:PreprocessData(rawData, modUUID)
         local blueprint = Blueprint:New(preprocessedData)
 
-        local originalMods = ModConfig.mods
-        local originalGetSettingsFilePath = ModConfig.GetSettingsFilePath
-        local originalSaveJSONFile = JsonLayer.SaveJSONFile
         local capturedData = nil
 
         ModConfig.mods = {
@@ -78,30 +111,20 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
             }
         }
 
-        ModConfig.GetSettingsFilePath = function(_self, _modUUID)
+        ctx.stub(ModConfig, "GetSettingsFilePath", function(_self, _modUUID)
             return "mock/settings.json"
-        end
-
-        JsonLayer.SaveJSONFile = function(_self, path, data)
-            capturedData = data
-        end
-
-        local ok, err = pcall(function()
-            ModConfig:SaveSettingsForMod(modUUID)
         end)
 
-        ModConfig.mods = originalMods
-        ModConfig.GetSettingsFilePath = originalGetSettingsFilePath
-        JsonLayer.SaveJSONFile = originalSaveJSONFile
+        ctx.stub(JsonLayer, "SaveJSONFile", function(_self, path, data)
+            capturedData = data
+        end)
 
-        if not ok then
-            error(err)
-        end
+        ModConfig:SaveSettingsForMod(modUUID)
 
         D.expect(capturedData).toEqual({ ["root-setting"] = false })
     end)
 
-    D.test("TestSaveSettingsForModShouldFallbackToRootDefault", function()
+    D.test("TestSaveSettingsForModShouldFallbackToRootDefault", function(ctx)
         local modUUID = TestConstants.ModuleUUIDs[1]
         local rawData = {
             SchemaVersion = 1,
@@ -118,9 +141,6 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         local preprocessedData = DataPreprocessing:PreprocessData(rawData, modUUID)
         local blueprint = Blueprint:New(preprocessedData)
 
-        local originalMods = ModConfig.mods
-        local originalGetSettingsFilePath = ModConfig.GetSettingsFilePath
-        local originalSaveJSONFile = JsonLayer.SaveJSONFile
         local capturedData = nil
 
         ModConfig.mods = {
@@ -130,30 +150,20 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
             }
         }
 
-        ModConfig.GetSettingsFilePath = function(_self, _modUUID)
+        ctx.stub(ModConfig, "GetSettingsFilePath", function(_self, _modUUID)
             return "mock/settings.json"
-        end
-
-        JsonLayer.SaveJSONFile = function(_self, _path, data)
-            capturedData = data
-        end
-
-        local ok, err = pcall(function()
-            ModConfig:SaveSettingsForMod(modUUID)
         end)
 
-        ModConfig.mods = originalMods
-        ModConfig.GetSettingsFilePath = originalGetSettingsFilePath
-        JsonLayer.SaveJSONFile = originalSaveJSONFile
+        ctx.stub(JsonLayer, "SaveJSONFile", function(_self, _path, data)
+            capturedData = data
+        end)
 
-        if not ok then
-            error(err)
-        end
+        ModConfig:SaveSettingsForMod(modUUID)
 
         D.expect(capturedData["root-setting"]).toBe(true)
     end)
 
-    D.test("TestSaveSettingsForModShouldPersistNestedSettings", function()
+    D.test("TestSaveSettingsForModShouldPersistNestedSettings", function(ctx)
         local modUUID = TestConstants.ModuleUUIDs[1]
         local rawData = {
             SchemaVersion = 1,
@@ -180,9 +190,6 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         }
 
         local blueprint = Blueprint:New(DataPreprocessing:PreprocessData(rawData, modUUID))
-        local originalMods = ModConfig.mods
-        local originalGetSettingsFilePath = ModConfig.GetSettingsFilePath
-        local originalSaveJSONFile = JsonLayer.SaveJSONFile
         local capturedData = nil
 
         ModConfig.mods = {
@@ -194,25 +201,15 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
             }
         }
 
-        ModConfig.GetSettingsFilePath = function(_self, _modUUID)
+        ctx.stub(ModConfig, "GetSettingsFilePath", function(_self, _modUUID)
             return "mock/settings.json"
-        end
-
-        JsonLayer.SaveJSONFile = function(_self, _path, data)
-            capturedData = data
-        end
-
-        local ok, err = pcall(function()
-            ModConfig:SaveSettingsForMod(modUUID)
         end)
 
-        ModConfig.mods = originalMods
-        ModConfig.GetSettingsFilePath = originalGetSettingsFilePath
-        JsonLayer.SaveJSONFile = originalSaveJSONFile
+        ctx.stub(JsonLayer, "SaveJSONFile", function(_self, _path, data)
+            capturedData = data
+        end)
 
-        if not ok then
-            error(err)
-        end
+        ModConfig:SaveSettingsForMod(modUUID)
 
         D.expect(capturedData).toEqual({
             ["main-tab"] = { ["nested-tab"] = { ["nested-setting"] = false } },
@@ -232,8 +229,7 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         local context = Ext.IsServer() and "server" or "client"
         local directory = Ext.Mod.GetMod(ModuleUUID).Info.Directory
         local path = directory .. "/DribbleSpec/save-reload-" .. context .. ".json"
-        local previousContent = Ext.IO.LoadFile(path)
-        local originalMods = ModConfig.mods
+        filesToRestore[path] = { content = Ext.IO.LoadFile(path) }
         local savedData
         local reloadedValue
         ModConfig.mods = {
@@ -243,17 +239,11 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
             return path
         end)
 
-        local ok, err = pcall(function()
-            ModConfig:SaveSettingsForMod(modUUID)
-            savedData = Ext.Json.Parse(Ext.IO.LoadFile(path))
-            ModConfig.mods[modUUID].settingsValues = { [settingId] = true }
-            ModConfig:LoadSettingsForMod(modUUID, blueprint)
-            reloadedValue = ModConfig.mods[modUUID].settingsValues[settingId]
-        end)
-        ModConfig.mods = originalMods
-        local restored, restoreError = pcall(Ext.IO.SaveFile, path, previousContent or "")
-        if not ok then error(err) end
-        if not restored then error(restoreError) end
+        ModConfig:SaveSettingsForMod(modUUID)
+        savedData = Ext.Json.Parse(Ext.IO.LoadFile(path))
+        ModConfig.mods[modUUID].settingsValues = { [settingId] = true }
+        ModConfig:LoadSettingsForMod(modUUID, blueprint)
+        reloadedValue = ModConfig.mods[modUUID].settingsValues[settingId]
 
         D.expect(savedData).toEqual({ [settingId] = false })
         D.expect(reloadedValue).toBe(false)

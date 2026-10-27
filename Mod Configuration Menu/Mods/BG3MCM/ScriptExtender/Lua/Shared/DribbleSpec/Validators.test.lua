@@ -1,4 +1,14 @@
 D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
+    local previousModUUID
+
+    D.beforeEach(function()
+        previousModUUID = BlueprintPreprocessing.currentmodUUID
+    end)
+
+    D.afterEach(function()
+        BlueprintPreprocessing.currentmodUUID = previousModUUID
+    end)
+
     D.test("TestValidateIntSetting", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-int",
@@ -561,14 +571,9 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
             Default = "unknown",
         })
 
-        local previousModUUID = BlueprintPreprocessing.currentmodUUID
-        local ok, isValid = pcall(function()
-            BlueprintPreprocessing.currentmodUUID = ModuleUUID
-            return DataPreprocessing:ValidateSetting(setting, "unknown")
-        end)
-        BlueprintPreprocessing.currentmodUUID = previousModUUID
+        BlueprintPreprocessing.currentmodUUID = ModuleUUID
+        local isValid = DataPreprocessing:ValidateSetting(setting, "unknown")
 
-        D.expect(ok).toBe(true)
         D.expect(isValid).toBe(false)
     end)
 end)

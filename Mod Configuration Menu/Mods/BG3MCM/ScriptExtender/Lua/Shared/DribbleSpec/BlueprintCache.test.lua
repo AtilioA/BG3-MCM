@@ -37,12 +37,16 @@ local function makeBlueprint()
 end
 
     D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
+    local originalModConfigMods
+
     D.beforeEach(function()
+        originalModConfigMods = ModConfig.mods
         BlueprintCache:SetCacheEnabled(true)
         BlueprintCache:InvalidateAll()
     end)
 
     D.afterEach(function()
+        ModConfig.mods = originalModConfigMods
         BlueprintCache:SetCacheEnabled(true)
         BlueprintCache:InvalidateAll()
     end)
@@ -63,81 +67,46 @@ end
         D.expect(blueprint:GetAllSettings()["nested-setting"]:GetDefault()).toBe("nested")
     end)
 
-    D.test("TestBlueprintCacheAppliesDebugDisableSetting", function()
-        local originalMCMAPI = MCMAPI
-        MCMAPI = {
-            GetSettingValue = function(_self, settingId, _modUUID)
-                if settingId == "debug_level" then
-                    return 1
-                end
+    D.test("TestBlueprintCacheAppliesDebugDisableSetting", function(ctx)
+        ctx.stub(MCMAPI, "GetSettingValue", function(_self, settingId, _modUUID)
+            if settingId == "debug_level" then
+                return 1
+            end
 
-                if settingId == "enable_blueprint_cache" then
-                    return false
-                end
-            end,
-        }
-
-        local ok, err = pcall(function()
-            BlueprintCache:ApplyMCMSettings()
+            if settingId == "enable_blueprint_cache" then
+                return false
+            end
         end)
 
-        MCMAPI = originalMCMAPI
-
-        if not ok then
-            error(err)
-        end
+        BlueprintCache:ApplyMCMSettings()
 
         D.expect(BlueprintCache:IsCacheEnabled()).toBe(false)
     end)
 
-    D.test("TestBlueprintCacheIgnoresDisableSettingWhenDebugHidden", function()
-        local originalMCMAPI = MCMAPI
-        MCMAPI = {
-            GetSettingValue = function(_self, settingId, _modUUID)
-                if settingId == "debug_level" then
-                    return 0
-                end
+    D.test("TestBlueprintCacheIgnoresDisableSettingWhenDebugHidden", function(ctx)
+        ctx.stub(MCMAPI, "GetSettingValue", function(_self, settingId, _modUUID)
+            if settingId == "debug_level" then
+                return 0
+            end
 
-                if settingId == "enable_blueprint_cache" then
-                    return false
-                end
-            end,
-        }
-
-        local ok, err = pcall(function()
-            BlueprintCache:ApplyMCMSettings()
+            if settingId == "enable_blueprint_cache" then
+                return false
+            end
         end)
 
-        MCMAPI = originalMCMAPI
-
-        if not ok then
-            error(err)
-        end
+        BlueprintCache:ApplyMCMSettings()
 
         D.expect(BlueprintCache:IsCacheEnabled()).toBe(true)
     end)
 
-    D.test("TestBlueprintCacheMissingSettingStaysEnabled", function()
-        local originalMCMAPI = MCMAPI
-        MCMAPI = {
-            GetSettingValue = function(_self, settingId, _modUUID)
-                if settingId == "debug_level" then
-                    return 1
-                end
-
-                return nil
-            end,
-        }
-
-        local ok, err = pcall(function()
-            BlueprintCache:ApplyMCMSettings()
+    D.test("TestBlueprintCacheMissingSettingStaysEnabled", function(ctx)
+        ctx.stub(MCMAPI, "GetSettingValue", function(_self, settingId, _modUUID)
+            if settingId == "debug_level" then
+                return 1
+            end
         end)
 
-        MCMAPI = originalMCMAPI
-
-        if not ok then
-            error(err)
-        end
+        BlueprintCache:ApplyMCMSettings()
 
         D.expect(BlueprintCache:IsCacheEnabled()).toBe(true)
     end)
@@ -238,7 +207,6 @@ end
     D.test("TestSaveSettingsForModUsesWarmedBlueprintCache", function(ctx)
         local modUUID = TestConstants.ModuleUUIDs[1]
         local blueprint = makeBlueprint()
-        local originalMods = ModConfig.mods
         local savedPath
         local savedData
 
@@ -261,15 +229,7 @@ end
             savedData = data
         end)
 
-        local ok, err = pcall(function()
-            ModConfig:SaveSettingsForMod(modUUID)
-        end)
-
-        ModConfig.mods = originalMods
-
-        if not ok then
-            error(err)
-        end
+        ModConfig:SaveSettingsForMod(modUUID)
 
         D.expect(savedPath).toBe("mock/settings.json")
         D.expect(savedData).toEqual({
