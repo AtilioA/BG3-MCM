@@ -1,5 +1,5 @@
 -- Reusable chunked net messaging utilities for large payloads.
--- Provides server-side send helpers, client-side reassembly with handler dispatch, and request/reply support.
+-- Provides one-way server sends, using direct delivery or chunking with client-side reassembly and handler dispatch.
 
 ---@class MCMChunkInitPayload
 ---@field id string
@@ -41,7 +41,7 @@ local function _makeTransferId()
 end
 
 ---Convert a payload into a JSON string when needed.
----@param payload table
+---@param payload table|string
 ---@param callerName string
 ---@return string|nil
 local function _coerceJSONString(payload, callerName)
@@ -49,9 +49,9 @@ local function _coerceJSONString(payload, callerName)
     return payload
   end
 
-  local ok, jsonStr = pcall(Ext.Json.Stringify, payload)
-  if not ok or type(jsonStr) ~= "string" then
-    MCMWarn(0, "%s: failed to serialize payload to JSON", callerName)
+  local success, jsonStr = pcall(Ext.Json.Stringify, payload)
+  if not success then
+    MCMWarn(0, "%s: failed to serialize payload to JSON: %s", callerName, jsonStr)
     return nil
   end
 
@@ -85,14 +85,6 @@ local function _getChannelId(channel, callerName)
   end
 
   return channel.Channel
-end
-
----Build an internal handler id for chunked request/reply responses.
----@param channelId string
----@param transferId string
----@return string
-local function _makeRequestReplyHandlerId(channelId, transferId)
-  return "ChunkedNet_RequestReply:" .. channelId .. ":" .. transferId
 end
 
 ---Compute total chunk count and log a level-1 debug message in KB.
@@ -131,10 +123,9 @@ end
 ---@param userID integer
 ---@param targetChannelId string
 ---@param jsonStr string
----@param transferId? string
 ---@return boolean
-local function _sendChunkedToUser(userID, targetChannelId, jsonStr, transferId)
-  local id = transferId or _makeTransferId()
+local function _sendChunkedToUser(userID, targetChannelId, jsonStr)
+  local id = _makeTransferId()
   local totalSize = #jsonStr
   local chunkSize = ChunkedNet.CHUNK_PAYLOAD_SIZE_BYTES
   local totalChunks = _computeAndLogChunking(targetChannelId, totalSize, chunkSize, false)
@@ -172,10 +163,9 @@ end
 ---Broadcast a chunked payload to all clients.
 ---@param targetChannelId string
 ---@param jsonStr string
----@param transferId? string
 ---@return boolean
-local function _broadcastChunked(targetChannelId, jsonStr, transferId)
-  local id = transferId or _makeTransferId()
+local function _broadcastChunked(targetChannelId, jsonStr)
+  local id = _makeTransferId()
   local totalSize = #jsonStr
   local chunkSize = ChunkedNet.CHUNK_PAYLOAD_SIZE_BYTES
   local totalChunks = _computeAndLogChunking(targetChannelId, totalSize, chunkSize, true)
@@ -260,118 +250,6 @@ function ChunkedNet.SendJSONToAll(targetChannel, payload)
   return _broadcastChunked(channelId, jsonStr)
 end
 
--- Request/Reply pattern for large payloads.
--- Server collects all chunks, then returns complete response via SetRequestHandler.
-ChunkedNet.RequestReply = ChunkedNet.RequestReply or {}
-
----Set up a request handler that can send chunked responses.
----@param channel NetChannel
----@param handlerFn fun(requestData:any, userID:integer):any
-function ChunkedNet.RequestReply.SetHandler(channel, handlerFn)
-  local channelId = _getChannelId(channel, "ChunkedNet.RequestReply.SetHandler")
-  if not channelId then
-    return
-  end
-
-  if type(handlerFn) ~= "function" then
-    MCMWarn(0, "ChunkedNet.RequestReply.SetHandler: handlerFn must be a function")
-    return
-  end
-
-  channel:SetRequestHandler(function(requestData, userID)
-    local ok, result = xpcall(function()
-      return handlerFn(requestData, userID)
-    end, function(err)
-      return { success = false, error = tostring(err) }
-    end)
-
-    if not ok then
-      return { success = false, error = tostring(result) }
-    end
-
-    if type(result) == "string" and #result > ChunkedNet.DIRECT_THRESHOLD_BYTES then
-      local transferId = _makeTransferId()
-      local responseHandlerId = _makeRequestReplyHandlerId(channelId, transferId)
-      local sent = _sendChunkedToUser(userID, responseHandlerId, result, transferId)
-
-      if not sent then
-        return { success = false, error = "Failed to send chunked response" }
-      end
-
-      return {
-        success = true,
-        chunked = true,
-        transferId = transferId,
-        handlerId = responseHandlerId,
-        totalChunks = math.ceil(#result / ChunkedNet.CHUNK_PAYLOAD_SIZE_BYTES),
-      }
-    end
-
-    if type(result) == "table" and result.success ~= nil then
-      return result
-    end
-
-    return { success = true, data = result }
-  end)
-end
-
----Request data that may be chunked.
----@param channel NetChannel
----@param requestData any
----@param onResponse fun(response:any)
-function ChunkedNet.RequestReply.Request(channel, requestData, onResponse)
-  local channelId = _getChannelId(channel, "ChunkedNet.RequestReply.Request")
-  if not channelId then
-    if type(onResponse) == "function" then
-      onResponse({ success = false, error = "Invalid request channel" })
-    end
-    return
-  end
-
-  if type(onResponse) ~= "function" then
-    MCMWarn(0, "ChunkedNet.RequestReply.Request: onResponse must be a function")
-    return
-  end
-
-  channel:RequestToServer(requestData, function(response)
-    if type(response) ~= "table" then
-      MCMWarn(0, "ChunkedNet.RequestReply.Request: received invalid response payload")
-      onResponse({ success = false, error = "Invalid response payload" })
-      return
-    end
-
-    if response.chunked then
-      local handlerId = response.handlerId
-      if not VCString:IsNonEmptyString(handlerId) and VCString:IsNonEmptyString(response.transferId) then
-        handlerId = _makeRequestReplyHandlerId(channelId, response.transferId)
-      end
-
-      if not VCString:IsNonEmptyString(handlerId) then
-        MCMWarn(0, "ChunkedNet.RequestReply.Request: chunked response is missing handler metadata")
-        onResponse({ success = false, error = "Missing chunked response handler metadata" })
-        return
-      end
-
-      local didRegister = ChunkedNet.Client._RegisterInternalHandler(handlerId, function(assembledData)
-        ChunkedNet.Client._handlers[handlerId] = nil
-        local ok, data = pcall(Ext.Json.Parse, assembledData)
-        if ok then
-          onResponse({ success = true, data = data })
-        else
-          MCMWarn(0, "ChunkedNet.RequestReply.Request: failed to parse chunked response JSON")
-          onResponse({ success = false, error = "Failed to parse chunked response" })
-        end
-      end)
-
-      if not didRegister then
-        onResponse({ success = false, error = "Failed to register chunked response handler" })
-      end
-    else
-      onResponse(response)
-    end
-  end)
-end
-
 -- Client-side reassembly API
 ChunkedNet.Client = ChunkedNet.Client or {}
 local Client = ChunkedNet.Client
@@ -416,14 +294,6 @@ function Client.RegisterHandler(targetChannel, fn)
   end
 
   return _registerHandlerById(channelId, fn, "ChunkedNet.Client.RegisterHandler")
-end
-
----Register an internal handler for synthetic chunk-routing keys.
----@param handlerId string
----@param fn MCMChunkedHandler
----@return boolean
-function Client._RegisterInternalHandler(handlerId, fn)
-  return _registerHandlerById(handlerId, fn, "ChunkedNet.Client._RegisterInternalHandler")
 end
 
 ---Ensure a transfer record exists.
