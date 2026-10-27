@@ -1,10 +1,6 @@
 local _hasReceivedConfigPayload = nil
 local _hasRequestedStoreBootstrap = nil
 
-Ext.Events.Tick:Subscribe(function()
-    IMGUIAPI:HideMCMWindows()
-end, { Priority = 0 })
-
 local ModVarAdapter = Ext.Require("Shared/DynamicSettings/Adapters/ModVarAdapter.lua")
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
