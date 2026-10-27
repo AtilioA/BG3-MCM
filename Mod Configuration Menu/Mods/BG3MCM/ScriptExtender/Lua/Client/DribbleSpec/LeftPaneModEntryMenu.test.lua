@@ -21,18 +21,26 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         }
     end
 
-    --- Popup stand-in that records the items the menu offers
+    --- Popup stand-in that records one entry per menu row; a bullet and its selectable are one row
     ---@return table popup
     local function FakePopup()
         local noop = function() end
         local popup = { Children = {}, items = {} }
         function popup:AddText() return { SetColor = noop } end
         function popup:AddSeparator() end
-        function popup:AddBulletText() return { SetColor = noop } end
+        function popup:AddBulletText()
+            local row = { SetColor = noop, SetStyle = noop }
+            table.insert(self.items, row)
+            return row
+        end
         function popup:AddSelectable(label)
-            local item = { Label = label, SetStyle = noop }
-            table.insert(self.items, item)
-            return item
+            local row = self.items[#self.items]
+            if not row then
+                row = { SetStyle = noop }
+                table.insert(self.items, row)
+            end
+            row.Label = label
+            return row
         end
         popup.SetColor = noop
         popup.SetStyle = noop
@@ -45,7 +53,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     ---@param store table Store stand-in from FakeStore
     ---@param authorHidden boolean The mod's blueprint HiddenFromList
     ---@param isHidden boolean Whether the entry is in Hidden mods
-    ---@return table popup Items the menu offers
+    ---@return table popup Rows the menu offers; the last row is the visibility action
     local function OpenMenu(store, authorHidden, isHidden)
         local popup = FakePopup()
         local leftPane = setmetatable({
@@ -63,8 +71,9 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local store = FakeStore()
         local popup = OpenMenu(store, false, false)
 
-        D.expect(#popup.items).toBe(1)
-        popup.items[1].OnClick()
+        -- The menu lists the detach action first, then the visibility action
+        D.expect(#popup.items).toBe(2)
+        popup.items[2].OnClick()
 
         D.expect(store.values.UI.Mods[MOD_A]).toEqual({ HiddenFromList = true })
     end)
@@ -73,8 +82,8 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local store = FakeStore()
         local popup = OpenMenu(store, true, true)
 
-        D.expect(#popup.items).toBe(1)
-        popup.items[1].OnClick()
+        D.expect(#popup.items).toBe(2)
+        popup.items[2].OnClick()
 
         D.expect(store.values.UI.Mods[MOD_A]).toEqual({ HiddenFromList = false })
     end)
@@ -86,8 +95,8 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         })
         local popup = OpenMenu(store, false, true)
 
-        D.expect(#popup.items).toBe(1)
-        popup.items[1].OnClick()
+        D.expect(#popup.items).toBe(2)
+        popup.items[2].OnClick()
 
         D.expect(store.values).toEqual({
             Version = 1,
@@ -102,8 +111,8 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         })
         local popup = OpenMenu(store, true, false)
 
-        D.expect(#popup.items).toBe(1)
-        popup.items[1].OnClick()
+        D.expect(#popup.items).toBe(2)
+        popup.items[2].OnClick()
 
         D.expect(store.values).toEqual({ Version = 1, UI = { Other = "kept", Mods = {} } })
     end)
@@ -112,15 +121,17 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local store = FakeStore({ Version = 1, UI = { Mods = { [MOD_A] = { HiddenFromList = true } } } })
         local popup = OpenMenu(store, true, true)
 
-        D.expect(#popup.items).toBe(1)
-        popup.items[1].OnClick()
+        D.expect(#popup.items).toBe(2)
+        popup.items[2].OnClick()
 
         D.expect(store.values.UI.Mods[MOD_A]).toEqual({ HiddenFromList = false })
     end)
 
-    D.test("a protected state document offers no visibility action", function()
-        local popup = OpenMenu(FakeStore({}, true), false, false)
+    D.test("a protected state document offers the detach action only", function()
+        local store = FakeStore({}, true)
+        local popup = OpenMenu(store, false, false)
 
-        D.expect(#popup.items).toBe(0)
+        D.expect(#popup.items).toBe(1)
+        D.expect(store.values).toEqual({})
     end)
 end)
