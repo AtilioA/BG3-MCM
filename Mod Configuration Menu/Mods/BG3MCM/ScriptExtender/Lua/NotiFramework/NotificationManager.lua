@@ -307,6 +307,7 @@ end
 ---@param button ExtuiButton The button to start the countdown on
 ---@param countdown number|nil The initial countdown time
 ---@return nil
+-- bg3-lint: context client -- countdowns are started only while creating client notification windows
 function NotificationManager:StartButtonCountdown(button, countdown)
     if not countdown then return end
     local originalLabel = button.Label
