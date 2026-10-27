@@ -73,14 +73,8 @@ function EHandlers.OnClientRequestSetSettingValue(data, userID)
         MCMDebug(1, "Will set " .. settingId .. " to " .. tostring(value) .. " for mod " .. modUUID)
     end
 
-    local ok, result = pcall(function()
-        return MCMServer:SetSettingValue(settingId, value, modUUID)
-    end)
+    local result = MCMServer:SetSettingValue(settingId, value, modUUID)
 
-    if not ok then
-        MCMError(0, "Failed to set setting value: %s", result)
-        return { success = false, error = tostring(result) }
-    end
     if not result then return { success = false, error = "Setting value was rejected" } end
 
     return { success = true, data = { settingId = settingId, value = value, modUUID = modUUID } }
@@ -100,14 +94,7 @@ function EHandlers.OnClientRequestResetSettingValue(data, userID)
 
     MCMDebug(1, "Will reset %s for mod %s", settingId, modUUID)
 
-    local ok, err = pcall(function()
-        MCMServer:ResetSettingValue(settingId, modUUID)
-    end)
-
-    if not ok then
-        MCMError(0, "Failed to reset setting value: %s", err)
-        return { success = false, error = tostring(err) }
-    end
+    MCMServer:ResetSettingValue(settingId, modUUID)
 
     return { success = true, data = { settingId = settingId, modUUID = modUUID } }
 end
@@ -126,19 +113,9 @@ function EHandlers.OnClientRequestSetEnumChoices(data, userID)
         return { success = false, error = "Missing required fields: settingId and modUUID" }
     end
 
-    local ok, result = xpcall(function()
-        local success = MCMAPI:SetEnumChoices(settingId, choices, choicesHandles, modUUID, true)
-        if not success then
-            error("MCMAPI rejected runtime enum choices update")
-        end
-        return true
-    end, function(err)
-        MCMError(0, "Failed to update enum choices: %s", err)
-        return tostring(err)
-    end)
-
-    if not ok then
-        return { success = false, error = result }
+    local success = MCMAPI:SetEnumChoices(settingId, choices, choicesHandles, modUUID, true)
+    if not success then
+        return { success = false, error = "MCMAPI rejected runtime enum choices update" }
     end
 
     return {
@@ -170,14 +147,7 @@ function EHandlers.OnClientRequestSetProfile(data, userID)
 
     MCMDebug(1, "Will set profile to " .. profileName)
 
-    local ok, result = pcall(function()
-        return MCMServer:SetProfile(profileName)
-    end)
-
-    if not ok then
-        MCMError(0, "Failed to set profile: %s", result)
-        return { success = false, error = tostring(result) }
-    end
+    local result = MCMServer:SetProfile(profileName)
 
     return { success = result, data = { profileName = profileName } }
 end
@@ -195,14 +165,7 @@ function EHandlers.OnClientRequestCreateProfile(data, userID)
 
     MCMDebug(1, "Will create profile " .. profileName)
 
-    local ok, result = pcall(function()
-        return MCMServer:CreateProfile(profileName)
-    end)
-
-    if not ok then
-        MCMError(0, "Failed to create profile: %s", result)
-        return { success = false, error = tostring(result) }
-    end
+    local result = MCMServer:CreateProfile(profileName)
 
     return { success = result, data = { profileName = profileName } }
 end
@@ -220,14 +183,7 @@ function EHandlers.OnClientRequestDeleteProfile(data, userID)
 
     MCMDebug(1, "Will delete profile " .. profileName)
 
-    local ok, result = pcall(function()
-        return MCMServer:DeleteProfile(profileName)
-    end)
-
-    if not ok then
-        MCMError(0, "Failed to delete profile: %s", result)
-        return { success = false, error = tostring(result) }
-    end
+    local result = MCMServer:DeleteProfile(profileName)
 
     return { success = result, data = { profileName = profileName } }
 end
@@ -327,18 +283,13 @@ function EHandlers.OnEmitOnServer(data, userID)
 
     MCMDebug(2, "Emitting event %s on server as well.", eventName)
 
-    local ok, err = pcall(function()
-        if Ext.ModEvents['BG3MCM'][eventName] then
-            Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
-        else
-            error("Event '" .. eventName .. "' not registered")
-        end
-    end)
-
-    if not ok then
-        MCMWarn(0, "Failed to emit event: %s", err)
-        return { success = false, error = tostring(err) }
+    if not Ext.ModEvents['BG3MCM'][eventName] then
+        local errorMessage = "Event '" .. eventName .. "' not registered"
+        MCMWarn(0, "Failed to emit event: %s", errorMessage)
+        return { success = false, error = errorMessage }
     end
+
+    Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 
     return { success = true }
 end

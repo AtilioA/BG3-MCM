@@ -44,16 +44,7 @@ function AuthorizedNetCommand:execute(data, peerId)
             Osi.GetUserName(userId))
         return { success = false, error = "Unauthorized: Only host can perform this action in host-only mode." }
     else
-        local ok, result = xpcall(function()
-            return self.callback(data, userId)
-        end, function(err)
-            MCMError(0, "AuthorizedNetCommand execution error: %s", err)
-            return { success = false, error = tostring(err) }
-        end)
-
-        if not ok then
-            return { success = false, error = tostring(result) }
-        end
+        local result = self.callback(data, userId)
 
         -- Ensure standard response format
         if type(result) == "table" and result.success ~= nil then

@@ -19,17 +19,8 @@ end
 --- @param peerId any The peer ID of the command.
 --- @return table The response with { success = boolean, data = any, error = string? }
 function NetCommand:execute(data, peerId)
-    local ok, result = xpcall(function()
-        return self.callback(data, peerId)
-    end, function(err)
-        MCMError(0, "NetCommand execution error: %s", err)
-        return { success = false, error = tostring(err) }
-    end)
-    
-    if not ok then
-        return { success = false, error = tostring(result) }
-    end
-    
+    local result = self.callback(data, peerId)
+
     -- Ensure standard response format
     if type(result) == "table" and result.success ~= nil then
         return result
