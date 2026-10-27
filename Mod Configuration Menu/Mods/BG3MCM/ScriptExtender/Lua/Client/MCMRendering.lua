@@ -320,7 +320,12 @@ function MCMRendering:CreateModMenu()
     -- end
 
     self:CreateProfileManagementHeader()
-    self:CreateKeybindingsPage()
+    local success, err = xpcall(function()
+        self:CreateKeybindingsPage()
+    end, debug.traceback)
+    if not success then
+        MCMError(0, "Failed to create keybindings page: %s", err)
+    end
     self:CreateMainTable()
 
     MCMClientState.UIReady:OnNext(true)
@@ -605,8 +610,14 @@ end
 --- Creates the keybindings page in the MCM UI
 ---@return ExtuiGroup The created hotkeys group
 function MCMRendering:CreateKeybindingsPage()
-    -- Delegate keybindings page creation to KeybindingsUI
-    local hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
+    -- Retire the previous view before registry updates; a render failure must not skip input setup.
+    local hotkeysGroup
+    local success, err = xpcall(function()
+        hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
+    end, debug.traceback)
+    if not success then
+        MCMError(0, "Failed to render keybindings page: %s", err)
+    end
 
     -- Load and register keybindings
     local allModKeybindings = self:GetAllKeybindings()

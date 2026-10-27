@@ -358,17 +358,14 @@ MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
     end
 
     -- Use settings' values as soon as they are available, and before UI rendering
-    xpcall(function()
+    local success, err = xpcall(function()
         InitHandles:UpdateDynamicMCMWindowHandles()
-    end, function(err)
+    end, debug.traceback)
+    if not success then
         MCMError(0, "Failed to update dynamic MCM window handles: %s", err)
-    end)
+    end
 
-    xpcall(function()
-        MCMPrinter:UpdateLogLevels()
-    end, function(err)
-        MCMError(0, "Failed to update log levels: %s", err)
-    end)
+    MCMPrinter:UpdateLogLevels()
 end)
 
 -- if Ext.Debug.IsDeveloperMode() then

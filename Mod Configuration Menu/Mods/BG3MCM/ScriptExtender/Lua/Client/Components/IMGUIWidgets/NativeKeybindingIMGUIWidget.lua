@@ -159,51 +159,43 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
     categoryHeader:AddDummy(5, 5)
     table.insert(self.Widget.DynamicElements.ModHeaders, categoryHeader)
 
-    xpcall(function()
-        -- Sort actions by translated names
-        local sortedActions = self:SortActionsByTranslatedName(category.Actions)
+    -- Sort actions by translated names
+    local sortedActions = self:SortActionsByTranslatedName(category.Actions)
 
-        -- Create table for this category
-        local imguiTable = categoryHeader:AddTable(catName .. "_table", 2)
-        imguiTable.BordersOuter = true
-        imguiTable.BordersInner = true
-        imguiTable.RowBg = true
+    -- Create table for this category
+    local imguiTable = categoryHeader:AddTable(catName .. "_table", 2)
+    imguiTable.BordersOuter = true
+    imguiTable.BordersInner = true
+    imguiTable.RowBg = true
 
-        -- Define the columns
-        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3") or "Action",
-            "WidthStretch")
-        imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134") or "Keybinding",
-            "WidthStretch")
+    -- Define the columns
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h037fe64fb38a45dfb6e3d27ad038f48028a3") or "Action",
+        "WidthStretch")
+    imguiTable:AddColumn(Ext.Loca.GetTranslatedString("h68057d690e2f44ae98c31cb07f8074fb7134") or "Keybinding",
+        "WidthStretch")
 
-        -- Render sorted actions
-        for _, item in ipairs(sortedActions) do
-            local action = item.action
-            local row = imguiTable:AddRow()
+    -- Render sorted actions
+    for _, item in ipairs(sortedActions) do
+        local action = item.action
+        local row = imguiTable:AddRow()
 
-            -- Render action name cell
-            local nameCell = row:AddCell()
-            local nameText = nameCell:AddText(item.displayName)
-            nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
+        -- Render action name cell
+        local nameCell = row:AddCell()
+        local nameText = nameCell:AddText(item.displayName)
+        nameText:SetColor("Text", Color.HEXToRGBA("#EEEEEE"))
 
-            if action.Description and action.Description ~= "" then
-                local descriptionText = nameCell:AddText(action.Description)
-                nameText.TextWrapPos = 0
-                descriptionText.TextWrapPos = 0
-                nameText.IDContext = "Native_ActionName_" .. (action.ActionId or action.ActionName or "")
-                descriptionText.IDContext = "Native_ActionDesc_" .. (action.ActionId or action.ActionName or "")
-            end
-
-            -- Render keybinding cell
-            local kbCell = row:AddCell()
-            self:RenderKeybindingCell(kbCell, action)
+        if action.Description and action.Description ~= "" then
+            local descriptionText = nameCell:AddText(action.Description)
+            nameText.TextWrapPos = 0
+            descriptionText.TextWrapPos = 0
+            nameText.IDContext = "Native_ActionName_" .. (action.ActionId or action.ActionName or "")
+            descriptionText.IDContext = "Native_ActionDesc_" .. (action.ActionId or action.ActionName or "")
         end
-    end, function(err)
-        if not categoryHeader then return end
-        MCMError(0, "Error rendering category %s: %s", catName, err)
-        local errorText = categoryHeader:AddText(VCString:InterpolateLocalizedMessage("hfd82935321af4ad0b327de79a102776acf5f",
-            err))
-        errorText:SetColor("Text", UIStyle.TextStyles.Error)
-    end)
+
+        -- Render keybinding cell
+        local kbCell = row:AddCell()
+        self:RenderKeybindingCell(kbCell, action)
+    end
 end
 
 --- Renders the native keybinding tables grouped by category

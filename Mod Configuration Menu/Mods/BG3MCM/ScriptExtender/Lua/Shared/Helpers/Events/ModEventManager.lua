@@ -78,11 +78,14 @@ local function emitModEvent(eventName, eventData, bothContexts)
         return
     end
 
-    xpcall(function()
-        MCMDebug(1, "Emitting mod event: %s with data: %s", eventName, Ext.DumpExport(eventData))
-    end, function(err)
-        MCMWarn(0, "Error while emitting mod event: %s", err)
-    end)
+    if MCMPrinter.LogLevels.debug and MCMPrinter.DebugLevel >= 1 then
+        local success, payloadDump = pcall(Ext.DumpExport, eventData)
+        if success then
+            MCMDebug(1, "Emitting mod event: %s with data: %s", eventName, payloadDump)
+        else
+            MCMWarn(0, "Failed to format mod event '%s' for debug output: %s", eventName, payloadDump)
+        end
+    end
 
     Ext.ModEvents['BG3MCM'][eventName]:Throw(eventData)
 

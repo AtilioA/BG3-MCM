@@ -64,11 +64,9 @@ end
 function NativeKeybindings.Initialize()
     if _initialized then return true end
 
-    local success, inputManager = pcall(function()
-        return Ext.Input.GetInputManager()
-    end)
+    local inputManager = Ext.Input.GetInputManager()
 
-    if not success or not inputManager then
+    if not inputManager then
         MCMDebug(1, "Failed to get InputManager in NativeKeybindings.Initialize")
         return false
     end
@@ -118,7 +116,7 @@ function NativeKeybindings.GetAll()
         }
     end
 
-    --- Safely gets the description from an input definition
+    --- Gets the description from an input definition
     ---@param def InputDefinition
     ---@return string
     local function getDefinitionDescription(def)
@@ -126,8 +124,8 @@ function NativeKeybindings.GetAll()
             return ""
         end
 
-        local success, desc = pcall(def.EventDesc.Get, def.EventDesc)
-        return success and type(desc) == "string" and desc or ""
+        local desc = def.EventDesc.Get(def.EventDesc)
+        return type(desc) == "string" and desc or ""
     end
 
     -- Get the input bindings

@@ -61,30 +61,18 @@ end
 --- This method iterates over all available mods, checks for conflicts, and logs warnings.
 ---@return ConflictCheckResult[] issues A list of issues with mod conflicts.
 function ConflictCheck:EvaluateLoadOrderConflicts()
-    local success = false
     local issues = {}
 
-    success, issues = xpcall(function()
-        local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
+    local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
 
-        MCMDebug(1, "Evaluating load order conflicts for available mods.")
-        for _, mod in ipairs(availableMods) do
-            if ModValidation:IsModRelevant(mod) and mod.ModConflicts then
-                checkModConflicts(mod, mod.ModConflicts, issues)
-            end
+    MCMDebug(1, "Evaluating load order conflicts for available mods.")
+    for _, mod in ipairs(availableMods) do
+        if ModValidation:IsModRelevant(mod) and mod.ModConflicts then
+            checkModConflicts(mod, mod.ModConflicts, issues)
         end
-
-        MCMDebug(1, "Conflict evaluation complete. Issues found: %d", #issues)
-        return issues
-    end, function(e)
-        MCMError(0, "Error evaluating load order conflicts: %s", e)
-        return {}
-    end)
-
-    if not success then
-        MCMError(0, "Error evaluating load order conflicts.")
     end
 
+    MCMDebug(1, "Conflict evaluation complete. Issues found: %d", #issues)
     return issues
 end
 

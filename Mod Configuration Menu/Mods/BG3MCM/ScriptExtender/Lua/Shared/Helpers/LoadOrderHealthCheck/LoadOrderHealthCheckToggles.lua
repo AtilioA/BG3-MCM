@@ -1,35 +1,29 @@
 ---@class LoadOrderHealthCheckToggles
 LoadOrderHealthCheckToggles = _Class:Create("LoadOrderHealthCheckToggles", nil, {})
 
----@param e ExtGameStateChangedEvent
+--- Run enabled checks independently so one failed diagnostic does not skip the others.
+---@return nil
 function LoadOrderHealthCheckToggles:RunAllChecks()
-    if Ext.Utils.GetGameState() ~= Ext.Enums.ClientGameState["Menu"] then
+    if not MCMUtils.IsClientMainMenu() then
         return
     end
 
-    local shouldCheckInvalidUUIDs = MCMAPI:GetSettingValue("enable_invalid_meta_check", ModuleUUID)
-    if shouldCheckInvalidUUIDs then
-        LoadOrderHealthCheck:WarnAboutInvalidUUIDs()
-    end
-
-    local shouldCheckLoadOrderDependencies = MCMAPI:GetSettingValue("enable_loadorder_dependencies_check", ModuleUUID)
-    if shouldCheckLoadOrderDependencies then
-        LoadOrderHealthCheck:WarnAboutLoadOrderDependencies()
-    end
-
-    local shouldCheckNPAKM = MCMAPI:GetSettingValue("enable_npakm_check", ModuleUUID)
-    if shouldCheckNPAKM then
-        LoadOrderHealthCheck:WarnAboutNPAKM()
-    end
-
-    local shouldCheckModConflicts = MCMAPI:GetSettingValue("enable_modconflicts_check", ModuleUUID)
-    if shouldCheckModConflicts then
-        LoadOrderHealthCheck:WarnAboutModConflicts()
-    end
-
-    local shouldCheckMCMPrecedence = MCMAPI:GetSettingValue("enable_mcmprecedence_check", ModuleUUID)
-    if shouldCheckMCMPrecedence then
-        LoadOrderHealthCheck:WarnAboutMCMPrecedence()
+    local checks = {
+        { settingId = "enable_invalid_meta_check", run = LoadOrderHealthCheck.WarnAboutInvalidUUIDs },
+        { settingId = "enable_loadorder_dependencies_check", run = LoadOrderHealthCheck.WarnAboutLoadOrderDependencies },
+        { settingId = "enable_npakm_check", run = LoadOrderHealthCheck.WarnAboutNPAKM },
+        { settingId = "enable_modconflicts_check", run = LoadOrderHealthCheck.WarnAboutModConflicts },
+        { settingId = "enable_mcmprecedence_check", run = LoadOrderHealthCheck.WarnAboutMCMPrecedence },
+    }
+    for _, check in ipairs(checks) do
+        if MCMAPI:GetSettingValue(check.settingId, ModuleUUID) then
+            local success, err = xpcall(function()
+                check.run(LoadOrderHealthCheck)
+            end, debug.traceback)
+            if not success then
+                MCMError(0, "Load-order check '%s' failed: %s", check.settingId, err)
+            end
+        end
     end
 end
 

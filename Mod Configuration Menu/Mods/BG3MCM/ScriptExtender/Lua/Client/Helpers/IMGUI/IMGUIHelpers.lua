@@ -36,30 +36,19 @@ function IMGUIHelpers.AddTooltip(imguiObject, tooltipText, uuid)
         return nil
     end
 
-    local success, imguiObjectTooltip = xpcall(function()
-        local tt = imguiObject:Tooltip()
-        tt.IDContext = uuid .. "_TOOLTIP"
-        if tooltipText and tooltipText ~= "" then
-            -- Cursor offset, empty for now; raise to indent
-            local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods("" ..
-            tooltipText))
-            tt:AddText(preprocessedTooltip)
-        end
-        tt:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
-        tt:SetStyle("WindowPadding", 15, 15)
-        tt:SetStyle("PopupBorderSize", 2)
-        tt:SetColor("BorderShadow", { 0, 0, 0, 0.4 })
-        return tt
-    end, function(err)
-        MCMError(1, "Error creating tooltip: %s", err)
-        return nil
-    end)
-
-    if not success then
-        imguiObjectTooltip = nil
+    local tt = imguiObject:Tooltip()
+    tt.IDContext = uuid .. "_TOOLTIP"
+    if tooltipText and tooltipText ~= "" then
+        -- Cursor offset, empty for now; raise to indent
+        local preprocessedTooltip = VCString:ReplaceBrWithNewlines(VCString:AddNewlinesAfterPeriods("" ..
+        tooltipText))
+        tt:AddText(preprocessedTooltip)
     end
-
-    return imguiObjectTooltip
+    tt:SetColor("Border", UIStyle.UnofficialColors["TooltipBorder"])
+    tt:SetStyle("WindowPadding", 15, 15)
+    tt:SetStyle("PopupBorderSize", 2)
+    tt:SetColor("BorderShadow", { 0, 0, 0, 0.4 })
+    return tt
 end
 
 --- Mod-scoped identity for a setting, used to namespace per-setting UI resources (tooltip windows), so mods with equal setting IDs do not collide.

@@ -170,30 +170,18 @@ end
 --- Checks mod dependencies and returns a list of issues.
 ---@return DependencyCheckResult[] issues A list of issues with mod dependencies.
 function DependencyCheck:EvaluateLoadOrderDependencies()
-    local success = false
     local issues = {}
 
-    success, issues = xpcall(function()
-        local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
+    local availableMods = Ext.Mod.GetModManager() and Ext.Mod.GetModManager().AvailableMods or {}
 
-        MCMPrint(1, "Evaluating load order dependencies for available mods.")
-        for _, mod in ipairs(availableMods) do
-            if ModValidation:IsModRelevant(mod) and mod.Dependencies then
-                checkModDependencies(mod, mod.Dependencies, issues)
-            end
+    MCMPrint(1, "Evaluating load order dependencies for available mods.")
+    for _, mod in ipairs(availableMods) do
+        if ModValidation:IsModRelevant(mod) and mod.Dependencies then
+            checkModDependencies(mod, mod.Dependencies, issues)
         end
-
-        MCMPrint(1, "Dependency evaluation complete. Issues found: %d", #issues)
-        return issues
-    end, function(e)
-        MCMError(0, "Error evaluating load order dependencies: %s", e)
-        return {}
-    end)
-
-    if not success then
-        MCMError(0, "Error evaluating load order dependencies.")
     end
 
+    MCMPrint(1, "Dependency evaluation complete. Issues found: %d", #issues)
     return issues
 end
 

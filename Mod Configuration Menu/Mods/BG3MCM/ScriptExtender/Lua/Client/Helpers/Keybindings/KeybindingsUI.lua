@@ -202,24 +202,16 @@ function KeybindingsUI.CreateKeybindingsPage(dualPane)
     MCMHotkeysGroup:AddDummy(0, 2)
     nativeHotkeysGroup:AddDummy(0, 2)
 
-    -- Safely create the keybinding widget
-    pcall(function()
-        if type(KeybindingV2IMGUIWidget) == "table" and type(KeybindingV2IMGUIWidget.new) == "function" then
-            KeybindingsUI.KeybindingWidget = KeybindingV2IMGUIWidget:new(MCMHotkeysGroup)
-        end
-    end)
+    -- Create the keybinding widget
+    KeybindingsUI.KeybindingWidget = KeybindingV2IMGUIWidget:new(MCMHotkeysGroup)
 
     -- Add a separator to separate the groups
     MCMHotkeysGroup:AddSeparator()
     MCMHotkeysGroup:AddDummy(0, 2)
 
-    -- Safely create native keybindings
-    pcall(function()
-        if type(NativeKeybindingIMGUIWidget) == "table" and type(NativeKeybindingIMGUIWidget.new) == "function" then
-            local nativeWidget = NativeKeybindingIMGUIWidget:new(nativeHotkeysGroup)
-            nativeWidget:RefreshUI()
-        end
-    end)
+    -- Create native keybindings
+    local nativeWidget = NativeKeybindingIMGUIWidget:new(nativeHotkeysGroup)
+    nativeWidget:RefreshUI()
 
     return hotkeysGroup
 end

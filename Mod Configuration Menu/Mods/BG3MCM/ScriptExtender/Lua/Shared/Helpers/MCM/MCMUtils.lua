@@ -15,19 +15,7 @@ function MCMUtils.IsClientMainMenu()
         return false
     end
 
-    if MCMProxy and MCMProxy.IsMainMenu then
-        local ok, inMenu = pcall(MCMProxy.IsMainMenu)
-        if ok then
-            return inMenu == true
-        end
-    end
-
-    local ok, state = pcall(Ext.Utils.GetGameState)
-    if ok then
-        return state == Ext.Enums.ClientGameState["Menu"]
-    end
-
-    return false
+    return Ext.Utils.GetGameState() == Ext.Enums.ClientGameState["Menu"]
 end
 
 --- Sorts the mods by name and returns a sorted array of mod GUIDs, with MCM placed first

@@ -87,7 +87,7 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         syncStateFixture:RememberFile(StoreFilePath("dynamic_settings.json"))
         local sent = {}
 
-        ctx.stub(MCMProxy, "IsMainMenu", function() return false end)
+        ctx.stub(MCMUtils, "IsClientMainMenu", function() return false end)
         ctx.stub(NetChannels.MCM_CLIENT_SET_STORE_VALUE, "SendToServer", function(_channel, payload)
             table.insert(sent, payload)
         end)
