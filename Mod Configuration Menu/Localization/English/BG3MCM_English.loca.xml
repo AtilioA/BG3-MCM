@@ -654,4 +654,6 @@
     <content contentuid="h31b35bbef8544e26b213f5a93c926ecc7865" version="1">Hidden mods ([1])</content>
     <content contentuid="hcb10ab3d15cd177683b0b8c2076b4499ccdc" version="1">[1] (Default)</content>
     <content contentuid="h6a34a2af2d8c47b781dc48d5b9881b61abcd" version="1">Menu choices cannot be saved, because MCM_state.json is unreadable or comes from a newer MCM version. MCM keeps the file unchanged. Repair or delete the file, then reload.</content>
+    <content contentuid="h38dded209c284e6db03d09219bd92f0dgb10" version="1">Show / Hide MCM windows</content>
+    <content contentuid="h553e56d43e9a4d6685410a526895873dg177" version="1">Hide MCM's window, detached pages, and notifications. Press again to restore them. Other mods' windows are unaffected. The key also keeps its normal game action.</content>
 </contentList>

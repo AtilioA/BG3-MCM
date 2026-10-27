@@ -1,7 +1,55 @@
 ---@class IMGUIAPI: MetaClass
+---@field private _hiddenWindowVisibility table<ExtuiWindow, boolean>?
 IMGUIAPI = _Class:Create("IMGUIAPI", nil, {})
 
 IMGUIAPI.insertedTabs = {}
+
+--- Returns live MCM-owned windows without retaining destroyed windows.
+---@return ExtuiWindow[]
+function IMGUIAPI:GetMCMWindows()
+    local windows = NotificationManager:GetWindows()
+    if MCM_WINDOW then
+        table.insert(windows, MCM_WINDOW)
+    end
+    if DualPane and DualPane.rightPane then
+        for _, window in pairs(DualPane.rightPane.detachedWindows) do
+            table.insert(windows, window)
+        end
+    end
+    return windows
+end
+
+--- Keeps new or reopened MCM windows hidden until the visibility hotkey is pressed again.
+---@return nil
+function IMGUIAPI:HideMCMWindows()
+    local visibility = self._hiddenWindowVisibility
+    if not visibility then return end
+
+    local liveVisibility = {}
+    for _, window in ipairs(self:GetMCMWindows()) do
+        liveVisibility[window] = window.Visible or visibility[window] == true
+        window.Visible = false
+    end
+    self._hiddenWindowVisibility = liveVisibility
+end
+
+--- Hides MCM windows or restores their visibility without changing their open state.
+---@return nil
+function IMGUIAPI:ToggleMCMWindowsVisibility()
+    if self._hiddenWindowVisibility then
+        for _, window in ipairs(self:GetMCMWindows()) do
+            local visible = self._hiddenWindowVisibility[window]
+            if visible ~= nil then
+                window.Visible = visible or window.Visible
+            end
+        end
+        self._hiddenWindowVisibility = nil
+        return
+    end
+
+    self._hiddenWindowVisibility = {}
+    self:HideMCMWindows()
+end
 
 --- Update values for the MCM window
 ---@param settingId string The ID of the setting to update

@@ -57,6 +57,18 @@ function NotificationRegistry:Remove(notification)
     return false
 end
 
+--- Returns the live windows of active notifications.
+---@return ExtuiWindow[]
+function NotificationRegistry:GetWindows()
+    local windows = {}
+    for _, notification in ipairs(self._activeNotifications) do
+        if notification.IMGUIwindow then
+            table.insert(windows, notification.IMGUIwindow)
+        end
+    end
+    return windows
+end
+
 --- Gets the number of active notifications
 ---@return integer
 function NotificationRegistry:Count()

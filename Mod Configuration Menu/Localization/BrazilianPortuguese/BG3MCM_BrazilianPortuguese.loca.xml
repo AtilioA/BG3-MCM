@@ -336,4 +336,6 @@
     <content contentuid="h31b35bbef8544e26b213f5a93c926ecc7865" version="1">Mods escondidos ([1])</content>
     <content contentuid="hcb10ab3d15cd177683b0b8c2076b4499ccdc" version="1">[1] (Padrão)</content>
     <content contentuid="h6a34a2af2d8c47b781dc48d5b9881b61abcd" version="1">Não é possível salvar escolhas do menu, porque MCM_state.json está ilegível ou vem de uma versão mais nova do MCM. O MCM mantém o arquivo inalterado. Repare ou exclua o arquivo e depois recarregue.</content>
+    <content contentuid="h38dded209c284e6db03d09219bd92f0dgb10" version="1">Mostrar / Esconder janelas do MCM</content>
+    <content contentuid="h553e56d43e9a4d6685410a526895873dg177" version="1">Esconde a janela do MCM, páginas destacadas e notificações. Pressione novamente para restaurá-las. As janelas de outros mods não são afetadas. A tecla também mantém sua ação normal no jogo.</content>
 </contentList>

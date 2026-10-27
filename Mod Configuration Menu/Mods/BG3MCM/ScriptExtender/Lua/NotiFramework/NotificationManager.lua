@@ -37,6 +37,12 @@ NotificationManager = _Class:Create("NotificationManager", nil, {
     _timer = nil,
 })
 
+--- Returns the live windows created through MCM's notification manager.
+---@return ExtuiWindow[]
+function NotificationManager:GetWindows()
+    return notificationRegistry:GetWindows()
+end
+
 --- Returns a table of all possible NotificationOptions fields
 --- The keys will be the possible fields from NotificationOptions
 ---@return table<string, string>

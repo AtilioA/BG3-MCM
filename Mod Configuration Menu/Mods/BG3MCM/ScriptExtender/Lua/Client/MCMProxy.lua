@@ -266,6 +266,8 @@ end
 function MCMProxy:RegisterMCMKeybindings()
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_keybinding",
         function() IMGUIAPI:ToggleMCMWindow(true) end)
+    InputCallbackManager.RegisterKeybinding(ModuleUUID, "toggle_mcm_windows_visibility_keybinding",
+        function() IMGUIAPI:ToggleMCMWindowsVisibility() end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua_both", function() Ext.Debug.Reset() end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua_client", function() Ext.Debug.Reset(false, true) end)
     InputCallbackManager.RegisterKeybinding(ModuleUUID, "reset_lua_server", function() Ext.Debug.Reset(true, false) end)

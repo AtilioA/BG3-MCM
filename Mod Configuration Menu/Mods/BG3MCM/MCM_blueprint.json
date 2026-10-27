@@ -207,6 +207,30 @@
                             }
                         },
                         {
+                            "Id": "toggle_mcm_windows_visibility_keybinding",
+                            "Name": "Show / Hide MCM windows",
+                            "Type": "keybinding_v2",
+                            "Default": {
+                                "Keyboard": {
+                                    "Key": "F10",
+                                    "ModifierKeys": []
+                                },
+                                "Enabled": true
+                            },
+                            "Description": "Hide MCM's window, detached pages, and notifications. Press again to restore them. Other mods' windows are unaffected. The key also keeps its normal game action.",
+                            "Handles": {
+                                "NameHandle": "h38dded209c284e6db03d09219bd92f0dgb10",
+                                "DescriptionHandle": "h553e56d43e9a4d6685410a526895873dg177"
+                            },
+                            "Options": {
+                                "ShouldTriggerOnRepeat": false,
+                                "ShouldTriggerOnKeyUp": false,
+                                "ShouldTriggerOnKeyDown": true,
+                                "PreventAction": false,
+                                "AllowConflict": true
+                            }
+                        },
+                        {
                             "Id": "close_mcm_keybinding",
                             "Name": "Close MCM window",
                             "Type": "keybinding_v2",
