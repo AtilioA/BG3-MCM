@@ -21,6 +21,7 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/BlueprintHiddenFromList.test.lua")
     Ext.Require("Shared/DribbleSpec/JsonLayer.test.lua")
     Ext.Require("Shared/DribbleSpec/Validators.test.lua")
+    Ext.Require("Shared/DribbleSpec/PathValidator.test.lua")
     Ext.Require("Shared/DribbleSpec/ValidateAndFixSettings.test.lua")
     Ext.Require("Shared/DribbleSpec/MCMAPI.test.lua")
     Ext.Require("Shared/DribbleSpec/ModConfig.test.lua")
