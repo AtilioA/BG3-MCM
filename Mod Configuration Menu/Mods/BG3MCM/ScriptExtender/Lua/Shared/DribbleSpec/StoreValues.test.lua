@@ -2,7 +2,7 @@
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
 local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
-local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
 
 local FILE_NAME = "mcm_dribblespec_store_values.json"
 local LOCAL_ONLY = { fileName = FILE_NAME, SyncToClient = false, SyncToServer = false }

@@ -2,7 +2,7 @@ local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsSer
 local AdapterFactory = Ext.Require("Shared/DynamicSettings/Factories/AdapterFactory.lua")
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
-local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
 
 D.describe("Store ModVar defaults", { tags = { "store", "unit" } }, function()
     local VAR_NAME = "dribblespec_modvar_defaults"

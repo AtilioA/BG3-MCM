@@ -1,4 +1,4 @@
---- Create a fixture that isolates storage-sync state, file writes, and network sends.
+--- Create a test sandbox that isolates storage-sync state, file writes, network sends, notifications, timers, and ModVars.
 --- Writes are deny-by-default: every Ext.IO write goes to an in-memory map, whatever the path.
 ---@param storageSyncService StorageSyncService
 ---@param jsonAdapter JsonStorageManager
@@ -8,7 +8,7 @@ return function(storageSyncService, jsonAdapter, settingsService)
     local previousState
     local fixture = {}
 
-    --- Replace test-owned state and stub writes, sends, and mod events for the current test.
+    --- Replace test-owned state and stub writes, sends, mod events, notifications, timers, and ModVars for the current test.
     --- The test sandbox restores the stubs after afterEach, even when the test fails.
     ---@param ctx table DribbleSpec test context
     ---@return nil
@@ -52,6 +52,19 @@ return function(storageSyncService, jsonAdapter, settingsService)
             end
             return realLoadFile(path, ...)
         end)
+        -- Sends are deny-by-default too: every channel's low-level sends and every raw Ext.Net post drop the message.
+        local function drop() end
+        for _, channel in pairs(NetChannels) do
+            if type(channel) == "table" and channel.DoSendToServer then
+                ctx.stub(channel, "DoSendToServer", drop)
+                ctx.stub(channel, "DoSendToClient", drop)
+            end
+        end
+        for name, fn in pairs(Ext.Net) do
+            if type(fn) == "function" and (name:find("^Post") or name:find("^Broadcast")) then
+                ctx.stub(Ext.Net, name, drop)
+            end
+        end
         ctx.stub(NetChannels.MCM_SERVER_SYNC_STORE_VALUE, "SendToClient", function(_channel, payload, userID)
             table.insert(self.sentToClients, { payload = payload, userID = userID })
         end)
@@ -64,6 +77,28 @@ return function(storageSyncService, jsonAdapter, settingsService)
         ctx.stub(ModEventManager, "Emit", function(_manager, eventName, eventData, bothContexts)
             table.insert(self.emittedEvents, { name = eventName, data = eventData, bothContexts = bothContexts })
         end)
+
+        self.notifications = {}
+        ctx.stub(NotificationManager, "CreateIMGUINotification", function(_manager, id, severity, title, message, options)
+            table.insert(self.notifications, { id = id, severity = severity, title = title, message = message, options = options })
+        end)
+        -- Timers are dropped so no callback outlives the test.
+        -- Ext.OnNextTick sits on each mod's Ext proxy, which drops writes, so it cannot be stubbed.
+        ctx.stub(Ext.Timer, "WaitFor", drop)
+        ctx.stub(Ext.Timer, "WaitForRealtime", drop)
+
+        -- ModVars live in a fake table per module.
+        local modVars = {}
+        self.modVars = modVars
+        ctx.stub(Ext.Vars, "RegisterModVariable", function(moduleUUID)
+            modVars[moduleUUID] = modVars[moduleUUID] or {}
+        end)
+        ctx.stub(Ext.Vars, "GetModVariables", function(moduleUUID)
+            modVars[moduleUUID] = modVars[moduleUUID] or {}
+            return modVars[moduleUUID]
+        end)
+        ctx.stub(Ext.Vars, "DirtyModVariables", drop)
+        ctx.stub(Ext.Vars, "SyncModVariables", drop)
     end
 
     --- Stub connected users as users 1, 1, and 2, plus entities without a valid user ID.

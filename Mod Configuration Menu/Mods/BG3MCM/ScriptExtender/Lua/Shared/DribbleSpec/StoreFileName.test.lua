@@ -1,13 +1,12 @@
 -- Covers MCM.Store JSON placement via storageConfig.fileName (ADR 0002).
 
-local DEFAULT_FILE_NAME = "dynamic_settings.json"
 local CONTEXT = Ext.IsServer() and "server" or "client"
 local TEST_FILE_NAME = "mcm_dribblespec_store_file_" .. CONTEXT .. ".json"
 local OTHER_FILE_NAME = "mcm_dribblespec_store_other_" .. CONTEXT .. ".json"
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
 local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
-local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
 
 --- Path of a file in MCM's own Store directory, as documented for storageConfig.fileName.
 ---@param fileName string

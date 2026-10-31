@@ -1,7 +1,7 @@
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
 local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
-local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
 local CONTEXT = Ext.IsServer() and "server" or "client"
 
 --- Path of a named file in MCM's Store directory.

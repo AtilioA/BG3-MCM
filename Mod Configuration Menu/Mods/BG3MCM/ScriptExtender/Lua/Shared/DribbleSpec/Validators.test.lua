@@ -1,4 +1,20 @@
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
+
 D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
+    -- Mutation runs list "client": a mutant can reach any write or send, so both are sandboxed deny-by-default.
+    local sandbox = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
+
+    D.beforeEach(function(ctx)
+        sandbox:Isolate(ctx)
+    end)
+
+    D.afterEach(function()
+        sandbox:Restore()
+    end)
+
     local previousModUUID
 
     D.beforeEach(function()

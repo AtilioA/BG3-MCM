@@ -1,4 +1,20 @@
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
+
 D.describe("Blueprint HiddenFromList", { tags = { "mod_list_visibility", "data-preprocessing", "preprocessing", "unit" } }, function()
+    -- Mutation runs list "client": a mutant can reach any write or send, so both are sandboxed deny-by-default.
+    local sandbox = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
+
+    D.beforeEach(function(ctx)
+        sandbox:Isolate(ctx)
+    end)
+
+    D.afterEach(function()
+        sandbox:Restore()
+    end)
+
     --- Run a mock blueprint through the real preprocessing, construction, and sanitizing pipeline
     ---@param hiddenFromList boolean|nil Top-level HiddenFromList, or nil to omit it
     ---@return Blueprint|nil

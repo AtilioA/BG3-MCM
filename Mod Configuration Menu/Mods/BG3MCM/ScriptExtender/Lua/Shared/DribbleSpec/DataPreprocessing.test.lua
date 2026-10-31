@@ -1,3 +1,8 @@
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
+
 local function preprocessAndSanitize(rawData, modUUID)
     local preprocessedData = DataPreprocessing:PreprocessData(rawData, modUUID)
     if not preprocessedData then
@@ -10,6 +15,17 @@ local function preprocessAndSanitize(rawData, modUUID)
 end
 
 D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing", "unit" } }, function()
+    -- Mutation runs list "client": a mutant can reach any write or send, so both are sandboxed deny-by-default.
+    local sandbox = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
+
+    D.beforeEach(function(ctx)
+        sandbox:Isolate(ctx)
+    end)
+
+    D.afterEach(function()
+        sandbox:Restore()
+    end)
+
     D.test("TestSanitizeBlueprintWithSchemaVersion", function()
         local rawData = {
             SchemaVersion = 1,

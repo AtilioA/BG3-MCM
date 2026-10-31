@@ -1,10 +1,9 @@
 -- Covers MCM.Store protection of JSON Store files that cannot be parsed (ADR 0003).
-local DEFAULT_FILE_NAME = "dynamic_settings.json"
 local CONTEXT = Ext.IsServer() and "server" or "client"
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
 local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
-local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
 
 local UNREADABLE_CONTENT = '{"dribblespec_store_unreadable": tru'
 

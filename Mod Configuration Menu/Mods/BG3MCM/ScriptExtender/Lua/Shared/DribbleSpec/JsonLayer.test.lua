@@ -1,7 +1,7 @@
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
 local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
-local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
 
 -- Kept below the MCM package so the loader reads test data through Ext.IO.
 local fixtureRoot = "BG3MCM/ScriptExtender/Lua/Shared/DribbleSpec/Fixtures"
