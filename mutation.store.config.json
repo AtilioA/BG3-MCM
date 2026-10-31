@@ -1,0 +1,10 @@
+{
+  "mod": "Mod Configuration Menu/Mods/BG3MCM",
+  "files": [
+    "Shared/DynamicSettings/Services/StorageSyncService.lua",
+    "Shared/DynamicSettings/Services/SettingsService.lua",
+    "Shared/DynamicSettings/Adapters/JsonAdapter.lua"
+  ],
+  "testFilter": { "tags": ["store"] },
+  "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
+}

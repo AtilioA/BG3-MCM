@@ -84,5 +84,7 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit" } }, function()
             { storageConfig = { fileName = "sub/" .. TEST_FILE_NAME } })).toBe(false)
         D.expect(registerFixtureVar("dribblespec_store_file_path_" .. CONTEXT,
             { storageConfig = { fileName = "..\\" .. TEST_FILE_NAME } })).toBe(false)
+        D.expect(registerFixtureVar("dribblespec_store_file_path_" .. CONTEXT,
+            { storageConfig = { fileName = 5 } })).toBe(false)
     end)
 end)

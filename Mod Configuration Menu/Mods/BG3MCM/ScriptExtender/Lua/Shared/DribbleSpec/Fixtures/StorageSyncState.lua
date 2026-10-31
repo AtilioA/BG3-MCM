@@ -66,6 +66,32 @@ return function(storageSyncService, jsonAdapter, settingsService)
         end)
     end
 
+    --- Stub connected users as users 1, 1, and 2, plus entities without a valid user ID.
+    ---@param ctx table DribbleSpec test context
+    ---@return nil
+    -- bg3-lint: allow BG3-ENGINE-WRITE -- the user list is the engine read that getConnectedUserIDs filters; a single-user session cannot supply duplicates or invalid entities
+    function fixture:StubConnectedUsers(ctx)
+        ctx.stub(Ext.Entity, "GetAllEntitiesWithComponent", function()
+            return {
+                { UserReservedFor = { UserID = 1 } },
+                { UserReservedFor = { UserID = 1 } },
+                {},
+                { UserReservedFor = { UserID = "x" } },
+                { UserReservedFor = { UserID = 2 } },
+            }
+        end)
+    end
+
+    --- User IDs of the sends to clients, in send order.
+    ---@return integer[] userIDs
+    function fixture:SentUserIDs()
+        local userIDs = {}
+        for _, send in ipairs(self.sentToClients) do
+            table.insert(userIDs, send.userID)
+        end
+        return userIDs
+    end
+
     --- Restore live state.
     ---@return nil
     function fixture:Restore()
