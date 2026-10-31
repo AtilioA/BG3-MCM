@@ -1,0 +1,9 @@
+{
+  "mod": "Mod Configuration Menu/Mods/BG3MCM",
+  "files": [
+    "Shared/Helpers/Preprocessing/DataPreprocessing.lua",
+    "Shared/Helpers/Preprocessing/LoadedSettingsRepair.lua"
+  ],
+  "testFilter": { "tags": ["preprocessing"] },
+  "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
+}

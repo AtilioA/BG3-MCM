@@ -9,7 +9,7 @@ local function preprocessAndSanitize(rawData, modUUID)
     return sanitizedBlueprint, blueprint
 end
 
-D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, function()
+D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing", "unit" } }, function()
     D.test("TestSanitizeBlueprintWithSchemaVersion", function()
         local rawData = {
             SchemaVersion = 1,
@@ -1981,5 +1981,55 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "unit" } }, fun
         D.expect(#section:GetSettings()).toBe(1)
         D.expect(section:GetSettings()[1]:GetId()).toBe("alias-setting")
         D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("alias-setting")).toBe(true)
+    end)
+
+    D.test("TestPreprocessDataKeepsTabAndSectionDescriptionsAndHandles", function()
+        local tabHandles = { NameHandle = "tab-name-handle" }
+        local sectionHandles = { NameHandle = "section-name-handle" }
+        local data = DataPreprocessing:PreprocessData({
+            Tabs = {
+                { TabId = "tab-a", TabName = "Tab A", TabDescription = "tab desc", Handles = tabHandles },
+                { Id = "tab-b", Name = "Tab B", Description = "tab alias desc" },
+            },
+            Sections = {
+                { SectionId = "section-a", SectionName = "Section A", SectionDescription = "section desc", Handles = sectionHandles },
+                { Id = "section-b", Name = "Section B", Description = "section alias desc" },
+            },
+        }, TestConstants.ModuleUUIDs[1])
+
+        D.expect(data.Tabs[1]:GetTabDescription()).toBe("tab desc")
+        D.expect(data.Tabs[1]:GetHandles()).toBe(tabHandles)
+        D.expect(data.Tabs[2]:GetTabDescription()).toBe("tab alias desc")
+        D.expect(data.Sections[1]:GetDescription()).toBe("section desc")
+        D.expect(data.Sections[1]:GetHandles()).toBe(sectionHandles)
+        D.expect(data.Sections[2]:GetDescription()).toBe("section alias desc")
+    end)
+
+    D.test("TestPreprocessTabRejectsTabWithoutIdOrName", function()
+        D.expect(DataPreprocessing:PreprocessTab({ TabName = "No Id" }, TestConstants.ModuleUUIDs[1])).toBeNil()
+        D.expect(DataPreprocessing:PreprocessTab({ TabId = "no-name" }, TestConstants.ModuleUUIDs[1])).toBeNil()
+        D.expect(DataPreprocessing:PreprocessTab({ TabId = "valid", TabName = "Valid" }, TestConstants.ModuleUUIDs[1])).Not.toBeNil()
+    end)
+
+    D.test("TestPreprocessSectionKeepsNestedTabs", function()
+        local section = DataPreprocessing:PreprocessSection({
+            SectionId = "section-a",
+            SectionName = "Section A",
+            Tabs = { { TabId = "nested-tab", TabName = "Nested Tab" } },
+        }, TestConstants.ModuleUUIDs[1])
+
+        D.expect(#section:GetTabs()).toBe(1)
+        D.expect(section:GetTabs()[1]:GetId()).toBe("nested-tab")
+    end)
+
+    D.test("TestValidateSettingRejectsUnknownSettingType", function(ctx)
+        local previousModUUID = BlueprintPreprocessing.currentmodUUID
+        ctx.sandbox:TrackRestore(function()
+            BlueprintPreprocessing.currentmodUUID = previousModUUID
+        end)
+        BlueprintPreprocessing.currentmodUUID = ModuleUUID
+        local setting = BlueprintSetting:New({ Id = "unknown-type-setting", Type = "no-such-type", Default = 1 })
+
+        D.expect(DataPreprocessing:ValidateSetting(setting, 1)).toBe(false)
     end)
 end)

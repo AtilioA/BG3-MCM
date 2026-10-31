@@ -1,4 +1,4 @@
-D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "unit" } }, function()
+D.describe("ValidateAndFixSettings", { tags = { "validate-and-fix", "preprocessing", "unit" } }, function()
     D.test("ShouldFixInvalidSettingsAtRootLevel", function(ctx)
         -- Create a mock blueprint
         local blueprint = Blueprint:New({

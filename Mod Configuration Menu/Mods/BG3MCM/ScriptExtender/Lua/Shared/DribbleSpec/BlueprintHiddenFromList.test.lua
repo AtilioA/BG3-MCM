@@ -1,4 +1,4 @@
-D.describe("Blueprint HiddenFromList", { tags = { "mod_list_visibility", "data-preprocessing", "unit" } }, function()
+D.describe("Blueprint HiddenFromList", { tags = { "mod_list_visibility", "data-preprocessing", "preprocessing", "unit" } }, function()
     --- Run a mock blueprint through the real preprocessing, construction, and sanitizing pipeline
     ---@param hiddenFromList boolean|nil Top-level HiddenFromList, or nil to omit it
     ---@return Blueprint|nil
