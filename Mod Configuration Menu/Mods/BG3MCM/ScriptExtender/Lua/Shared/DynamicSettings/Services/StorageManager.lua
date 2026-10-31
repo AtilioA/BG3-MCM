@@ -75,17 +75,6 @@ function StorageManager.DiscoverAllVariables()
         modulesWithVars, totalModules)
 end
 
-local function testServiceCalls()
-    if MCMAPI:GetSettingValue("debug_level", ModuleUUID) >= 1 then
-        _D(SettingsService.GetAll("5b5ad5b6-ce37-4a63-8dea-a1fee4cee156"))
-        _D(SettingsService.Get("5b5ad5b6-ce37-4a63-8dea-a1fee4cee156", "HostOnlyCheats", "ModVar"))
-
-        -- Change the value of a ModVar
-        -- SettingsService.Set("5b5ad5b6-ce37-4a63-8dea-a1fee4cee156", "HostOnlyCheats", "ModVar", 1)
-        _D(SettingsService.Get("5b5ad5b6-ce37-4a63-8dea-a1fee4cee156", "HostOnlyCheats", "ModVar"))
-    end
-end
-
 --- Register event listeners for discovery
 function StorageManager.RegisterEventListeners()
     -- Run discovery when a session is loading
@@ -94,7 +83,6 @@ function StorageManager.RegisterEventListeners()
         MCMDebug(1, "SessionLoaded event received, initializing storage and discovering variables")
         StorageManager.Initialize()
         StorageManager.DiscoverAllVariables()
-        -- testServiceCalls()
     end)
 
     -- Could add other listeners here for refreshing discovery, etc.

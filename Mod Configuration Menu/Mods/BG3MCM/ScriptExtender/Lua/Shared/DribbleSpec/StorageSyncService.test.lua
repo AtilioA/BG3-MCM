@@ -57,28 +57,10 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
 
         D.expect(StorageSyncService:CanBroadcastLocalWrite({ SyncToClient = true })).toBe(true)
         D.expect(StorageSyncService:CanBroadcastLocalWrite({ SyncToClient = false })).toBe(false)
-
-        D.expect(StorageSyncService:ShouldApplyOnClient(7, 7)).toBe(false)
-        D.expect(StorageSyncService:ShouldApplyOnClient(7, 8)).toBe(true)
     end)
 
-    D.test("TestStorageSyncShouldApplyOnClientWhenOriginIsNil", function(ctx)
-        D.expect(StorageSyncService:ShouldApplyOnClient(nil, 8)).toBe(true)
-    end)
-
-    D.test("TestStorageSyncShouldApplyOnClientWhenBothNil", function(ctx)
-        D.expect(StorageSyncService:ShouldApplyOnClient(nil, nil)).toBe(true)
-    end)
-
-    D.test("TestStoreSyncFlowSendsLocalWritesAndAppliesRemoteOriginsWithoutEcho", function(ctx)
+    D.test("TestStoreSyncFlowSendsLocalWritesAndAppliesRemoteValuesWithoutEcho", function(ctx)
         ctx.requireClient()
-
-        local currentCharacter = _C()
-        local localUserID = currentCharacter and currentCharacter.UserReservedFor
-            and currentCharacter.UserReservedFor.UserID
-        if type(localUserID) ~= "number" then
-            ctx.skip("A client user ID is required to verify origin filtering")
-        end
 
         local moduleUUID = ModuleUUID
         local varName = "dribblespec_sync_flow_fixture"
@@ -112,27 +94,9 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
             storageType = "json",
             moduleUUID = moduleUUID,
             varName = varName,
-            value = "same-origin-value",
-            originUserID = localUserID,
+            value = "remote-value",
         })
-        D.expect(MCM.Store.Get({ var = varName, modUUID = moduleUUID })).toBe("local-value")
-
-        StorageSyncService:HandleServerSyncPayload({
-            storageType = "json",
-            moduleUUID = moduleUUID,
-            varName = varName,
-            value = "other-origin-value",
-            originUserID = localUserID + 1,
-        })
-        D.expect(MCM.Store.Get({ var = varName, modUUID = moduleUUID })).toBe("other-origin-value")
-
-        StorageSyncService:HandleServerSyncPayload({
-            storageType = "json",
-            moduleUUID = moduleUUID,
-            varName = varName,
-            value = "nil-origin-value",
-        })
-        D.expect(MCM.Store.Get({ var = varName, modUUID = moduleUUID })).toBe("nil-origin-value")
+        D.expect(MCM.Store.Get({ var = varName, modUUID = moduleUUID })).toBe("remote-value")
         D.expect(#sent).toBe(1)
     end)
 

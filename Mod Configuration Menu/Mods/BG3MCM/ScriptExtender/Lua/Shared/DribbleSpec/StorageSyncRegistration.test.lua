@@ -59,9 +59,7 @@ D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit
             table.insert(warnings, string.format(fmt, ...))
         end)
 
-        -- The payload's fileName must not decide placement for an unregistered variable.
-        local applied = StorageSyncService:ApplyRemoteValue("json", ModuleUUID, varName, "remote-value",
-            { fileName = TEST_FILE_NAME })
+        local applied = StorageSyncService:ApplyRemoteValue("json", ModuleUUID, varName, "remote-value")
 
         local warning = table.concat(warnings, "\n")
         D.expect(applied).toBe(false)

@@ -10,23 +10,19 @@ local DEFAULT_FILE_NAME = "dynamic_settings.json"
 ---@field Data table<string, StorageValue>
 ---@field Loaded boolean
 ---@field Unreadable boolean The file failed to parse; MCM keeps it unchanged and refuses writes
----@field AutoSave boolean
-local SettingsFile = {}
+SettingsFile = {}
 SettingsFile.__index = SettingsFile
 
 ---@param moduleUUID string
 ---@param fileName string File name inside the mod's Store directory
----@param autoSave boolean
 ---@return SettingsFile
-function SettingsFile:new(moduleUUID, fileName, autoSave)
+function SettingsFile:new(moduleUUID, fileName)
     local o = setmetatable({}, self)
     o.ModuleUUID = moduleUUID
     o.FileName = fileName
     o.Data = {}
     o.Loaded = false
     o.Unreadable = false
-    -- Default to true if nil (sigh)
-    o.AutoSave = (autoSave == nil) and true or autoSave
     o.FilePath = o:_generatePath()
     return o
 end
@@ -34,23 +30,13 @@ end
 ---Generates a file path based on the mod's directory.
 function SettingsFile:_generatePath()
     local modInfo = Ext.Mod.GetMod(self.ModuleUUID)
-    local mcmInfo = Ext.Mod.GetMod(ModuleUUID)
-    local name = "UnknownMod"
+    local mcmDirectory = Ext.Mod.GetMod(ModuleUUID).Info.Directory
     local directory = "UnknownDirectory"
-    local mcmDirectory = "UnknownMCMDirectory"
-
-    if mcmInfo and mcmInfo.Info and mcmInfo.Info.Directory then
-        mcmDirectory = mcmInfo.Info.Directory
-    end
-
-    if modInfo and modInfo.Info and modInfo.Info.Directory then
+    if modInfo then
         directory = modInfo.Info.Directory
-        name = modInfo.Info.Name
     else
         MCMWarn(0, "JsonAdapter: No mod info found for UUID: %s", self.ModuleUUID)
     end
-    -- Sanitize name for filesystem (basic)
-    name = name:gsub("[\\/:*?\"<>|]", "_")
 
     -- REFACTOR: allow proper Profile integration
     return string.format("%s/Profiles/Default/%s/%s", mcmDirectory, directory, self.FileName)
@@ -67,26 +53,10 @@ function SettingsFile:Load()
             self.Data = parsed
         else
             MCMWarn(0, "JsonAdapter: Failed to parse JSON for: %s. MCM keeps the file unchanged and does not save values to it. Repair or delete the file, then reload.", self.FilePath)
-            self.Data = {}
             self.Unreadable = true
         end
-    else
-        -- File doesn't exist yet, start empty
-        self.Data = {}
     end
     self.Loaded = true
-end
-
---- Saves the current data to disk, unless the file is unreadable.
----@return boolean saved
-function SettingsFile:Save()
-    if self.Unreadable then
-        MCMDebug(1, "JsonAdapter: Not saving to unreadable file: %s", self.FilePath)
-        return false
-    end
-    local content = Ext.Json.Stringify(self.Data)
-    Ext.IO.SaveFile(self.FilePath, content)
-    return true
 end
 
 function SettingsFile:Get(key)
@@ -102,10 +72,7 @@ function SettingsFile:Set(key, value)
         return false
     end
     self.Data[key] = value
-
-    if self.AutoSave then
-        self:Save()
-    end
+    Ext.IO.SaveFile(self.FilePath, Ext.Json.Stringify(self.Data))
     return true
 end
 
@@ -115,10 +82,10 @@ end
 -- =============================================================================
 
 local IStorageAdapter = Ext.Require("Shared/DynamicSettings/Adapters/IStorageAdapter.lua")
-local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
 ---@class JsonStorageManager : IStorageAdapter
-local JsonStorageManager = {}
+JsonStorageManager = {}
 setmetatable(JsonStorageManager, { __index = IStorageAdapter })
 JsonStorageManager.__index = JsonStorageManager
 JsonStorageManager._cache = {} -- table<string, table<string, SettingsFile>> cache[moduleUUID][fileName]
@@ -142,7 +109,7 @@ JsonStorageManager.DEFAULTS = {
 function JsonStorageManager:_getFileHandler(uuid, fileName)
     self._cache[uuid] = self._cache[uuid] or {}
     if not self._cache[uuid][fileName] then
-        self._cache[uuid][fileName] = SettingsFile:new(uuid, fileName, true)
+        self._cache[uuid][fileName] = SettingsFile:new(uuid, fileName)
     end
     return self._cache[uuid][fileName]
 end
@@ -216,8 +183,6 @@ end
 ---@param storageConfig? table Optional storage-specific configuration
 ---@return StorageValue
 function JsonStorageManager:GetValue(key, moduleUUID, storageConfig)
-    if not moduleUUID then return nil end
-
     local cached = StorageSyncService:GetCachedValue("json", moduleUUID, key)
     if cached ~= nil then
         return cached
@@ -234,8 +199,6 @@ end
 ---@param storageConfig? table Optional storage configuration; the file comes from registration
 ---@return boolean saved False when the variable's file is unreadable
 function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)
-    if not moduleUUID then return false end
-
     local handler = self:_getFileHandler(moduleUUID, self:_resolveFileName(moduleUUID, key))
     if not handler:Set(key, value) then
         return false
@@ -252,28 +215,17 @@ function JsonStorageManager:GetAllValues()
     for moduleUUID, handlers in pairs(self._cache) do
         result[moduleUUID] = result[moduleUUID] or {}
         for fileName, handler in pairs(handlers) do
-            handler:Load()
-            if type(handler.Data) == "table" then
-                for key, value in pairs(handler.Data) do
-                    -- Skip stale keys left in a file the variable is not registered to.
-                    if self:_resolveFileName(moduleUUID, key) == fileName then
-                        result[moduleUUID][key] = value
-                    end
+            -- Every caller of _getFileHandler loads the file before GetAllValues can see the handler.
+            for key, value in pairs(handler.Data) do
+                -- Skip stale keys left in a file the variable is not registered to.
+                if self:_resolveFileName(moduleUUID, key) == fileName then
+                    result[moduleUUID][key] = value
                 end
             end
         end
     end
 
     return result
-end
-
---- Force save all loaded files
-function JsonStorageManager:SaveAll()
-    for _, handlers in pairs(self._cache) do
-        for _, handler in pairs(handlers) do
-            handler:Save()
-        end
-    end
 end
 
 StorageSyncService:RegisterStorageAdapter("json", JsonStorageManager)

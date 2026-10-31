@@ -5,7 +5,7 @@ local ModConfigAdapter = Ext.Require("Shared/DynamicSettings/Adapters/ModConfigA
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
 
 ---@class AdapterFactory
-local AdapterFactory = {
+AdapterFactory = {
     ---@enum StorageType
     StorageType = {
         ModVar = "modvar",

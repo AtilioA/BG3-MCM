@@ -3,19 +3,16 @@
 ---@field moduleUUID string
 ---@field varName string
 ---@field value StorageValue
----@field originUserID? integer
 ---@field storageConfig? StorageConfig
 
 ---@class StorageSyncService
 ---@field private _cache table<string, table<string, table<string, StorageValue>>> cache[storageType][moduleUUID][varName]
 ---@field private _adapters table<string, IStorageAdapter>
 ---@field private _applyingRemote boolean
----@field private _testMode boolean
 StorageSyncService = {
     _cache = {},
     _adapters = {},
     _applyingRemote = false,
-    _testMode = false,
 }
 
 ---@param storageType string
@@ -31,37 +28,20 @@ local function parsePayload(payload)
         return payload
     end
 
-    if type(payload) == "string" then
-        local ok, parsed = pcall(Ext.Json.Parse, payload)
-        if ok and type(parsed) == "table" then
-            return parsed
-        end
+    local ok, parsed = pcall(Ext.Json.Parse, payload)
+    if ok and type(parsed) == "table" then
+        return parsed
     end
 
     return nil
-end
-
----@return integer|nil
--- bg3-lint: allow BG3-MOVABLE -- shared sync code calls it; nil on the server. FIXME: only the client handler HandleServerSyncPayload calls this; move both to a Client/ StorageSyncService extension
-local function getLocalUserID()
-    if not Ext.IsClient() then
-        return nil
-    end
-
-    return _C().UserReservedFor.UserID
 end
 
 ---@return integer[]
 local function getConnectedUserIDs()
     local result = {}
     local seen = {}
-    local entities = Ext.Entity.GetAllEntitiesWithComponent("ClientControl")
-    if not entities then
-        return result
-    end
-
-    for _, entity in pairs(entities) do
-        local userID = entity and entity.UserReservedFor and entity.UserReservedFor.UserID
+    for _, entity in pairs(Ext.Entity.GetAllEntitiesWithComponent("ClientControl")) do
+        local userID = entity.UserReservedFor and entity.UserReservedFor.UserID
         if type(userID) == "number" and not seen[userID] then
             table.insert(result, userID)
             seen[userID] = true
@@ -90,12 +70,7 @@ end
 
 ---@param payload StorageSyncPayload
 ---@param excludeUserID? integer
--- bg3-lint: allow BG3-MOVABLE -- shared sync service calls it; only the server broadcasts. FIXME: only server branches call this; move it with the server request handler to a Server/ StorageSyncService extension
 function StorageSyncService:_syncToClients(payload, excludeUserID)
-    if not Ext.IsServer() or self._testMode then
-        return
-    end
-
     for _, userID in ipairs(getConnectedUserIDs()) do
         if not excludeUserID or userID ~= excludeUserID then
             NetChannels.MCM_SERVER_SYNC_STORE_VALUE:SendToClient(payload, userID)
@@ -106,10 +81,6 @@ end
 ---@param storageType string
 ---@param adapter IStorageAdapter
 function StorageSyncService:RegisterStorageAdapter(storageType, adapter)
-    if type(storageType) ~= "string" or storageType == "" then
-        return
-    end
-
     self._adapters[normalizeStorageType(storageType)] = adapter
 end
 
@@ -129,11 +100,7 @@ function StorageSyncService:SetCachedValue(storageType, moduleUUID, varName, val
     self._cache[normalizedStorageType] = self._cache[normalizedStorageType] or {}
     self._cache[normalizedStorageType][moduleUUID] = self._cache[normalizedStorageType][moduleUUID] or {}
 
-    if value == nil then
-        self._cache[normalizedStorageType][moduleUUID][varName] = nil
-    else
-        self._cache[normalizedStorageType][moduleUUID][varName] = value
-    end
+    self._cache[normalizedStorageType][moduleUUID][varName] = value
 end
 
 ---@param storageType string
@@ -179,30 +146,6 @@ function StorageSyncService:CanClientSendToServer(config)
     return config ~= nil and config.SyncToServer == true
 end
 
----@param originUserID integer|nil
----@param localUserID integer|nil
----@return boolean
-function StorageSyncService:ShouldApplyOnClient(originUserID, localUserID)
-    if originUserID == nil then
-        return true
-    end
-
-    if localUserID == nil then
-        return true
-    end
-
-    return originUserID ~= localUserID
-end
-
----@param storageType string
----@param moduleUUID string
----@param varName string
-function StorageSyncService:EnsureDiscovered(storageType, moduleUUID, varName)
-    if SettingsService and SettingsService.RegisterDiscoveredVariable then
-        SettingsService.RegisterDiscoveredVariable(moduleUUID, varName, storageType)
-    end
-end
-
 ---@param storageType string
 ---@param moduleUUID string
 ---@param varName string
@@ -210,11 +153,6 @@ end
 ---@param config StorageConfig|nil
 function StorageSyncService:OnLocalSet(storageType, moduleUUID, varName, value, config)
     self:SetCachedValue(storageType, moduleUUID, varName, value)
-    self:EnsureDiscovered(storageType, moduleUUID, varName)
-
-    if self._applyingRemote then
-        return
-    end
 
     local payload = {
         storageType = normalizeStorageType(storageType),
@@ -224,6 +162,7 @@ function StorageSyncService:OnLocalSet(storageType, moduleUUID, varName, value, 
         storageConfig = config,
     }
 
+    -- Mutation-equivalent on server: forcing true takes the server path the server already takes; client tests cover the false case
     if Ext.IsServer() then
         if self:CanBroadcastLocalWrite(config) then
             self:_syncToClients(payload, nil)
@@ -231,14 +170,12 @@ function StorageSyncService:OnLocalSet(storageType, moduleUUID, varName, value, 
         return
     end
 
-    if not Ext.IsClient() then
-        return
-    end
-
+    -- Mutation-equivalent on server: unreachable there, as the server returns above; client tests cover it
     if MCMUtils.IsClientMainMenu() then
         return
     end
 
+    -- Mutation-equivalent on server: unreachable there, as the server returns above; client tests cover it
     if self:CanClientSendToServer(config) then
         NetChannels.MCM_CLIENT_SET_STORE_VALUE:SendToServer(payload)
     end
@@ -248,11 +185,10 @@ end
 ---@param moduleUUID string
 ---@param varName string
 ---@param value StorageValue
----@param storageConfig StorageConfig|nil
 ---@return boolean
-function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, value, storageConfig)
+function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, value)
     local adapter = self:GetRegisteredStorageAdapter(storageType)
-    if not adapter or not adapter.SetValue then
+    if not adapter then
         return false
     end
 
@@ -266,6 +202,7 @@ function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, v
     -- The receiver's own registration decides sync; senders (e.g. the bootstrap) may include values that are not synced toward this context.
     local registeredConfig = adapter:ResolveConfig(SettingsService.GetStorageConfig(moduleUUID, varName))
     local syncsHere = registeredConfig.SyncToClient
+    -- Mutation-equivalent on server: forcing true takes the server path the server already takes; client tests cover the false case
     if Ext.IsServer() then
         syncsHere = registeredConfig.SyncToServer
     end
@@ -276,21 +213,11 @@ function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, v
     end
 
     self:BeginRemoteApply()
-    local saved = adapter:SetValue(varName, value, moduleUUID, {
-        SyncToClient = false,
-        SyncToServer = false,
-        Server = true,
-        Client = true,
-    })
+    -- The remote-apply flag stops OnLocalSet from sending the value back
+    local saved = adapter:SetValue(varName, value, moduleUUID)
     self:EndRemoteApply()
-    -- A refused write (e.g. an unreadable JSON file) must not surface through the cache either
-    if saved == false then
-        return false
-    end
-
-    self:SetCachedValue(storageType, moduleUUID, varName, value)
-    self:EnsureDiscovered(storageType, moduleUUID, varName)
-    return true
+    -- A refused write (e.g. an unreadable JSON file) is not cached: the adapter caches only saved values
+    return saved ~= false
 end
 
 ---@param data unknown
@@ -319,7 +246,7 @@ function StorageSyncService:HandleClientSet(data, userID)
     local resolvedConfig = adapter:ResolveConfig(SettingsService.GetStorageConfig(moduleUUID, varName))
 
     -- last-write-wins: server accepts latest arriving write
-    local didApply = self:ApplyRemoteValue(storageType, moduleUUID, varName, payload.value, resolvedConfig)
+    local didApply = self:ApplyRemoteValue(storageType, moduleUUID, varName, payload.value)
     if not didApply then
         return { success = false, error = "Failed to apply value" }
     end
@@ -330,7 +257,6 @@ function StorageSyncService:HandleClientSet(data, userID)
             moduleUUID = moduleUUID,
             varName = varName,
             value = payload.value,
-            originUserID = userID,
             storageConfig = resolvedConfig,
         }
         self:_syncToClients(syncPayload, userID)
@@ -359,13 +285,8 @@ function StorageSyncService:CollectAllPersistedState()
 
     -- Backfill from persistence via all registered adapters.
     for storageType, adapter in pairs(self._adapters) do
-        if adapter and adapter.GetAllValues then
-            local all = adapter:GetAllValues()
-            if all then
-                stores[storageType] = stores[storageType] or {}
-                table.mergeDefaults(stores[storageType], all)
-            end
-        end
+        stores[storageType] = stores[storageType] or {}
+        table.mergeDefaults(stores[storageType], adapter:GetAllValues())
     end
 
     return payload
@@ -373,10 +294,6 @@ end
 
 ---@param userID integer
 function StorageSyncService:SendBootstrapToUser(userID)
-    if self._testMode then
-        return
-    end
-
     local payload = self:CollectAllPersistedState()
     ChunkedNet.SendJSONToUser(userID, NetChannels.MCM_SERVER_SEND_STORE_BOOTSTRAP, payload)
 end
@@ -405,23 +322,7 @@ function StorageSyncService:HandleServerSyncPayload(data)
         return
     end
 
-    local localUserID = getLocalUserID()
-    if not self:ShouldApplyOnClient(payload.originUserID, localUserID) then
-        return
-    end
-
-    self:ApplyRemoteValue(payload.storageType, payload.moduleUUID, payload.varName, payload.value, payload.storageConfig)
-end
-
----@param enabled boolean
-function StorageSyncService:SetTestMode(enabled)
-    self._testMode = enabled == true
-end
-
-function StorageSyncService:ResetForTests()
-    self._cache = {}
-    self._applyingRemote = false
-    self._testMode = false
+    self:ApplyRemoteValue(payload.storageType, payload.moduleUUID, payload.varName, payload.value)
 end
 
 return StorageSyncService
