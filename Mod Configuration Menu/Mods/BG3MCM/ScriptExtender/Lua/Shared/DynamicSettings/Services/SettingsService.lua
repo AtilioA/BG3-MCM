@@ -179,7 +179,7 @@ function SettingsService.Get(moduleUUID, varName)
 
     local entry = getStorageBucket(moduleUUID, storageType)[varName]
     local adapter = AdapterFactory.GetAdapter(storageType)
-    local raw = adapter:GetValue(varName, moduleUUID, entry.storageConfig) or nil
+    local raw = adapter:GetValue(varName, moduleUUID, entry.storageConfig)
 
     -- If nil, return registered default
     if raw == nil then
@@ -282,7 +282,7 @@ function SettingsService.Set(moduleUUID, varName, newValue)
         return false
     end
 
-    local oldValue = table.deepcopy(adapter:GetValue(varName, moduleUUID, entry.storageConfig) or nil)
+    local oldValue = table.deepcopy(adapter:GetValue(varName, moduleUUID, entry.storageConfig))
     -- A refused write (e.g. an unreadable JSON file) keeps the old value; the adapter logs why
     if adapter:SetValue(varName, result, moduleUUID, entry.storageConfig) == false then
         return false
