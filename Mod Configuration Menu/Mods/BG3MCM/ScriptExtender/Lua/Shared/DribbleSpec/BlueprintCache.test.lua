@@ -55,7 +55,7 @@ local function CountBuilds()
     return builds
 end
 
-D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
+D.describe("BlueprintCache", { tags = { "blueprint-cache", "blueprint", "unit" } }, function()
     local originalModConfigMods
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
@@ -131,6 +131,64 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
         BlueprintCache:ApplyMCMSettings()
 
         D.expect(CountBuilds()).toBe(1)
+    end)
+
+    D.test("TestBlueprintCacheDropsEntriesWhenDisabled", function()
+        local root = {}
+        local builds = 0
+        local function build()
+            builds = builds + 1
+            return {}
+        end
+
+        BlueprintCache:GetOrBuild(root, build)
+        BlueprintCache:SetCacheEnabled(false)
+        BlueprintCache:SetCacheEnabled(true)
+        BlueprintCache:GetOrBuild(root, build)
+
+        D.expect(builds).toBe(2)
+    end)
+
+    D.test("TestBlueprintCacheApplyMCMSettingsWithoutMCMAPIKeepsCache", function(ctx)
+        local mcmApi = Mods.BG3MCM.MCMAPI
+        Mods.BG3MCM.MCMAPI = nil
+        ctx.sandbox:TrackRestore(function()
+            Mods.BG3MCM.MCMAPI = mcmApi
+        end)
+
+        BlueprintCache:ApplyMCMSettings()
+
+        D.expect(CountBuilds()).toBe(1)
+    end)
+
+    D.test("TestBlueprintCacheAppliesSettingsOnlyForMCMCacheSettings", function(ctx)
+        ctx.stub(MCMAPI, "GetSettingValue", function(_self, settingId, _modUUID)
+            if settingId == "debug_level" then
+                return 1
+            end
+
+            if settingId == "enable_blueprint_cache" then
+                return false
+            end
+        end)
+
+        for _, payload in ipairs({
+            {},
+            { modUUID = TestConstants.ModuleUUIDs[1], settingId = "debug_level" },
+            { modUUID = ModuleUUID },
+            { modUUID = ModuleUUID, settingId = "other_setting" },
+        }) do
+            BlueprintCache.OnInternalSettingSaved(payload)
+            D.expect(CountBuilds()).toBe(1)
+        end
+        BlueprintCache.OnInternalSettingSaved(nil)
+        D.expect(CountBuilds()).toBe(1)
+
+        for _, settingId in ipairs({ "debug_level", "enable_blueprint_cache" }) do
+            BlueprintCache:SetCacheEnabled(true)
+            BlueprintCache.OnInternalSettingSaved({ modUUID = ModuleUUID, settingId = settingId })
+            D.expect(CountBuilds()).toBe(2)
+        end
     end)
 
     D.test("TestBlueprintCacheInvalidatesAfterAddSetting", function()
