@@ -1,21 +1,22 @@
---- Create a fixture that isolates mutable storage-sync service and adapter state.
+--- Create a fixture that isolates storage-sync state, file writes, and network sends.
+--- Writes are deny-by-default: every Ext.IO write goes to an in-memory map, whatever the path.
 ---@param storageSyncService StorageSyncService
 ---@param jsonAdapter JsonStorageManager
 ---@param settingsService SettingsService
 ---@return table fixture
 return function(storageSyncService, jsonAdapter, settingsService)
     local previousState
-    local filesToRestore = {}
     local fixture = {}
 
-    --- Replace test-owned state while retaining the live tables for restoration.
+    --- Replace test-owned state and stub writes, sends, and mod events for the current test.
+    --- The test sandbox restores the stubs after afterEach, even when the test fails.
+    ---@param ctx table DribbleSpec test context
     ---@return nil
-    function fixture:Isolate()
-        filesToRestore = {}
+    -- bg3-lint: allow BG3-ENGINE-WRITE -- a mutant can move a write to any path, so no wrapper or path prefix can contain it
+    function fixture:Isolate(ctx)
         previousState = {
             cache = storageSyncService._cache,
             applyingRemote = storageSyncService._applyingRemote,
-            testMode = storageSyncService._testMode,
             jsonCache = jsonAdapter._cache,
             jsonFileNames = jsonAdapter._fileNames,
             settingsSchema = settingsService.schema,
@@ -24,52 +25,61 @@ return function(storageSyncService, jsonAdapter, settingsService)
 
         storageSyncService._cache = {}
         storageSyncService._applyingRemote = false
-        storageSyncService._testMode = false
         jsonAdapter._cache = {}
         jsonAdapter._fileNames = {}
         settingsService.schema = {}
         settingsService.varToStorageType = {}
+
+        local files = {}
+        local realLoadFile = Ext.IO.LoadFile
+        self.files = files
+        self.sentToClients = {}
+        self.sentToServer = {}
+        self.bootstrapSends = {}
+        self.emittedEvents = {}
+
+        ctx.stub(Ext.IO, "SaveFile", function(path, content)
+            files[path] = content
+            return true
+        end)
+        ctx.stub(Ext.IO, "AppendFile", function(path, content)
+            files[path] = (files[path] or realLoadFile(path) or "") .. content
+            return true
+        end)
+        ctx.stub(Ext.IO, "LoadFile", function(path, ...)
+            if files[path] ~= nil then
+                return files[path]
+            end
+            return realLoadFile(path, ...)
+        end)
+        ctx.stub(NetChannels.MCM_SERVER_SYNC_STORE_VALUE, "SendToClient", function(_channel, payload, userID)
+            table.insert(self.sentToClients, { payload = payload, userID = userID })
+        end)
+        ctx.stub(NetChannels.MCM_CLIENT_SET_STORE_VALUE, "SendToServer", function(_channel, payload)
+            table.insert(self.sentToServer, payload)
+        end)
+        ctx.stub(ChunkedNet, "SendJSONToUser", function(userID, channel, payload)
+            table.insert(self.bootstrapSends, { userID = userID, channel = channel, payload = payload })
+        end)
+        ctx.stub(ModEventManager, "Emit", function(_manager, eventName, eventData, bothContexts)
+            table.insert(self.emittedEvents, { name = eventName, data = eventData, bothContexts = bothContexts })
+        end)
     end
 
-    --- Remember bytes before a test can write to this fixture or routing destination.
-    ---@param path string Script Extender-relative file path
-    ---@return nil
-    function fixture:RememberFile(path)
-        if not filesToRestore[path] then
-            filesToRestore[path] = { content = Ext.IO.LoadFile(path) }
-        end
-    end
-
-    --- Restore files and live state, reporting file failures after state cleanup.
+    --- Restore live state.
     ---@return nil
     function fixture:Restore()
         if not previousState then
             return
         end
 
-        local failures = {}
-        for path, snapshot in pairs(filesToRestore) do
-            if Ext.IO.LoadFile(path) ~= snapshot.content then
-                local expectedContent = snapshot.content or ""
-                local restored = Ext.IO.SaveFile(path, expectedContent)
-                if not restored or Ext.IO.LoadFile(path) ~= expectedContent then
-                    table.insert(failures, path)
-                end
-            end
-        end
-
         storageSyncService._cache = previousState.cache
         storageSyncService._applyingRemote = previousState.applyingRemote
-        storageSyncService._testMode = previousState.testMode
         jsonAdapter._cache = previousState.jsonCache
         jsonAdapter._fileNames = previousState.jsonFileNames
         settingsService.schema = previousState.settingsSchema
         settingsService.varToStorageType = previousState.settingsVarToStorageType
         previousState = nil
-        filesToRestore = {}
-        if #failures > 0 then
-            error("Failed to restore DribbleSpec Store fixture files: " .. table.concat(failures, ", "))
-        end
     end
 
     return fixture

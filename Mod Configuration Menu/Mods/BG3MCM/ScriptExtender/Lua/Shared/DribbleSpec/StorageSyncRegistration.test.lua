@@ -1,5 +1,4 @@
 -- Covers where remote Store values are persisted: only registered JSON variables are written, in their registered file (ticket 07).
--- Ext.IO cannot delete files; these tests restore the fixture file's prior bytes after each test.
 
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
@@ -36,12 +35,11 @@ local function ReadStoreFile(fileName)
     return Ext.Json.Parse(content)
 end
 
-D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit", "destructive" } }, function()
+D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit" } }, function()
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
-    D.beforeEach(function()
-        syncStateFixture:Isolate()
-        syncStateFixture:RememberFile(StoreFilePath(DEFAULT_FILE_NAME))
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
     end)
 
     D.afterEach(function()
@@ -50,10 +48,6 @@ D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit
 
     local function registerFixtureVar(varName, options)
         return MCM.Store.RegisterVar(varName, options)
-    end
-
-    local function rememberFile(fileName)
-        syncStateFixture:RememberFile(StoreFilePath(fileName))
     end
 
     D.test("TestRemoteJsonValueForUnregisteredVariableIsNotWritten", function(ctx)
@@ -80,7 +74,6 @@ D.describe("StorageSync registration", { tags = { "storage-sync", "store", "unit
 
     D.test("TestRemoteJsonValueForRegisteredVariableGoesToRegisteredFile", function()
         local varName = "dribblespec_sync_registered_file_" .. CONTEXT
-        rememberFile(TEST_FILE_NAME)
         -- Both receiving contexts accept this fixture; remote application must not echo it.
         D.expect(registerFixtureVar(varName, {
             storageConfig = { fileName = TEST_FILE_NAME, SyncToServer = true, SyncToClient = true },

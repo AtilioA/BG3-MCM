@@ -15,8 +15,8 @@ end
 D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function()
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
-    D.beforeEach(function()
-        syncStateFixture:Isolate()
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
     end)
 
     D.afterEach(function()
@@ -83,25 +83,14 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         local moduleUUID = ModuleUUID
         local varName = "dribblespec_sync_flow_fixture"
         local fileName = "mcm_dribblespec_sync_flow_" .. CONTEXT .. ".json"
-        syncStateFixture:RememberFile(StoreFilePath(fileName))
-        syncStateFixture:RememberFile(StoreFilePath("dynamic_settings.json"))
-        local sent = {}
+        local sent = syncStateFixture.sentToServer
 
         ctx.stub(MCMUtils, "IsClientMainMenu", function() return false end)
-        ctx.stub(NetChannels.MCM_CLIENT_SET_STORE_VALUE, "SendToServer", function(_channel, payload)
-            table.insert(sent, payload)
-        end)
-        ctx.stub(ModEventManager, "Emit", function() end)
 
         D.expect(MCM.Store.RegisterVar(varName, {
             modUUID = moduleUUID,
             storageConfig = { fileName = fileName, SyncToServer = true, SyncToClient = true },
         })).toBe(true)
-
-        local fileHandler = JsonAdapter:_getFileHandler(moduleUUID, fileName)
-        fileHandler.Data = {}
-        fileHandler.Loaded = true
-        fileHandler.AutoSave = false
 
         D.expect(MCM.Store.Set({ var = varName, value = "local-value", modUUID = moduleUUID })).toBe(true)
         D.expect(MCM.Store.Get({ var = varName, modUUID = moduleUUID })).toBe("local-value")
@@ -165,7 +154,6 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "unit" } }, function
         local varName = "dribblespec_cache_false_conflict_" .. CONTEXT
         local fileName = "mcm_dribblespec_cache_conflict_" .. CONTEXT .. ".json"
         local path = StoreFilePath(fileName)
-        syncStateFixture:RememberFile(path)
 
         D.expect(JsonAdapter:EnsureRegistered(varName, moduleUUID, { fileName = fileName })).toBe(true)
         D.expect(Ext.IO.SaveFile(path, Ext.Json.Stringify({ [varName] = true }))).toBe(true)

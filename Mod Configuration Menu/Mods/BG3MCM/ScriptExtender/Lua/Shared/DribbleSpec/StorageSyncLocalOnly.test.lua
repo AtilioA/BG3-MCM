@@ -1,9 +1,10 @@
 -- Covers the receiver's own sync flags for remote Store values: a variable registered without sync toward this context keeps its local value.
--- Ext.IO cannot delete files; tests clear their keys so the fixture files hold no values afterwards.
 
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
 
--- Both contexts share disk, but each JSON handler saves its own complete in-memory copy.
 local CONTEXT = Ext.IsServer() and "server" or "client"
 local TEST_FILE_NAME = "mcm_dribblespec_sync_local_only_" .. CONTEXT .. ".json"
 
@@ -36,7 +37,17 @@ local function ReceiveRemoteValue(varName, value)
     end
 end
 
-D.describe("StorageSync local-only", { tags = { "storage-sync", "store", "unit", "destructive" } }, function()
+D.describe("StorageSync local-only", { tags = { "storage-sync", "store", "unit" } }, function()
+    local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
+
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
+    end)
+
+    D.afterEach(function()
+        syncStateFixture:Restore()
+    end)
+
     D.test("TestRemoteValueDoesNotOverwriteLocalOnlyVariable", function()
         local varName = "dribblespec_sync_local_only_" .. CONTEXT
         D.expect(MCM.Store.RegisterVar(varName, {
@@ -47,8 +58,6 @@ D.describe("StorageSync local-only", { tags = { "storage-sync", "store", "unit",
         ReceiveRemoteValue(varName, "remote-value")
         local fileValue = ReadStoreFile(TEST_FILE_NAME)[varName]
         local storedValue = MCM.Store.Get(varName)
-
-        MCM.Store.Set(varName, nil)
 
         D.expect(fileValue).toBe("local-value")
         D.expect(storedValue).toBe("local-value")
@@ -63,8 +72,6 @@ D.describe("StorageSync local-only", { tags = { "storage-sync", "store", "unit",
 
         ReceiveRemoteValue(varName, "remote-value")
         local fileValue = ReadStoreFile(TEST_FILE_NAME)[varName]
-
-        MCM.Store.Set(varName, nil)
 
         D.expect(fileValue).toBe("remote-value")
     end)

@@ -1,7 +1,5 @@
 -- Covers MCM.Store JSON placement via storageConfig.fileName (ADR 0002).
--- Ext.IO cannot delete files; these tests restore the fixture files' prior bytes after each test.
 
--- Both contexts share disk, but each JSON handler saves its own complete in-memory copy.
 local DEFAULT_FILE_NAME = "dynamic_settings.json"
 local CONTEXT = Ext.IsServer() and "server" or "client"
 local TEST_FILE_NAME = "mcm_dribblespec_store_file_" .. CONTEXT .. ".json"
@@ -30,12 +28,11 @@ local function ReadStoreFile(fileName)
     return Ext.Json.Parse(content)
 end
 
-D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, function()
+D.describe("MCM.Store fileName", { tags = { "store", "unit" } }, function()
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
-    D.beforeEach(function()
-        syncStateFixture:Isolate()
-        syncStateFixture:RememberFile(StoreFilePath(DEFAULT_FILE_NAME))
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
     end)
 
     D.afterEach(function()
@@ -46,17 +43,12 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, 
         return MCM.Store.RegisterVar(varName, options)
     end
 
-    local function rememberFile(fileName)
-        syncStateFixture:RememberFile(StoreFilePath(fileName))
-    end
-
     D.test("TestStoreFileNameRoundTripsThroughNamedFile", function()
         local varName = "dribblespec_store_file_round_trip_" .. CONTEXT
         D.expect(registerFixtureVar(varName, {
             storageConfig = { fileName = TEST_FILE_NAME, SyncToClient = false, SyncToServer = false },
         })).toBe(true)
 
-        rememberFile(TEST_FILE_NAME)
         MCM.Store.Set(varName, "stored-value")
         local namedFileValue = ReadStoreFile(TEST_FILE_NAME)[varName]
         local defaultFileValue = ReadStoreFile("dynamic_settings.json")[varName]
@@ -79,8 +71,6 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit", "destructive" } }, 
             storageConfig = { fileName = OTHER_FILE_NAME, SyncToClient = false, SyncToServer = false },
         })).toBe(false)
 
-        rememberFile(TEST_FILE_NAME)
-        rememberFile(OTHER_FILE_NAME)
         MCM.Store.Set(varName, 7)
         local namedFileValue = ReadStoreFile(TEST_FILE_NAME)[varName]
         local otherFileValue = ReadStoreFile(OTHER_FILE_NAME)[varName]

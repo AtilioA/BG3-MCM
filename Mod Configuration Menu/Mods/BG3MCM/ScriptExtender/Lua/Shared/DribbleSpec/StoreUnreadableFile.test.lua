@@ -1,6 +1,4 @@
 -- Covers MCM.Store protection of JSON Store files that cannot be parsed (ADR 0003).
--- Tests isolate adapter state and restore the prior fixture-file bytes after each test.
--- Both contexts share disk, but each JSON handler saves its own complete in-memory copy.
 local DEFAULT_FILE_NAME = "dynamic_settings.json"
 local CONTEXT = Ext.IsServer() and "server" or "client"
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
@@ -18,21 +16,16 @@ local function StoreFilePath(fileName)
     return string.format("%s/Profiles/Default/%s/%s", directory, directory, fileName)
 end
 
-D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive" } }, function()
+D.describe("MCM.Store unreadable file", { tags = { "store", "unit" } }, function()
     local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
-    D.beforeEach(function()
-        syncStateFixture:Isolate()
-        syncStateFixture:RememberFile(StoreFilePath(DEFAULT_FILE_NAME))
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
     end)
 
     D.afterEach(function()
         syncStateFixture:Restore()
     end)
-
-    local function rememberFile(fileName)
-        syncStateFixture:RememberFile(StoreFilePath(fileName))
-    end
 
     local function registerFixtureVar(varName, options)
         return MCM.Store.RegisterVar(varName, options)
@@ -41,7 +34,6 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive
     D.test("TestStoreKeepsUnparsableFileUnchangedAfterSet", function()
         local fileName = "mcm_dribblespec_store_unreadable_set_" .. CONTEXT .. ".json"
         local varName = "dribblespec_store_unreadable_set_" .. CONTEXT
-        rememberFile(fileName)
         Ext.IO.SaveFile(StoreFilePath(fileName), UNREADABLE_CONTENT)
         registerFixtureVar(varName, {
             storageConfig = { fileName = fileName, SyncToClient = false, SyncToServer = false },
@@ -60,8 +52,6 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive
         local readableFileName = "mcm_dribblespec_store_readable_other_" .. CONTEXT .. ".json"
         local unreadableVar = "dribblespec_store_unreadable_other_" .. CONTEXT
         local readableVar = "dribblespec_store_readable_other_" .. CONTEXT
-        rememberFile(unreadableFileName)
-        rememberFile(readableFileName)
         Ext.IO.SaveFile(StoreFilePath(unreadableFileName), UNREADABLE_CONTENT)
         registerFixtureVar(unreadableVar, {
             storageConfig = { fileName = unreadableFileName, SyncToClient = false, SyncToServer = false },
@@ -79,4 +69,5 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit", "destructive
         D.expect(storedValue).toBe(2)
         D.expect(writable).toBe(true)
     end)
+
 end)
