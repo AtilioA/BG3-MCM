@@ -1,8 +1,5 @@
 {
-  "modTable": "BG3MCM",
-  "modDirectory": "BG3MCM",
-  "ownerModuleUUID": "755a8a72-407f-4f0d-9a33-274ac0f0b53d",
-  "luaRoot": "Mod Configuration Menu/Mods/BG3MCM/ScriptExtender/Lua",
+  "mod": "Mod Configuration Menu/Mods/BG3MCM",
   "files": [
     "Shared/Helpers/Validators/CheckboxValidator.lua",
     "Shared/Helpers/Validators/ColorValidator.lua",

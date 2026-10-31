@@ -12,7 +12,7 @@ if Mods.Dribbles then
 
     D = Mods.Dribbles.RegisterTestGlobals({
         commandAlias = "mcm_d",
-        ownerModuleUUID = "755a8a72-407f-4f0d-9a33-274ac0f0b53d",
+        ownerModuleUUID = ModuleUUID,
         beforeRun = SuppressMCMTestLogs,
     })
 
