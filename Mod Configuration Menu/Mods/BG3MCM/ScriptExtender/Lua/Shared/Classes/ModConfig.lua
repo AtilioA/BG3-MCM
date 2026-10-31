@@ -61,21 +61,16 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
         return
     end
 
-    local hasMCMDependency = false
     for _, dependency in pairs(modDependencies) do
         if dependency.ModuleUUID == ModuleUUID then
-            -- MCM is already a dependency, no need to log a warning
-            hasMCMDependency = true
             return
         end
     end
-    if not hasMCMDependency then
-        MCMWarn(0,
-            string.format(
-                "Mod '%s' %s requires MCM but does not have MCM as a dependency. Please contact %s to add MCM as a dependency in the meta.lsx file, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
-                modData.Info.Name, modVersion,
-                modData.Info.Author))
-    end
+    MCMWarn(0,
+        string.format(
+            "Mod '%s' %s requires MCM but does not have MCM as a dependency. Please contact %s to add MCM as a dependency in the meta.lsx file, or add `\"Optional\": true` to the blueprint.\nSee https://wiki.bg3.community/en/Tutorials/General/Basic/adding-mod-dependencies for more information.",
+            modData.Info.Name, modVersion,
+            modData.Info.Author))
 end
 
 --- SECTION: FILE HANDLING
@@ -95,13 +90,11 @@ function ModConfig:SaveSettingsForMod(modUUID)
 
     BlueprintShape:ForEachSetting(blueprint, function(setting, containerPath)
         local settingId = setting:GetId()
-        if settingId then
-            local updatedSetting = settings[settingId]
-            if updatedSetting == nil then
-                updatedSetting = setting:GetDefault()
-            end
-            BlueprintShape:SetNestedSettingValue(updatedSettings, containerPath, settingId, updatedSetting)
+        local updatedSetting = settings[settingId]
+        if updatedSetting == nil then
+            updatedSetting = setting:GetDefault()
         end
+        BlueprintShape:SetNestedSettingValue(updatedSettings, containerPath, settingId, updatedSetting)
     end)
 
     JsonLayer:SaveJSONFile(configFilePath, updatedSettings)
@@ -239,17 +232,8 @@ end
 ---@param modUUID string The UUID of the mod that the blueprint data belongs to
 ---@return nil
 function ModConfig:SubmitBlueprint(data, modUUID)
-    local preprocessedData = DataPreprocessing:PreprocessData(data, modUUID)
-    if not preprocessedData then
-        MCMWarn(0,
-            "Failed to preprocess data for mod: %s. Please contact %s about this issue.",
-            Ext.Mod.GetMod(modUUID).Info.Name,
-            Ext.Mod.GetMod(modUUID).Info.Author)
-        return
-    end
-
     self.mods[modUUID] = {
-        blueprint = Blueprint:New(preprocessedData),
+        blueprint = Blueprint:New(DataPreprocessing:PreprocessData(data, modUUID)),
     }
 
     local modBlueprint = self.mods[modUUID].blueprint
@@ -276,10 +260,7 @@ function ModConfig:LoadBlueprintForMod(uuid)
     MCMDebug(3, "Checking mod: %s", modData.Info.Name)
 
     local status, err = pcall(function()
-        local data = JsonLayer:LoadBlueprintForMod(modData)
-        if data then
-            self:SubmitBlueprint(data, modData.Info.ModuleUUID)
-        end
+        self:SubmitBlueprint(JsonLayer:LoadBlueprintForMod(modData), modData.Info.ModuleUUID)
     end)
 
     if not status then

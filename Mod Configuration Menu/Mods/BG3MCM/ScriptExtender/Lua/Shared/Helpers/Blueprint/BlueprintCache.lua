@@ -8,56 +8,39 @@
 ---@field hasAnySettings boolean
 
 ---@class BlueprintCache
+---@field private enabled boolean
+---@field private caches table<table, BlueprintCacheIndex>
 BlueprintCache = _Class:Create("BlueprintCache", nil)
 
-local cacheEnabled = true
-local caches = setmetatable({}, { __mode = "k" })
+BlueprintCache.enabled = true
+BlueprintCache.caches = setmetatable({}, { __mode = "k" })
 
 ---@param value boolean
 function BlueprintCache:SetCacheEnabled(value)
-    local nextValue = value == true
-    if cacheEnabled == nextValue then
-        return
-    end
-
-    cacheEnabled = nextValue
-    if not cacheEnabled then
-        self:InvalidateAll()
-    end
-end
-
----@return boolean
-function BlueprintCache:IsCacheEnabled()
-    return cacheEnabled
+    self.enabled = value == true
+    self:InvalidateAll()
 end
 
 ---@param root table
 ---@param buildFn fun(root: table): BlueprintCacheIndex
 ---@return BlueprintCacheIndex
 function BlueprintCache:GetOrBuild(root, buildFn)
-    if not cacheEnabled then
+    if not self.enabled then
         return buildFn(root)
     end
 
-    local cached = caches[root]
+    local cached = self.caches[root]
     if cached then
         return cached
     end
 
     cached = buildFn(root)
-    caches[root] = cached
+    self.caches[root] = cached
     return cached
 end
 
----@param root table|nil
-function BlueprintCache:Invalidate(root)
-    if root then
-        caches[root] = nil
-    end
-end
-
 function BlueprintCache:InvalidateAll()
-    caches = setmetatable({}, { __mode = "k" })
+    self.caches = setmetatable({}, { __mode = "k" })
 end
 
 function BlueprintCache:ApplyMCMSettings()
@@ -70,14 +53,17 @@ function BlueprintCache:ApplyMCMSettings()
     self:SetCacheEnabled(debugLevel < 1 or userEnabledCache ~= false)
 end
 
-Ext.ModEvents['BG3MCM'][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Subscribe(function(payload)
-    if not payload or payload.modUUID ~= ModuleUUID or not payload.settingId then
+---@param payload table|nil
+function BlueprintCache.OnInternalSettingSaved(payload)
+    if not payload or payload.modUUID ~= ModuleUUID then
         return
     end
 
     if payload.settingId == "debug_level" or payload.settingId == "enable_blueprint_cache" then
         BlueprintCache:ApplyMCMSettings()
     end
-end)
+end
+
+Ext.ModEvents['BG3MCM'][EventChannels.MCM_INTERNAL_SETTING_SAVED]:Subscribe(BlueprintCache.OnInternalSettingSaved)
 
 return BlueprintCache

@@ -37,8 +37,22 @@ local function makeBlueprint()
         },
     })
     -- Cache tests start cold regardless of constructor traversal.
-    BlueprintCache:Invalidate(blueprint)
+    BlueprintCache:InvalidateAll()
     return blueprint
+end
+
+--- Number of index builds for two lookups of one root.
+---@return integer builds
+local function CountBuilds()
+    local root = {}
+    local builds = 0
+    local function build()
+        builds = builds + 1
+        return {}
+    end
+    BlueprintCache:GetOrBuild(root, build)
+    BlueprintCache:GetOrBuild(root, build)
+    return builds
 end
 
 D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
@@ -88,7 +102,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
 
         BlueprintCache:ApplyMCMSettings()
 
-        D.expect(BlueprintCache:IsCacheEnabled()).toBe(false)
+        D.expect(CountBuilds()).toBe(2)
     end)
 
     D.test("TestBlueprintCacheIgnoresDisableSettingWhenDebugHidden", function(ctx)
@@ -104,7 +118,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
 
         BlueprintCache:ApplyMCMSettings()
 
-        D.expect(BlueprintCache:IsCacheEnabled()).toBe(true)
+        D.expect(CountBuilds()).toBe(1)
     end)
 
     D.test("TestBlueprintCacheMissingSettingStaysEnabled", function(ctx)
@@ -116,7 +130,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
 
         BlueprintCache:ApplyMCMSettings()
 
-        D.expect(BlueprintCache:IsCacheEnabled()).toBe(true)
+        D.expect(CountBuilds()).toBe(1)
     end)
 
     D.test("TestBlueprintCacheInvalidatesAfterAddSetting", function()
@@ -167,7 +181,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function(
                 },
             },
         })
-        BlueprintCache:Invalidate(blueprint)
+        BlueprintCache:InvalidateAll()
 
         local setting = blueprint:GetSettingById("dynamic-enum")
         setting:GetOptions().Choices = { "option-1", "option-2" }
