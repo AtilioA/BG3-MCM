@@ -4,6 +4,6 @@
   "ownerModuleUUID": "755a8a72-407f-4f0d-9a33-274ac0f0b53d",
   "luaRoot": "Mod Configuration Menu/Mods/BG3MCM/ScriptExtender/Lua",
   "files": ["Shared/Helpers/Validators/*.lua"],
-  "testFilter": {},
+  "testFilter": { "tags": ["validators"] },
   "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
 }
