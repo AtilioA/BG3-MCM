@@ -5,6 +5,7 @@
     "Shared/DynamicSettings/Services/SettingsService.lua",
     "Shared/DynamicSettings/Adapters/JsonAdapter.lua"
   ],
+  "contexts": ["server", "client"],
   "testFilter": { "tags": ["store"] },
   "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
 }

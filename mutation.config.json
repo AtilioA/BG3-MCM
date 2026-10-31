@@ -18,6 +18,7 @@
     "Shared/Helpers/Validators/TextValidator.lua",
     "Shared/Helpers/PathValidator.lua"
   ],
+  "contexts": ["server", "client"],
   "testFilter": { "tags": ["validators"] },
   "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
 }

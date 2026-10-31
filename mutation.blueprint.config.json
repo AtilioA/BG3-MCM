@@ -5,6 +5,7 @@
     "Shared/Classes/JsonLayer.lua",
     "Shared/Classes/ModConfig.lua"
   ],
+  "contexts": ["server", "client"],
   "testFilter": { "tags": ["blueprint"] },
   "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
 }

@@ -162,7 +162,6 @@ function StorageSyncService:OnLocalSet(storageType, moduleUUID, varName, value, 
         storageConfig = config,
     }
 
-    -- Mutation-equivalent on server: forcing true takes the server path the server already takes; client tests cover the false case
     if Ext.IsServer() then
         if self:CanBroadcastLocalWrite(config) then
             self:_syncToClients(payload, nil)
@@ -170,12 +169,10 @@ function StorageSyncService:OnLocalSet(storageType, moduleUUID, varName, value, 
         return
     end
 
-    -- Mutation-equivalent on server: unreachable there, as the server returns above; client tests cover it
     if MCMUtils.IsClientMainMenu() then
         return
     end
 
-    -- Mutation-equivalent on server: unreachable there, as the server returns above; client tests cover it
     if self:CanClientSendToServer(config) then
         NetChannels.MCM_CLIENT_SET_STORE_VALUE:SendToServer(payload)
     end
@@ -202,7 +199,6 @@ function StorageSyncService:ApplyRemoteValue(storageType, moduleUUID, varName, v
     -- The receiver's own registration decides sync; senders (e.g. the bootstrap) may include values that are not synced toward this context.
     local registeredConfig = adapter:ResolveConfig(SettingsService.GetStorageConfig(moduleUUID, varName))
     local syncsHere = registeredConfig.SyncToClient
-    -- Mutation-equivalent on server: forcing true takes the server path the server already takes; client tests cover the false case
     if Ext.IsServer() then
         syncsHere = registeredConfig.SyncToServer
     end

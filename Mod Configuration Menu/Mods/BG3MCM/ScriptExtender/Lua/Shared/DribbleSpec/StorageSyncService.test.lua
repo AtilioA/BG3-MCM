@@ -105,6 +105,21 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "store", "unit" } },
         D.expect(#sent).toBe(1)
     end)
 
+    D.test("TestStoreSetInTheMainMenuKeepsTheWriteLocal", function(ctx)
+        ctx.requireClient()
+
+        local varName = "dribblespec_sync_main_menu_fixture"
+        ctx.stub(MCMUtils, "IsClientMainMenu", function() return true end)
+
+        D.expect(MCM.Store.RegisterVar(varName, {
+            modUUID = ModuleUUID,
+            storageConfig = { fileName = "mcm_dribblespec_sync_main_menu.json", SyncToServer = true },
+        })).toBe(true)
+        D.expect(MCM.Store.Set({ var = varName, value = "menu-value", modUUID = ModuleUUID })).toBe(true)
+        D.expect(MCM.Store.Get({ var = varName, modUUID = ModuleUUID })).toBe("menu-value")
+        D.expect(#syncStateFixture.sentToServer).toBe(0)
+    end)
+
     D.test("TestJsonResolveConfigAppliesOverridesOnDefaults", function(ctx)
         local cfg = JsonAdapter:ResolveConfig({ SyncToServer = true, Client = false })
         D.expect(cfg).toEqual({

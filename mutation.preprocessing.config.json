@@ -4,6 +4,7 @@
     "Shared/Helpers/Preprocessing/DataPreprocessing.lua",
     "Shared/Helpers/Preprocessing/LoadedSettingsRepair.lua"
   ],
+  "contexts": ["server", "client"],
   "testFilter": { "tags": ["preprocessing"] },
   "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
 }
