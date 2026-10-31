@@ -3,7 +3,24 @@
   "modDirectory": "BG3MCM",
   "ownerModuleUUID": "755a8a72-407f-4f0d-9a33-274ac0f0b53d",
   "luaRoot": "Mod Configuration Menu/Mods/BG3MCM/ScriptExtender/Lua",
-  "files": ["Shared/Helpers/Validators/*.lua"],
+  "files": [
+    "Shared/Helpers/Validators/CheckboxValidator.lua",
+    "Shared/Helpers/Validators/ColorValidator.lua",
+    "Shared/Helpers/Validators/DragFloatValidator.lua",
+    "Shared/Helpers/Validators/DragIntValidator.lua",
+    "Shared/Helpers/Validators/EnumValidator.lua",
+    "Shared/Helpers/Validators/EventButtonValidator.lua",
+    "Shared/Helpers/Validators/FloatUtils.lua",
+    "Shared/Helpers/Validators/FloatValidator.lua",
+    "Shared/Helpers/Validators/IntValidator.lua",
+    "Shared/Helpers/Validators/KeybindingV2Validator.lua",
+    "Shared/Helpers/Validators/ListV2Validator.lua",
+    "Shared/Helpers/Validators/RadioValidator.lua",
+    "Shared/Helpers/Validators/SliderFloatValidator.lua",
+    "Shared/Helpers/Validators/SliderIntValidator.lua",
+    "Shared/Helpers/Validators/TextValidator.lua",
+    "Shared/Helpers/PathValidator.lua"
+  ],
   "testFilter": { "tags": ["validators"] },
   "ignoreCalls": ["MCMPrint", "MCMWarn", "MCMDebug", "MCMSuccess"]
 }

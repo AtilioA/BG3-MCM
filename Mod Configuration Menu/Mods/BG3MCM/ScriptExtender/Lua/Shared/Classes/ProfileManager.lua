@@ -146,7 +146,7 @@ function ProfileManager:CreateProfile(profileName)
     end
 
     -- Validate path components in the profile name
-    local isValid, errorMsg = PathValidator:IsValidPathComponent(profileName, true) -- true for Windows validation
+    local isValid, errorMsg = PathValidator:IsValidPathComponent(profileName)
     if not isValid then
         MCMWarn(1, "Invalid profile name '%s': %s", profileName, errorMsg)
         return false, errorMsg

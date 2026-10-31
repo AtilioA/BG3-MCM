@@ -33,6 +33,28 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(DataPreprocessing:ValidateSetting(setting, "3.14")).toBe(false)
     end)
 
+    D.test("TestValidateIntRejectsNonNumericString", function(ctx)
+        local setting = BlueprintSetting:New({ Id = "test-int", Type = "int", Default = 1 })
+
+        D.expect(IntValidator.Validate(setting, "abc")).toBe(false)
+        D.expect(IntValidator.Validate(setting, {})).toBe(false)
+    end)
+
+    D.test("TestValidateFloatAcceptsValuesWithinEpsilonOfBounds", function(ctx)
+        local setting = BlueprintSetting:New({
+            Id = "test-float-epsilon",
+            Type = "float",
+            Default = 0.5,
+            Options = { Min = 0, Max = 1 }
+        })
+        local eps = FloatUtils.EPSILON
+
+        D.expect(DataPreprocessing:ValidateSetting(setting, 0 - eps)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 1 + eps)).toBe(true)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 0 - 2 * eps)).toBe(false)
+        D.expect(DataPreprocessing:ValidateSetting(setting, 1 + 2 * eps)).toBe(false)
+    end)
+
     D.test("TestValidateCheckboxAcceptsBooleanTrue", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-checkbox",
@@ -162,6 +184,7 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(DataPreprocessing:ValidateSetting(setting, -1)).toBe(false)
         D.expect(DataPreprocessing:ValidateSetting(setting, 50.5)).toBe(false)
         D.expect(DataPreprocessing:ValidateSetting(setting, "50")).toBe(false)
+        D.expect(SliderIntValidator.Validate(setting, "abc")).toBe(false)
     end)
 
     D.test("TestValidateSliderFloatSetting", function(ctx)
@@ -263,6 +286,12 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(DataPreprocessing:ValidateSetting(setting, { 1, 0, 0 })).toBe(false)
         D.expect(DataPreprocessing:ValidateSetting(setting, { 255, 0, 0 })).toBe(false)
         D.expect(DataPreprocessing:ValidateSetting(setting, { 256, 0, 0 })).toBe(false)
+    end)
+
+    D.test("TestValidateColorRejectsWrongLengthAndNonNumericChannels", function(ctx)
+        D.expect(ColorValidator.Validate(nil, { 1, 0, 0, 1, 1 })).toBe(false)
+        D.expect(ColorValidator.Validate(nil, { "a", 0, 0, 1 })).toBe(false)
+        D.expect(ColorValidator.Validate(nil, { -0.1, 0, 0, 1 })).toBe(false)
     end)
 
     D.test("TestValidateKeybindingV2Keyboard", function(ctx)
@@ -480,6 +509,22 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         })).toBe(false)
     end)
 
+    D.test("TestValidateKeybindingV2OptionalFields", function(ctx)
+        D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { ModifierKeys = {} } })).toBe(true)
+        D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { Key = "A" } })).toBe(true)
+        D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { ModifierKeys = {} } })).toBe(true)
+        D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { Button = 3 } })).toBe(true)
+    end)
+
+    D.test("TestValidateKeybindingV2RejectsWrongFieldTypes", function(ctx)
+        D.expect(KeybindingV2Validator.Validate(nil, nil)).toBe(false)
+        D.expect(KeybindingV2Validator.Validate(nil, 5)).toBe(false)
+        D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { Key = 5 } })).toBe(false)
+        D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { Key = "A", ModifierKeys = "LCTRL" } })).toBe(false)
+        D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { Button = "x" } })).toBe(false)
+        D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { Button = 3, ModifierKeys = "LCTRL" } })).toBe(false)
+    end)
+
     D.test("TestValidateKeybindingV2XOR", function(ctx)
         local setting = BlueprintSetting:New({
             Id = "test-xor-binding",
@@ -551,6 +596,14 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         D.expect(DataPreprocessing:ValidateSetting(setting, {
             enabled = true
         })).toBe(false)
+    end)
+
+    D.test("TestValidateListV2RejectsWrongShapes", function(ctx)
+        D.expect(ListV2Validator.Validate(nil, 5)).toBe(false)
+        D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = "x" })).toBe(false)
+        D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = { 5 } })).toBe(false)
+        D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = { { name = "A", enabled = "yes" } } })).toBe(false)
+        D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = { { name = 5, enabled = true } } })).toBe(false)
     end)
 
     D.test("TestValidateEventButtonSetting", function(ctx)

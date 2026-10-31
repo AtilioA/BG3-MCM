@@ -34,10 +34,6 @@ function KeybindingV2Validator.Validate(config, value)
     if hasKeyboard then
         ---@cast keyboard KeybindingKeyboardBinding
         if keyboard.Key then
-            if type(keyboard.Key) ~= "string" then
-                MCMWarn(0, "Validation failed: Keyboard.Key is not a string.")
-                return false
-            end
             if keyboard.Key ~= "" and not table.contains(SDLKeys.ScanCodes, keyboard.Key) then
                 MCMWarn(0, "Validation failed: Invalid key '%s'.", keyboard.Key)
                 return false

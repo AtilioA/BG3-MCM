@@ -167,7 +167,7 @@ function JsonStorageManager:EnsureRegistered(key, moduleUUID, storageConfig)
     -- Same rules as profile names (ProfileManager)
     local valid, reason
     if type(fileName) == "string" then
-        valid, reason = PathValidator:IsValidPathComponent(fileName, true)
+        valid, reason = PathValidator:IsValidPathComponent(fileName)
     else
         valid, reason = false, "must be a string"
     end
