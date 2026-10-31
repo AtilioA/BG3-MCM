@@ -1,3 +1,8 @@
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+
 -- Kept below the MCM package so the loader reads test data through Ext.IO.
 local fixtureRoot = "BG3MCM/ScriptExtender/Lua/Shared/DribbleSpec/Fixtures"
 
@@ -13,6 +18,16 @@ local function fixtureModData(directory)
 end
 
 D.describe("JsonLayer", { tags = { "json-layer", "unit" } }, function()
+    local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
+
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
+    end)
+
+    D.afterEach(function()
+        syncStateFixture:Restore()
+    end)
+
     D.test("formats malformed blueprint error details", function()
         local ok, err = pcall(function()
             JsonLayer:JSONParseError(

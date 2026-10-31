@@ -1,3 +1,8 @@
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+
 local function makeBlueprint()
     local blueprint = Blueprint:New({
         ModUUID = TestConstants.ModuleUUIDs[1],
@@ -36,10 +41,12 @@ local function makeBlueprint()
     return blueprint
 end
 
-    D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
+D.describe("BlueprintCache", { tags = { "blueprint-cache", "unit" } }, function()
     local originalModConfigMods
+    local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
-    D.beforeEach(function()
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
         originalModConfigMods = ModConfig.mods
         BlueprintCache:SetCacheEnabled(true)
         BlueprintCache:InvalidateAll()
@@ -49,6 +56,7 @@ end
         ModConfig.mods = originalModConfigMods
         BlueprintCache:SetCacheEnabled(true)
         BlueprintCache:InvalidateAll()
+        syncStateFixture:Restore()
     end)
 
     D.test("TestBlueprintCacheReturnsSettingsWhenEnabled", function()

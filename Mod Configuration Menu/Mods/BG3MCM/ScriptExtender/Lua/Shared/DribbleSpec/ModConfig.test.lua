@@ -1,38 +1,20 @@
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
+local NewStorageSyncStateFixture = Ext.Require("Shared/DribbleSpec/Fixtures/StorageSyncState.lua")
+
 D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
     local originalMods
-    local filesToRestore = {}
+    local syncStateFixture = NewStorageSyncStateFixture(StorageSyncService, JsonAdapter, SettingsService)
 
-    D.beforeEach(function()
+    D.beforeEach(function(ctx)
+        syncStateFixture:Isolate(ctx)
         originalMods = ModConfig.mods
-        filesToRestore = {}
     end)
 
     D.afterEach(function()
-        local failures = {}
-        for path, snapshot in pairs(filesToRestore) do
-            if Ext.IO.LoadFile(path) ~= snapshot.content then
-                local expectedContent = snapshot.content or ""
-                local restored = Ext.IO.SaveFile(path, expectedContent)
-                local readback = Ext.IO.LoadFile(path)
-                if not restored or readback ~= expectedContent then
-                    local failure = path
-                    if not restored then
-                        failure = failure .. " (SaveFile returned false)"
-                    end
-                    if readback ~= expectedContent then
-                        failure = failure .. " (readback mismatch)"
-                    end
-                    table.insert(failures, failure)
-                end
-            end
-        end
-
         ModConfig.mods = originalMods
-        filesToRestore = {}
-
-        if #failures > 0 then
-            error("Failed to restore DribbleSpec ModConfig fixture files: " .. table.concat(failures, ", "))
-        end
+        syncStateFixture:Restore()
     end)
 
     D.test("TestSaveSettingsForModShouldPersistRootSettings", function(ctx)
@@ -168,7 +150,7 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
         })
     end)
 
-    D.test("TestSaveAndReloadSettingsForModRestoresSavedValues", { tags = { "destructive" } }, function(ctx)
+    D.test("TestSaveAndReloadSettingsForModRestoresSavedValues", function(ctx)
         local modUUID = ModuleUUID
         local settingId = "save-reload-checkbox"
         local blueprint = Blueprint:New({
@@ -178,10 +160,7 @@ D.describe("ModConfig", { tags = { "modconfig", "unit" } }, function()
                 { Id = settingId, Type = "checkbox", Default = true },
             },
         })
-        local context = Ext.IsServer() and "server" or "client"
-        local directory = Ext.Mod.GetMod(ModuleUUID).Info.Directory
-        local path = directory .. "/DribbleSpec/save-reload-" .. context .. ".json"
-        filesToRestore[path] = { content = Ext.IO.LoadFile(path) }
+        local path = "DribbleSpec/save-reload.json"
         local savedData
         local reloadedValue
         ModConfig.mods = {
