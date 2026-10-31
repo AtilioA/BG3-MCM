@@ -6,7 +6,7 @@ DataPreprocessing = _Class:Create("HelperDataPreprocessing", nil)
 --- Validate the settings based on the blueprint and collect any invalid settings
 ---@param blueprint Blueprint The blueprint data
 ---@param settings BlueprintSetting The settings data
----@return boolean, string[] True if all settings are valid, and a list of invalid settings' IDs
+---@return string[] invalidSettings The IDs of the invalid settings
 function DataPreprocessing:ValidateSettings(blueprint, settings)
     local invalidSettings = {}
 
@@ -16,7 +16,7 @@ function DataPreprocessing:ValidateSettings(blueprint, settings)
         end
     end)
 
-    return #invalidSettings == 0, invalidSettings
+    return invalidSettings
 end
 
 --- Validate a single setting based on its type
@@ -50,8 +50,7 @@ end
 ---@param config table<string, any> All the settings for the mod as a flat table of settingId -> value pairs
 ---@return table<string, any> config The updated config table
 function DataPreprocessing:ValidateAndFixSettings(blueprint, config)
-    local isValid, invalidSettings = DataPreprocessing:ValidateSettings(blueprint, config)
-    DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
+    DataPreprocessing:FixInvalidSettings(blueprint, config, DataPreprocessing:ValidateSettings(blueprint, config))
 
     return config
 end
@@ -59,28 +58,25 @@ end
 --- Reset list of settings to their default values
 ---@param blueprint Blueprint The blueprint data
 ---@param config table<string, any> All the settings for the mod as a flat table of settingId -> value pairs
----@param isValid boolean True if all settings are valid, false otherwise
 ---@param invalidSettings string[] The IDs of the settings
 ---@return nil - The config table is updated in place
-function DataPreprocessing:FixInvalidSettings(blueprint, config, isValid, invalidSettings)
-    if not isValid then
-        for _, settingID in ipairs(invalidSettings) do
-            local setting = BlueprintShape:GetSettingById(blueprint, settingID)
-            local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingID)
-            if setting and self:ValidateSetting(setting, defaultValue) then
-                MCMWarn(0,
-                    "Invalid value for setting '%s' (value: %s), resetting it to default value from the blueprint (%s).",
-                    settingID,
-                    Ext.DumpExport(config[settingID]),
-                    Ext.DumpExport(defaultValue))
-                config[settingID] = defaultValue
-            else
-                MCMWarn(0,
-                    "Invalid value for setting '%s' (value: %s). The blueprint default (%s) is also invalid, so the setting could not be repaired. Please contact the mod author about this issue.",
-                    settingID,
-                    Ext.DumpExport(config[settingID]),
-                    Ext.DumpExport(defaultValue))
-            end
+function DataPreprocessing:FixInvalidSettings(blueprint, config, invalidSettings)
+    for _, settingID in ipairs(invalidSettings) do
+        local setting = BlueprintShape:GetSettingById(blueprint, settingID)
+        local defaultValue = blueprint:RetrieveDefaultValueForSetting(settingID)
+        if setting and self:ValidateSetting(setting, defaultValue) then
+            MCMWarn(0,
+                "Invalid value for setting '%s' (value: %s), resetting it to default value from the blueprint (%s).",
+                settingID,
+                Ext.DumpExport(config[settingID]),
+                Ext.DumpExport(defaultValue))
+            config[settingID] = defaultValue
+        else
+            MCMWarn(0,
+                "Invalid value for setting '%s' (value: %s). The blueprint default (%s) is also invalid, so the setting could not be repaired. Please contact the mod author about this issue.",
+                settingID,
+                Ext.DumpExport(config[settingID]),
+                Ext.DumpExport(defaultValue))
         end
     end
 end
@@ -100,8 +96,8 @@ function DataPreprocessing:PreprocessSettings(settings)
             Default = setting.Default,
             Description = setting.Description,
             Tooltip = setting.Tooltip,
-            Options = setting.Options or {},
-            Handles = setting.Handles or {}
+            Options = setting.Options,
+            Handles = setting.Handles
         }))
     end
 
@@ -167,7 +163,7 @@ function DataPreprocessing:PreprocessSection(sectionData, modUUID)
         SectionDescription = sectionData.SectionDescription or sectionData.Description,
         VisibleIf = sectionData.VisibleIf,
         -- TODO: validate Options input
-        Options = sectionData.Options or {},
+        Options = sectionData.Options,
         Tabs = {},
         Settings = {},
         Handles = sectionData.Handles or {}

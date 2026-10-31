@@ -206,14 +206,6 @@ function ModConfig:LoadSettingsForMod(modUUID, blueprint)
     end
 end
 
-function ModConfig:MigrateDeprecatedKeys(blueprint, settings)
-    return LoadedSettingsRepair:MigrateDeprecatedKeys(blueprint, settings)
-end
-
-function ModConfig:HandleListV2SettingMigration(blueprint, setting, settings)
-    return LoadedSettingsRepair:HandleListV2SettingMigration(blueprint, setting, settings)
-end
-
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
 ---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
@@ -239,20 +231,6 @@ function ModConfig:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
     MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
         Ext.Mod.GetMod(modUUID).Info.Name, settingsFilePath)
     JsonLayer:SaveJSONFile(settingsFilePath, defaultSettingsJSON)
-end
-
---- Add missing keys from the settings file based on the blueprint
---- @param blueprint Blueprint The blueprint to use for the settings
---- @param settings BlueprintSetting The settings to update
-function ModConfig:AddKeysMissingFromBlueprint(blueprint, settings)
-    return LoadedSettingsRepair:AddKeysMissingFromBlueprint(blueprint, settings)
-end
-
---- Clean up settings entries that are not present in the blueprint
----@param blueprint Blueprint The blueprint for the mod
----@param settings BlueprintSetting The settings to clean up
-function ModConfig:RemoveDeprecatedKeys(blueprint, settings)
-    return LoadedSettingsRepair:RemoveDeprecatedKeys(blueprint, settings)
 end
 
 --- SECTION: BLUEPRINT HANDLING
