@@ -104,8 +104,7 @@ end
 local function bindMCMButtons()
     isBindScheduled = false
     forEachMCMButton(function(widgetName, button, isMainMenu)
-        local dataContext = button.DataContext
-        if dataContext and dataContext.Type == "se::MCMButtonDC" then return end
+        if button.DataContext.Type == "se::MCMButtonDC" then return end
 
         if isMainMenu then
             setMainMenuButtonHidden(button, MCM.Get("hide_main_menu_mcm_button"))
