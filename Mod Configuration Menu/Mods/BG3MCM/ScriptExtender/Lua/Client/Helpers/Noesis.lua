@@ -73,47 +73,47 @@ local function handleMCMButtonPress(button, hasServer)
     button:Subscribe("PreviewMouseLeftButtonDown", onPointerDown)
 end
 
--- Button name per menu widget; MCM injects the buttons via its XAML overrides.
+-- MCM button per menu widget; MCM injects the buttons via its XAML overrides.
+local GAME_MENU_BUTTON = { name = "MCMButton", hideSetting = "hide_game_menu_mcm_button", hasServer = true }
+local MAIN_MENU_BUTTON = { name = "MCMMainMenuButton", hideSetting = "hide_main_menu_mcm_button", hasServer = false }
 local MCM_BUTTONS = {
-    GameMenu = "MCMButton",
-    GameMenu_c = "MCMButton",
-    MainMenu = "MCMMainMenuButton",
-    MainMenu_c = "MCMMainMenuButton",
+    GameMenu = GAME_MENU_BUTTON,
+    GameMenu_c = GAME_MENU_BUTTON,
+    MainMenu = MAIN_MENU_BUTTON,
+    MainMenu_c = MAIN_MENU_BUTTON,
 }
 local isBindScheduled = false
 local isListening = false
 
---- Calls fn(widgetName, button, isMainMenu) for each MCM button in the open menu widgets. Run inside Ext.UI.Defer.
+--- Calls fn(widgetName, button, buttonConfig) for each MCM button in the open menu widgets. Run inside Ext.UI.Defer.
 local function forEachMCMButton(fn)
     local contentRoot = Ext.UI.GetRoot():Find("ContentRoot")
     for i = 1, contentRoot.ChildrenCount do
         local widget = contentRoot:Child(i)
-        local buttonName = MCM_BUTTONS[widget.Name]
-        local button = buttonName and findNoesisElementByName(widget, buttonName)
+        local buttonConfig = MCM_BUTTONS[widget.Name]
+        local button = buttonConfig and findNoesisElementByName(widget, buttonConfig.name)
         if button then
-            fn(widget.Name, button, buttonName == "MCMMainMenuButton")
+            fn(widget.Name, button, buttonConfig)
         end
     end
 end
 
-local function setMainMenuButtonHidden(button, isHidden)
+local function setButtonHidden(button, isHidden)
     button:SetProperty("Visibility", isHidden and "Collapsed" or "Visible")
 end
 
 --- Binds each MCM button that does not have MCM's DataContext yet.
 local function bindMCMButtons()
     isBindScheduled = false
-    forEachMCMButton(function(widgetName, button, isMainMenu)
+    forEachMCMButton(function(widgetName, button, buttonConfig)
         if button.DataContext.Type == "se::MCMButtonDC" then return end
 
-        if isMainMenu then
-            setMainMenuButtonHidden(button, MCM.Get("hide_main_menu_mcm_button"))
-        end
+        setButtonHidden(button, MCM.Get(buttonConfig.hideSetting))
         local ctx = Ext.UI.Instantiate("se::MCMButtonDC")
         ctx.CustomEvent:SetHandler(function() IMGUIAPI:ToggleMCMWindow(false) end)
         button.DataContext = ctx
         -- Kept for troubleshooting purposes (shows warning)
-        handleMCMButtonPress(button, not isMainMenu)
+        handleMCMButtonPress(button, buttonConfig.hasServer)
         MCMDebug(1, "Bound MCM button in %s", widgetName)
     end)
 end
@@ -138,10 +138,14 @@ function Noesis:ListenForMCMButtons()
 end
 
 ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)
-    if payload.modUUID ~= ModuleUUID or payload.settingId ~= "hide_main_menu_mcm_button" then return end
+    local settingId = payload.settingId
+    if payload.modUUID ~= ModuleUUID
+        or (settingId ~= GAME_MENU_BUTTON.hideSetting and settingId ~= MAIN_MENU_BUTTON.hideSetting) then
+        return
+    end
     Ext.UI.Defer(function()
-        forEachMCMButton(function(_, button, isMainMenu)
-            if isMainMenu then setMainMenuButtonHidden(button, payload.value) end
+        forEachMCMButton(function(_, button, buttonConfig)
+            if buttonConfig.hideSetting == settingId then setButtonHidden(button, payload.value) end
         end)
     end)
 end)

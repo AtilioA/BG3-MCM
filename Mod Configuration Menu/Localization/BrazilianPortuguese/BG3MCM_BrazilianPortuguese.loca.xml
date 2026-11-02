@@ -293,7 +293,9 @@
     <content contentuid="hfd59a213843e4116a1d716a2a8840cd408dc" version="1">Bem-vindo ao MCM 1.38+!&lt;br&gt;A navegação por controles do MCM foi melhorada:&lt;br&gt;- START fecha o MCM,&lt;br&gt;- SELECT/BACK abre o menu lateral,&lt;br&gt;- L1/LB e R1/RB alternam entre as abas.&lt;br&gt;Bom modding!</content>
     <content contentuid="h58020bcb72504ef3a6fad23cdb3819d6gg3d" version="1">Configurações avançadas</content>
     <content contentuid="hd0d22e7238af4415bbab1cb58d0118ea5759" version="1">Esconder botão do MCM no menu principal</content>
-    <content contentuid="h83a20893c0454583b0919d29d4a292c8ae5a" version="1">Esconder o botão que abre a janela do MCM no menu principal.</content>
+    <content contentuid="h83a20893c0454583b0919d29d4a292c8ae5a" version="1">Esconder o botão que abre a janela do MCM no menu principal. O atalho de teclado sempre funcionará.</content>
+    <content contentuid="h8113e9cfbf6ee58ae1e26afeaca4694a2594" version="1">Esconder botão do MCM no menu do jogo</content>
+    <content contentuid="ha52e545fc47c4a64ff9d2ab30c2d18eb6790" version="1">Esconder o botão que abre a janela do MCM no menu do jogo. O atalho de teclado sempre funcionará.</content>
     <content contentuid="h7e2260907ca24449ac99f48ba8c149c6d6bf" version="1">Largura da barra lateral</content>
     <content contentuid="h57d43b08f0974d2683202bc8737416da4740" version="1">A largura da barra lateral em pixels.&lt;br&gt;Como a barra lateral é dinâmica, sua largura expandida só pode ser definida estaticamente (limitação do IMGUI).&lt;br&gt;Isso só terá efeito após re-expandir a barra lateral.</content>
     <content contentuid="h2e2fee5757724d0bb36dc9406bbac89539a1" version="1">Duração da animação da barra lateral (ms)</content>
@@ -307,7 +309,6 @@
     <content contentuid="hb7ab5c14941a4ad2937bd55a042659951217" version="1">Criado!</content>
     <content contentuid="he60a94339e6f4b75849f0f12b58e1b88d907" version="1">Falha na criação</content>
     <content contentuid="hf3ff49ff1f6745f3baab4ed65795b61a300b" version="1">Sem categoria</content>
-    <content contentuid="hfd82935321af4ad0b327de79a102776acf5f" version="1">Erro ao renderizar categoria: [1]</content>
     <content contentuid="h57485812cafd494fb9760145f24a4545529e" version="1">Nenhum atalho nativo encontrado para '[1]'.</content>
     <content contentuid="h8b7aadb821514fb2afdd0f2e6f5db0a4c17g" version="1">Nenhum atalho nativo encontrado.</content>
     <content contentuid="h5fbaa1934264475183db962866b0ffdda1d4" version="1">Clique para desativar '[1]' (sem removê-lo da lista)</content>

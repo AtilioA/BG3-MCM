@@ -162,17 +162,6 @@
                     "SectionName": "Window behavior",
                     "Settings": [
                         {
-                            "Id": "reposition_window_if_out_of_bounds",
-                            "Name": "Reposition window if out of bounds",
-                            "Type": "checkbox",
-                            "Default": true,
-                            "Description": "Automatically reposition the MCM window if it goes outside the screen boundaries.",
-                            "Handles": {
-                                "NameHandle": "h98e72bb15db546859c41ef81ddac77bc5d69",
-                                "DescriptionHandle": "h48cd3bba1b0347f6b8e81cd36f07890de455"
-                            }
-                        },
-                        {
                             "Id": "toggle_detached_with_main",
                             "Name": "Toggle detached windows with main window",
                             "Type": "checkbox",
@@ -264,10 +253,32 @@
                             "Name": "Hide main menu MCM button",
                             "Type": "checkbox",
                             "Default": false,
-                            "Description": "Hide the button that opens the MCM window in the main menu.",
+                            "Description": "Hide the button that opens the MCM window in the main menu. The keybinding will always work.",
                             "Handles": {
                                 "NameHandle": "hd0d22e7238af4415bbab1cb58d0118ea5759",
                                 "DescriptionHandle": "h83a20893c0454583b0919d29d4a292c8ae5a"
+                            }
+                        },
+                        {
+                            "Id": "hide_game_menu_mcm_button",
+                            "Name": "Hide game menu MCM button",
+                            "Type": "checkbox",
+                            "Default": false,
+                            "Description": "Hide the button that opens the MCM window in the game menu. The keybinding will always work.",
+                            "Handles": {
+                                "NameHandle": "h8113e9cfbf6ee58ae1e26afeaca4694a2594",
+                                "DescriptionHandle": "ha52e545fc47c4a64ff9d2ab30c2d18eb6790"
+                            }
+                        },
+                        {
+                            "Id": "reposition_window_if_out_of_bounds",
+                            "Name": "Reposition window if out of bounds",
+                            "Type": "checkbox",
+                            "Default": true,
+                            "Description": "Automatically reposition the MCM window if it goes outside the screen boundaries.",
+                            "Handles": {
+                                "NameHandle": "h98e72bb15db546859c41ef81ddac77bc5d69",
+                                "DescriptionHandle": "h48cd3bba1b0347f6b8e81cd36f07890de455"
                             }
                         }
                     ],
