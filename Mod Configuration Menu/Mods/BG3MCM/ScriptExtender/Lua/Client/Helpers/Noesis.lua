@@ -2,8 +2,7 @@ Noesis = {}
 
 MCM_BUTTON_HANDLE_ORIGINAL_CONTENT = Ext.Loca.GetTranslatedString("h8e2c39a3f3c040aebfb9ad10339dd4ff89f7")
 
-Ext.UI.RegisterType("GameMenuMCMButtonDC", { CustomEvent = { Type = "Command" } })
-Ext.UI.RegisterType("MainMenuMCMButtonDC", { CustomEvent = { Type = "Command" } })
+Ext.UI.RegisterType("MCMButtonDC", { CustomEvent = { Type = "Command" } })
 
 --- Thanks Norbyte for these!
 local function findNoesisElementByName(element, name)
@@ -23,84 +22,6 @@ local function findNoesisElementByName(element, name)
     end
 
     return nil
-end
-
---- Consume the returned object in the same Ext.UI.Defer callback.
-function Noesis:FindWidgetChild(widgetName, name)
-    local uiRoot = Ext.UI.GetRoot()
-    if not uiRoot then
-        return nil
-    end
-
-    local root = uiRoot:Find("ContentRoot")
-    if not root then
-        MCMError(0, "ContentRoot not found")
-        return nil
-    end
-
-    for i = 1, root.ChildrenCount do
-        local widget = root:Child(i)
-        if widget.Name == widgetName then
-            return findNoesisElementByName(widget, name)
-        end
-    end
-    return nil
-end
-
-function Noesis:FindMCMGameMenuButton(isController)
-    if isController then
-        return Noesis:FindMCMGameMenuButton_c()
-    else
-        return Noesis:FindMCMGameMenuButton_k()
-    end
-end
-
-function Noesis:FindMCMGameMenuButton_k()
-    local target = Noesis:FindWidgetChild("GameMenu", "MCMButton")
-    if target then
-        MCMDebug(3, "%s (%s)", target.Type, target:GetProperty("Name") or "")
-        return target
-    else
-        -- MCMDebug(1, "MCMButton not found")
-    end
-end
-
-function Noesis:FindMCMGameMenuButton_c()
-    local target = Noesis:FindWidgetChild("GameMenu_c", "MCMButton")
-    if target then
-        MCMDebug(3, "%s (%s)", target.Type, target:GetProperty("Name") or "")
-        return target
-    else
-        -- MCMDebug(1, "MCMButton not found")
-    end
-end
-
-function Noesis:FindMCMMainMenuButton(isController)
-    if isController then
-        return Noesis:FindMCMMainMenuButton_c()
-    else
-        return Noesis:FindMCMMainMenuButton_k()
-    end
-end
-
-function Noesis:FindMCMMainMenuButton_k()
-    local target = Noesis:FindWidgetChild("MainMenu", "MCMMainMenuButton")
-    if target then
-        MCMDebug(1, "%s (%s)", target.Type, target:GetProperty("Name") or "")
-        return target
-    else
-        MCMDebug(1, "MCMMainMenuButton not found")
-    end
-end
-
-function Noesis:FindMCMMainMenuButton_c()
-    local target = Noesis:FindWidgetChild("MainMenu_c", "MCMMainMenuButton")
-    if target then
-        MCMDebug(1, "%s (%s)", target.Type, target:GetProperty("Name") or "")
-        return target
-    else
-        MCMDebug(1, "MCMMainMenuButton not found")
-    end
 end
 
 -- TODO: move this to a separate file
@@ -152,68 +73,76 @@ local function handleMCMButtonPress(button, hasServer)
     button:Subscribe("PreviewMouseLeftButtonDown", onPointerDown)
 end
 
-function Noesis:HandleGameMenuMCMButtonPress(button)
-    handleMCMButtonPress(button, true)
+-- Button name per menu widget; MCM injects the buttons via its XAML overrides.
+local MCM_BUTTONS = {
+    GameMenu = "MCMButton",
+    GameMenu_c = "MCMButton",
+    MainMenu = "MCMMainMenuButton",
+    MainMenu_c = "MCMMainMenuButton",
+}
+local isBindScheduled = false
+local isListening = false
+
+--- Calls fn(widgetName, button, isMainMenu) for each MCM button in the open menu widgets. Run inside Ext.UI.Defer.
+local function forEachMCMButton(fn)
+    local contentRoot = Ext.UI.GetRoot():Find("ContentRoot")
+    for i = 1, contentRoot.ChildrenCount do
+        local widget = contentRoot:Child(i)
+        local buttonName = MCM_BUTTONS[widget.Name]
+        local button = buttonName and findNoesisElementByName(widget, buttonName)
+        if button then
+            fn(widget.Name, button, buttonName == "MCMMainMenuButton")
+        end
+    end
 end
 
-function Noesis:HandleMainMenuMCMButtonPress(button)
-    handleMCMButtonPress(button, false)
+local function setMainMenuButtonHidden(button, isHidden)
+    button:SetProperty("Visibility", isHidden and "Collapsed" or "Visible")
 end
 
---- Binds the MCM button of each game menu widget that appears during a short search window.
---- The game creates a new widget on each open, so a search started by a closing ESC must not stop at the old widget.
---- @param isController boolean - Whether to search for the button on controller UI or not
-function Noesis:MonitorMCMGameMenuButtonPress(isController)
-    VCTimer:CallWithInterval(function()
-        Ext.UI.Defer(function()
-            local button = Noesis:FindMCMGameMenuButton(isController)
-            if not button then
-                MCMDebug(1, "MCMButton not found. Not listening for clicks on it.")
-                return
-            end
-            local dataContext = button.DataContext
-            if dataContext and dataContext.Type == "se::GameMenuMCMButtonDC" then
-                return
-            end
-            local ctx = Ext.UI.Instantiate("se::GameMenuMCMButtonDC")
-            ctx.CustomEvent:SetHandler(function() IMGUIAPI:ToggleMCMWindow(false) end)
-            button.DataContext = ctx
-            -- Kept for troubleshooting purposes (shows warning)
-            Noesis:HandleGameMenuMCMButtonPress(button)
+--- Binds each MCM button that does not have MCM's DataContext yet.
+local function bindMCMButtons()
+    isBindScheduled = false
+    forEachMCMButton(function(widgetName, button, isMainMenu)
+        local dataContext = button.DataContext
+        if dataContext and dataContext.Type == "se::MCMButtonDC" then return end
+
+        if isMainMenu then
+            setMainMenuButtonHidden(button, MCM.Get("hide_main_menu_mcm_button"))
+        end
+        local ctx = Ext.UI.Instantiate("se::MCMButtonDC")
+        ctx.CustomEvent:SetHandler(function() IMGUIAPI:ToggleMCMWindow(false) end)
+        button.DataContext = ctx
+        -- Kept for troubleshooting purposes (shows warning)
+        handleMCMButtonPress(button, not isMainMenu)
+        MCMDebug(1, "Bound MCM button in %s", widgetName)
+    end)
+end
+
+--- Event sources have no name and expire before the next Defer, so each burst schedules one lookup pass.
+local function onElementAttached()
+    if isBindScheduled then return end
+    isBindScheduled = true
+    Ext.UI.Defer(bindMCMButtons)
+end
+
+--- Binds MCM's main menu and game menu buttons whenever their menu opens, however it was opened.
+--- Noesis access outside Ext.UI.Defer can crash, hence the Defer.
+function Noesis:ListenForMCMButtons()
+    if isListening then return end
+    isListening = true
+    Ext.UI.Defer(function()
+        Ext.UI.GetRoot():Subscribe("LSElementAttached", onElementAttached)
+        -- Menus attached before the subscription raise no event
+        bindMCMButtons()
+    end)
+end
+
+ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)
+    if payload.modUUID ~= ModuleUUID or payload.settingId ~= "hide_main_menu_mcm_button" then return end
+    Ext.UI.Defer(function()
+        forEachMCMButton(function(_, button, isMainMenu)
+            if isMainMenu then setMainMenuButtonHidden(button, payload.value) end
         end)
-    end, 100, 1000)
-end
-
-function Noesis:MonitorMainMenuButtonPress()
-    local bound = false
-    local pending = false
-    VCTimer:ExecuteWithIntervalUntilCondition(function()
-        if bound then return true end
-        if pending then return false end
-        local isController = Gamepad.IsHostUsingGamepad()
-        local hideButton = MCM.Get("hide_main_menu_mcm_button")
-        pending = true
-        Ext.UI.Defer(function()
-            pending = false
-            local mainMenuButton = Noesis:FindMCMMainMenuButton(isController)
-            if not mainMenuButton then
-                MCMDebug(1, "Main menu button not found. Unable to monitor clicks.")
-                return
-            end
-            if hideButton then
-                mainMenuButton:SetProperty("Visibility", "Collapsed")
-            end
-
-            local ctx = Ext.UI.Instantiate("se::MainMenuMCMButtonDC")
-            ctx.CustomEvent:SetHandler(function()
-                IMGUIAPI:ToggleMCMWindow(false)
-            end)
-            mainMenuButton.DataContext = ctx
-
-            self:HandleMainMenuMCMButtonPress(mainMenuButton)
-
-            bound = true
-        end)
-        return false
-    end, 2000, function() return not MCMProxy:IsMainMenu() end)
-end
+    end)
+end)

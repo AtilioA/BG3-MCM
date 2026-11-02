@@ -25,25 +25,6 @@ local function requestStoreBootstrapIfNeeded()
     NetChannels.MCM_CLIENT_REQUEST_STORE_BOOTSTRAP:SendToServer({})
 end
 
-local function handleStartKey()
-    Noesis:MonitorMCMGameMenuButtonPress(true)
-end
-
-local function handleEscapeKey()
-    Noesis:MonitorMCMGameMenuButtonPress(false)
-end
-
-local function handleKeyInput(e)
-    if e.Event == "KeyDown" and e.Repeat == false then
-        if e.Key == "ESCAPE" then
-            handleEscapeKey()
-            return
-        end
-
-        return
-    end
-end
-
 local function handleCloseMCMKey()
     IMGUIAPI:CloseMCMWindow(true)
 end
@@ -53,7 +34,6 @@ local function handleControllerInput(e)
     if e.Event == "KeyDown" and e.Pressed then
         -- Handle Start button for menu navigation
         if e.Button == "Start" then
-            handleStartKey()
             handleCloseMCMKey()
             return
         end
@@ -79,15 +59,16 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
         invalidateConfigPayloadCache()
         invalidateStoreBootstrapState()
         InitClientMCM()
+        Noesis:ListenForMCMButtons()
     end
 
     if e.ToState == Ext.Enums.ClientGameState["Running"] then
         InitClientMCM()
         requestStoreBootstrapIfNeeded()
+        Noesis:ListenForMCMButtons()
     end
 end)
 
-Ext.Events.KeyInput:Subscribe(handleKeyInput)
 Ext.Events.ControllerButtonInput:Subscribe(handleControllerInput)
 
 -- Ext.Events.MouseButtonInput:Subscribe(function(e)
@@ -198,6 +179,7 @@ Ext.Events.ResetCompleted:Subscribe(function()
     invalidateStoreBootstrapState()
     InitClientMCM()
     requestStoreBootstrapIfNeeded()
+    Noesis:ListenForMCMButtons()
 end)
 
 -- Handle direct (non-chunked) config messages

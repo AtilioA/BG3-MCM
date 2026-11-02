@@ -62,7 +62,6 @@ function InitClientMCM()
 
         MCMAPI:LoadConfigs()
         MCMClientState:LoadMods(MCMAPI.mods)
-        Noesis:MonitorMainMenuButtonPress()
     elseif _initialized then
         MCMDebug(1, "Client MCM already initialized, not reinitializing.")
         return
