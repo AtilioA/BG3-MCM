@@ -564,7 +564,7 @@
             </Image.Triggers>
         </Image>
 
-        <Control x:Name="MainButtons" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="480,0,0,380">
+        <Control x:Name="MainButtons" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="440,0,0,280">
             <Control.Style>
                 <Style TargetType="Control">
                     <Setter Property="Template" Value="{StaticResource MainMenuItems}"/>
