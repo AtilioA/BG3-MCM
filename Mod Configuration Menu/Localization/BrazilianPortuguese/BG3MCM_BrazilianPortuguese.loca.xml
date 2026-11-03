@@ -190,7 +190,8 @@
     <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">Por padrão, a barra lateral expande automaticamente ao passar o mouse sobre o ícone de menu e será recolhida ao abrir uma página de mod.&lt;br&gt;Você também pode manualmente alterná-la com [1].</content>
     <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Mudanças de perfil requerem recarregar um save para ter efeito.</content>
     <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Jogadores conectados não podem usar esta página. Somente o host pode alterar estas configurações.</content>
-    <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Preferências de interface</content>
+    <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Estilo da interface</content>
+    <content contentuid="hdc9ed39f62774b16ae5359f2918459c0" version="1">Inicialização e retomada</content>
     <content contentuid="h38caa4e657a746509697741417cc96049f52" version="1">Comportamento da janela</content>
     <content contentuid="h4c268ec86668491996f95e0e311fd420fba7" version="1">Multiplayer</content>
     <content contentuid="he697e03397c64a9e97a8762743d1111b4b91" version="1">Ativar ou desativar tipos específicos de log. Essas configurações funcionam em conjunto com o nível de depuração para determinar quais mensagens são exibidas.</content>

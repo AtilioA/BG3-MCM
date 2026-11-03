@@ -207,7 +207,8 @@
     <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Connecting players cannot use this page. Only the host may change these settings.</content>
     <content contentuid="h38caa4e657a746509697741417cc96049f52" version="1">Window behavior</content>
     <content contentuid="h4c268ec86668491996f95e0e311fd420fba7" version="1">Multiplayer</content>
-    <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Interface preferences</content>
+    <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Interface style</content>
+    <content contentuid="hdc9ed39f62774b16ae5359f2918459c0" version="1">Startup and resume</content>
     <content contentuid="he697e03397c64a9e97a8762743d1111b4b91" version="1">Enable or disable specific log types. These settings work in conjunction with the debug level to determine which messages are displayed.</content>
     <content contentuid="he26ef06bc36043578987ed0e7fe059046206" version="1">Log types</content>
     <!-- bg3-lint: allow BG3-LOCA-UNUSED: keep -->
