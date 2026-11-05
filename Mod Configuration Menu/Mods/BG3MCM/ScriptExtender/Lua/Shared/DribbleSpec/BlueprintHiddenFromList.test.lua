@@ -42,4 +42,15 @@ D.describe("Blueprint HiddenFromList", { tags = { "mod_list_visibility", "data-p
     D.test("exposes explicit false from the blueprint", function()
         D.expect(sanitizeMockBlueprint(false):GetHiddenFromList()).toBe(false)
     end)
+    D.test("exposes the suggested list folder", function()
+        local data = DataPreprocessing:PreprocessData({ ListFolder = "Utilities" }, TestConstants.ModuleUUIDs[1])
+        D.expect(Blueprint:New(data):GetListFolder()).toBe("Utilities")
+    end)
+
+    D.test("ignores invalid list folders", function()
+        for _, value in ipairs({ "", "  ", 42, true }) do
+            local data = DataPreprocessing:PreprocessData({ ListFolder = value }, TestConstants.ModuleUUIDs[1])
+            D.expect(Blueprint:New(data):GetListFolder()).toBe(nil)
+        end
+    end)
 end)

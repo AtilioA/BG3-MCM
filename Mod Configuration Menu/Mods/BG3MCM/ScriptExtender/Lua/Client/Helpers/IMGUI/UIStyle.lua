@@ -4,7 +4,10 @@ UIStyle = {}
 UIStyle.UnofficialColors = {
     ["TooltipBorder"] = Color.HEXToRGBA("#99724c"),
     ["TooltipSeparator"] = Color.HEXToRGBA("#524444"),
+    ["PinnedHeaderSeparator"] = Color.NormalizedRGBA(66, 48, 32, 1),
     ["BoxColor"] = Color.NormalizedRGBA(46, 38, 38, 1),
+    ["GroupBoxBg"] = Color.NormalizedRGBA(37, 31, 30, 1),
+    ["GroupBoxBorder"] = Color.NormalizedRGBA(125, 93, 62, 1),
     ["BoxHoverColor"] = Color.NormalizedRGBA(97, 66, 54, 0.78),
     ["BoxActiveColor"] = Color.NormalizedRGBA(30.60, 204, 237.15, 0.33),
 }

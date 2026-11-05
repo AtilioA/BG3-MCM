@@ -2048,4 +2048,9 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         D.expect(DataPreprocessing:ValidateSetting(setting, 1)).toBe(false)
     end)
+    D.test("ListFolder is trimmed before grouping", function()
+        local result = DataPreprocessing:PreprocessData({ ListFolder = "  Libraries  " }, TestConstants.ModuleUUIDs[1])
+        D.expect(result.ListFolder).toBe("Libraries")
+    end)
+
 end)

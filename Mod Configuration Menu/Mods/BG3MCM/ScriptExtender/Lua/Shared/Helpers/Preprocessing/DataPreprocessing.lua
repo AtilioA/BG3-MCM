@@ -181,7 +181,14 @@ end
 ---@param modUUID string The UUID of the mod that the item data belongs to
 ---@return PreprocessedBlueprintData The preprocessed data
 function DataPreprocessing:PreprocessData(data, modUUID)
+    local listFolder = data.ListFolder
+    if type(listFolder) == "string" then listFolder = listFolder:match("^%s*(.-)%s*$") end
+    if listFolder ~= nil and (type(listFolder) ~= "string" or listFolder:match("^%s*$")) then
+        MCMWarn(0, "Ignoring invalid ListFolder for mod %s", modUUID)
+        listFolder = nil
+    end
     local preprocessedData = {
+        ListFolder = listFolder,
         ModUUID = modUUID,
         SchemaVersion = data.SchemaVersion,
         Optional = data.Optional,

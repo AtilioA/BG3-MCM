@@ -8,6 +8,6 @@ if Mods.Dribbles then
     Ext.Require("Client/DribbleSpec/InitializationIsolation.test.lua")
     Ext.Require("Client/DribbleSpec/Keybindings.test.lua")
     Ext.Require("Client/DribbleSpec/VisibilityManager.test.lua")
-    Ext.Require("Client/DribbleSpec/ModListVisibility.test.lua")
+    Ext.Require("Client/DribbleSpec/ModListState.test.lua")
     Ext.Require("Client/DribbleSpec/LeftPaneModEntryMenu.test.lua")
 end

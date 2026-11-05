@@ -658,4 +658,31 @@
     <content contentuid="h6a34a2af2d8c47b781dc48d5b9881b61abcd" version="1">Menu choices cannot be saved, because MCM_state.json is unreadable or comes from a newer MCM version. MCM keeps the file unchanged. Repair or delete the file, then reload.</content>
     <content contentuid="h38dded209c284e6db03d09219bd92f0dgb10" version="1">Show / Hide MCM windows</content>
     <content contentuid="h553e56d43e9a4d6685410a526895873dg177" version="1">Hide MCM's window, detached pages, and notifications. Press again to restore them. Other mods' windows are unaffected. The key also keeps its normal game action.</content>
+    <content contentuid="h9a9e01f5b3e7445da14639b5f43a0416bf07" version="1">Pin</content>
+    <content contentuid="h145bc3f780224f429de5914b2c83fe2ef99b" version="1">Unpin</content>
+    <content contentuid="ha573c62e2a4a4da1889f6c01adcb3d18e044" version="1">Move to folder</content>
+    <content contentuid="hb06aed8109a44f689d9351a1c469d09ae769" version="1">Main list</content>
+    <content contentuid="h5387de4db5e84639ba0b992e7358f5de9bb1" version="1">Rename</content>
+    <content contentuid="hd504cdce3ff34f55a7fc0718b6788648a37e" version="1">Dissolve</content>
+    <content contentuid="h97487312f07d44869805f651d41c2636855f" version="1">Sort alphabetically</content>
+    <content contentuid="h2e65dd988a5e44f38060c645f30dd7c53fa1" version="1">New folder...</content>
+    <content contentuid="h77a53621d61b4a3d92c841adaec0a86be116" version="1">Folder name</content>
+    <content contentuid="hc2051a2144174d438a0acb3adf71ff909a10" version="1">Enter a folder name.</content>
+    <content contentuid="h2c86290fc915472a86f8bc681f6b485d253b" version="1">A folder with this name already exists.</content>
+    <content contentuid="h7c4ad5e52894403493e8470672f35ebe429c" version="1">OK</content>
+    <content contentuid="hb2cb29912b4449e29cf5f44be0101b2c311f" version="1">Cancel</content>
+    <content contentuid="h3cccb7751f1e4b80955f55634c6a55fc524c" version="1">Pinned</content>
+    <content contentuid="h3528e5d91a66432f89f8a43cf3c33feac579" version="1">New folder</content>
+    <content contentuid="h24ca58cb5e534e658e3ff773c73b12c4e522" version="1">Rename folder</content>
+    <content contentuid="h3f26d5e1a4c74fd19a2b3c4d5e6f7890abcd" version="1">Could not save.</content>
+    <content contentuid="h26c4a53b7de44f01a123456789abcdefabcd" version="1">Sort alphabetically?</content>
+    <content contentuid="h4cb59a2329294dfab78be8f25f39319af600" version="1">Sort alphabetically? This will reset the manual order.</content>
+    <content contentuid="hb54d982efdb448d18ff18a5930b68857g892" version="1">Empty folder</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag002" version="1">Folders cannot be placed inside another group.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag003" version="1">The entry is already in this group.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag004" version="1">The mod list cannot be changed while its saved state is protected.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">The mod list change could not be saved.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag006" version="1">The destination is no longer available.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag007" version="1">Cannot move entry</content>
+    <content contentuid="h28a91f4d4dcb4a7ea27baed764cc50c8g001" version="1">'[1]' folder</content>
 </contentList>

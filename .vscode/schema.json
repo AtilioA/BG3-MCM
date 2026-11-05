@@ -62,6 +62,11 @@
             "default": false,
             "markdownDescription": "Whether this mod's entry starts in the Hidden mods group of the MCM mod list. Default is `false`. Use it for entries players rarely open, such as libraries. The mod stays active and its settings and keybindings still apply. A player's Hide or Show choice overrides this default until the player selects the (Default) action in the mod's right-click menu."
         },
+        "ListFolder": {
+            "type": "string",
+            "minLength": 1,
+            "markdownDescription": "Suggested folder for this mod's entry in the MCM mod list. A player's folder choice takes precedence, including an explicit choice to keep the mod in the main list."
+        },
         "Tabs": {
             "type": "array",
             "items": {

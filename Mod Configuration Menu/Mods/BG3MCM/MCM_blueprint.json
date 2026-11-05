@@ -379,7 +379,7 @@
                             "Id": "sidebar_width",
                             "Name": "Sidebar width",
                             "Type": "slider_int",
-                            "Default": 390,
+                            "Default": 400,
                             "Options": {
                                 "Min": 200,
                                 "Max": 600

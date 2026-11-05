@@ -75,9 +75,33 @@ local function GetMenuColumnWidth()
     return MCM.Get("sidebar_width") --[[@as number]]
 end
 
--- Helper: Check if collapse or fade should be skipped due to detached right pane
+-- Helper: Check if collapse or fade should be skipped due to a detached right pane or a held sidebar
 function DualPaneController:_shouldSkipCollapseOrFade()
-    return self.rightPane:IsCurrentModDetached()
+    return next(self.sidebarHolds or {}) ~= nil or self.rightPane:IsCurrentModDetached()
+end
+
+--- Keep the sidebar expanded and opaque while a sidebar interaction, such as a drag or a folder dialog, is active
+---@param key string Interaction that holds the sidebar
+---@param held boolean
+function DualPaneController:HoldSidebar(key, held)
+    self.sidebarHolds = self.sidebarHolds or {}
+    local wasHeld = self.sidebarHolds[key] == true
+    self.sidebarHolds[key] = held or nil
+    if held then
+        self:CancelAutoCollapse()
+        self.menuScrollChildWindow:SetStyle("Alpha", self.windowOpacity)
+    elseif wasHeld and not self.isHovered and not self:_shouldSkipCollapseOrFade() then
+        self:ScheduleAutoCollapse()
+        if key == "drag" then
+            Ext.Timer.WaitFor(HOVER_DELAY_MS, function()
+                if not self.isHovered and not self:_shouldSkipCollapseOrFade() then
+                    self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
+                end
+            end)
+        else
+            self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
+        end
+    end
 end
 
 -- Helper: Generic animation for sidebar transitions
@@ -235,6 +259,7 @@ function DualPaneController:AttachHoverListeners()
             function()
                 local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
                 if not enabledAutoCollapse then return end
+                self:HoldSidebar("menu", false)
                 self.isHovered = false
                 self:ScheduleAutoCollapse()
                 self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
@@ -278,7 +303,7 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
 
     local function stepFade()
         -- If the user re-enters before fade-out completes, cancel further fade steps.
-        if self.isHovered then
+        if self.isHovered or self:_shouldSkipCollapseOrFade() then
             return
         end
 

@@ -1,7 +1,7 @@
 RequireFiles("Client/Components/DualPane/", {
     "RightPaneHeaderActions",
     "DualPaneController",
-    "ModListVisibility",
+    "ModListState",
     "LeftPane",
     "RightPane",
 })
