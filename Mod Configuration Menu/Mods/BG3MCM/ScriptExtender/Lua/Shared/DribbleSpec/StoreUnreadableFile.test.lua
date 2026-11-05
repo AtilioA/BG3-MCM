@@ -43,7 +43,6 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit" } }, function
         D.expect(setResult).toBe(false)
         D.expect(Ext.IO.LoadFile(StoreFilePath(fileName))).toBe(UNREADABLE_CONTENT)
         D.expect(MCM.Store.Get(varName)).toBeNil()
-        D.expect(MCM.Store.IsWritable(varName)).toBe(false)
     end)
 
     D.test("TestStoreUnparsableFileDoesNotBlockOtherFiles", function()
@@ -62,11 +61,9 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit" } }, function
 
         local setResult = MCM.Store.Set(readableVar, 2)
         local storedValue = MCM.Store.Get(readableVar)
-        local writable = MCM.Store.IsWritable(readableVar)
 
         D.expect(setResult).toBe(true)
         D.expect(storedValue).toBe(2)
-        D.expect(writable).toBe(true)
     end)
 
     D.test("TestStoreTreatsNonObjectJsonAsUnreadable", function()
@@ -76,7 +73,6 @@ D.describe("MCM.Store unreadable file", { tags = { "store", "unit" } }, function
             storageConfig = { fileName = fileName, SyncToClient = false, SyncToServer = false },
         })
 
-        D.expect(MCM.Store.IsWritable("dribblespec_store_unreadable_number")).toBe(false)
         D.expect(MCM.Store.Set("dribblespec_store_unreadable_number", 1)).toBe(false)
         D.expect(Ext.IO.LoadFile(StoreFilePath(fileName))).toBe("5")
     end)

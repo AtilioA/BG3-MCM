@@ -671,7 +671,6 @@ The JSON storage allows saving values to JSON files without needing to define a 
 | `MCM.Store.Get(var, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
 | `MCM.Store.Set(var, value, modUUID?)` | Sets a stored value with automatic persistence | ✅ | ✅ |
 | `MCM.Store.GetAll(modUUID?)` | Gets all stored key-value pairs for the mod | ✅ | ✅ |
-| `MCM.Store.IsWritable(var, modUUID?)` | Returns `false` when the variable's JSON file is [unreadable](#unreadable-json-store-files) | ✅ | ✅ |
 
 <details>
 <summary>Store API usage example</summary>
@@ -739,7 +738,7 @@ MCM uses this filename option for its own [MCM state document](#share-mod-list-v
 
 ##### Unreadable JSON Store files
 
-If a JSON Store file cannot be parsed, MCM keeps it unchanged and logs a warning. Until the file is repaired or deleted and the game reloads, its variables read as their registered default (or `nil`), `MCM.Store.Set` returns `false`, and `MCM.Store.IsWritable` returns `false`. Other Store files and blueprint settings keep working.
+If a JSON Store file cannot be parsed, MCM keeps it unchanged and logs a warning. Until the file is repaired or deleted and the game reloads, its variables read as their registered default (or `nil`), and `MCM.Store.Set` returns `false`. Other Store files and blueprint settings keep working.
 
 #### Window and tab APIs
 
@@ -1329,7 +1328,6 @@ The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
 
 ```json
 {
-  "Version": 1,
   "UI": {
     "Mods": {
       "01234567-89ab-cdef-0123-456789abcdef": {
@@ -1340,7 +1338,7 @@ The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
 }
 ```
 
-`Version` identifies the document format. In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The document also stores folder, pinning, and order choices.
+In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The document also stores folder, pinning, and order choices.
 
 Choose an entry for each mod based on what you want:
 
@@ -1354,7 +1352,7 @@ When you select Show in MCM, MCM saves `false`, so the saved file also overrides
 
 The recipient can change the visibility through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
 
-If `MCM_state.json` cannot be parsed, or its `Version` is newer than this MCM supports, MCM keeps the file unchanged. Entries then follow their author defaults if the file is unreadable, and the right-click menu explains that menu choices cannot be saved instead of offering Hide or Show. Repair or delete the file, then reload.
+If `MCM_state.json` cannot be parsed, or its fields have the wrong types, MCM keeps the file unchanged. Entries then follow their author defaults, and MCM shows a warning when a change cannot be saved. Repair or delete the file, then reload.
 
 ## Closing words
 

@@ -167,16 +167,6 @@ function JsonStorageManager:IsRegistered(key, moduleUUID)
     return byMod ~= nil and byMod[key] ~= nil
 end
 
---- Whether the variable's file accepts writes; false when the file failed to parse.
----@param key string
----@param moduleUUID string
----@return boolean writable
-function JsonStorageManager:IsWritable(key, moduleUUID)
-    local handler = self:_getFileHandler(moduleUUID, self:_resolveFileName(moduleUUID, key))
-    handler:Load()
-    return not handler.Unreadable
-end
-
 --- Read the raw Lua value
 ---@param key string
 ---@param moduleUUID string
