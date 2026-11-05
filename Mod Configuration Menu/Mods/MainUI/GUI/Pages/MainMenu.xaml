@@ -556,7 +556,9 @@
             </Rectangle.Triggers>
         </Rectangle>
 
-        <Image x:Name="GameLogo" Source="{StaticResource GameLogo}" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="308,300" >
+        <!-- Keep the button column below the logo as buttons are added or hidden. -->
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="308,300,0,0">
+        <Image x:Name="GameLogo" Source="{StaticResource GameLogo}" Stretch="None" HorizontalAlignment="Left" >
             <Image.Triggers>
                 <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                     <BeginStoryboard Storyboard="{StaticResource SimpleFadeIn}"/>
@@ -564,7 +566,7 @@
             </Image.Triggers>
         </Image>
 
-        <Control x:Name="MainButtons" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="440,0,0,280">
+        <Control x:Name="MainButtons" HorizontalAlignment="Left" Margin="150,60,0,0">
             <Control.Style>
                 <Style TargetType="Control">
                     <Setter Property="Template" Value="{StaticResource MainMenuItems}"/>
@@ -579,6 +581,7 @@
                 </Style>
             </Control.Style>
         </Control>
+        </StackPanel>
 
         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,120">
             <Control x:Name="CrossPlayWidget" Style="{StaticResource SignInButtonStyle}" Margin="0,0,50,0" VerticalAlignment="Bottom"/>
