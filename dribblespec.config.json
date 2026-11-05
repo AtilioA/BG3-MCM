@@ -1,0 +1,87 @@
+{
+  "mod": "Mod Configuration Menu/Mods/BG3MCM",
+  "contexts": [
+    "server",
+    "client"
+  ],
+  "exclude": [
+    "**/DribbleSpec/**",
+    "**/Tests/**",
+    "Lib/**"
+  ],
+  "coverage": {
+    "include": [
+      "**/*.lua"
+    ]
+  },
+  "mutation": {
+    "ignoreCalls": [
+      "MCMPrint",
+      "MCMWarn",
+      "MCMDebug",
+      "MCMSuccess"
+    ],
+    "groups": {
+      "validators": {
+        "files": [
+          "Shared/Helpers/Validators/CheckboxValidator.lua",
+          "Shared/Helpers/Validators/ColorValidator.lua",
+          "Shared/Helpers/Validators/DragFloatValidator.lua",
+          "Shared/Helpers/Validators/DragIntValidator.lua",
+          "Shared/Helpers/Validators/EnumValidator.lua",
+          "Shared/Helpers/Validators/EventButtonValidator.lua",
+          "Shared/Helpers/Validators/FloatUtils.lua",
+          "Shared/Helpers/Validators/FloatValidator.lua",
+          "Shared/Helpers/Validators/IntValidator.lua",
+          "Shared/Helpers/Validators/KeybindingV2Validator.lua",
+          "Shared/Helpers/Validators/ListV2Validator.lua",
+          "Shared/Helpers/Validators/RadioValidator.lua",
+          "Shared/Helpers/Validators/SliderFloatValidator.lua",
+          "Shared/Helpers/Validators/SliderIntValidator.lua",
+          "Shared/Helpers/Validators/TextValidator.lua",
+          "Shared/Helpers/PathValidator.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "validators"
+          ]
+        }
+      },
+      "blueprint": {
+        "files": [
+          "Shared/Helpers/Blueprint/BlueprintCache.lua",
+          "Shared/Classes/JsonLayer.lua",
+          "Shared/Classes/ModConfig.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "blueprint"
+          ]
+        }
+      },
+      "preprocessing": {
+        "files": [
+          "Shared/Helpers/Preprocessing/DataPreprocessing.lua",
+          "Shared/Helpers/Preprocessing/LoadedSettingsRepair.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "preprocessing"
+          ]
+        }
+      },
+      "store": {
+        "files": [
+          "Shared/DynamicSettings/Services/StorageSyncService.lua",
+          "Shared/DynamicSettings/Services/SettingsService.lua",
+          "Shared/DynamicSettings/Adapters/JsonAdapter.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "store"
+          ]
+        }
+      }
+    }
+  }
+}
