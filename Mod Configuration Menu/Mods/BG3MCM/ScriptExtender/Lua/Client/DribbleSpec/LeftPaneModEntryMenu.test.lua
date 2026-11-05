@@ -534,4 +534,33 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(popup.texts[#popup.texts].Label ~= "").toBe(true)
     end)
 
+    D.test("MCM menu retains detach and cannot start a list drag", function()
+        local popup = FakePopup()
+        local pane = setmetatable({ parent = { AddPopup = function() return popup end },
+            mods = { [ModuleUUID] = { blueprint = { GetModName = function() return "MCM" end } } },
+            visibility = ModListState:New(FakeStore()) }, LeftPane)
+        pane:OpenModEntryMenu(ModuleUUID, false)
+        D.expect(#popup.items).toBe(1)
+        local widget = {}
+        pane:ConfigureModListDrag(widget, "mod", ModuleUUID, "Main")
+        D.expect(widget.CanDrag).toBe(false)
+        D.expect(widget.OnDragDrop ~= nil).toBe(true)
+    end)
+
+    D.test("a section anchored by MCM keeps a dropped mod in Main behind MCM", function()
+        local store = FakeStore({ UI = {} })
+        local state = ModListState:New(store)
+        local mods = { { id = ModuleUUID, name = "MCM" }, { id = MOD_A, name = "A" } }
+        local resolved = state:Resolve(mods)
+        local pane = setmetatable({ visibility = state, resolved = resolved, mods = {},
+            createModEntries = function() end, RebuildModEntries = function() end }, LeftPane)
+        local widgets = {}
+        pane:RenderModListItems(FakeContainer(widgets), resolved.main, "Main", false, {})
+        widgets[1].OnDragDrop(widgets[1], { UserData = { kind = "mod", id = MOD_A, group = "Main" } })
+        local after = state:Resolve(mods)
+        D.expect(after.main[1].id).toBe(ModuleUUID)
+        D.expect(after.main[2].id).toBe(MOD_A)
+        D.expect(after.main[2].pinned).toBe(true)
+    end)
+
 end)

@@ -304,9 +304,11 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
                 DualPane.rightPane:DetachModGroup(modUUID)
             end
         end)
-    self.modEntryMenu:AddSeparator()
-    self:AddVisibilityAction(modUUID, isHidden)
-    self:AddOrganizationActions(modUUID, isHidden)
+    if modUUID ~= ModuleUUID then
+        self.modEntryMenu:AddSeparator()
+        self:AddVisibilityAction(modUUID, isHidden)
+        self:AddOrganizationActions(modUUID, isHidden)
+    end
     self.modEntryMenu:Open()
 end
 
@@ -408,7 +410,7 @@ end
 ---@param groupId string
 function LeftPane:ConfigureModListDrag(widget, kind, id, groupId)
     self:ConfigureModListDropTarget(widget, kind, id, groupId)
-    widget.CanDrag = kind ~= "group"
+    widget.CanDrag = kind ~= "group" and not (kind == "mod" and id == ModuleUUID)
     local generation = self.listGeneration
     local dropTarget
     if widget.CanDrag then

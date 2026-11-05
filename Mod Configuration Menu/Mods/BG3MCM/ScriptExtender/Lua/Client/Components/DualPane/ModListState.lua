@@ -222,6 +222,10 @@ end
 ---@param choice SavedModListChoice
 ---@param defaults ModListAuthorDefaults
 local function assignMod(context, mod, choice, defaults)
+    if mod.id == ModuleUUID then
+        table.insert(context.result.main, { kind = "mod", id = mod.id, name = mod.name, pinned = true })
+        return
+    end
     local folderId = choice.Folder
     if folderId == nil and defaults.ListFolder then
         folderId = resolveSuggestedFolder(context, defaults.ListFolder)
@@ -252,6 +256,9 @@ local function sortResolvedGroup(items, order)
         positions[id] = index
     end
     table.sort(items, function(a, b)
+        local aMCM = a.kind == "mod" and a.id == ModuleUUID
+        local bMCM = b.kind == "mod" and b.id == ModuleUUID
+        if aMCM ~= bMCM then return aMCM end
         if (a.pinned == true) ~= (b.pinned == true) then
             return a.pinned == true
         end
@@ -304,6 +311,7 @@ end
 ---@param hidden boolean
 ---@return boolean saved False when the save was refused
 function ModListState:SetHidden(modUUID, hidden)
+    if modUUID == ModuleUUID then return false end
     return self:change(function(ui)
         ui.Mods = ui.Mods or {}
         ui.Mods[modUUID] = ui.Mods[modUUID] or {}
@@ -322,6 +330,7 @@ end
 ---@param modUUID string
 ---@return boolean saved False when the save was refused
 function ModListState:UseDefault(modUUID)
+    if modUUID == ModuleUUID then return false end
     if not self:HasChoice(modUUID) then
         return true
     end
@@ -405,6 +414,7 @@ end
 ---@param folder? ResolvedModListEntry Resolved folder metadata
 ---@return boolean
 function ModListState:SetPinned(id, pinned, kind, folder)
+    if id == ModuleUUID and kind ~= "folder" then return false end
     return self:change(function(ui)
         applyPinnedChoice(ui, id, pinned, kind, folder)
     end)
@@ -415,6 +425,7 @@ end
 ---@param folderItem? ResolvedModListEntry Resolved folder metadata
 ---@return boolean
 function ModListState:SetFolder(id, folder, folderItem)
+    if id == ModuleUUID then return false end
     return self:change(function(ui)
         ui.Mods = ui.Mods or {}
         ui.Mods[id] = ui.Mods[id] or {}
@@ -434,6 +445,7 @@ end
 ---@param modUUID? string
 ---@return boolean
 function ModListState:CreateFolder(id, name, suggested, modUUID)
+    if modUUID == ModuleUUID then return false end
     return self:change(function(ui)
         ui.Folders = (ui.Folders or {})
         ui.Folders[id] = { Name = name, Suggested = suggested }
@@ -471,12 +483,14 @@ end
 function ModListState:DeleteFolder(id, mods)
     return self:change(function(ui)
         ui.Mods = (ui.Mods or {})
-        for _, choice in pairs(ui.Mods) do
-            if type(choice) == "table" and choice.Folder == id then choice.Folder = false end
+        for modUUID, choice in pairs(ui.Mods) do
+            if modUUID ~= ModuleUUID and type(choice) == "table" and choice.Folder == id then choice.Folder = false end
         end
         for _, mod in ipairs(mods or {}) do
-            ui.Mods[mod] = (ui.Mods[mod] or {})
-            ui.Mods[mod].Folder = false
+            if mod ~= ModuleUUID then
+                ui.Mods[mod] = (ui.Mods[mod] or {})
+                ui.Mods[mod].Folder = false
+            end
         end
         if type(ui.Folders) == "table" then ui.Folders[id] = nil end
         if type(ui.Order) == "table" then
@@ -570,7 +584,7 @@ local function planMove(item, source, destination, target, resolved)
         target = target,
         folder = folder,
         pinned = changedPin,
-        insertAfter = sourcePosition and targetPosition and sourcePosition < targetPosition or false,
+        insertAfter = (sourcePosition and targetPosition and sourcePosition < targetPosition) or false,
     }
 end
 
@@ -595,7 +609,10 @@ local function applyMoveOrder(ui, plan)
         end
     end
     local insertionIndex = #order + 1
-    if plan.target then
+    if plan.target and plan.target.kind == "mod" and plan.target.id == ModuleUUID then
+        -- MCM resolves first regardless of its saved position, so the entry after it is the first saved entry.
+        insertionIndex = 1
+    elseif plan.target then
         for index, id in ipairs(order) do
             if id == plan.target.id then
                 insertionIndex = index
@@ -641,6 +658,7 @@ end
 ---@return boolean saved
 ---@return ModListMoveFailure|nil reason
 function ModListState:Move(item, source, destination, target, resolved)
+    if item.kind == "mod" and item.id == ModuleUUID then return false, "unavailable" end
     local plan, reason = planMove(item, source, destination, target, resolved)
     if not plan then
         return false, reason

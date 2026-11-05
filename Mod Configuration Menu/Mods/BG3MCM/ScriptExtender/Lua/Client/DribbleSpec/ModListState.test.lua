@@ -633,4 +633,157 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(reordered[1].id).toBe(MOD_A)
     end)
 
+    D.test("MCM remains first pinned despite hostile choices and sorts", function()
+        local ui = { Mods = { [ModuleUUID] = { HiddenFromList = true, Folder = "f", Pinned = false },
+            [MOD_A] = { Pinned = true } }, Folders = { f = { Name = "A folder", Pinned = true } },
+            Order = { Main = { "f", MOD_A, ModuleUUID } } }
+        local state = ModListState:New(FakeStore({ UI = ui }))
+        local mods = { { id = MOD_A, name = "A" }, { id = ModuleUUID, name = "Z" } }
+        local defaults = { [ModuleUUID] = { HiddenFromList = true, ListFolder = "suggested" } }
+        local result = state:Resolve(mods, defaults)
+        D.expect(result.main[1].id).toBe(ModuleUUID)
+        D.expect(result.main[1].pinned).toBe(true)
+        D.expect(#result.hidden).toBe(0)
+        D.expect(#result.main[2].items).toBe(0)
+        state:SortFoldersFirst(result)
+        D.expect(state:Resolve(mods, defaults).main[1].id).toBe(ModuleUUID)
+        state:SortGroup("Main")
+        D.expect(state:Resolve(mods, defaults).main[1].id).toBe(ModuleUUID)
+        D.expect(#state:Resolve({}).main).toBe(1) -- the saved empty folder remains
+    end)
+
+    D.test("organization changes refuse MCM and preserve other mod flexibility", function()
+        local store = FakeStore({ UI = { Mods = { [ModuleUUID] = { Folder = "f", HiddenFromList = true } },
+            Folders = { f = { Name = "Folder" } } } })
+        local state = ModListState:New(store)
+        local mods = { { id = ModuleUUID, name = "MCM" }, { id = MOD_A, name = "A" } }
+        local result = state:Resolve(mods)
+        local before = table.deepcopy(store.values.UI)
+        D.expect(state:SetHidden(ModuleUUID, true)).toBe(false)
+        D.expect(state:UseDefault(ModuleUUID)).toBe(false)
+        D.expect(state:SetPinned(ModuleUUID, false)).toBe(false)
+        D.expect(state:SetFolder(ModuleUUID, "f")).toBe(false)
+        D.expect(state:CreateFolder("new", "New", nil, ModuleUUID)).toBe(false)
+        D.expect(state:Move(result.main[1], "Main", "Hidden", nil, result)).toBe(false)
+        D.expect(store.values.UI).toEqual(before)
+        D.expect(state:DeleteFolder("f", { ModuleUUID })).toBe(true)
+        D.expect(store.values.UI.Mods[ModuleUUID]).toEqual(before.Mods[ModuleUUID])
+        D.expect(state:SetHidden(MOD_A, true)).toBe(true)
+    end)
+
+    D.test("dropping another mod onto MCM pins it without displacing MCM", function()
+        local state = ModListState:New(FakeStore())
+        local mods = { { id = ModuleUUID, name = "MCM" }, { id = MOD_A, name = "A" } }
+        local result = state:Resolve(mods)
+        D.expect(state:Move(result.main[2], "Main", "Main", result.main[1], result)).toBe(true)
+        result = state:Resolve(mods)
+        D.expect(result.main[1].id).toBe(ModuleUUID)
+        D.expect(result.main[2].id).toBe(MOD_A)
+        D.expect(result.main[2].pinned).toBe(true)
+    end)
+
+    D.describe("drops with MCM saved after other entries", function()
+        ---@param ui SavedModListUI
+        ---@return ModListState state
+        ---@return ModListInput[] mods
+        ---@return table store
+        local function dropFixture(ui)
+            local store = FakeStore({ UI = ui })
+            return ModListState:New(store), {
+                { id = ModuleUUID, name = "MCM" },
+                { id = MOD_A, name = "A" },
+                { id = MOD_B, name = "B" },
+                { id = MOD_C, name = "C" },
+            }, store
+        end
+
+        ---@param entries ResolvedModListEntry[]
+        ---@param id string
+        ---@return ResolvedModListEntry|nil
+        local function entryById(entries, id)
+            for _, entry in ipairs(entries) do
+                if entry.id == id then return entry end
+            end
+        end
+
+        ---@param entries ResolvedModListEntry[]
+        ---@return string[]
+        local function idsOf(entries)
+            local ids = {}
+            for _, entry in ipairs(entries) do table.insert(ids, entry.id) end
+            return ids
+        end
+
+        local function pinnedChoices()
+            return { [MOD_A] = { Pinned = true }, [MOD_B] = { Pinned = true }, [MOD_C] = { Pinned = true } }
+        end
+
+        D.test("a pinned entry lands directly after MCM and unloaded references stay", function()
+            local state, mods, store = dropFixture({
+                Mods = pinnedChoices(),
+                Order = { Main = { MOD_A, ModuleUUID, ABSENT_MOD, MOD_B, MOD_C } },
+            })
+            local resolved = state:Resolve(mods)
+            D.expect(idsOf(resolved.main)).toEqual({ ModuleUUID, MOD_A, MOD_B, MOD_C })
+            local saved = state:Move(entryById(resolved.main, MOD_B), "Main", "Main", resolved.main[1], resolved)
+            D.expect(saved).toBe(true)
+            D.expect(idsOf(state:Resolve(mods).main)).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+            D.expect(store.values.UI.Order.Main).toContain(ABSENT_MOD)
+        end)
+
+        D.test("an unpinned Main entry adopts the pin and lands directly after MCM", function()
+            local state, mods = dropFixture({
+                Mods = { [MOD_A] = { Pinned = true } },
+                Order = { Main = { MOD_A, ModuleUUID, MOD_B, MOD_C } },
+            })
+            local resolved = state:Resolve(mods)
+            D.expect(state:Move(entryById(resolved.main, MOD_C), "Main", "Main", resolved.main[1], resolved)).toBe(true)
+            local after = state:Resolve(mods).main
+            D.expect(idsOf(after)).toEqual({ ModuleUUID, MOD_C, MOD_A, MOD_B })
+            D.expect(after[2].pinned).toBe(true)
+        end)
+
+        D.test("a pinned entry from a folder keeps its pin and lands directly after MCM", function()
+            local choices = pinnedChoices()
+            choices[MOD_B].Folder = "f"
+            local state, mods = dropFixture({
+                Mods = choices,
+                Folders = { f = { Name = "F" } },
+                Order = { Main = { MOD_A, ModuleUUID, MOD_C } },
+            })
+            local resolved = state:Resolve(mods)
+            local source = entryById(entryById(resolved.main, "f").items, MOD_B)
+            D.expect(state:Move(source, "f", "Main", resolved.main[1], resolved)).toBe(true)
+            local after = idsOf(state:Resolve(mods).main)
+            D.expect({ after[1], after[2], after[3] }).toEqual({ ModuleUUID, MOD_B, MOD_A })
+        end)
+
+        D.test("an unpinned entry from a folder stays unpinned", function()
+            local state, mods = dropFixture({
+                Mods = { [MOD_A] = { Pinned = true }, [MOD_B] = { Folder = "f" } },
+                Folders = { f = { Name = "F" } },
+                Order = { Main = { MOD_A, ModuleUUID, MOD_C } },
+            })
+            local resolved = state:Resolve(mods)
+            local source = entryById(entryById(resolved.main, "f").items, MOD_B)
+            D.expect(state:Move(source, "f", "Main", resolved.main[1], resolved)).toBe(true)
+            local after = state:Resolve(mods).main
+            D.expect(idsOf(after)).toEqual({ ModuleUUID, MOD_A, MOD_C, "f", MOD_B })
+            D.expect(entryById(after, MOD_B).pinned).toBe(false)
+        end)
+
+        D.test("a drop onto another target stays relative to that target", function()
+            local state, mods, store = dropFixture({
+                Mods = pinnedChoices(),
+                Order = { Main = { MOD_A, ModuleUUID, ABSENT_MOD, MOD_B, MOD_C } },
+            })
+            local resolved = state:Resolve(mods)
+            local saved = state:Move(entryById(resolved.main, MOD_C), "Main", "Main",
+                entryById(resolved.main, MOD_B), resolved)
+            D.expect(saved).toBe(true)
+            D.expect(idsOf(state:Resolve(mods).main)).toEqual({ ModuleUUID, MOD_A, MOD_C, MOD_B })
+            D.expect(store.values.UI.Order.Main).toContain(ABSENT_MOD)
+        end)
+    end)
+
 end)
