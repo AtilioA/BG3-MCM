@@ -337,7 +337,6 @@
     <content contentuid="h541de1bd8d8d4be8a188742c9011da27b110" version="1">Mostrar</content>
     <content contentuid="h31b35bbef8544e26b213f5a93c926ecc7865" version="1">Mods escondidos ([1])</content>
     <content contentuid="hcb10ab3d15cd177683b0b8c2076b4499ccdc" version="1">[1] (Padrão)</content>
-    <content contentuid="h6a34a2af2d8c47b781dc48d5b9881b61abcd" version="1">Não é possível salvar escolhas do menu, porque MCM_state.json está ilegível ou vem de uma versão mais nova do MCM. O MCM mantém o arquivo inalterado. Repare ou exclua o arquivo e depois recarregue.</content>
     <content contentuid="h38dded209c284e6db03d09219bd92f0dgb10" version="1">Mostrar / Esconder janelas do MCM</content>
     <content contentuid="h553e56d43e9a4d6685410a526895873dg177" version="1">Esconde a janela do MCM, páginas destacadas e notificações. Pressione novamente para restaurá-las. As janelas de outros mods não são afetadas. A tecla também mantém sua ação normal no jogo.</content>
     <content contentuid="h9a9e01f5b3e7445da14639b5f43a0416bf07" version="1">Fixar</content>
@@ -357,14 +356,14 @@
     <content contentuid="h3528e5d91a66432f89f8a43cf3c33feac579" version="1">Nova pasta</content>
     <content contentuid="h24ca58cb5e534e658e3ff773c73b12c4e522" version="1">Renomear pasta</content>
     <content contentuid="h3f26d5e1a4c74fd19a2b3c4d5e6f7890abcd" version="1">Não foi possível salvar.</content>
-    <content contentuid="h26c4a53b7de44f01a123456789abcdefabcd" version="1">Ordenar alfabeticamente?</content>
     <content contentuid="h4cb59a2329294dfab78be8f25f39319af600" version="1">Ordenar alfabeticamente? Isso redefinirá a ordem manual.</content>
     <content contentuid="hb54d982efdb448d18ff18a5930b68857g892" version="1">Pasta vazia</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag002" version="1">Pastas não podem ser colocadas dentro de outro grupo.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag003" version="1">O item já está neste grupo.</content>
-    <content contentuid="h07852b32f9c54a09a559289344164f8ag004" version="1">A lista de mods não pode ser alterada enquanto seu estado salvo estiver protegido.</content>
-    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">Não foi possível salvar a alteração na lista de mods.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">Não foi possível salvar a alteração na lista de mods. Se MCM_state.json estiver danificado, repare ou exclua o arquivo e depois recarregue.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag006" version="1">O destino não está mais disponível.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag007" version="1">Não é possível mover o item</content>
     <content contentuid="h28a91f4d4dcb4a7ea27baed764cc50c8g001" version="1">Pasta '[1]'</content>
+    <content contentuid="ha8396d4c149c454a8edff7d5cf23675ag001" version="1">Ordenar pastas primeiro</content>
+    <content contentuid="ha8396d4c149c454a8edff7d5cf23675ag002" version="1">Ordenar pastas primeiro? Isso mudará a ordem manual.</content>
 </contentList>
