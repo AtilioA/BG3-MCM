@@ -326,10 +326,10 @@ function ModListState:UseDefault(modUUID)
         return true
     end
     return self:change(function(ui)
-    ui.Mods[modUUID].HiddenFromList = nil
-    if next(ui.Mods[modUUID]) == nil then
-        ui.Mods[modUUID] = nil
-    end
+        ui.Mods[modUUID].HiddenFromList = nil
+        if next(ui.Mods[modUUID]) == nil then
+            ui.Mods[modUUID] = nil
+        end
     end)
 end
 

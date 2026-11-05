@@ -17,6 +17,7 @@
 ---@field visibility ModListState
 ---@field activeUUID string|nil UUID of the highlighted entry
 ---@field mainDropTargets table<string, ExtuiButton> Main-list destinations placed after their source groups
+---@field newFolderId string|nil Folder created last; its header blinks once on the next render
 LeftPane = _Class:Create("LeftPane", nil, {
     parent = nil,
     modEntriesGroup = nil,
@@ -175,6 +176,7 @@ function LeftPane:SaveFolderName(text, folderId, modUUID, selectedFolder)
         saved = self.visibility:CreateFolder(id, name, nil, modUUID)
         if saved then
             self.expandedGroups[id] = true
+            self.newFolderId = id
         end
     end
     return saved, not saved and Ext.Loca.GetTranslatedString("h3f26d5e1a4c74fd19a2b3c4d5e6f7890abcd") or nil
@@ -216,50 +218,50 @@ function LeftPane:OpenFolderMenu(folder, hidden)
     local title = popup:AddText(name)
     title:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     popup:AddSeparator()
-        local function item(label, action)
-            popup:AddBulletText("")
-            local row = popup:AddSelectable(label, nil, { 0, 28 })
-            row.SameLine = true
-            row.OnClick = action
-            return row
-        end
-        local function change(action)
+    local function item(label, action)
+        popup:AddBulletText("")
+        local row = popup:AddSelectable(label, nil, { 0, 28 })
+        row.SameLine = true
+        row.OnClick = action
+        return row
+    end
+    local function change(action)
         self:FinishModListChange(action())
-        end
-        if folder.id == "Main" then
-            item(Ext.Loca.GetTranslatedString("h2e65dd988a5e44f38060c645f30dd7c53fa1"),
-                function() self:OpenFolderNamePopup(nil, nil) end)
-        elseif not hidden then
-            item(Ext.Loca.GetTranslatedString("h5387de4db5e84639ba0b992e7358f5de9bb1"),
-                function() self:OpenFolderNamePopup(folder.id, nil) end)
-            item(Ext.Loca.GetTranslatedString("hd504cdce3ff34f55a7fc0718b6788648a37e"), function()
-                change(function()
-                    local ids = {}
-                    for _, id in ipairs(folder.members or {}) do table.insert(ids, id) end
-                    return self.visibility:DeleteFolder(folder.id, ids)
-                end)
-            end)
-            item(
-            Ext.Loca.GetTranslatedString(folder.pinned and "h145bc3f780224f429de5914b2c83fe2ef99b" or
-            "h9a9e01f5b3e7445da14639b5f43a0416bf07"), function()
-                change(function()
-                    return self.visibility:SetPinned(folder.id, not folder.pinned, "folder", folder)
-                end)
-            end)
-        end
-        local sortItem = item(Ext.Loca.GetTranslatedString("h97487312f07d44869805f651d41c2636855f"), function()
-            self:ConfirmModListSort(popup, "h4cb59a2329294dfab78be8f25f39319af600", function()
-                return self.visibility:SortGroup(folder.id)
+    end
+    if folder.id == "Main" then
+        item(Ext.Loca.GetTranslatedString("h2e65dd988a5e44f38060c645f30dd7c53fa1"),
+            function() self:OpenFolderNamePopup(nil, nil) end)
+    elseif not hidden then
+        item(Ext.Loca.GetTranslatedString("h5387de4db5e84639ba0b992e7358f5de9bb1"),
+            function() self:OpenFolderNamePopup(folder.id, nil) end)
+        item(Ext.Loca.GetTranslatedString("hd504cdce3ff34f55a7fc0718b6788648a37e"), function()
+            change(function()
+                local ids = {}
+                for _, id in ipairs(folder.members or {}) do table.insert(ids, id) end
+                return self.visibility:DeleteFolder(folder.id, ids)
             end)
         end)
-        sortItem.DontClosePopups = true
-        if folder.id == "Main" then
-            local foldersFirst = item(Ext.Loca.GetTranslatedString("ha8396d4c149c454a8edff7d5cf23675ag001"), function()
-                self:ConfirmModListSort(popup, "ha8396d4c149c454a8edff7d5cf23675ag002", function()
-                    return self.visibility:SortFoldersFirst(self.resolved)
-                end)
+        item(
+        Ext.Loca.GetTranslatedString(folder.pinned and "h145bc3f780224f429de5914b2c83fe2ef99b" or
+        "h9a9e01f5b3e7445da14639b5f43a0416bf07"), function()
+            change(function()
+                return self.visibility:SetPinned(folder.id, not folder.pinned, "folder", folder)
             end)
-            foldersFirst.DontClosePopups = true
+        end)
+    end
+    local sortItem = item(Ext.Loca.GetTranslatedString("h97487312f07d44869805f651d41c2636855f"), function()
+        self:ConfirmModListSort(popup, "h4cb59a2329294dfab78be8f25f39319af600", function()
+            return self.visibility:SortGroup(folder.id)
+        end)
+    end)
+    sortItem.DontClosePopups = true
+    if folder.id == "Main" then
+        local foldersFirst = item(Ext.Loca.GetTranslatedString("ha8396d4c149c454a8edff7d5cf23675ag001"), function()
+            self:ConfirmModListSort(popup, "ha8396d4c149c454a8edff7d5cf23675ag002", function()
+                return self.visibility:SortFoldersFirst(self.resolved)
+            end)
+        end)
+        foldersFirst.DontClosePopups = true
     end
     popup:Open()
 end
@@ -269,19 +271,19 @@ end
 ---@param messageHandle string
 ---@param action fun(): boolean
 function LeftPane:ConfirmModListSort(popup, messageHandle, action)
-            IMGUIHelpers.DestroyChildren(popup)
+    IMGUIHelpers.DestroyChildren(popup)
     popup:AddText(Ext.Loca.GetTranslatedString(messageHandle))
-            popup:AddButton(Ext.Loca.GetTranslatedString("h7c4ad5e52894403493e8470672f35ebe429c")).OnClick = function()
+    popup:AddButton(Ext.Loca.GetTranslatedString("h7c4ad5e52894403493e8470672f35ebe429c")).OnClick = function()
         self:FinishModListChange(action())
-                popup:Destroy()
-                self.modEntryMenu = nil
-                holdSidebar("menu", false)
-            end
-            popup:AddButton(Ext.Loca.GetTranslatedString("hb2cb29912b4449e29cf5f44be0101b2c311f")).OnClick = function()
-                popup:Destroy()
-                self.modEntryMenu = nil
-                holdSidebar("menu", false)
-            end
+        popup:Destroy()
+        self.modEntryMenu = nil
+        holdSidebar("menu", false)
+    end
+    popup:AddButton(Ext.Loca.GetTranslatedString("hb2cb29912b4449e29cf5f44be0101b2c311f")).OnClick = function()
+        popup:Destroy()
+        self.modEntryMenu = nil
+        holdSidebar("menu", false)
+    end
 end
 
 --- Show the right-click menu for one mod entry; opening it does not select the mod
@@ -294,14 +296,14 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
     self.modEntryMenu:AddSeparator()
     local isDetached = DualPane.rightPane.detachedWindows[modUUID] ~= nil
     self:AddModMenuAction(
-    Ext.Loca.GetTranslatedString(isDetached and "h70c2cfe1a408491b8190b0bdfe7be9eb7116" or
-    "hee272f8489fe4bc7a5591935c5710013efc0"), function()
-        if isDetached then
-            DualPane.rightPane:ReattachModGroup(modUUID)
-        else
-            DualPane.rightPane:DetachModGroup(modUUID)
-        end
-    end)
+        Ext.Loca.GetTranslatedString(isDetached and "h70c2cfe1a408491b8190b0bdfe7be9eb7116" or
+            "hee272f8489fe4bc7a5591935c5710013efc0"), function()
+            if isDetached then
+                DualPane.rightPane:ReattachModGroup(modUUID)
+            else
+                DualPane.rightPane:DetachModGroup(modUUID)
+            end
+        end)
     self.modEntryMenu:AddSeparator()
     self:AddVisibilityAction(modUUID, isHidden)
     self:AddOrganizationActions(modUUID, isHidden)
@@ -332,7 +334,7 @@ function LeftPane:AddVisibilityAction(modUUID, isHidden)
     local authorHidden = self.mods[modUUID].blueprint:GetHiddenFromList() == true
     local matchesDefault = targetHidden == authorHidden
     local label = Ext.Loca.GetTranslatedString(targetHidden and "h31655a10d04449dfb90946ebe22da383f8a2" or
-    "h541de1bd8d8d4be8a188742c9011da27b110")
+        "h541de1bd8d8d4be8a188742c9011da27b110")
     if matchesDefault then
         label = VCString:InterpolateLocalizedMessage(DEFAULT_SUFFIX_HANDLE, label)
     end
@@ -454,27 +456,46 @@ local DROP_REASON_HANDLES = {
     unavailable = "h07852b32f9c54a09a559289344164f8ag006",
 }
 
+
+--- Fade a border in and out once, unless the list rebuilds first.
+---@param widget ExtuiStyledRenderable
+---@param color vec4
+---@param generation integer
+function LeftPane:FlashBorder(widget, color, generation)
+    -- Total length of one border blink
+    local FLASH_DURATION_MS = 2000
+    -- SE returns only explicit overrides; absent values need the sidebar's normal border style.
+    local originalColor = widget:GetColor("Border")
+    local originalSize = widget:GetStyle("FrameBorderSize")
+    widget:SetStyle("FrameBorderSize", 1)
+    local startTime = Ext.Timer.MonotonicTime()
+    local function step()
+        if self.listGeneration ~= generation then return end
+        local progress = math.min((Ext.Timer.MonotonicTime() - startTime) / FLASH_DURATION_MS, 1)
+        if progress < 1 then
+            -- Ease in and out on each half
+            local half = progress < 0.5 and progress * 2 or (1 - progress) * 2
+            widget:SetColor("Border", { color[1], color[2], color[3], color[4] * Animation.EaseOutQuad(half) })
+            Ext.Timer.WaitFor(0, step)
+        else
+            widget:SetColor("Border", originalColor or UIStyle.UnofficialColors["TooltipBorder"])
+            widget:SetStyle("FrameBorderSize", originalSize or 0)
+        end
+    end
+    step()
+end
+
 --- Explain a refused move and flash only the current generation of its target.
 ---@param widget ExtuiStyledRenderable
 ---@param generation integer
 ---@param reason ModListMoveFailure
 function LeftPane:RefuseModListDrop(widget, generation, reason)
-        NotificationManager:CreateIMGUINotification("MCM_ModListDrop", "warning",
+    NotificationManager:CreateIMGUINotification("MCM_ModListDrop", "warning",
         Ext.Loca.GetTranslatedString("h07852b32f9c54a09a559289344164f8ag007"),
         Ext.Loca.GetTranslatedString(DROP_REASON_HANDLES[reason]),
         { duration = 5, dontShowAgainButton = false }, ModuleUUID)
-    -- SE returns only explicit overrides; absent values need the sidebar's normal border style.
-        local originalColor = widget:GetColor("Border")
-        local originalSize = widget:GetStyle("FrameBorderSize")
-        widget:SetStyle("FrameBorderSize", 1)
-        widget:SetColor("Border", UIStyle.TextStyles.Error)
-        Ext.Timer.WaitFor(300, function()
-            if self.listGeneration == generation then
-                    widget:SetColor("Border", originalColor or UIStyle.UnofficialColors["TooltipBorder"])
-                    widget:SetStyle("FrameBorderSize", originalSize or 0)
-            end
-        end)
-    end
+    self:FlashBorder(widget, UIStyle.TextStyles.Error, generation)
+end
 
 --- Find an entry from the drag payload in the current resolved list.
 ---@param data ModListDragPayload
@@ -497,8 +518,8 @@ function LeftPane:FindDropEntry(data)
         if entry.id == data.id and entry.kind == data.kind then
             return entry
         end
-            end
-        end
+    end
+end
 
 --- Interpret header drops before asking the state owner to save the move.
 ---@param widget ExtuiStyledRenderable
@@ -521,14 +542,14 @@ function LeftPane:ApplyModListDrop(widget, source, generation)
     end
     if dragged.kind == "folder" and destination ~= "Main" then
         self:RefuseModListDrop(widget, generation, "nested")
-            return
-        end
+        return
+    end
     local _, reason = self.visibility:Move(dragged, source.group, destination, target, self.resolved)
     if reason then
         self:RefuseModListDrop(widget, generation, reason)
     else
         -- Rebuild only after persistence succeeds; the current settings page stays intact.
-            self:RebuildModEntries(self.mods)
+        self:RebuildModEntries(self.mods)
     end
 end
 
@@ -615,39 +636,43 @@ end
 ---@param createdUUIDs table<string, boolean>
 ---@return ExtuiTree header
 function LeftPane:RenderModListGroup(id, label, items, hidden, createdUUIDs)
-        local header = self.modEntriesGroup:AddTree(label)
-        header.CollapsingHeader = true
-        local expanded = self.expandedGroups[id] == true
+    local header = self.modEntriesGroup:AddTree(label)
+    header.CollapsingHeader = true
+    local expanded = self.expandedGroups[id] == true
     if expanded then
         header:SetStyle("ItemSpacing", 8, 2)
     end
-        local box = self.modEntriesGroup:AddTable("MCM_Group_" .. id, 1)
-        box.BordersOuter = true
-        box.RowBg = true
-        box:SetColor("TableBorderStrong", UIStyle.UnofficialColors["GroupBoxBorder"])
-        box:SetColor("TableRowBg", UIStyle.UnofficialColors["GroupBoxBg"])
-        box:SetStyle("CellPadding", hidden and 2 or 4, 6)
-        box.Visible = expanded
-        header:SetOpen(expanded, "Always")
-        header.OnExpand = function()
-            self.expandedGroups[id] = true
-            header:SetStyle("ItemSpacing", 8, 2)
-            box.Visible = true
-        end
-        header.OnCollapse = function()
-            self.expandedGroups[id] = false
-            box.Visible = false
+    local box = self.modEntriesGroup:AddTable("MCM_Group_" .. id, 1)
+    box.BordersOuter = true
+    box.RowBg = true
+    box:SetColor("TableBorderStrong", UIStyle.UnofficialColors["GroupBoxBorder"])
+    box:SetColor("TableRowBg", UIStyle.UnofficialColors["GroupBoxBg"])
+    box:SetStyle("CellPadding", hidden and 2 or 4, 6)
+    box.Visible = expanded
+    header:SetOpen(expanded, "Always")
+    header.OnExpand = function()
+        self.expandedGroups[id] = true
+        header:SetStyle("ItemSpacing", 8, 2)
+        box.Visible = true
+    end
+    header.OnCollapse = function()
+        self.expandedGroups[id] = false
+        box.Visible = false
         -- Recreate the header to restore inherited spacing; SE cannot unset the override.
-            self:RebuildModEntries(self.mods)
-        end
-        local cell = box:AddRow():AddCell()
-        if not hidden and #items == 0 then
+        self:RebuildModEntries(self.mods)
+    end
+    local cell = box:AddRow():AddCell()
+    if not hidden and #items == 0 then
         self:CreateEmptyFolderDropTarget(cell, id)
-        end
+    end
     self:RenderModListItems(cell, items, id, hidden, createdUUIDs)
     self:CreateMainDropTarget(id)
-        return header
+    if id == self.newFolderId then
+        self.newFolderId = nil
+        self:FlashBorder(header, UIStyle.UnofficialColors["TooltipBorder"], self.listGeneration)
     end
+    return header
+end
 
 --- Give the entire empty-folder row a drop target
 ---@param cell ExtuiTreeParent
@@ -682,18 +707,18 @@ end
 ---@param hidden boolean
 ---@param createdUUIDs table<string, boolean>
 function LeftPane:RenderModListItems(container, items, groupId, hidden, createdUUIDs)
-        for i, item in ipairs(items) do
-            if item.pinned and i == 1 then
+    for i, item in ipairs(items) do
+        if item.pinned and i == 1 then
             self:ConfigureModListDropTarget(addPinnedHeader(container), item.kind, item.id, groupId, true)
-            end
-            if item.kind == "folder" then
+        end
+        if item.kind == "folder" then
             local header = self:RenderModListGroup(item.id, item.name:gsub("#", "") .. "##folder_" .. item.id,
                 item.items, false, createdUUIDs)
-                self:ConfigureModListDrag(header, "folder", item.id, groupId)
-                header.OnRightClick = function() self:OpenFolderMenu(item, false) end
-            else
-                self:createModEntries({ item.id }, container, hidden, createdUUIDs, groupId)
-            end
+            self:ConfigureModListDrag(header, "folder", item.id, groupId)
+            header.OnRightClick = function() self:OpenFolderMenu(item, false) end
+        else
+            self:createModEntries({ item.id }, container, hidden, createdUUIDs, groupId)
+        end
         if item.pinned and items[i + 1] and not items[i + 1].pinned then
             local separator = container:AddSeparator()
             local nextItem = items[i + 1]
@@ -731,7 +756,7 @@ function LeftPane:RenderHiddenGroup(items, createdUUIDs)
     else
         self.expandedGroups.Hidden = false
     end
-    end
+end
 
 --- A childless item receives its own right click; containers see their last child instead.
 function LeftPane:CreateBlankSpaceMenuTarget()
