@@ -10,4 +10,13 @@ if Mods.Dribbles then
     Ext.Require("Client/DribbleSpec/VisibilityManager.test.lua")
     Ext.Require("Client/DribbleSpec/ModListState.test.lua")
     Ext.Require("Client/DribbleSpec/LeftPaneModEntryMenu.test.lua")
+    Ext.Require("Client/DribbleSpec/SidebarFade.test.lua")
+    Ext.Require("Client/DribbleSpec/IMGUIWidgetOnChangeValue.test.lua")
+    Ext.Require("Client/DribbleSpec/EventButtonWidgetConstruction.test.lua")
+    Ext.Require("Client/DribbleSpec/DialogButtonStack.test.lua")
+    Ext.Require("Client/DribbleSpec/NativeKeybindingOwnership.test.lua")
+    Ext.Require("Client/DribbleSpec/ListV2Ownership.test.lua")
+    Ext.Require("Client/DribbleSpec/MessageBoxOwnership.test.lua")
+    Ext.Require("Client/DribbleSpec/EventButtonSubscriptionOwnership.test.lua")
+    Ext.Require("Client/DribbleSpec/MCMProxyDisclaimerGeneration.test.lua")
 end

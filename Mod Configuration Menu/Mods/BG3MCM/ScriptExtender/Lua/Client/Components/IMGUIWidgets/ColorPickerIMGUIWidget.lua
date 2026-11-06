@@ -20,3 +20,9 @@ end
 function ColorPickerIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Color = value
 end
+
+---@param value { Color: vec4 }
+---@return vec4
+function ColorPickerIMGUIWidget:GetOnChangeValue(value)
+    return value.Color
+end

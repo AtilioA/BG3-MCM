@@ -24,8 +24,11 @@ EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget, {
     _isCooldownActive = false
 })
 
--- Rx subject for callback events
-local RX = { Subject = Ext.Require("Lib/reactivex/subjects/subject.lua") }
+-- Rx subject for callback events; Observer lets a widget own its registry subscription before replay
+local RX = {
+    Subject = Ext.Require("Lib/reactivex/subjects/subject.lua"),
+    Observer = Ext.Require("Lib/reactivex/observer.lua")
+}
 
 -- Gets localized text for a handle, falling back to fallbackText if handle is nil/empty or no translation found
 local function localize(handle, fallbackText)
@@ -61,7 +64,6 @@ function EventButtonIMGUIWidget:GetButtonLabel(setting)
     local handles = setting:GetHandles() or {}
 
     local hasLabel = self:HasLabel(setting)
-    local hasIcon = self:HasIcon(setting)
 
     -- Fallback label is the localized name or the setting ID if localization is missing
     local fallbackLabel = setting:GetLocaName()
@@ -79,44 +81,49 @@ function EventButtonIMGUIWidget:GetButtonLabel(setting)
     return rawLabel
 end
 
+--- Creates the configured image button, cleaning up a button whose icon cannot be used
+---@param container ExtuiGroup
+---@param label string
+---@param icon table Options.Icon of the setting
+---@param settingId string
+---@return ExtuiImageButton|nil button nil when the caller must use a text button
+local function createImageButton(container, label, icon, settingId)
+    local button, isUsable
+
+    -- AddImageButton throws on an invalid size, before it creates a child.
+    local success, err = pcall(function()
+        local iconSize = IMGUIWidget:GetIconSizes(2)
+        if icon.Size then
+            iconSize = { icon.Size.Width, icon.Size.Height }
+        end
+
+        button = container:AddImageButton(label, icon.Name, iconSize)
+        isUsable = button.Image and button.Image.Icon ~= ""
+    end)
+    if not success then
+        MCMWarn(0, "Failed to load icon for event_button '%s': %s", settingId, err)
+    end
+
+    if isUsable then return button end
+    if not button then return nil end
+
+    -- Destroy throws when the handle is stale; the text button must still be created.
+    local destroyed, destroyErr = pcall(function() button:Destroy() end)
+    if not destroyed then
+        MCMWarn(0, "Failed to load icon for event_button '%s': %s", settingId, destroyErr)
+    end
+    return nil
+end
+
 function EventButtonIMGUIWidget:CreateButton()
     local buttonLabel = self:GetButtonLabel()
     local setting = self.Widget.Setting
     local options = setting:GetOptions() or {}
     local useIcon = options.Icon and options.Icon.Name and options.Icon.Name ~= ""
     local buttonContainer = self.Widget.Group
-    -- Create either an image button or a regular button
-    if useIcon then
-        local success, button = xpcall(function()
-            local iconSize = IMGUIWidget:GetIconSizes(2)
-            if options.Icon.Size then
-                iconSize = { options.Icon.Size.Width, options.Icon.Size.Height }
-            end
 
-            local btn = buttonContainer:AddImageButton(buttonLabel, options.Icon.Name, iconSize)
-
-            if not btn.Image or btn.Image.Icon == "" then
-                btn:Destroy()
-                btn = buttonContainer:AddButton(buttonLabel)
-            end
-
-            return btn
-        end, function(err)
-            -- Fallback to regular button if icon fails to load
-            MCMWarn(0, "Failed to load icon for event_button '%s': %s", setting:GetId(), err)
-            return buttonContainer:AddButton(buttonLabel)
-        end)
-
-        self.Widget.Button = success and button or nil
-
-        -- If xpcall failed but didn't return a button, create a regular button
-        if not self.Widget.Button then
-            self.Widget.Button = buttonContainer:AddButton(buttonLabel)
-        end
-    else
-        -- Create a regular button
-        self.Widget.Button = buttonContainer:AddButton(buttonLabel)
-    end
+    self.Widget.Button = useIcon and createImageButton(buttonContainer, buttonLabel, options.Icon, setting:GetId())
+        or buttonContainer:AddButton(buttonLabel)
 
     self.Widget.CooldownGroup = buttonContainer:AddGroup("CooldownGroup_" .. setting:GetId())
 end
@@ -326,14 +333,19 @@ end
 function EventButtonIMGUIWidget:RegisterCallbackSub()
     -- Subscribe to registry updates so we know when a callback becomes available or is removed.
     if self._registrySubscription then return end
-    local ok, sub = pcall(function()
-        return EventButtonRegistry.GetSubject():Subscribe(function(newRegistry)
-            self:UpdateButtonState(newRegistry)
-        end)
-    end)
 
-    if ok and sub then
-        self._registrySubscription = sub
+    -- BehaviorSubject attaches the observer, then replays before Subscribe returns, so a replay error would lose a returned handle.
+    local observer = RX.Observer.Create(function(newRegistry)
+        self:UpdateButtonState(newRegistry)
+    end)
+    self._registrySubscription = observer
+
+    -- The observer stays attached after a replay error, so a later registry change can still repair the button state.
+    local ok, err = pcall(function()
+        EventButtonRegistry.GetSubject():Subscribe(observer)
+    end)
+    if not ok then
+        MCMWarn(0, "Failed to apply registry state to event_button '%s': %s", self.Widget.Setting:GetId(), err)
     end
 end
 

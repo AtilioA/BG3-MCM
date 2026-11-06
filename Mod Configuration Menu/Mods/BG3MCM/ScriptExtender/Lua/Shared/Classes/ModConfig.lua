@@ -83,6 +83,10 @@ end
 --- Save the settings for a mod to the settings file with tab and section information.
 --- @param modUUID GUIDSTRING The mod's UUID to save the settings for.
 function ModConfig:SaveSettingsForMod(modUUID)
+    if self.mods[modUUID].settingsSaveBlocked then
+        MCMWarn(0, "Settings for mod %s were not saved because the loaded file is ambiguous.", modUUID)
+        return
+    end
     local configFilePath = self:GetSettingsFilePath(modUUID)
     local blueprint = self.mods[modUUID].blueprint
     local settings = self.mods[modUUID].settingsValues
@@ -134,6 +138,7 @@ function ModConfig:LoadMCMParams()
             return defaultConfig
         end
 
+        -- Expects malformed JSON; the parse failure is reported as a warning below.
         local success, data = pcall(Ext.Json.Parse, configFileContent)
         if not success then
             MCMWarn(0, "Failed to parse MCM config file: %s", paramsFilepath)
@@ -207,7 +212,12 @@ end
 function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
     MCMSuccess(1, "Loaded settings for mod: %s", Ext.Mod.GetMod(modUUID).Info.Name)
     settings = LoadedSettingsRepair:Repair(blueprint, settings)
-    JsonLayer:SaveJSONFile(settingsFilePath, settings)
+    self.mods[modUUID].settingsSaveBlocked = settings == nil
+    if settings then
+        JsonLayer:SaveJSONFile(settingsFilePath, settings)
+    else
+        settings = Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
+    end
 
     self.mods[modUUID].settingsValues = settings
 
@@ -220,6 +230,7 @@ end
 ---@param settingsFilePath string The file path of the settings.json file
 function ModConfig:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
     local defaultSettingsJSON = Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
+    self.mods[modUUID].settingsSaveBlocked = false
     self.mods[modUUID].settingsValues = defaultSettingsJSON
     MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
         Ext.Mod.GetMod(modUUID).Info.Name, settingsFilePath)
@@ -259,6 +270,7 @@ function ModConfig:LoadBlueprintForMod(uuid)
     local modData = Ext.Mod.GetMod(uuid)
     MCMDebug(3, "Checking mod: %s", modData.Info.Name)
 
+    -- Expects blueprint load and submit errors; HandleLoadBlueprintError reports them.
     local status, err = pcall(function()
         self:SubmitBlueprint(JsonLayer:LoadBlueprintForMod(modData), modData.Info.ModuleUUID)
     end)

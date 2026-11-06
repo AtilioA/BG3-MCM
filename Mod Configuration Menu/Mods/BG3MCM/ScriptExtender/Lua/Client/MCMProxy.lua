@@ -33,18 +33,18 @@ function MCMProxy:LoadConfigs()
     end
 end
 
---- Insert a mod menu tab
+--- Build the game-state handler for one tab insertion request.
 ---@param self MCMProxy
 ---@param modUUID string The UUID of the mod
 ---@param tabName string|nil The name of the tab to be inserted, required only when the tab does not exist yet
 ---@param tabCallback function The callback function to create the tab
 ---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
 ---@param tabId? string Blueprint TabId of the target tab; matches the tab regardless of language
----@return nil
-function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
+---@return fun(gameState: any) handleGameState
+function MCMProxy:CreateTabInsertionHandler(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
     local disclaimerTab, disclaimerElement
     local inserted = false
-    local function handleGameState(gameState)
+    return function(gameState)
         if inserted then return end
         -- This timer is a workaround. Ideally, we should be able to use this value directly. May refactor this if we get a way to query the game state directly.
         VCTimer:OnTicks(2, function()
@@ -67,6 +67,7 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer
                 end)
             elseif gameState == "Running" then
                 if disclaimerElement then
+                    -- Expects a stale disclaimer element; clearing its label may fail.
                     xpcall(function() disclaimerElement.Label = "" end, function() end)
                 end
 
@@ -79,7 +80,18 @@ function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer
             end
         end)
     end
+end
 
+--- Insert a mod menu tab
+---@param self MCMProxy
+---@param modUUID string The UUID of the mod
+---@param tabName string|nil The name of the tab to be inserted, required only when the tab does not exist yet
+---@param tabCallback function The callback function to create the tab
+---@param skipDisclaimer? boolean If true, skip the disclaimer and render tab content immediately (default: false)
+---@param tabId? string Blueprint TabId of the target tab; matches the tab regardless of language
+---@return nil
+function MCMProxy:InsertModMenuTab(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
+    local handleGameState = self:CreateTabInsertionHandler(modUUID, tabName, tabCallback, skipDisclaimer, tabId)
     handleGameState(Ext.Utils.GetGameState())
     Ext.Events.GameStateChanged:Subscribe(function(e)
         handleGameState(e.ToState)

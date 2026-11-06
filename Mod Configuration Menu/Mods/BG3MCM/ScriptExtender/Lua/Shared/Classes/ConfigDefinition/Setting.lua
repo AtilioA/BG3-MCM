@@ -127,7 +127,7 @@ end
 
 ---@return MCMSettingValue
 function BlueprintSetting:GetDefault()
-    return self.Default
+    return type(self.Default) == "table" and table.deepcopy(self.Default) or self.Default
 end
 
 -- REVIEW: GetLoca- or just always use handle logic? I don't see a reason to offer a way to not use handles

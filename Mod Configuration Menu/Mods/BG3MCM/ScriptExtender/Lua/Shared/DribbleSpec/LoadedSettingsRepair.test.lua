@@ -225,4 +225,108 @@ D.describe("LoadedSettingsRepair", { tags = { "preprocessing", "unit" } }, funct
         D.expect(settings["unknown-empty"]).toEqual({})
         D.expect(settings["unknown-value"]).toBeNil()
     end)
+    D.test("list load normalizes aliases and is idempotent", function()
+        local blueprint = Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1], SchemaVersion = 1,
+            Settings = { { Id = "list", OldId = "old-list", Type = "list_v2",
+                Default = { enabled = true, elements = {} } } }
+        })
+        local input = { ["old-list"] = {
+            enabled = false, Enabled = true, elements = {
+                { name = "one", metadata = "keep" }, { name = "two", enabled = false }
+            }, Elements = {}, extra = "keep"
+        } }
+        local result = LoadedSettingsRepair:Repair(blueprint, input)
+        local list = result.list
+        D.expect(list.enabled).toBe(false)
+        D.expect(list.Enabled).toBeNil()
+        D.expect(list.Elements).toBeNil()
+        D.expect(list.extra).toBe("keep")
+        D.expect(list.elements[1].enabled).toBe(true)
+        D.expect(list.elements[1].metadata).toBe("keep")
+        D.expect(list.elements[2].enabled).toBe(false)
+        D.expect(input["old-list"].elements[1].enabled).toBeNil()
+        D.expect(LoadedSettingsRepair:Repair(blueprint, result)).toEqual(result)
+    end)
+
+    D.test("historical list preserves false and independent Enabled setting", function()
+        local blueprint = Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1], SchemaVersion = 1,
+            Settings = {
+                { Id = "list", Type = "list_v2", Default = { enabled = true, elements = {} } },
+                { Id = "Enabled", Type = "checkbox", Default = true },
+            }
+        })
+        local result = LoadedSettingsRepair:Repair(blueprint, {
+            group = { list = { Enabled = false, Elements = { { name = "a", enabled = false } } } },
+            Enabled = true,
+        })
+        D.expect(result.Enabled).toBe(true)
+        D.expect(result.list.enabled).toBe(false)
+        D.expect(result.list.elements[1].enabled).toBe(false)
+    end)
+
+    D.test("renamed legacy array and canonical list load", function(ctx)
+        ctx.stub(NotificationManager, "CreateIMGUINotification", function() end)
+        local blueprint = Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1], SchemaVersion = 1,
+            Settings = {
+                { Id = "list", OldId = "old-list", Type = "list_v2",
+                    Default = { enabled = true, elements = {} } },
+            }
+        })
+        local migrated = LoadedSettingsRepair:Repair(blueprint, { ["old-list"] = { "first", "second" } })
+        D.expect(migrated.list.elements[1].name).toBe("first")
+        D.expect(migrated.list.elements[2].name).toBe("second")
+        local canonical = { enabled = false, elements = { { name = "a", enabled = false } } }
+        D.expect(LoadedSettingsRepair:Repair(blueprint, { list = canonical }).list).toEqual(canonical)
+    end)
+
+    D.test("section with list-shaped child setting IDs remains a section", function()
+        local blueprint = Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1], SchemaVersion = 1,
+            Tabs = { { TabId = "group", TabName = "Group", Settings = {
+                { Id = "enabled", Type = "checkbox", Default = true },
+                { Id = "elements", Type = "checkbox", Default = true }
+            } } }
+        })
+        local result = LoadedSettingsRepair:Repair(blueprint, { group = { enabled = false, elements = true } })
+        D.expect(result.enabled).toBe(false)
+        D.expect(result.elements).toBe(true)
+    end)
+
+    D.test("object and mixed list values are not migrated as arrays", function(ctx)
+        local notifications = 0
+        ctx.stub(NotificationManager, "CreateIMGUINotification", function() notifications = notifications + 1 end)
+        local blueprint = Blueprint:New({
+            ModUUID = TestConstants.ModuleUUIDs[1], SchemaVersion = 1,
+            Settings = { { Id = "list", Type = "list_v2", Default = { enabled = true, elements = {} } } }
+        })
+        LoadedSettingsRepair:Repair(blueprint, { list = { [1] = "a", extra = "metadata" } })
+        LoadedSettingsRepair:Repair(blueprint, { list = { unexpected = "metadata" } })
+        D.expect(notifications).toBe(0)
+    end)
+
+    D.test("ambiguous section prevents both immediate and later saves", function(ctx)
+        local modUUID = TestConstants.ModuleUUIDs[1]
+        local blueprint = Blueprint:New({
+            ModUUID = modUUID, SchemaVersion = 1,
+            Settings = { { Id = "list", Type = "list_v2", Default = { enabled = true, elements = {} } } },
+            Tabs = { { TabId = "list", TabName = "List", Settings = {
+                { Id = "Enabled", Type = "checkbox", Default = true },
+                { Id = "Elements", Type = "checkbox", Default = true }
+            } } }
+        })
+        local raw = { list = { Enabled = false, Elements = false } }
+        D.expect(LoadedSettingsRepair:Repair(blueprint, raw)).toBeNil()
+        local config = setmetatable({ mods = { [modUUID] = { blueprint = blueprint } } }, { __index = ModConfig })
+        local saves = 0
+        ctx.stub(JsonLayer, "SaveJSONFile", function() saves = saves + 1 end)
+        config:HandleLoadedSettings(modUUID, blueprint, raw, "unused")
+        D.expect(config.mods[modUUID].settingsValues.list.enabled).toBe(true)
+        config:SaveAllSettings()
+        config:UpdateAllSettingsForMod(modUUID, config.mods[modUUID].settingsValues)
+        D.expect(saves).toBe(0)
+    end)
+
 end)

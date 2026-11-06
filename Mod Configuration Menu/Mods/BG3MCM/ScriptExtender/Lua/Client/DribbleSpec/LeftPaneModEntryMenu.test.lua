@@ -451,7 +451,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     D.test("releasing the last hold outside the sidebar resumes collapse and fade", function()
         local scheduled, faded = 0, 0
         local controller = setmetatable({ isHovered = false, windowOpacity = 0.5,
-            menuScrollChildWindow = { SetStyle = function() end },
+            menuScrollChildWindow = { StatusFlags = {}, SetStyle = function() end },
             rightPane = { IsCurrentModDetached = function() return false end },
             CancelAutoCollapse = function() end,
             ScheduleAutoCollapse = function() scheduled = scheduled + 1 end,
@@ -479,20 +479,73 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(held).toBe(false)
     end)
 
-    D.test("leaving the sidebar releases a menu hold and schedules collapse", function(ctx)
+    D.test("leaving the sidebar schedules collapse", function(ctx)
         ctx.stub(MCMAPI, "GetSettingValue", function() return true end)
         local leave, scheduled
         local controller = setmetatable({ isHovered = true, windowOpacity = 1,
-            sidebarHolds = { menu = true },
-            menuScrollChildWindow = { Visible = true, SetStyle = function() end },
+            menuScrollChildWindow = { Visible = true, StatusFlags = {}, SetStyle = function() end },
             rightPane = { IsCurrentModDetached = function() return false end },
             setupHoverHandlers = function(_, _, _, onLeave) leave = onLeave end,
             ScheduleAutoCollapse = function() scheduled = true end,
             FadeSidebarOutAlpha = function() end }, { __index = DualPaneController })
         controller:AttachHoverListeners()
         leave()
-        D.expect(controller.sidebarHolds.menu).toBe(nil)
         D.expect(scheduled).toBe(true)
+    end)
+
+    D.test("selecting a mod keeps the sidebar open", function(ctx)
+        ctx.stub(MCMAPI, "GetSettingValue", function() return true end)
+        local toggled, switched = false, false
+        ctx.stub(DualPane, "SwitchVisibleContent", function() switched = true end)
+        ctx.stub(DualPane, "ToggleSidebar", function() toggled = true end)
+        local button = { SetStyle = function() end, SetColor = function() end }
+        local pane = setmetatable({ parent = { AddButton = function() return button end } }, LeftPane)
+        pane:CreateMenuButton("Mod", nil, MOD_A)
+        button.OnClick()
+        D.expect(switched).toBe(true)
+        D.expect(toggled).toBe(false)
+    end)
+
+    D.test("folder and mod context titles hold the sidebar while hovered", function(ctx)
+        local held = false
+        ctx.stub(DualPane, "HoldSidebar", function(_, _, value) held = value end)
+        ctx.stub(DualPane, "rightPane", { detachedWindows = {} })
+        for _, kind in ipairs({ "folder", "mod" }) do
+            local popup = FakePopup()
+            local pane = setmetatable({ parent = { AddPopup = function() return popup end },
+                mods = { [ModuleUUID] = { blueprint = { GetModName = function() return "MCM" end } } },
+                visibility = ModListState:New(FakeStore()) }, LeftPane)
+            if kind == "folder" then
+                pane:OpenFolderMenu({ id = "Main", name = "Main list" }, false)
+            else
+                pane:OpenModEntryMenu(ModuleUUID, false)
+            end
+            local title = popup.texts[1]
+            title.OnHoverEnter()
+            D.expect(held).toBe(true)
+            title.OnHoverLeave()
+            D.expect(held).toBe(false)
+        end
+    end)
+
+    D.test("a popup row holds the sidebar until hover leave or click", function(ctx)
+        local held = false
+        ctx.stub(DualPane, "HoldSidebar", function(_, _, value) held = value end)
+        local popup = FakePopup()
+        local clicked = false
+        local pane = setmetatable({ parent = { AddPopup = function() return popup end },
+            visibility = ModListState:New(FakeStore()), resolved = { main = {} } }, LeftPane)
+        pane:OpenFolderMenu({ id = "Main", name = "Main" }, false)
+        local row = popup.items[1]
+        row.OnHoverEnter()
+        D.expect(held).toBe(true)
+        row.OnHoverLeave()
+        D.expect(held).toBe(false)
+        row.OnHoverEnter()
+        ctx.stub(pane, "OpenFolderNamePopup", function() clicked = true end)
+        row.OnClick()
+        D.expect(held).toBe(false)
+        D.expect(clicked).toBe(true)
     end)
 
     D.test("folder popup uses the configured window opacity", function()
@@ -527,11 +580,28 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             visibility = ModListState:New(FakeStore({}, true)), mods = {}, resolved = { main = {} },
             RebuildModEntries = function() error("must not rebuild") end }, LeftPane)
         pane:OpenFolderNamePopup(nil, MOD_A)
+        local errorText = popup.texts[#popup.texts]
+        D.expect(errorText.Visible).toBe(false)
         popup.input.Text = "Tools"
         popup.buttons[1].OnClick()
         D.expect(pane.namePopup).toBe(popup)
         D.expect(popup.input.Text).toBe("Tools")
-        D.expect(popup.texts[#popup.texts].Label ~= "").toBe(true)
+        D.expect(errorText.Label ~= "").toBe(true)
+        D.expect(errorText.Visible).toBe(true)
+    end)
+
+    D.test("folder dialog stacks full-width save above cancel", function()
+        local popup = FakePopup()
+        local pane = setmetatable({ parent = { AddPopup = function() return popup end },
+            visibility = ModListState:New(FakeStore()), resolved = { main = {} } }, LeftPane)
+        pane:OpenFolderNamePopup(nil, nil)
+        D.expect(#popup.buttons).toBe(2)
+        for _, button in ipairs(popup.buttons) do
+            D.expect(button.Size).toEqual({ -1, 0 })
+            D.expect(button.SameLine).toBe(nil)
+        end
+        popup.buttons[2].OnClick()
+        D.expect(pane.namePopup).toBe(nil)
     end)
 
     D.test("MCM menu retains detach and cannot start a list drag", function()

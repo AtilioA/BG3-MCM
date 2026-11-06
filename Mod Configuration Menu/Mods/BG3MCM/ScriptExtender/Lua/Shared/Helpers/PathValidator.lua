@@ -33,8 +33,8 @@ function PathValidator:IsValidPathComponent(str)
 
     -- Check for invalid characters
     for _, char in ipairs(self.WINDOWS_INVALID_CHARS) do
-        -- Plain search; mutation-equivalent, as each one-character entry matches only itself.
-        if str:find(char, 1, true) then
+        -- Each entry is a single literal character, also in Lua pattern syntax.
+        if str:find(char) then
             return false, string.format("Path contains invalid character: %s", char)
         end
     end

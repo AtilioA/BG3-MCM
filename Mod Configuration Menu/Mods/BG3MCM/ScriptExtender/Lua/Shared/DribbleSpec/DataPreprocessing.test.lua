@@ -1679,8 +1679,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1])).toBe(false)
     end)
 
-    D.test("TestPreprocessData", function()
-        local data = {
+    local function buildPreprocessTestData()
+        return {
             SchemaVersion = 1,
             ModName = "Test Mod",
             Tabs = {
@@ -1716,8 +1716,10 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
                 }
             }
         }
+    end
 
-        local preprocessedData = DataPreprocessing:PreprocessData(data, ModuleUUID)
+    D.test("TestPreprocessData", function()
+        local preprocessedData = DataPreprocessing:PreprocessData(buildPreprocessTestData(), ModuleUUID)
 
         if preprocessedData == nil then
             error("Preprocessed data is nil")
@@ -2053,4 +2055,56 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         D.expect(result.ListFolder).toBe("Libraries")
     end)
 
+end)
+
+D.describe("List enabled blueprint regression", { tags = { "list-enabled-regression" } }, function()
+    ---@param default table<string, any>
+    ---@return Blueprint|nil
+    local function build(default)
+        return preprocessAndSanitize({ SchemaVersion = 1, Settings = {
+            { Id = "list", Type = "list_v2", Default = default },
+        } }, TestConstants.ModuleUUIDs[1])
+    end
+
+    D.test("aliases preserve false and default omitted item state", function()
+        local blueprint = build({ enabled = false, Enabled = true,
+            elements = { { name = "one" }, { name = "two", enabled = false, note = "kept" } },
+            Elements = { { name = "ignored", enabled = true } }, note = "kept" })
+        D.expect(blueprint).Not.toBeNil()
+        local value = blueprint:RetrieveDefaultValueForSetting("list")
+        D.expect(value.enabled).toBe(false)
+        D.expect(value.Enabled).toBeNil()
+        D.expect(value.Elements).toBeNil()
+        D.expect(value.elements[1].enabled).toBe(true)
+        D.expect(value.elements[2].enabled).toBe(false)
+        D.expect(value.elements[2].note).toBe("kept")
+        D.expect(value.note).toBe("kept")
+        value.elements[1].enabled = false
+        D.expect(blueprint:RetrieveDefaultValueForSetting("list").elements[1].enabled).toBe(true)
+    end)
+
+    D.test("uppercase aliases and string whole-list boolean", function()
+        local blueprint = build({ Enabled = "false", Elements = { { name = "one", enabled = false } } })
+        D.expect(blueprint).Not.toBeNil()
+        local value = blueprint:RetrieveDefaultValueForSetting("list")
+        D.expect(value.enabled).toBe(false)
+        D.expect(value.elements[1].enabled).toBe(false)
+    end)
+
+    D.test("invalid lowercase alias cannot fall back to uppercase", function()
+        local blueprint = build({ enabled = 42, Enabled = true, elements = {} })
+        D.expect(blueprint).toBeNil()
+    end)
+
+    D.test("rejects invalid enabled types", function()
+        D.expect(build({ Enabled = 42, elements = {} })).toBeNil()
+        D.expect(build({ enabled = "yes", elements = {} })).toBeNil()
+        D.expect(build({ enabled = true, elements = { { name = "one", enabled = "true" } } })).toBeNil()
+    end)
+
+    D.test("lowercase string whole-list boolean converts", function()
+        local blueprint = build({ enabled = "true", elements = {} })
+        D.expect(blueprint).Not.toBeNil()
+        D.expect(blueprint:RetrieveDefaultValueForSetting("list").enabled).toBe(true)
+    end)
 end)

@@ -187,6 +187,7 @@ end
 function IMGUIWidget:ExtractValueFromWidgetEvent(widget, eventValue)
     -- Use the widget's specific GetOnChangeValue if available
     if widget.GetOnChangeValue then
+        -- Expects a subclass GetOnChangeValue error;. the original handler must still run.
         local success, result = xpcall(function()
             return widget:GetOnChangeValue(eventValue)
         end, debug.traceback)
@@ -196,7 +197,7 @@ function IMGUIWidget:ExtractValueFromWidgetEvent(widget, eventValue)
         end
     end
 
-    -- Fallback to returning the entire event value if the specific method failed or doesn't exist
+    -- A failed extraction must not stop the widget's original OnChange handler.
     return eventValue
 end
 

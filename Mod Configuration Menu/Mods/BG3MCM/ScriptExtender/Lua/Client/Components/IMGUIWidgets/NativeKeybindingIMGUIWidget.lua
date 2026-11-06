@@ -1,6 +1,7 @@
 local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
 
 ---@class NativeKeybindingIMGUIWidget: IMGUIWidget
+---@field private _searchSubscription? Subscription
 NativeKeybindingIMGUIWidget = _Class:Create("NativeKeybindingIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup The IMGUI group to attach this widget to
@@ -32,14 +33,26 @@ function NativeKeybindingIMGUIWidget:ClearDynamicElements()
     -- Reset dynamic lists to avoid reentrancy
     self.Widget.DynamicElements.ModHeaders = {}
     self.Widget.DynamicElements.NoResultsText = nil
-    -- Destroy headers silently
     for _, header in ipairs(headers) do
+        -- Expects a handle error from Destroy; the refresh must still render
         pcall(function() header:Destroy() end)
     end
-    -- Destroy no-results text silently
+    -- The text is a sibling of the root header, so the header does not own it
     if noResults then
+        -- Expects a handle error from Destroy; the refresh must still render
         pcall(function() noResults:Destroy() end)
     end
+end
+
+--- Retires this widget. The page owner must call this before it destroys any ancestor of the group.
+function NativeKeybindingIMGUIWidget:Destroy()
+    if self._searchSubscription then
+        self._searchSubscription:Unsubscribe()
+        self._searchSubscription = nil
+    end
+    self:ClearDynamicElements()
+    -- Expects a handle error from Destroy; a failed teardown must not stop the owner from building the next page
+    pcall(function() self.Widget.Group:Destroy() end)
 end
 
 --- Refreshes the UI to reflect current state
@@ -157,7 +170,6 @@ function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
     local categoryHeader = nativeHeader:AddCollapsingHeader(catName)
     categoryHeader.DefaultOpen = false
     categoryHeader:AddDummy(5, 5)
-    table.insert(self.Widget.DynamicElements.ModHeaders, categoryHeader)
 
     -- Sort actions by translated names
     local sortedActions = self:SortActionsByTranslatedName(category.Actions)
@@ -222,11 +234,11 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingTables()
         return
     end
 
-    -- Create a collapsible header for native keybindings
+    -- Create a collapsible header for native keybindings; it is the only root, and owns all category headers
     local nativeHeader = group:AddCollapsingHeader(Ext.Loca.GetTranslatedString("h692c5bc059d841ccba0bc66c92f5bb09e53g"))
+    table.insert(self.Widget.DynamicElements.ModHeaders, nativeHeader)
     nativeHeader.DefaultOpen = false
     nativeHeader:AddText(Ext.Loca.GetTranslatedString("hef97155533604ba6adf42a09c666469c0c4c"))
-    table.insert(self.Widget.DynamicElements.ModHeaders, nativeHeader)
 
     -- Sort and render categories
     local sortedCategories = self:SortCategoriesByTranslatedName(categories)
