@@ -62,9 +62,6 @@ function LeftPane:CreateMenuButton(text, description, uuid, parent)
             DualPane.rightPane:ReattachModGroup(uuid)
         end
         DualPane:SwitchVisibleContent(button, uuid)
-        if MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID) then
-            DualPane:ToggleSidebar()
-        end
     end
     if description and description ~= "" then
         IMGUIHelpers.AddTooltip(button, description, "MenuButton_" .. text .. "_" .. uuid .. "_TOOLTIP")
@@ -79,6 +76,24 @@ local FOLDER_NAME_INPUT_WIDTH = 320
 ---@param held boolean
 local function holdSidebar(key, held)
     if DualPane and DualPane.HoldSidebar then DualPane:HoldSidebar(key, held) end
+end
+
+--- Keep the sidebar open while the pointer is on a popup widget; a popup can extend outside the sidebar.
+---@param widget ExtuiStyledRenderable
+local function holdSidebarWhileHovered(widget)
+    widget.OnHoverEnter = function() holdSidebar("menuRow", true) end
+    widget.OnHoverLeave = function() holdSidebar("menuRow", false) end
+end
+
+--- A click can close the popup without a hover leave, so the hold also ends with the click.
+---@param row ExtuiStyledRenderable
+---@param action fun()
+local function setPopupRowAction(row, action)
+    holdSidebarWhileHovered(row)
+    row.OnClick = function()
+        holdSidebar("menuRow", false)
+        action()
+    end
 end
 
 --- Create a sidebar popup with the MCM tooltip frame, so all sidebar popovers read as one family
@@ -112,7 +127,7 @@ function LeftPane:OpenFolderNamePopup(folderId, modUUID)
         end
     end
     local title = popup:AddText(Ext.Loca.GetTranslatedString(folderId and "h24ca58cb5e534e658e3ff773c73b12c4e522" or
-    "h3528e5d91a66432f89f8a43cf3c33feac579"))
+        "h3528e5d91a66432f89f8a43cf3c33feac579"))
     title:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     popup:AddSeparator()
     popup:AddText(Ext.Loca.GetTranslatedString("h77a53621d61b4a3d92c841adaec0a86be116"))
@@ -124,10 +139,12 @@ function LeftPane:OpenFolderNamePopup(folderId, modUUID)
     input.OnDeactivate = function() holdSidebar("folderName", false) end
     local errorText = popup:AddText("")
     errorText:SetColor("Text", UIStyle.TextStyles.Error)
+    errorText.Visible = false
     local function submit()
         local saved, message = self:SaveFolderName(input.Text, folderId, modUUID, selectedFolder)
         if not saved then
             errorText.Label = message
+            errorText.Visible = true
             return
         end
         holdSidebar("folderName", false)
@@ -136,14 +153,16 @@ function LeftPane:OpenFolderNamePopup(folderId, modUUID)
         self:RebuildModEntries(self.mods)
     end
     input.OnChange = submit
-    popup:AddButton(Ext.Loca.GetTranslatedString("h7c4ad5e52894403493e8470672f35ebe429c")).OnClick = submit
+    local save = popup:AddButton(Ext.Loca.GetTranslatedString("h7c4ad5e52894403493e8470672f35ebe429c"))
+    save.Size = { -1, 0 }
+    setPopupRowAction(save, submit)
     local cancel = popup:AddButton(Ext.Loca.GetTranslatedString("hb2cb29912b4449e29cf5f44be0101b2c311f"))
-    cancel.SameLine = true
-    cancel.OnClick = function()
+    cancel.Size = { -1, 0 }
+    setPopupRowAction(cancel, function()
         holdSidebar("folderName", false)
         popup:Destroy()
         self.namePopup = nil
-    end
+    end)
     popup:Open()
     input:Activate()
 end
@@ -189,8 +208,6 @@ function LeftPane:resetEntryMenu()
         self.modEntryMenu = addStyledPopup(self.parent, "MCM_ModEntryMenu")
     end
     IMGUIHelpers.DestroyChildren(self.modEntryMenu)
-    -- The menu can close without an event; leaving the sidebar releases its hold
-    holdSidebar("menu", true)
     return self.modEntryMenu
 end
 
@@ -217,12 +234,13 @@ function LeftPane:OpenFolderMenu(folder, hidden)
     end
     local title = popup:AddText(name)
     title:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+    holdSidebarWhileHovered(title)
     popup:AddSeparator()
     local function item(label, action)
         popup:AddBulletText("")
         local row = popup:AddSelectable(label, nil, { 0, 28 })
         row.SameLine = true
-        row.OnClick = action
+        setPopupRowAction(row, action)
         return row
     end
     local function change(action)
@@ -242,12 +260,12 @@ function LeftPane:OpenFolderMenu(folder, hidden)
             end)
         end)
         item(
-        Ext.Loca.GetTranslatedString(folder.pinned and "h145bc3f780224f429de5914b2c83fe2ef99b" or
-        "h9a9e01f5b3e7445da14639b5f43a0416bf07"), function()
-            change(function()
-                return self.visibility:SetPinned(folder.id, not folder.pinned, "folder", folder)
+            Ext.Loca.GetTranslatedString(folder.pinned and "h145bc3f780224f429de5914b2c83fe2ef99b" or
+                "h9a9e01f5b3e7445da14639b5f43a0416bf07"), function()
+                change(function()
+                    return self.visibility:SetPinned(folder.id, not folder.pinned, "folder", folder)
+                end)
             end)
-        end)
     end
     local sortItem = item(Ext.Loca.GetTranslatedString("h97487312f07d44869805f651d41c2636855f"), function()
         self:ConfirmModListSort(popup, "h4cb59a2329294dfab78be8f25f39319af600", function()
@@ -272,18 +290,20 @@ end
 ---@param action fun(): boolean
 function LeftPane:ConfirmModListSort(popup, messageHandle, action)
     IMGUIHelpers.DestroyChildren(popup)
-    popup:AddText(Ext.Loca.GetTranslatedString(messageHandle))
-    popup:AddButton(Ext.Loca.GetTranslatedString("h7c4ad5e52894403493e8470672f35ebe429c")).OnClick = function()
+    holdSidebarWhileHovered(popup:AddText(Ext.Loca.GetTranslatedString(messageHandle)))
+    local confirm = popup:AddButton(Ext.Loca.GetTranslatedString("h7c4ad5e52894403493e8470672f35ebe429c"))
+    confirm.Size = { -1, 0 }
+    setPopupRowAction(confirm, function()
         self:FinishModListChange(action())
         popup:Destroy()
         self.modEntryMenu = nil
-        holdSidebar("menu", false)
-    end
-    popup:AddButton(Ext.Loca.GetTranslatedString("hb2cb29912b4449e29cf5f44be0101b2c311f")).OnClick = function()
+    end)
+    local cancel = popup:AddButton(Ext.Loca.GetTranslatedString("hb2cb29912b4449e29cf5f44be0101b2c311f"))
+    cancel.Size = { -1, 0 }
+    setPopupRowAction(cancel, function()
         popup:Destroy()
         self.modEntryMenu = nil
-        holdSidebar("menu", false)
-    end
+    end)
 end
 
 --- Show the right-click menu for one mod entry; opening it does not select the mod
@@ -293,6 +313,7 @@ function LeftPane:OpenModEntryMenu(modUUID, isHidden)
     self:resetEntryMenu()
     local title = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName())
     title:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
+    holdSidebarWhileHovered(title)
     self.modEntryMenu:AddSeparator()
     local isDetached = DualPane.rightPane.detachedWindows[modUUID] ~= nil
     self:AddModMenuAction(
@@ -323,9 +344,9 @@ function LeftPane:AddModMenuAction(label, action, selected)
     item.Selected = selected == true
     item.Disabled = selected == true
     item:SetStyle("SelectableTextAlign", 0, 0.5)
-    item.OnClick = function()
+    setPopupRowAction(item, function()
         self:FinishModListChange(action())
-    end
+    end)
 end
 
 --- Returning to the author default removes the explicit player override.
@@ -382,10 +403,10 @@ function LeftPane:AddOrganizationActions(modUUID, isHidden)
     end
     local pinned = current and current.pinned == true
     self:AddModMenuAction(
-    Ext.Loca.GetTranslatedString(pinned and "h145bc3f780224f429de5914b2c83fe2ef99b" or
-    "h9a9e01f5b3e7445da14639b5f43a0416bf07"), function()
-        return self.visibility:SetPinned(modUUID, not pinned)
-    end)
+        Ext.Loca.GetTranslatedString(pinned and "h145bc3f780224f429de5914b2c83fe2ef99b" or
+            "h9a9e01f5b3e7445da14639b5f43a0416bf07"), function()
+            return self.visibility:SetPinned(modUUID, not pinned)
+        end)
     self.modEntryMenu:AddText(Ext.Loca.GetTranslatedString("ha573c62e2a4a4da1889f6c01adcb3d18e044"))
     self:AddModMenuAction(Ext.Loca.GetTranslatedString("hb06aed8109a44f689d9351a1c469d09ae769"), function()
         return self.visibility:SetFolder(modUUID, false)
@@ -398,9 +419,9 @@ function LeftPane:AddOrganizationActions(modUUID, isHidden)
     end
     self.modEntryMenu:AddBulletText("")
     local newFolder = self.modEntryMenu:AddSelectable(
-    Ext.Loca.GetTranslatedString("h2e65dd988a5e44f38060c645f30dd7c53fa1"), nil, { 0, 28 })
+        Ext.Loca.GetTranslatedString("h2e65dd988a5e44f38060c645f30dd7c53fa1"), nil, { 0, 28 })
     newFolder.SameLine = true
-    newFolder.OnClick = function() self:OpenFolderNamePopup(nil, modUUID) end
+    setPopupRowAction(newFolder, function() self:OpenFolderNamePopup(nil, modUUID) end)
 end
 
 --- Connect a sidebar item to the resolved state at the time of the drop.
@@ -769,7 +790,7 @@ function LeftPane:CreateBlankSpaceMenuTarget()
     blank:SetColor("ButtonActive", { 0, 0, 0, 0 })
     blank.OnRightClick = function()
         self:OpenFolderMenu(
-        { id = "Main", name = Ext.Loca.GetTranslatedString("hb06aed8109a44f689d9351a1c469d09ae769") }, false)
+            { id = "Main", name = Ext.Loca.GetTranslatedString("hb06aed8109a44f689d9351a1c469d09ae769") }, false)
     end
 end
 

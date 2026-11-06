@@ -21,6 +21,8 @@
 ---@field menuCell ExtuiTableCell
 ---@field contentCell ExtuiTableCell
 ---@field lastExpandedWidth number
+---@field animationGeneration number|nil Invalidates superseded width animations
+---@field fadeGeneration number|nil Invalidates pending fade callbacks
 ---@field windowOpacity number Base alpha of the sidebar when fully shown (window_opacity setting)
 DualPaneController = _Class:Create("DualPaneController", nil, {
     window = nil,
@@ -55,7 +57,6 @@ end
 TARGET_WIDTH_COLLAPSED = 0
 HOVER_DELAY_MS = 5000
 
-local SIDEBAR_FADE_START_FACTOR = 0.8
 local SIDEBAR_FADE_END_FACTOR = 0.33
 local MILLISECONDS_PER_SECOND = 1000
 
@@ -91,17 +92,54 @@ function DualPaneController:HoldSidebar(key, held)
         self:CancelAutoCollapse()
         self.menuScrollChildWindow:SetStyle("Alpha", self.windowOpacity)
     elseif wasHeld and not self.isHovered and not self:_shouldSkipCollapseOrFade() then
-        self:ScheduleAutoCollapse()
-        if key == "drag" then
-            Ext.Timer.WaitFor(HOVER_DELAY_MS, function()
-                if not self.isHovered and not self:_shouldSkipCollapseOrFade() then
-                    self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
-                end
-            end)
+        self:_afterPointerLeaves(function()
+            self:ScheduleAutoCollapse()
+            if key == "drag" then
+                local generation = self.fadeGeneration
+                Ext.Timer.WaitFor(HOVER_DELAY_MS, function()
+                    if generation == self.fadeGeneration and not self.isHovered and not self:_shouldSkipCollapseOrFade() then
+                        self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
+                    end
+                end)
+            else
+                self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
+            end
+        end)
+    end
+end
+
+--- Default hover turns false on a click or open popup; HoveredRect stays true until the pointer leaves the sidebar
+---@return boolean
+function DualPaneController:_isPointerInSidebar()
+    for _, flag in ipairs(self.menuScrollChildWindow.StatusFlags) do
+        if flag == "HoveredRect" then return true end
+    end
+    return false
+end
+
+--- Keep the sidebar opaque until the pointer is outside it, then run onLeft; sidebar activity cancels the wait
+---@param onLeft fun()
+function DualPaneController:_afterPointerLeaves(onLeft)
+    self:CancelAutoCollapse()
+    local generation = self.fadeGeneration
+    local function check()
+        if generation ~= self.fadeGeneration then return end
+        if self:_isPointerInSidebar() then
+            self.menuScrollChildWindow:SetStyle("Alpha", self.windowOpacity)
+            Ext.Timer.WaitFor(0, check)
         else
-            self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
+            onLeft()
         end
     end
+    check()
+end
+
+--- Start the collapse countdown and fade once the pointer has really left the sidebar
+function DualPaneController:_startLeaveCountdown()
+    self:_afterPointerLeaves(function()
+        self:ScheduleAutoCollapse()
+        self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
+    end)
 end
 
 -- Helper: Generic animation for sidebar transitions
@@ -114,6 +152,8 @@ end
 ---@return nil
 function DualPaneController:animateSidebar(targetWidth, targetAlphaFactor, expectedState, onComplete)
     local colDef = self.mainLayoutTable.ColumnDefs[1]
+    self.animationGeneration = (self.animationGeneration or 0) + 1
+    local generation = self.animationGeneration
 
     -- Capture starting state
     local startWidth = colDef.Width
@@ -122,7 +162,7 @@ function DualPaneController:animateSidebar(targetWidth, targetAlphaFactor, expec
 
     local function step()
         -- Guard: Stop if state changed (user clicked something else)
-        if self.currentAnimation ~= expectedState then
+        if self.currentAnimation ~= expectedState or generation ~= self.animationGeneration then
             return
         end
 
@@ -253,16 +293,16 @@ function DualPaneController:AttachHoverListeners()
             function()
                 self.isHovered = true
                 self.userHasInteracted = true
+                -- Hover enter fires only without an open popup, so no menu row can still be hovered
+                self:HoldSidebar("menuRow", false)
                 self:CancelAutoCollapse()
                 self.menuScrollChildWindow:SetStyle("Alpha", self.windowOpacity)
             end,
             function()
                 local enabledAutoCollapse = MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
                 if not enabledAutoCollapse then return end
-                self:HoldSidebar("menu", false)
                 self.isHovered = false
-                self:ScheduleAutoCollapse()
-                self:FadeSidebarOutAlpha(HOVER_DELAY_MS / MILLISECONDS_PER_SECOND)
+                self:_startLeaveCountdown()
             end
         )
     else
@@ -296,14 +336,25 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
         return
     end
 
-    self.menuScrollChildWindow:SetStyle("Alpha", SIDEBAR_FADE_START_FACTOR * self.windowOpacity)
+    if self.isHovered or self.currentAnimation then return end
 
+    self.fadeGeneration = (self.fadeGeneration or 0) + 1
+    local generation = self.fadeGeneration
+    local startAlphaFactor = self.menuScrollChildWindow:GetStyle("Alpha") / self.windowOpacity
     local durationMs = durationInS * MILLISECONDS_PER_SECOND
     local startTime = Ext.Timer.MonotonicTime()
 
     local function stepFade()
         -- If the user re-enters before fade-out completes, cancel further fade steps.
-        if self.isHovered or self:_shouldSkipCollapseOrFade() then
+        if generation ~= self.fadeGeneration or self.isHovered or self.currentAnimation
+            or not MCMAPI:GetSettingValue("enable_auto_collapse", ModuleUUID)
+            or self:_shouldSkipCollapseOrFade() then
+            return
+        end
+
+        -- A popup blocks hover enter, so a pointer that returns must be detected here
+        if self:_isPointerInSidebar() then
+            self:_startLeaveCountdown()
             return
         end
 
@@ -312,7 +363,7 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
         local progress = math.min(elapsed / durationMs, 1.0)
 
         -- Calculate new Alpha
-        local currentAlpha = Animation.Lerp(SIDEBAR_FADE_START_FACTOR, SIDEBAR_FADE_END_FACTOR, progress) *
+        local currentAlpha = Animation.Lerp(startAlphaFactor, SIDEBAR_FADE_END_FACTOR, progress) *
             self.windowOpacity
         self.menuScrollChildWindow:SetStyle("Alpha", currentAlpha)
 
@@ -327,6 +378,7 @@ function DualPaneController:FadeSidebarOutAlpha(durationInS)
 end
 
 function DualPaneController:CancelAutoCollapse()
+    self.fadeGeneration = (self.fadeGeneration or 0) + 1
     if self.hoverSubscription then
         self.hoverSubscription:_unsubscribe()
         self.hoverSubscription = nil
@@ -351,7 +403,10 @@ function DualPaneController:ScheduleAutoCollapse()
 
     local scheduler = RX.TimerScheduler.Create()
     self.hoverSubscription = scheduler:Schedule(function()
-        if not self.isHovered then
+        if self.isHovered then return end
+        if self:_isPointerInSidebar() then
+            self:_startLeaveCountdown()
+        else
             self:Collapse()
         end
     end, HOVER_DELAY_MS)
@@ -359,6 +414,7 @@ end
 
 -- Expand the sidebar (menu pane) 'asynchronously'
 function DualPaneController:Expand()
+    self:CancelAutoCollapse()
     -- Set the current animation to "expand". This cancels any ongoing collapse animation.
     self.currentAnimation = "expand"
     HeaderActionsInstance:UpdateToggleButtons(false)
@@ -376,6 +432,7 @@ function DualPaneController:Expand()
 end
 
 function DualPaneController:Collapse()
+    self:CancelAutoCollapse()
     -- self.mainLayoutTable.Resizable = false
 
     -- Store the current width before collapsing. Not working since Width is not updating correctly?
