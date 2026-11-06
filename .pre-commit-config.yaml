@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: bg3-lint
+        name: bg3-lint
+        entry: bg3-lint
+        language: system
+        files: '(\.lua|(^|/)MCM_blueprint\.json)$'
+        # These test fixtures are not real mod blueprints.
+        exclude: '/DribbleSpec/Fixtures/'
