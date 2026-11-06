@@ -11,6 +11,7 @@ MessageBoxMode = {
 ---@field Message string The message to display
 ---@field Mode MessageBoxMode The mode of the message box (determines which buttons are shown)
 ---@field PopupDialog any The IMGUI popup group
+---@field PopupGeneration integer Counts created popups, so an old button cannot close a replacement
 ---@field OkCallback function|nil Callback function for the OK button
 ---@field CancelCallback function|nil Callback function for the Cancel button
 ---@field YesCallback function|nil Callback function for the Yes button
@@ -22,6 +23,24 @@ MessageBoxMode = {
 ---@field ModUUID string|nil The UUID of the mod that owns this message box (for context ID generation)
 ---@field ContextId string|nil A custom context ID for this message box
 MessageBox = {}
+
+---Creates a click handler that runs a response, then closes the popup that owns the button
+---@param box MessageBox
+---@param callbackField string The MessageBox field that holds the response callback
+---@return function
+local function CreateResponseHandler(box, callbackField)
+    local generation = box.PopupGeneration
+    return function()
+        local callback = box[callbackField]
+        if callback then
+            callback()
+        end
+        -- The callback may have shown a replacement popup, which must stay open
+        if box.PopupGeneration == generation then
+            box:Close()
+        end
+    end
+end
 
 ---Creates a new MessageBox instance
 ---@param title string The title of the message box
@@ -36,6 +55,7 @@ function MessageBox:Create(title, message, mode, modUUID, contextId)
         Message = message or "",
         Mode = mode or MessageBoxMode.Ok,
         PopupGroup = nil,
+        PopupGeneration = 0,
         OkCallback = nil,
         CancelCallback = nil,
         YesCallback = nil,
@@ -121,21 +141,21 @@ end
 ---@return MessageBox|nil
 function MessageBox:Show(parentGroup)
     -- FIXME: If a popup is already shown, destroy it first (not working)
-    xpcall(function()
-        if self.PopupDialog then
-            self.PopupDialog:Destroy()
-        end
-    end, function(err) end)
+    local previousPopup = self.PopupDialog
+    self:Close()
 
     -- Create the popup group - either attached to a parent or as a standalone popup
     local group = parentGroup
     if not group then
+        self.PopupDialog = previousPopup
         MCMError(0, "No parent group provided for MessageBox.")
         return nil
     end
 
     self.PopupDialog = group:AddPopup(self.ContextId .. "_Popup")
+    self.PopupGeneration = self.PopupGeneration + 1
     self.PopupDialog:SetSizeConstraints({ 600, 600 })
+    self.PopupDialog:SetStyle("ItemSpacing", 8, 6)
     self.PopupDialog.IDContext = self.ModUUID .. "_" .. self.ContextId
 
     -- Add title text
@@ -158,14 +178,14 @@ function MessageBox:Show(parentGroup)
         self:AddOkButton()
     elseif self.Mode == MessageBoxMode.OkCancel then
         self:AddOkButton()
-        self:AddCancelButton(true) -- true means same line
+        self:AddCancelButton()
     elseif self.Mode == MessageBoxMode.YesNo then
         self:AddYesButton()
-        self:AddNoButton(true) -- true means same line
+        self:AddNoButton()
     elseif self.Mode == MessageBoxMode.YesNoCancel then
         self:AddYesButton()
-        self:AddNoButton(true)
-        self:AddCancelButton(true)
+        self:AddNoButton()
+        self:AddCancelButton()
     end
 
     -- Open the popup
@@ -180,33 +200,21 @@ function MessageBox:AddOkButton()
     local buttonText = self.OkLabel or Ext.Loca.GetTranslatedString("hf03356ba46684764b32d26ff28d3e709af5a") or "OK"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_OkButton"
+    button.Size = { -1, 0 }
     button:SetColor("Button", Color.NormalizedRGBA(117, 140, 74, 0.33))
-    button.OnClick = function()
-        if self.OkCallback then
-            self.OkCallback()
-        end
-        self:Close()
-    end
+    button.OnClick = CreateResponseHandler(self, "OkCallback")
     return button
 end
 
 ---Adds a Cancel button to the popup
----@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
-function MessageBox:AddCancelButton(sameLine)
+function MessageBox:AddCancelButton()
     local buttonText = self.CancelLabel or Ext.Loca.GetTranslatedString("he43ef9b250584bc2840b8b291c73e4b53cb4") or
         "Cancel"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_CancelButton"
-    if sameLine then
-        button.SameLine = true
-    end
-    button.OnClick = function()
-        if self.CancelCallback then
-            self.CancelCallback()
-        end
-        self:Close()
-    end
+    button.Size = { -1, 0 }
+    button.OnClick = CreateResponseHandler(self, "CancelCallback")
     return button
 end
 
@@ -216,37 +224,27 @@ function MessageBox:AddYesButton()
     local buttonText = self.YesLabel or Ext.Loca.GetTranslatedString("ha639028d9ca54b76a72e88059e3d24acd9a7") or "Yes"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_YesButton"
-    button.OnClick = function()
-        if self.YesCallback then
-            self.YesCallback()
-        end
-        self:Close()
-    end
+    button.Size = { -1, 0 }
+    button.OnClick = CreateResponseHandler(self, "YesCallback")
     return button
 end
 
 ---Adds a No button to the popup
----@param sameLine boolean|nil Whether the button should be on the same line as the previous element
 ---@return any The button object
-function MessageBox:AddNoButton(sameLine)
+function MessageBox:AddNoButton()
     local buttonText = self.NoLabel or Ext.Loca.GetTranslatedString("h2f7a7913be50404cbbdd9878ee774cca2113") or "No"
     local button = self.PopupDialog:AddButton(buttonText)
     button.IDContext = self.ModUUID .. "_" .. self.ContextId .. "_NoButton"
-    if sameLine then
-        button.SameLine = true
-    end
-    button.OnClick = function()
-        if self.NoCallback then
-            self.NoCallback()
-        end
-        self:Close()
-    end
+    button.Size = { -1, 0 }
+    button.OnClick = CreateResponseHandler(self, "NoCallback")
     return button
 end
 
 ---Closes the message box
 function MessageBox:Close()
     if self.PopupDialog then
+        -- A cached box can outlive its parent, and IMGUI exposes no destroy event, so the handle can be dead.
+        -- A failed Destroy keeps the reference, so a later Close can retry.
         xpcall(function()
             self.PopupDialog:Destroy()
             self.PopupDialog = nil
