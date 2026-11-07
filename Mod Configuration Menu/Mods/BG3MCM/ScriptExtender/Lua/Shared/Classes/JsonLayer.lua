@@ -153,25 +153,27 @@ function JsonLayer:FlattenSettingsJSON(settings, shouldPreserveFunction)
     local flatJson = {}
 
     -- Function to recursively flatten the table
-    local function flattenTable(tbl)
+    local function flattenTable(tbl, path)
         for key, value in pairs(tbl) do
+            path[#path + 1] = key
             if type(value) == "table" then
-                if shouldPreserveFunction and shouldPreserveFunction(key, value) then
+                if shouldPreserveFunction and shouldPreserveFunction(key, value, path) then
                     -- Preserve the table as a separate top-level key
                     flatJson[key] = value
                 else
                     -- Recurse into nested tables
-                    flattenTable(value)
+                    flattenTable(value, path)
                 end
             else
                 -- Assign non-table values directly
                 flatJson[key] = value
             end
+            path[#path] = nil
         end
     end
 
     -- Start the flattening process from the root
-    flattenTable(settings)
+    flattenTable(settings, {})
 
     return flatJson
 end

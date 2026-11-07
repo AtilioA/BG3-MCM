@@ -375,6 +375,30 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         D.expect(BlueprintPreprocessing:SanitizeBlueprint(duplicateBlueprint, modUUID)).toBeNil()
     end)
 
+    D.test("TestSettingIdCannotMatchSiblingContainerId", function()
+        local function blueprintWith(sectionId, sectionTabId)
+            return Blueprint:New({
+                SchemaVersion = 1,
+                Tabs = {
+                    {
+                        TabId = "tab-1",
+                        TabName = "Tab 1",
+                        Settings = { { Id = "shared", Name = "Shared", Type = "checkbox", Default = false } },
+                        Sections = { { SectionId = sectionId, SectionName = "Section", Settings = {
+                            { Id = "nested", Name = "Nested", Type = "checkbox", Default = true },
+                        } } },
+                    },
+                    { TabId = sectionTabId, TabName = "Tab 2" },
+                }
+            })
+        end
+        local modUUID = TestConstants.ModuleUUIDs[1]
+
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprintWith("shared", "tab-2"), modUUID)).toBeNil()
+        -- The same ID under a different parent uses a different key.
+        D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprintWith("section-1", "shared"), modUUID)).Not.toBeNil()
+    end)
+
     D.test("TestUniqueSectionIds", function()
         local uniqueBlueprint = Blueprint:New({
             SchemaVersion = 1,

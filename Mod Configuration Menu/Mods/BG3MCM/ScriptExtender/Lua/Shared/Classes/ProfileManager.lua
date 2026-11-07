@@ -102,11 +102,20 @@ function ProfileManager:SetCurrentProfile(profileName)
         return false
     end
 
+    local loaded, prepared = ModConfig:LoadSettings(true, profileName)
+    if not loaded then
+        MCMWarn(0, "Profile %s was not activated because some settings could not be loaded.", profileName)
+        return false
+    end
+
     self.SelectedProfile = profileName
+    for modUUID, settings in pairs(prepared) do
+        ModConfig.mods[modUUID].settingsValues = settings
+    end
 
     MCMPrint(1, "Profile set to: %s", profileName)
     self:SaveProfileValuesToConfig()
-    ModConfig:LoadSettings()
+    ModConfig:SaveAllSettings()
 
     local profileSettings = {}
     for modUUID, modSettings in pairs(ModConfig.mods or {}) do
@@ -196,10 +205,11 @@ end
 
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modUUID GUIDSTRING The mod's UUID to get the path for.
+--- @param profileName? string Profile to use, or the current profile when omitted.
 --- @return string The full path to the settings file.
-function ProfileManager:GetModProfileSettingsPath(modUUID)
+function ProfileManager:GetModProfileSettingsPath(modUUID, profileName)
     local MCMPath = Ext.Mod.GetMod(ModuleUUID).Info.Directory
-    local profileName = self:GetCurrentProfile()
+    profileName = profileName or self:GetCurrentProfile()
     local profilePath = MCMPath .. '/' .. "Profiles" .. '/' .. profileName
 
     local modFolderName = Ext.Mod.GetMod(modUUID).Info.Directory

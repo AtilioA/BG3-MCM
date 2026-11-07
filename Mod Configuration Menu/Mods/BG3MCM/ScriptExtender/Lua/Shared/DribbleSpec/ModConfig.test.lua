@@ -17,6 +17,118 @@ D.describe("ModConfig", { tags = { "modconfig", "blueprint", "unit" } }, functio
         syncStateFixture:Restore()
     end)
 
+    D.test("Profile switching preserves cross-branch settings across repeated loads", function(ctx)
+        local modUUID = ModuleUUID
+        local blueprint = Blueprint:New({
+            ModUUID = modUUID, SchemaVersion = 1,
+            Tabs = {
+                { TabId = "A", TabName = "A", Settings = {
+                    { Id = "list", Type = "list_v2", Default = { enabled = true, elements = {} } },
+                    { Id = "count", Type = "int", Default = 1 },
+                } },
+                { TabId = "list", TabName = "List", Settings = {
+                    { Id = "enabled", Type = "checkbox", Default = true },
+                } },
+            },
+        })
+        local originalProfile = ModConfig.profileManager
+        ctx.sandbox:TrackRestore(function() ModConfig.profileManager = originalProfile end)
+        local manager = setmetatable({ SelectedProfile = "Home", Profiles = { "Home", "Away" } },
+            { __index = ProfileManager })
+        ModConfig.profileManager = manager
+        ModConfig.mods = { [modUUID] = { blueprint = blueprint, settingsValues = { enabled = true } } }
+        local files = { ["Away/" .. modUUID] = {
+            A = { list = { enabled = true, elements = { { name = "kept", enabled = false } } }, count = 0 },
+            list = { enabled = false },
+        } }
+        ctx.stub(ModConfig, "GetSettingsFilePath", function(_, id, profile)
+            return (profile or manager.SelectedProfile) .. "/" .. id
+        end)
+        ctx.stub(JsonLayer, "LoadJSONFile", function(_, path) return files[path] end)
+        ctx.stub(JsonLayer, "SaveJSONFile", function(_, path, value) files[path] = value end)
+        manager.SaveProfileValuesToConfig = function() end
+
+        D.expect(manager:SetCurrentProfile("Away")).toBe(true)
+        ModConfig:LoadSettingsForMod(modUUID, blueprint)
+        ModConfig:LoadSettingsForMod(modUUID, blueprint)
+        local values = ModConfig.mods[modUUID].settingsValues
+        D.expect(values.list.elements[1].name).toBe("kept")
+        D.expect(values.list.elements[1].enabled).toBe(false)
+        D.expect(values.enabled).toBe(false)
+        D.expect(values.count).toBe(0)
+        D.expect(files["Away/" .. modUUID].A.list.elements[1].name).toBe("kept")
+
+        files["Away/" .. modUUID].A.list = { enabled = false, elements = {} }
+        D.expect(manager:SetCurrentProfile("Away")).toBe(true)
+        ModConfig:LoadSettingsForMod(modUUID, blueprint)
+        D.expect(ModConfig.mods[modUUID].settingsValues.list.enabled).toBe(false)
+        D.expect(#ModConfig.mods[modUUID].settingsValues.list.elements).toBe(0)
+    end)
+
+    D.test("Invalid mod is isolated on startup and rejects profile switching", function(ctx)
+        local good, bad = "fixture-good", "fixture-bad"
+        local function blueprint(id)
+            return Blueprint:New({ ModUUID = id, SchemaVersion = 1,
+                Settings = { { Id = "enabled", Type = "checkbox", Default = true } } })
+        end
+        local oldProfile = ModConfig.profileManager
+        ctx.sandbox:TrackRestore(function() ModConfig.profileManager = oldProfile end)
+        local manager = setmetatable({ SelectedProfile = "Home", Profiles = { "Home", "Away" } },
+            { __index = ProfileManager })
+        ModConfig.profileManager = manager
+        ModConfig.mods = {
+            [good] = { blueprint = blueprint(good), settingsValues = { enabled = true } },
+            [bad] = { blueprint = blueprint(bad), settingsValues = { enabled = false } },
+        }
+        local writes, profileWrites = {}, 0
+        local warnings = {}
+        ctx.stub(Mods.BG3MCM, "MCMWarn", function(_, message, ...) warnings[#warnings + 1] = string.format(message, ...) end)
+        ctx.stub(ModConfig, "GetSettingsFilePath", function(_, id, profile)
+            return (profile or manager.SelectedProfile) .. "/" .. id
+        end)
+        ctx.stub(JsonLayer, "LoadJSONFile", function(_, path)
+            if path:find(bad, 1, true) then return "not a settings table" end
+            return { enabled = false }
+        end)
+        ctx.stub(JsonLayer, "SaveJSONFile", function(_, path) writes[path] = true end)
+        manager.SaveProfileValuesToConfig = function() profileWrites = profileWrites + 1 end
+
+        D.expect(manager:SetCurrentProfile("Away")).toBe(false)
+        D.expect(manager.SelectedProfile).toBe("Home")
+        D.expect(ModConfig.mods[good].settingsValues.enabled).toBe(true)
+        D.expect(ModConfig.mods[bad].settingsValues.enabled).toBe(false)
+        D.expect(next(writes)).toBeNil()
+        D.expect(profileWrites).toBe(0)
+        D.expect(#syncStateFixture.emittedEvents).toBe(0)
+        D.expect(table.concat(warnings, " "):find(bad, 1, true) ~= nil).toBe(true)
+
+        local loaded = ModConfig:LoadSettings()
+        D.expect(loaded).toBe(false)
+        D.expect(ModConfig.mods[good].settingsValues.enabled).toBe(false)
+        D.expect(ModConfig.mods[bad]).toBeNil()
+        D.expect(writes["Home/" .. good]).toBe(true)
+        D.expect(writes["Home/" .. bad]).toBeNil()
+    end)
+
+    D.test("Invalid repair result fails without installing defaults or writing", function(ctx)
+        local blueprint = Blueprint:New({
+            ModUUID = ModuleUUID,
+            Settings = { { Id = "enabled", Type = "checkbox", Default = true } },
+        })
+        ModConfig.mods = { [ModuleUUID] = { blueprint = blueprint } }
+        local writes = 0
+        ctx.stub(JsonLayer, "SaveJSONFile", function() writes = writes + 1 end)
+        ctx.stub(LoadedSettingsRepair, "Repair", function() return nil end)
+
+        -- A nil repair result is an error, not a request for defaults.
+        local ok, repairError = pcall(function()
+            ModConfig:HandleLoadedSettings(ModuleUUID, blueprint, { enabled = false }, "mock/settings.json")
+        end)
+        D.expect(ok).toBe(false)
+        D.expect(tostring(repairError):find("Invalid loaded settings", 1, true) ~= nil).toBe(true)
+        D.expect(ModConfig.mods[ModuleUUID].settingsValues).toBeNil()
+        D.expect(writes).toBe(0)
+    end)
     D.test("TestSaveSettingsForModShouldPersistRootSettings", function(ctx)
         local modUUID = TestConstants.ModuleUUIDs[1]
         local rawData = {
