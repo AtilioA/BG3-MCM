@@ -5,6 +5,13 @@ BlueprintPreprocessing = _Class:Create("HelperBlueprintPreprocessing", nil)
 -- The UUID of the mod being currently processed
 BlueprintPreprocessing.currentmodUUID = nil
 
+--- Builds the standard contact-the-author sentence appended to validation warnings.
+---@param self HelperBlueprintPreprocessing The preprocessing instance
+---@return string
+local function contactAuthor(self)
+    return "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue."
+end
+
 --- TODO: clean this up, but currently better than nothing
 --- Checks if all elements in the blueprint have valid IDs
 ---@param blueprint Blueprint The blueprint data
@@ -173,12 +180,46 @@ function BlueprintPreprocessing:VerifySettingIDUniqueness(blueprint)
     return isValid
 end
 
+--- Verify that no setting shares an ID with a sibling section or tab, because both would use the same key in the settings file
+---@param blueprint table The blueprint data to verify
+function BlueprintPreprocessing:VerifySettingKeyUniqueness(blueprint)
+    local isValid = true
+
+    BlueprintShape:ForEachElement(blueprint, function(element, elementType)
+        if elementType == "setting" then
+            return
+        end
+
+        local containerIDs = {}
+        for _, section in ipairs(BlueprintShape:GetSections(element)) do
+            containerIDs[section:GetId()] = true
+        end
+        for _, tab in ipairs(BlueprintShape:GetTabs(element)) do
+            containerIDs[tab:GetId()] = true
+        end
+
+        for _, setting in ipairs(BlueprintShape:GetSettings(element)) do
+            if containerIDs[setting:GetId()] then
+                MCMWarn(0,
+                    "Setting ID '%s' matches a sibling section or tab ID in blueprint for mod '%s'. Please contact %s about this issue.",
+                    setting:GetId(),
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Name,
+                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
+                isValid = false
+            end
+        end
+    end)
+
+    return isValid
+end
+
 --- Verify all IDs in the blueprint are unique
 ---@param blueprint table The blueprint data to verify
 function BlueprintPreprocessing:VerifyIDUniqueness(blueprint)
     return self:VerifyTabIDUniqueness(blueprint) and
         self:VerifySectionIDUniqueness(blueprint) and
-        self:VerifySettingIDUniqueness(blueprint)
+        self:VerifySettingIDUniqueness(blueprint) and
+        self:VerifySettingKeyUniqueness(blueprint)
 end
 
 -- REFACTOR: this is way uglier and repetitive than it needs to be. Especially since we have validation functions for each type already. However, I'm too tired to refactor this. It is just validation, it is kinda fine.
@@ -349,101 +390,70 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
     local isValid = true
     local settingId = setting:GetId()
 
-    -- Validate Cooldown if present
-    if options.Cooldown ~= nil then
-        if type(options.Cooldown) ~= "number" then
-            MCMWarn(0,
-                "Options.Cooldown for event_button setting '" .. settingId .. "' must be a number. " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            isValid = false
-        end
+    if options.Cooldown ~= nil and type(options.Cooldown) ~= "number" then
+        MCMWarn(0, "Options.Cooldown for event_button setting '" .. settingId ..
+            "' must be a number. " .. contactAuthor(self))
+        isValid = false
     end
 
-    -- Validate Icon if present
     if options.Icon ~= nil then
         if type(options.Icon) ~= "table" then
-            MCMWarn(0,
-                "Options.Icon for event_button setting '" .. settingId .. "' must be an object with a Name field. " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            MCMWarn(0, "Options.Icon for event_button setting '" .. settingId ..
+                "' must be an object with a Name field. " .. contactAuthor(self))
             isValid = false
         else
             if type(options.Icon.Name) ~= "string" or options.Icon.Name == "" then
-                MCMWarn(0,
-                    "Options.Icon.Name for event_button setting '" .. settingId .. "' must be a non-empty string. " ..
-                    "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                MCMWarn(0, "Options.Icon.Name for event_button setting '" .. settingId ..
+                    "' must be a non-empty string. " .. contactAuthor(self))
                 isValid = false
             end
             if options.Icon.Size ~= nil then
                 if type(options.Icon.Size) ~= "table"
                     or type(options.Icon.Size.Width) ~= "number"
                     or type(options.Icon.Size.Height) ~= "number" then
-                    MCMWarn(0,
-                        "Options.Icon.Size for event_button setting '" ..
-                        settingId .. "' must be a table with numeric Width and Height fields. " ..
-                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    MCMWarn(0, "Options.Icon.Size for event_button setting '" .. settingId ..
+                        "' must be a table with numeric Width and Height fields. " .. contactAuthor(self))
                     isValid = false
                 end
             end
         end
     end
 
-    -- Validate Label if present
     if options.Label ~= nil then
         if type(options.Label) ~= "string" or options.Label == "" then
-            MCMWarn(0,
-                "Options.Label for event_button setting '" .. settingId .. "' must be a non-empty string. " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            MCMWarn(0, "Options.Label for event_button setting '" .. settingId ..
+                "' must be a non-empty string. " .. contactAuthor(self))
             isValid = false
         end
     end
 
-    -- Validate ConfirmDialog if present
     if options.ConfirmDialog ~= nil then
         if type(options.ConfirmDialog) ~= "table" then
-            MCMWarn(0,
-                "Options.ConfirmDialog for event_button setting '" ..
-                settingId ..
-                "' must be a table. " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            MCMWarn(0, "Options.ConfirmDialog for event_button setting '" .. settingId ..
+                "' must be a table. " .. contactAuthor(self))
             isValid = false
         else
-            -- Define required fields for ConfirmDialog
-            local requiredFields = {
-                "Title",
-                "Message",
-                "ConfirmText",
-                "CancelText"
-            }
-
-            -- Get the dialog table
             local dialog = options.ConfirmDialog
-
-            -- Check if all required fields are present
-            for _, field in ipairs(requiredFields) do
+            for _, field in ipairs({ "Title", "Message", "ConfirmText", "CancelText" }) do
                 if dialog[field] == nil then
-                    MCMWarn(0,
-                        string.format(
-                            "Missing required field 'Options.ConfirmDialog.%s' for event_button setting '%s'. ",
-                            field, settingId) ..
-                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    MCMWarn(0, string.format(
+                        "Missing required field 'Options.ConfirmDialog.%s' for event_button setting '%s'. ",
+                        field, settingId) .. contactAuthor(self))
                     return false
                 end
             end
 
-            -- Validate field types for all fields that are present
             local validFieldTypes = {
                 Title = "string",
                 Message = "string",
                 ConfirmText = "string",
                 CancelText = "string"
             }
-
             for field, expectedType in pairs(validFieldTypes) do
                 if dialog[field] ~= nil and type(dialog[field]) ~= expectedType then
-                    MCMWarn(0,
-                        string.format("Options.ConfirmDialog.%s for event_button setting '%s' must be a %s. ",
-                            field, settingId, expectedType) ..
-                        "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+                    MCMWarn(0, string.format(
+                        "Options.ConfirmDialog.%s for event_button setting '%s' must be a %s. ",
+                        field, settingId, expectedType) .. contactAuthor(self))
                     isValid = false
                 end
             end
@@ -453,151 +463,109 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
     return isValid
 end
 
-function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
-    local options = setting:GetOptions() or {}
-    local settingId = setting:GetId()
+local KeybindingBooleanOptions = {
+    "ShouldTriggerOnRepeat",
+    "IsDeveloperOnly",
+    "ShouldTriggerOnKeyUp",
+    "ShouldTriggerOnKeyDown",
+    "BlockIfLevelNotStarted",
+    "PreventAction",
+    "SkipCallback",
+    "AllowConflict",
+}
 
-    if options.ShouldTriggerOnRepeat ~= nil and type(options.ShouldTriggerOnRepeat) ~= "boolean" then
-        MCMWarn(0,
-            "Options.ShouldTriggerOnRepeat for keybinding_v2 setting '" ..
-            settingId .. "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+---@param self HelperBlueprintPreprocessing The preprocessing instance
+---@param setting BlueprintSetting The setting to validate
+---@param options table The setting options
+---@param optionKey string The option name to check
+---@return boolean True if the option is absent or a boolean
+local function validateKeybindingBooleanOption(self, setting, options, optionKey)
+    if options[optionKey] ~= nil and type(options[optionKey]) ~= "boolean" then
+        MCMWarn(0, "Options." .. optionKey .. " for keybinding_v2 setting '" .. setting:GetId() ..
+            "' must be a boolean. " .. contactAuthor(self))
         return false
-    end
-
-    if options.IsDeveloperOnly ~= nil and type(options.IsDeveloperOnly) ~= "boolean" then
-        MCMWarn(0,
-            "Options.IsDeveloperOnly for keybinding_v2 setting '" ..
-            settingId ..
-            "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    if options.ShouldTriggerOnKeyUp ~= nil and type(options.ShouldTriggerOnKeyUp) ~= "boolean" then
-        MCMWarn(0,
-            "Options.ShouldTriggerOnKeyUp for keybinding_v2 setting '" ..
-            settingId ..
-            "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    if setting.Options and setting.Options.ShouldTriggerOnKeyDown ~= nil and type(setting.Options.ShouldTriggerOnKeyDown) ~= "boolean" then
-        MCMWarn(0,
-            "Options.ShouldTriggerOnKeyDown for keybinding_v2 setting '" ..
-            setting:GetId() ..
-            "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    if setting.Options and setting.Options.BlockIfLevelNotStarted ~= nil and type(setting.Options.BlockIfLevelNotStarted) ~= "boolean" then
-        MCMWarn(0,
-            "Options.BlockIfLevelNotStarted for keybinding_v2 setting '" ..
-            setting:GetId() ..
-            "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    if setting.Options and setting.Options.PreventAction ~= nil and type(setting.Options.PreventAction) ~= "boolean" then
-        MCMWarn(0,
-            "Options.PreventAction for keybinding_v2 setting '" ..
-            setting:GetId() ..
-            "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    if setting.Options and setting.Options.SkipCallback ~= nil and type(setting.Options.SkipCallback) ~= "boolean" then
-        MCMWarn(0,
-            "Options.SkipCallback for keybinding_v2 setting '" ..
-            setting:GetId() ..
-            "' must be a boolean. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    if options.AllowConflict ~= nil and type(options.AllowConflict) ~= "boolean" then
-        MCMWarn(0,
-            "Options.AllowConflict for keybinding_v2 setting '%s' must be a boolean. Please contact %s about this issue.",
-            settingId, Ext.Mod.GetMod(self.currentmodUUID).Info.Author)
-        return false
-    end
-
-    local default = setting.Default
-    if default and type(default) == "table" then
-        local hasKeyboard = default.Keyboard and type(default.Keyboard) == "table" and
-            default.Keyboard.Key and default.Keyboard.Key ~= ""
-        local hasMouse = KeybindingManager:IsMouseBindingAssigned(default.Mouse)
-
-        if hasKeyboard and hasMouse then
-            MCMWarn(0,
-                "Keybinding_v2 setting '" .. setting:GetId() ..
-                "' cannot have both Keyboard and Mouse defaults. Use one or the other. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-
-        if default.Mouse then
-            if type(default.Mouse) ~= "table" then
-                MCMWarn(0,
-                    "Default.Mouse for keybinding_v2 setting '" .. setting:GetId() ..
-                    "' must be a table. Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-
-            if default.Mouse.Button == nil or type(default.Mouse.Button) ~= "number" then
-                MCMWarn(0,
-                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
-                    "' must be a number. Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-
-            if default.Mouse.Button ~= math.floor(default.Mouse.Button) then
-                MCMWarn(0,
-                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
-                    "' must be an integer. Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-
-            if default.Mouse.Button < KeybindingManager.MOUSE_BUTTON_MIN
-                or default.Mouse.Button > KeybindingManager.MOUSE_BUTTON_MAX then
-                MCMWarn(0,
-                    "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
-                    "' must be between 1 and " .. KeybindingManager.MOUSE_BUTTON_MAX .. ". Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-
-            if default.Mouse.ModifierKeys ~= nil and type(default.Mouse.ModifierKeys) ~= "table" then
-                MCMWarn(0,
-                    "Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
-                    "' must be a table. Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-
-            local normalizedModifiers, invalidModifier =
-                KeybindingManager:AdaptModifierKeys(default.Mouse.ModifierKeys)
-            if not normalizedModifiers then
-                MCMWarn(0,
-                    "Invalid modifier '" .. tostring(invalidModifier) ..
-                    "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
-                    "'. Valid modifiers are: " .. table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", ") ..
-                    ". Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-            default.Mouse.ModifierKeys = normalizedModifiers
-        end
     end
 
     return true
+end
+
+---@param self HelperBlueprintPreprocessing The preprocessing instance
+---@param setting BlueprintSetting The setting to validate
+---@return boolean True if the setting default is valid
+local function validateKeybindingV2Default(self, setting)
+    local default = setting.Default
+    if not default or type(default) ~= "table" then
+        return true
+    end
+
+    local hasKeyboard = default.Keyboard and type(default.Keyboard) == "table" and
+        default.Keyboard.Key and default.Keyboard.Key ~= ""
+    if hasKeyboard and KeybindingManager:IsMouseBindingAssigned(default.Mouse) then
+        MCMWarn(0, "Keybinding_v2 setting '" .. setting:GetId() ..
+            "' cannot have both Keyboard and Mouse defaults. Use one or the other. " .. contactAuthor(self))
+        return false
+    end
+
+    if default.Mouse then
+        if type(default.Mouse) ~= "table" then
+            MCMWarn(0, "Default.Mouse for keybinding_v2 setting '" .. setting:GetId() ..
+                "' must be a table. " .. contactAuthor(self))
+            return false
+        end
+
+        if default.Mouse.Button == nil or type(default.Mouse.Button) ~= "number" then
+            MCMWarn(0, "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
+                "' must be a number. " .. contactAuthor(self))
+            return false
+        end
+
+        if default.Mouse.Button ~= math.floor(default.Mouse.Button) then
+            MCMWarn(0, "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
+                "' must be an integer. " .. contactAuthor(self))
+            return false
+        end
+
+        if default.Mouse.Button < KeybindingManager.MOUSE_BUTTON_MIN
+            or default.Mouse.Button > KeybindingManager.MOUSE_BUTTON_MAX then
+            MCMWarn(0, "Default.Mouse.Button for keybinding_v2 setting '" .. setting:GetId() ..
+                "' must be between 1 and " .. KeybindingManager.MOUSE_BUTTON_MAX .. ". " .. contactAuthor(self))
+            return false
+        end
+
+        if default.Mouse.ModifierKeys ~= nil and type(default.Mouse.ModifierKeys) ~= "table" then
+            MCMWarn(0, "Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
+                "' must be a table. " .. contactAuthor(self))
+            return false
+        end
+
+        local normalizedModifiers, invalidModifier =
+            KeybindingManager:AdaptModifierKeys(default.Mouse.ModifierKeys)
+        if not normalizedModifiers then
+            MCMWarn(0, "Invalid modifier '" .. tostring(invalidModifier) ..
+                "' in Default.Mouse.ModifierKeys for keybinding_v2 setting '" .. setting:GetId() ..
+                "'. Valid modifiers are: " .. table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", ") ..
+                ". " .. contactAuthor(self))
+            return false
+        end
+        default.Mouse.ModifierKeys = normalizedModifiers
+    end
+
+    return true
+end
+
+--- Validates a keybinding_v2 setting
+---@param setting BlueprintSetting The setting to validate
+---@return boolean True if the setting is valid, false otherwise
+function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
+    local options = setting:GetOptions() or {}
+
+    for _, optionKey in ipairs(KeybindingBooleanOptions) do
+        if not validateKeybindingBooleanOption(self, setting, options, optionKey) then
+            return false
+        end
+    end
+
+    return validateKeybindingV2Default(self, setting)
 end
 
 --- Validates VisibleIf conditions for all tabs and their nested sections
@@ -668,87 +636,48 @@ end
 ---@param elementType string The type of element ("Setting", "Tab", "Section")
 ---@param elementId string The ID of the element being validated
 ---@return boolean True if the VisibleIf is valid or nil, false otherwise
-function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementType, elementId)
-    -- VisibleIf is optional; empty string is used as the internal "not set" default
-    if visibleIf == nil or visibleIf == "" then
-        return true
-    end
-
-    -- Validate that VisibleIf is a table
-    if type(visibleIf) ~= "table" then
-        MCMWarn(0,
-            elementType .. " '" .. elementId .. "' has invalid VisibleIf (not a table). " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    local onlyAllowedGroupKeys, invalidGroupKey = hasOnlyAllowedKeys(visibleIf, VisibleIfAllowedGroupKeys)
-    if not onlyAllowedGroupKeys then
-        MCMWarn(0,
-            elementType .. " '" .. elementId .. "' has invalid VisibleIf field '" .. invalidGroupKey .. "'. " ..
-            "Only 'LogicalOperator' and 'Conditions' are allowed. " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
-    end
-
-    -- Validate LogicalOperator if present
-    if visibleIf.LogicalOperator ~= nil then
-        if type(visibleIf.LogicalOperator) ~= "string" then
-            MCMWarn(0,
-                elementType .. " '" .. elementId .. "' has invalid VisibleIf.LogicalOperator (not a string). " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-        if visibleIf.LogicalOperator ~= "and" and visibleIf.LogicalOperator ~= "or" then
-            MCMWarn(0,
-                elementType .. " '" .. elementId .. "' has invalid VisibleIf.LogicalOperator ('" ..
-                visibleIf.LogicalOperator .. "'). Must be 'and' or 'or'. " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    end
-
-    -- Validate Conditions array
+--- Validates the Conditions array of a VisibleIf group.
+---@param self HelperBlueprintPreprocessing The preprocessing instance
+---@param visibleIf table The VisibleIf group to validate
+---@param blueprint Blueprint The blueprint data for reference
+---@param elementType string The type of element ("Setting", "Tab", "Section")
+---@param elementId string The ID of the element being validated
+---@return boolean True if the Conditions array is valid
+local function validateVisibleIfConditions(self, visibleIf, blueprint, elementType, elementId)
     if not visibleIf.Conditions then
-        MCMWarn(0,
-            elementType .. " '" .. elementId .. "' has VisibleIf without Conditions array. " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, elementType .. " '" .. elementId .. "' has VisibleIf without Conditions array. " ..
+            contactAuthor(self))
         return false
     end
 
     if type(visibleIf.Conditions) ~= "table" then
-        MCMWarn(0,
-            elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (not an array). " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (not an array). " ..
+            contactAuthor(self))
         return false
     end
 
     if #visibleIf.Conditions == 0 then
-        MCMWarn(0,
-            elementType .. " '" .. elementId .. "' has empty VisibleIf.Conditions array. " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, elementType .. " '" .. elementId .. "' has empty VisibleIf.Conditions array. " ..
+            contactAuthor(self))
         return false
     end
 
     local conditionCount = 0
     for key, _ in pairs(visibleIf.Conditions) do
         if type(key) ~= "number" or key < 1 or math.floor(key) ~= key then
-            MCMWarn(0,
-                elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (not an array). " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            MCMWarn(0, elementType .. " '" .. elementId ..
+                "' has invalid VisibleIf.Conditions (not an array). " .. contactAuthor(self))
             return false
         end
         conditionCount = conditionCount + 1
     end
 
     if conditionCount ~= #visibleIf.Conditions then
-        MCMWarn(0,
-            elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (sparse array). " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, elementType .. " '" .. elementId .. "' has invalid VisibleIf.Conditions (sparse array). " ..
+            contactAuthor(self))
         return false
     end
 
-    -- Validate each condition
     local conditionSignatures = {}
     for i, condition in ipairs(visibleIf.Conditions) do
         if not self:ValidateVisibilityCondition(condition, blueprint, elementType, elementId, i) then
@@ -757,10 +686,8 @@ function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementT
 
         local conditionSignature = buildVisibleIfConditionSignature(condition)
         if conditionSignatures[conditionSignature] then
-            MCMWarn(0,
-                elementType .. " '" .. elementId .. "' has duplicate condition #" .. i ..
-                " in VisibleIf.Conditions. " ..
-                "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            MCMWarn(0, elementType .. " '" .. elementId .. "' has duplicate condition #" .. i ..
+                " in VisibleIf.Conditions. " .. contactAuthor(self))
             return false
         end
 
@@ -768,6 +695,47 @@ function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementT
     end
 
     return true
+end
+
+--- Validates a VisibleIf condition group
+---@param visibleIf table|nil The VisibleIf condition group to validate
+---@param blueprint Blueprint The blueprint data for reference
+---@param elementType string The type of element ("Setting", "Tab", "Section")
+---@param elementId string The ID of the element being validated
+---@return boolean True if the VisibleIf is valid or nil, false otherwise
+function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementType, elementId)
+    -- VisibleIf is optional; empty string is used as the internal "not set" default
+    if visibleIf == nil or visibleIf == "" then
+        return true
+    end
+
+    if type(visibleIf) ~= "table" then
+        MCMWarn(0, elementType .. " '" .. elementId .. "' has invalid VisibleIf (not a table). " ..
+            contactAuthor(self))
+        return false
+    end
+
+    local onlyAllowedGroupKeys, invalidGroupKey = hasOnlyAllowedKeys(visibleIf, VisibleIfAllowedGroupKeys)
+    if not onlyAllowedGroupKeys then
+        MCMWarn(0, elementType .. " '" .. elementId .. "' has invalid VisibleIf field '" .. invalidGroupKey ..
+            "'. Only 'LogicalOperator' and 'Conditions' are allowed. " .. contactAuthor(self))
+        return false
+    end
+
+    if visibleIf.LogicalOperator ~= nil then
+        if type(visibleIf.LogicalOperator) ~= "string" then
+            MCMWarn(0, elementType .. " '" .. elementId ..
+                "' has invalid VisibleIf.LogicalOperator (not a string). " .. contactAuthor(self))
+            return false
+        end
+        if visibleIf.LogicalOperator ~= "and" and visibleIf.LogicalOperator ~= "or" then
+            MCMWarn(0, elementType .. " '" .. elementId .. "' has invalid VisibleIf.LogicalOperator ('" ..
+                visibleIf.LogicalOperator .. "'). Must be 'and' or 'or'. " .. contactAuthor(self))
+            return false
+        end
+    end
+
+    return validateVisibleIfConditions(self, visibleIf, blueprint, elementType, elementId)
 end
 
 --- Validates a single visibility condition
@@ -873,204 +841,160 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
     return true
 end
 
+--- Emits the standard wrong-default-type warning.
+---@param self HelperBlueprintPreprocessing The preprocessing instance
+---@param setting BlueprintSetting The setting to validate
+---@param expected string The expected type phrase, such as "a boolean"
+---@return boolean Always false
+local function warnDefaultType(self, setting, expected)
+    MCMWarn(0, "Default value for setting '" .. setting:GetId() .. "' must be " .. expected .. ". " ..
+        contactAuthor(self))
+    return false
+end
+
+---@param value unknown
+---@return boolean
+local function isInteger(value)
+    return type(value) == "number" and math.floor(value) == value
+end
+
+---@param value unknown
+---@return boolean
+local function isColorArray(value)
+    return type(value) == "table" and #value == 4
+        and type(value[1]) == "number" and type(value[2]) == "number"
+        and type(value[3]) == "number" and type(value[4]) == "number"
+end
+
+--- Validates the default of a keybinding_v2 setting.
+---@param self HelperBlueprintPreprocessing The preprocessing instance
+---@param setting BlueprintSetting The setting to validate
+---@return boolean True if the default is valid
+local function validateKeybindingV2DefaultValue(self, setting)
+    local default = setting.Default
+    if type(default) ~= "table" then
+        return true
+    end
+
+    if default.Enabled ~= nil and type(default.Enabled) ~= "boolean" then
+        MCMWarn(0, "Default value for 'enabled' in keybinding_v2 setting '" .. setting:GetId() ..
+            "' must be a boolean. " .. contactAuthor(self))
+        return false
+    end
+
+    local hasKeyboard = default.Keyboard ~= nil and type(default.Keyboard) == "table"
+    local hasMouse = default.Mouse ~= nil and type(default.Mouse) == "table"
+    if not hasKeyboard and not hasMouse then
+        MCMWarn(0, "Default value for setting '" .. setting:GetId() ..
+            "' must contain either a 'Keyboard' or 'Mouse' table. " .. contactAuthor(self))
+        return false
+    end
+
+    if not hasKeyboard then
+        return true
+    end
+
+    local keyboard = default.Keyboard
+    local key = keyboard.Key
+    if type(key) ~= "string" or (key ~= "" and not table.contains(SDLKeys.ScanCodes, key)) then
+        MCMWarn(0, "Invalid key '" .. key .. "' in Keyboard.Key for setting '" .. setting:GetId() ..
+            "'. Valid keys are: " .. table.concat(SDLKeys.ScanCodes, ", "))
+        return false
+    end
+
+    if keyboard.ModifierKeys ~= nil and type(keyboard.ModifierKeys) ~= "table" then
+        MCMWarn(0, "Keyboard.ModifierKeys must be a table. " .. contactAuthor(self))
+        return false
+    end
+
+    local normalizedModifiers, invalidModifier = KeybindingManager:AdaptModifierKeys(keyboard.ModifierKeys)
+    if not normalizedModifiers then
+        MCMWarn(0, "Invalid modifier '" .. tostring(invalidModifier) ..
+            "' in Keyboard.ModifierKeys for setting '" .. setting:GetId() ..
+            "'. Valid modifiers are: " .. table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", "))
+        return false
+    end
+    keyboard.ModifierKeys = normalizedModifiers
+
+    return true
+end
+
+--- Validates the default of a list_v2 setting and normalizes its field names.
+---@param self HelperBlueprintPreprocessing The preprocessing instance
+---@param setting BlueprintSetting The setting to validate
+---@return boolean True if the default is valid
+local function validateListV2DefaultValue(self, setting)
+    local default = setting.Default
+    if type(default) == "table" then
+        if default.elements == nil then
+            default.elements = default.Elements
+        end
+        if default.enabled == nil then
+            default.enabled = default.Enabled
+        end
+        default.Elements = nil
+        default.Enabled = nil
+    end
+
+    local enabled = type(default) == "table" and default.enabled
+    -- SanitizeBlueprint converts "true"/"false" after validation; accept only those strings here.
+    if type(default) ~= "table" or type(default.elements) ~= "table"
+        or (type(enabled) ~= "boolean" and enabled ~= "true" and enabled ~= "false") then
+        MCMWarn(0, "Default value for setting '" .. setting:GetId() ..
+            "' must be a table with boolean 'Enabled' and table 'Elements'. " .. contactAuthor(self))
+        return false
+    end
+
+    for _, element in ipairs(default.elements) do
+        if type(element) ~= "table" or not element.name or type(element.name) ~= "string" or element.name == "" then
+            MCMWarn(0, "Element " .. Ext.DumpExport(element) .. " for setting '" .. setting:GetId() ..
+                "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+            return false
+        end
+        if element.enabled ~= nil and type(element.enabled) ~= "boolean" then
+            MCMWarn(0, "Element " .. Ext.DumpExport(element) .. " for setting '" .. setting:GetId() ..
+                "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
+            return false
+        end
+        if element.enabled == nil then
+            element.enabled = true
+        end
+    end
+
+    return true
+end
+
+--- Checks that a setting default matches the setting type.
+---@param setting BlueprintSetting The setting to validate
+---@return boolean True if the default is valid
 function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
-    -- Skip Default validation for event_button type
     if setting.Type == "event_button" then
         return true
     end
 
     if setting.Default == nil then
-        MCMWarn(0,
-            "Setting '" ..
-            setting:GetId() ..
-            "' is missing a 'Default' value. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+        MCMWarn(0, "Setting '" .. setting:GetId() .. "' is missing a 'Default' value. " .. contactAuthor(self))
         return false
     end
 
-    if setting.Type == "bool" then
-        if type(setting.Default) ~= "boolean" then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a boolean. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "int" then
-        if type(setting.Default) ~= "number" or math.floor(setting.Default) ~= setting.Default then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be an integer. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "float" then
-        if type(setting.Default) ~= "number" then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a number. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "text" then
-        if type(setting.Default) ~= "string" then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a string. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-        -- TODO: add list type
-    elseif setting.Type == "checkbox" then
-        if type(setting.Default) ~= "boolean" then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a boolean. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "enum" or setting.Type == "radio" then
-        if type(setting.Default) ~= "string" then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a string. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "slider_int" or setting.Type == "drag_int" then
-        if type(setting.Default) ~= "number" or math.floor(setting.Default) ~= setting.Default then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be an integer. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "slider_float" or setting.Type == "drag_float" then
-        if type(setting.Default) ~= "number" then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a number. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "color_picker" or setting.Type == "color_edit" then
-        if type(setting.Default) ~= "table" or #setting.Default ~= 4 or not (type(setting.Default[1]) == "number" and type(setting.Default[2]) == "number" and type(setting.Default[3]) == "number" and type(setting.Default[4]) == "number") then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a table of 4 numbers. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-    elseif setting.Type == "keybinding_v2" then
-        if type(setting.Default) == "table" then
-            if setting.Default["Enabled"] ~= nil and type(setting.Default["Enabled"]) ~= "boolean" then
-                MCMWarn(0,
-                    "Default value for 'enabled' in keybinding_v2 setting '" ..
-                    setting:GetId() ..
-                    "' must be a boolean. Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
+    local default = setting.Default
+    local settingType = setting.Type
 
-            local hasKeyboard = setting.Default["Keyboard"] ~= nil and type(setting.Default["Keyboard"]) == "table"
-            local hasMouse = setting.Default["Mouse"] ~= nil and type(setting.Default["Mouse"]) == "table"
-
-            if not hasKeyboard and not hasMouse then
-                MCMWarn(0,
-                    "Default value for setting '" ..
-                    setting:GetId() ..
-                    "' must contain either a 'Keyboard' or 'Mouse' table. Please contact " ..
-                    Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                return false
-            end
-
-            if hasKeyboard then
-                local keyboard = setting.Default["Keyboard"]
-                local key = keyboard.Key
-                if type(key) ~= "string" or (key ~= "" and not table.contains(SDLKeys.ScanCodes, key)) then
-                    MCMWarn(0,
-                        "Invalid key '" ..
-                        key .. "' in Keyboard.Key for setting '" .. setting:GetId() .. "'. Valid keys are: " ..
-                        table.concat(SDLKeys.ScanCodes, ", "))
-                    return false
-                end
-
-                if keyboard.ModifierKeys ~= nil and type(keyboard.ModifierKeys) ~= "table" then
-                    MCMWarn(0,
-                        "Keyboard.ModifierKeys must be a table. Please contact " ..
-                        Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-                    return false
-                end
-
-                local normalizedModifiers, invalidModifier =
-                    KeybindingManager:AdaptModifierKeys(keyboard.ModifierKeys)
-                if not normalizedModifiers then
-                    MCMWarn(0,
-                        "Invalid modifier '" ..
-                        tostring(invalidModifier) ..
-                        "' in Keyboard.ModifierKeys for setting '" ..
-                        setting:GetId() .. "'. Valid modifiers are: " ..
-                        table.concat(KeybindingManager.SUPPORTED_MODIFIERS, ", "))
-                    return false
-                end
-                keyboard.ModifierKeys = normalizedModifiers
-            end
-        end
-    elseif setting.Type == "list_v2" then
-        if type(setting.Default) ~= "table" or (setting.Default["enabled"] == nil and setting.Default["Enabled"] == nil) or (type(setting.Default.elements) ~= "table" and type(setting.Default.Elements) ~= "table") then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be a table with 'Enabled' and 'Elements'. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-            return false
-        end
-
-        -- Normalize uppercase keys to lowercase
-        if setting.Default["Elements"] ~= nil and setting.Default["elements"] == nil then
-            setting.Default["elements"] = setting.Default["Elements"]
-            setting.Default["Elements"] = nil
-        end
-        if setting.Default["Enabled"] ~= nil and setting.Default["enabled"] == nil then
-            setting.Default["enabled"] = setting.Default["Enabled"]
-            setting.Default["Enabled"] = nil
-        end
-
-        local elements = setting.Default.elements
-        if type(elements) ~= "table" then
-            elements = setting.Default.Elements
-        end
-        local enabled = setting.Default.enabled
-        if enabled == nil then
-            enabled = setting.Default.Enabled
-        end
-        for _, element in ipairs(elements) do
-            if type(element) ~= "table" or not element.name or type(element.name) ~= "string" or element.name == "" then
-                MCMWarn(0,
-                    "Element " ..
-                    Ext.DumpExport(element) ..
-                    " for setting '" ..
-                    setting:GetId() .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
-                return false
-            end
-            if element.enabled ~= nil and type(element.enabled) ~= "boolean" then
-                MCMWarn(0,
-                    "Element " ..
-                    Ext.DumpExport(element) ..
-                    " for setting '" ..
-                    setting:GetId() .. "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
-                return false
-            end
-        end
+    -- REFACTOR: Replace this long if-elseif chain
+    if settingType == "bool" or settingType == "checkbox" then
+        if type(default) ~= "boolean" then return warnDefaultType(self, setting, "a boolean") end
+    elseif settingType == "int" or settingType == "slider_int" or settingType == "drag_int" then
+        if not isInteger(default) then return warnDefaultType(self, setting, "an integer") end
+    elseif settingType == "float" or settingType == "slider_float" or settingType == "drag_float" then
+        if type(default) ~= "number" then return warnDefaultType(self, setting, "a number") end
+    elseif settingType == "text" or settingType == "enum" or settingType == "radio" then
+        if type(default) ~= "string" then return warnDefaultType(self, setting, "a string") end
+    elseif settingType == "color_picker" or settingType == "color_edit" then
+        if not isColorArray(default) then return warnDefaultType(self, setting, "a table of 4 numbers") end
+    elseif settingType == "keybinding_v2" then
+        return validateKeybindingV2DefaultValue(self, setting)
+    elseif settingType == "list_v2" then
+        return validateListV2DefaultValue(self, setting)
     end
 
     return true
