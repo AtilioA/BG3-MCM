@@ -583,32 +583,48 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         D.expect(s.order()).toEqual({ ModuleUUID, "f", MOD_B, MOD_A })
     end)
 
-    D.test("Recently used stays still after an opening, through unrelated rebuilds", function(ctx)
-        local s = UsagePane(ctx, { SortMode = "recent", Usage = { Sequence = 1, Mods = { [MOD_B] = { Count = 1, Last = 1 } } } })
-        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+    D.test("Recently used re-ranks at once, a folder by its latest visible member", function(ctx)
+        local ui = { Folders = { f = { Name = "Folder" } }, Mods = { [MOD_C] = { Folder = "f" } } }
+        local s = UsagePane(ctx, { SortMode = "recent", Usage = { Sequence = 2,
+            Mods = { [MOD_B] = { Count = 1, Last = 2 }, [MOD_C] = { Count = 5, Last = 1 } } } }, ui)
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, "f", MOD_A })
         s.open(MOD_C)
-        D.expect(s.rebuilds).toBe(0)
-        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
-        D.expect(s.store.values[PREFERENCES].Usage.Mods[MOD_C].Count).toBe(1)
+        D.expect(s.order()).toEqual({ ModuleUUID, "f", MOD_B, MOD_A })
+        s.open(MOD_A)
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_A, "f", MOD_B })
+        D.expect(s.rebuilds).toBe(2)
     end)
 
-    D.test("in Frequently used, reselecting, MCM and tools neither count nor rebuild", function(ctx)
-        local s = UsagePane(ctx, { SortMode = "frequent" })
-        s.pane.activeUUID = MOD_A
-        s.pane:CreateMenuButton("Entry", nil, MOD_A)
-        s.open(MOD_A)
-        s.open(ModuleUUID)
-        s.open(ClientGlobals.MCM_HOTKEYS)
-        D.expect(s.rebuilds).toBe(0)
-        D.expect(s.store.values[PREFERENCES].Usage).toBeNil()
+    D.test("Alphabetical and Manual count an opening without a rebuild", function(ctx)
+        for _, mode in ipairs({ "alphabetical", "manual" }) do
+            local s = UsagePane(ctx, { SortMode = mode })
+            s.open(MOD_C)
+            D.expect(s.rebuilds).toBe(0)
+            D.expect(s.store.values[PREFERENCES].Usage.Mods[MOD_C].Count).toBe(1)
+        end
     end)
 
-    D.test("in Frequently used, a refused usage save does not rebuild or re-rank", function(ctx)
-        local s = UsagePane(ctx, { SortMode = "frequent", Usage = { Sequence = 1,
-            Mods = { [MOD_B] = { Count = 1, Last = 1 } } } }, nil, true)
-        s.open(MOD_A)
-        D.expect(s.rebuilds).toBe(0)
-        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+    D.test("in usage modes, reselecting, MCM and tools neither count nor rebuild", function(ctx)
+        for _, mode in ipairs({ "recent", "frequent" }) do
+            local s = UsagePane(ctx, { SortMode = mode })
+            s.pane.activeUUID = MOD_A
+            s.pane:CreateMenuButton("Entry", nil, MOD_A)
+            s.open(MOD_A)
+            s.open(ModuleUUID)
+            s.open(ClientGlobals.MCM_HOTKEYS)
+            D.expect(s.rebuilds).toBe(0)
+            D.expect(s.store.values[PREFERENCES].Usage).toBeNil()
+        end
+    end)
+
+    D.test("in usage modes, a refused usage save does not rebuild or re-rank", function(ctx)
+        for _, mode in ipairs({ "recent", "frequent" }) do
+            local s = UsagePane(ctx, { SortMode = mode, Usage = { Sequence = 1,
+                Mods = { [MOD_B] = { Count = 1, Last = 1 } } } }, nil, true)
+            s.open(MOD_A)
+            D.expect(s.rebuilds).toBe(0)
+            D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+        end
     end)
 
     D.test("activating a list entry counts one use", function(ctx)

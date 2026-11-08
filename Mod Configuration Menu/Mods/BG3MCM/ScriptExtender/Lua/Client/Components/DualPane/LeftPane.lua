@@ -80,13 +80,13 @@ function LeftPane:OpenFromList(button, uuid)
         return
     end
     local preferences = self.visibility.preferences
-    -- Frequently used reorders at once; Recently used keeps the list still until MCM closes or hides.
-    if preferences:RecordOpen(uuid) and preferences:GetSortMode() == "frequent" and preferences:RefreshRanks() then
+    -- Usage modes reorder at once; RefreshRanks is false for Alphabetical and Manual.
+    if preferences:RecordOpen(uuid) and preferences:RefreshRanks() then
         self:RebuildModEntries(self.mods)
     end
 end
 
---- Apply the usage of the ended session; Recently used stays as it is until MCM closes or the visibility hotkey hides it.
+--- Re-rank when MCM closes or the visibility hotkey hides it.
 function LeftPane:StartRankingSession()
     if self.visibility.preferences:RefreshRanks() and self.mods then
         self:RebuildModEntries(self.mods)

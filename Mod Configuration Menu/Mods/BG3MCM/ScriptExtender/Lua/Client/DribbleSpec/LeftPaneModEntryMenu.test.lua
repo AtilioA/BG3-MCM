@@ -374,7 +374,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             entryButtons = {}, visibility = ModListState:New(store) }, LeftPane)
         ctx.stub(DualPane, "SwitchVisibleContent", function(_, _, uuid) pane:SetActiveItem(uuid) end)
         pane:RebuildModEntries(mods)
-        local view = { pane = pane, widgets = widgets }
+        local view = { pane = pane, widgets = widgets, store = store }
         function view.buttons()
             local labels = {}
             for _, widget in ipairs(widgets) do
@@ -412,11 +412,31 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(view.folderOpen()).toBe(false)
     end)
 
-    D.test("Recently used keeps the rendered order on a click and still moves the highlight", function(ctx)
-        local view = RenderedSidebar(ctx, { SortMode = "recent", Usage = { Sequence = 1, Mods = { [MOD_B] = { Count = 1, Last = 1 } } } })
+    D.test("Recently used reorders the rendered list on a click, a folder by its member", function(ctx)
+        local view = RenderedSidebar(ctx, { SortMode = "recent", FoldersFirst = false, Usage = { Sequence = 1,
+            Mods = { [MOD_B] = { Count = 1, Last = 1 } } } })
         D.expect(view.buttons()).toEqual({ "Beta", "Alpha", "Gamma" })
         view.click("Alpha")
-        D.expect(view.buttons()).toEqual({ "Beta", "> Alpha", "Gamma" })
+        D.expect(view.buttons()).toEqual({ "> Alpha", "Beta", "Gamma" })
+        view.click("Gamma")
+        D.expect(view.buttons()).toEqual({ "> Gamma", "Alpha", "Beta" })
+        D.expect(view.folderOpen()).toBe(true)
+    end)
+
+    D.test("in usage modes, a reselect or a refused usage save keeps the rendered order", function(ctx)
+        for _, mode in ipairs({ "recent", "frequent" }) do
+            local view = RenderedSidebar(ctx, { SortMode = mode, FoldersFirst = false, Usage = { Sequence = 1,
+                Mods = { [MOD_B] = { Count = 1, Last = 1 } } } })
+            view.click("Beta")
+            D.expect(view.buttons()).toEqual({ "> Beta", "Alpha", "Gamma" })
+            view.click("Beta")
+            D.expect(view.buttons()).toEqual({ "> Beta", "Alpha", "Gamma" })
+            view.store.Set = function() return false end
+            view.click("Alpha")
+            -- The page still opens, so the highlight moves without a reorder.
+            D.expect(view.buttons()).toEqual({ "Beta", "> Alpha", "Gamma" })
+            D.expect(view.pane.activeUUID).toBe(MOD_A)
+        end
     end)
 
     D.test("sidebar hides the main drop row until a drag and keeps folder labels unique", function(ctx)

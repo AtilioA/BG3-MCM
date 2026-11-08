@@ -1,7 +1,7 @@
 ------------------------------------------------------------
 -- ModListPreferences
 -- Personal list order, grouping and usage history, kept apart from MCM_state.json so collections never ship them.
--- Recently used ranks stay frozen until MCM closes or hides, or the player changes the order; Frequently used re-ranks after each counted opening.
+-- Recently used and Frequently used re-rank after each counted opening, when MCM closes or hides, and when the player changes the order.
 ------------------------------------------------------------
 
 ---@alias ModListSortMode "alphabetical"|"manual"|"recent"|"frequent"
