@@ -14,7 +14,7 @@ function IMGUIHelpers.SetFont(window, size)
         return
     end
 
-    window.Font = fontName
+    window.Font = "BG3MCM_Font"
 end
 
 --- Add a tooltip to a button

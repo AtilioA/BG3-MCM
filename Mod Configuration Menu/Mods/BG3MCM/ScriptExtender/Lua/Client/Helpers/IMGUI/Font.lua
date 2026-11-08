@@ -38,6 +38,15 @@ local NATIVE_BASELINE = { typeface = "", sizeKey = nil }
 ---@type AppliedGlobalFont|nil
 local appliedFont = nil
 
+function Font.ApplyMCMFont(typeface, fontSize)
+    local path = FONT_DEFINITIONS[typeface or ""]
+    local size = Font.GetSizeValue(fontSize)
+    if not path or not Font.GetSizeKey(fontSize) then
+        return false
+    end
+    return Ext.IMGUI.LoadFont("BG3MCM_Font", path, size)
+end
+
 -- Helpers
 local function _normalizeSizeKey(fontSize)
     if fontSize == nil then return nil end
