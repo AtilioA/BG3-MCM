@@ -85,17 +85,8 @@ function ListIMGUIWidget:AddInputAndAddButton()
     end
 end
 
-local function clearGroup(group)
-    if not group then
-        return
-    end
-    for _, child in ipairs(group.Children or {}) do
-        child:Destroy()
-    end
-end
-
 function ListIMGUIWidget:Refresh()
-    clearGroup(self.Widget.TableGroup)
+    IMGUIHelpers.DestroyChildren(self.Widget.TableGroup)
     self:RenderList()
 end
 
