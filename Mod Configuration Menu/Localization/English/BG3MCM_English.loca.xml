@@ -685,7 +685,7 @@
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a02b2c3" version="1">Manual</content>
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a03b2c3" version="1">Recently used</content>
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a04b2c3" version="1">Frequently used</content>
-    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a05b2c3" version="1">Automatic orders keep your manual order. Dragging an entry within its group switches to Manual.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a05b2c3" version="1">Choose how to sort your mod list. Your manual order is saved when you choose another option. Drag a mod or folder to change its position and switch to Manual.</content>
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a06b2c3" version="1">Folders first</content>
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a07b2c3" version="1">Clear usage history</content>
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a08b2c3" version="1">Clear usage history for all mods? Folders, pins, hidden mods, and manual order stay the same.</content>
