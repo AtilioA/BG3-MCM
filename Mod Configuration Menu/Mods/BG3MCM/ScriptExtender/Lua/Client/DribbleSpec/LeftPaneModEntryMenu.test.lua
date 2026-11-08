@@ -356,6 +356,69 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         return container
     end
 
+    --- A rendered sidebar driven by real rebuild, render, click and highlight code.
+    --- Stand-ins: widgets (FakeContainer), the store, and DualPane.SwitchVisibleContent, which here only highlights,
+    --- as the real controller does through SetActiveItem; the right pane is out of scope.
+    local function RenderedSidebar(ctx, preferences)
+        local MOD_C = "00000000-0000-0000-0000-00000000C003"
+        local widgets = {}
+        ctx.stub(IMGUIHelpers, "DestroyChildren", function() for i = #widgets, 1, -1 do widgets[i] = nil end end)
+        local store = FakeStore({ ModListPreferences = preferences,
+            UI = { Folders = { f = { Name = "Tools" } }, Mods = { [MOD_C] = { Folder = "f" } } } })
+        local function mod(name)
+            return { blueprint = { GetModName = function() return name end, GetModDescription = function() return "" end,
+                GetHiddenFromList = function() return false end, GetListFolder = function() return nil end } }
+        end
+        local mods = { [MOD_A] = mod("Alpha"), [MOD_B] = mod("Beta"), [MOD_C] = mod("Gamma") }
+        local pane = setmetatable({ parent = { Children = {} }, modEntriesGroup = FakeContainer(widgets), expandedGroups = {},
+            entryButtons = {}, visibility = ModListState:New(store) }, LeftPane)
+        ctx.stub(DualPane, "SwitchVisibleContent", function(_, _, uuid) pane:SetActiveItem(uuid) end)
+        pane:RebuildModEntries(mods)
+        local view = { pane = pane, widgets = widgets }
+        function view.buttons()
+            local labels = {}
+            for _, widget in ipairs(widgets) do
+                if widget.kind == "button" and tostring(widget.IDContext):find("^MenuButton_") then table.insert(labels, widget.Label) end
+            end
+            return labels
+        end
+        function view.click(name)
+            for _, widget in ipairs(widgets) do
+                if widget.kind == "button" and widget.Label:gsub("^> ", "") == name then return widget.OnClick() end
+            end
+            error("no rendered button " .. name)
+        end
+        function view.folderOpen()
+            for index, widget in ipairs(widgets) do
+                if widget.kind == "tree" and widget.Label:find("##folder_f", 1, true) then return widgets[index + 1].Visible end
+            end
+        end
+        return view
+    end
+
+    D.test("Frequently used reorders the rendered list on a click and keeps highlight and folder state", function(ctx)
+        local view = RenderedSidebar(ctx, { SortMode = "frequent", FoldersFirst = false, Usage = { Sequence = 2,
+            Mods = { [MOD_B] = { Count = 2, Last = 2 }, [MOD_A] = { Count = 1, Last = 1 } } } })
+        local folder = nil
+        for _, widget in ipairs(view.widgets) do if widget.kind == "tree" then folder = widget end end
+        folder.OnCollapse()
+        D.expect(view.folderOpen()).toBe(false)
+        D.expect(view.buttons()).toEqual({ "Beta", "Alpha", "Gamma" })
+        -- Count tie at 2: the later opening ranks first.
+        view.click("Alpha")
+        D.expect(view.buttons()).toEqual({ "> Alpha", "Beta", "Gamma" })
+        view.click("Alpha")
+        D.expect(view.buttons()).toEqual({ "> Alpha", "Beta", "Gamma" })
+        D.expect(view.folderOpen()).toBe(false)
+    end)
+
+    D.test("Recently used keeps the rendered order on a click and still moves the highlight", function(ctx)
+        local view = RenderedSidebar(ctx, { SortMode = "recent", Usage = { Sequence = 1, Mods = { [MOD_B] = { Count = 1, Last = 1 } } } })
+        D.expect(view.buttons()).toEqual({ "Beta", "Alpha", "Gamma" })
+        view.click("Alpha")
+        D.expect(view.buttons()).toEqual({ "Beta", "> Alpha", "Gamma" })
+    end)
+
     D.test("sidebar hides the main drop row until a drag and keeps folder labels unique", function(ctx)
         local widgets = {}
         local group = FakeContainer(widgets)

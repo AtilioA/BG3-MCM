@@ -76,12 +76,17 @@ function LeftPane:OpenFromList(button, uuid)
     end
     DualPane:SwitchVisibleContent(button, uuid)
     -- Tools such as Hotkeys and Profiles have no entry in self.mods.
-    if changesPage and uuid ~= ModuleUUID and self.mods and self.mods[uuid] then
-        self.visibility.preferences:RecordOpen(uuid)
+    if not changesPage or uuid == ModuleUUID or not (self.mods and self.mods[uuid]) then
+        return
+    end
+    local preferences = self.visibility.preferences
+    -- Frequently used reorders at once; Recently used keeps the list still until MCM closes or hides.
+    if preferences:RecordOpen(uuid) and preferences:GetSortMode() == "frequent" and preferences:RefreshRanks() then
+        self:RebuildModEntries(self.mods)
     end
 end
 
---- Apply the usage of the ended session; the list stays as it is until MCM closes or the visibility hotkey hides it.
+--- Apply the usage of the ended session; Recently used stays as it is until MCM closes or the visibility hotkey hides it.
 function LeftPane:StartRankingSession()
     if self.visibility.preferences:RefreshRanks() and self.mods then
         self:RebuildModEntries(self.mods)

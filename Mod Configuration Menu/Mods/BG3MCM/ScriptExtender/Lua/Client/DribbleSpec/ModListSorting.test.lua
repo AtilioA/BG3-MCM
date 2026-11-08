@@ -533,6 +533,84 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         return button
     end
 
+    --- A list pane over real preferences, with buttons for each mod and a rebuild counter
+    ---@param ctx table
+    ---@param preferences table Saved ModListPreferences document
+    ---@param ui table|nil Saved layout
+    local function UsagePane(ctx, preferences, ui, refused)
+        ctx.stub(DualPane, "SwitchVisibleContent", function() end)
+        local store = FakeStore({ [PREFERENCES] = preferences, UI = ui }, refused and { [PREFERENCES] = true } or nil)
+        local session = { store = store, rebuilds = 0 }
+        local buttons = {}
+        local pane = setmetatable({
+            parent = { AddButton = function() local b = { SetStyle = function() end, SetColor = function() end }; table.insert(buttons, b); return b end },
+            activeUUID = "nothing-open", expandedGroups = {},
+            mods = { [MOD_A] = {}, [MOD_B] = {}, [MOD_C] = {}, [ModuleUUID] = {} },
+            visibility = ModListState:New(store),
+            RebuildModEntries = function() session.rebuilds = session.rebuilds + 1 end,
+        }, LeftPane)
+        session.pane = pane
+        function session.open(uuid)
+            pane:CreateMenuButton("Entry", nil, uuid)
+            buttons[#buttons].OnClick()
+            pane.activeUUID = uuid
+        end
+        function session.order(mods)
+            return ids(pane.visibility:Resolve(mods or { MODS[1], MODS[2], MODS[3], { id = ModuleUUID, name = "MCM" } }).main)
+        end
+        return session
+    end
+
+    D.test("Frequently used re-ranks within the visible session after a counted opening", function(ctx)
+        local s = UsagePane(ctx, { SortMode = "frequent", Usage = { Sequence = 2,
+            Mods = { [MOD_B] = { Count = 2, Last = 1 }, [MOD_A] = { Count = 1, Last = 2 } } } })
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+        s.open(MOD_A)
+        -- Count tie at 2: the later opening wins.
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_A, MOD_B, MOD_C })
+        D.expect(s.rebuilds).toBe(1)
+        s.open(MOD_C)
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_A, MOD_B, MOD_C })
+        D.expect(s.rebuilds).toBe(2)
+    end)
+
+    D.test("Frequently used re-ranks a folder by its visible members at once", function(ctx)
+        local ui = { Folders = { f = { Name = "Folder" } }, Mods = { [MOD_C] = { Folder = "f" } } }
+        local s = UsagePane(ctx, { SortMode = "frequent", Usage = { Sequence = 3,
+            Mods = { [MOD_B] = { Count = 3, Last = 1 }, [MOD_C] = { Count = 2, Last = 3 } } } }, ui)
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, "f", MOD_A })
+        s.open(MOD_C)
+        D.expect(s.order()).toEqual({ ModuleUUID, "f", MOD_B, MOD_A })
+    end)
+
+    D.test("Recently used stays still after an opening, through unrelated rebuilds", function(ctx)
+        local s = UsagePane(ctx, { SortMode = "recent", Usage = { Sequence = 1, Mods = { [MOD_B] = { Count = 1, Last = 1 } } } })
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+        s.open(MOD_C)
+        D.expect(s.rebuilds).toBe(0)
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+        D.expect(s.store.values[PREFERENCES].Usage.Mods[MOD_C].Count).toBe(1)
+    end)
+
+    D.test("in Frequently used, reselecting, MCM and tools neither count nor rebuild", function(ctx)
+        local s = UsagePane(ctx, { SortMode = "frequent" })
+        s.pane.activeUUID = MOD_A
+        s.pane:CreateMenuButton("Entry", nil, MOD_A)
+        s.open(MOD_A)
+        s.open(ModuleUUID)
+        s.open(ClientGlobals.MCM_HOTKEYS)
+        D.expect(s.rebuilds).toBe(0)
+        D.expect(s.store.values[PREFERENCES].Usage).toBeNil()
+    end)
+
+    D.test("in Frequently used, a refused usage save does not rebuild or re-rank", function(ctx)
+        local s = UsagePane(ctx, { SortMode = "frequent", Usage = { Sequence = 1,
+            Mods = { [MOD_B] = { Count = 1, Last = 1 } } } }, nil, true)
+        s.open(MOD_A)
+        D.expect(s.rebuilds).toBe(0)
+        D.expect(s.order()).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
+    end)
+
     D.test("activating a list entry counts one use", function(ctx)
         local store = FakeStore()
         ListButton(ctx, store, MOD_B, MOD_A).OnClick()
