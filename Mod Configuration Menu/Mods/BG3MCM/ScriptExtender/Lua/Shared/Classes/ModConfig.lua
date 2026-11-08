@@ -76,20 +76,15 @@ end
 --- SECTION: FILE HANDLING
 --- Generates the full path to a settings file, starting from the Script Extender folder.
 --- @param modUUID GUIDSTRING The mod's UUID to get the path for.
-function ModConfig:GetSettingsFilePath(modUUID)
-    return self.profileManager:GetModProfileSettingsPath(modUUID) .. "/settings.json"
+--- @param profileName? string Profile to read, or the current profile when omitted.
+function ModConfig:GetSettingsFilePath(modUUID, profileName)
+    return self.profileManager:GetModProfileSettingsPath(modUUID, profileName) .. "/settings.json"
 end
 
---- Save the settings for a mod to the settings file with tab and section information.
---- @param modUUID GUIDSTRING The mod's UUID to save the settings for.
-function ModConfig:SaveSettingsForMod(modUUID)
-    if self.mods[modUUID].settingsSaveBlocked then
-        MCMWarn(0, "Settings for mod %s were not saved because the loaded file is ambiguous.", modUUID)
-        return
-    end
-    local configFilePath = self:GetSettingsFilePath(modUUID)
-    local blueprint = self.mods[modUUID].blueprint
-    local settings = self.mods[modUUID].settingsValues
+---@param blueprint Blueprint
+---@param settings table<string, any>
+---@return table
+function ModConfig:BuildSettingsJSON(blueprint, settings)
     local updatedSettings = {}
 
     BlueprintShape:ForEachSetting(blueprint, function(setting, containerPath)
@@ -101,7 +96,15 @@ function ModConfig:SaveSettingsForMod(modUUID)
         BlueprintShape:SetNestedSettingValue(updatedSettings, containerPath, settingId, updatedSetting)
     end)
 
-    JsonLayer:SaveJSONFile(configFilePath, updatedSettings)
+    return updatedSettings
+end
+
+--- Save the settings for a mod to the settings file with tab and section information.
+--- @param modUUID GUIDSTRING The mod's UUID to save the settings for.
+function ModConfig:SaveSettingsForMod(modUUID)
+    local mod = self.mods[modUUID]
+    local updatedSettings = self:BuildSettingsJSON(mod.blueprint, mod.settingsValues)
+    JsonLayer:SaveJSONFile(self:GetSettingsFilePath(modUUID), updatedSettings)
 end
 
 --- Save the settings for all mods to the settings files.
@@ -160,10 +163,26 @@ end
 
 --- SECTION: SETTINGS HANDLING
 --- Load the settings for each mod from the settings file.
-function ModConfig:LoadSettings()
-    for modUUID, settingsTable in pairs(self.mods) do
-        self:LoadSettingsForMod(modUUID, self.mods[modUUID].blueprint)
+---@param prepareOnly? boolean Validate and return values without changing settings state or writing settings files.
+---@param profileName? string Profile to read when preparing a switch.
+---@return boolean success, table<string, table> prepared
+function ModConfig:LoadSettings(prepareOnly, profileName)
+    local prepared, failed = {}, {}
+    for modUUID, mod in pairs(self.mods) do
+        -- Invalid settings belong to this mod; continue loading the other mods.
+        local ok, result = pcall(self.LoadSettingsForMod, self, modUUID, mod.blueprint, prepareOnly, profileName)
+        if ok and (not prepareOnly or type(result) == "table") then
+            if prepareOnly then prepared[modUUID] = result end
+        else
+            MCMWarn(0, "Failed to load settings for mod %s: %s", modUUID,
+                ok and "invalid prepared settings" or tostring(result))
+            failed[#failed + 1] = modUUID
+        end
     end
+    if not prepareOnly then
+        for _, modUUID in ipairs(failed) do self.mods[modUUID] = nil end
+    end
+    return #failed == 0, prepared
 end
 
 --- Load the blueprint for each mod and try to load the settings from the settings file.
@@ -194,13 +213,15 @@ end
 --- Load the settings for a mod from the settings file.
 ---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
-function ModConfig:LoadSettingsForMod(modUUID, blueprint)
-    local settingsFilePath = self:GetSettingsFilePath(modUUID)
+---@param prepareOnly? boolean
+---@param profileName? string
+function ModConfig:LoadSettingsForMod(modUUID, blueprint, prepareOnly, profileName)
+    local settingsFilePath = self:GetSettingsFilePath(modUUID, profileName)
     local settings = JsonLayer:LoadJSONFile(settingsFilePath)
     if settings then
-        self:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
+        return self:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath, prepareOnly)
     else
-        self:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
+        return self:HandleMissingSettings(modUUID, blueprint, settingsFilePath, prepareOnly)
     end
 end
 
@@ -209,15 +230,13 @@ end
 ---@param blueprint table The blueprint for the mod
 ---@param settings table The table with all settings for the mod
 ---@param settingsFilePath string The file path of the settings.json file
-function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath)
-    MCMSuccess(1, "Loaded settings for mod: %s", Ext.Mod.GetMod(modUUID).Info.Name)
+---@param prepareOnly? boolean
+function ModConfig:HandleLoadedSettings(modUUID, blueprint, settings, settingsFilePath, prepareOnly)
+    MCMSuccess(1, "Loaded settings for mod: %s", modUUID)
     settings = LoadedSettingsRepair:Repair(blueprint, settings)
-    self.mods[modUUID].settingsSaveBlocked = settings == nil
-    if settings then
-        JsonLayer:SaveJSONFile(settingsFilePath, settings)
-    else
-        settings = Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
-    end
+    assert(type(settings) == "table", string.format("Invalid loaded settings for mod %s.", modUUID))
+    if prepareOnly then return settings end
+    JsonLayer:SaveJSONFile(settingsFilePath, self:BuildSettingsJSON(blueprint, settings))
 
     self.mods[modUUID].settingsValues = settings
 
@@ -228,13 +247,14 @@ end
 ---@param modUUID string The UUID of the mod
 ---@param blueprint table The blueprint for the mod
 ---@param settingsFilePath string The file path of the settings.json file
-function ModConfig:HandleMissingSettings(modUUID, blueprint, settingsFilePath)
+---@param prepareOnly? boolean
+function ModConfig:HandleMissingSettings(modUUID, blueprint, settingsFilePath, prepareOnly)
     local defaultSettingsJSON = Blueprint:GetDefaultSettingsFromBlueprint(blueprint)
-    self.mods[modUUID].settingsSaveBlocked = false
+    if prepareOnly then return defaultSettingsJSON end
     self.mods[modUUID].settingsValues = defaultSettingsJSON
     MCMWarn(1, "Settings file not found for mod '%s', trying to save default settings to JSON file '%s'",
         Ext.Mod.GetMod(modUUID).Info.Name, settingsFilePath)
-    JsonLayer:SaveJSONFile(settingsFilePath, defaultSettingsJSON)
+    JsonLayer:SaveJSONFile(settingsFilePath, self:BuildSettingsJSON(blueprint, defaultSettingsJSON))
 end
 
 --- SECTION: BLUEPRINT HANDLING

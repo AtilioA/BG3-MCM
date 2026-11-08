@@ -2,6 +2,7 @@
 if Mods.Dribbles then
     Ext.Require("Client/DribbleSpec/KeybindingCaptureSession.test.lua")
     Ext.Require("Client/DribbleSpec/KeybindingConflicts.test.lua")
+    Ext.Require("Client/DribbleSpec/KeybindingIdentity.test.lua")
     Ext.Require("Client/DribbleSpec/SettingWrite.test.lua")
     Ext.Require("Client/DribbleSpec/GlobalFont.test.lua")
     Ext.Require("Client/DribbleSpec/MCMWindowVisibility.test.lua")

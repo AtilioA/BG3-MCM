@@ -596,7 +596,7 @@ These methods operate on `event_button` 'settings'.
 | `MCM.EventButton.ShowFeedback(buttonId, message, feedbackType, modUUID?, durationInMs?)` | Shows a feedback message for an event button. `feedbackType` can be `"success"`, `"error"`, `"info"`, or `"warning"` | ✅ | ❌ |
 | `MCM.EventButton.RegisterCallback(buttonId, callback, modUUID?)` | Registers a callback for an event button | ✅ | ❌ |
 | `MCM.EventButton.UnregisterCallback(buttonId, modUUID?)` | Unregisters a callback for an event button | ✅ | ❌ |
-| `MCM.EventButton.SetDisabled(buttonId, enabled, tooltipText?, modUUID?)` | Sets the enabled state and optional tooltip for an event button | ✅ | ❌ |
+| `MCM.EventButton.SetDisabled(buttonId, disabled, tooltipText?, modUUID?)` | Sets the disabled state and optional tooltip for an event button | ✅ | ❌ |
 
 #### Keybinding API
 
@@ -632,7 +632,7 @@ These methods operate on `list_v2` settings.
 | `MCM.List.GetEnabled(listSettingId, modUUID?)` | Gets a set of enabled items: keys are item names, values are always `true` | ✅ | ✅ |
 | `MCM.List.GetEnabledNames(listSettingId, modUUID?)` | Gets an array of enabled item names, in list order | ✅ | ✅ |
 | `MCM.List.GetRaw(listSettingId, modUUID?)` | Gets raw list setting data | ✅ | ✅ |
-| `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Checks if a specific item is enabled in a list | ✅ | ✅ |
+| `MCM.List.IsEnabled(listSettingId, itemName, modUUID?)` | Returns true when both the list and the specified item are enabled | ✅ | ✅ |
 | `MCM.List.SetEnabled(listSettingId, itemName, enabled, modUUID?, shouldEmitEvent?)` | Sets the enabled state of a list item | ✅ | ✅ |
 | `MCM.List.InsertSuggestions(listSettingId, suggestions, modUUID?)` | Inserts suggestions below the input of a `list_v2` widget | ✅ | ❌ |
 

@@ -64,14 +64,17 @@ function MCMRendering:ApplyFontSettings()
     local typeface = MCMClientState:GetClientStateValue("typeface", ModuleUUID)
     local fontSize = MCMClientState:GetClientStateValue("font_size", ModuleUUID)
     local sizeAllMods = MCMClientState:GetClientStateValue("font_style_all_mods", ModuleUUID) ~= false
-    local success, errorMessage = Font.ApplyGlobalFont(typeface, sizeAllMods and fontSize or nil)
+    local success, errorMessage = Font.ApplyGlobalFont(sizeAllMods and typeface or "", sizeAllMods and fontSize or nil)
     if not success then
         MCMWarn(0, "Could not apply IMGUI font '%s' at size '%s': %s",
             tostring(typeface), tostring(fontSize), errorMessage)
     end
 
-    -- When the size applies to all mods, every built-in name has that size, so this has no visible effect
-    IMGUIHelpers.SetFont(MCM_WINDOW, fontSize)
+    if Font.ApplyMCMFont(typeface, fontSize) then
+        IMGUIHelpers.SetFont(MCM_WINDOW, fontSize)
+    else
+        MCMWarn(0, "Could not apply MCM font '%s' at size '%s'", tostring(typeface), tostring(fontSize))
+    end
 end
 
 --- Applies the window opacity (base opacity) setting to the MCM window and its child panes.
@@ -124,24 +127,6 @@ function MCMRendering:GetClientStateValue(settingId, modUUID)
     end
 
     return mod.settingsValues[settingId]
-end
-
---- Get the initial size for the MCM window based on the current viewport resolution.
-function GetInitialMCMWindowSize()
-    -- Base dimensions for a 1440p viewport (manually tested)
-    local BASE_WIDTH = 650
-    local BASE_HEIGHT = 700
-    local BASE_RESOLUTION_HEIGHT = 1440
-
-    local viewportSize = Ext.IMGUI.GetViewportSize()
-    local currentHeight = viewportSize[2]
-
-    -- Compute scaled width and height, round to nearest integer
-    local scaleFactor = currentHeight / BASE_RESOLUTION_HEIGHT
-    local width = math.floor(BASE_WIDTH * scaleFactor + 0.5)
-    local height = math.floor(BASE_HEIGHT * scaleFactor + 0.5)
-
-    return { width, height }
 end
 
 function MCMRendering:GetMCMWindowSizeConstraints()

@@ -139,6 +139,7 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     -- Create a new group for popup confirmation
     self.Widget.ConfirmationPopup = self.Widget.Group:AddPopup("ConfirmDeleteAllPopup")
+    self.Widget.ConfirmationPopup:SetStyle("ItemSpacing", 8, 6)
     self.Widget.ConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAllPopup_" .. self.Widget.Setting.Id
 
     local text = self.Widget.ConfirmationPopup:AddText(Ext.Loca.GetTranslatedString(
@@ -148,6 +149,7 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     local confirmButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hb2adccb2f863414991f8475d5b394dbb5f65"))
     confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
+    confirmButton.Size = { -1, 0 }
     IMGUIHelpers.AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("he9e1eaf8a127430bba164fd001b3131aa5c1"),
         self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id .. "_TOOLTIP")
     confirmButton.OnClick = function()
@@ -170,7 +172,7 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     cancelButton.OnClick = function()
         self.Widget.ConfirmationPopup:Destroy()
     end
-    cancelButton.SameLine = true
+    cancelButton.Size = { -1, 0 }
 
     self.Widget.ConfirmationPopup:Open()
 end
@@ -589,26 +591,9 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     local inputGroup = self.Widget.InputGroup
     inputGroup:AddText(Ext.Loca.GetTranslatedString("hf10161d75da04360907b151e4eb07054f8cb"))
 
-    xpcall(function()
-        -- Input field for adding new elements
-        if not self.Widget.NewElementInput then
-            self.Widget.NewElementInput = inputGroup:AddInputText("", "")
-            IMGUIHelpers:ApplyInputStyle(self.Widget.NewElementInput, "default")
-            self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
-            self.Widget.NewElementInput.AutoSelectAll = true
-            self.Widget.NewElementInput.SameLine = true
-            self.Widget.NewElementInput.OnChange = function(input)
-                self.Widget.NewElementName = input.Text
-                -- Refresh search results when input changes
-                self:FilterSearchResults()
-                self:RefreshSearchResults()
-            end
-        else
-            self.Widget.NewElementInput.Text = self.Widget.NewElementName or ""
-        end
-    end, function(err)
-        MCMDebug(1, "Error in adding new element input: %s", err)
-        self.Widget.NewElementInput = inputGroup:AddInputText("", "")
+    -- Input field for adding new elements; NewElementName outlives the input across rebuilds
+    local function addInput()
+        self.Widget.NewElementInput = inputGroup:AddInputText("", self.Widget.NewElementName or "")
         IMGUIHelpers:ApplyInputStyle(self.Widget.NewElementInput, "default")
         self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
         self.Widget.NewElementInput.AutoSelectAll = true
@@ -619,7 +604,14 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
             self:FilterSearchResults()
             self:RefreshSearchResults()
         end
-    end)
+    end
+    local function logInputError(err)
+        MCMDebug(1, "Error in adding new element input: %s", err)
+    end
+    -- A failed build gets one retry; a second failure throws, so a typed add keeps its text
+    if not xpcall(addInput, logInputError) then
+        addInput()
+    end
 
     -- Add button
     local addButton = inputGroup:AddImageButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"),
@@ -632,12 +624,14 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end
     addButton.SameLine = true
     addButton.OnClick = function()
-        xpcall(function()
+        xpcall(function() -- A save or rebuild can fail after the element was inserted: contain and log it here
             local ok = self:TryAddElement(self.Widget.NewElementName)
             if ok then
-                -- Reset input after adding
-                self.Widget.NewElementInput.Text = ""
+                -- Clear only after the rebuild, so a failed save or rebuild keeps the typed text
                 self.Widget.NewElementName = ""
+                self.Widget.NewElementInput.Text = ""
+                self:FilterSearchResults()
+                self:RefreshSearchResults()
             end
         end, function(err)
             MCMDebug(1, "Error adding new element: %s", err)
@@ -882,6 +876,9 @@ function ListV2IMGUIWidget:Refresh()
     -- IMGUIHelpers.DestroyChildren(self.Widget.HeaderGroup)
     IMGUIHelpers.DestroyChildren(self.Widget.TableGroup)
     if not self.Widget.ReadOnly then
+        -- Both die with InputGroup's children; AddInputAndAddButton recreates them
+        self.Widget.NewElementInput = nil
+        self.Widget.SearchResultsGroup = nil
         IMGUIHelpers.DestroyChildren(self.Widget.InputGroup)
         IMGUIHelpers.DestroyChildren(self.Widget.ResetGroup)
     end
@@ -966,6 +963,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
 
     -- Create a new group for popup confirmation
     self.Widget.ResetConfirmationPopup = self.Widget.Group:AddPopup("ConfirmResetPopup")
+    self.Widget.ResetConfirmationPopup:SetStyle("ItemSpacing", 8, 6)
     self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
         .Id
 
@@ -976,6 +974,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     local confirmButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hc22c8995c3d34cb69b677e2c52a7ec3a4691"))
     confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
+    confirmButton.Size = { -1, 0 }
     IMGUIHelpers.AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("h6ca43c8ed1ec4292af8c51472528c21ed0gd"),
         self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id .. "_TOOLTIP")
     confirmButton.OnClick = function()
@@ -1000,7 +999,7 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     cancelButton.OnClick = function()
         self.Widget.ResetConfirmationPopup:Destroy()
     end
-    cancelButton.SameLine = true
+    cancelButton.Size = { -1, 0 }
 
     self.Widget.ResetConfirmationPopup:Open()
 end

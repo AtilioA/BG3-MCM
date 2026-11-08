@@ -14,7 +14,7 @@ function IMGUIHelpers.SetFont(window, size)
         return
     end
 
-    window.Font = fontName
+    window.Font = "BG3MCM_Font"
 end
 
 --- Add a tooltip to a button
@@ -198,14 +198,7 @@ end
 function IMGUIHelpers.DestroyChildren(container)
     if not container then return end
     xpcall(function()
-        -- Copy first: destroying a child shrinks Children while it is iterated
-        local children = {}
-        for _, child in ipairs(container.Children or {}) do
-            table.insert(children, child)
-        end
-        for _, child in ipairs(children) do
-            child:Destroy()
-        end
+        container:RemoveAllChildren()
     end, function(err)
         MCMDebug(1, "Error destroying children: %s", err)
     end)

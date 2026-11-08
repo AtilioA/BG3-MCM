@@ -618,26 +618,16 @@ function DualPaneController:_findKeybindingsGroup(hotkeysGroup)
 end
 
 function DualPaneController:_computeTargetHeaderId(modUUID)
-    if not modUUID or not MCMClientState or not MCMClientState.GetModName then
-        return nil, nil
-    end
-    local modName = MCMClientState:GetModName(modUUID)
-    if modName and modName ~= "" then
-        return modName .. "_CollapsingHeader", modName
-    end
-    return nil, modName
+    return modUUID and (modUUID .. "_CollapsingHeader") or nil
 end
 
-function DualPaneController:_toggleCollapsingHeaders(group, targetHeaderId, modName)
+function DualPaneController:_toggleCollapsingHeaders(group, targetHeaderId)
     if not group or not group.Children then return end
     for _, elem in ipairs(group.Children) do
         if elem and elem.IDContext and string.find(elem.IDContext, "_CollapsingHeader", 1, true) then
             MCMDebug(0, "Found collapsing header: %s", elem.IDContext)
             local isTarget = (targetHeaderId ~= nil) and (elem.IDContext == targetHeaderId)
-            if isTarget and elem.Label == modName then
-                elem.IDContext = modName .. "#" .. math.random(1, 1000)
-            end
-            elem.DefaultOpen = isTarget
+            elem:SetOpen(isTarget, "Always")
             elem.Selected = isTarget
         end
     end
@@ -669,11 +659,11 @@ function DualPaneController:OpenKeybindingsPage(modUUID)
     end
 
     -- Compute target header and toggle the appropriate collapsing header
-    local targetHeaderId, modName = self:_computeTargetHeaderId(modUUID)
+    local targetHeaderId = self:_computeTargetHeaderId(modUUID)
     if not targetHeaderId then
         return
     end
-    self:_toggleCollapsingHeaders(mcmBindingsGroup, targetHeaderId, modName)
+    self:_toggleCollapsingHeaders(mcmBindingsGroup, targetHeaderId)
 
     -- Respect auto-collapse/expand preferences for the sidebar
     self:HandleSidebarStateChange(nil)

@@ -23,14 +23,33 @@ end
 
 ---@param blueprint Blueprint
 ---@param rawSettings table<string, any>
----@return table<string, any>|nil
+---@return table<string, any>
 function LoadedSettingsRepair:Repair(blueprint, rawSettings)
-    local settings = JsonLayer:FlattenSettingsJSON(rawSettings, function(key, value)
-        return self:ShouldPreserveSettingGroup(key, value)
+    assert(type(rawSettings) == "table", "Loaded settings must be a table.")
+    local listIds, containers = {}, {}
+    BlueprintShape:ForEachSetting(blueprint, function(setting, path)
+        local container = containers
+        for _, id in ipairs(path) do
+            container[id] = container[id] or {}
+            container = container[id]
+        end
+        if setting:GetType() == "list_v2" then
+            listIds[setting:GetId()] = true
+            if setting:GetOldId() then listIds[setting:GetOldId()] = true end
+        end
     end)
 
-    self:MigrateDeprecatedKeys(blueprint, settings)
+    local settings = JsonLayer:FlattenSettingsJSON(rawSettings, function(key, value, path)
+        local container = containers
+        for _, part in ipairs(path) do
+            container = container and container[part]
+        end
+        if container then return false end
+        return listIds[key] or self:ShouldPreserveSettingGroup(key, value)
+    end)
+
     self:AddKeysMissingFromBlueprint(blueprint, settings)
+    self:MigrateDeprecatedKeys(blueprint, settings)
     self:RemoveDeprecatedKeys(blueprint, settings)
 
     return DataPreprocessing:ValidateAndFixSettings(blueprint, settings)
@@ -55,22 +74,13 @@ function LoadedSettingsRepair:HandleListV2SettingMigration(blueprint, setting, s
     end
 
     local oldSetting = settings[setting:GetId()]
-    if not oldSetting or type(oldSetting) ~= "table" or oldSetting.elements ~= nil then
-        MCMDebug(3, "Old setting for %s does not exist or is not valid. Skipping migration.", setting:GetId())
-        return
-    end
+    if type(oldSetting) ~= "table" or not table.isArray(oldSetting) then return end
 
-    settings[setting:GetId()] = {
-        elements = {},
-        enabled = true
-    }
-
+    local migrated = { elements = {}, enabled = true }
     for _, element in ipairs(oldSetting) do
-        table.insert(settings[setting:GetId()].elements, {
-            name = element,
-            enabled = true
-        })
+        table.insert(migrated.elements, { name = element, enabled = true })
     end
+    settings[setting:GetId()] = migrated
 
     NotificationManager:CreateIMGUINotification('Migrated_listV2_setting_' ..
         setting:GetId() .. 'for_mod_' .. blueprint:GetModUUID(), 'success',

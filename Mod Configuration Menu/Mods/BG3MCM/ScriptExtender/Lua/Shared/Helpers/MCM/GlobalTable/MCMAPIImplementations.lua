@@ -190,21 +190,27 @@ end
 --- Implementation: Set a callback for keyboard or mouse down/up events.
 ---@param args MCMKeybindingSetCallbackArgs
 ---@return nil
+-- bg3-lint: allow BG3-MOVABLE -- Built by the shared API table; only the call is client-only.
 local function KeybindingSetCallback_Impl(args)
+    if not Ext.IsClient() then return end
     InputCallbackManager.SetKeybindingCallback(args.modUUID, args.settingId, args.callback)
 end
 
 --- Implementation: Set a callback for KeyDown events only
 ---@param args MCMKeybindingSetCallbackArgs
 ---@return nil
+-- bg3-lint: allow BG3-MOVABLE -- Built by the shared API table; only the call is client-only.
 local function KeybindingSetKeyDownCallback_Impl(args)
+    if not Ext.IsClient() then return end
     InputCallbackManager.SetKeyDownCallback(args.modUUID, args.settingId, args.callback)
 end
 
 --- Implementation: Set a callback for KeyUp events only
 ---@param args MCMKeybindingSetCallbackArgs
 ---@return nil
+-- bg3-lint: allow BG3-MOVABLE -- Built by the shared API table; only the call is client-only.
 local function KeybindingSetKeyUpCallback_Impl(args)
+    if not Ext.IsClient() then return end
     InputCallbackManager.SetKeyUpCallback(args.modUUID, args.settingId, args.callback)
 end
 
@@ -323,11 +329,16 @@ end
 ---@param args MCMListSetEnabledArgs
 ---@return boolean success
 local function ListSetEnabled_Impl(args)
-    local setting = MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
-    if not setting then return false end
+    if type(args.itemName) ~= "string" or args.itemName == "" or type(args.enabled) ~= "boolean" then
+        return false
+    end
 
-    -- Ensure the elements table exists
-    setting.elements = setting.elements or {}
+    local definition = MCMAPI:GetBlueprintSetting(args.listSettingId, args.modUUID)
+    if not definition or definition:GetType() ~= "list_v2" then return false end
+
+    local current = MCMAPI:GetSettingValue(args.listSettingId, args.modUUID)
+    if type(current) ~= "table" or type(current.elements) ~= "table" then return false end
+    local setting = table.deepcopy(current)
 
     -- Find and update the element if it exists
     local elementFound = false
@@ -348,7 +359,12 @@ local function ListSetEnabled_Impl(args)
     end
 
     -- Update the setting
-    return MCMAPI:SetSettingValue(args.listSettingId, setting, args.modUUID, args.shouldEmitEvent)
+    return Set_Impl({
+        settingId = args.listSettingId,
+        value = setting,
+        modUUID = args.modUUID,
+        shouldEmitEvent = args.shouldEmitEvent
+    })
 end
 
 --- Implementation: Insert search suggestions for a list_v2 setting
@@ -359,6 +375,7 @@ local function ListInsertSuggestions_Impl(args)
         MCMWarn(0, "Invalid 'suggestions' for MCM.List.InsertSuggestions; expected table of strings")
         return false
     end
+    if not Ext.IsClient() then return false end
     IMGUIAPI:InsertListV2Suggestions(args.listSettingId, args.suggestions, args.modUUID)
     return true
 end
@@ -452,7 +469,7 @@ function MCMAPIImplementations.createListAPI(originalModUUID)
     ---@param itemName string The name of the item to update
     ---@param enabled boolean Whether the item should be enabled
     ---@param modUUID? string Optional mod UUID, defaults to current mod
-    ---@param shouldEmitEvent? boolean Whether to emit a setting changed event (default: true)
+    ---@param shouldEmitEvent? boolean Whether to emit a setting changed event (default: false)
     ---@return boolean success True if the update was successful
     ListAPI.SetEnabled = MCMAPIUtils.WithFlexibleArgs(
         ListSetEnabled_Impl,
@@ -640,28 +657,36 @@ end
 --- Implementation: Open the MCM window
 ---@param args MCMEmptyArgs
 ---@return nil
+-- bg3-lint: allow BG3-MOVABLE -- Built by addClientOnlyMethods; only the body is client-only.
 local function OpenMCMWindow_Impl(args)
+    if not Ext.IsClient() then return end
     IMGUIAPI:OpenMCMWindow(true)
 end
 
 --- Implementation: Close the MCM window
 ---@param args MCMEmptyArgs
 ---@return nil
+-- bg3-lint: allow BG3-MOVABLE -- Built by addClientOnlyMethods; only the body is client-only.
 local function CloseMCMWindow_Impl(args)
+    if not Ext.IsClient() then return end
     IMGUIAPI:CloseMCMWindow(true)
 end
 
 --- Implementation: Open a mod page in the MCM
 ---@param args MCMOpenModPageArgs
 ---@return nil
+-- bg3-lint: allow BG3-MOVABLE -- Built by addClientOnlyMethods; only the body is client-only.
 local function OpenModPage_Impl(args)
+    if not Ext.IsClient() then return end
     IMGUIAPI:OpenModPage(args.tabName, args.modUUID, args.shouldEmitEvent)
 end
 
 --- Implementation: Insert a new tab for a mod in the MCM
 ---@param args MCMInsertModMenuTabArgs
 ---@return nil
+-- bg3-lint: allow BG3-MOVABLE -- Built by addClientOnlyMethods; only the body is client-only.
 local function InsertModMenuTab_Impl(args)
+    if not Ext.IsClient() then return end
     IMGUIAPI:InsertModMenuTab(args.modUUID, args.tabName, args.tabCallback, args.skipDisclaimer, args.tabId)
 end
 
