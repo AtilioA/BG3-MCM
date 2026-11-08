@@ -33,6 +33,10 @@ D.describe("ListV2 widget ownership", { tags = { "listv2_ownership", "client", "
                 GetStyle = function() end,
                 Open = function() end,
                 Tooltip = function() return node end,
+                RemoveAllChildren = function()
+                    for _, child in ipairs(state.children) do retire(child) end
+                    state.children = {}
+                end,
                 Destroy = function()
                     table.insert(tree.destroyed, kind)
                     if state.parent then
