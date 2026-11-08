@@ -81,6 +81,79 @@
             "store"
           ]
         }
+      },
+      "keybindings": {
+        "files": [
+          "Shared/Helpers/Keybindings/KeybindingManager.lua",
+          "Shared/Helpers/Keybindings/KeyPresentationMapping.lua",
+          "Shared/Helpers/Keybindings/SDLKeys.lua",
+          "Client/Helpers/Keybindings/KeybindingCaptureSession.lua",
+          "Client/Helpers/Keybindings/KeybindingsRegistry.lua",
+          "Client/Helpers/Keybindings/InputCallbackManager.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "keybinding_v2"
+          ]
+        }
+      },
+      "mcmapi": {
+        "files": [
+          "Shared/Helpers/MCM/GlobalTable/TableInjector.lua",
+          "Shared/Helpers/MCM/GlobalTable/InternalAPIGuard.lua",
+          "Shared/Helpers/MCM/GlobalTable/MCMAPIMethods.lua",
+          "Shared/Helpers/MCM/GlobalTable/MCMAPIUtils.lua",
+          "Shared/Helpers/MCM/GlobalTable/MetatableInjection.lua",
+          "Shared/Helpers/MCM/GlobalTable/MCMAPIImplementations.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "mcmapi"
+          ]
+        }
+      },
+      "visibility": {
+        "files": [
+          "Client/Helpers/VisibilityManager/VisibilityManager.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "visibility"
+          ]
+        }
+      },
+      "blueprint-shape": {
+        "files": [
+          "Shared/Helpers/Blueprint/BlueprintShape.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "blueprint-shape"
+          ]
+        }
+      },
+      "enum-choices": {
+        "files": [
+          "Shared/Helpers/MCM/EnumChoicesHelper.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "enum-choices"
+          ]
+        }
+      },
+      "config-definition": {
+        "files": [
+          "Shared/Classes/ConfigDefinition/Setting.lua",
+          "Shared/Classes/ConfigDefinition/Section.lua",
+          "Shared/Classes/ConfigDefinition/Tab.lua",
+          "Shared/Classes/ConfigDefinition/Blueprint.lua"
+        ],
+        "testFilter": {
+          "tags": [
+            "config-definition"
+          ]
+        }
       }
     }
   }

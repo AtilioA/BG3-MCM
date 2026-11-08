@@ -199,8 +199,8 @@ end
 ---@return BlueprintSection section The newly created section
 function Blueprint:AddSection(name, description)
     local section = BlueprintSection:New({
-        sectionName = name,
-        sectionDescription = description
+        SectionName = name,
+        SectionDescription = description
     })
 
     table.insert(self.Sections, section)
