@@ -11,7 +11,12 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         return {
             values = values,
             RegisterVar = function() return true end,
-            Get = function(var) return values[var] end,
+            IsWritable = function() return not unreadable end,
+            -- These suites cover the layout, so they run in Manual; ModListSorting.test.lua covers the modes
+            Get = function(var)
+                if var == "ModListPreferences" and values[var] == nil then return { SortMode = "manual" } end
+                return values[var]
+            end,
             Set = function(var, value)
                 if unreadable then return false end
                 values[var] = value
@@ -144,61 +149,27 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     D.test("folder menu deletes a folder and returns its mods to the main list", function()
         local store = FakeStore({ UI = { Folders = { f = { Name = "Folder" } } } })
         local popup = FakePopup()
-        local pane = setmetatable({ parent = { AddPopup = function() return popup end },
+        local pane = setmetatable({ expandedGroups = {}, parent = { AddPopup = function() return popup end },
             visibility = ModListState:New(store), mods = {}, RebuildModEntries = function() end }, LeftPane)
-        pane:OpenFolderMenu({ id = "f", name = "Folder", items = { { id = MOD_A } }, members = { MOD_A } }, false)
-        D.expect(#popup.items).toBe(4)
+        pane:OpenFolderMenu({ id = "f", name = "Folder", items = { { id = MOD_A } }, members = { MOD_A } })
+        D.expect(#popup.items).toBe(3)
         popup.items[2].OnClick()
         D.expect(store.values.UI.Folders.f).toBe(nil)
         D.expect(store.values.UI.Mods[MOD_A].Folder).toBe(false)
     end)
 
-    D.test("hidden menu only offers sorting", function()
-        local store = FakeStore({ UI = { Order = { Hidden = { MOD_A } } } })
+    D.test("blank sidebar menu only creates folders", function()
         local popup = FakePopup()
         local pane = setmetatable({ parent = { AddPopup = function() return popup end },
-            visibility = ModListState:New(store), mods = {}, RebuildModEntries = function() end }, LeftPane)
-        pane:OpenFolderMenu({ id = "Hidden", name = "Hidden" }, true)
-        D.expect(#popup.items).toBe(1)
-        popup.items[1].OnClick()
-        D.expect(store.values.UI.Order.Hidden).toEqual({ MOD_A })
-        popup.buttons[1].OnClick()
-        D.expect(store.values.UI.Order.Hidden).toBe(nil)
-    end)
-
-    D.test("blank sidebar menu creates folders and confirms sorting only Main", function()
-        local store = FakeStore({ UI = { Order = { Main = { MOD_B, MOD_A }, Hidden = { MOD_A } } } })
-        local popup = FakePopup()
-        local pane = setmetatable({ parent = { AddPopup = function() return popup end },
-            visibility = ModListState:New(store), mods = {}, RebuildModEntries = function() end }, LeftPane)
+            visibility = ModListState:New(FakeStore()), mods = {}, RebuildModEntries = function() end }, LeftPane)
         local opened = false
         pane.OpenFolderNamePopup = function(_, folder, mod)
             opened = folder == nil and mod == nil
         end
-        pane:OpenFolderMenu({ id = "Main", name = "Main list" }, false)
-        D.expect(#popup.items).toBe(3)
+        pane:OpenFolderMenu({ id = "Main", name = "Main list" })
+        D.expect(#popup.items).toBe(1)
         popup.items[1].OnClick()
         D.expect(opened).toBe(true)
-        popup.items[2].OnClick()
-        D.expect(store.values.UI.Order.Main).toEqual({ MOD_B, MOD_A })
-        popup.buttons[1].OnClick()
-        D.expect(store.values.UI.Order.Main).toBe(nil)
-        D.expect(store.values.UI.Order.Hidden).toEqual({ MOD_A })
-    end)
-
-    D.test("blank sidebar folders-first action waits for confirmation", function()
-        local store = FakeStore({ UI = { Folders = { f = { Name = "Folder" } },
-            Order = { Main = { MOD_A, "f" } } } })
-        local state = ModListState:New(store)
-        local popup = FakePopup()
-        local pane = setmetatable({ parent = { AddPopup = function() return popup end },
-            visibility = state, mods = {}, resolved = state:Resolve({ { id = MOD_A, name = "A" } }),
-            RebuildModEntries = function() end }, LeftPane)
-        pane:OpenFolderMenu({ id = "Main", name = "Main list" }, false)
-        popup.items[3].OnClick()
-        D.expect(store.values.UI.Order.Main).toEqual({ MOD_A, "f" })
-        popup.buttons[1].OnClick()
-        D.expect(store.values.UI.Order.Main).toEqual({ "f", MOD_A })
     end)
 
     D.test("a refused menu save warns and keeps the list", function(ctx)
@@ -208,7 +179,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local pane = setmetatable({ parent = { AddPopup = function() return popup end },
             visibility = ModListState:New(FakeStore({}, true)), mods = {},
             RebuildModEntries = function() error("must not rebuild") end }, LeftPane)
-        pane:OpenFolderMenu({ id = "f", name = "Folder", members = {} }, false)
+        pane:OpenFolderMenu({ id = "f", name = "Folder", members = {} })
         popup.items[2].OnClick()
         D.expect(warnings).toBe(1)
     end)
@@ -229,14 +200,129 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(store.values.UI.Mods).toBe(nil)
         popup.input.Text = " New folder "
         popup.input.OnChange()
-        D.expect(store.values.UI.Folders["folder-1"].Name).toBe("New folder")
-        D.expect(store.values.UI.Mods[MOD_A].Folder).toBe("folder-1")
-        D.expect(pane.expandedGroups["folder-1"]).toBe(true)
+        local created = store.values.UI.Mods[MOD_A].Folder
+        D.expect(created).toBe("fld-1")
+        D.expect(store.values.UI.Folders[created].Name).toBe("New folder")
         D.expect(pane.expandedGroups.f).toBe(false)
+        D.expect(pane:isGroupExpanded(created)).toBe(true)
+        D.expect(store.values.ModListPreferences).toBeNil()
+    end)
+
+    D.test("a refused folder state save warns and keeps the change for this window only", function(ctx)
+        local warnings = 0
+        ctx.stub(NotificationManager, "CreateIMGUINotification", function() warnings = warnings + 1 end)
+        local store = FakeStore({ ModListPreferences = { SortMode = "manual" } }, true)
+        local pane = setmetatable({ expandedGroups = {}, visibility = ModListState:New(store) }, LeftPane)
+        pane:setGroupExpanded("a", false)
+        D.expect(warnings).toBe(1)
+        D.expect(pane:isGroupExpanded("a")).toBe(false)
+        local reopened = setmetatable({ expandedGroups = {}, visibility = ModListState:New(store) }, LeftPane)
+        D.expect(reopened:isGroupExpanded("a")).toBe(true)
+        pane:setGroupExpanded("Hidden", true)
+        D.expect(warnings).toBe(1)
+    end)
+
+    D.test("an invalid preference document warns on a folder toggle and keeps the file", function(ctx)
+        local warnings = 0
+        ctx.stub(NotificationManager, "CreateIMGUINotification", function() warnings = warnings + 1 end)
+        local document = { SortMode = "newest" }
+        local store = FakeStore({ ModListPreferences = document })
+        local pane = setmetatable({ expandedGroups = {}, visibility = ModListState:New(store) }, LeftPane)
+        pane:setGroupExpanded("a", false)
+        D.expect(warnings).toBe(1)
+        D.expect(store.values.ModListPreferences).toBe(document)
+    end)
+
+    --- Store whose preference file alone refuses writes, as after a failed save or an unreadable file
+    ---@param values table
+    ---@param unreadablePreferences boolean
+    local function PreferenceFailureStore(values, unreadablePreferences)
+        local store = FakeStore(values)
+        local set = store.Set
+        store.Set = function(var, value)
+            if var == "ModListPreferences" then return false end
+            return set(var, value)
+        end
+        store.IsWritable = function(var) return not (unreadablePreferences and var == "ModListPreferences") end
+        return store
+    end
+
+    --- Submit a new folder name through the real popup and return what the player sees
+    local function CreateThroughPopup(pane, popup, name)
+        pane:OpenFolderNamePopup(nil, nil)
+        popup.input.Text = name
+        popup.input.OnChange()
+        return popup.texts[#popup.texts]
+    end
+
+    D.test("a failed close, then delete and recreate in one window, gives an open folder", function(ctx)
+        -- A hand-written layout without a counter lets the recreated folder take the deleted folder's ID.
+        local old = "fld-1"
+        ctx.stub(NotificationManager, "CreateIMGUINotification", function() end)
+        local store = PreferenceFailureStore({ UI = { Folders = { [old] = { Name = "Old" } } },
+            ModListPreferences = { SortMode = "manual" } }, false)
+        local popup = FakePopup()
+        local pane = setmetatable({ parent = { AddPopup = function() return popup end }, expandedGroups = {},
+            visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, RebuildModEntries = function() end }, LeftPane)
+        pane:setGroupExpanded(old, false)
+        D.expect(pane:isGroupExpanded(old)).toBe(false)
+        local unchanged = setmetatable({ parent = { AddPopup = function() return FakePopup() end }, expandedGroups = { [old] = false },
+            visibility = ModListState:New(FakeStore({ UI = { Folders = { [old] = { Name = "Old" } } } }, true)), mods = {},
+            RebuildModEntries = function() end }, LeftPane)
+        unchanged:OpenFolderMenu({ kind = "folder", id = old, name = "Old", members = {} })
+        unchanged.modEntryMenu.items[2].OnClick()
+        D.expect(unchanged.expandedGroups[old]).toBe(false)
+        pane:OpenFolderMenu({ kind = "folder", id = old, name = "Old", members = {} })
+        popup.items[2].OnClick()
+        D.expect(store.values.UI.Folders[old]).toBeNil()
+        CreateThroughPopup(pane, popup, "New")
+        local created
+        for id, folder in pairs(store.values.UI.Folders) do if folder.Name == "New" then created = id end end
+        D.expect(pane:isGroupExpanded(created)).toBe(true)
+    end)
+
+    D.test("an unusable preference file does not block folder creation, and the new folder opens", function()
+        for _, case in ipairs({
+            { values = { ModListPreferences = { SortMode = "newest", CollapsedFolders = { ["fld-1"] = true } } }, unreadable = false },
+            { values = {}, unreadable = true },
+        }) do
+            local store = PreferenceFailureStore(case.values, case.unreadable)
+            local popup = FakePopup()
+            local pane = setmetatable({ parent = { AddPopup = function() return popup end }, expandedGroups = {},
+                visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, RebuildModEntries = function() end }, LeftPane)
+            CreateThroughPopup(pane, popup, "New")
+            D.expect(store.values.UI.Folders["fld-1"].Name).toBe("New")
+            D.expect(pane:isGroupExpanded("fld-1")).toBe(true)
+        end
+    end)
+
+    D.test("a refused layout write creates no folder, keeps the counter and shows the error", function()
+        local store = FakeStore({ UI = { NextFolder = 2 } }, true)
+        local popup = FakePopup()
+        local pane = setmetatable({ parent = { AddPopup = function() return popup end }, expandedGroups = {},
+            visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, RebuildModEntries = function() end }, LeftPane)
+        local message = CreateThroughPopup(pane, popup, "New")
+        D.expect(store.values.UI).toEqual({ NextFolder = 2 })
+        D.expect(message.Visible).toBe(true)
+    end)
+
+    D.test("deleting a folder writes only the layout, and a recreated folder opens", function()
+        local store = FakeStore({ UI = { Folders = { f = { Name = "Folder" } } },
+            ModListPreferences = { SortMode = "manual", CollapsedFolders = { f = true } } })
+        local popup = FakePopup()
+        local pane = setmetatable({ parent = { AddPopup = function() return popup end }, expandedGroups = {},
+            visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, RebuildModEntries = function() end }, LeftPane)
+        pane:OpenFolderMenu({ kind = "folder", id = "f", name = "Folder", members = {} })
+        popup.items[2].OnClick()
+        D.expect(store.values.UI.Folders.f).toBeNil()
+        D.expect(store.values.ModListPreferences.CollapsedFolders).toEqual({ f = true })
+        local id = pane.visibility:NextFolderId(pane.resolved)
+        D.expect(id ~= "f").toBe(true)
+        D.expect(pane.visibility.preferences:IsFolderExpanded(id)).toBe(true)
     end)
 
     D.test("folder IDs skip historical references and names remove hash markers", function()
-        local store = FakeStore({ UI = { Mods = { [MOD_B] = { Folder = "folder-1" } }, Order = { Main = { "folder-2" } } } })
+        local store = FakeStore({ UI = { Mods = { [MOD_B] = { Folder = "fld-1" } }, Order = { Main = { "fld-2" } } } })
         local popup = FakePopup()
         local pane = setmetatable({ parent = { AddPopup = function() return popup end },
             visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, expandedGroups = {},
@@ -244,8 +330,9 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         pane:OpenFolderNamePopup(nil, MOD_A)
         popup.input.Text = "Tools##x"
         popup.input.OnChange()
-        D.expect(store.values.UI.Folders["folder-3"].Name).toBe("Toolsx")
-        D.expect(store.values.UI.Mods[MOD_A].Folder).toBe("folder-3")
+        D.expect(store.values.UI.Folders["fld-3"].Name).toBe("Toolsx")
+        D.expect(store.values.UI.Mods[MOD_A].Folder).toBe("fld-3")
+        D.expect(store.values.UI.NextFolder).toBe(4)
     end)
 
     --- Sidebar container stand-in that records added widgets in order
@@ -278,7 +365,8 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             visibility = ModListState:New(store), createModEntries = function() end }, LeftPane)
         pane:RebuildModEntries({})
         D.expect(widgets[1].Label).toBe("Toolsx##folder_f")
-        D.expect(widgets[2].Visible).toBe(false)
+        -- Folders open unless the player closed them.
+        D.expect(widgets[2].Visible).toBe(true)
         D.expect(group.DragDropType).toBe(nil)
         local target = pane.mainDropTargets.f
         D.expect(widgets[4]).toBe(target)
@@ -286,6 +374,57 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(target.CanDrag).toBe(false)
         D.expect(target.Visible).toBe(false)
         D.expect(target.OnDragDrop ~= nil).toBe(true)
+    end)
+
+    D.test("folders render as saved without writing, and toggles persist across a new window", function(ctx)
+        ctx.stub(IMGUIHelpers, "DestroyChildren", function() end)
+        local store = FakeStore({ UI = { Folders = { a = { Name = "A" }, b = { Name = "B" } } },
+            ModListPreferences = { SortMode = "manual", CollapsedFolders = { b = true } } })
+        local writes = 0
+        local set = store.Set
+        store.Set = function(var, value) writes = writes + 1; return set(var, value) end
+        local function render()
+            local widgets = {}
+            local pane = setmetatable({ parent = {}, modEntriesGroup = FakeContainer(widgets), expandedGroups = {},
+                visibility = ModListState:New(store), createModEntries = function() end }, LeftPane)
+            pane:RebuildModEntries({})
+            local trees = {}
+            for _, widget in ipairs(widgets) do
+                if widget.kind == "tree" then trees[widget.Label:match("_(%w+)$")] = widget end
+            end
+            return pane, trees
+        end
+        local pane, trees = render()
+        D.expect(writes).toBe(0)
+        D.expect(pane:isGroupExpanded("a")).toBe(true)
+        D.expect(pane:isGroupExpanded("b")).toBe(false)
+        trees.b.OnExpand()
+        pane.RebuildModEntries = function() end
+        trees.a.OnCollapse()
+        D.expect(writes).toBe(2)
+        local reopened = render()
+        D.expect(writes).toBe(2)
+        D.expect(reopened:isGroupExpanded("a")).toBe(false)
+        D.expect(reopened:isGroupExpanded("b")).toBe(true)
+        D.expect(store.values.ModListPreferences.SortMode).toBe("manual")
+    end)
+
+    D.test("an author-suggested folder appears open without a write, with a stable ID", function(ctx)
+        ctx.stub(IMGUIHelpers, "DestroyChildren", function() end)
+        local store = FakeStore({ ModListPreferences = { SortMode = "manual" } })
+        local writes = 0
+        local set = store.Set
+        store.Set = function(var, value) writes = writes + 1; return set(var, value) end
+        local mods = { [MOD_A] = { blueprint = { GetModName = function() return "A" end,
+            GetHiddenFromList = function() return false end, GetListFolder = function() return "Tools" end } } }
+        ctx.stub(MCMUtils, "SortModsByName", function() return { MOD_A } end)
+        local widgets = {}
+        local pane = setmetatable({ parent = {}, modEntriesGroup = FakeContainer(widgets), expandedGroups = {},
+            visibility = ModListState:New(store), createModEntries = function() end }, LeftPane)
+        pane:RebuildModEntries(mods)
+        D.expect(pane.resolved.main[1].id).toBe("suggested:tools")
+        D.expect(pane:isGroupExpanded("suggested:tools")).toBe(true)
+        D.expect(writes).toBe(0)
     end)
 
     D.test("an all-pinned list has a separator label and no trailing separator", function(ctx)
@@ -509,14 +648,17 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     D.test("folder and mod context titles hold the sidebar while hovered", function(ctx)
         local held = false
         ctx.stub(DualPane, "HoldSidebar", function(_, _, value) held = value end)
-        ctx.stub(DualPane, "rightPane", { detachedWindows = {} })
+        -- ctx.stub replaces only functions; this field is a table, and the menu reads its detached windows.
+        local previousRightPane = DualPane.rightPane
+        DualPane.rightPane = { detachedWindows = {} }
+        ctx.sandbox:TrackRestore(function() DualPane.rightPane = previousRightPane end)
         for _, kind in ipairs({ "folder", "mod" }) do
             local popup = FakePopup()
             local pane = setmetatable({ parent = { AddPopup = function() return popup end },
                 mods = { [ModuleUUID] = { blueprint = { GetModName = function() return "MCM" end } } },
                 visibility = ModListState:New(FakeStore()) }, LeftPane)
             if kind == "folder" then
-                pane:OpenFolderMenu({ id = "Main", name = "Main list" }, false)
+                pane:OpenFolderMenu({ id = "Main", name = "Main list" })
             else
                 pane:OpenModEntryMenu(ModuleUUID, false)
             end
@@ -535,7 +677,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local clicked = false
         local pane = setmetatable({ parent = { AddPopup = function() return popup end },
             visibility = ModListState:New(FakeStore()), resolved = { main = {} } }, LeftPane)
-        pane:OpenFolderMenu({ id = "Main", name = "Main" }, false)
+        pane:OpenFolderMenu({ id = "Main", name = "Main" })
         local row = popup.items[1]
         row.OnHoverEnter()
         D.expect(held).toBe(true)

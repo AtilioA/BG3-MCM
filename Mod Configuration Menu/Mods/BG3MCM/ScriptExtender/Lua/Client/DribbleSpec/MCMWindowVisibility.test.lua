@@ -7,6 +7,8 @@ D.describe("MCM window visibility", { tags = { "visibility", "client", "unit" } 
         }, { __index = {
             HideMCMWindows = IMGUIAPI.HideMCMWindows,
             ToggleMCMWindowsVisibility = IMGUIAPI.ToggleMCMWindowsVisibility,
+            OpenMCMWindow = IMGUIAPI.OpenMCMWindow,
+            CloseMCMWindow = IMGUIAPI.CloseMCMWindow,
         } })
     end
 
@@ -80,5 +82,82 @@ D.describe("MCM window visibility", { tags = { "visibility", "client", "unit" } 
         local api = createAPI({})
         api:ToggleMCMWindowsVisibility()
         api:ToggleMCMWindowsVisibility()
+    end)
+
+    local MOD_A = "00000000-0000-0000-0000-00000000A001"
+    local MOD_B = "00000000-0000-0000-0000-00000000B002"
+    local MODS = { { id = MOD_A, name = "Alpha" }, { id = MOD_B, name = "Beta" } }
+
+    --- Recently used list with one new use after the session's ranks froze, on a stand-in main window
+    ---@param ctx table
+    ---@param visible boolean Whether the main window starts visible
+    ---@return table session
+    local function RankingSession(ctx, visible)
+        local values = { ModListPreferences = { SortMode = "recent" } }
+        local state = ModListState:New({
+            RegisterVar = function() return true end,
+            IsWritable = function() return true end,
+            Get = function(var) return values[var] end,
+            Set = function(var, value) values[var] = value; return true end,
+        })
+        state:Resolve(MODS)
+        state.preferences:RecordOpen(MOD_B)
+        local session = { state = state, rebuilds = 0, main = { Visible = visible, Open = visible } }
+        local pane = setmetatable({ visibility = state, mods = {},
+            RebuildModEntries = function() session.rebuilds = session.rebuilds + 1 end }, LeftPane)
+        session.api = createAPI({ session.main })
+        local previousWindow = MCM_WINDOW
+        MCM_WINDOW = session.main
+        ctx.sandbox:TrackRestore(function() MCM_WINDOW = previousWindow end)
+        ctx.stub(DualPane.leftPane, "StartRankingSession", function() pane:StartRankingSession() end)
+        ctx.stub(MCMClientState, "EnsureWindowIsWithinViewport", function() end)
+        ctx.stub(MCMClientState, "EnsureWindowFocused", function() end)
+        -- Stands in for the DualPaneController subscription; only a real close emits this channel.
+        ctx.stub(ModEventManager, "Emit", function(_, channel)
+            if channel == EventChannels.MCM_WINDOW_CLOSED then pane:StartRankingSession() end
+        end)
+        return session
+    end
+
+    local function firstEntry(session)
+        return session.state:Resolve(MODS).main[1].id
+    end
+
+    D.test("hiding a visible main window refreshes ranks once, and revealing keeps them", function(ctx)
+        local session = RankingSession(ctx, true)
+        D.expect(firstEntry(session)).toBe(MOD_A)
+
+        session.api:ToggleMCMWindowsVisibility()
+        D.expect(session.rebuilds).toBe(1)
+        D.expect(firstEntry(session)).toBe(MOD_B)
+
+        session.state.preferences:RecordOpen(MOD_A)
+        session.api:ToggleMCMWindowsVisibility()
+        D.expect(session.main.Visible).toBe(true)
+        D.expect(session.rebuilds).toBe(1)
+        D.expect(firstEntry(session)).toBe(MOD_B)
+    end)
+
+    D.test("hiding while the main window is closed starts no ranking session", function(ctx)
+        local session = RankingSession(ctx, false)
+        session.api:ToggleMCMWindowsVisibility()
+        D.expect(session.rebuilds).toBe(0)
+        D.expect(firstEntry(session)).toBe(MOD_A)
+    end)
+
+    D.test("opening an already visible window keeps the frozen ranks", function(ctx)
+        local session = RankingSession(ctx, true)
+        session.api:OpenMCMWindow(true)
+        D.expect(session.rebuilds).toBe(0)
+        D.expect(firstEntry(session)).toBe(MOD_A)
+    end)
+
+    D.test("closing and reopening refreshes ranks at the close", function(ctx)
+        local session = RankingSession(ctx, true)
+        session.api:CloseMCMWindow(true)
+        D.expect(session.rebuilds).toBe(1)
+        session.api:OpenMCMWindow(true)
+        D.expect(session.rebuilds).toBe(1)
+        D.expect(firstEntry(session)).toBe(MOD_B)
     end)
 end)

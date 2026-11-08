@@ -482,6 +482,10 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
         VisibilityManager.registerCondition(modUUID, imguiTab, blueprintVisibleIf)
     end
 
+    if modUUID == ModuleUUID and blueprintTab:GetId() == "sidebar" then
+        ModListSettings:New(imguiTab, DualPane.leftPane)
+    end
+
     local tabSections = blueprintTab:GetSections()
     local tabSettings = blueprintTab:GetSettings()
     if #tabSections > 0 then

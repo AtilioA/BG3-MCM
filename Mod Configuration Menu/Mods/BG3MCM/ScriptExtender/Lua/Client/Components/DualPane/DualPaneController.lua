@@ -217,6 +217,8 @@ function DualPaneController:InitWithWindow(window)
     self:initLayout()
     self.leftPane = LeftPane:New(self.menuScrollChildWindow)
     self.rightPane = RightPane:New(self.contentScrollChildWindow)
+    -- Every close path emits this; OPENED also fires while MCM stays open
+    ModEventManager:Subscribe(EventChannels.MCM_WINDOW_CLOSED, function() self.leftPane:StartRankingSession() end)
 
     -- Check if we should start collapsed
     local startCollapsed = MCMAPI:GetSettingValue("collapsed_by_default", ModuleUUID)

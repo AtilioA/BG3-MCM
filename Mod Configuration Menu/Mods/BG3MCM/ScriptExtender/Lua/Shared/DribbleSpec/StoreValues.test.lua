@@ -168,7 +168,7 @@ D.describe("MCM.Store values", { tags = { "store", "unit" } }, function()
         D.expect(MCM.Store.GetAll().cleared).toBe("d")
     end)
 
-    D.test("TestUnregisteredVariableCannotBeReadOrSet", function(ctx)
+    D.test("TestUnregisteredVariableIsNotReadableOrWritable", function(ctx)
         local warnings = {}
         ctx.stub(Mods.BG3MCM, "MCMWarn", function(_, fmt, ...)
             table.insert(warnings, string.format(fmt, ...))
@@ -176,8 +176,9 @@ D.describe("MCM.Store values", { tags = { "store", "unit" } }, function()
 
         D.expect(MCM.Store.Get("unregistered")).toBeNil()
         D.expect(MCM.Store.Set("unregistered", 1)).toBe(false)
+        D.expect(MCM.Store.IsWritable("unregistered")).toBe(false)
 
-        D.expect(#warnings).toBe(2)
+        D.expect(#warnings).toBe(3)
         D.expect(warnings[1]:find("'unregistered' not registered", 1, true) ~= nil).toBeTruthy()
         register("registered")
         warnings = {}

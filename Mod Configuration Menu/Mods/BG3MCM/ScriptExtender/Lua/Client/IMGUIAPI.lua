@@ -49,6 +49,10 @@ function IMGUIAPI:ToggleMCMWindowsVisibility()
 
     self._hiddenWindowVisibility = {}
     self:HideMCMWindows()
+    -- Hiding a visible main window ends its visibility session, like closing it; MCM_WINDOW_CLOSED would misreport it as closed.
+    if MCM_WINDOW and self._hiddenWindowVisibility[MCM_WINDOW] then
+        DualPane.leftPane:StartRankingSession()
+    end
 end
 
 --- Update values for the MCM window

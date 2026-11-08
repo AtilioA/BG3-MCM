@@ -229,6 +229,15 @@ function SettingsService.GetAllForStorageType(moduleUUID, storageType)
     return result
 end
 
+--- Whether a value for (moduleUUID, varName) can be saved; false when, for example, its JSON file failed to parse.
+---@param moduleUUID string The UUID of the module
+---@param varName string The name of the variable
+---@return boolean writable
+function SettingsService.IsWritable(moduleUUID, varName)
+    local storageType = SettingsService.ResolveStorageType(moduleUUID, varName, "IsWritable")
+    return storageType ~= nil and AdapterFactory.GetAdapter(storageType):IsWritable(varName, moduleUUID)
+end
+
 --- SET: Write a new Lua value for (moduleUUID, varName), storage type auto-detected.
 ---@param moduleUUID string The UUID of the module
 ---@param varName string The name of the variable

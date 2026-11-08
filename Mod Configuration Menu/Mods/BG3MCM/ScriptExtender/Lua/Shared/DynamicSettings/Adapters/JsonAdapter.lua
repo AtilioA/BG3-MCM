@@ -64,15 +64,20 @@ function SettingsFile:Get(key)
     return self.Data[key]
 end
 
----@return boolean saved False when the file is unreadable; the value is then not kept
+---@return boolean saved False when the file is unreadable or the write fails; the value is then not kept
 function SettingsFile:Set(key, value)
     self:Load()
     if self.Unreadable then
         MCMDebug(1, "JsonAdapter: Not saving '%s' to unreadable file: %s", key, self.FilePath)
         return false
     end
+    local previous = self.Data[key]
     self.Data[key] = value
-    Ext.IO.SaveFile(self.FilePath, Ext.Json.Stringify(self.Data))
+    if not Ext.IO.SaveFile(self.FilePath, Ext.Json.Stringify(self.Data)) then
+        self.Data[key] = previous
+        MCMWarn(0, "JsonAdapter: Could not write '%s' to: %s. MCM keeps the previous value.", key, self.FilePath)
+        return false
+    end
     return true
 end
 
@@ -167,6 +172,16 @@ function JsonStorageManager:IsRegistered(key, moduleUUID)
     return byMod ~= nil and byMod[key] ~= nil
 end
 
+--- Whether the variable's file accepts writes; false when the file failed to parse.
+---@param key string
+---@param moduleUUID string
+---@return boolean writable
+function JsonStorageManager:IsWritable(key, moduleUUID)
+    local handler = self:_getFileHandler(moduleUUID, self:_resolveFileName(moduleUUID, key))
+    handler:Load()
+    return not handler.Unreadable
+end
+
 --- Read the raw Lua value
 ---@param key string
 ---@param moduleUUID string
@@ -187,7 +202,7 @@ end
 ---@param value StorageValue
 ---@param moduleUUID string
 ---@param storageConfig? table Optional storage configuration; the file comes from registration
----@return boolean saved False when the variable's file is unreadable
+---@return boolean saved False when the variable's file is unreadable or the write fails
 function JsonStorageManager:SetValue(key, value, moduleUUID, storageConfig)
     local handler = self:_getFileHandler(moduleUUID, self:_resolveFileName(moduleUUID, key))
     if not handler:Set(key, value) then

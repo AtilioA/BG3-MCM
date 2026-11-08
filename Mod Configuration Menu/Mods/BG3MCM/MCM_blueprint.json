@@ -309,7 +309,7 @@
             "Sections": [
                 {
                     "SectionId": "sidebar_settings",
-                    "SectionDescription": "By default, the sidebar automatically expands when hovering the icon, and will collapse when opening a mod page.\nYou can also manually toggle it with CAPSLOCK.",
+                    "SectionDescription": "By default, the sidebar automatically expands when hovering the icon, and collapses after the pointer leaves it.\nYou can also manually toggle it with CAPSLOCK.",
                     "SectionName": "Sidebar settings",
                     "Settings": [
                         {
@@ -328,7 +328,7 @@
                             "Name": "Enable automatic sidebar collapse",
                             "Type": "checkbox",
                             "Default": true,
-                            "Description": "When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).",
+                            "Description": "When enabled, the sidebar will automatically collapse after the pointer leaves it, or when another feature opens a mod page.",
                             "Handles": {
                                 "NameHandle": "h0636d5bc17f6464f99c1da18831bb38f1561",
                                 "DescriptionHandle": "h3f6a4e8a570d41c2bf60d673a3bfa1ef3472"

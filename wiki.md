@@ -671,6 +671,7 @@ The JSON storage allows saving values to JSON files without needing to define a 
 | `MCM.Store.Get(var, modUUID?)` | Gets a stored value, or the registered default if not set | ✅ | ✅ |
 | `MCM.Store.Set(var, value, modUUID?)` | Sets a stored value with automatic persistence | ✅ | ✅ |
 | `MCM.Store.GetAll(modUUID?)` | Gets all stored key-value pairs for the mod | ✅ | ✅ |
+| `MCM.Store.IsWritable(var, modUUID?)` | Returns `false` when the variable's JSON file is [unreadable](#unreadable-json-store-files) | ✅ | ✅ |
 
 <details>
 <summary>Store API usage example</summary>
@@ -738,7 +739,7 @@ MCM uses this filename option for its own [MCM state document](#share-mod-list-v
 
 ##### Unreadable JSON Store files
 
-If a JSON Store file cannot be parsed, MCM keeps it unchanged and logs a warning. Until the file is repaired or deleted and the game reloads, its variables read as their registered default (or `nil`), and `MCM.Store.Set` returns `false`. Other Store files and blueprint settings keep working.
+If a JSON Store file cannot be parsed, MCM keeps it unchanged and logs a warning. Until the file is repaired or deleted and the game reloads, its variables read as their registered default (or `nil`), `MCM.Store.Set` returns `false`, and `MCM.Store.IsWritable` returns `false`. Other Store files and blueprint settings keep working.
 
 #### Window and tab APIs
 
@@ -1294,9 +1295,9 @@ The demo below showcases the different types of config options that can be used 
 
 Right-click a mod entry in MCM's left pane and select **Hide** to move it out of the main mod list. **Hidden mods** appears at the bottom with a count, such as **Hidden mods (3)**. Expand the group to open a hidden mod's page. Right-click its entry and select **Show** to return it to its folder or the main list.
 
-Hidden mods stay active. Their settings still apply, their keybindings keep working, and the Hotkeys page still lists their keybindings. You can hide MCM's own mod entry too. Tools such as Hotkeys have no Hide action.
+Hidden mods stay active. Their settings still apply, their keybindings keep working, and the Hotkeys page still lists their keybindings. MCM's own entry cannot be hidden: it stays pinned and first in the main list. Tools such as Hotkeys have no Hide action.
 
-The group keeps its expanded or collapsed state when MCM rebuilds the navigation after a visibility change. Each newly built MCM window starts with the group collapsed. MCM omits the group when nothing is hidden. The count includes only mod entries in your current load order. MCM keeps choices for uninstalled mods, so reinstalling them restores their visibility.
+The group keeps its expanded or collapsed state when MCM rebuilds the navigation after a visibility change. Each newly built MCM window starts with the group collapsed. Custom folders instead keep their open or closed state across reloads; MCM saves the folders you close in `MCM_mod_list_preferences.json`. Every other folder opens, including new and author-suggested folders. MCM omits the group when nothing is hidden. The count includes only mod entries in your current load order. MCM keeps choices for uninstalled mods, so reinstalling them restores their visibility.
 
 The right-click menu offers Hide or Show. When that action matches the [author's default](#hiddenfromlist-default-mod-list-visibility), its label ends with **(Default)**, such as **Show (Default)**. Select it to remove your saved choice and follow the author's default again. A marked action appears only after you save a choice that differs from the author's default. If your saved choice already matches the author's default, the menu offers only the opposite action. This also applies to a choice supplied by a collection.
 
@@ -1308,9 +1309,19 @@ MCM saves your choices automatically for your local installation. They stay the 
 
 Right-click a mod and choose **Move to folder** to move it to a folder, create a new folder, or return it to the main list. Right-click a folder to rename or delete it. Deleting a folder returns its mods to the main list.
 
-Right-click a mod or folder to pin or unpin it. Pinned entries appear first in their group, including custom folders and Hidden mods. Drag an entry onto a pinned or unpinned entry in the same group to adopt that entry's pin state and reorder it. Moving a mod to another group preserves its pin state. While dragging a mod out of a folder or Hidden mods, a **Main list** destination appears below that group. Right-click a folder or Hidden mods and choose **Sort alphabetically** to clear that group's saved order. Right-click blank sidebar space to create a folder or sort the main list.
+Right-click a mod or folder to pin or unpin it. Pinned entries appear first in their group, including custom folders and Hidden mods. Drag an entry onto a pinned or unpinned entry in the same group to adopt that entry's pin state and reorder it. Moving a mod to another group preserves its pin state. While dragging a mod out of a folder or Hidden mods, a **Main list** destination appears below that group. Right-click blank sidebar space to create a folder.
 
-MCM saves the layout in `MCM_state.json` on the client. It stays local and does not sync with other players. This can be shipped with collections; see [Share mod-list visibility](#share-mod-list-visibility).
+Choose the list order in MCM's **Sidebar** tab, under **Mod list**. One order applies inside the main list, custom folders, and Hidden mods:
+
+- **Alphabetical** is the default.
+- **Manual** uses your saved positions, then names for entries without a position. Each group keeps its own saved order.
+- **Recently used** puts the latest opened mods first. **Frequently used** puts the most opened mods first. Mods you never opened follow, by name. A folder ranks by its visible mods: its latest opening for Recently used, and the sum of openings for Frequently used.
+
+Pinned entries stay first, MCM stays first among them, and Hidden mods stay last. **Folders first** groups folders above loose mods in each pin section of the main list; turning it off restores the order. Automatic orders do not change your saved manual order. If you drag an entry within its group while an automatic order is active, the current order of every group is saved and the list switches to **Manual**. If **Folders first** would hide where you dropped a folder or mod in the main list, MCM turns **Folders first** off. Moving a mod to another group, pinning, hiding, and showing do not change the selected order.
+
+A use is one page opening from the mod list with a mouse, keyboard, or controller. Reselecting the current page, opening a page through a mod's API call, restoring a page at startup, and opening MCM's own page, Hotkeys, or Profiles do not count. Recently used and Frequently used update when you close or hide MCM, so the list does not move while you navigate. **Clear usage history** removes only the counts.
+
+MCM saves the layout in `MCM_state.json` on the client. It stays local and does not sync with other players. This can be shipped with collections; see [Share mod-list visibility](#share-mod-list-visibility). MCM saves the selected order and usage history separately in `MCM_mod_list_preferences.json`, in the same folder. Do not ship that file; it holds personal history.
 
 ## Share mod-list visibility
 
@@ -1328,6 +1339,7 @@ The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
 
 ```json
 {
+  "Version": 1,
   "UI": {
     "Mods": {
       "01234567-89ab-cdef-0123-456789abcdef": {
@@ -1338,7 +1350,7 @@ The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
 }
 ```
 
-In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The document also stores folder, pinning, and order choices.
+`Version` identifies the document format and is optional. In `UI.Mods`, `HiddenFromList: true` saves Hide and `false` saves Show. An absent choice follows the author's default, then visible if no default exists. MCM stores explicit choices here; reading author defaults does not save them as choices. The document also stores folder, pinning, and order choices.
 
 Choose an entry for each mod based on what you want:
 
@@ -1352,7 +1364,7 @@ When you select Show in MCM, MCM saves `false`, so the saved file also overrides
 
 The recipient can change the visibility through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
 
-If `MCM_state.json` cannot be parsed, or its fields have the wrong types, MCM keeps the file unchanged. Entries then follow their author defaults, and MCM shows a warning when a change cannot be saved. Repair or delete the file, then reload.
+If `MCM_state.json` cannot be parsed, its fields have the wrong types, or its `Version` is newer than this MCM supports, MCM keeps the file unchanged and logs a warning when it is loaded. Entries follow their author defaults if the file is unreadable or has wrong types, and MCM shows a warning when a change cannot be saved. Repair or delete the file, then reload.
 
 ## Closing words
 

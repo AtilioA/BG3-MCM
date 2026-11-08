@@ -3,6 +3,7 @@
 -- Splits present mod entries into the main list and Hidden mods: player choice, then author default, then visible.
 -- Only player choices are saved in the MCM state document, so updated author defaults still apply.
 -- An invalid document resolves as empty and refuses changes; Store refuses writes to an unreadable file.
+-- An unreadable document, or one with a newer Version, is protected: MCM keeps it unchanged and saves no choices.
 ------------------------------------------------------------
 
 ---@class SavedModListChoice
@@ -19,6 +20,7 @@
 ---@field Mods? table<string, SavedModListChoice>
 ---@field Folders? table<string, SavedModListFolder>
 ---@field Order? table<string, string[]>
+---@field NextFolder? integer Number for the next created folder ID; it never decreases, so a deleted folder's ID never returns
 
 ---@class ModListInput
 ---@field id string
@@ -40,7 +42,7 @@
 ---@field main ResolvedModListEntry[]
 ---@field hidden ResolvedModListEntry[]
 
----@alias ModListMoveFailure "nested"|"unchanged"|"unavailable"|"save"
+---@alias ModListMoveFailure "nested"|"unchanged"|"unavailable"|"save"|"partial"
 
 --- Validate a saved mod choice without coercing invalid fields.
 ---@param mod unknown
@@ -97,6 +99,10 @@ local function validSavedUI(ui)
             return false
         end
     end
+    local counter = ui.NextFolder
+    if counter ~= nil and (type(counter) ~= "number" or counter < 1 or counter % 1 ~= 0) then
+        return false
+    end
     for id, mod in pairs(ui.Mods or {}) do
         if type(id) ~= "string" or not validModChoice(mod) then
             return false
@@ -115,6 +121,11 @@ local function validSavedUI(ui)
     return true
 end
 
+local SUPPORTED_STATE_VERSION = 1
+
+-- Created folder IDs; distinct from IDs written by unreleased builds, so the counter never meets them
+local FOLDER_ID_PREFIX = "fld-"
+
 -- Client-only: local menu preferences never sync to the server or to other players
 ---@type MCMStoreRegisterOptions
 local STATE_VAR_OPTIONS = {
@@ -124,8 +135,10 @@ local STATE_VAR_OPTIONS = {
 
 ---@class ModListState
 ---@field private store MCMStoreAPI MCM.Store, or an in-memory stand-in in tests
+---@field preferences ModListPreferences Personal view of this layout
 ModListState = _Class:Create("ModListState", nil, {
     store = nil,
+    preferences = nil,
 })
 
 --- Register the MCM state document variable; no default, because Store writes defaults to the file immediately
@@ -134,8 +147,23 @@ ModListState = _Class:Create("ModListState", nil, {
 function ModListState:New(store)
     local obj = setmetatable({}, ModListState)
     obj.store = store
+    obj.preferences = ModListPreferences:New(store)
+    store.RegisterVar("Version", STATE_VAR_OPTIONS)
     store.RegisterVar("UI", STATE_VAR_OPTIONS)
+    if obj:IsProtected() then
+        MCMWarn(0, "MCM_state.json is unreadable or from a newer MCM version; mod-list choices will not be saved until it is repaired or deleted")
+    end
     return obj
+end
+
+--- Check whether choices cannot be saved, because the document is unreadable or has a newer Version than MCM supports
+---@return boolean protected
+function ModListState:IsProtected()
+    if not self.store.IsWritable("UI") then
+        return true
+    end
+    local version = self.store.Get("Version")
+    return version ~= nil and not (type(version) == "number" and version <= SUPPORTED_STATE_VERSION)
 end
 
 --- Read the player's saved choice for one mod
@@ -247,13 +275,73 @@ local function assignMod(context, mod, choice, defaults)
     })
 end
 
---- Pinned entries precede manual order; entries without a position sort by name.
+--- Derive usage from visible members, so opening a folder never counts as use.
+---@param entry ResolvedModListEntry
+---@param usage ModListUsage
+---@return integer last
+---@return integer count
+local function usageScore(entry, usage)
+    local records = usage.Mods or {}
+    if entry.kind ~= "folder" then
+        local record = records[entry.id]
+        return record and record.Last or 0, record and record.Count or 0
+    end
+    local last, count = 0, 0
+    for _, item in ipairs(entry.items) do
+        local record = records[item.id]
+        if record then
+            last = math.max(last, record.Last)
+            count = count + record.Count
+        end
+    end
+    return last, count
+end
+
+---@class ModListGroupRanks
+---@field positions table<string, integer>
+---@field last table<string, integer>
+---@field count table<string, integer>
+
+--- Compare two entries of one pin section using the selected mode, then name and ID.
+---@param a ResolvedModListEntry
+---@param b ResolvedModListEntry
+---@param mode ModListSortMode
+---@param ranks ModListGroupRanks
+---@return boolean
+local function comparesFirst(a, b, mode, ranks)
+    if mode == "manual" then
+        local aPosition, bPosition = ranks.positions[a.id], ranks.positions[b.id]
+        if aPosition and bPosition then
+            return aPosition < bPosition
+        end
+        if aPosition or bPosition then
+            return aPosition ~= nil
+        end
+    elseif mode == "frequent" and ranks.count[a.id] ~= ranks.count[b.id] then
+        return ranks.count[a.id] > ranks.count[b.id]
+    end
+    if (mode == "recent" or mode == "frequent") and ranks.last[a.id] ~= ranks.last[b.id] then
+        return ranks.last[a.id] > ranks.last[b.id]
+    end
+    local aName, bName = a.name:lower(), b.name:lower()
+    if aName == bName then
+        return a.id < b.id
+    end
+    return aName < bName
+end
+
+--- Order one group for display: MCM, pins, optional folder grouping, then the selected mode.
 ---@param items ResolvedModListEntry[]
 ---@param order string[]
-local function sortResolvedGroup(items, order)
-    local positions = {}
+---@param view ModListView
+---@param foldersFirst boolean
+local function sortResolvedGroup(items, order, view, foldersFirst)
+    local ranks = { positions = {}, last = {}, count = {} }
     for index, id in ipairs(order) do
-        positions[id] = index
+        ranks.positions[id] = index
+    end
+    for _, item in ipairs(items) do
+        ranks.last[item.id], ranks.count[item.id] = usageScore(item, view.usage)
     end
     table.sort(items, function(a, b)
         local aMCM = a.kind == "mod" and a.id == ModuleUUID
@@ -262,18 +350,10 @@ local function sortResolvedGroup(items, order)
         if (a.pinned == true) ~= (b.pinned == true) then
             return a.pinned == true
         end
-        local aPosition, bPosition = positions[a.id], positions[b.id]
-        if aPosition and bPosition then
-            return aPosition < bPosition
+        if foldersFirst and a.kind ~= b.kind then
+            return a.kind == "folder"
         end
-        if aPosition or bPosition then
-            return aPosition ~= nil
-        end
-        local aName, bName = a.name:lower(), b.name:lower()
-        if aName == bName then
-            return a.id < b.id
-        end
-        return aName < bName
+        return comparesFirst(a, b, view.mode, ranks)
     end)
 end
 
@@ -300,8 +380,9 @@ function ModListState:Resolve(mods, authorDefaults)
             table.remove(context.result.main, index)
         end
     end
+    local view = self.preferences:GetView()
     for id, items in pairs(context.groups) do
-        sortResolvedGroup(items, orders[id] or {})
+        sortResolvedGroup(items, orders[id] or {}, view, view.foldersFirst and id == "Main")
     end
     return context.result
 end
@@ -345,10 +426,10 @@ end
 --- Apply a change to a copy of the state document.
 ---@private
 ---@param change fun(ui: SavedModListUI)
----@return boolean saved False when the document is invalid or Store refuses the write
+---@return boolean saved False when the document is protected or invalid, or Store refuses the write
 function ModListState:change(change)
     local saved = self.store.Get("UI")
-    if not validSavedUI(saved) then
+    if self:IsProtected() or not validSavedUI(saved) then
         return false
     end
     local ui = table.deepcopy(saved or {})
@@ -356,12 +437,13 @@ function ModListState:change(change)
     return self.store.Set("UI", ui)
 end
 
---- Reserve a new folder ID without reusing references belonging to unloaded mods.
+--- Reserve the next folder ID from the layout's counter, skipping any ID the document already references.
+--- CreateFolder raises the counter in the same write, so an ID is never handed out twice, even after its folder is deleted.
 ---@param resolved ResolvedModList|nil
----@return string|nil id Nil when the saved document is invalid
+---@return string|nil id Nil when the layout is protected or invalid
 function ModListState:NextFolderId(resolved)
     local ui = self.store.Get("UI")
-    if not validSavedUI(ui) then
+    if self:IsProtected() or not validSavedUI(ui) then
         return nil
     end
     ui = ui or {}
@@ -383,11 +465,11 @@ function ModListState:NextFolderId(resolved)
             used[id] = true
         end
     end
-    local number = 1
-    while used["folder-" .. number] do
+    local number = ui.NextFolder or 1
+    while used[FOLDER_ID_PREFIX .. number] do
         number = number + 1
     end
-    return "folder-" .. number
+    return FOLDER_ID_PREFIX .. number
 end
 
 --- Apply a pin change inside the caller's state transaction.
@@ -447,6 +529,10 @@ end
 function ModListState:CreateFolder(id, name, suggested, modUUID)
     if modUUID == ModuleUUID then return false end
     return self:change(function(ui)
+        local digits = id:sub(1, #FOLDER_ID_PREFIX) == FOLDER_ID_PREFIX and id:sub(#FOLDER_ID_PREFIX + 1):match("^%d+$")
+        if digits then
+            ui.NextFolder = math.max(ui.NextFolder or 1, tonumber(digits) + 1)
+        end
         ui.Folders = (ui.Folders or {})
         ui.Folders[id] = { Name = name, Suggested = suggested }
         if modUUID then
@@ -649,7 +735,83 @@ local function applyMoveMembership(ui, plan)
     end
 end
 
+--- Save one group's displayed order, keeping references to unloaded entries after it.
+---@param orders table<string, string[]>
+---@param groupId string
+---@param entries ResolvedModListEntry[]
+local function snapshotGroupOrder(orders, groupId, entries)
+    local order, present = {}, {}
+    for _, entry in ipairs(entries) do
+        table.insert(order, entry.id)
+        present[entry.id] = true
+    end
+    for _, id in ipairs(orders[groupId] or {}) do
+        if not present[id] then
+            table.insert(order, id)
+        end
+    end
+    if #order > 0 then
+        orders[groupId] = order
+    end
+end
+
+--- Make Manual show what is on screen, so the mode switch moves only the dragged entry.
+---@param ui SavedModListUI
+---@param resolved ResolvedModList
+local function snapshotDisplayedOrders(ui, resolved)
+    ui.Order = ui.Order or {}
+    snapshotGroupOrder(ui.Order, "Main", resolved.main)
+    snapshotGroupOrder(ui.Order, "Hidden", resolved.hidden)
+    for _, entry in ipairs(resolved.main) do
+        if entry.kind == "folder" then
+            snapshotGroupOrder(ui.Order, entry.id, entry.items)
+        end
+    end
+end
+
+--- Whether Folders first would separate a saved Main reorder from its target.
+---@param plan ModListMovePlan
+---@param order string[] Saved Main order after the move
+---@param main ResolvedModListEntry[]
+---@return boolean
+local function groupingHidesPlacement(plan, order, main)
+    local entries = {}
+    for _, entry in ipairs(main) do
+        local pinned = entry.pinned
+        if entry.id == plan.item.id and plan.pinned ~= nil then pinned = plan.pinned end
+        table.insert(entries, { kind = entry.kind, id = entry.id, name = entry.name, pinned = pinned, items = entry.items })
+    end
+    sortResolvedGroup(entries, order, { mode = "manual", foldersFirst = true, usage = {} }, true)
+    local itemIndex, targetIndex
+    for index, entry in ipairs(entries) do
+        if entry.id == plan.item.id then itemIndex = index end
+        if entry.id == plan.target.id then targetIndex = index end
+    end
+    -- MCM resolves first, so a drop that references it asks for the place after it.
+    local after = plan.insertAfter or (plan.target.kind == "mod" and plan.target.id == ModuleUUID)
+    return itemIndex ~= targetIndex + (after and 1 or -1)
+end
+
+--- Save the view changes that belong to a saved reorder, or restore the layout when they fail.
+---@param previous SavedModListUI|nil
+---@param switchToManual boolean
+---@param clearFoldersFirst boolean
+---@return boolean saved
+---@return ModListMoveFailure|nil reason
+function ModListState:commitReorderView(previous, switchToManual, clearFoldersFirst)
+    if self.preferences:ApplyReorder(switchToManual, clearFoldersFirst) then
+        return true
+    end
+    if self.store.Set("UI", previous or {}) then
+        return false, "save"
+    end
+    MCMWarn(0, "ModListState: Saved the new mod list layout, but could not save its order settings or restore the earlier layout.")
+    return false, "partial"
+end
+
 --- Move an item using resolved group entries; target is nil to append.
+--- A same-group reorder takes precedence over the view: it can switch to Manual and turn off Folders first.
+--- Those view changes apply only after both documents save.
 ---@param item ResolvedModListEntry
 ---@param source string
 ---@param destination string
@@ -663,8 +825,23 @@ function ModListState:Move(item, source, destination, target, resolved)
     if not plan then
         return false, reason
     end
+    local sameGroup = source == destination
+    local switchesToManual = sameGroup and self.preferences:GetSortMode() ~= "manual"
+    -- Only Main groups kinds; a target of the other kind, or fixed-first MCM with folders after it, can hide the drop.
+    local mayConflict = sameGroup and destination == "Main" and plan.target ~= nil
+        and (plan.target.kind ~= item.kind or plan.target.id == ModuleUUID)
+        and self.preferences:GetFoldersFirst()
+    local clearsFoldersFirst = false
+    local previous = self.store.Get("UI")
     local saved = self:change(function(ui)
+        if switchesToManual then
+            snapshotDisplayedOrders(ui, resolved)
+        elseif mayConflict then
+            ui.Order = ui.Order or {}
+            snapshotGroupOrder(ui.Order, "Main", resolved.main)
+        end
         applyMoveOrder(ui, plan)
+        clearsFoldersFirst = mayConflict and groupingHidesPlacement(plan, ui.Order.Main, resolved.main)
         applyMoveMembership(ui, plan)
         if plan.pinned ~= nil then
             applyPinnedChoice(ui, item.id, plan.pinned, item.kind, item)
@@ -673,35 +850,5 @@ function ModListState:Move(item, source, destination, target, resolved)
     if not saved then
         return false, "save"
     end
-    return true
-end
-
----@param group string
----@return boolean
-function ModListState:SortGroup(group)
-    return self:change(function(ui) if type(ui.Order) == "table" then ui.Order[group] = nil end end)
-end
-
---- Group visible folders before loose mods, retaining relative order and unloaded references.
----@param resolved ResolvedModList
----@return boolean saved
-function ModListState:SortFoldersFirst(resolved)
-    return self:change(function(ui)
-        local order, present = {}, {}
-        for _, kind in ipairs({ "folder", "mod" }) do
-            for _, entry in ipairs(resolved.main) do
-                if entry.kind == kind then
-                    table.insert(order, entry.id)
-                    present[entry.id] = true
-                end
-            end
-        end
-        ui.Order = ui.Order or {}
-        for _, id in ipairs(ui.Order.Main or {}) do
-            if not present[id] then
-                table.insert(order, id)
-            end
-        end
-        ui.Order.Main = order
-    end)
+    return self:commitReorderView(previous, switchesToManual, clearsFoldersFirst)
 end

@@ -14,7 +14,12 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         return {
             values = values,
             RegisterVar = function() return true end,
-            Get = function(var) return values[var] end,
+            IsWritable = function() return not unreadable end,
+            -- These suites cover the layout, so they run in Manual; ModListSorting.test.lua covers the modes
+            Get = function(var)
+                if var == "ModListPreferences" and values[var] == nil then return { SortMode = "manual" } end
+                return values[var]
+            end,
             Set = function(var, value)
                 if unreadable then return false end
                 values[var] = value
@@ -203,7 +208,7 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(store.values.UI.Other).toBe("kept")
     end)
 
-    D.test("ordering, folder moves and sorting", function()
+    D.test("ordering and folder moves", function()
         local state = ModListState:New(FakeStore())
         local mods = { { id = MOD_A, name = "Alpha" }, { id = MOD_B, name = "Beta" }, { id = MOD_C, name = "Charlie" } }
         state:CreateFolder("f", "Folder")
@@ -219,8 +224,7 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(state:Move(a, "Main", "f", nil, result)).toBe(true)
         result = state:Resolve(mods)
         D.expect(state:Move({ kind = "folder", id = "f" }, "Main", "f", nil, result)).toBe(false)
-        state:SortGroup("Main")
-        D.expect(state:Resolve(mods).main[2].id).toBe(MOD_B)
+        D.expect(state:Resolve(mods).main[3].id).toBe(MOD_B)
     end)
 
     D.test("crossing pin sections saves the target pin and new order in one write", function()
@@ -490,23 +494,6 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(store.values).toEqual(before)
     end)
 
-    D.test("folders-first sorts each pin section and preserves unrelated ordering", function()
-        local store = FakeStore({ UI = {
-            Folders = { f = { Name = "F" }, g = { Name = "G", Pinned = true } },
-            Mods = { [MOD_A] = { Pinned = true } },
-            Order = { Main = { MOD_A, "g", MOD_B, "f", ABSENT_MOD }, Hidden = { MOD_C }, f = { MOD_D } },
-        } })
-        local state = ModListState:New(store)
-        local mods = { { id = MOD_A, name = "A" }, { id = MOD_B, name = "B" } }
-        D.expect(state:SortFoldersFirst(state:Resolve(mods))).toBe(true)
-        local result = state:Resolve(mods).main
-        D.expect({ result[1].id, result[2].id, result[3].id, result[4].id }).toEqual({ "g", MOD_A, "f", MOD_B })
-        D.expect(store.values.UI.Order.Main).toEqual({ "g", "f", MOD_A, MOD_B, ABSENT_MOD })
-        D.expect(store.values.UI.Order.Hidden).toEqual({ MOD_C })
-        D.expect(store.values.UI.Order.f).toEqual({ MOD_D })
-        D.expect(store.values.UI.Mods[MOD_A].Pinned).toBe(true)
-    end)
-
     D.test("move reports refusal reasons without changing state", function()
         local store = FakeStore({ UI = { Folders = { f = { Name = "Folder" } }, Mods = { [MOD_A] = { Pinned = true } } } })
         local state = ModListState:New(store)
@@ -591,15 +578,15 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
 
     D.test("new folder IDs skip saved and resolved historical references without writing", function()
         local store = FakeStore({ UI = {
-            Folders = { ["folder-1"] = { Name = "Existing" } },
-            Mods = { [ABSENT_MOD] = { Folder = "folder-2" } },
-            Order = { ["folder-3"] = {}, Main = { "folder-4" } },
+            Folders = { ["fld-1"] = { Name = "Existing" } },
+            Mods = { [ABSENT_MOD] = { Folder = "fld-2" } },
+            Order = { ["fld-3"] = {}, Main = { "fld-4" } },
         } })
         local before = table.deepcopy(store.values)
         local state = ModListState:New(store)
-        local resolved = { main = { { id = "folder-5" } }, hidden = {} }
+        local resolved = { main = { { id = "fld-5" } }, hidden = {} }
 
-        D.expect(state:NextFolderId(resolved)).toBe("folder-6")
+        D.expect(state:NextFolderId(resolved)).toBe("fld-6")
         D.expect(store.values).toEqual(before)
     end)
 
@@ -633,7 +620,7 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(reordered[1].id).toBe(MOD_A)
     end)
 
-    D.test("MCM remains first pinned despite hostile choices and sorts", function()
+    D.test("MCM remains first pinned despite hostile choices", function()
         local ui = { Mods = { [ModuleUUID] = { HiddenFromList = true, Folder = "f", Pinned = false },
             [MOD_A] = { Pinned = true } }, Folders = { f = { Name = "A folder", Pinned = true } },
             Order = { Main = { "f", MOD_A, ModuleUUID } } }
@@ -645,10 +632,6 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(result.main[1].pinned).toBe(true)
         D.expect(#result.hidden).toBe(0)
         D.expect(#result.main[2].items).toBe(0)
-        state:SortFoldersFirst(result)
-        D.expect(state:Resolve(mods, defaults).main[1].id).toBe(ModuleUUID)
-        state:SortGroup("Main")
-        D.expect(state:Resolve(mods, defaults).main[1].id).toBe(ModuleUUID)
         D.expect(#state:Resolve({}).main).toBe(1) -- the saved empty folder remains
     end)
 

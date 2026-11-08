@@ -156,7 +156,7 @@
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Set the keybinding for closing MCM's window.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Close MCM window</content>
     <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Sidebar settings</content>
-    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">When enabled, the sidebar will automatically collapse based on inactivity or other collapse triggers (opening a mod page, etc).</content>
+    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">When enabled, the sidebar will automatically collapse after the pointer leaves it, or when another feature opens a mod page.</content>
     <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Enable automatic sidebar collapse</content>
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Enable expansion on icon hover</content>
     <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Enable hover-based expansion of the sidebar when hovering the hamburger menu icon.</content>
@@ -202,7 +202,7 @@
     <content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Provides an in-game UI that enables players to intuitively manage mod settings and hotkeys.</content>
     <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Toggle detached windows with main window</content>
     <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">When toggling the MCM window, also toggle the visibility of any detached mod pages.</content>
-    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">By default, the sidebar automatically expands when hovering the menu icon, and will collapse when opening a mod page.&lt;br&gt;You can also manually toggle it with [1].</content>
+    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">By default, the sidebar automatically expands when hovering the menu icon, and collapses after the pointer leaves it.&lt;br&gt;You can also manually toggle it with [1].</content>
     <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Profile changes require a reload to take effect.</content>
     <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Connecting players cannot use this page. Only the host may change these settings.</content>
     <content contentuid="h38caa4e657a746509697741417cc96049f52" version="1">Window behavior</content>
@@ -663,7 +663,6 @@
     <content contentuid="hb06aed8109a44f689d9351a1c469d09ae769" version="1">Main list</content>
     <content contentuid="h5387de4db5e84639ba0b992e7358f5de9bb1" version="1">Rename</content>
     <content contentuid="hd504cdce3ff34f55a7fc0718b6788648a37e" version="1">Dissolve</content>
-    <content contentuid="h97487312f07d44869805f651d41c2636855f" version="1">Sort alphabetically</content>
     <content contentuid="h2e65dd988a5e44f38060c645f30dd7c53fa1" version="1">New folder...</content>
     <content contentuid="h77a53621d61b4a3d92c841adaec0a86be116" version="1">Folder name</content>
     <content contentuid="hc2051a2144174d438a0acb3adf71ff909a10" version="1">Enter a folder name.</content>
@@ -674,14 +673,23 @@
     <content contentuid="h3528e5d91a66432f89f8a43cf3c33feac579" version="1">New folder</content>
     <content contentuid="h24ca58cb5e534e658e3ff773c73b12c4e522" version="1">Rename folder</content>
     <content contentuid="h3f26d5e1a4c74fd19a2b3c4d5e6f7890abcd" version="1">Could not save.</content>
-    <content contentuid="h4cb59a2329294dfab78be8f25f39319af600" version="1">Sort alphabetically? This will reset the manual order.</content>
     <content contentuid="hb54d982efdb448d18ff18a5930b68857g892" version="1">Empty folder</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag002" version="1">Folders cannot be placed inside another group.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag003" version="1">The entry is already in this group.</content>
-    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">The mod list change could not be saved. If MCM_state.json is damaged, repair or delete it, then reload.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">The mod list change could not be saved. If MCM_state.json or MCM_mod_list_preferences.json is damaged or from a newer MCM version, repair or delete it, then reload.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag006" version="1">The destination is no longer available.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag007" version="1">Cannot move entry</content>
     <content contentuid="h28a91f4d4dcb4a7ea27baed764cc50c8g001" version="1">'[1]' folder</content>
-    <content contentuid="ha8396d4c149c454a8edff7d5cf23675ag001" version="1">Sort folders first</content>
-    <content contentuid="ha8396d4c149c454a8edff7d5cf23675ag002" version="1">Sort folders first? This will change the manual order.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a00b2c3" version="1">Mod list</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a01b2c3" version="1">Alphabetical</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a02b2c3" version="1">Manual</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a03b2c3" version="1">Recently used</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a04b2c3" version="1">Frequently used</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a05b2c3" version="1">Automatic orders keep your manual order. Dragging an entry within its group switches to Manual.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a06b2c3" version="1">Folders first</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a07b2c3" version="1">Clear usage history</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a08b2c3" version="1">Clear usage history for all mods? Folders, pins, hidden mods, and manual order stay the same.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a09b2c3" version="1">Usage history cleared.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag008" version="1">The list order could not be saved, and the earlier layout could not be restored. The list now shows the saved layout. If MCM_state.json or MCM_mod_list_preferences.json is damaged, repair or delete it, then reload.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a0ab2c3" version="1">MCM_mod_list_preferences.json has invalid values, so MCM uses the default order and cannot save changes. Repair or delete the file, then reload.</content>
 </contentList>

@@ -143,7 +143,7 @@
     <content contentuid="heb5490e38fcf43099f6e7d3cd50e57e3adde" version="1">Defina o atalho para fechar a janela do MCM.</content>
     <content contentuid="hb2513599ba7a4b689fc3984a9ad9ae1c3d31" version="1">Fechar janela do MCM</content>
     <content contentuid="h3eea24a3dff74849a38e04f0fc43b4b54963" version="1">Configurações da barra lateral</content>
-    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">Ativar colapso automático da barra lateral.&lt;br&gt;Quando ativado, a barra lateral será colapsada com base na inatividade ou em outros gatilhos de colapso.</content>
+    <content contentuid="h3f6a4e8a570d41c2bf60d673a3bfa1ef3472" version="1">Ativar colapso automático da barra lateral.&lt;br&gt;Quando ativado, a barra lateral será colapsada depois que o ponteiro sair dela ou quando outro recurso abrir uma página de mod.</content>
     <content contentuid="h0636d5bc17f6464f99c1da18831bb38f1561" version="1">Ativar colapso automático da barra lateral</content>
     <content contentuid="h0813e1fea4fe4400b99a11216d16627be921" version="1">Expandir barra ao passar o mouse no ícone de menu</content>
     <content contentuid="h37d5cb487a49476db6c16dc59452cae67f6f" version="1">Expandir barra lateral ao passar o mouse pelo menu de hambúrguer, sem necessidade de clicar.</content>
@@ -187,7 +187,7 @@
     <content contentuid="h5f7bdef3596c49d4bd83d7586e4f56d3744d" version="1">Fornece uma interface no jogo que permite aos jogadores gerenciar intuitivamente configurações de mods e teclas de atalho.</content>
     <content contentuid="hb2920a2b77c847959a151f340846407dc001" version="1">Exibir/esconder janelas desanexadas com a janela principal</content>
     <content contentuid="h7d50a040d7db44e7a7f0064dd56715d53d49" version="1">Quando exibir/esconder a janela do MCM, faz o mesmo com quaisquer páginas de mod desanexadas.</content>
-    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">Por padrão, a barra lateral expande automaticamente ao passar o mouse sobre o ícone de menu e será recolhida ao abrir uma página de mod.&lt;br&gt;Você também pode manualmente alterná-la com [1].</content>
+    <content contentuid="h4f7f7d8278084ab49b90d31af3f3810eegc7" version="1">Por padrão, a barra lateral expande automaticamente ao passar o mouse sobre o ícone de menu e é recolhida depois que o ponteiro sai dela.&lt;br&gt;Você também pode manualmente alterná-la com [1].</content>
     <content contentuid="h48e0882af2b840e18f01ed08d40bfb03ggeb" version="1">Mudanças de perfil requerem recarregar um save para ter efeito.</content>
     <content contentuid="hcec0ce416d41404fa1358b7deb85124cb6d8" version="1">Jogadores conectados não podem usar esta página. Somente o host pode alterar estas configurações.</content>
     <content contentuid="h2cf876f2bca243e5b907ef4b2db58d965bg5" version="1">Estilo da interface</content>
@@ -345,7 +345,6 @@
     <content contentuid="hb06aed8109a44f689d9351a1c469d09ae769" version="1">Lista principal</content>
     <content contentuid="h5387de4db5e84639ba0b992e7358f5de9bb1" version="1">Renomear</content>
     <content contentuid="hd504cdce3ff34f55a7fc0718b6788648a37e" version="1">Dissolver</content>
-    <content contentuid="h97487312f07d44869805f651d41c2636855f" version="1">Ordenar alfabeticamente</content>
     <content contentuid="h2e65dd988a5e44f38060c645f30dd7c53fa1" version="1">Nova pasta...</content>
     <content contentuid="h77a53621d61b4a3d92c841adaec0a86be116" version="1">Nome da pasta</content>
     <content contentuid="hc2051a2144174d438a0acb3adf71ff909a10" version="1">Digite um nome para a pasta.</content>
@@ -356,14 +355,23 @@
     <content contentuid="h3528e5d91a66432f89f8a43cf3c33feac579" version="1">Nova pasta</content>
     <content contentuid="h24ca58cb5e534e658e3ff773c73b12c4e522" version="1">Renomear pasta</content>
     <content contentuid="h3f26d5e1a4c74fd19a2b3c4d5e6f7890abcd" version="1">Não foi possível salvar.</content>
-    <content contentuid="h4cb59a2329294dfab78be8f25f39319af600" version="1">Ordenar alfabeticamente? Isso redefinirá a ordem manual.</content>
     <content contentuid="hb54d982efdb448d18ff18a5930b68857g892" version="1">Pasta vazia</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag002" version="1">Pastas não podem ser colocadas dentro de outro grupo.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag003" version="1">O item já está neste grupo.</content>
-    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">Não foi possível salvar a alteração na lista de mods. Se MCM_state.json estiver danificado, repare ou exclua o arquivo e depois recarregue.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">Não foi possível salvar a alteração na lista de mods. Se MCM_state.json ou MCM_mod_list_preferences.json estiver danificado ou for de uma versão mais recente do MCM, repare ou exclua o arquivo e recarregue.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag006" version="1">O destino não está mais disponível.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag007" version="1">Não é possível mover o item</content>
     <content contentuid="h28a91f4d4dcb4a7ea27baed764cc50c8g001" version="1">Pasta '[1]'</content>
-    <content contentuid="ha8396d4c149c454a8edff7d5cf23675ag001" version="1">Ordenar pastas primeiro</content>
-    <content contentuid="ha8396d4c149c454a8edff7d5cf23675ag002" version="1">Ordenar pastas primeiro? Isso mudará a ordem manual.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a00b2c3" version="1">Lista de mods</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a01b2c3" version="1">Alfabética</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a02b2c3" version="1">Manual</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a03b2c3" version="1">Usados recentemente</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a04b2c3" version="1">Usados frequentemente</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a05b2c3" version="1">As ordens automáticas preservam sua ordem manual. Arrastar uma entrada dentro do grupo muda para Manual.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a06b2c3" version="1">Pastas primeiro</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a07b2c3" version="1">Limpar histórico de uso</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a08b2c3" version="1">Limpar o histórico de uso de todos os mods? Pastas, fixações, mods ocultos e ordem manual não mudam.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a09b2c3" version="1">Histórico de uso limpo.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag008" version="1">Não foi possível salvar a ordem da lista nem restaurar o layout anterior. A lista agora mostra o layout salvo. Se MCM_state.json ou MCM_mod_list_preferences.json estiver danificado, repare ou exclua o arquivo e recarregue.</content>
+    <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a0ab2c3" version="1">MCM_mod_list_preferences.json tem valores inválidos; por isso, o MCM usa a ordem padrão e não pode salvar alterações. Repare ou exclua o arquivo e recarregue.</content>
 </contentList>
