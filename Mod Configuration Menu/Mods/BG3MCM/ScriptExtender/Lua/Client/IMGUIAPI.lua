@@ -55,6 +55,9 @@ function IMGUIAPI:ToggleMCMWindowsVisibility()
     end
 end
 
+-- Each font size change reloads every font; applying only the final value of a slider drag avoids a BG3SE v34 render crash
+local applyFontSettingsAfterDrag = VCTimer:Debounce(100, function() MCMClientState:ApplyFontSettings() end)
+
 --- Update values for the MCM window
 ---@param settingId string The ID of the setting to update
 ---@param value any The new value of the setting
@@ -65,7 +68,9 @@ function IMGUIAPI:UpdateMCMWindowValues(settingId, value, modUUID)
     end
 
     -- The font is global, so it must not depend on the MCM window existing
-    if settingId == 'typeface' or settingId == 'font_size' or settingId == 'font_style_all_mods' then
+    if settingId == 'font_size' then
+        applyFontSettingsAfterDrag()
+    elseif settingId == 'typeface' or settingId == 'font_style_all_mods' then
         MCMClientState:ApplyFontSettings()
     end
 

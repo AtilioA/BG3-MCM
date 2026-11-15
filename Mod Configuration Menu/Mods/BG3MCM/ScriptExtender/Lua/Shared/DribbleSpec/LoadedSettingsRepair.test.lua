@@ -105,6 +105,22 @@ D.describe("LoadedSettingsRepair", { tags = { "preprocessing", "unit" } }, funct
         D.expect(notifications[1].displayOnceOnly).toBe(true)
     end)
 
+    D.test("TestLoadedSettingsRepairConvertsMCMNamedFontSizeToPixels", function()
+        local function repairFontSize(value)
+            local blueprint = Blueprint:New({
+                ModUUID = ModuleUUID,
+                SchemaVersion = 1,
+                Settings = { { Id = "font_size", Type = "slider_int", Default = 36, Options = { Min = 16, Max = 64 } } },
+            })
+            return LoadedSettingsRepair:Repair(blueprint, { font = { font_size = value } }).font_size
+        end
+
+        D.expect(repairFontSize("Large")).toBe(40)
+        D.expect(repairFontSize("Tiny")).toBe(24)
+        D.expect(repairFontSize("Huge")).toBe(36)
+        D.expect(repairFontSize(50)).toBe(50)
+    end)
+
     D.test("TestLoadedSettingsRepairShouldKeepNestedListV2AndFlattenGroups", function()
         local listValue = { enabled = false, elements = { { name = "Alpha", enabled = false } } }
         local blueprint = Blueprint:New({
