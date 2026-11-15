@@ -113,7 +113,7 @@ Below are listed some nice features that MCM provides to mod authors:
 >
 > • ***Validation checks***: MCM runs dozens of validation checks to ensure that your blueprint for integration was correctly written, while providing detailed error messages if something is wrong. It also validates the settings' values at runtime to ensure that they respect the defined constraints, which is especially useful if JSON settings files were manually edited, something that is supported by MCM;
 >
-> • ***NEW IN 1.19 - Keybinding management***: MCM offers a robust system for managing keybindings. This feature allows you to easily define, update, and persist keyboard bindings directly from the MCM window, while easily registering callbacks for your actions. With built-in conflict resolution, you can focus on your mod's functionality without having to write custom input event code, and minimizing conflicts with other mods.
+> • ***Keybinding management***: MCM offers a robust system for managing keybindings. This feature allows you to easily define, update, and persist keyboard bindings directly from the MCM window, while easily registering callbacks for your actions. With built-in conflict resolution, you can focus on your mod's functionality without having to write custom input event code, and minimizing conflicts with other mods.
 >
 > • ***Supports bespoke UI injection***: MCM allows you to inject your own UI elements into the MCM UI, so you could even have a mix of MCM-generated UI and your own custom UI in the same mod. This is useful when your mod has specific features to expose in the UI that are largely unrelated to configuration;
 >
@@ -257,7 +257,7 @@ Future versions of MCM might make this structure less strict, allowing nesting t
 
 #### HiddenFromList: Default mod-list visibility
 
-Set the optional top-level boolean `HiddenFromList` in `MCM_blueprint.json` to choose the starting location of your mod's entry. It defaults to `false` (visible). Use `true` for entries players rarely open, such as libraries with debug settings. Place it alongside top-level fields such as `ModName` and `KeybindingSortMode`, rather than inside a tab or setting:
+Set the optional top-level boolean `HiddenFromList` in `MCM_blueprint.json` to choose the starting location of your mod's entry. It defaults to `false` (visible). Use `true` for entries players rarely open, such as libraries with debug settings. Place it alongside top-level fields such as `ModName` and `KeybindingSortMode`:
 
 ```json
 {
@@ -282,7 +282,7 @@ MCM resolves mod-list visibility in this order:
 2. **Author default:** Without a player choice, MCM uses the blueprint's `HiddenFromList` value.
 3. **Visible fallback:** Without an author default, MCM shows the entry in the main list.
 
-Players who have made no explicit choice follow updated author defaults on the next load. An explicit Show keeps an entry visible even if its author changes the default to hidden. Selecting the **(Default)** action in the right-click menu ([Hide and Show mod entries](#hide-and-show-mod-entries)) removes the override instead of copying the current default into the saved state.
+Players who have made no explicit choice follow updated author defaults on the next load.
 
 This field only changes the entry's location in MCM. Settings and keybindings continue to work. For distribution of choices across multiple mods, see [Share mod-list visibility](#share-mod-list-visibility).
 
@@ -730,7 +730,7 @@ The Store directory is `Script Extender/BG3MCM/Profiles/Default/<your mod direct
 
 Re-registering a variable with the same file placement is allowed. A conflicting registration with a different filename reports an error and returns `false`, keeping the original registration and file placement. `MCM.Store.Get` and `MCM.Store.Set` keep the same arguments and use the registered placement.
 
-Register JSON variables on each receiving side before synchronized values arrive. MCM drops a remote JSON value for an unregistered variable with a warning, before writing or relaying it. It does not replay that value after a later registration. Ordinary ModVar behavior is unchanged.
+Register JSON variables on each receiving side before synchronized values arrive. MCM drops a remote JSON value for an unregistered variable with a warning, before writing or relaying it. It does not replay that value after a later registration.
 
 Register each variable with the same `storageConfig` on the server and the client. The receiving side's own registration decides whether a synced value applies, and the server's registration decides whether a client write is relayed to other clients. A sync flag set only on the sending side has no effect.
 
@@ -970,7 +970,7 @@ MCM 1.17 introduced `list_v2` to supersede the now deprecated `list` input type.
 
 #### list_v2 schema reference
 
-A `list_v2` setting's `Default` value is an object with two keys: `Enabled` (the list on/off toggle) and `Elements` (the entries). Element keys are always lowercase (`name`, `enabled`).
+A `list_v2` setting's `Default` value is an object with two keys: `Enabled` (the list on/off toggle) and `Elements` (the entries). Element keys are lowercase (`name`, `enabled`).
 
 Example blueprint entry:
 
@@ -1002,7 +1002,7 @@ Example blueprint entry:
 | Key | Type | Notes |
 | --- | --- | --- |
 | `Enabled` | boolean | Master switch for the whole list. |
-| `Elements` | array of objects | Each element must have `name` (a non-empty string) and optionally `enabled` (a boolean; defaults to `true` when omitted). Element keys must be lowercase. |
+| `Elements` | array of objects | Each element must have `name` (a non-empty string) and optionally `enabled` (a boolean; defaults to `true` when omitted). Element keys are lowercase. |
 
 **Options fields**
 
@@ -1228,8 +1228,7 @@ Most names end with a state suffix: `_d` (default), `_h` (hover), `_p` (pressed)
 > if not button.Image or button.Image.Icon == "" then
 >     button:Destroy()
 >     button = group:AddButton("Reset")
-> end
-> ```
+> end```
 {.is-info}
 
 <details>
@@ -1254,8 +1253,6 @@ Most names end with a state suffix: `_d` (default), `_h` (hover), `_p` (pressed)
 </details>
 
 ## Notification API
-
-(**NEW IN MCM 1.16**)
 
 MCM's Notification API allows mods to create customizable notifications within the client context, provided that MCM is installed. Notifications can be tailored with specific titles, messages, durations, and visibility preferences.
 
@@ -1292,15 +1289,7 @@ The demo below showcases the different types of config options that can be used 
 
 ## Hide and show mod entries
 
-Right-click a mod entry in MCM's left pane and select **Hide** to move it out of the main mod list. **Hidden mods** appears at the bottom with a count, such as **Hidden mods (3)**. Expand the group to open a hidden mod's page. Right-click its entry and select **Show** to return it to its folder or the main list.
-
 Hidden mods stay active. Their settings still apply, their keybindings keep working, and the Hotkeys page still lists their keybindings. MCM's own entry cannot be hidden: it stays pinned and first in the main list. Tools such as Hotkeys have no Hide action.
-
-The group keeps its expanded or collapsed state when MCM rebuilds the navigation after a visibility change. Each newly built MCM window starts with the group collapsed. Custom folders instead keep their open or closed state across reloads; MCM saves the folders you close in `MCM_mod_list_preferences.json`. Every other folder opens, including new and author-suggested folders. MCM omits the group when nothing is hidden. The count includes only mod entries in your current load order. MCM keeps choices for uninstalled mods, so reinstalling them restores their visibility.
-
-The right-click menu offers Hide or Show. When that action matches the [author's default](#hiddenfromlist-default-mod-list-visibility), its label ends with **(Default)**, such as **Show (Default)**. Select it to remove your saved choice and follow the author's default again. A marked action appears only after you save a choice that differs from the author's default. If your saved choice already matches the author's default, the menu offers only the opposite action. This also applies to a choice supplied by a collection.
-
-Hide, Show, and their **(Default)** forms are mouse-only actions. With a controller, you can still expand Hidden mods and open its entries through native controller navigation.
 
 MCM saves your choices automatically for your local installation. They stay the same across gameplay profiles and do not sync with multiplayer hosts or other players. To copy your mod-list visibility to another installation, see [Share mod-list visibility](#share-mod-list-visibility).
 
@@ -1318,9 +1307,7 @@ Choose the list order in MCM's **Sidebar** tab, under **Mod list**. One order ap
 
 Pinned entries stay first, MCM stays first among them, and Hidden mods stay last. **Folders first** groups folders above loose mods in each pin section of the main list; turning it off restores the order. Automatic orders do not change your saved manual order. If you drag an entry within its group while an automatic order is active, the current order of every group is saved and the list switches to **Manual**. If **Folders first** would hide where you dropped a folder or mod in the main list, MCM turns **Folders first** off. Moving a mod to another group, pinning, hiding, and showing do not change the selected order.
 
-A use is one page opening from the mod list with a mouse, keyboard, or controller. Reselecting the current page, opening a page through a mod's API call, restoring a page at startup, and opening MCM's own page, Hotkeys, or Profiles do not count. Recently used and Frequently used update as soon as you open a mod. **Clear usage history** removes only the counts.
-
-MCM saves the layout in `MCM_state.json` on the client. It stays local and does not sync with other players. This can be shipped with collections; see [Share mod-list visibility](#share-mod-list-visibility). MCM saves the selected order and usage history separately in `MCM_mod_list_preferences.json`, in the same folder. Do not ship that file; it holds personal history.
+MCM saves the layout in `MCM_state.json` on the client. It stays local and does not sync with other players. This can be shipped with collections; see [Share mod-list visibility](#share-mod-list-visibility). MCM saves the selected order and usage history separately in `MCM_mod_list_preferences.json`, in the same folder. Do not ship that file, it holds personal history.
 
 ## Share mod-list visibility
 
@@ -1332,7 +1319,7 @@ The file lives in MCM's own settings directory:
 %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Script Extender\BG3MCM\Profiles\Default\BG3MCM\MCM_state.json
 ```
 
-Install the file at that same path on the receiving installation. The `Default` path segment is fixed, even when another gameplay profile is active (WIP). This is local, installation-wide UI state, independent of gameplay profiles and multiplayer synchronization.
+Install the file at that same path on the receiving installation. Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order. The `Default` path segment is fixed, even when another gameplay profile is active (WIP). This is local, installation-wide UI state, independent of gameplay profiles and multiplayer synchronization.
 
 The document uses this shape, with each mod's UUID as a key under `UI.Mods`:
 
@@ -1360,7 +1347,7 @@ Choose an entry for each mod based on what you want:
 
 When you select Show in MCM, MCM saves `false`, so the saved file also overrides author defaults. Before you ship the file, remove the `HiddenFromList` field for each mod whose author visibility default you want to keep; preserve any other choices for that mod.
 
-The recipient can change the visibility through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** Ship the saved file to this Store directory; MCM does not load `MCM_state.json` from individual mod paks or merge files by load order.
+The recipient can change the visibility through MCM. Choices supplied by a collection act as explicit player choices, so they take precedence over blueprint defaults. **A distribution update that replaces this file also replaces the player's changes.** If this is too limiting, please share your feedback.
 
 If `MCM_state.json` cannot be parsed, or its fields have the wrong types, MCM keeps the file unchanged. Entries then follow their author defaults, and MCM shows a warning when a change cannot be saved. Repair or delete the file, then reload.
 
