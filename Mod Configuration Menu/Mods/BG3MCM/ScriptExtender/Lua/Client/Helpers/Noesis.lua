@@ -87,7 +87,9 @@ local isListening = false
 
 --- Calls fn(widgetName, button, buttonConfig) for each MCM button in the open menu widgets. Run inside Ext.UI.Defer.
 local function forEachMCMButton(fn)
-    local contentRoot = Ext.UI.GetRoot():Find("ContentRoot")
+    local root = Ext.UI.GetRoot()
+    local contentRoot = root and root:Find("ContentRoot")
+    if not contentRoot then return end
     for i = 1, contentRoot.ChildrenCount do
         local widget = contentRoot:Child(i)
         local buttonConfig = MCM_BUTTONS[widget.Name]
@@ -106,7 +108,7 @@ end
 local function bindMCMButtons()
     isBindScheduled = false
     forEachMCMButton(function(widgetName, button, buttonConfig)
-        if button.DataContext.Type == "se::MCMButtonDC" then return end
+        if button.DataContext and button.DataContext.Type == "se::MCMButtonDC" then return end
 
         setButtonHidden(button, MCM.Get(buttonConfig.hideSetting))
         local ctx = Ext.UI.Instantiate("se::MCMButtonDC")
@@ -130,11 +132,17 @@ end
 function Noesis:ListenForMCMButtons()
     if isListening then return end
     isListening = true
-    Ext.UI.Defer(function()
-        Ext.UI.GetRoot():Subscribe("LSElementAttached", onElementAttached)
+    local function subscribeWhenRootIsReady()
+        local root = Ext.UI.GetRoot()
+        if not root then
+            Ext.UI.Defer(subscribeWhenRootIsReady)
+            return
+        end
+        root:Subscribe("LSElementAttached", onElementAttached)
         -- Menus attached before the subscription raise no event
         bindMCMButtons()
-    end)
+    end
+    Ext.UI.Defer(subscribeWhenRootIsReady)
 end
 
 ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(payload)
