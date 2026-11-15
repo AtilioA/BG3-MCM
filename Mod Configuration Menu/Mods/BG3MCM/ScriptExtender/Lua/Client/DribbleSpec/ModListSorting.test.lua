@@ -14,7 +14,6 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         return {
             values = values,
             RegisterVar = function() return true end,
-            IsWritable = function() return true end,
             Get = function(var) return values[var] end,
             Set = function(var, value)
                 if refused and refused[var] then return false end

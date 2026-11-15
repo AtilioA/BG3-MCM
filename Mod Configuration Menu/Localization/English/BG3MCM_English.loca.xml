@@ -676,7 +676,7 @@
     <content contentuid="hb54d982efdb448d18ff18a5930b68857g892" version="1">Empty folder</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag002" version="1">Folders cannot be placed inside another group.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag003" version="1">The entry is already in this group.</content>
-    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">The mod list change could not be saved. If MCM_state.json or MCM_mod_list_preferences.json is damaged or from a newer MCM version, repair or delete it, then reload.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">The mod list change could not be saved. If MCM_state.json or MCM_mod_list_preferences.json is damaged, repair or delete it, then reload.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag006" version="1">The destination is no longer available.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag007" version="1">Cannot move entry</content>
     <content contentuid="h28a91f4d4dcb4a7ea27baed764cc50c8g001" version="1">'[1]' folder</content>

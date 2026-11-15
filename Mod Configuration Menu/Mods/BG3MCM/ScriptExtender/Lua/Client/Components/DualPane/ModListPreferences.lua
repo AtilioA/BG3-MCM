@@ -117,10 +117,10 @@ function ModListPreferences:New(store)
     return obj
 end
 
---- Whether the saved document is unreadable or has values MCM cannot use; absent fields are valid.
+--- Whether the saved document has values MCM cannot use; absent fields are valid.
 ---@return boolean
 function ModListPreferences:IsInvalid()
-    return not self.store.IsWritable(VAR_NAME) or not validPreferences(self.store.Get(VAR_NAME))
+    return not validPreferences(self.store.Get(VAR_NAME))
 end
 
 --- An invalid document stays on disk unchanged and reads as empty; the first read logs the recovery steps.

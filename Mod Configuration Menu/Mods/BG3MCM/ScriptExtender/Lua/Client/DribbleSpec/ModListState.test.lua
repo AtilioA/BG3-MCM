@@ -14,7 +14,6 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         return {
             values = values,
             RegisterVar = function() return true end,
-            IsWritable = function() return not unreadable end,
             -- These suites cover the layout, so they run in Manual; ModListSorting.test.lua covers the modes
             Get = function(var)
                 if var == "ModListPreferences" and values[var] == nil then return { SortMode = "manual" } end

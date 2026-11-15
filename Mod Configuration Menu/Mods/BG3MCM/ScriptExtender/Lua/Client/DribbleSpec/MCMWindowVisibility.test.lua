@@ -96,7 +96,6 @@ D.describe("MCM window visibility", { tags = { "visibility", "client", "unit" } 
         local values = { ModListPreferences = { SortMode = "recent" } }
         local state = ModListState:New({
             RegisterVar = function() return true end,
-            IsWritable = function() return true end,
             Get = function(var) return values[var] end,
             Set = function(var, value) values[var] = value; return true end,
         })

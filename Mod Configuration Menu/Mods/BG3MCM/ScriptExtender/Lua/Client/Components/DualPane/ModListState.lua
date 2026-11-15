@@ -3,7 +3,6 @@
 -- Splits present mod entries into the main list and Hidden mods: player choice, then author default, then visible.
 -- Only player choices are saved in the MCM state document, so updated author defaults still apply.
 -- An invalid document resolves as empty and refuses changes; Store refuses writes to an unreadable file.
--- An unreadable document, or one with a newer Version, is protected: MCM keeps it unchanged and saves no choices.
 ------------------------------------------------------------
 
 ---@class SavedModListChoice
@@ -121,8 +120,6 @@ local function validSavedUI(ui)
     return true
 end
 
-local SUPPORTED_STATE_VERSION = 1
-
 -- Created folder IDs; distinct from IDs written by unreleased builds, so the counter never meets them
 local FOLDER_ID_PREFIX = "fld-"
 
@@ -148,22 +145,8 @@ function ModListState:New(store)
     local obj = setmetatable({}, ModListState)
     obj.store = store
     obj.preferences = ModListPreferences:New(store)
-    store.RegisterVar("Version", STATE_VAR_OPTIONS)
     store.RegisterVar("UI", STATE_VAR_OPTIONS)
-    if obj:IsProtected() then
-        MCMWarn(0, "MCM_state.json is unreadable or from a newer MCM version; mod-list choices will not be saved until it is repaired or deleted")
-    end
     return obj
-end
-
---- Check whether choices cannot be saved, because the document is unreadable or has a newer Version than MCM supports
----@return boolean protected
-function ModListState:IsProtected()
-    if not self.store.IsWritable("UI") then
-        return true
-    end
-    local version = self.store.Get("Version")
-    return version ~= nil and not (type(version) == "number" and version <= SUPPORTED_STATE_VERSION)
 end
 
 --- Read the player's saved choice for one mod
@@ -426,10 +409,10 @@ end
 --- Apply a change to a copy of the state document.
 ---@private
 ---@param change fun(ui: SavedModListUI)
----@return boolean saved False when the document is protected or invalid, or Store refuses the write
+---@return boolean saved False when the document is invalid or Store refuses the write
 function ModListState:change(change)
     local saved = self.store.Get("UI")
-    if self:IsProtected() or not validSavedUI(saved) then
+    if not validSavedUI(saved) then
         return false
     end
     local ui = table.deepcopy(saved or {})
@@ -440,10 +423,10 @@ end
 --- Reserve the next folder ID from the layout's counter, skipping any ID the document already references.
 --- CreateFolder raises the counter in the same write, so an ID is never handed out twice, even after its folder is deleted.
 ---@param resolved ResolvedModList|nil
----@return string|nil id Nil when the layout is protected or invalid
+---@return string|nil id Nil when the layout is invalid
 function ModListState:NextFolderId(resolved)
     local ui = self.store.Get("UI")
-    if self:IsProtected() or not validSavedUI(ui) then
+    if not validSavedUI(ui) then
         return nil
     end
     ui = ui or {}

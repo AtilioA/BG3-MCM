@@ -61,7 +61,6 @@ D.describe("MCM.Store save failure", { tags = { "store", "unit" } }, function()
         D.expect(#fixture.emittedEvents).toBe(0)
         D.expect(#fixture.sentToClients).toBe(0)
         D.expect(#fixture.sentToServer).toBe(0)
-        D.expect(MCM.Store.IsWritable("kept")).toBe(true)
     end)
 
     D.test("TestFailedFirstWriteLeavesTheVariableUnset", function(ctx)

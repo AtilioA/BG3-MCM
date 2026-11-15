@@ -11,7 +11,6 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         return {
             values = values,
             RegisterVar = function() return true end,
-            IsWritable = function() return not unreadable end,
             -- These suites cover the layout, so they run in Manual; ModListSorting.test.lua covers the modes
             Get = function(var)
                 if var == "ModListPreferences" and values[var] == nil then return { SortMode = "manual" } end
@@ -233,17 +232,15 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(store.values.ModListPreferences).toBe(document)
     end)
 
-    --- Store whose preference file alone refuses writes, as after a failed save or an unreadable file
+    --- Store whose preference file alone refuses writes
     ---@param values table
-    ---@param unreadablePreferences boolean
-    local function PreferenceFailureStore(values, unreadablePreferences)
+    local function PreferenceFailureStore(values)
         local store = FakeStore(values)
         local set = store.Set
         store.Set = function(var, value)
             if var == "ModListPreferences" then return false end
             return set(var, value)
         end
-        store.IsWritable = function(var) return not (unreadablePreferences and var == "ModListPreferences") end
         return store
     end
 
@@ -260,7 +257,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local old = "fld-1"
         ctx.stub(NotificationManager, "CreateIMGUINotification", function() end)
         local store = PreferenceFailureStore({ UI = { Folders = { [old] = { Name = "Old" } } },
-            ModListPreferences = { SortMode = "manual" } }, false)
+            ModListPreferences = { SortMode = "manual" } })
         local popup = FakePopup()
         local pane = setmetatable({ parent = { AddPopup = function() return popup end }, expandedGroups = {},
             visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, RebuildModEntries = function() end }, LeftPane)
@@ -282,11 +279,11 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     end)
 
     D.test("an unusable preference file does not block folder creation, and the new folder opens", function()
-        for _, case in ipairs({
-            { values = { ModListPreferences = { SortMode = "newest", CollapsedFolders = { ["fld-1"] = true } } }, unreadable = false },
-            { values = {}, unreadable = true },
+        for _, values in ipairs({
+            { ModListPreferences = { SortMode = "newest", CollapsedFolders = { ["fld-1"] = true } } },
+            {},
         }) do
-            local store = PreferenceFailureStore(case.values, case.unreadable)
+            local store = PreferenceFailureStore(values)
             local popup = FakePopup()
             local pane = setmetatable({ parent = { AddPopup = function() return popup end }, expandedGroups = {},
                 visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, RebuildModEntries = function() end }, LeftPane)

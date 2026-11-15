@@ -194,67 +194,11 @@ D.describe("Mod list move over the real Store", { tags = { "store", "mod_list_so
         D.expect(warned).toBe(true)
     end)
 
-    --- Every organization write the player can make, against a resolved list.
-    local function OrganizationWrites(state, resolved)
-        return {
-            function() return state:SetHidden(MOD_A, true) end,
-            function() return state:UseDefault(MOD_B) end,
-            function() return state:SetPinned(MOD_A, true) end,
-            function() return state:SetFolder(MOD_A, "x") end,
-            function() return state:CreateFolder("new", "New") end,
-            function() return state:RenameFolder("x", "Renamed") end,
-            function() return state:DeleteFolder("x") end,
-            function() return (state:Move(Entry(resolved, "x"), "Main", "Main", Entry(resolved, MOD_A), resolved)) end,
-        }
-    end
-
-    --- Seed a layout with the given Version.
-    local function NewVersionedState(version)
-        Ext.IO.SaveFile(LAYOUT_PATH, Ext.Json.Stringify({ Version = version, Other = "kept", [LAYOUT_VAR] = {
-            Folders = { x = { Name = "X" }, y = { Name = "Y" } },
-            Mods = { [MOD_B] = { HiddenFromList = false } },
-            Order = { Main = { MOD_A, "x", MOD_B, "y" } },
-        } }))
-        Ext.IO.SaveFile(PREFERENCES_PATH, Ext.Json.Stringify({ [PREFERENCES_VAR] = { SortMode = "recent", FoldersFirst = true } }))
-        return ModListState:New(MCM.Store)
-    end
-
-    for _, version in ipairs({ 2, "x" }) do
-        D.test("TestUnsupportedVersionRefusesEveryWrite_" .. tostring(version), function(ctx)
-            local warnings = 0
-            ctx.stub(_G, "MCMWarn", function() warnings = warnings + 1 end)
-            local state = NewVersionedState(version)
-            local layoutBefore = Ext.IO.LoadFile(LAYOUT_PATH)
-            local preferencesBefore = Ext.IO.LoadFile(PREFERENCES_PATH)
-            D.expect(warnings).toBe(1)
-            D.expect(state:IsProtected()).toBe(true)
-            local resolved = state:Resolve(MODS)
-            D.expect(state:NextFolderId(resolved)).toBeNil()
-            for _, write in ipairs(OrganizationWrites(state, resolved)) do
-                D.expect(write()).toBe(false)
-            end
-            D.expect(Ext.IO.LoadFile(LAYOUT_PATH)).toBe(layoutBefore)
-            D.expect(Ext.IO.LoadFile(PREFERENCES_PATH)).toBe(preferencesBefore)
-            D.expect(state.preferences:GetSortMode()).toBe("recent")
-            D.expect(state.preferences:GetFoldersFirst()).toBe(true)
-        end)
-    end
-
-    D.test("TestSupportedVersionKeepsWritesAndAddsNoField", function()
-        local state = NewVersionedState(1)
-        D.expect(state:SetPinned(MOD_A, true)).toBe(true)
-        D.expect(ReadFile(LAYOUT_PATH).Version).toBe(1)
-        D.expect(ReadFile(LAYOUT_PATH).Other).toBe("kept")
-    end)
-
-    D.test("TestAbsentVersionWritesWithoutAddingVersionAndResolveWritesNothing", function()
+    D.test("TestResolveWritesNothing", function()
         local state = NewState({ SortMode = "manual" })
         local before = Ext.IO.LoadFile(LAYOUT_PATH)
-        D.expect(state:IsProtected()).toBe(false)
         D.expect(Ids(state:Resolve(MODS).main)).toEqual({ MOD_A, "x", MOD_B, "y" })
         D.expect(Ext.IO.LoadFile(LAYOUT_PATH)).toBe(before)
-        D.expect(state:SetPinned(MOD_A, true)).toBe(true)
-        D.expect(ReadFile(LAYOUT_PATH).Version).toBeNil()
     end)
 
     D.test("TestFolderCounterSurvivesDeleteAndFreshLoad", function()

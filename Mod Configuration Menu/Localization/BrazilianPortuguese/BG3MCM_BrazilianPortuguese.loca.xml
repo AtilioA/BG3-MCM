@@ -358,7 +358,7 @@
     <content contentuid="hb54d982efdb448d18ff18a5930b68857g892" version="1">Pasta vazia</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag002" version="1">Pastas não podem ser colocadas dentro de outro grupo.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag003" version="1">O item já está neste grupo.</content>
-    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">Não foi possível salvar a alteração na lista de mods. Se MCM_state.json ou MCM_mod_list_preferences.json estiver danificado ou for de uma versão mais recente do MCM, repare ou exclua o arquivo e recarregue.</content>
+    <content contentuid="h07852b32f9c54a09a559289344164f8ag005" version="1">Não foi possível salvar a alteração na lista de mods. Se MCM_state.json ou MCM_mod_list_preferences.json estiver danificado, repare ou exclua o arquivo e recarregue.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag006" version="1">O destino não está mais disponível.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag007" version="1">Não é possível mover o item</content>
     <content contentuid="h28a91f4d4dcb4a7ea27baed764cc50c8g001" version="1">Pasta '[1]'</content>
