@@ -107,11 +107,7 @@ local function createImageButton(container, label, icon, settingId)
     if isUsable then return button end
     if not button then return nil end
 
-    -- Destroy throws when the handle is stale; the text button must still be created.
-    local destroyed, destroyErr = pcall(function() button:Destroy() end)
-    if not destroyed then
-        MCMWarn(0, "Failed to load icon for event_button '%s': %s", settingId, destroyErr)
-    end
+    button:Destroy()
     return nil
 end
 
@@ -334,19 +330,18 @@ function EventButtonIMGUIWidget:RegisterCallbackSub()
     -- Subscribe to registry updates so we know when a callback becomes available or is removed.
     if self._registrySubscription then return end
 
-    -- BehaviorSubject attaches the observer, then replays before Subscribe returns, so a replay error would lose a returned handle.
+    local subject = EventButtonRegistry.GetSubject()
+    self:UpdateButtonState(subject:GetValue())
+    local initialReplay = true
     local observer = RX.Observer.Create(function(newRegistry)
+        if initialReplay then
+            initialReplay = false
+            return
+        end
         self:UpdateButtonState(newRegistry)
     end)
     self._registrySubscription = observer
-
-    -- The observer stays attached after a replay error, so a later registry change can still repair the button state.
-    local ok, err = pcall(function()
-        EventButtonRegistry.GetSubject():Subscribe(observer)
-    end)
-    if not ok then
-        MCMWarn(0, "Failed to apply registry state to event_button '%s': %s", self.Widget.Setting:GetId(), err)
-    end
+    subject:Subscribe(observer)
 end
 
 function EventButtonIMGUIWidget:UpdateCurrentValue(value)
@@ -366,7 +361,7 @@ function EventButtonIMGUIWidget:Destroy()
 
     -- Unregister the widget from EventButtonRegistry
     if self.Widget and self.Widget.Setting then
-        EventButtonRegistry.RemoveWidget(self.Widget.ModUUID, self.Widget.Setting:GetId())
+        EventButtonRegistry.RemoveWidget(self.Widget.ModUUID, self.Widget.Setting:GetId(), self)
     end
 
     if self.Widget and self.Widget.Group then

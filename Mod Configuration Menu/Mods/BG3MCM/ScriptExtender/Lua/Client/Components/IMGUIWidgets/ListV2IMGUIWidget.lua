@@ -592,25 +592,16 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     inputGroup:AddText(Ext.Loca.GetTranslatedString("hf10161d75da04360907b151e4eb07054f8cb"))
 
     -- Input field for adding new elements; NewElementName outlives the input across rebuilds
-    local function addInput()
-        self.Widget.NewElementInput = inputGroup:AddInputText("", self.Widget.NewElementName or "")
-        IMGUIHelpers:ApplyInputStyle(self.Widget.NewElementInput, "default")
-        self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
-        self.Widget.NewElementInput.AutoSelectAll = true
-        self.Widget.NewElementInput.SameLine = true
-        self.Widget.NewElementInput.OnChange = function(input)
-            self.Widget.NewElementName = input.Text
-            -- Refresh search results when input changes
-            self:FilterSearchResults()
-            self:RefreshSearchResults()
-        end
-    end
-    local function logInputError(err)
-        MCMDebug(1, "Error in adding new element input: %s", err)
-    end
-    -- A failed build gets one retry; a second failure throws, so a typed add keeps its text
-    if not xpcall(addInput, logInputError) then
-        addInput()
+    self.Widget.NewElementInput = inputGroup:AddInputText("", self.Widget.NewElementName or "")
+    IMGUIHelpers:ApplyInputStyle(self.Widget.NewElementInput, "default")
+    self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
+    self.Widget.NewElementInput.AutoSelectAll = true
+    self.Widget.NewElementInput.SameLine = true
+    self.Widget.NewElementInput.OnChange = function(input)
+        self.Widget.NewElementName = input.Text
+        -- Refresh search results when input changes
+        self:FilterSearchResults()
+        self:RefreshSearchResults()
     end
 
     -- Add button

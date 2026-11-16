@@ -174,18 +174,16 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
         D.expect(#warnings).toBe(1)
     end)
 
-    D.test("still creates a text button when partial cleanup throws", function(ctx)
-        local warnings = CaptureWarnings(ctx)
+    D.test("propagates a partial cleanup failure", function()
         local container = FakeContainer({ imageData = { Icon = "" }, destroyThrows = true })
         local widget = FakeWidget(container, IconOptions())
 
-        widget:CreateButton()
+        -- Expects the injected destroy error to reach the caller.
+        local ok, err = pcall(function() widget:CreateButton() end)
 
-        D.expect(container.destroyCalls).toBe(1)
-        -- The partial button cannot be removed; no further orphan may join it.
-        D.expect(#container.buttons).toBe(2)
-        D.expect(widget.Widget.Button.Kind).toBe("text")
-        D.expect(#warnings).toBe(1)
+        D.expect(ok).toBe(false)
+        D.expect(err:find("destroy failed", 1, true) ~= nil).toBe(true)
+        D.expect(#container.buttons).toBe(1)
     end)
 
     D.test("creates one cooldown group after a fallback", function(ctx)

@@ -1569,6 +1569,18 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         D.expect(validResult).Not.toBeNil()
     end)
 
+    D.test("TestKeybindingV2DefaultMustBeTable", function()
+        local defaults = { true, 42, { Keyboard = 5, Mouse = { Button = 1 } }, { Keyboard = { Key = {} } } }
+        for _, default in ipairs(defaults) do
+            local blueprint = Blueprint:New({
+                SchemaVersion = 1,
+                Settings = { { Id = "kb-setting", Type = "keybinding_v2", Default = default } }
+            })
+
+            D.expect(BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])).toBeNil()
+        end
+    end)
+
     D.test("TestKeybindingV2MouseDefaultButtonBounds", function()
         local validBlueprint = Blueprint:New({
             SchemaVersion = 1,

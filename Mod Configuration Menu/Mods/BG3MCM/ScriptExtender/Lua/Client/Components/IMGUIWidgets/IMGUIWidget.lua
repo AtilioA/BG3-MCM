@@ -168,25 +168,12 @@ function IMGUIWidget:GetOnChangeValue(value)
 end
 
 --- Extract the actual value from a widget event
---- Different widget types have different event structures, so this attempts to get the value in a generic way
+--- Delegate to the widget subclass for its event structure
 --- @param widget IMGUIWidget The widget instance
 --- @param eventValue unknown The value from the OnChange event
 --- @return unknown The extracted value
 function IMGUIWidget:ExtractValueFromWidgetEvent(widget, eventValue)
-    -- Use the widget's specific GetOnChangeValue if available
-    if widget.GetOnChangeValue then
-        -- Expects a subclass GetOnChangeValue error;. the original handler must still run.
-        local success, result = xpcall(function()
-            return widget:GetOnChangeValue(eventValue)
-        end, debug.traceback)
-
-        if success then
-            return result
-        end
-    end
-
-    -- A failed extraction must not stop the widget's original OnChange handler.
-    return eventValue
+    return widget:GetOnChangeValue(eventValue)
 end
 
 --- Updates the visibility of the reset button based on whether current value equals default value

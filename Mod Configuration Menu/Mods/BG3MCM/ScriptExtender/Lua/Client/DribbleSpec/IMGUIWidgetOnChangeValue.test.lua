@@ -168,27 +168,6 @@ D.describe("IMGUIWidget OnChange value", { tags = { "imgui_widget_onchange", "cl
         D.expect(widget._resetButton.Visible).toBe(true)
     end)
 
-    D.test("a failing extractor falls back to the event and the handler still runs once", function()
-        local WidgetWithoutExtractor = setmetatable({}, { __index = IMGUIWidget })
-        local received = {}
-        function WidgetWithoutExtractor:new(group)
-            ---@type any
-            local instance = setmetatable({}, { __index = WidgetWithoutExtractor })
-            instance.Widget = group:AddInputText()
-            instance.Widget.OnChange = function(event) table.insert(received, event) end
-            return instance
-        end
-        local widget = CreateWidget("text", "default", "default", WidgetWithoutExtractor)
-
-        local event = { Text = "changed" }
-        widget.Widget.OnChange(event)
-
-        D.expect(#received).toBe(1)
-        D.expect(received[1]).toBe(event)
-        D.expect(widget._currentValue).toBe(event)
-        D.expect(widget._resetButton.Visible).toBe(true)
-    end)
-
     D.test("deprecated keybinding writes from its own combos without interception", function(ctx)
         local writes = RecordWrites(ctx)
         local initial = { ScanCode = "A", Modifier = "NONE" }

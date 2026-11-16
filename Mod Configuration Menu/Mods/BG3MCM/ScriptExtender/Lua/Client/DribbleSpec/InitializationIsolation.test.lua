@@ -7,33 +7,6 @@ D.describe("MCM initialization isolation", { tags = { "initialization", "client"
         InputCallbackManager._initialized = initializedBefore
     end)
 
-    D.test("creates mod pages and signals readiness after a hotkeys page failure", function(ctx)
-        ctx.requireClient()
-        local calls = {}
-        ctx.stub(MCMRendering, "CreateProfileManagementHeader", function(_self)
-            table.insert(calls, "profile")
-        end)
-        ctx.stub(MCMRendering, "CreateKeybindingsPage", function(_self)
-            table.insert(calls, "hotkeys")
-            error("Hotkeys fixture failed")
-        end)
-        ctx.stub(MCMRendering, "CreateMainTable", function(_self)
-            table.insert(calls, "pages")
-        end)
-        ctx.stub(MCMClientState.UIReady, "OnNext", function(_subject, ready)
-            D.expect(ready).toBe(true)
-            table.insert(calls, "ready")
-        end)
-        ctx.stub(MCMPrinter, "PrintError", function(_self, _level, _format, message)
-            D.expect(message:find("Hotkeys fixture failed", 1, true) ~= nil).toBe(true)
-            table.insert(calls, "error")
-        end)
-
-        MCMRendering:CreateModMenu()
-
-        D.expect(calls).toEqual({ "profile", "hotkeys", "error", "pages", "ready" })
-    end)
-
     D.test("continues later enabled health checks after one fails", function(ctx)
         ctx.requireClient()
         local calls = {}

@@ -34,13 +34,11 @@ function NativeKeybindingIMGUIWidget:ClearDynamicElements()
     self.Widget.DynamicElements.ModHeaders = {}
     self.Widget.DynamicElements.NoResultsText = nil
     for _, header in ipairs(headers) do
-        -- Expects a handle error from Destroy; the refresh must still render
-        pcall(function() header:Destroy() end)
+        header:Destroy()
     end
     -- The text is a sibling of the root header, so the header does not own it
     if noResults then
-        -- Expects a handle error from Destroy; the refresh must still render
-        pcall(function() noResults:Destroy() end)
+        noResults:Destroy()
     end
 end
 
@@ -51,8 +49,7 @@ function NativeKeybindingIMGUIWidget:Destroy()
         self._searchSubscription = nil
     end
     self:ClearDynamicElements()
-    -- Expects a handle error from Destroy; a failed teardown must not stop the owner from building the next page
-    pcall(function() self.Widget.Group:Destroy() end)
+    self.Widget.Group:Destroy()
 end
 
 --- Refreshes the UI to reflect current state

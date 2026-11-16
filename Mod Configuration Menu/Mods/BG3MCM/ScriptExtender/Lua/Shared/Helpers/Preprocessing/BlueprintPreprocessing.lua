@@ -873,7 +873,12 @@ end
 local function validateKeybindingV2DefaultValue(self, setting)
     local default = setting.Default
     if type(default) ~= "table" then
-        return true
+        return warnDefaultType(self, setting, "a table")
+    end
+    for _, device in ipairs({ "Keyboard", "Mouse" }) do
+        if default[device] ~= nil and type(default[device]) ~= "table" then
+            return warnDefaultType(self, setting, "a table with table '" .. device .. "'")
+        end
     end
 
     if default.Enabled ~= nil and type(default.Enabled) ~= "boolean" then
@@ -897,7 +902,7 @@ local function validateKeybindingV2DefaultValue(self, setting)
     local keyboard = default.Keyboard
     local key = keyboard.Key
     if type(key) ~= "string" or (key ~= "" and not table.contains(SDLKeys.ScanCodes, key)) then
-        MCMWarn(0, "Invalid key '" .. key .. "' in Keyboard.Key for setting '" .. setting:GetId() ..
+        MCMWarn(0, "Invalid key '" .. tostring(key) .. "' in Keyboard.Key for setting '" .. setting:GetId() ..
             "'. Valid keys are: " .. table.concat(SDLKeys.ScanCodes, ", "))
         return false
     end

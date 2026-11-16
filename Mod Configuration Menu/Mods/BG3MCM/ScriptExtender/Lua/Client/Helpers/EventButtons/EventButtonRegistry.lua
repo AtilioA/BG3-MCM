@@ -75,6 +75,11 @@ function EventButtonRegistry.SetDisabled(modUUID, settingId, disabled, tooltipTe
         return false
     end
 
+    if tooltipText ~= nil and type(tooltipText) ~= "string" then
+        MCMWarn(0, "Invalid tooltip for EventButtonRegistry.SetDisabled; expected a string or nil")
+        tooltipText = nil
+    end
+
     -- Update disabled state and tooltip
     local entry = EventButtonRegistry.Registry[modUUID][settingId]
     entry.disabled = disabled
@@ -137,8 +142,9 @@ end
 --- Remove a widget reference
 ---@param modUUID string
 ---@param settingId string
-function EventButtonRegistry.RemoveWidget(modUUID, settingId)
-    if EventButtonRegistry.Widgets[modUUID] then
+---@param widget table
+function EventButtonRegistry.RemoveWidget(modUUID, settingId, widget)
+    if EventButtonRegistry.Widgets[modUUID] and EventButtonRegistry.Widgets[modUUID][settingId] == widget then
         EventButtonRegistry.Widgets[modUUID][settingId] = nil
     end
 end

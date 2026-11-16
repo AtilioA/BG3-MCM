@@ -67,7 +67,13 @@ D.describe("Event button subscription ownership", { tags = { "event_button_subsc
         ctx.stub(EventButtonRegistry, "GetRegistry", function() return world.registry end)
         ctx.stub(EventButtonRegistry, "GetWidget", function(_, settingId) return world.widgets[settingId] end)
         ctx.stub(EventButtonRegistry, "SetWidget", function(_, settingId, widget) world.widgets[settingId] = widget end)
-        ctx.stub(EventButtonRegistry, "RemoveWidget", function(_, settingId) world.widgets[settingId] = nil end)
+        local removeWidget = EventButtonRegistry.RemoveWidget
+        ctx.stub(EventButtonRegistry, "RemoveWidget", function(modUUID, settingId, widget)
+            local originalWidgets = EventButtonRegistry.Widgets
+            EventButtonRegistry.Widgets = { [modUUID] = world.widgets }
+            removeWidget(modUUID, settingId, widget)
+            EventButtonRegistry.Widgets = originalWidgets
+        end)
         ctx.stub(ModEventManager, "Emit", function() end)
         ctx.stub(DialogService, "Confirm", function(_, _, _, _, _, _, onConfirm)
             world.queuedConfirm = onConfirm
@@ -131,41 +137,42 @@ D.describe("Event button subscription ownership", { tags = { "event_button_subsc
         end)
     end)
 
-    D.describe("replay failure", function()
-        D.test("keeps the widget, reports the failure and registers the widget", function(ctx)
-            local world = IsolatedWorld(ctx)
-            world.tooltipThrows = true
+    D.test("propagates initial state errors without attaching an observer", function(ctx)
+        local world = IsolatedWorld(ctx)
+        world.tooltipThrows = true
 
-            local widget = NewWidget()
+        -- Expects the injected tooltip error to reach the caller.
+        local ok, err = pcall(NewWidget)
 
-            D.expect(world.widgets[SETTING_ID]).toBe(widget)
-            D.expect(widget.Widget.Button.Kind).toBe("button")
-            D.expect(#world.warnings).toBe(1)
-            D.expect(world.warnings[1]:find(SETTING_ID, 1, true) ~= nil).toBe(true)
-            D.expect(world.warnings[1]:find("tooltip failed", 1, true) ~= nil).toBe(true)
-        end)
+        D.expect(ok).toBe(false)
+        D.expect(err:find("tooltip failed", 1, true) ~= nil).toBe(true)
+        D.expect(#world.subject.observers).toBe(0)
+        D.expect(world.widgets[SETTING_ID]).toBe(nil)
+    end)
 
-        D.test("repairs the button on the next delivery", function(ctx)
-            local world = IsolatedWorld(ctx)
-            world.tooltipThrows = true
-            local widget = NewWidget()
-            world.tooltipThrows = false
+    D.test("ignores invalid disabled tooltips while retaining the disabled state", function(ctx)
+        local warnings = 0
+        ctx.stub(_G, "MCMWarn", function() warnings = warnings + 1 end)
+        ctx.stub(EventButtonRegistry.GetSubject(), "OnNext", function() end)
+        local original = EventButtonRegistry.Registry[MOD_UUID]
+        local entry = { eventButtonCallback = function() end }
+        EventButtonRegistry.Registry[MOD_UUID] = { [SETTING_ID] = entry }
 
-            world.subject:OnNext(Entry(function() end))
+        local accepted = EventButtonRegistry.SetDisabled(MOD_UUID, SETTING_ID, true, {})
+        local disabled, tooltip, warningCount = entry.disabled, entry.disabledTooltip, warnings
+        EventButtonRegistry.SetDisabled(MOD_UUID, SETTING_ID, true, "Reason")
+        local validTooltip = entry.disabledTooltip
+        EventButtonRegistry.SetDisabled(MOD_UUID, SETTING_ID, true, nil)
+        local retainedTooltip = entry.disabledTooltip
+        EventButtonRegistry.Registry[MOD_UUID] = original
 
-            D.expect(widget.Widget.Button.Disabled).toBe(false)
-        end)
-
-        D.test("leaves a cancellable observer", function(ctx)
-            local world = IsolatedWorld(ctx)
-            world.tooltipThrows = true
-            local widget = NewWidget()
-            D.expect(#world.subject.observers).toBe(1)
-
-            widget:Destroy()
-
-            D.expect(#world.subject.observers).toBe(0)
-        end)
+        D.expect(accepted).toBe(true)
+        D.expect(disabled).toBe(true)
+        D.expect(tooltip).toBe("")
+        D.expect(warningCount).toBe(1)
+        D.expect(validTooltip).toBe("Reason")
+        D.expect(retainedTooltip).toBe("Reason")
+        D.expect(warnings).toBe(1)
     end)
 
     D.describe("second render of a setting", function()
@@ -181,6 +188,21 @@ D.describe("Event button subscription ownership", { tags = { "event_button_subsc
             D.expect(#world.subject.observers).toBe(2)
             D.expect(first.Widget.Button.Disabled).toBe(false)
             D.expect(second.Widget.Button.Disabled).toBe(false)
+        end)
+
+        D.test("keeps feedback routed to the newer widget after the older one is destroyed", function(ctx)
+            local world = IsolatedWorld(ctx)
+            local first = NewWidget()
+            local second = NewWidget()
+            local feedback
+            second.UpdateFeedback = function(_, message) feedback = message end
+
+            first:Destroy()
+
+            D.expect(EventButtonRegistry.ShowFeedback(MOD_UUID, SETTING_ID, "Live", "info", 1)).toBe(true)
+            D.expect(feedback).toBe("Live")
+            second:Destroy()
+            D.expect(world.widgets[SETTING_ID]).toBe(nil)
         end)
 
         D.test("keeps the current widget when the second widget cannot be built", function(ctx)

@@ -13,7 +13,7 @@ function RadioIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     local instance = setmetatable({}, { __index = RadioIMGUIWidget })
     instance.Widget = self:CreateRadioButtons(group, setting, initialValue)
-    self:SetRadioButtonCallbacks(instance.Widget, setting, modUUID)
+    instance:SetRadioButtonCallbacks(instance.Widget, setting, modUUID)
     return instance
 end
 
@@ -65,6 +65,7 @@ function RadioIMGUIWidget:SetRadioButtonCallbacks(buttons, setting, modUUID)
             if value and button.UserData and button.UserData.OriginalValue ~= nil then
                 IMGUIAPI:SetSettingValue(setting:GetId(), button.UserData.OriginalValue, modUUID)
                 self:UncheckOtherRadioButtons(buttons, button)
+                self:UpdateCurrentValue(button.UserData.OriginalValue)
             end
         end
     end

@@ -358,56 +358,13 @@ D.describe("ListV2 widget ownership", { tags = { "listv2_ownership", "client", "
     end)
 
     D.describe("input construction recovery", function()
-        D.test("logs a failed input and retries it with the typed text", function(ctx)
+        D.test("keeps the typed text when input creation fails during a typed add", function(ctx)
             local fx = Mount(ctx)
             fx.Type("ab")
             fx.tree.failAdd = { parentKind = "Group", kind = "InputText" }
-            fx.widget:Refresh()
-
-            D.expect(fx.logs).toEqual({ "Error in adding new element input: add failed" })
-            D.expect(fx.One("_AddElementInput_").Text).toBe("ab")
-            D.expect(#fx.tree:Live("_AddElementButton_")).toBe(1)
-            fx.Type("abd")
-            D.expect(#fx.tree:Live("_AddSearchResult_")).toBe(1)
-        end)
-
-        D.test("logs a failed style, retries it and keeps a working input", function(ctx)
-            local fx = Mount(ctx)
-            local failures = 1
-            ctx.stub(IMGUIHelpers, "ApplyInputStyle", function()
-                if failures > 0 then
-                    failures = failures - 1
-                    error("style failed", 0)
-                end
-            end)
-            fx.Type("ab")
-            fx.widget:Refresh()
-
-            D.expect(fx.logs).toEqual({ "Error in adding new element input: style failed" })
-            D.expect(fx.One("_AddElementInput_").Text).toBe("ab")
-            fx.Type("abd")
-            D.expect(#fx.tree:Live("_AddSearchResult_")).toBe(1)
-        end)
-
-        D.test("logs the first failure and throws the second from a refresh", function(ctx)
-            local fx = Mount(ctx)
-            ctx.stub(IMGUIHelpers, "ApplyInputStyle", function() error("style failed", 0) end)
-            -- Expects the injected "style failed"
-            local ok, err = pcall(function() fx.widget:Refresh() end)
-
-            D.expect(ok).toBe(false)
-            D.expect(err).toBe("style failed")
-            D.expect(fx.logs).toEqual({ "Error in adding new element input: style failed" })
-        end)
-
-        D.test("keeps the typed text when both input creations fail during a typed add", function(ctx)
-            local fx = Mount(ctx)
-            fx.Type("ab")
-            fx.tree.failAdd = { parentKind = "Group", kind = "InputText", count = 2 }
             fx.Click("_AddElementButton_")
 
             D.expect(fx.logs).toEqual({
-                "Error in adding new element input: add failed",
                 "Error adding new element: add failed",
             })
             D.expect(#fx.writes).toBe(1)
@@ -418,10 +375,10 @@ D.describe("ListV2 widget ownership", { tags = { "listv2_ownership", "client", "
             D.expect(fx.One("_AddElementInput_").Text).toBe("ab")
         end)
 
-        D.test("keeps the typed text when both input styles fail during a typed add", function(ctx)
+        D.test("keeps the typed text when input styling fails during a typed add", function(ctx)
             local fx = Mount(ctx)
             fx.Type("ab")
-            local failures = 2
+            local failures = 1
             ctx.stub(IMGUIHelpers, "ApplyInputStyle", function(_, element)
                 -- Row checkboxes render first and use this helper too
                 if element == fx.widget.Widget.NewElementInput and failures > 0 then
@@ -432,7 +389,6 @@ D.describe("ListV2 widget ownership", { tags = { "listv2_ownership", "client", "
             fx.Click("_AddElementButton_")
 
             D.expect(fx.logs).toEqual({
-                "Error in adding new element input: style failed",
                 "Error adding new element: style failed",
             })
             D.expect(#fx.writes).toBe(1)

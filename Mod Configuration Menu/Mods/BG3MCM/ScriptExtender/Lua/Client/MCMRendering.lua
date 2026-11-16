@@ -303,12 +303,7 @@ function MCMRendering:CreateModMenu()
     -- end
 
     self:CreateProfileManagementHeader()
-    local success, err = xpcall(function()
-        self:CreateKeybindingsPage()
-    end, debug.traceback)
-    if not success then
-        MCMError(0, "Failed to create keybindings page: %s", err)
-    end
+    self:CreateKeybindingsPage()
     self:CreateMainTable()
 
     MCMClientState.UIReady:OnNext(true)

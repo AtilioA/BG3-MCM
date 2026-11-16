@@ -340,12 +340,7 @@ MCMAPI.ConfigsLoaded:Subscribe(function(ConfigsLoaded)
     end
 
     -- Use settings' values as soon as they are available, and before UI rendering
-    local success, err = xpcall(function()
-        InitHandles:UpdateDynamicMCMWindowHandles()
-    end, debug.traceback)
-    if not success then
-        MCMError(0, "Failed to update dynamic MCM window handles: %s", err)
-    end
+    InitHandles:UpdateDynamicMCMWindowHandles()
 
     MCMPrinter:UpdateLogLevels()
 end)
