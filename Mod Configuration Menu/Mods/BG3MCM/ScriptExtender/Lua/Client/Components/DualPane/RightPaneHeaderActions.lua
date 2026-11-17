@@ -5,11 +5,11 @@
 
 ---@class HeaderActions
 ---@field group ExtuiGroup
----@field expandBtn ExtuiButton
----@field collapseBtn ExtuiButton
----@field detachBtn ExtuiButton
----@field reattachBtn ExtuiButton
----@field keybindingsIndicator ExtuiButton
+---@field expandBtn ExtuiButton|ExtuiImageButton
+---@field collapseBtn ExtuiButton|ExtuiImageButton
+---@field detachBtn ExtuiButton|ExtuiImageButton
+---@field reattachBtn ExtuiButton|ExtuiImageButton
+---@field keybindingsIndicator ExtuiButton|ExtuiImageButton
 ---@field _kbSubscription any
 HeaderActions = {}
 HeaderActions.__index = HeaderActions
@@ -103,14 +103,17 @@ function HeaderActions:New(parent)
 end
 
 function HeaderActions:CreateActionButton(text, icon, tooltip, multiplier)
-    local button = self.group:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(multiplier))
+    local button
+    if icon and icon ~= "" then
+        button = self.group:AddImageButton(text, icon, IMGUIWidget:GetIconSizes(multiplier))
+    end
 
-    -- Check if the image is not available and replace with text fallback if needed
-    if not button.Image or button.Image.Icon == "" then
-        button:Destroy()
+    -- Fall back to a text button if no icon was given or the icon failed to load
+    if not button or not button.Image or button.Image.Icon == "" then
+        if button then button:Destroy() end
         button = self.group:AddButton(text)
     else
-    button:SetStyle("FramePadding", 1, 1)
+        button:SetStyle("FramePadding", 1, 1)
     end
     button:SetStyle("FrameRounding", 3.0, 3.0)
 
