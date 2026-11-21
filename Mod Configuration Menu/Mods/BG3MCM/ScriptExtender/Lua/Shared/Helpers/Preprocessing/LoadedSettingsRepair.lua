@@ -55,9 +55,6 @@ function LoadedSettingsRepair:Repair(blueprint, rawSettings)
     return DataPreprocessing:ValidateAndFixSettings(blueprint, settings)
 end
 
--- MCM's font_size was a named BG3SE font size before 1.43 (pre-SE v34); it is now a pixel size
-local LEGACY_FONT_SIZES = { Tiny = 24, Small = 28, Medium = 32, Default = 36, Large = 40, Big = 44 }
-
 ---@param blueprint Blueprint
 ---@param settings table<string, any>
 function LoadedSettingsRepair:MigrateDeprecatedKeys(blueprint, settings)
@@ -66,10 +63,6 @@ function LoadedSettingsRepair:MigrateDeprecatedKeys(blueprint, settings)
     BlueprintShape:ForEachSetting(blueprint, function(setting)
         self:HandleListV2SettingMigration(blueprint, setting, settings)
     end)
-
-    if blueprint:GetModUUID() == ModuleUUID and type(settings.font_size) == "string" then
-        settings.font_size = LEGACY_FONT_SIZES[settings.font_size]
-    end
 end
 
 ---@param blueprint Blueprint

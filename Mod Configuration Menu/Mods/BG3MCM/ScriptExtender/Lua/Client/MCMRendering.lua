@@ -70,7 +70,9 @@ function MCMRendering:ApplyFontSettings()
             tostring(typeface), tostring(fontSize), errorMessage)
     end
 
-    if not Font.ApplyMCMFont(typeface, fontSize) then
+    if Font.ApplyMCMFont(typeface, fontSize) then
+        IMGUIHelpers.SetFont(MCM_WINDOW, fontSize)
+    else
         MCMWarn(0, "Could not apply MCM font '%s' at size '%s'", tostring(typeface), tostring(fontSize))
     end
 end
@@ -230,7 +232,7 @@ function MCMRendering:CreateMainIMGUIWindow()
     ---@type ExtuiWindow
     MCM_WINDOW = Ext.IMGUI.NewWindow(modMenuTitle .. " " .. modVersion)
     MCM_WINDOW.Scaling = "Scaled"
-    MCM_WINDOW.Font = "BG3MCM_Font"
+    IMGUIHelpers.SetFont(MCM_WINDOW, self:GetMCMFontSize())
 
     MCM_WINDOW.AlwaysAutoResize = false
 

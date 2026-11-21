@@ -29,8 +29,20 @@ end
 ---@return vec2 - A table containing the icon sizes, e.g. { 32, 32 }
 function IMGUIWidget:GetIconSizes(multiplier)
     multiplier = multiplier or 1
-    -- Icons match MCM's font size in pixels; 32 is the built-in Medium size
-    local iconSize = (MCMClientState:GetMCMFontSize() or 32) * multiplier
+    -- Calculate font size scaling
+    local fontSizeScaling = 1.0
+    local currentFontSize = MCMClientState:GetMCMFontSize()
+    -- "Medium" is our reference size (32.0f)
+    local referenceSize = 32
+
+    if currentFontSize and Font and Font.GetSizeValue then
+        local sizeValue = Font.GetSizeValue(currentFontSize)
+        if sizeValue then
+            fontSizeScaling = sizeValue / referenceSize
+        end
+    end
+
+    local iconSize = referenceSize * fontSizeScaling * multiplier
 
     return { iconSize, iconSize }
 end
