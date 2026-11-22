@@ -195,8 +195,7 @@ function KeybindingsRegistry.ResetInputState()
 end
 
 --- Registers a callback for a given binding.
---- Note that this uses the full registry (not the filtered view) so that callbacks
---- can be attached even for actions that are invisible in the UI.
+--- Uses the full registry, so callbacks attach even to actions hidden in the UI.
 ---@param modUUID string The UUID of the mod
 ---@param actionId string The ID of the action
 ---@param inputType string The input type (e.g., "KeyboardMouse")
@@ -284,7 +283,7 @@ local function invokeCallback(binding, e, eventType)
     xpcall(function()
         callback(e)
     end, function(err)
-        local traceback = debug and type(debug.traceback) == "function" and debug.traceback("", 2) or ""
+        local traceback = debug.traceback("", 2)
         local mod = Ext.Mod.GetMod(binding.modUUID)
         local modName = (mod and mod.Info and mod.Info.Name) or tostring(binding.modUUID)
         MCMError(0,
@@ -455,8 +454,7 @@ end
 function KeybindingsRegistry.HasKeybindings(modUUID)
     if not modUUID then return false end
 
-    local filtered = KeybindingsRegistry and KeybindingsRegistry.GetFilteredRegistry
-        and KeybindingsRegistry.GetFilteredRegistry() or {}
+    local filtered = KeybindingsRegistry.GetFilteredRegistry()
     local actions = filtered[modUUID]
     if not actions then return false end
 

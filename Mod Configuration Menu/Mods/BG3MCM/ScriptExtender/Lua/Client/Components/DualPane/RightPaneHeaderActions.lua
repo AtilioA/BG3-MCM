@@ -90,11 +90,9 @@ function HeaderActions:New(parent)
     end
 
     -- React to keybindings registry updates so the indicator stays in sync.
-    if KeybindingsRegistry and KeybindingsRegistry.GetSubject then
-        self._kbSubscription = KeybindingsRegistry:GetSubject():Subscribe(function()
-            self:UpdateKeybindingIndicator()
-        end)
-    end
+    self._kbSubscription = KeybindingsRegistry:GetSubject():Subscribe(function()
+        self:UpdateKeybindingIndicator()
+    end)
 
     -- Initial state for indicator.
     self:UpdateKeybindingIndicator()
@@ -169,8 +167,7 @@ function HeaderActions:UpdateKeybindingIndicator(modUUID)
         return
     end
 
-    local hasAssigned = KeybindingsRegistry and KeybindingsRegistry.HasKeybindings
-        and KeybindingsRegistry.HasKeybindings(modUUID) or false
+    local hasAssigned = KeybindingsRegistry.HasKeybindings(modUUID)
 
     if not hasAssigned then
         self.keybindingsIndicator.Visible = false

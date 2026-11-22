@@ -612,20 +612,15 @@ function MCMRendering:CreateKeybindingsPage()
         InputCallbackManager.Initialize()
 
         -- Notify that keybindings have been loaded
-        if ModEventManager then
-            -- Technically, mods should not worry about this, but we'll emit an event here for them.
-            ModEventManager:Emit(EventChannels.MCM_KEYBINDINGS_LOADED, {})
-        end
+        -- Technically, mods should not worry about this, but we'll emit an event here for them.
+        ModEventManager:Emit(EventChannels.MCM_KEYBINDINGS_LOADED, {})
 
         -- Tell the dispatcher that keybindings have been loaded so it may process any pending callbacks.
         if InputCallbackManager.KeybindingsLoadedSubject then
             InputCallbackManager.KeybindingsLoadedSubject:OnNext(true)
         end
 
-        -- Register MCM keybindings if MCMProxy is available
-        if MCMProxy and MCMProxy.RegisterMCMKeybindings then
-            MCMProxy:RegisterMCMKeybindings()
-        end
+        MCMProxy:RegisterMCMKeybindings()
     end
 
     return hotkeysGroup

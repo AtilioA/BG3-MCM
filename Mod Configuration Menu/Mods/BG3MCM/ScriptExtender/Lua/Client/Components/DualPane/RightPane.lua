@@ -228,10 +228,7 @@ function RightPane:InsertTab(modUUID, tabName, callback, skipDisclaimer, tabId)
         xpcall(function()
             callback(tab)
         end, function(err)
-            local traceback = ""
-            if debug and type(debug.traceback) == "function" then
-                traceback = debug.traceback("", 2)
-            end
+            local traceback = debug.traceback("", 2)
             MCMError(0,
                 "Callback failed for mod %s: %s\nPlease contact %s about this issue.",
                 Ext.Mod.GetMod(modUUID).Info.Name,

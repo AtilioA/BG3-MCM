@@ -279,7 +279,7 @@ end
 ---@param modUUID string The UUID of the mod
 ---@return table<string, any> | nil - widgets for the mod (keyed by setting ID), or nil if the mod has no widgets
 function IMGUIAPI:GetModWidgets(modUUID)
-    if not MCMClientState or not MCMClientState.mods then
+    if not MCMClientState.mods then
         return nil
     end
     if not MCMClientState.mods[modUUID] then

@@ -7,7 +7,7 @@ local ModVarAdapter = Ext.Require("Shared/DynamicSettings/Adapters/ModVarAdapter
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
 local function warnAboutNPAKM()
-    if LoadOrderHealthCheck and LoadOrderHealthCheck.ShouldWarnAboutNPAKM and LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then
+    if LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then
         local host = Osi.GetHostCharacter()
         if host then
             local message = Ext.Loca.GetTranslatedString("h41e2dbf1773848eca2001fde456cca4d0156")

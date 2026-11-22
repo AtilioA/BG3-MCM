@@ -17,7 +17,7 @@ local function requestStoreBootstrapIfNeeded()
         return
     end
 
-    if MCMProxy and MCMProxy.IsMainMenu and MCMProxy.IsMainMenu() then
+    if MCMProxy.IsMainMenu() then
         return
     end
 
