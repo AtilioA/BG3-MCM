@@ -30,14 +30,16 @@ local RX = {
     Observer = Ext.Require("Lib/reactivex/observer.lua")
 }
 
--- Gets localized text for a handle, falling back to fallbackText if handle is nil/empty or no translation found
-local function localize(handle, fallbackText)
-    if type(handle) ~= "string" or handle == "" then return fallbackText end
-
-    local translated = Ext.Loca.GetTranslatedString(handle)
-    if translated and translated ~= "" then return translated end
-
-    return fallbackText
+local function resolveConfirmText(handle, fallback, defaultHandle, defaultText)
+    local resolved = VCString:ResolveBlueprintText(handle, fallback)
+    if resolved ~= nil and resolved ~= "" then
+        return resolved
+    end
+    local translated = Ext.Loca.GetTranslatedString(defaultHandle)
+    if translated ~= nil and translated ~= "" then
+        return translated
+    end
+    return defaultText
 end
 
 function EventButtonIMGUIWidget:HasLabel(setting)
@@ -64,6 +66,11 @@ function EventButtonIMGUIWidget:GetButtonLabel(setting)
     local handles = setting:GetHandles() or {}
 
     local hasLabel = self:HasLabel(setting)
+    local labelHandle = handles.EventButtonHandles and handles.EventButtonHandles.LabelHandle
+    local label = VCString:ResolveBlueprintText(labelHandle, hasLabel and options.Label or nil)
+    if label ~= nil and label ~= "" then
+        return label
+    end
 
     -- Fallback label is the localized name or the setting ID if localization is missing
     local fallbackLabel = setting:GetLocaName()
@@ -71,14 +78,7 @@ function EventButtonIMGUIWidget:GetButtonLabel(setting)
         fallbackLabel = setting:GetId()
     end
 
-    -- If no label and no icon, use the setting name/ID directly for the button
-    local rawLabel = hasLabel and options.Label or fallbackLabel
-
-    if handles.EventButtonHandles and handles.EventButtonHandles.LabelHandle then
-        return localize(handles.EventButtonHandles.LabelHandle, rawLabel)
-    end
-
-    return rawLabel
+    return fallbackLabel
 end
 
 --- Creates the configured image button, cleaning up a button whose icon cannot be used
@@ -206,15 +206,14 @@ function EventButtonIMGUIWidget:HandleButtonClick()
         if settingHandles.EventButtonHandles and settingHandles.EventButtonHandles.ConfirmDialogHandles then
             cdHandles = settingHandles.EventButtonHandles.ConfirmDialogHandles
         end
-        title = localize(cdHandles.TitleHandle,
-            confirmOptions.Title or localize("h652b98e111884533a0ec00fd94ecc386f717", "Confirm action"))
-        message = localize(cdHandles.MessageHandle,
-            confirmOptions.Message or
-            localize("h6cea07ecefe545ddaf13f4259fa75a6b2400", "Are you sure you want to proceed?"))
-        okLabel = localize(cdHandles.ConfirmTextHandle,
-            confirmOptions.ConfirmText or localize("hf03356ba46684764b32d26ff28d3e709af5a", "OK"))
-        cancelLabel = localize(cdHandles.CancelTextHandle,
-            confirmOptions.CancelText or localize("he43ef9b250584bc2840b8b291c73e4b53cb4", "Cancel"))
+        title = resolveConfirmText(cdHandles.TitleHandle, confirmOptions.Title,
+            "h652b98e111884533a0ec00fd94ecc386f717", "Confirm action")
+        message = resolveConfirmText(cdHandles.MessageHandle, confirmOptions.Message,
+            "h6cea07ecefe545ddaf13f4259fa75a6b2400", "Are you sure you want to proceed?")
+        okLabel = resolveConfirmText(cdHandles.ConfirmTextHandle, confirmOptions.ConfirmText,
+            "hf03356ba46684764b32d26ff28d3e709af5a", "OK")
+        cancelLabel = resolveConfirmText(cdHandles.CancelTextHandle, confirmOptions.CancelText,
+            "he43ef9b250584bc2840b8b291c73e4b53cb4", "Cancel")
 
         -- Show confirmation dialog via service
         local dialog = DialogService:Confirm(
@@ -388,8 +387,8 @@ function EventButtonIMGUIWidget:_HandleActionFeedback(event)
     -- Show success or error feedback
     if event.success then
         -- Needs translation: Action executed feedback
-        local label = self.Widget.CooldownGroup:AddText(localize("hbaeea4f4db8b46ed98f47a36a38cbe72c463",
-            "Action executed!"))
+        local label = self.Widget.CooldownGroup:AddText(VCString:ResolveBlueprintText(
+            "hbaeea4f4db8b46ed98f47a36a38cbe72c463", "Action executed!"))
         label.SameLine = false
         label:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
         self._actionFeedbackLabel = label

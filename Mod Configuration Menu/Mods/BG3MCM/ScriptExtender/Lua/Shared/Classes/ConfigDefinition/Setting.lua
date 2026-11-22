@@ -87,14 +87,7 @@ function BlueprintSetting:GetLocaName()
         return self:GetId()
     end
 
-    if self.Handles and self.Handles.NameHandle then
-        local translatedName = Ext.Loca.GetTranslatedString(self.Handles.NameHandle)
-        if translatedName and translatedName ~= "" then
-            return translatedName
-        end
-    end
-
-    return self.Name
+    return VCString:ResolveBlueprintText(self.Handles and self.Handles.NameHandle, self.Name)
 end
 
 function BlueprintSetting:GetId()
@@ -132,29 +125,11 @@ end
 
 -- REVIEW: GetLoca- or just always use handle logic? I don't see a reason to offer a way to not use handles
 function BlueprintSetting:GetDescription()
-    local descriptionText = self.Description or ""
-
-    if self.Handles and self.Handles.DescriptionHandle then
-        local translatedDescription = Ext.Loca.GetTranslatedString(self.Handles.DescriptionHandle)
-        if translatedDescription and translatedDescription ~= "" then
-            descriptionText = translatedDescription
-        end
-    end
-
-    return descriptionText
+    return VCString:ResolveBlueprintText(self.Handles and self.Handles.DescriptionHandle, self.Description or "")
 end
 
 function BlueprintSetting:GetTooltip()
-    local tooltipText = self.Tooltip or ""
-
-    if self.Handles and self.Handles.TooltipHandle then
-        local translatedTooltip = Ext.Loca.GetTranslatedString(self.Handles.TooltipHandle)
-        if translatedTooltip and translatedTooltip ~= "" then
-            tooltipText = translatedTooltip
-        end
-    end
-
-    return tooltipText
+    return VCString:ResolveBlueprintText(self.Handles and self.Handles.TooltipHandle, self.Tooltip or "")
 end
 
 function BlueprintSetting:GetSection()

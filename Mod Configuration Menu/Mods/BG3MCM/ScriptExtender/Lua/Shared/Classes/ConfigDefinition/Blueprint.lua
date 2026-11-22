@@ -65,20 +65,15 @@ function Blueprint:GetListFolder()
 end
 
 function Blueprint:GetModName()
-    if self.Handles and self.Handles.NameHandle then
-        local translatedName = Ext.Loca.GetTranslatedString(self.Handles.NameHandle)
-        if translatedName and translatedName ~= "" then
-            return translatedName
+    local modName = self.ModName
+    if not modName or modName == "" then
+        local modData = Ext.Mod.GetMod(self.ModUUID)
+        if modData and modData.Info then
+            modName = modData.Info.Name
         end
     end
 
-    local modName = self.ModName
-    local modData = Ext.Mod.GetMod(self.ModUUID)
-    if (not self.ModName or self.ModName == "") and modData and modData.Info then
-        modName = modData.Info.Name
-    end
-
-    return modName
+    return VCString:ResolveBlueprintText(self.Handles and self.Handles.NameHandle, modName)
 end
 
 function Blueprint:SetModName(value)
@@ -86,20 +81,20 @@ function Blueprint:SetModName(value)
 end
 
 function Blueprint:GetModDescription()
-    if self.Handles and self.Handles.DescriptionHandle then
-        local translatedDescription = Ext.Loca.GetTranslatedString(self.Handles.DescriptionHandle)
-        if translatedDescription and translatedDescription ~= "" then
-            return VCString:ReplaceBrWithNewlines(translatedDescription)
+    local modDescription = self.ModDescription
+    if not modDescription then
+        local modData = Ext.Mod.GetMod(self.ModUUID)
+        if modData and modData.Info then
+            modDescription = modData.Info.Description
         end
     end
 
-    local modDescription = self.ModDescription
-    local modData = Ext.Mod.GetMod(self.ModUUID)
-    if not self.ModDescription and modData and modData.Info then
-        modDescription = modData.Info.Description
+    local resolved = VCString:ResolveBlueprintText(self.Handles and self.Handles.DescriptionHandle, modDescription)
+    if resolved == nil then
+        return nil
     end
 
-    return modDescription
+    return VCString:ReplaceBrWithNewlines(resolved)
 end
 
 function Blueprint:GetHandles()

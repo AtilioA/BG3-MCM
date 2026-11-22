@@ -47,13 +47,9 @@ end
 
 function RadioIMGUIWidget:getLocalizedValue(setting, index)
     local settingHandles = setting:GetHandles()
-    if settingHandles and settingHandles.ChoicesHandles then
-        local localizedValue = Ext.Loca.GetTranslatedString(settingHandles.ChoicesHandles[index])
-        if localizedValue and localizedValue ~= "" then
-            return localizedValue
-        end
-    end
-    return setting:GetOptions().Choices[index]
+    local choices = setting:GetOptions().Choices
+    local handle = settingHandles and settingHandles.ChoicesHandles and settingHandles.ChoicesHandles[index]
+    return VCString:ResolveBlueprintText(handle, choices and choices[index])
 end
 
 ---@param buttons table The radio buttons to set callbacks for

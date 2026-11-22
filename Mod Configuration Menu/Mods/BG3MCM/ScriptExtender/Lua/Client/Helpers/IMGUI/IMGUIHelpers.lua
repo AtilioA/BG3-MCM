@@ -64,18 +64,10 @@ end
 ---@param setting BlueprintSetting
 ---@return ExtuiStyledRenderable|nil tooltip Nil when the setting has no tooltip
 function IMGUIHelpers.AddSettingTooltip(widget, setting)
-    if setting:GetTooltip() == nil or setting:GetTooltip() == "" then
+    local tooltipText = setting:GetTooltip()
+    if tooltipText == nil or tooltipText == "" then
         MCMDebug(2, "No tooltip found for setting: " .. setting:GetId())
         return
-    end
-
-    local tooltipText = setting:GetTooltip()
-    local translatedTooltip = nil
-    if setting:GetHandles().TooltipHandle ~= nil then
-        translatedTooltip = Ext.Loca.GetTranslatedString(setting:GetHandles().TooltipHandle)
-    end
-    if translatedTooltip ~= nil and translatedTooltip ~= "" then
-        tooltipText = translatedTooltip
     end
 
     return IMGUIHelpers.AddTooltip(widget, tooltipText, IMGUIHelpers.GetModScopedSettingId(setting) .. "_TOOLTIP")

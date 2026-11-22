@@ -349,15 +349,7 @@ function IMGUIWidget:SetupDescription(widget, group, setting)
         return
     end
 
-    local descriptionText = setting:GetDescription() or ""
-
-    local descriptionHandle = setting:GetHandles() and setting:GetHandles().DescriptionHandle
-    if descriptionHandle and descriptionHandle ~= "" then
-        local translatedDescription = Ext.Loca.GetTranslatedString(descriptionHandle)
-        if translatedDescription and translatedDescription ~= "" then
-            descriptionText = VCString:ReplaceBrWithNewlines(translatedDescription)
-        end
-    end
+    local descriptionText = VCString:ReplaceBrWithNewlines(setting:GetDescription() or "")
 
     local addedDescription = group:AddText(descriptionText)
     addedDescription.TextWrapPos = 0

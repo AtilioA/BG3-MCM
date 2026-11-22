@@ -526,13 +526,8 @@ function MCMRendering:CreateModMenuSection(sectionIndex, modGroup, section, modS
         sectionHeader:SetColor("Separator", Color.NormalizedRGBA(255, 255, 255, 0.33))
     end
 
-    -- FIXME: handles are being misobtained somehow
     if sectionDescription and sectionDescription ~= "" then
-        local sectionDescriptionText = sectionDescription
-        local translatedDescription = Ext.Loca.GetTranslatedString(section:GetHandles().DescriptionHandle)
-        if translatedDescription and translatedDescription ~= "" then
-            sectionDescriptionText = VCString:ReplaceBrWithNewlines(translatedDescription)
-        end
+        local sectionDescriptionText = VCString:ReplaceBrWithNewlines(sectionDescription)
 
         local addedDescription = sectionContentElement:AddText(sectionDescriptionText)
         addedDescription.TextWrapPos = 0

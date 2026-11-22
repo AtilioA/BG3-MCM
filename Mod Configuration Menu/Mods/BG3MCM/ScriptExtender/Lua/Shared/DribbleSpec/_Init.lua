@@ -40,4 +40,5 @@ if Mods.Dribbles then
     Ext.Require("Shared/DribbleSpec/StoreValues.test.lua")
     Ext.Require("Shared/DribbleSpec/SettingsServiceValidation.test.lua")
     Ext.Require("Shared/DribbleSpec/InternalAPIGuard.test.lua")
+    Ext.Require("Shared/DribbleSpec/ResolveBlueprintText.test.lua")
 end

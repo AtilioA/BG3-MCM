@@ -50,17 +50,7 @@ function BlueprintSection:New(options)
 end
 
 function BlueprintSection:GetLocaName()
-    local sectionName = self.SectionName
-    if self:GetHandles() then
-        if self:GetHandles().NameHandle then
-            local translatedName = Ext.Loca.GetTranslatedString(self:GetHandles().NameHandle)
-            if translatedName ~= nil and translatedName ~= "" then
-                sectionName = translatedName
-            end
-        end
-    end
-
-    return sectionName
+    return VCString:ResolveBlueprintText(self.Handles and self.Handles.NameHandle, self.SectionName)
 end
 
 function BlueprintSection:GetId()
@@ -68,7 +58,7 @@ function BlueprintSection:GetId()
 end
 
 function BlueprintSection:GetDescription()
-    return self.SectionDescription
+    return VCString:ResolveBlueprintText(self.Handles and self.Handles.DescriptionHandle, self.SectionDescription)
 end
 
 ---@return VisibleIfDefinition

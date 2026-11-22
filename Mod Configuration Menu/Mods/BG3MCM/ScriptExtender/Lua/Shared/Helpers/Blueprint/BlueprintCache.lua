@@ -44,10 +44,6 @@ function BlueprintCache:InvalidateAll()
 end
 
 function BlueprintCache:ApplyMCMSettings()
-    if not MCMAPI then
-        return
-    end
-
     local debugLevel = MCMAPI:GetSettingValue("debug_level", ModuleUUID) or 0
     local userEnabledCache = MCMAPI:GetSettingValue("enable_blueprint_cache", ModuleUUID)
     self:SetCacheEnabled(debugLevel < 1 or userEnabledCache ~= false)

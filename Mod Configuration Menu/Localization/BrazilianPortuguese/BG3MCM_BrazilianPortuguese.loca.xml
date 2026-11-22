@@ -374,4 +374,6 @@
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a09b2c3" version="1">Histórico de uso limpo.</content>
     <content contentuid="h07852b32f9c54a09a559289344164f8ag008" version="1">Não foi possível salvar a ordem da lista nem restaurar o layout anterior. A lista agora mostra o layout salvo. Se MCM_state.json ou MCM_mod_list_preferences.json estiver danificado, repare ou exclua o arquivo e recarregue.</content>
     <content contentuid="h5a10c3e1d2f84b6e9a7c1f0e3b5d7a0ab2c3" version="1">MCM_mod_list_preferences.json tem valores inválidos; por isso, o MCM usa a ordem padrão e não pode salvar alterações. Repare ou exclua o arquivo e recarregue.</content>
+    <content contentuid="hea1f7a28g08d8g4fabga873gf7a6f364731e" version="1">Ignorar traduções de mods</content>
+    <content contentuid="hf03a5af4g799dg4ba9g84eeg7afae7c67531" version="1">Exibir o texto padrão de cada mod em vez das traduções.&lt;br&gt;Os menus do próprio MCM ainda seguem o idioma do jogo.&lt;br&gt;Requer reiniciar o jogo.</content>
 </contentList>

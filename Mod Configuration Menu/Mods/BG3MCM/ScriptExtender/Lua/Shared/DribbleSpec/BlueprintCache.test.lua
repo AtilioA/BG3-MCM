@@ -149,18 +149,6 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "blueprint", "unit" }
         D.expect(builds).toBe(2)
     end)
 
-    D.test("TestBlueprintCacheApplyMCMSettingsWithoutMCMAPIKeepsCache", function(ctx)
-        local mcmApi = Mods.BG3MCM.MCMAPI
-        Mods.BG3MCM.MCMAPI = nil
-        ctx.sandbox:TrackRestore(function()
-            Mods.BG3MCM.MCMAPI = mcmApi
-        end)
-
-        BlueprintCache:ApplyMCMSettings()
-
-        D.expect(CountBuilds()).toBe(1)
-    end)
-
     D.test("TestBlueprintCacheAppliesSettingsOnlyForMCMCacheSettings", function(ctx)
         ctx.stub(MCMAPI, "GetSettingValue", function(_self, settingId, _modUUID)
             if settingId == "debug_level" then

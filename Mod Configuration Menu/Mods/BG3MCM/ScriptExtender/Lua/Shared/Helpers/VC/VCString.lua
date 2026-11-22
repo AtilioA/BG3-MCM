@@ -98,6 +98,27 @@ function VCString:IsNonEmptyString(value)
     return type(value) == "string" and value ~= ""
 end
 
+---Resolve localized blueprint text or return the default text when ignore_localization is enabled.
+---@param handle string|nil
+---@param fallback string|nil
+---@return string|nil
+function VCString:ResolveBlueprintText(handle, fallback)
+    if self:IsNonEmptyString(fallback)
+        and MCMAPI:GetSettingValue("ignore_localization", ModuleUUID) == true
+    then
+        return fallback
+    end
+
+    if self:IsNonEmptyString(handle) then
+        local translated = Ext.Loca.GetTranslatedString(handle)
+        if self:IsNonEmptyString(translated) then
+            return translated
+        end
+    end
+
+    return fallback
+end
+
 --- Update a localized message with dynamic content
 ---@param handle string The handle of the localized message to update
 ---@param dynamicContent string The dynamic content to replace the placeholder with
