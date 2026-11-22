@@ -24,6 +24,5 @@ RequireFiles("NotiFramework/", {
     "NotificationPreferences",
     "NotificationStyles",
     "NotificationOptions",
-    "NotificationManager",
-    -- "Printer/_Init"
+    "NotificationManager"
 })
