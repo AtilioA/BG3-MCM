@@ -116,6 +116,11 @@ end
 function IMGUIAPI:InsertListV2Suggestions(settingId, suggestions, modUUID)
     MCMDebug(1, "IMGUIAPI:InsertListV2Suggestions - Starting to insert search results for settingId: %s and modUUID: %s", settingId, modUUID)
 
+    if not VCString:IsStringArray(suggestions) then
+        MCMWarn(0, "IMGUIAPI:InsertListV2Suggestions - Invalid suggestions for settingId: %s (expected array of strings)", tostring(settingId))
+        return
+    end
+
     -- Step 1: Find the widget corresponding to the setting
     local widget = self:findWidgetForSetting(settingId, modUUID)
     if not widget then

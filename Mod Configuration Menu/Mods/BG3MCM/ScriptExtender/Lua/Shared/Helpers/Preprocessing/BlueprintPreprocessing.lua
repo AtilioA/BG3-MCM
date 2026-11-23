@@ -22,7 +22,8 @@ function BlueprintPreprocessing:CheckValidIDs(blueprint)
             return true
         end
 
-        return element:GetId() and element:GetId() ~= ""
+        local id = element:GetId()
+        return type(id) == "string" and id ~= ""
     end
 
     local isValid = true
@@ -270,6 +271,11 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                     isValid = false
                     return
                 end
+            elseif settingType == "list_v2" then
+                if not self:ValidateListV2Setting(setting) then
+                    isValid = false
+                    return
+                end
             end
 
             -- Validate VisibleIf for the setting
@@ -292,13 +298,34 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
 end
 
 function BlueprintPreprocessing:ValidateCheckboxSetting(setting)
-    local opts = setting:GetOptions() or {}
+    local rawOpts = setting:GetOptions()
+    local opts = type(rawOpts) == "table" and rawOpts or {}
     if opts["InlineTitle"] ~= nil and type(opts["InlineTitle"]) ~= "boolean" then
         MCMWarn(0,
             "Checkbox setting '" ..
             setting:GetId() ..
             "' has Options.InlineTitle of type '" ..
             type(opts["InlineTitle"]) .. "'. It must be a boolean (true/false) if present.")
+    end
+    return true
+end
+
+function BlueprintPreprocessing:ValidateListV2Setting(setting)
+    local opts = setting:GetOptions()
+    if opts == nil then
+        return true
+    end
+    if type(opts) ~= "table" then
+        MCMWarn(0, "Options for list_v2 setting '%s' must be a table.", setting:GetId())
+        return false
+    end
+    if opts.PageSize ~= nil and (type(opts.PageSize) ~= "number" or opts.PageSize < 1 or opts.PageSize % 1 ~= 0) then
+        MCMWarn(0, "Options.PageSize for list_v2 setting '%s' must be a positive integer.", setting:GetId())
+        return false
+    end
+    if opts.Suggestions ~= nil and not VCString:IsStringArray(opts.Suggestions) then
+        MCMWarn(0, "Options.Suggestions for list_v2 setting '%s' must be an array of strings.", setting:GetId())
+        return false
     end
     return true
 end
@@ -367,7 +394,7 @@ end
 ---@param setting BlueprintSetting The setting to set default Step for
 function BlueprintPreprocessing:SetDefaultStepForSlider(setting)
     local opts = setting:GetOptions()
-    if not opts then
+    if type(opts) ~= "table" then
         return
     end
 
@@ -386,7 +413,13 @@ end
 ---@param setting BlueprintSetting The setting to validate
 ---@return boolean True if the setting is valid, false otherwise
 function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
-    local options = setting:GetOptions() or {}
+    local rawOptions = setting:GetOptions()
+    if rawOptions ~= nil and type(rawOptions) ~= "table" then
+        MCMWarn(0, "Options for event_button setting '" .. setting:GetId() ..
+            "' must be a table. " .. contactAuthor(self))
+        return false
+    end
+    local options = rawOptions or {}
     local isValid = true
     local settingId = setting:GetId()
 
@@ -1006,7 +1039,7 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
 end
 
 function BlueprintPreprocessing:BlueprintDefaultShouldBeWithinRange(setting)
-    if setting.Options and setting.Options.Min and setting.Options.Max then
+    if type(setting.Options) == "table" and type(setting.Options.Min) == "number" and type(setting.Options.Max) == "number" then
         if setting.Default < setting.Options.Min or setting.Default > setting.Options.Max then
             MCMWarn(0,
                 "Default value for setting '" ..
@@ -1020,7 +1053,7 @@ function BlueprintPreprocessing:BlueprintDefaultShouldBeWithinRange(setting)
 end
 
 function BlueprintPreprocessing:BlueprintStepShouldBeNonZeroNumber(setting)
-    if setting.Options and setting.Options.Step and (type(setting.Options.Step) ~= "number" or setting.Options.Step == 0) then
+    if type(setting.Options) == "table" and setting.Options.Step ~= nil and (type(setting.Options.Step) ~= "number" or setting.Options.Step == 0) then
         MCMWarn(0,
             "Step value for setting '" ..
             setting:GetId() ..
@@ -1032,7 +1065,7 @@ function BlueprintPreprocessing:BlueprintStepShouldBeNonZeroNumber(setting)
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
-    if not setting.Options or not setting.Options.Choices then
+    if type(setting.Options) ~= "table" or type(setting.Options.Choices) ~= "table" then
         MCMWarn(0,
             "Enum setting '" ..
             setting:GetId() ..
@@ -1068,7 +1101,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
 end
 
 function BlueprintPreprocessing:BlueprintDynamicFlagForEnumShouldBeBoolean(setting)
-    if setting.Options and setting.Options.Dynamic ~= nil and type(setting.Options.Dynamic) ~= "boolean" then
+    if type(setting.Options) == "table" and setting.Options.Dynamic ~= nil and type(setting.Options.Dynamic) ~= "boolean" then
         MCMWarn(0,
             "Options.Dynamic for enum setting '" .. setting:GetId() .. "' must be a boolean.")
         return false
@@ -1078,7 +1111,7 @@ function BlueprintPreprocessing:BlueprintDynamicFlagForEnumShouldBeBoolean(setti
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
-    if not setting.Options or not setting.Options.Choices or #setting.Options.Choices == 0 then
+    if type(setting.Options) ~= "table" or type(setting.Options.Choices) ~= "table" or #setting.Options.Choices == 0 then
         MCMWarn(0,
             "Radio setting '" .. setting:GetId() .. "' must have 'Options.Choices' defined.")
         return false
@@ -1097,7 +1130,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
 end
 
 function BlueprintPreprocessing:BlueprintOptionsForEnumShouldHaveAChoicesArrayOfStrings(setting)
-    if setting.Options and setting.Options.Choices then
+    if type(setting.Options) == "table" and type(setting.Options.Choices) == "table" then
         for _, choice in ipairs(setting.Options.Choices) do
             if type(choice) ~= "string" then
                 MCMWarn(0,
@@ -1110,7 +1143,7 @@ function BlueprintPreprocessing:BlueprintOptionsForEnumShouldHaveAChoicesArrayOf
 end
 
 function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayOfStrings(setting)
-    if not setting.Options or not setting.Options.Choices then
+    if type(setting.Options) ~= "table" or type(setting.Options.Choices) ~= "table" then
         MCMWarn(0,
             "Radio setting '%s' must have 'Options.Choices' defined. Please contact %s about this issue.",
             setting:GetId(),
@@ -1130,7 +1163,7 @@ function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayO
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveMinAndMaxForSlider(setting)
-    if not setting.Options or not setting.Options.Min or not setting.Options.Max then
+    if type(setting.Options) ~= "table" or setting.Options.Min == nil or setting.Options.Max == nil then
         MCMWarn(0,
             "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined.", setting:GetId())
         return false
@@ -1139,7 +1172,7 @@ function BlueprintPreprocessing:BlueprintShouldHaveMinAndMaxForSlider(setting)
 end
 
 function BlueprintPreprocessing:BlueprintMinAndMaxForSliderShouldBeNumbers(setting)
-    if setting.Options and (type(setting.Options.Min) ~= "number" or type(setting.Options.Max) ~= "number") then
+    if type(setting.Options) == "table" and (type(setting.Options.Min) ~= "number" or type(setting.Options.Max) ~= "number") then
         MCMWarn(0,
             "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined as numbers.", setting:GetId())
         return false
@@ -1153,12 +1186,12 @@ function BlueprintPreprocessing:BlueprintMinIsLessThanMaxForSlider(setting)
         return false
     end
 
-    if not setting.Options then
+    if type(setting.Options) ~= "table" then
         MCMWarn(0, "Slider setting '%s' is missing Options", setting:GetId())
         return false
     end
 
-    if not setting.Options.Min or not setting.Options.Max then
+    if type(setting.Options.Min) ~= "number" or type(setting.Options.Max) ~= "number" then
         MCMWarn(0, "Slider setting '%s' is missing Options.Min or Options.Max", setting:GetId())
         return false
     end

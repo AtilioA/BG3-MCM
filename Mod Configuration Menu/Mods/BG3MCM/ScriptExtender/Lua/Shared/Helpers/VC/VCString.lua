@@ -98,6 +98,25 @@ function VCString:IsNonEmptyString(value)
     return type(value) == "string" and value ~= ""
 end
 
+---Check whether a value is a dense 1-based array of strings.
+---@param value unknown
+---@return boolean
+function VCString:IsStringArray(value)
+    if type(value) ~= "table" then
+        return false
+    end
+
+    local count = 0
+    for k, item in pairs(value) do
+        if type(k) ~= "number" or k < 1 or k % 1 ~= 0 or type(item) ~= "string" then
+            return false
+        end
+        count = count + 1
+    end
+
+    return count == #value
+end
+
 ---Resolve localized blueprint text or return the default text when ignore_localization is enabled.
 ---@param handle string|nil
 ---@param fallback string|nil

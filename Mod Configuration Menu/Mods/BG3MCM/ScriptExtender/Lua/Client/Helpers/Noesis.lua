@@ -41,36 +41,30 @@ local function updateButtonMessage(newMessage, revertTime)
 end
 
 -- REFACTOR: remove hasServer
-local function handleMCMButtonPress(button, hasServer)
+local function createMCMButtonPressTracker(hasServer)
     local pressCount = 0
     local pressLimit = 4
     local timeWindow = 5000
     local revertTime = 15000
 
-    local function onPointerDown()
-        Ext.OnNextTick(function()
-            pressCount = pressCount + 1
-            if pressCount == 1 then
-                Ext.Timer.WaitFor(timeWindow, function() pressCount = 0 end)
+    return function()
+        pressCount = pressCount + 1
+        if pressCount == 1 then
+            Ext.Timer.WaitFor(timeWindow, function() pressCount = 0 end)
+        end
+        if pressCount > pressLimit then
+            MCMWarn(0,
+                "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
+            updateButtonMessage(Ext.Loca.GetTranslatedString("h354808a337024c99b6149d5d1b11934bd36e"),
+                revertTime)
+            if hasServer then
+                NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION:SendToServer({})
             end
-            if pressCount > pressLimit then
-                MCMWarn(0,
-                    "Trying to open MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-                updateButtonMessage(Ext.Loca.GetTranslatedString("h354808a337024c99b6149d5d1b11934bd36e"),
-                    revertTime)
-                if hasServer then
-                    NetChannels.MCM_CLIENT_SHOW_TROUBLESHOOTING_NOTIFICATION:SendToServer({})
-                end
-            else
-                MCMPrint(1,
-                    "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
-            end
-            -- IMGUIAPI:ToggleMCMWindow(false)
-        end)
+        else
+            MCMPrint(1,
+                "Opening MCM window. If you don't see it, please see the troubleshooting steps in the mod description.")
+        end
     end
-
-    -- Unsubscribes automatically after the lifetime expires
-    button:Subscribe("PreviewMouseLeftButtonDown", onPointerDown)
 end
 
 -- MCM button per menu widget; MCM injects the buttons via its XAML overrides.
@@ -83,6 +77,7 @@ local MCM_BUTTONS = {
     MainMenu_c = MAIN_MENU_BUTTON,
 }
 local isBindScheduled = false
+local isSubscribing = false
 local isListening = false
 
 --- Calls fn(widgetName, button, buttonConfig) for each MCM button in the open menu widgets. Run inside Ext.UI.Defer.
@@ -104,24 +99,26 @@ local function setButtonHidden(button, isHidden)
     button:SetProperty("Visibility", isHidden and "Collapsed" or "Visible")
 end
 
---- Binds each MCM button that does not have MCM's DataContext yet.
+--- Binds each MCM button that does not have MCM's DataContext yet and syncs its visibility.
 local function bindMCMButtons()
     isBindScheduled = false
     forEachMCMButton(function(widgetName, button, buttonConfig)
+        setButtonHidden(button, MCM.Get(buttonConfig.hideSetting))
         if button.DataContext and button.DataContext.Type == "se::MCMButtonDC" then return end
 
-        setButtonHidden(button, MCM.Get(buttonConfig.hideSetting))
         local ctx = Ext.UI.Instantiate("se::MCMButtonDC")
-        ctx.CustomEvent:SetHandler(function() IMGUIAPI:ToggleMCMWindow(false) end)
+        local onButtonPress = createMCMButtonPressTracker(buttonConfig.hasServer)
+        ctx.CustomEvent:SetHandler(function()
+            onButtonPress()
+            IMGUIAPI:ToggleMCMWindow(false)
+        end)
         button.DataContext = ctx
-        -- Kept for troubleshooting purposes (shows warning)
-        handleMCMButtonPress(button, buttonConfig.hasServer)
         MCMDebug(1, "Bound MCM button in %s", widgetName)
     end)
 end
 
 --- Event sources have no name and expire before the next Defer, so each burst schedules one lookup pass.
-local function onElementAttached()
+local function scheduleBind()
     if isBindScheduled then return end
     isBindScheduled = true
     Ext.UI.Defer(bindMCMButtons)
@@ -129,17 +126,20 @@ end
 
 --- Binds MCM's main menu and game menu buttons whenever their menu opens, however it was opened.
 --- Noesis access outside Ext.UI.Defer can crash, hence the Defer.
+--- Do not call at script load; a subscription made during LoadModule receives no LSElementAttached events.
 function Noesis:ListenForMCMButtons()
-    if isListening then return end
-    isListening = true
+    scheduleBind()
+    if isSubscribing or isListening then return end
+    isSubscribing = true
     local function subscribeWhenRootIsReady()
         local root = Ext.UI.GetRoot()
         if not root then
             Ext.UI.Defer(subscribeWhenRootIsReady)
             return
         end
-        root:Subscribe("LSElementAttached", onElementAttached)
-        -- Menus attached before the subscription raise no event
+        isSubscribing = false
+        root:Subscribe("LSElementAttached", scheduleBind)
+        isListening = true
         bindMCMButtons()
     end
     Ext.UI.Defer(subscribeWhenRootIsReady)
@@ -151,9 +151,15 @@ ModEventManager:Subscribe(EventChannels.MCM_INTERNAL_SETTING_SAVED, function(pay
         or (settingId ~= GAME_MENU_BUTTON.hideSetting and settingId ~= MAIN_MENU_BUTTON.hideSetting) then
         return
     end
-    Ext.UI.Defer(function()
-        forEachMCMButton(function(_, button, buttonConfig)
-            if buttonConfig.hideSetting == settingId then setButtonHidden(button, payload.value) end
-        end)
-    end)
+    scheduleBind()
+end)
+
+MCMAPI.ConfigsLoaded:Subscribe(function(loaded)
+    if loaded then
+        scheduleBind()
+    end
+end)
+
+ModEventManager:Subscribe(EventChannels.MCM_PROFILE_ACTIVATED, function()
+    scheduleBind()
 end)

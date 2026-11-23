@@ -69,6 +69,7 @@ D.describe("MCM initialization isolation", { tags = { "initialization", "client"
             observed.ready = ready
         end)
 
+        MCMRendering:RegisterAndInitializeKeybindings()
         MCMRendering:CreateModMenu()
 
         D.expect(observed).toEqual({

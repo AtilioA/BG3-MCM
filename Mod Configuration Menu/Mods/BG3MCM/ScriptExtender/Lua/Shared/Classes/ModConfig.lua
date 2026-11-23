@@ -129,23 +129,56 @@ function ModConfig:GetMCMParamsFilePath()
     return mcmFolder .. '/' .. self.MCMParamsFilename
 end
 
+local function isValidMCMParams(data)
+    if type(data) ~= "table"
+        or type(data.Features) ~= "table"
+        or type(data.Features.Profiles) ~= "table"
+    then
+        return false
+    end
+
+    local profiles = data.Features.Profiles
+    if not VCString:IsStringArray(profiles.Profiles)
+        or #profiles.Profiles == 0
+        or type(profiles.SelectedProfile) ~= "string" or profiles.SelectedProfile == ""
+        or type(profiles.DefaultProfile) ~= "string" or profiles.DefaultProfile == ""
+    then
+        return false
+    end
+
+    local hasSelected = false
+    for _, name in ipairs(profiles.Profiles) do
+        if name == profiles.SelectedProfile then
+            hasSelected = true
+            break
+        end
+    end
+    return hasSelected
+end
+
 ---Loads the MCM params file from the specified file path, used to load the profiles.
----@return table|nil data parsed MCM params data, or nil if the file could not be loaded or parsed.
+---@return table data parsed MCM params data, or a copy of the default config if missing or invalid.
 function ModConfig:LoadMCMParams()
     local function loadMCMParamsFromFile(paramsFilepath)
         local configFileContent = Ext.IO.LoadFile(paramsFilepath)
         if not configFileContent or configFileContent == "" then
             MCMWarn(1, "MCM config file not found: %s. Creating default config.", paramsFilepath)
-            local defaultConfig = ProfileManager.DefaultConfig
+            local defaultConfig = table.deepcopy(ProfileManager.DefaultConfig)
             JsonLayer:SaveJSONFile(paramsFilepath, defaultConfig)
             return defaultConfig
         end
 
         -- Expects malformed JSON; the parse failure is reported as a warning below.
         local success, data = pcall(Ext.Json.Parse, configFileContent)
-        if not success then
-            MCMWarn(0, "Failed to parse MCM config file: %s", paramsFilepath)
-            return nil
+        if not success or not isValidMCMParams(data) then
+            local defaultConfig = table.deepcopy(ProfileManager.DefaultConfig)
+            if Ext.IO.SaveFile(paramsFilepath .. ".bak", configFileContent) then
+                MCMWarn(0, "Invalid MCM config file: %s. Backed up to %s.bak and restoring defaults.", paramsFilepath, paramsFilepath)
+                JsonLayer:SaveJSONFile(paramsFilepath, defaultConfig)
+            else
+                MCMWarn(0, "Invalid MCM config file: %s. Backup failed; using in-memory defaults without overwriting file.", paramsFilepath)
+            end
+            return defaultConfig
         end
 
         return data
@@ -190,14 +223,7 @@ end
 ---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
     -- Load the base MCM configuration file, which contains the profiles
-    local profileManager = ProfileManager:Create(self:LoadMCMParams())
-    if not profileManager then
-        MCMWarn(0,
-            "Failed to load profiles from MCM configuration file. Please contact %s about this issue.",
-            Ext.Mod.GetMod(ModuleUUID).Info.Author)
-        return {}
-    end
-    self.profileManager = profileManager
+    self.profileManager = ProfileManager:Create(self:LoadMCMParams())
 
     -- Get settings for each mod given the profile
     self:LoadBlueprints()

@@ -371,8 +371,8 @@ end
 ---@param args MCMListInsertSuggestionsArgs
 ---@return boolean success
 local function ListInsertSuggestions_Impl(args)
-    if type(args.suggestions) ~= "table" then
-        MCMWarn(0, "Invalid 'suggestions' for MCM.List.InsertSuggestions; expected table of strings")
+    if not VCString:IsStringArray(args.suggestions) then
+        MCMWarn(0, "Invalid 'suggestions' for MCM.List.InsertSuggestions; expected array of strings")
         return false
     end
     if not Ext.IsClient() then return false end

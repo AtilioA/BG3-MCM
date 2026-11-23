@@ -69,11 +69,6 @@ function ProfileManager:SaveProfileValuesToConfig()
     local configFilePath = ModConfig:GetMCMParamsFilePath()
 
     local data = ModConfig:LoadMCMParams()
-    if not data then
-        MCMWarn(1, "MCM config file not found: %s", configFilePath)
-        return
-    end
-
     data.Features.Profiles = {
         SelectedProfile = self.SelectedProfile,
         Profiles = self.Profiles,

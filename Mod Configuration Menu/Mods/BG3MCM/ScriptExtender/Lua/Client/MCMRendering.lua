@@ -284,6 +284,7 @@ end
 function MCMRendering:LoadMods(mods)
     self.mods = mods or {}
     self:ConvertModTablesToBlueprints()
+    self:RegisterAndInitializeKeybindings()
     -- Apply before the window guard below, so other mods get the font even when MCM is never opened
     self:ApplyFontSettings()
 
@@ -586,18 +587,9 @@ function MCMRendering:GetAllKeybindings()
     return KeybindingsUI.GetAllKeybindings()
 end
 
---- Creates the keybindings page in the MCM UI
----@return ExtuiGroup The created hotkeys group
-function MCMRendering:CreateKeybindingsPage()
-    -- Retire the previous view before registry updates; a render failure must not skip input setup.
-    local hotkeysGroup
-    local success, err = xpcall(function()
-        hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
-    end, debug.traceback)
-    if not success then
-        MCMError(0, "Failed to render keybindings page: %s", err)
-    end
-
+--- Registers mod keybindings and initializes the input dispatcher independently of UI rendering.
+---@return nil
+function MCMRendering:RegisterAndInitializeKeybindings()
     -- Load and register keybindings
     local allModKeybindings = self:GetAllKeybindings()
     if #allModKeybindings == 0 then
@@ -621,6 +613,19 @@ function MCMRendering:CreateKeybindingsPage()
         end
 
         MCMProxy:RegisterMCMKeybindings()
+    end
+end
+
+--- Creates the keybindings page in the MCM UI
+---@return ExtuiGroup The created hotkeys group
+function MCMRendering:CreateKeybindingsPage()
+    -- KeybindingsRegistry:GetSubject() replays synchronously into FilterActions()/RefreshUI().
+    local hotkeysGroup
+    local success, err = xpcall(function()
+        hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
+    end, debug.traceback)
+    if not success then
+        MCMError(0, "Failed to render keybindings page: %s", err)
     end
 
     return hotkeysGroup

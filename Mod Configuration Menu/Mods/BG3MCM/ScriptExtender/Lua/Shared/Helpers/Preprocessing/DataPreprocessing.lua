@@ -81,23 +81,40 @@ function DataPreprocessing:FixInvalidSettings(blueprint, config, invalidSettings
     end
 end
 
+local function sanitizeOptionalString(value, fieldName, contextLabel)
+    if value ~= nil and type(value) ~= "string" then
+        MCMWarn(0, "Ignoring invalid %s for %s", fieldName, contextLabel)
+        return nil
+    end
+    return value
+end
+
+local function sanitizeHandles(value, contextLabel, defaultTable)
+    if value ~= nil and type(value) ~= "table" then
+        MCMWarn(0, "Ignoring invalid Handles for %s", contextLabel)
+        return defaultTable
+    end
+    return value or defaultTable
+end
+
 ---@param settings table[]|nil
 ---@return BlueprintSetting[]
 function DataPreprocessing:PreprocessSettings(settings)
     local processedSettings = {}
 
     for _, setting in ipairs(settings or {}) do
+        local settingLabel = "setting " .. tostring(setting.Id)
         table.insert(processedSettings, BlueprintSetting:New({
             Id = setting.Id,
             OldId = setting.OldId,
-            Name = setting.Name,
+            Name = sanitizeOptionalString(setting.Name, "Name", settingLabel),
             VisibleIf = setting.VisibleIf,
             Type = setting.Type,
             Default = setting.Default,
-            Description = setting.Description,
-            Tooltip = setting.Tooltip,
+            Description = sanitizeOptionalString(setting.Description, "Description", settingLabel),
+            Tooltip = sanitizeOptionalString(setting.Tooltip, "Tooltip", settingLabel),
             Options = setting.Options,
-            Handles = setting.Handles
+            Handles = sanitizeHandles(setting.Handles, settingLabel, nil)
         }))
     end
 
@@ -130,15 +147,17 @@ function DataPreprocessing:PreprocessTab(tabData, modUUID)
         return nil
     end
 
+    local tabId = tabData.TabId or tabData.Id
+    local tabLabel = "tab " .. tostring(tabId)
     local tab = BlueprintTab:New({
-        TabId = tabData.TabId or tabData.Id,
-        TabName = tabData.TabName or tabData.Name,
-        TabDescription = tabData.TabDescription or tabData.Description,
+        TabId = tabId,
+        TabName = sanitizeOptionalString(tabData.TabName or tabData.Name, "TabName", tabLabel),
+        TabDescription = sanitizeOptionalString(tabData.TabDescription or tabData.Description, "TabDescription", tabLabel),
         VisibleIf = tabData.VisibleIf,
         Tabs = {},
         Sections = {},
         Settings = {},
-        Handles = tabData.Handles or {}
+        Handles = sanitizeHandles(tabData.Handles, tabLabel, {})
     })
 
     tab.Settings = self:PreprocessSettings(tabData.Settings)
@@ -157,16 +176,18 @@ function DataPreprocessing:PreprocessSection(sectionData, modUUID)
         return nil
     end
 
+    local sectionId = sectionData.SectionId or sectionData.Id
+    local sectionLabel = "section " .. tostring(sectionId)
     local section = BlueprintSection:New({
-        SectionId = sectionData.SectionId or sectionData.Id,
-        SectionName = sectionData.SectionName or sectionData.Name,
-        SectionDescription = sectionData.SectionDescription or sectionData.Description,
+        SectionId = sectionId,
+        SectionName = sanitizeOptionalString(sectionData.SectionName or sectionData.Name, "SectionName", sectionLabel),
+        SectionDescription = sanitizeOptionalString(sectionData.SectionDescription or sectionData.Description, "SectionDescription", sectionLabel),
         VisibleIf = sectionData.VisibleIf,
         -- TODO: validate Options input
         Options = sectionData.Options,
         Tabs = {},
         Settings = {},
-        Handles = sectionData.Handles or {}
+        Handles = sanitizeHandles(sectionData.Handles, sectionLabel, {})
     })
 
     section.Settings = self:PreprocessSettings(sectionData.Settings)
@@ -187,16 +208,17 @@ function DataPreprocessing:PreprocessData(data, modUUID)
         MCMWarn(0, "Ignoring invalid ListFolder for mod %s", modUUID)
         listFolder = nil
     end
+    local modLabel = "mod " .. tostring(modUUID)
     local preprocessedData = {
         ListFolder = listFolder,
         ModUUID = modUUID,
         SchemaVersion = data.SchemaVersion,
         Optional = data.Optional,
-        ModName = data.ModName,
-        ModDescription = data.ModDescription,
+        ModName = sanitizeOptionalString(data.ModName, "ModName", modLabel),
+        ModDescription = sanitizeOptionalString(data.ModDescription, "ModDescription", modLabel),
         KeybindingSortMode = data.KeybindingSortMode or KeybindingSortMode.DEFAULT,
         HiddenFromList = data.HiddenFromList,
-        Handles = data.Handles,
+        Handles = sanitizeHandles(data.Handles, modLabel, nil),
         Tabs = {},
         Sections = {},
         Settings = {}

@@ -6,6 +6,8 @@ EHandlers.SFX_CLOSE_MCM_WINDOW = "1b54367f-364a-5cb2-d151-052822622d0c"
 local ModVarAdapter = Ext.Require("Shared/DynamicSettings/Adapters/ModVarAdapter.lua")
 local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
 
+local hasIssuedSessionWarnings = false
+
 local function warnAboutNPAKM()
     if LoadOrderHealthCheck:ShouldWarnAboutNPAKM() then
         local host = Osi.GetHostCharacter()
@@ -17,24 +19,13 @@ local function warnAboutNPAKM()
     end
 end
 
-local function loadSettingsAndWarn()
-    if MCMServer:HasSentInitialConfig() then
-        MCMDebug(2, "Initial MCM config already sent; skipping redundant broadcast")
+function EHandlers.IssueSessionWarningsOnce()
+    if hasIssuedSessionWarnings then
         return
     end
-
-    MCMServer:LoadAndSendSettings()
-
+    hasIssuedSessionWarnings = true
     ModEventManager:IssueDeprecationWarning()
     VCTimer:OnTicks(4, warnAboutNPAKM)
-end
-
-function EHandlers.SavegameLoaded()
-    loadSettingsAndWarn()
-end
-
-function EHandlers.CCStarted()
-    loadSettingsAndWarn()
 end
 
 --- Handle client request for configs
@@ -45,7 +36,7 @@ end
 function EHandlers.OnClientRequestConfigs(data, userID)
     MCMDebug(2, "Received MCM settings request from user: %s", userID)
 
-    if not MCMAPI.mods or not MCMAPI.profiles then
+    if not MCMAPI.mods or next(MCMAPI.mods) == nil or not MCMAPI.profiles or next(MCMAPI.profiles) == nil then
         MCMServer:LoadAndSendSettings()
         return { success = true, message = "Loading configurations..." }
     else

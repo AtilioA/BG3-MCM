@@ -1,19 +1,5 @@
 ---@class MCMServer
-MCMServer = _Class:Create("MCMServer", nil, {
-    hasSentInitialConfig = false
-})
-
-function MCMServer:HasSentInitialConfig()
-    return self.hasSentInitialConfig == true
-end
-
-function MCMServer:SetHasSentInitialConfig(value)
-    self.hasSentInitialConfig = value and true or false
-end
-
-function MCMServer:ResetInitialConfigGuard()
-    self.hasSentInitialConfig = false
-end
+MCMServer = _Class:Create("MCMServer", nil, {})
 
 --- Loads the profile manager and the configurations for all mods.
 ---@return nil
@@ -187,11 +173,6 @@ function MCMServer:DeleteProfile(profileName)
 end
 
 function MCMServer:LoadAndSendSettings()
-    if self:HasSentInitialConfig() then
-        MCMDebug(1, "MCM has already sent initial config. Skipping...")
-        return
-    end
-
     MCMDebug(1, "Loading MCM configs...")
     MCMAPI:LoadConfigs()
     local payloadTable = {
@@ -201,15 +182,13 @@ function MCMServer:LoadAndSendSettings()
 
     ChunkedNet.SendJSONToAll(NetChannels.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, payloadTable)
     ModEventManager:BroadcastLegacyNetMessage(NetChannels._LEGACY.MCM_SERVER_SEND_CONFIGS_TO_CLIENT, {})
-
-    self:SetHasSentInitialConfig(true)
 end
 
 --- Load configs and send to a specific user (for new clients)
 ---@param userID integer The ID of the user to send settings to
 function MCMServer:LoadAndSendSettingsToUser(userID)
     MCMDebug(1, "Sending MCM configs to user: " .. userID)
-    if not MCMAPI.mods or not MCMAPI.profiles then
+    if not MCMAPI.mods or next(MCMAPI.mods) == nil or not MCMAPI.profiles or next(MCMAPI.profiles) == nil then
         MCMError(0, "MCM has not loaded configs yet. Cannot send settings to user: %s", userID)
         MCMWarn(0, "Loading configs...")
         MCMAPI:LoadConfigs()

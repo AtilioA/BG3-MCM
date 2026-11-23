@@ -58,14 +58,14 @@ Ext.Events.GameStateChanged:Subscribe(function(e)
     if e.ToState == Ext.Enums.ClientGameState["Menu"] then
         invalidateConfigPayloadCache()
         invalidateStoreBootstrapState()
-        InitClientMCM()
         Noesis:ListenForMCMButtons()
+        InitClientMCM()
     end
 
     if e.ToState == Ext.Enums.ClientGameState["Running"] then
+        Noesis:ListenForMCMButtons()
         InitClientMCM()
         requestStoreBootstrapIfNeeded()
-        Noesis:ListenForMCMButtons()
     end
 end)
 
@@ -177,9 +177,9 @@ end
 Ext.Events.ResetCompleted:Subscribe(function()
     invalidateConfigPayloadCache()
     invalidateStoreBootstrapState()
+    Noesis:ListenForMCMButtons()
     InitClientMCM()
     requestStoreBootstrapIfNeeded()
-    Noesis:ListenForMCMButtons()
 end)
 
 -- Handle direct (non-chunked) config messages

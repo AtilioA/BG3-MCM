@@ -346,15 +346,28 @@ D.describe("ModConfig", { tags = { "modconfig", "blueprint", "unit" } }, functio
         end)
 
         D.test("LoadMCMParams returns the parsed params file", function()
-            syncStateFixture.files[paramsPath] = Ext.Json.Stringify({ Features = { Profiles = { SelectedProfile = "P" } } })
+            local validParams = {
+                Features = {
+                    Profiles = {
+                        DefaultProfile = "Default",
+                        SelectedProfile = "P",
+                        Profiles = { "Default", "P" },
+                    },
+                },
+            }
+            syncStateFixture.files[paramsPath] = Ext.Json.Stringify(validParams)
 
-            D.expect(ModConfig:LoadMCMParams()).toEqual({ Features = { Profiles = { SelectedProfile = "P" } } })
+            D.expect(ModConfig:LoadMCMParams()).toEqual(validParams)
         end)
 
-        D.test("LoadMCMParams returns nil for a malformed params file", function()
+        D.test("LoadMCMParams backs up and restores defaults for a malformed params file", function()
             syncStateFixture.files[paramsPath] = "{"
 
-            D.expect(ModConfig:LoadMCMParams()).toBeNil()
+            local params = ModConfig:LoadMCMParams()
+
+            D.expect(params).toEqual(ProfileManager.DefaultConfig)
+            D.expect(syncStateFixture.files[paramsPath .. ".bak"]).toBe("{")
+            D.expect(Ext.Json.Parse(syncStateFixture.files[paramsPath])).toEqual(ProfileManager.DefaultConfig)
         end)
     end)
 
@@ -464,13 +477,6 @@ D.describe("ModConfig", { tags = { "modconfig", "blueprint", "unit" } }, functio
             D.expect(ModConfig.mods[modUUID].settingsValues).toEqual({ ["updated-checkbox"] = false })
             D.expect(Ext.Json.Parse(syncStateFixture.files[ModConfig:GetSettingsFilePath(modUUID)]))
                 .toEqual({ ["updated-checkbox"] = false })
-        end)
-
-        D.test("GetSettings returns an empty table when the params file is malformed", function()
-            syncStateFixture.files["DribbleSpec/mcm_params.json"] = "{"
-
-            D.expect(ModConfig:GetSettings()).toEqual({})
-            D.expect(ModConfig.profileManager).toBe(originalProfileManager)
         end)
 
         D.test("LoadBlueprintForMod warns at level 3 when the blueprint is missing", function()
