@@ -1,4 +1,5 @@
 --- @class NetCommand
+--- @field callback function
 --- Represents a (net) command that can be executed.
 --- Modernized for NetChannel API - uses SetRequestHandler pattern
 NetCommand = {}
@@ -9,6 +10,7 @@ NetCommand.__index = NetCommand
 --- @return NetCommand
 function NetCommand:new(callback)
     local cmd = setmetatable({}, self)
+    ---@cast cmd NetCommand
     cmd.callback = callback
     return cmd
 end

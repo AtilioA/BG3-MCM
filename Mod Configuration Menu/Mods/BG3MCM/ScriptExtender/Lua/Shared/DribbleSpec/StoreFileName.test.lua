@@ -39,6 +39,8 @@ D.describe("MCM.Store fileName", { tags = { "store", "unit" } }, function()
     end)
 
     local function registerFixtureVar(varName, options)
+        -- The filename tests pass malformed registration options through this helper.
+        ---@diagnostic disable-next-line: param-type-mismatch
         return MCM.Store.RegisterVar(varName, options)
     end
 

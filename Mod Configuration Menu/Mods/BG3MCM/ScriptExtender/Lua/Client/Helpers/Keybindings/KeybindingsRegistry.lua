@@ -27,7 +27,7 @@ function KeybindingsRegistry.CanonicalizeValue(value, fallbackEnabled, fallbackA
     })
 end
 
----@param binding KeybindingKeyboardBinding
+---@param binding KeybindingKeyboardBinding|string A string is a bare key name.
 ---@param currentEnabled? boolean
 ---@param currentAllowConflict? boolean
 ---@return KeybindingV2Value
@@ -266,7 +266,7 @@ local function getCallback(binding, eventType)
 end
 
 ---@param binding KeybindingRegistryEntry
----@param e EclLuaKeyInputEvent|EclLuaMouseButtonEvent
+---@param e EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams
 ---@param eventType "KeyDown"|"KeyUp"
 local function invokeCallback(binding, e, eventType)
     local callback = getCallback(binding, eventType)
@@ -309,7 +309,7 @@ local function shouldBlockConflictingCallbacks(triggered)
         Mouse = binding.mouseBinding,
         Keyboard = binding.keyboardBinding
     })
-    local keybindingStr = KeyPresentationMapping:GetKBViewKey(activeBinding) or ""
+    local keybindingStr = activeBinding and KeyPresentationMapping:GetKBViewKey(activeBinding) or ""
     local actionNames = {}
     for _, triggeredBinding in ipairs(triggered) do
         table.insert(actionNames, string.format("'%s'", tostring(triggeredBinding.actionName)))
@@ -324,7 +324,7 @@ local function shouldBlockConflictingCallbacks(triggered)
     return true
 end
 
----@param e EclLuaKeyInputEvent|EclLuaMouseButtonEvent
+---@param e EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams
 ---@param triggered KeybindingRegistryEntry[]
 ---@param eventType "KeyDown"|"KeyUp"
 local function dispatchCallbacks(e, triggered, eventType)
@@ -350,7 +350,7 @@ function KeybindingsRegistry.NotifyConflict(conflictTitle, conflictStr)
 end
 
 --- Determines if an action should be prevented based on the triggered bindings
---- @param e EclLuaKeyInputEvent|EclLuaMouseButtonEvent The input event
+--- @param e EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams The input event
 --- @param triggeredBindings KeybindingRegistryEntry[]|nil Optional array of triggered bindings
 --- @param isKeyboard? boolean Whether keyboard-only event fields may be read
 --- @return boolean True if the action should be prevented, false otherwise
@@ -359,8 +359,11 @@ function KeybindingsRegistry.ShouldPreventAction(e, triggeredBindings, isKeyboar
         return false
     end
 
-    if isKeyboard and tostring(e.Key) == "ESCAPE" then
-        return false
+    if isKeyboard then
+        ---@cast e EclLuaKeyInputEventParams
+        if tostring(e.Key) == "ESCAPE" then
+            return false
+        end
     end
 
     -- Only check bindings if they were provided
@@ -382,18 +385,24 @@ function KeybindingsRegistry.ShouldPreventAction(e, triggeredBindings, isKeyboar
 end
 
 ---Dispatches a keyboard event through shared binding identity.
----@param e EclLuaKeyInputEvent
+---@param e EclLuaKeyInputEventParams
 function KeybindingsRegistry.DispatchKeyboardEvent(e)
     local triggered = {}
-    local inputBinding = { Key = e.Key, ModifierKeys = KeybindingManager:GetActiveModifiers(e.Modifiers) }
+    ---@type unknown
+    local modifiers = e.Modifiers
+    ---@cast modifiers string[]
+    local inputBinding = { Key = e.Key, ModifierKeys = KeybindingManager:GetActiveModifiers(modifiers) }
 
     for _modUUID, actions in pairs(registry) do
         for _actionId, binding in pairs(actions) do
-            if type(binding) == "table" and KeybindingManager:IsKeyboardBindingAssigned(binding.keyboardBinding)
-                and canTriggerBinding(binding)
-                and shouldTriggerEvent(binding, e.Event, e.Repeat)
-                and KeybindingManager:AreBindingsEqual(inputBinding, binding.keyboardBinding) then
-                table.insert(triggered, binding)
+            if type(binding) == "table" then
+                ---@cast binding KeybindingRegistryEntry
+                if KeybindingManager:IsKeyboardBindingAssigned(binding.keyboardBinding)
+                    and canTriggerBinding(binding)
+                    and shouldTriggerEvent(binding, e.Event, e.Repeat)
+                    and KeybindingManager:AreBindingsEqual(inputBinding, binding.keyboardBinding) then
+                    table.insert(triggered, binding)
+                end
             end
         end
     end
@@ -406,7 +415,7 @@ function KeybindingsRegistry.DispatchKeyboardEvent(e)
 end
 
 ---Dispatches a mouse press/release event using shared binding identity.
----@param e EclLuaMouseButtonEvent
+---@param e EclLuaMouseButtonEventParams
 ---@param heldModifiers string[]
 function KeybindingsRegistry.DispatchMouseEvent(e, heldModifiers)
     local button = e.Button
@@ -416,10 +425,13 @@ function KeybindingsRegistry.DispatchMouseEvent(e, heldModifiers)
         local inputBinding = { Button = button, ModifierKeys = KeybindingManager:GetActiveModifiers(heldModifiers) }
         for _modUUID, actions in pairs(registry) do
             for _actionId, binding in pairs(actions) do
-                if type(binding) == "table" and KeybindingManager:IsMouseBindingAssigned(binding.mouseBinding)
-                    and KeybindingManager:AreBindingsEqual(inputBinding, binding.mouseBinding)
-                    and canTriggerBinding(binding) then
-                    table.insert(matched, binding)
+                if type(binding) == "table" then
+                    ---@cast binding KeybindingRegistryEntry
+                    if KeybindingManager:IsMouseBindingAssigned(binding.mouseBinding)
+                        and KeybindingManager:AreBindingsEqual(inputBinding, binding.mouseBinding)
+                        and canTriggerBinding(binding) then
+                        table.insert(matched, binding)
+                    end
                 end
             end
         end
@@ -473,5 +485,5 @@ function KeybindingsRegistry.GetKeybindingSortMode(modUUID)
     if not modUUID or not registry[modUUID] then
         return KeybindingSortMode.DEFAULT
     end
-    return registry[modUUID]._keybindingSortMode or KeybindingSortMode.DEFAULT
+    return registry[modUUID]._keybindingSortMode or KeybindingSortMode.DEFAULT or "alphabetical"
 end

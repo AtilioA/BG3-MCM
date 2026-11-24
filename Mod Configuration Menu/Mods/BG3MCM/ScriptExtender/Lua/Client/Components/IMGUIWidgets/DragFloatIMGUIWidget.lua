@@ -1,4 +1,5 @@
 ---@class DragFloatIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiDragScalar
 DragFloatIMGUIWidget = _Class:Create("DragFloatIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,6 +9,7 @@ DragFloatIMGUIWidget = _Class:Create("DragFloatIMGUIWidget", IMGUIWidget)
 ---@return DragFloatIMGUIWidget
 function DragFloatIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = DragFloatIMGUIWidget })
+    ---@cast instance DragFloatIMGUIWidget
     instance.Widget = group:AddDrag("", initialValue, setting.Options.Min, setting.Options.Max)
     instance.Widget.OnChange = VCTimer:Throttle(33, function(value)
         IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)

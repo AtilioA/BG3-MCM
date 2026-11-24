@@ -13,7 +13,7 @@ VisibilityManager.registered = {}
 --- Immediately evaluates and sets the initial visibility.
 --- @param modUUID string - The mod's unique identifier.
 --- @param uiElement table - The UI element to control visibility.
---- @param conditionGroup table - The visibility condition group following the VisibleIf JSON schema.
+--- @param conditionGroup VisibleIfDefinition|string - The VisibleIf group; "" means no condition.
 function VisibilityManager.registerCondition(modUUID, uiElement, conditionGroup)
     if not modUUID or not uiElement or not conditionGroup then
         MCMWarn(0, "Failed to register visibility condition: missing modUUID, UI element, or condition group.")
@@ -30,7 +30,7 @@ end
 --- Evaluates an entire group of conditions for a mod.
 --- Caches mod info for all conditions in the group.
 --- @param modUUID string - The mod's unique identifier.
---- @param conditionGroup table - A table containing "LogicalOperator" and "Conditions" keys.
+--- @param conditionGroup VisibleIfConditionGroup|string - The VisibleIf group; "" means no condition.
 --- @return boolean True if the conditions pass (combined per LogicalOperator), false otherwise.
 function VisibilityManager.evaluateGroup(modUUID, conditionGroup)
     local modInfo = Ext.Mod.GetMod(modUUID).Info
@@ -106,8 +106,7 @@ function VisibilityManager.evaluateConditionWithInfo(modName, modAuthor, modUUID
     end
 end
 
---- Handles a setting update event by re-evaluating all registered UI elements
---- that depend on the updated setting.
+--- Handles a setting update event by re-evaluating all registered UI elements that depend on the updated setting.
 --- @param modUUID string - The mod's unique identifier.
 --- @param settingId string - The ID of the setting that was updated.
 --- @param value any - The new value (evaluation still uses MCMRendering to fetch the current value).

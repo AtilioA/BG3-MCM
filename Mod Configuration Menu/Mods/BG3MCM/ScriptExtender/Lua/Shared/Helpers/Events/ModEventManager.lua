@@ -178,6 +178,7 @@ function ModEventManager:IssueDeprecationWarning()
         return modData and modData.Info and modData.Info.Author and modData.Info.Name and modData.Info.Directory
     end
 
+    ---@param usages { source: string, line: integer }[]
     local function createWarningMessage(modInfo, usages)
         local usageMessages = {}
         for _, usage in ipairs(usages) do
@@ -204,6 +205,7 @@ function ModEventManager:IssueDeprecationWarning()
         for _, modUUID in ipairs(loadOrder) do
             local modData = Ext.Mod.GetMod(modUUID)
             if not isValidModData(modData) then return end
+            ---@cast modData -nil
 
             local modInfo = modData.Info
             local modDir = modInfo.Directory

@@ -188,6 +188,7 @@ end
 ---@return BlueprintCacheIndex
 function BlueprintShape:GetIndex(blueprint)
     return BlueprintCache:GetOrBuild(blueprint, function(root)
+        ---@cast root Blueprint|BlueprintTab|BlueprintSection
         return self:_BuildIndex(root)
     end)
 end

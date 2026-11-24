@@ -123,6 +123,7 @@ function SubscribedEvents.SubscribeToEvents()
     -- When resetting Lua states
     -- Ext.Events.ResetCompleted:Subscribe(EHandlers.OnReset)
 
+    ---@param userID integer
     Ext.Osiris.RegisterListener("UserConnected", 3, "after", function(userID, userName, userProfileID)
         MCMDebug(1, "UserConnected: %s %s %s", userID, userName, userProfileID)
         MCMServer:LoadAndSendSettingsToUser(userID)

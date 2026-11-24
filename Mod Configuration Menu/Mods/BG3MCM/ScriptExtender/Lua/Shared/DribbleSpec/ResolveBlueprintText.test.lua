@@ -1,7 +1,10 @@
+local StorageSyncService = Ext.Require("Shared/DynamicSettings/Services/StorageSyncService.lua")
+local JsonAdapter = Ext.Require("Shared/DynamicSettings/Adapters/JsonAdapter.lua")
+local SettingsService = Ext.Require("Shared/DynamicSettings/Services/SettingsService.lua")
 local NewSandbox = Ext.Require("Shared/DribbleSpec/Fixtures/Sandbox.lua")
 
 D.describe("VCString:ResolveBlueprintText", { tags = { "vcstring", "unit" } }, function()
-    local sandbox = NewSandbox(MCMAPI)
+    local sandbox = NewSandbox(StorageSyncService, JsonAdapter, SettingsService)
     local originalMods
     -- Real MCM handle for the setting's own name.
     local handle = "hea1f7a28g08d8g4fabga873gf7a6f364731e"

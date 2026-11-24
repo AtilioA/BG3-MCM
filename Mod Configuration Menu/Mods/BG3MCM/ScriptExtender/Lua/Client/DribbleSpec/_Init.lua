@@ -18,6 +18,8 @@ if Mods.Dribbles then
     Ext.Require("Client/DribbleSpec/RadioResetVisibility.test.lua")
     Ext.Require("Client/DribbleSpec/EventButtonWidgetConstruction.test.lua")
     Ext.Require("Client/DribbleSpec/DialogButtonStack.test.lua")
+    Ext.Require("Client/DribbleSpec/MCMAPIClient.test.lua")
+    Ext.Require("Client/DribbleSpec/StorageSyncClient.test.lua")
     Ext.Require("Client/DribbleSpec/NativeKeybindingOwnership.test.lua")
     Ext.Require("Client/DribbleSpec/ListV2Ownership.test.lua")
     Ext.Require("Client/DribbleSpec/MessageBoxOwnership.test.lua")

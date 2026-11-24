@@ -1,4 +1,5 @@
 ---@class TextIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiInputText
 TextIMGUIWidget = _Class:Create("TextIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,6 +9,7 @@ TextIMGUIWidget = _Class:Create("TextIMGUIWidget", IMGUIWidget)
 ---@return TextIMGUIWidget
 function TextIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = TextIMGUIWidget })
+    ---@cast instance TextIMGUIWidget
 
     instance.Widget = group:AddInputText("", initialValue)
     instance.Widget.OnDeactivate = function(value)
@@ -25,6 +27,7 @@ end
 
 function TextIMGUIWidget:SetupTooltip(widget, setting)
     local tt = IMGUIWidget:SetupTooltip(widget, setting)
+    ---@cast tt ExtuiTooltip|nil
 
     if not tt then
         return

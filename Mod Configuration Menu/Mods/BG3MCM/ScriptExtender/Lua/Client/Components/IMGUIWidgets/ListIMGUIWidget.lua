@@ -1,10 +1,23 @@
--- TODO: clean this up and document it
+---@class ListWidgetState
+---@field List string[]
+---@field Group ExtuiGroup
+---@field modUUID string
+---@field Setting BlueprintSetting
+---@field TableGroup ExtuiGroup
+---@field InputGroup ExtuiGroup
 
 ---@class ListIMGUIWidget: IMGUIWidget
+---@field Widget ListWidgetState
 ListIMGUIWidget = _Class:Create("ListIMGUIWidget", IMGUIWidget)
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue string[]|nil
+---@param modUUID string
+---@return ListIMGUIWidget
 function ListIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = ListIMGUIWidget })
+    ---@cast instance ListIMGUIWidget
     instance.Widget = { List = initialValue or {} }
     instance.Widget.Group = group
     instance.Widget.modUUID = modUUID
@@ -29,6 +42,7 @@ function ListIMGUIWidget:RenderList()
         local textObject = textCell:AddText(value)
         textObject.TextWrapPos = 0
 
+        ---@type ExtuiButton|ExtuiImageButton
         local removeButton = buttonCell:AddImageButton("[X]", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
 
         if not removeButton.Image or removeButton.Image.Icon == "" then
@@ -51,7 +65,7 @@ function ListIMGUIWidget:AddInputAndAddButton()
     if not self.Widget.List then
         self.Widget.List = {}
     elseif type(self.Widget.List) ~= "table" then
-        self.Widget.List = { self.Widget.List }
+        self.Widget.List = { self.Widget.List --[[@as string]] }
     end
 
     local newText = ""
@@ -75,7 +89,7 @@ function ListIMGUIWidget:AddInputAndAddButton()
             if not self.Widget.List then
                 self.Widget.List = {}
             elseif type(self.Widget.List) ~= "table" then
-                self.Widget.List = { self.Widget.List }
+                self.Widget.List = { self.Widget.List --[[@as string]] }
             end
 
             table.insert(self.Widget.List, newText)
@@ -96,7 +110,7 @@ function ListIMGUIWidget:UpdateCurrentValue(value)
 end
 
 --- Add a reset button to the widget
----@param group any The IMGUI group to add the button to
+---@param group ExtuiTreeParent The IMGUI group to add the button to
 ---@param setting BlueprintSetting The Setting object that this widget will be responsible for
 ---@param modUUID string The UUID of the mod that owns this widget
 ---@return nil

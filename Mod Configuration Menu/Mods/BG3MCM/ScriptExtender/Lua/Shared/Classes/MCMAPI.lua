@@ -37,6 +37,7 @@ end
 ---@param profileName string The name of the new profile
 function MCMAPI:CreateProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
+    ---@cast ModConfig.profileManager ProfileManager
     local success, errorMessage = ModConfig.profileManager:CreateProfile(profileName)
 
     if success then
@@ -64,6 +65,7 @@ end
 ---@return string The name of the current profile
 function MCMAPI:GetCurrentProfile()
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
+    ---@cast ModConfig.profileManager ProfileManager
     return ModConfig.profileManager:GetCurrentProfile()
 end
 
@@ -73,6 +75,7 @@ end
 function MCMAPI:SetProfile(profileName)
     local currentProfile = self:GetCurrentProfile()
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
+    ---@cast ModConfig.profileManager ProfileManager
     local success = ModConfig.profileManager:SetCurrentProfile(profileName)
 
     if success then
@@ -94,6 +97,7 @@ end
 ---@return boolean success Whether the profile was successfully deleted
 function MCMAPI:DeleteProfile(profileName)
     -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
+    ---@cast ModConfig.profileManager ProfileManager
     local success = ModConfig.profileManager:DeleteProfile(profileName)
 
     return success
@@ -101,7 +105,7 @@ end
 
 --- Get the settings table for a mod
 ---@param modUUID GUIDSTRING The UUID of the mod to retrieve settings from
----@return table<string, table> - The settings table for the mod
+---@return table<string, MCMSettingValue> - The settings table for the mod
 function MCMAPI:GetAllModSettings(modUUID)
     if not modUUID then
         MCMWarn(0, "modUUID is nil. Cannot get mod settings.")

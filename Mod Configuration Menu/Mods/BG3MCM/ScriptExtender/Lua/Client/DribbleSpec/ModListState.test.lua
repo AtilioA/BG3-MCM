@@ -6,9 +6,11 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
     local ABSENT_MOD = "00000000-0000-0000-0000-00000000E005"
 
     --- In-memory stand-in for MCM.Store, so tests never touch the player's MCM_state.json
-    ---@param values? table<string, any> Initial Store values, e.g. { UI = ... }
+    ---@class FakeStore : MCMStoreAPI
+    ---@field values table
+    ---@param values? table Initial Store values, e.g. { UI = ... }
     ---@param unreadable? boolean Whether the state file failed to parse, so Store refuses writes
-    ---@return table store
+    ---@return FakeStore store
     local function FakeStore(values, unreadable)
         values = values or {}
         return {
@@ -346,8 +348,11 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         local result = state:Resolve(mods)
         local folder = result.main[2]
         D.expect(state:Move(result.main[1], "Main", "f", folder.items[2], result)).toBe(true)
-        local items = state:Resolve(mods).main[1].items
-        D.expect({ items[1].id, items[2].id, items[3].id }).toEqual({ MOD_B, MOD_A, MOD_C })
+        local firstFolder = assert(state:Resolve(mods).main[1])
+        local items = assert(firstFolder.items)
+        local first, second, third = items[1], items[2], items[3]
+        assert(first and second and third)
+        D.expect({ first.id, second.id, third.id }).toEqual({ MOD_B, MOD_A, MOD_C })
     end)
 
     D.test("hidden ordering keeps pins and folder through hide and show", function()
@@ -615,8 +620,11 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(reason).toBe(nil)
         D.expect(store.values.UI.Mods[MOD_A].Pinned).toBe(true)
         D.expect(store.values.UI.Order.f).toEqual({ MOD_A, MOD_B })
-        local reordered = state:Resolve({ { id = MOD_A, name = "A" }, { id = MOD_B, name = "B" } }).main[1].items
-        D.expect(reordered[1].id).toBe(MOD_A)
+        local firstFolder = assert(state:Resolve({ { id = MOD_A, name = "A" }, { id = MOD_B, name = "B" } }).main[1])
+        local reordered = assert(firstFolder.items)
+        local first = reordered[1]
+        assert(first)
+        D.expect(first.id).toBe(MOD_A)
     end)
 
     D.test("MCM remains first pinned despite hostile choices", function()
@@ -707,7 +715,7 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
             })
             local resolved = state:Resolve(mods)
             D.expect(idsOf(resolved.main)).toEqual({ ModuleUUID, MOD_A, MOD_B, MOD_C })
-            local saved = state:Move(entryById(resolved.main, MOD_B), "Main", "Main", resolved.main[1], resolved)
+            local saved = state:Move(assert(entryById(resolved.main, MOD_B)), "Main", "Main", resolved.main[1], resolved)
             D.expect(saved).toBe(true)
             D.expect(idsOf(state:Resolve(mods).main)).toEqual({ ModuleUUID, MOD_B, MOD_A, MOD_C })
             D.expect(store.values.UI.Order.Main).toContain(ABSENT_MOD)
@@ -719,7 +727,7 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
                 Order = { Main = { MOD_A, ModuleUUID, MOD_B, MOD_C } },
             })
             local resolved = state:Resolve(mods)
-            D.expect(state:Move(entryById(resolved.main, MOD_C), "Main", "Main", resolved.main[1], resolved)).toBe(true)
+            D.expect(state:Move(assert(entryById(resolved.main, MOD_C)), "Main", "Main", resolved.main[1], resolved)).toBe(true)
             local after = state:Resolve(mods).main
             D.expect(idsOf(after)).toEqual({ ModuleUUID, MOD_C, MOD_A, MOD_B })
             D.expect(after[2].pinned).toBe(true)
@@ -734,7 +742,8 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
                 Order = { Main = { MOD_A, ModuleUUID, MOD_C } },
             })
             local resolved = state:Resolve(mods)
-            local source = entryById(entryById(resolved.main, "f").items, MOD_B)
+            local folder = assert(entryById(resolved.main, "f"))
+            local source = assert(entryById(folder.items, MOD_B))
             D.expect(state:Move(source, "f", "Main", resolved.main[1], resolved)).toBe(true)
             local after = idsOf(state:Resolve(mods).main)
             D.expect({ after[1], after[2], after[3] }).toEqual({ ModuleUUID, MOD_B, MOD_A })
@@ -747,7 +756,8 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
                 Order = { Main = { MOD_A, ModuleUUID, MOD_C } },
             })
             local resolved = state:Resolve(mods)
-            local source = entryById(entryById(resolved.main, "f").items, MOD_B)
+            local folder = assert(entryById(resolved.main, "f"))
+            local source = assert(entryById(folder.items, MOD_B))
             D.expect(state:Move(source, "f", "Main", resolved.main[1], resolved)).toBe(true)
             local after = state:Resolve(mods).main
             D.expect(idsOf(after)).toEqual({ ModuleUUID, MOD_A, MOD_C, "f", MOD_B })
@@ -760,8 +770,8 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
                 Order = { Main = { MOD_A, ModuleUUID, ABSENT_MOD, MOD_B, MOD_C } },
             })
             local resolved = state:Resolve(mods)
-            local saved = state:Move(entryById(resolved.main, MOD_C), "Main", "Main",
-                entryById(resolved.main, MOD_B), resolved)
+            local saved = state:Move(assert(entryById(resolved.main, MOD_C)), "Main", "Main",
+                assert(entryById(resolved.main, MOD_B)), resolved)
             D.expect(saved).toBe(true)
             D.expect(idsOf(state:Resolve(mods).main)).toEqual({ ModuleUUID, MOD_A, MOD_C, MOD_B })
             D.expect(store.values.UI.Order.Main).toContain(ABSENT_MOD)

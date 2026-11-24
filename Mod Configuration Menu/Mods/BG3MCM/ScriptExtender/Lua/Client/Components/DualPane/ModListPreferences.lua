@@ -112,6 +112,7 @@ ModListPreferences = _Class:Create("ModListPreferences", nil, {
 ---@return ModListPreferences
 function ModListPreferences:New(store)
     local obj = setmetatable({}, ModListPreferences)
+    ---@cast obj ModListPreferences
     obj.store = store
     store.RegisterVar(VAR_NAME, VAR_OPTIONS)
     return obj
@@ -128,7 +129,9 @@ end
 ---@return SavedModListPreferences
 function ModListPreferences:read()
     if not self:IsInvalid() then
-        return self.store.Get(VAR_NAME) or {}
+        local saved = self.store.Get(VAR_NAME) or {}
+        ---@cast saved SavedModListPreferences
+        return saved
     end
     if not self.warnedInvalid then
         self.warnedInvalid = true
@@ -148,6 +151,7 @@ function ModListPreferences:change(change)
         return false
     end
     local copy = table.deepcopy(saved or {})
+    ---@cast copy SavedModListPreferences
     change(copy)
     return self.store.Set(VAR_NAME, copy)
 end
@@ -165,10 +169,12 @@ end
 --- Read the view that orders the list; this never writes.
 ---@return ModListView
 function ModListPreferences:GetView()
-    if not self.frozenUsage then
-        self.frozenUsage = table.deepcopy(self:read().Usage or {})
+    local usage = self.frozenUsage
+    if not usage then
+        usage = table.deepcopy(self:read().Usage or {})
+        self.frozenUsage = usage
     end
-    return { mode = self:GetSortMode(), foldersFirst = self:GetFoldersFirst(), usage = self.frozenUsage }
+    return { mode = self:GetSortMode(), foldersFirst = self:GetFoldersFirst(), usage = usage }
 end
 
 --- Save an explicit player change and rank from current usage on the next read.

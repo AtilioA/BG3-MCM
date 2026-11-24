@@ -19,6 +19,8 @@ D.describe("PathValidator", { tags = { "validators", "unit" } }, function()
     ---@param str string|nil
     ---@return table result
     local function component(str)
+        -- The empty-input test passes nil through this helper.
+        ---@diagnostic disable-next-line: param-type-mismatch
         return { PathValidator:IsValidPathComponent(str) }
     end
 

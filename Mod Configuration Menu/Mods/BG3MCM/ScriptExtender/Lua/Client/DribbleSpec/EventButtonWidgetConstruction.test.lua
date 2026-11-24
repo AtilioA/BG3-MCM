@@ -2,13 +2,45 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
     local MOD_UUID = "00000000-0000-0000-0000-00000000E001"
     local LABEL = "Run action"
 
+    ---@class FakeEventButton
+    ---@field Kind string
+    ---@field Label string
+    ---@field Image? table
+    ---@field IDContext? string
+    ---@field OnClick? fun()
+    ---@field Destroy fun(self: FakeEventButton)
+
+    ---@class FakeCooldownGroup
+    ---@field Name string
+
+    ---@class FakeContainerBehavior
+    ---@field addImageThrows? boolean
+    ---@field imageReadThrows? boolean
+    ---@field destroyThrows? boolean
+    ---@field imageData? table
+
+    ---@class FakeEventButtonContainer : ExtuiGroup
+    ---@field buttons FakeEventButton[]
+    ---@field groups FakeCooldownGroup[]
+    ---@field imageCalls table[]
+    ---@field destroyCalls integer
+    ---@field AddButton fun(self: FakeEventButtonContainer, label: string): FakeEventButton
+    ---@field AddImageButton fun(self: FakeEventButtonContainer, label: string, icon: string, size: vec2): FakeEventButton
+    ---@field AddGroup fun(self: FakeEventButtonContainer, name: string): FakeCooldownGroup
+
+    ---@class FakeEventButtonWidget : EventButtonIMGUIWidget
+    ---@field Widget { Group: FakeEventButtonContainer, Setting: BlueprintSetting, CooldownGroup: FakeCooldownGroup, ModUUID: string, Button: FakeEventButton, ButtonCallback: function|nil }
+
     --- Records live buttons, so a test sees what remains after cleanup
-    ---@param behavior? table addImageThrows, imageReadThrows, destroyThrows, or imageData (the button's Image field)
-    ---@return table container
+    ---@param behavior? FakeContainerBehavior addImageThrows, imageReadThrows, destroyThrows, or imageData (the button's Image field)
+    ---@return FakeEventButtonContainer container
     local function FakeContainer(behavior)
         behavior = behavior or {}
+        ---@type FakeEventButtonContainer
         local container = { buttons = {}, groups = {}, imageCalls = {}, destroyCalls = 0 }
 
+        ---@param button FakeEventButton
+        ---@return FakeEventButton
         local function track(button)
             function button.Destroy(self)
                 container.destroyCalls = container.destroyCalls + 1
@@ -17,6 +49,7 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
                     if live == self then table.remove(container.buttons, index) end
                 end
             end
+            ---@cast button FakeEventButton
 
             table.insert(container.buttons, button)
             return button
@@ -32,11 +65,13 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
 
             local button = track({ Kind = "image", Label = label })
             if behavior.imageReadThrows then
-                return setmetatable(button, {
+                local staleButton = setmetatable(button, {
                     __index = function(_, key)
                         if key == "Image" then error("IMGUI object no longer exists") end
                     end,
                 })
+                ---@cast staleButton FakeEventButton
+                return staleButton
             end
 
             button.Image = behavior.imageData
@@ -53,23 +88,37 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
     end
 
     ---@param options table
-    ---@return table setting
+    ---@return BlueprintSetting setting
     local function FakeSetting(options)
-        return {
-            GetOptions = function() return options end,
-            GetHandles = function() return {} end,
-            GetLocaName = function() return "Setting name" end,
-            GetId = function() return "event-button-fixture" end,
-        }
+        local setting = BlueprintSetting:New({
+            Id = "event-button-fixture",
+            Name = "Setting name",
+            Type = "event_button",
+            Options = options,
+        })
+        setting.GetOptions = function() return options end
+        setting.GetHandles = function() return {} end
+        setting.GetLocaName = function() return "Setting name" end
+        setting.GetId = function() return "event-button-fixture" end
+        return setting
     end
 
-    ---@param container table
+    ---@param container ExtuiGroup
     ---@param options table
-    ---@return table widget
+    ---@return FakeEventButtonWidget widget
     local function FakeWidget(container, options)
-        return setmetatable({
-            Widget = { Group = container, Setting = FakeSetting(options), ModUUID = MOD_UUID },
+        local widget = setmetatable({
+            Widget = {
+                Group = container,
+                Setting = FakeSetting(options),
+                ModUUID = MOD_UUID,
+                CooldownGroup = nil,
+                Button = nil,
+                ButtonCallback = nil,
+            },
         }, { __index = EventButtonIMGUIWidget })
+        ---@cast widget FakeEventButtonWidget
+        return widget
     end
 
     --- Silences and counts icon warnings
@@ -182,6 +231,7 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
         local ok, err = pcall(function() widget:CreateButton() end)
 
         D.expect(ok).toBe(false)
+        assert(type(err) == "string")
         D.expect(err:find("destroy failed", 1, true) ~= nil).toBe(true)
         D.expect(#container.buttons).toBe(1)
     end)

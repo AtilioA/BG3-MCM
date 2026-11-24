@@ -35,6 +35,7 @@ ModListSettings = _Class:Create("ModListSettings", nil, {
 ---@return ModListSettings
 function ModListSettings:New(parent, leftPane)
     local obj = setmetatable({}, ModListSettings)
+    ---@cast obj ModListSettings
     obj.leftPane = leftPane
     obj.preferences = leftPane.visibility.preferences
     obj.group = parent:AddGroup("MCM_ModListSettings")

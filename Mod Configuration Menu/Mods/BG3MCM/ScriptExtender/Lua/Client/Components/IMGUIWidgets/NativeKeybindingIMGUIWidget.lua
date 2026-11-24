@@ -1,6 +1,16 @@
 local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindings.lua")
 
+---@class NativeKeybindingDynamicElements
+---@field ModHeaders ExtuiCollapsingHeader[]
+---@field NoResultsText ExtuiText|nil
+
+---@class NativeKeybindingWidgetState
+---@field Group ExtuiGroup
+---@field DynamicElements NativeKeybindingDynamicElements
+---@field SearchText string
+
 ---@class NativeKeybindingIMGUIWidget: IMGUIWidget
+---@field Widget NativeKeybindingWidgetState
 ---@field private _searchSubscription? Subscription
 NativeKeybindingIMGUIWidget = _Class:Create("NativeKeybindingIMGUIWidget", IMGUIWidget)
 
@@ -8,6 +18,7 @@ NativeKeybindingIMGUIWidget = _Class:Create("NativeKeybindingIMGUIWidget", IMGUI
 ---@return NativeKeybindingIMGUIWidget
 function NativeKeybindingIMGUIWidget:new(group)
     local instance = setmetatable({}, { __index = NativeKeybindingIMGUIWidget })
+    ---@cast instance NativeKeybindingIMGUIWidget
     instance.Widget = {
         Group = group,
         DynamicElements = { ModHeaders = {}, NoResultsText = nil }
@@ -101,7 +112,7 @@ function NativeKeybindingIMGUIWidget:SortActionsByTranslatedName(actions)
 end
 
 --- Renders the keybinding cell for an action
----@param cell any The IMGUI cell to render into
+---@param cell ExtuiTableCell The IMGUI cell to render into
 ---@param action table The action to render bindings for
 function NativeKeybindingIMGUIWidget:RenderKeybindingCell(cell, action)
     if not action.Bindings or #action.Bindings == 0 then
@@ -153,7 +164,7 @@ function NativeKeybindingIMGUIWidget:RenderKeybindingCell(cell, action)
 end
 
 --- Renders a single category with its actions
----@param nativeHeader any The parent header to add the category to
+---@param nativeHeader ExtuiCollapsingHeader The parent header to add the category to
 ---@param categoryItem table The category item to render
 function NativeKeybindingIMGUIWidget:RenderCategory(nativeHeader, categoryItem)
     local category = categoryItem.original

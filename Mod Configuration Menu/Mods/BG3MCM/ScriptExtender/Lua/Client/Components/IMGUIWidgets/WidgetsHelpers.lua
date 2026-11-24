@@ -1,7 +1,7 @@
 WidgetHelpers = {}
 
 --- Create an increment/decrement button for slider widgets
----@param group ExtuiGroup The Widget group to add the button to
+---@param group ExtuiTreeParent The Widget group to add the button to
 ---@param settingId string The setting ID for unique ID context
 ---@param increment number The increment value (positive for next, negative for previous)
 ---@param tooltip string The tooltip text
@@ -22,6 +22,7 @@ function WidgetHelpers.CreateSliderStepButton(group, settingId, increment, toolt
         icon = ClientGlobals.INCREMENT_BUTTON_ICON
     end
 
+    ---@type ExtuiButton|ExtuiImageButton
     local button = group:AddImageButton(label, icon, IMGUIWidget:GetIconSizes())
 
     if not button.Image or button.Image.Icon == "" then

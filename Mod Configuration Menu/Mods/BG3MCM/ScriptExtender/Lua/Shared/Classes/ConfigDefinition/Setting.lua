@@ -3,7 +3,7 @@
 ---@field private OldId string
 ---@field private Name string
 ---@field private Type string
----@field private VisibleIf VisibleIfDefinition
+---@field private VisibleIf VisibleIfDefinition|string
 ---@field private Default MCMSettingValue
 ---@field private Description string
 ---@field private Tooltip string
@@ -30,8 +30,8 @@ BlueprintSetting = _Class:Create("BlueprintSetting", nil, {
 --- @param options table
 --- @return BlueprintSetting
 function BlueprintSetting:New(options)
-    ---@type BlueprintSetting
     local self = setmetatable({}, BlueprintSetting)
+    ---@cast self BlueprintSetting
 
     if options.Id ~= nil then
         self.Id = options.Id
@@ -113,7 +113,7 @@ function BlueprintSetting:GetType()
     return self.Type
 end
 
----@return VisibleIfDefinition
+---@return VisibleIfDefinition|string
 function BlueprintSetting:GetVisibleIf()
     return self.VisibleIf
 end

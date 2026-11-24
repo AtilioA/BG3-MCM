@@ -1,4 +1,7 @@
 ---@class SliderFloatIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiSliderScalar
+---@field PreviousButton ExtuiButton|ExtuiImageButton
+---@field NextButton ExtuiButton|ExtuiImageButton
 SliderFloatIMGUIWidget = _Class:Create("SliderFloatIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,6 +11,7 @@ SliderFloatIMGUIWidget = _Class:Create("SliderFloatIMGUIWidget", IMGUIWidget)
 ---@return SliderFloatIMGUIWidget
 function SliderFloatIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = SliderFloatIMGUIWidget })
+    ---@cast instance SliderFloatIMGUIWidget
 
     -- Get step value from options, default to 0.1 if not specified
     local step = setting.Options.Step or 0.1

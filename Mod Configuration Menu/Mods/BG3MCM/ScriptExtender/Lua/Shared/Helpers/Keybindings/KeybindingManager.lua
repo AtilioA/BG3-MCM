@@ -110,14 +110,14 @@ function KeybindingManager:AdaptModifierKeys(modifiers)
 end
 
 ---Returns whether a keyboard binding has an assigned primary key.
----@param binding KeybindingKeyboardBinding|nil
+---@param binding unknown
 ---@return boolean
 function KeybindingManager:IsKeyboardBindingAssigned(binding)
     return type(binding) == "table" and binding.Key ~= nil and tostring(binding.Key) ~= ""
 end
 
 ---Returns whether a mouse binding has an assigned button.
----@param binding KeybindingMouseBinding|nil
+---@param binding unknown
 ---@return boolean
 function KeybindingManager:IsMouseBindingAssigned(binding)
     return type(binding) == "table" and type(binding.Button) == "number"
@@ -132,8 +132,14 @@ function KeybindingManager:GetActiveV2Binding(value)
     if type(value) ~= "table" then return nil end
     if self:IsMouseBindingAssigned(value.Mouse) then return value.Mouse end
     if self:IsKeyboardBindingAssigned(value.Keyboard) then return value.Keyboard end
-    if self:IsMouseBindingAssigned(value) then return value end
-    if self:IsKeyboardBindingAssigned(value) then return value end
+    if self:IsMouseBindingAssigned(value) then
+        ---@cast value KeybindingMouseBinding
+        return value
+    end
+    if self:IsKeyboardBindingAssigned(value) then
+        ---@cast value KeybindingKeyboardBinding
+        return value
+    end
     return nil
 end
 
@@ -146,9 +152,11 @@ function KeybindingManager:GetBindingIdentity(value)
 
     local modifiers = table.concat(self:NormalizeModifiers(active.ModifierKeys), "+")
     if self:IsMouseBindingAssigned(active) then
+        ---@cast active KeybindingMouseBinding
         return "mouse:" .. tostring(active.Button) .. ":" .. modifiers
     end
 
+    ---@cast active KeybindingKeyboardBinding
     return "keyboard:" .. tostring(active.Key):upper() .. ":" .. modifiers
 end
 
@@ -174,14 +182,17 @@ function KeybindingManager:CanonicalizeV2Value(value, fallback)
     if allowConflict == nil then allowConflict = fallback.AllowConflict end
     if allowConflict == nil then allowConflict = false end
 
+    ---@type KeybindingV2Value
     local canonical = { Enabled = enabled, AllowConflict = allowConflict }
     local active = self:GetActiveV2Binding(value)
     if self:IsMouseBindingAssigned(active) then
+        ---@cast active KeybindingMouseBinding
         canonical.Mouse = {
             Button = active.Button,
             ModifierKeys = self:NormalizeModifiers(active.ModifierKeys)
         }
     elseif self:IsKeyboardBindingAssigned(active) then
+        ---@cast active KeybindingKeyboardBinding
         canonical.Keyboard = {
             Key = tostring(active.Key):upper(),
             ModifierKeys = self:NormalizeModifiers(active.ModifierKeys)

@@ -1,4 +1,23 @@
+---@class EventButtonWidgetState
+---@field Group ExtuiGroup
+---@field Setting BlueprintSetting
+---@field CooldownGroup ExtuiGroup|nil
+---@field ModUUID string
+---@field Button (ExtuiButton|ExtuiImageButton)|nil
+---@field ButtonCallback function|nil
+
 ---@class EventButtonIMGUIWidget: IMGUIWidget
+---@field FEEDBACK_TYPE table<string, string>
+---@field FEEDBACK_COLORS table<string, vec4>
+---@field Widget EventButtonWidgetState
+---@field _actionSubject table|nil
+---@field _actionSubscription Subscription|nil
+---@field _registrySubscription Subscription|nil
+---@field _actionFeedbackLabel ExtuiText|nil
+---@field _feedbackTooltip ExtuiStyledRenderable|nil
+---@field _cooldownTimer unknown
+---@field _cooldownEndTime number
+---@field _isCooldownActive boolean
 EventButtonIMGUIWidget = _Class:Create("EventButtonIMGUIWidget", IMGUIWidget, {
     FEEDBACK_TYPE = {
         SUCCESS = "success",
@@ -42,6 +61,7 @@ local function resolveConfirmText(handle, fallback, defaultHandle, defaultText)
     return defaultText
 end
 
+---@param setting? BlueprintSetting
 function EventButtonIMGUIWidget:HasLabel(setting)
     if not setting then
         setting = self.Widget.Setting
@@ -50,6 +70,7 @@ function EventButtonIMGUIWidget:HasLabel(setting)
     return type(options.Label) == "string" and options.Label ~= ""
 end
 
+---@param setting? BlueprintSetting
 function EventButtonIMGUIWidget:HasIcon(setting)
     if not setting then
         setting = self.Widget.Setting
@@ -58,6 +79,7 @@ function EventButtonIMGUIWidget:HasIcon(setting)
     return options.Icon and type(options.Icon.Name) == "string" and options.Icon.Name ~= ""
 end
 
+---@param setting? BlueprintSetting
 function EventButtonIMGUIWidget:GetButtonLabel(setting)
     if not setting then
         setting = self.Widget.Setting
@@ -131,6 +153,7 @@ end
 ---@return EventButtonIMGUIWidget
 function EventButtonIMGUIWidget:new(group, setting, currentValue, modUUID)
     local instance = setmetatable({}, { __index = EventButtonIMGUIWidget })
+    ---@cast instance EventButtonIMGUIWidget
 
     instance.Widget = {
         Group = group,
@@ -388,7 +411,7 @@ function EventButtonIMGUIWidget:_HandleActionFeedback(event)
     if event.success then
         -- Needs translation: Action executed feedback
         local label = self.Widget.CooldownGroup:AddText(VCString:ResolveBlueprintText(
-            "hbaeea4f4db8b46ed98f47a36a38cbe72c463", "Action executed!"))
+            "hbaeea4f4db8b46ed98f47a36a38cbe72c463", "Action executed!") --[[@as string]])
         label.SameLine = false
         label:SetColor("Text", Color.NormalizedRGBA(0, 255, 0, 1))
         self._actionFeedbackLabel = label
@@ -414,6 +437,7 @@ function EventButtonIMGUIWidget:_HandleActionCooldown(event)
     -- Start cooldown if configured
     if event.success and event.cooldown and event.cooldown > 0 then
         local button = self.Widget.Button
+        ---@cast button ExtuiButton|ExtuiImageButton
         local countdownText = self.Widget.CooldownGroup:AddText("")
         countdownText.SameLine = false
         local function onTick(el, remaining)

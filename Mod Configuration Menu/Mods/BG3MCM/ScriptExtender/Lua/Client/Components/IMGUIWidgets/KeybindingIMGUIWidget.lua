@@ -1,4 +1,5 @@
 ---@class KeybindingIMGUIWidget: IMGUIWidget
+---@field Widget { Modifier?: string, ScanCode?: string, ModifierWidget?: ExtuiCombo, ScanCodeWidget?: ExtuiCombo }
 KeybindingIMGUIWidget = _Class:Create("KeybindingIMGUIWidget", IMGUIWidget)
 
 function KeybindingIMGUIWidget:new(group, setting, initialValue, modUUID)

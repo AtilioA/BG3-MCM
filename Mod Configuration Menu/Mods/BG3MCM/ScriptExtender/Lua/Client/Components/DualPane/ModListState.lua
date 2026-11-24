@@ -143,6 +143,7 @@ ModListState = _Class:Create("ModListState", nil, {
 ---@return ModListState
 function ModListState:New(store)
     local obj = setmetatable({}, ModListState)
+    ---@cast obj ModListState
     obj.store = store
     obj.preferences = ModListPreferences:New(store)
     store.RegisterVar("UI", STATE_VAR_OPTIONS)
@@ -416,6 +417,7 @@ function ModListState:change(change)
         return false
     end
     local ui = table.deepcopy(saved or {})
+    ---@cast ui SavedModListUI
     change(ui)
     return self.store.Set("UI", ui)
 end
@@ -464,7 +466,7 @@ end
 local function applyPinnedChoice(ui, id, pinned, kind, folder)
     if kind == "folder" then
         ui.Folders = ui.Folders or {}
-        ui.Folders[id] = ui.Folders[id] or { Name = folder.name, Suggested = folder.suggested }
+        ui.Folders[id] = ui.Folders[id] or { Name = folder and folder.name or id, Suggested = folder and folder.suggested or nil }
         ui.Folders[id].Pinned = pinned and true or nil
     else
         ui.Mods = ui.Mods or {}
@@ -496,10 +498,10 @@ function ModListState:SetFolder(id, folder, folderItem)
         ui.Mods[id] = ui.Mods[id] or {}
         ui.Mods[id].Folder = folder
         ui.Mods[id].HiddenFromList = false
-        local suggested = folderItem and folderItem.suggested
-        if suggested then
-            ui.Folders = ui.Folders or {}
-            ui.Folders[folder] = ui.Folders[folder] or { Name = folderItem.name, Suggested = suggested }
+        if folder and folderItem and folderItem.suggested then
+            local folders = ui.Folders or {}
+            ui.Folders = folders
+            folders[folder] = folders[folder] or { Name = folderItem.name, Suggested = folderItem.suggested }
         end
     end)
 end
@@ -833,5 +835,6 @@ function ModListState:Move(item, source, destination, target, resolved)
     if not saved then
         return false, "save"
     end
+    ---@cast previous SavedModListUI|nil
     return self:commitReorderView(previous, switchesToManual, clearsFoldersFirst)
 end

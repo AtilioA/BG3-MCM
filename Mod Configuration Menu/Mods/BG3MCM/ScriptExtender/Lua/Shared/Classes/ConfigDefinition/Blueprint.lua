@@ -1,7 +1,7 @@
 ---@class KeybindingSortMode
 ---@field ALPHABETICAL string
 ---@field BLUEPRINT string
----@field DEFAULT string
+---@field DEFAULT string|nil
 KeybindingSortMode = {
     ALPHABETICAL = "alphabetical",
     BLUEPRINT = "blueprint",
@@ -11,7 +11,7 @@ KeybindingSortMode.DEFAULT = KeybindingSortMode.BLUEPRINT
 
 ---@class Blueprint
 ---@field private ModUUID string|nil
----@field private SchemaVersion number
+---@field private SchemaVersion? number
 ---@field private Optional boolean
 ---@field private ModName? string
 ---@field private ModDescription? string
@@ -19,7 +19,7 @@ KeybindingSortMode.DEFAULT = KeybindingSortMode.BLUEPRINT
 ---@field private Settings? BlueprintSetting[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Handles? table
----@field private KeybindingSortMode string
+---@field private KeybindingSortMode? string
 ---@field private ListFolder? string
 ---@field private HiddenFromList boolean
 Blueprint = _Class:Create("Blueprint", nil, {
@@ -138,8 +138,8 @@ end
 --- @param options table
 --- @return Blueprint
 function Blueprint:New(options)
-    ---@type Blueprint
     local self = setmetatable({}, Blueprint)
+    ---@cast self Blueprint
     self.ModUUID = options.ModUUID
     self.SchemaVersion = options.SchemaVersion or nil
     self.Settings = options.Settings or nil

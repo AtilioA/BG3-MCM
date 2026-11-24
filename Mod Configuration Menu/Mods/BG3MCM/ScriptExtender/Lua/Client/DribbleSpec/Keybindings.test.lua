@@ -2,15 +2,10 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 local ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
 
 ---Minimal keybinding action fixture accepted by the registry.
----@class KeybindingTestAction
----@field ActionId string
----@field ActionName string
+---@class KeybindingTestAction : KeybindingUIAction
+---@field KeyboardMouseBinding? KeybindingKeyboardBinding
 ---@field MouseBinding? KeybindingMouseBinding
 ---@field DefaultMouseBinding? KeybindingMouseBinding
----@field Enabled boolean
----@field DefaultEnabled boolean
----@field AllowConflict boolean
----@field DefaultAllowConflict boolean
 ---@field ShouldTriggerOnKeyDown boolean
 ---@field ShouldTriggerOnKeyUp boolean
 ---@field PreventAction boolean
@@ -18,11 +13,18 @@ local ReplaySubject = Ext.Require("Lib/reactivex/subjects/replaysubject.lua")
 ---@field Description string
 
 ---Minimal mouse event fixture used for registry dispatch tests.
----@class MouseInputEventStub
+---@class MouseInputEventStub : EclLuaMouseButtonEventParams
 ---@field Button integer
 ---@field Pressed boolean
 ---@field prevented boolean
+---@field stopped boolean
 ---@field PreventAction fun(self: MouseInputEventStub)
+
+---@class KeyInputEventStub : EclLuaKeyInputEventParams
+---@field Modifiers? string[]
+---@field prevented boolean
+---@field stopped boolean
+---@field PreventAction fun(self: KeyInputEventStub)
 
 D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit" } }, function()
     local TEST_MOD_UUID = "00000000-0000-0000-0000-000000000042"
@@ -342,6 +344,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         local calls = {}
         KeybindingsRegistry.RegisterCallback(TEST_MOD_UUID, "keyboard-dispatch", "KeyboardMouse",
             RecordCallback(calls, "keyboard-dispatch", "KeyDown"), "KeyDown")
+        ---@type KeyInputEventStub
         local event = {
             Key = "k",
             Modifiers = { "LALT", "LCTRL" },
@@ -361,6 +364,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     ---@param key string
     ---@param modifiers string[]|nil
     ---@param eventType? "KeyDown"|"KeyUp"
+    ---@return KeyInputEventStub
     local function KeyEvent(key, modifiers, eventType)
         return {
             Key = key,
@@ -381,7 +385,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     ---Registers one keyboard action and counts how often it fires.
     ---@param id string
     ---@param binding KeybindingKeyboardBinding
-    ---@param events table[]
+    ---@param events KeyInputEventStub[]
     ---@return table[] calls
     local function DispatchKeys(id, binding, events)
         local action = MouseAction(id, nil)
@@ -594,6 +598,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         )
 
         D.expect(conflict).toBeTruthy()
+        assert(conflict)
         D.expect(conflict.ActionName).toBe("hidden-conflict")
     end)
 
@@ -603,6 +608,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             OnComplete = function(value) outcome = value end
         })
 
+        assert(session)
         local press = MouseEvent(true, 11)
         session:HandleMouseInput(press)
 
@@ -617,11 +623,13 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     end)
 
     D.test("stops captured mouse release propagation", function()
+        ---@type KeybindingCaptureOutcome?
         local outcome = nil
         local session = KeybindingCaptureSession.Start({
             OnComplete = function(value) outcome = value end
         })
 
+        assert(session)
         session:HandleMouseInput(MouseEvent(true, 1))
         D.expect(outcome).toBeNil()
 
@@ -630,7 +638,10 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
 
         D.expect(release.prevented).toBeTruthy()
         D.expect(release.stopped).toBeTruthy()
+        assert(outcome)
         D.expect(outcome.kind).toBe("binding")
+        assert(outcome.binding)
+        ---@cast outcome.binding KeybindingMouseBinding
         D.expect(outcome.binding.Button).toBe(1)
     end)
 
@@ -639,6 +650,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             OnComplete = function() end
         })
 
+        assert(session)
         session:HandleMouseInput(MouseEvent(true, 1))
         session:HandleMouseInput(MouseEvent(false, 1))
 
@@ -656,10 +668,12 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         })
 
         local widget = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
+        ---@cast widget KeybindingV2IMGUIWidget
         widget.FilterActions = function() end
         widget.RefreshUI = function() end
         local writes = {}
         local button = { Label = "Assign", Disabled = false }
+        ---@cast button ExtuiButton
         ctx.stub(MCMProxy, "SetSettingValue", function(_, settingId, value, modUUID, setUIValue, shouldEmitEvent)
             table.insert(writes, {
                 settingId = settingId,
@@ -689,6 +703,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         )
         D.expect(KeybindingCaptureSession.IsActive()).toBeTruthy()
         D.expect(capturedSession).Not.toBeNil()
+        assert(capturedSession)
         capturedSession:HandleKeyInput(KeyEvent("K", { "LCTRL" }))
         D.expect(KeybindingCaptureSession.IsActive()).toBeTruthy()
         capturedSession:HandleKeyInput(KeyEvent("K", { "LCTRL" }, "KeyUp"))
@@ -715,6 +730,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             { ActionId = "other-action" }, "other-mod"
         )
         D.expect(conflict).toBeTruthy()
+        assert(conflict)
         D.expect(conflict.ActionName).toBe("identity-conflict")
 
         local action = {
@@ -753,6 +769,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         })
 
         D.expect(conflict).toBeTruthy()
+        assert(conflict)
         D.expect(conflict.ActionName).toBe("NativeMiddleMouse")
         D.expect(KeybindingConflictService:CheckNativeForConflicts({
             Button = 1,
@@ -788,6 +805,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
                 outcome = value
             end
         })
+        assert(session)
         session:HandleMouseInput(MouseEvent(true, 9))
 
         InputCallbackManager.ResetInputState()

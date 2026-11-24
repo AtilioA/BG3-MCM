@@ -73,7 +73,7 @@
 
 --- @class MCMKeybindingSetCallbackArgs
 --- @field settingId string The ID of the keybinding setting
---- @field callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) Callback invoked with the raw keyboard or mouse event
+--- @field callback fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams) Callback invoked with the raw keyboard or mouse event
 --- @field modUUID? string Optional mod UUID, defaults to caller mod
 
 --- @class MCMListGetArgs
@@ -143,9 +143,9 @@
 --- @class MCMKeybindingAPI Keybinding-related API methods
 --- @field Get fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):string Get a human-readable keybinding string (e.g., "[Ctrl] + [C]")
 --- @field GetRaw fun(settingIdOrArgs:string|MCMKeybindingGetArgs, modUUID?:string):KeybindingV2Value|nil Get the raw keybinding data structure
---- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent), modUUID?:string):nil Register a callback for key or mouse down/up events
---- @field SetKeyDownCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent), modUUID?:string):nil Register a callback for key down or mouse press events
---- @field SetKeyUpCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent), modUUID?:string):nil Register a callback for key up or mouse release events
+--- @field SetCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams), modUUID?:string):nil Register a callback for key or mouse down/up events
+--- @field SetKeyDownCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams), modUUID?:string):nil Register a callback for key down or mouse press events
+--- @field SetKeyUpCallback fun(settingIdOrArgs:string|MCMKeybindingSetCallbackArgs, callback?:fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams), modUUID?:string):nil Register a callback for key up or mouse release events
 
 --- @class MCMEnumAPI Enum-related API methods
 --- @field SetChoices fun(settingIdOrArgs:string|MCMEnumSetChoicesArgs, choices?:string[], choicesHandles?:string[], modUUID?:string):boolean Update enum choices at runtime

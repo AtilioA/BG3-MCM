@@ -1,4 +1,5 @@
 ---@class ColorPickerIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiColorPicker
 ColorPickerIMGUIWidget = _Class:Create("ColorPickerIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,6 +9,7 @@ ColorPickerIMGUIWidget = _Class:Create("ColorPickerIMGUIWidget", IMGUIWidget)
 ---@return ColorPickerIMGUIWidget
 function ColorPickerIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = ColorPickerIMGUIWidget })
+    ---@cast instance ColorPickerIMGUIWidget
     local rgb = { initialValue[1], initialValue[2], initialValue[3] }
     instance.Widget = group:AddColorPicker("", rgb)
     instance.Widget.OnChange = function(value)

@@ -4,7 +4,9 @@ local NativeKeybindings = Ext.Require("Client/Helpers/Keybindings/NativeKeybindi
 
 ---@class KeybindingV2IMGUIWidget: IMGUIWidget
 ---@field Widget table
----@field _registrySubscription any
+---@field SearchSubject ReplaySubject|nil
+---@field _searchSubscription Subscription|nil
+---@field _registrySubscription Subscription|nil
 ---@field _captureSession KeybindingCaptureSession|nil
 ---@field _captureButton table|nil
 KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
@@ -12,8 +14,9 @@ KeybindingV2IMGUIWidget = _Class:Create("KeybindingV2IMGUIWidget", IMGUIWidget)
 ---@param action KeybindingUIAction
 ---@return KeybindingKeyboardBinding|KeybindingMouseBinding|nil
 local function getActiveActionBinding(action)
+    local keyboard = action.KeyboardMouseBinding
     return KeybindingManager:GetActiveV2Binding({
-        Keyboard = action.KeyboardMouseBinding,
+        Keyboard = type(keyboard) == "table" and keyboard or { Key = "", ModifierKeys = {} },
         Mouse = action.MouseBinding
     })
 end
@@ -23,8 +26,8 @@ end
 ---@param group ExtuiGroup The IMGUI group to attach this widget to
 ---@return KeybindingV2IMGUIWidget
 function KeybindingV2IMGUIWidget:new(group)
-    ---@type KeybindingV2IMGUIWidget
     local instance = setmetatable({}, { __index = KeybindingV2IMGUIWidget })
+    ---@cast instance KeybindingV2IMGUIWidget
     instance.Widget = {
         Group = group,
         SearchText = "",
@@ -453,15 +456,21 @@ function KeybindingV2IMGUIWidget:StartListeningForInput(mod, action, inputType, 
 
             if outcome.kind == "binding" and outcome.binding then
                 local binding = outcome.binding
+                ---@cast binding KeybindingKeyboardBinding|KeybindingMouseBinding
                 self:NotifyAssignmentConflict(binding, mod, action, inputType)
                 local registryAction = getRegistryAction({ Mod = mod, Action = action })
                 local enabled = registryAction and registryAction.enabled
                 if enabled == nil then enabled = action.Enabled end
                 local allowConflict = registryAction and registryAction.allowConflict
                 if allowConflict == nil then allowConflict = action.AllowConflict end
-                local payload = binding.Button
-                    and KeybindingsRegistry.BuildMousePayload(binding, enabled, allowConflict)
-                    or KeybindingsRegistry.BuildKeyboardPayload(binding, enabled, allowConflict)
+                local payload
+                if binding.Button then
+                    ---@cast binding KeybindingMouseBinding
+                    payload = KeybindingsRegistry.BuildMousePayload(binding, enabled, allowConflict)
+                else
+                    ---@cast binding KeybindingKeyboardBinding
+                    payload = KeybindingsRegistry.BuildKeyboardPayload(binding, enabled, allowConflict)
+                end
                 self:StoreKeybinding(mod, action, payload)
             end
 
@@ -517,6 +526,7 @@ function KeybindingV2IMGUIWidget:NotifyAssignmentConflict(binding, modData, acti
         ActionName = action.ActionName,
         AllowConflict = registryAction and registryAction.allowConflict or false
     }
+    ---@cast effectiveAction KeybindingUIAction
     local conflictAction = KeybindingConflictService:CheckForConflicts(binding, modData, effectiveAction, inputType)
     if not conflictAction then return end
     local conflictTitle = VCString:InterpolateLocalizedMessage("hac5a1fd7d223410b8a5fab04951eb428adde",

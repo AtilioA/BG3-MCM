@@ -84,4 +84,10 @@ function IStorageAdapter:SetValue(key, value, moduleUUID, storageConfig)
     MCMError(0, "IStorageAdapter:SetValue() not implemented")
 end
 
+--- Read all persisted values for this adapter, grouped by moduleUUID and variable name
+---@return table<string, table<string, StorageValue>>
+function IStorageAdapter:GetAllValues()
+    return {}
+end
+
 return IStorageAdapter

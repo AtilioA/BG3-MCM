@@ -1,4 +1,10 @@
----@class EnumIMGUIWidget
+---@class EnumIMGUIWidgetCombo : ExtuiCombo
+---@field UserData { OptionsLookup: table<string, MCMSettingValue> }
+
+---@class EnumIMGUIWidget : IMGUIWidget
+---@field Widget EnumIMGUIWidgetCombo
+---@field Setting BlueprintSetting
+---@field optionsLabels string[]
 EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,8 +14,9 @@ EnumIMGUIWidget = _Class:Create("EnumIMGUIWidget", IMGUIWidget)
 ---@return EnumIMGUIWidget
 function EnumIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = EnumIMGUIWidget })
+    ---@cast instance EnumIMGUIWidget
     instance.Setting = setting
-    instance.Widget = group:AddCombo("", initialValue)
+    instance.Widget = group:AddCombo("", initialValue) --[[@as EnumIMGUIWidgetCombo]]
     instance.Widget.UserData = {
         OptionsLookup = {}
     }
@@ -34,11 +41,14 @@ function EnumIMGUIWidget:createOptionLabels(setting)
     return optionsLabels
 end
 
+---@param setting BlueprintSetting
+---@param index integer
+---@return string
 function EnumIMGUIWidget:getLocalizedValue(setting, index)
     local settingHandles = setting:GetHandles()
     local choices = setting:GetOptions().Choices
     local handle = settingHandles and settingHandles.ChoicesHandles and settingHandles.ChoicesHandles[index]
-    return VCString:ResolveBlueprintText(handle, choices and choices[index])
+    return VCString:ResolveBlueprintText(handle, choices and choices[index]) --[[@as string]]
 end
 
 function EnumIMGUIWidget:setInitialSelection(initialValue)
@@ -74,6 +84,8 @@ function EnumIMGUIWidget:RefreshChoices(value)
     self:setInitialSelection(value)
 end
 
+---@param value EnumIMGUIWidgetCombo
+---@return MCMSettingValue
 function EnumIMGUIWidget:GetOnChangeValue(value)
     return self.Widget.UserData.OptionsLookup[value.Options[value.SelectedIndex + 1]]
 end

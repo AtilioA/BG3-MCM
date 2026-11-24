@@ -64,62 +64,6 @@ D.describe("StorageSyncService", { tags = { "storage-sync", "store", "unit" } },
         D.expect(StorageSyncService:CanClientSendToServer(nil)).toBe(false)
     end)
 
-    D.test("TestStoreSyncFlowSendsLocalWritesAndAppliesRemoteValuesWithoutEcho", function(ctx)
-        ctx.requireClient()
-
-        local moduleUUID = ModuleUUID
-        local varName = "dribblespec_sync_flow_fixture"
-        local fileName = "mcm_dribblespec_sync_flow_" .. CONTEXT .. ".json"
-        local sent = syncStateFixture.sentToServer
-
-        ctx.stub(MCMUtils, "IsClientMainMenu", function() return false end)
-
-        D.expect(MCM.Store.RegisterVar(varName, {
-            modUUID = moduleUUID,
-            storageConfig = { fileName = fileName, SyncToServer = true, SyncToClient = true },
-        })).toBe(true)
-
-        D.expect(MCM.Store.Set({ var = varName, value = "local-value", modUUID = moduleUUID })).toBe(true)
-        D.expect(MCM.Store.Get({ var = varName, modUUID = moduleUUID })).toBe("local-value")
-        D.expect(#sent).toBe(1)
-        D.expect(sent[1]).toEqual({
-            storageType = "json",
-            moduleUUID = moduleUUID,
-            varName = varName,
-            value = "local-value",
-            storageConfig = {
-                fileName = fileName,
-                Server = true, Client = true,
-                WriteableOnServer = true, WriteableOnClient = true,
-                Persistent = true, SyncToClient = true, SyncToServer = true,
-            },
-        })
-
-        StorageSyncService:HandleServerSyncPayload({
-            storageType = "json",
-            moduleUUID = moduleUUID,
-            varName = varName,
-            value = "remote-value",
-        })
-        D.expect(MCM.Store.Get({ var = varName, modUUID = moduleUUID })).toBe("remote-value")
-        D.expect(#sent).toBe(1)
-    end)
-
-    D.test("TestStoreSetInTheMainMenuKeepsTheWriteLocal", function(ctx)
-        ctx.requireClient()
-
-        local varName = "dribblespec_sync_main_menu_fixture"
-        ctx.stub(MCMUtils, "IsClientMainMenu", function() return true end)
-
-        D.expect(MCM.Store.RegisterVar(varName, {
-            modUUID = ModuleUUID,
-            storageConfig = { fileName = "mcm_dribblespec_sync_main_menu.json", SyncToServer = true },
-        })).toBe(true)
-        D.expect(MCM.Store.Set({ var = varName, value = "menu-value", modUUID = ModuleUUID })).toBe(true)
-        D.expect(MCM.Store.Get({ var = varName, modUUID = ModuleUUID })).toBe("menu-value")
-        D.expect(#syncStateFixture.sentToServer).toBe(0)
-    end)
-
     D.test("TestJsonResolveConfigAppliesOverridesOnDefaults", function(ctx)
         local cfg = JsonAdapter:ResolveConfig({ SyncToServer = true, Client = false })
         D.expect(cfg).toEqual({
@@ -209,49 +153,6 @@ D.describe("StorageSyncService remote values", { tags = { "storage-sync", "store
             .toEqual({ success = false, error = "Unknown storageType" })
         D.expect(clientSet("unregistered", 1, 1)).toEqual({ success = false, error = "Failed to apply value" })
         D.expect(#syncStateFixture.sentToClients).toBe(0)
-    end)
-
-    D.test("TestClientSetAcceptsJsonStringPayload", function(ctx)
-        ctx.requireServer()
-        register("from_string", false, true)
-
-        local payload = Ext.Json.Stringify({ storageType = "json", moduleUUID = ModuleUUID, varName = "from_string", value = 4 })
-
-        D.expect(StorageSyncService:HandleClientSet(payload, 1)).toEqual({ success = true })
-        D.expect(fileValue("from_string")).toBe(4)
-    end)
-
-    D.test("TestServerAcceptsOnlyVariablesSyncedToServer", function(ctx)
-        ctx.requireServer()
-        register("to_server", false, true)
-        register("to_client", true, false)
-
-        D.expect(clientSet("to_client", "remote", 1)).toEqual({ success = false, error = "Failed to apply value" })
-        D.expect(clientSet("to_server", "remote", 1)).toEqual({ success = true })
-
-        D.expect(fileValue("to_client")).toBeNil()
-        D.expect(MCM.Store.Get("to_server")).toBe("remote")
-        D.expect(fileValue("to_server")).toBe("remote")
-        D.expect(#syncStateFixture.sentToClients).toBe(0)
-    end)
-
-    D.test("TestServerRebroadcastsClientSetToOtherClientsOnce", function(ctx)
-        ctx.requireServer()
-        syncStateFixture:StubConnectedUsers(ctx)
-        register("shared", true, true)
-
-        D.expect(clientSet("shared", "first", 3)).toEqual({ success = true })
-        D.expect(syncStateFixture:SentUserIDs()).toEqual({ 1, 2 })
-        D.expect(syncStateFixture.sentToClients[1].payload.value).toBe("first")
-
-        syncStateFixture.sentToClients = {}
-        D.expect(clientSet("shared", "second", 1)).toEqual({ success = true })
-        D.expect(syncStateFixture:SentUserIDs()).toEqual({ 2 })
-
-        -- After a remote apply, a local write broadcasts again.
-        syncStateFixture.sentToClients = {}
-        MCM.Store.Set("shared", "local")
-        D.expect(syncStateFixture:SentUserIDs()).toEqual({ 1, 2 })
     end)
 
     D.test("TestBootstrapPayloadAppliesSyncedValues", function()

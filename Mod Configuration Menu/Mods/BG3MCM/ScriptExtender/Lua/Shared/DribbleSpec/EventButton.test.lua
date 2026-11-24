@@ -242,6 +242,8 @@ D.describe("Event Button Validation", { tags = { "event-button", "unit" } }, fun
 
         D.test("TestInvalidEventButtonConfirmDialog" .. fieldName .. "Type", function()
             local dialog = table.deepcopy(validConfirmDialog)
+            -- Supply a numeric dialog field.
+            ---@diagnostic disable-next-line: assign-type-mismatch
             dialog[fieldName] = 123
             local setting = BlueprintSetting:New({
                 Id = "test-event-button-invalid-confirm-" .. string.lower(fieldName) .. "-type",

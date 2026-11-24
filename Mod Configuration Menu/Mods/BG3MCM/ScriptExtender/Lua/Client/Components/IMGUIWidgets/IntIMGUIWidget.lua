@@ -1,4 +1,7 @@
 ---@class IntIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiInputInt
+---@field PreviousButton ExtuiButton|ExtuiImageButton
+---@field NextButton ExtuiButton|ExtuiImageButton
 IntIMGUIWidget = _Class:Create("IntIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,9 +11,11 @@ IntIMGUIWidget = _Class:Create("IntIMGUIWidget", IMGUIWidget)
 ---@return IntIMGUIWidget
 function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = IntIMGUIWidget })
+    ---@cast instance IntIMGUIWidget
 
     -- Helper function to create increment/decrement buttons (int field)
     local function createIncrementButton(label, icon, increment, tooltip)
+        ---@type ExtuiButton|ExtuiImageButton
         local button = group:AddImageButton(label, icon, IMGUIWidget:GetIconSizes())
 
         if not button.Image or button.Image.Icon == "" then

@@ -111,7 +111,10 @@ end
 --- Default hover turns false on a click or open popup; HoveredRect stays true until the pointer leaves the sidebar
 ---@return boolean
 function DualPaneController:_isPointerInSidebar()
-    for _, flag in ipairs(self.menuScrollChildWindow.StatusFlags) do
+    ---@type unknown
+    local statusFlags = self.menuScrollChildWindow.StatusFlags
+    ---@cast statusFlags string[]
+    for _, flag in ipairs(statusFlags) do
         if flag == "HoveredRect" then return true end
     end
     return false
@@ -221,7 +224,7 @@ function DualPaneController:InitWithWindow(window)
     ModEventManager:Subscribe(EventChannels.MCM_WINDOW_CLOSED, function() self.leftPane:StartRankingSession() end)
 
     -- Check if we should start collapsed
-    local startCollapsed = MCMAPI:GetSettingValue("collapsed_by_default", ModuleUUID)
+    local startCollapsed = MCMAPI:GetSettingValue("collapsed_by_default", ModuleUUID) == true
     self.isCollapsed = startCollapsed
     self.isHovered = false
     self.userHasInteracted = false

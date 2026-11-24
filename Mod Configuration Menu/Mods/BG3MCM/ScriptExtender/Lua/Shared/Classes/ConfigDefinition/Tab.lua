@@ -2,7 +2,7 @@
 ---@field private TabId string
 ---@field private TabName string
 ---@field private TabDescription string
----@field private VisibleIf VisibleIfDefinition
+---@field private VisibleIf VisibleIfDefinition|string
 ---@field private Tabs? BlueprintTab[]
 ---@field private Sections? BlueprintSection[]
 ---@field private Settings? BlueprintSetting[]
@@ -67,18 +67,18 @@ function BlueprintTab:GetTabName()
 end
 
 --- Get the localized TabName of the BlueprintTab.
---- @return string
+--- @return string|nil
 function BlueprintTab:GetLocaName()
     return VCString:ResolveBlueprintText(self.Handles and self.Handles.NameHandle, self.TabName)
 end
 
 --- Get the TabDescription of the BlueprintTab.
---- @return string
+--- @return string|nil
 function BlueprintTab:GetTabDescription()
     return VCString:ResolveBlueprintText(self.Handles and self.Handles.DescriptionHandle, self.TabDescription)
 end
 
----@return VisibleIfDefinition
+---@return VisibleIfDefinition|string
 function BlueprintTab:GetVisibleIf()
     return self.VisibleIf
 end

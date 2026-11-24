@@ -1,4 +1,5 @@
 ---@class FloatIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiInputScalar
 FloatIMGUIWidget = _Class:Create("FloatIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,6 +9,7 @@ FloatIMGUIWidget = _Class:Create("FloatIMGUIWidget", IMGUIWidget)
 ---@return FloatIMGUIWidget
 function FloatIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = FloatIMGUIWidget })
+    ---@cast instance FloatIMGUIWidget
     instance.Widget = group:AddInputScalar("", initialValue)
     instance.Widget.OnChange = VCTimer:Debounce(200, function(value)
         IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)

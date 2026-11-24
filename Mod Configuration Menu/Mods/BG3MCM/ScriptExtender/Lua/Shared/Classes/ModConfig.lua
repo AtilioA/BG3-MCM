@@ -1,13 +1,10 @@
----@class ModsConfig
----@field mods table<string, ModConfigData>
-
 ---@class ModConfigData
----@field blueprints Blueprint[]
----@field settings table<string, any>
+---@field blueprint Blueprint
+---@field settingsValues? table<string, unknown>
 
 ---@class ModConfig
----@field private mods ModsConfig A table of modUUIDs that has a table of blueprints and settings for each mod
----@field private profiles ProfileManager A table of profile data
+---@field private mods table<string, ModConfigData> Blueprint and settings values for each mod, keyed by modUUID
+---@field private profileManager ProfileManager A table of profile data
 -- The ModConfig class orchestrates the management of mod configuration values within MCM.
 -- It provides methods for loading settings, saving settings, updating settings, calling validation, and managing the overall configuration *state* of the mods.
 -- It relies on helper classes such as the JsonLayer and ProfileManager to handle the details of working with JSON files and managing user profiles.
@@ -50,6 +47,9 @@ function ModConfig:CheckMCMDependency(modUUID, blueprint)
     end
 
     local modData = Ext.Mod.GetMod(modUUID)
+    if not modData then
+        return
+    end
     local modDependencies = modData.Dependencies
     local modVersion = string.format("%d.%d.%d.%d", modData.Info.ModVersion[1], modData.Info.ModVersion[2],
         modData.Info.ModVersion[3], modData.Info.ModVersion[4])
@@ -223,7 +223,10 @@ end
 ---@return table<string, table> self.mods The settings for each mod
 function ModConfig:GetSettings()
     -- Load the base MCM configuration file, which contains the profiles
-    self.profileManager = ProfileManager:Create(self:LoadMCMParams())
+    local profileManager = ProfileManager:Create(self:LoadMCMParams())
+    if profileManager then
+        self.profileManager = profileManager
+    end
 
     -- Get settings for each mod given the profile
     self:LoadBlueprints()
@@ -238,7 +241,7 @@ end
 
 --- Load the settings for a mod from the settings file.
 ---@param modUUID string The UUID of the mod
----@param blueprint table The blueprint for the mod
+---@param blueprint Blueprint The blueprint for the mod
 ---@param prepareOnly? boolean
 ---@param profileName? string
 function ModConfig:LoadSettingsForMod(modUUID, blueprint, prepareOnly, profileName)
@@ -253,7 +256,7 @@ end
 
 --- Handle the loaded settings for a mod. If a setting is missing from the settings file, it is added with the default value from the blueprint.
 ---@param modUUID string The UUID of the mod
----@param blueprint table The blueprint for the mod
+---@param blueprint Blueprint The blueprint for the mod
 ---@param settings table The table with all settings for the mod
 ---@param settingsFilePath string The file path of the settings.json file
 ---@param prepareOnly? boolean
@@ -271,7 +274,7 @@ end
 
 --- Handle the missing settings for a mod. If the settings file is missing, the default settings from the blueprint are saved to the file.
 ---@param modUUID string The UUID of the mod
----@param blueprint table The blueprint for the mod
+---@param blueprint Blueprint The blueprint for the mod
 ---@param settingsFilePath string The file path of the settings.json file
 ---@param prepareOnly? boolean
 function ModConfig:HandleMissingSettings(modUUID, blueprint, settingsFilePath, prepareOnly)
@@ -314,11 +317,16 @@ end
 ---@return nil
 function ModConfig:LoadBlueprintForMod(uuid)
     local modData = Ext.Mod.GetMod(uuid)
+    if not modData then
+        return
+    end
     MCMDebug(3, "Checking mod: %s", modData.Info.Name)
 
     -- Expects blueprint load and submit errors; HandleLoadBlueprintError reports them.
     local status, err = pcall(function()
-        self:SubmitBlueprint(JsonLayer:LoadBlueprintForMod(modData), modData.Info.ModuleUUID)
+        local blueprintData = JsonLayer:LoadBlueprintForMod(modData)
+        ---@cast blueprintData table
+        self:SubmitBlueprint(blueprintData, modData.Info.ModuleUUID)
     end)
 
     if not status then
@@ -327,7 +335,7 @@ function ModConfig:LoadBlueprintForMod(uuid)
 end
 
 --- Handle errors that occur when loading a blueprint for a mod.
----@param modData table The mod data for the mod that the blueprint was being loaded for
+---@param modData Module The mod data for the mod that the blueprint was being loaded for
 ---@param err unknown|nil The error that occurred when loading the blueprint (thrown by JsonLayer)
 function ModConfig:HandleLoadBlueprintError(modData, err)
     if not err then

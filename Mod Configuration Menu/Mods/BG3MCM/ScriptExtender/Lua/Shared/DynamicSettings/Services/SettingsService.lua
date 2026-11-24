@@ -76,6 +76,9 @@ end
 ---@return boolean success True if registered successfully
 function SettingsService.Register(moduleUUID, varName, storageType, definition)
     local adapter = AdapterFactory.GetAdapter(storageType)
+    if not adapter then
+        return false
+    end
 
     -- Register the underlying storage prototype eagerly. This MUST happen now (i.e. when the mod calls MCM.Store.RegisterVar at bootstrap) so SE can restore a ModVar's persisted value BEFORE SessionLoaded.
     -- A rejected registration (e.g. a conflicting JSON fileName) keeps the first entry; the adapter reports why.
@@ -179,6 +182,9 @@ function SettingsService.Get(moduleUUID, varName)
 
     local entry = getStorageBucket(moduleUUID, storageType)[varName]
     local adapter = AdapterFactory.GetAdapter(storageType)
+    if not adapter then
+        return entry.default
+    end
     local raw = adapter:GetValue(varName, moduleUUID, entry.storageConfig)
 
     -- If nil, return registered default
@@ -214,6 +220,9 @@ function SettingsService.GetAllForStorageType(moduleUUID, storageType)
 
     local result = {}
     local adapter = AdapterFactory.GetAdapter(storageType)
+    if not adapter then
+        return result
+    end
     for varName, entry in pairs(bucket) do
         local raw = adapter:GetValue(varName, moduleUUID, entry.storageConfig)
         if raw ~= nil then
@@ -242,6 +251,9 @@ function SettingsService.Set(moduleUUID, varName, newValue)
 
     local entry = getStorageBucket(moduleUUID, storageType)[varName]
     local adapter = AdapterFactory.GetAdapter(storageType)
+    if not adapter then
+        return false
+    end
 
     -- Validate and coerce. If fails, revert to default.
     local ok, result = pcall(coerceAndValidate, entry, newValue)

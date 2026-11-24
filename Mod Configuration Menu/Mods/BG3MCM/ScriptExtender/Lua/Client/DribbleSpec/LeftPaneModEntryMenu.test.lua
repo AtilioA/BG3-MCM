@@ -3,9 +3,11 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     local MOD_B = "00000000-0000-0000-0000-00000000B002"
 
     --- In-memory stand-in for MCM.Store, so tests never touch the player's MCM_state.json
-    ---@param values? table<string, any> Initial Store values, e.g. { UI = ... }
+    ---@class FakeStore : MCMStoreAPI
+    ---@field values table
+    ---@param values? table Initial Store values, e.g. { UI = ... }
     ---@param unreadable? boolean Whether the state file failed to parse, so Store refuses writes
-    ---@return table store
+    ---@return FakeStore store
     local function FakeStore(values, unreadable)
         values = values or {}
         return {
@@ -25,7 +27,13 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     end
 
     --- Popup stand-in that records one entry per menu row; a bullet and its selectable are one row
-    ---@return table popup
+    ---@class FakePopup
+    ---@field items table[]
+    ---@field texts table[]|nil
+    ---@field buttons table[]|nil
+    ---@field input table|nil
+    ---@field alpha number|nil
+    ---@return FakePopup popup
     local function FakePopup()
         local noop = function() end
         local popup = { Children = {}, items = {} }
@@ -56,7 +64,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     end
 
     --- Open the right-click menu for MOD_A
-    ---@param store table Store stand-in from FakeStore
+    ---@param store FakeStore Store stand-in from FakeStore
     ---@param authorHidden boolean The mod's blueprint HiddenFromList
     ---@param isHidden boolean Whether the entry is in Hidden mods
     ---@return table popup Rows the menu offers; the last row is the visibility action
@@ -263,11 +271,12 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             visibility = ModListState:New(store), mods = {}, resolved = { main = {} }, RebuildModEntries = function() end }, LeftPane)
         pane:setGroupExpanded(old, false)
         D.expect(pane:isGroupExpanded(old)).toBe(false)
-        local unchanged = setmetatable({ parent = { AddPopup = function() return FakePopup() end }, expandedGroups = { [old] = false },
+        local unchangedPopup = FakePopup()
+        local unchanged = setmetatable({ parent = { AddPopup = function() return unchangedPopup end }, expandedGroups = { [old] = false },
             visibility = ModListState:New(FakeStore({ UI = { Folders = { [old] = { Name = "Old" } } } }, true)), mods = {},
             RebuildModEntries = function() end }, LeftPane)
         unchanged:OpenFolderMenu({ kind = "folder", id = old, name = "Old", members = {} })
-        unchanged.modEntryMenu.items[2].OnClick()
+        unchangedPopup.items[2].OnClick()
         D.expect(unchanged.expandedGroups[old]).toBe(false)
         pane:OpenFolderMenu({ kind = "folder", id = old, name = "Old", members = {} })
         popup.items[2].OnClick()
@@ -315,6 +324,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(store.values.ModListPreferences.CollapsedFolders).toEqual({ f = true })
         local id = pane.visibility:NextFolderId(pane.resolved)
         D.expect(id ~= "f").toBe(true)
+        assert(id)
         D.expect(pane.visibility.preferences:IsFolderExpanded(id)).toBe(true)
     end)
 
@@ -332,9 +342,18 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(store.values.UI.NextFolder).toBe(4)
     end)
 
+    ---@class FakeWidget
+    ---@field kind string
+    ---@field OnCollapse fun()|nil
+
+    ---@class FakeContainer : ExtuiTreeParent
+
+    ---@class FakeStyledRenderable : ExtuiStyledRenderable
+    ---@field previewText string|nil
+
     --- Sidebar container stand-in that records added widgets in order
-    ---@param widgets table[] Receives every widget, including those added inside group boxes
-    ---@return table container
+    ---@param widgets FakeWidget[] Receives every widget, including those added inside group boxes
+    ---@return FakeContainer container
     local function FakeContainer(widgets)
         local noop = function() end
         local container = { Children = {}, SetColor = noop }
@@ -396,9 +415,11 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     D.test("Frequently used reorders the rendered list on a click and keeps highlight and folder state", function(ctx)
         local view = RenderedSidebar(ctx, { SortMode = "frequent", FoldersFirst = false, Usage = { Sequence = 2,
             Mods = { [MOD_B] = { Count = 2, Last = 2 }, [MOD_A] = { Count = 1, Last = 1 } } } })
+        ---@type FakeWidget|nil
         local folder = nil
         for _, widget in ipairs(view.widgets) do if widget.kind == "tree" then folder = widget end end
-        folder.OnCollapse()
+        local onCollapse = assert(folder and folder.OnCollapse)
+        onCollapse()
         D.expect(view.folderOpen()).toBe(false)
         D.expect(view.buttons()).toEqual({ "Beta", "Alpha", "Gamma" })
         -- Count tie at 2: the later opening ranks first.
@@ -622,7 +643,10 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             },
             RebuildModEntries = function() end,
         }, LeftPane)
-        local source, target = {}, {}
+        ---@type FakeStyledRenderable
+        local source = {}
+        ---@type FakeStyledRenderable
+        local target = {}
         pane:ConfigureModListDrag(source, "folder", "second", "Main")
         pane:ConfigureModListDrag(target, "folder", "first", "Main")
         target.OnDragDrop(target, source)
@@ -640,7 +664,10 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             RefuseModListDrop = function(_, _, _, reason) refusal = reason end,
             RebuildModEntries = function() error("refused drop must not rebuild") end,
         }, LeftPane)
-        local source, target = {}, {}
+        ---@type FakeStyledRenderable
+        local source = {}
+        ---@type FakeStyledRenderable
+        local target = {}
         pane:ConfigureModListDrag(source, "folder", "folder", "Main")
         pane:ConfigureModListDrag(target, "group", "Hidden", "Hidden")
         target.OnDragDrop(target, source)
@@ -656,6 +683,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local pane = setmetatable({ parent = {}, modEntriesGroup = FakeContainer(widgets), expandedGroups = {},
             visibility = ModListState:New(store), createModEntries = function() end }, LeftPane)
         pane:RebuildModEntries({})
+        ---@type FakeStyledRenderable
         local source = { Label = "> Mod" }
         pane:ConfigureModListDrag(source, "mod", MOD_A, "folder-1")
         local preview = { AddText = function(_, text) source.previewText = text end }
@@ -675,6 +703,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             CancelAutoCollapse = function() end,
             ScheduleAutoCollapse = function() scheduled = scheduled + 1 end,
             FadeSidebarOutAlpha = function() faded = faded + 1 end }, { __index = DualPaneController })
+        ---@cast controller DualPaneController
         controller:HoldSidebar("drag", true)
         controller:HoldSidebar("folderName", true)
         controller:HoldSidebar("drag", false)
@@ -707,6 +736,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             setupHoverHandlers = function(_, _, _, onLeave) leave = onLeave end,
             ScheduleAutoCollapse = function() scheduled = true end,
             FadeSidebarOutAlpha = function() end }, { __index = DualPaneController })
+        ---@cast controller DualPaneController
         controller:AttachHoverListeners()
         leave()
         D.expect(scheduled).toBe(true)
@@ -833,6 +863,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
             visibility = ModListState:New(FakeStore()) }, LeftPane)
         pane:OpenModEntryMenu(ModuleUUID, false)
         D.expect(#popup.items).toBe(1)
+        ---@type FakeStyledRenderable
         local widget = {}
         pane:ConfigureModListDrag(widget, "mod", ModuleUUID, "Main")
         D.expect(widget.CanDrag).toBe(false)

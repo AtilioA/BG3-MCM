@@ -19,6 +19,7 @@ D.describe("keybinding identities", { tags = { "keybinding_identity", "client" }
             FilteredActions = { { ModUUID = a, ModName = "Same name" }, { ModUUID = b, ModName = "Same name" } },
             DynamicElements = { ModHeaders = {} }
         } }, { __index = KeybindingV2IMGUIWidget })
+        ---@cast widget KeybindingV2IMGUIWidget
         widget:RenderKeybindingTables()
         local first, second = group.Children[1], group.Children[2]
         D.expect(first.IDContext).toBe(a .. "_CollapsingHeader")
@@ -38,8 +39,11 @@ D.describe("keybinding identities", { tags = { "keybinding_identity", "client" }
         ctx.stub(IMGUIHelpers, "ApplyInputStyle", function() end)
         ctx.stub(IMGUIHelpers, "AddTooltip", function(_, _, id) table.insert(ids, id) end)
         local row = {}
+        ---@type KeybindingUIMod
         local a = { ModUUID = "mod-a", ModName = "Same name" }
+        ---@type KeybindingUIMod
         local b = { ModUUID = "mod-b", ModName = "Same name" }
+        ---@type KeybindingUIAction
         local action = { ActionId = "action", Enabled = true }
         local controls = {}
         function row:AddCell()
@@ -49,6 +53,7 @@ D.describe("keybinding identities", { tags = { "keybinding_identity", "client" }
                 return checkbox
             end }
         end
+        ---@cast row ExtuiTableRow
         KeybindingV2IMGUIWidget:RenderEnabledCell(row, a, action)
         KeybindingV2IMGUIWidget:RenderEnabledCell(row, b, action)
         D.expect(controls[1].IDContext).toBe("mod-a_Enabled_action")

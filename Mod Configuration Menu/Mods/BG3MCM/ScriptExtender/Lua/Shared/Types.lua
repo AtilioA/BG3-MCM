@@ -23,11 +23,11 @@
 ---@class VisibleIfCondition
 ---@field SettingId string
 ---@field Operator string
----@field Value unknown
+---@field ExpectedValue unknown
 
 ---Combines multiple setting visibility conditions.
 ---@class VisibleIfConditionGroup
----@field Operator? string
+---@field LogicalOperator? "and"|"or"
 ---@field Conditions VisibleIfCondition[]
 
 ---@alias VisibleIfDefinition VisibleIfConditionGroup|nil
@@ -90,9 +90,9 @@
 ---@field skipCallback boolean
 ---@field sortOrder? number
 ---@field visible boolean
----@field keyboardCallback? fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent)
----@field keyDownCallback? fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent)
----@field keyUpCallback? fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent)
+---@field keyboardCallback? fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams)
+---@field keyDownCallback? fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams)
+---@field keyUpCallback? fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams)
 
 ---Provides the keybinding action data rendered by the MCM UI.
 ---@class KeybindingUIAction

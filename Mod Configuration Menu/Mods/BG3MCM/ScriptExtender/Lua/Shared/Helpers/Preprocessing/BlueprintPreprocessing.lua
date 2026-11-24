@@ -663,12 +663,6 @@ local function buildVisibleIfConditionSignature(condition)
     return condition.SettingId .. "|" .. condition.Operator .. "|" .. expectedValueType .. "|" .. expectedValue
 end
 
---- Validates a VisibleIf condition group
----@param visibleIf table|nil The VisibleIf condition group to validate
----@param blueprint Blueprint The blueprint data for reference
----@param elementType string The type of element ("Setting", "Tab", "Section")
----@param elementId string The ID of the element being validated
----@return boolean True if the VisibleIf is valid or nil, false otherwise
 --- Validates the Conditions array of a VisibleIf group.
 ---@param self HelperBlueprintPreprocessing The preprocessing instance
 ---@param visibleIf table The VisibleIf group to validate

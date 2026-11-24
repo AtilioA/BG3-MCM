@@ -43,6 +43,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:GetAllSettings()["setting-1"]:GetType()).toBe("checkbox")
         D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-1")).toBe(true)
     end)
@@ -81,6 +82,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-1")).toBe(true)
         local section = sanitizedBlueprint:GetSections()[1]
         D.expect(section:GetId()).toBe("section-1")
@@ -98,6 +100,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(BlueprintShape:HasAnySettings(sanitizedBlueprint)).toBe(false)
     end)
 
@@ -139,6 +142,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         D.expect(sanitizedBlueprint1).Not.toBeNil()
         D.expect(sanitizedBlueprint2).Not.toBeNil()
+        assert(sanitizedBlueprint1)
+        assert(sanitizedBlueprint2)
         D.expect(sanitizedBlueprint1:GetTabs()[1]:GetId()).toBe("tab-1")
         D.expect(sanitizedBlueprint2:GetSettings()[1]:GetId()).toBe("setting-1")
     end)
@@ -161,6 +166,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint, blueprint = preprocessAndSanitize(rawData, modUUID)
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
+        assert(blueprint)
         D.expect(#blueprint:GetSettings()).toBe(1)
         D.expect(blueprint:GetSettings()[1]:GetId()).toBe("CheckboxSetting")
     end)
@@ -174,6 +181,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local _sanitizedBlueprint, blueprint = preprocessAndSanitize(rawData, modUUID)
         D.expect(blueprint).Not.toBeNil()
+        assert(blueprint)
 
         blueprint:AddSetting({
             Id = "root-setting",
@@ -272,6 +280,9 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
             },
         }, modUUID)
 
+        assert(rootLevel)
+        assert(tabLevel)
+        assert(sectionLevel)
         D.expect(rootLevel:RetrieveDefaultValueForSetting("root-int")).toBe(7)
         D.expect(tabLevel:RetrieveDefaultValueForSetting("tab-int")).toBe(8)
         D.expect(sectionLevel:RetrieveDefaultValueForSetting("section-int")).toBe(9)
@@ -306,6 +317,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local blueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(blueprint).Not.toBeNil()
+        assert(blueprint)
         D.expect(blueprint:GetAllSettings()["nested-setting"]).Not.toBeNil()
         D.expect(blueprint:RetrieveDefaultValueForSetting("nested-setting")).toBe(true)
 
@@ -811,6 +823,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-enum")).toBe("runtime-value")
     end)
 
@@ -856,6 +869,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:RetrieveDefaultValueForSetting("setting-enum")).toBe("Runtime Only")
     end)
 
@@ -1161,6 +1175,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().LogicalOperator).toBe("and")
     end)
 
@@ -1276,6 +1291,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].ExpectedValue).toBe(1)
     end)
 
@@ -1307,6 +1323,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].ExpectedValue).toBe("1")
     end)
 
@@ -1338,6 +1355,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].ExpectedValue).toBe(true)
     end)
 
@@ -1369,6 +1387,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         D.expect(sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf().Conditions[1].Operator).toBe(">=")
     end)
 
@@ -1446,8 +1465,10 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
 
         local visibleIf = sanitizedBlueprint:GetSettingById("dependent-setting"):GetVisibleIf()
+        assert(visibleIf)
         D.expect(visibleIf.LogicalOperator).toBe("or")
         D.expect(#visibleIf.Conditions).toBe(2)
         D.expect(visibleIf.Conditions[1].SettingId).toBe("master-toggle")
@@ -1509,9 +1530,12 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
 
         local tab = sanitizedBlueprint:GetTabs()[1]
+        assert(tab)
         local section = tab:GetSections()[1]
+        assert(section)
         D.expect(tab:GetVisibleIf().Conditions[1].SettingId).toBe("master-toggle")
         D.expect(tab:GetVisibleIf().Conditions[1].Operator).toBe("==")
         D.expect(tab:GetVisibleIf().Conditions[1].ExpectedValue).toBe(true)
@@ -1644,8 +1668,10 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = preprocessAndSanitize(rawData, TestConstants.ModuleUUIDs[1])
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
 
         local setting = sanitizedBlueprint:GetSettings()[1]
+        assert(setting)
         local keyboardDefault = setting:GetDefault().Keyboard
         D.expect(keyboardDefault.ModifierKeys).toEqual({})
     end)
@@ -1671,8 +1697,10 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = preprocessAndSanitize(rawData, TestConstants.ModuleUUIDs[1])
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
 
         local setting = sanitizedBlueprint:GetSettings()[1]
+        assert(setting)
         local mouseDefault = setting:GetDefault().Mouse
         D.expect(mouseDefault.ModifierKeys).toEqual({})
     end)
@@ -1815,6 +1843,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint, blueprint = preprocessAndSanitize(rawData, modUUID)
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
+        assert(blueprint)
         D.expect(blueprint:GetKeybindingSortMode()).toBe("blueprint")
     end)
 
@@ -1975,6 +2005,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local validSection2 = DataPreprocessing:PreprocessSection(validSectionData2, TestConstants.ModuleUUIDs[1])
         local invalidSection = DataPreprocessing:PreprocessSection(invalidSectionData, TestConstants.ModuleUUIDs[1])
 
+        assert(validSection1)
+        assert(validSection2)
         D.expect(validSection1:GetId()).toBe("section-1")
         D.expect(validSection2:GetId()).toBe("section-2")
         D.expect(invalidSection).toBeNil()
@@ -1997,6 +2029,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local validSection2 = DataPreprocessing:PreprocessSection(validSectionData2, TestConstants.ModuleUUIDs[1])
         local invalidSection = DataPreprocessing:PreprocessSection(invalidSectionData, TestConstants.ModuleUUIDs[1])
 
+        assert(validSection1)
+        assert(validSection2)
         D.expect(validSection1:GetLocaName()).toBe("Section 1")
         D.expect(validSection2:GetLocaName()).toBe("Section 2")
         D.expect(invalidSection).toBeNil()
@@ -2029,7 +2063,9 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         local sanitizedBlueprint = preprocessAndSanitize(rawData, TestConstants.ModuleUUIDs[1])
 
         D.expect(sanitizedBlueprint).Not.toBeNil()
+        assert(sanitizedBlueprint)
         local section = sanitizedBlueprint:GetTabs()[1]:GetSections()[1]
+        assert(section)
         D.expect(section:GetId()).toBe("alias-section")
         D.expect(section:GetLocaName()).toBe("Alias Section")
         D.expect(#section:GetSettings()).toBe(1)
@@ -2072,6 +2108,7 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
             Tabs = { { TabId = "nested-tab", TabName = "Nested Tab" } },
         }, TestConstants.ModuleUUIDs[1])
 
+        assert(section)
         D.expect(#section:GetTabs()).toBe(1)
         D.expect(section:GetTabs()[1]:GetId()).toBe("nested-tab")
     end)
@@ -2107,7 +2144,9 @@ D.describe("List enabled blueprint regression", { tags = { "list-enabled-regress
             elements = { { name = "one" }, { name = "two", enabled = false, note = "kept" } },
             Elements = { { name = "ignored", enabled = true } }, note = "kept" })
         D.expect(blueprint).Not.toBeNil()
+        assert(blueprint)
         local value = blueprint:RetrieveDefaultValueForSetting("list")
+        assert(value)
         D.expect(value.enabled).toBe(false)
         D.expect(value.Enabled).toBeNil()
         D.expect(value.Elements).toBeNil()
@@ -2122,7 +2161,9 @@ D.describe("List enabled blueprint regression", { tags = { "list-enabled-regress
     D.test("uppercase aliases and string whole-list boolean", function()
         local blueprint = build({ Enabled = "false", Elements = { { name = "one", enabled = false } } })
         D.expect(blueprint).Not.toBeNil()
+        assert(blueprint)
         local value = blueprint:RetrieveDefaultValueForSetting("list")
+        assert(value)
         D.expect(value.enabled).toBe(false)
         D.expect(value.elements[1].enabled).toBe(false)
     end)
@@ -2141,6 +2182,9 @@ D.describe("List enabled blueprint regression", { tags = { "list-enabled-regress
     D.test("lowercase string whole-list boolean converts", function()
         local blueprint = build({ enabled = "true", elements = {} })
         D.expect(blueprint).Not.toBeNil()
-        D.expect(blueprint:RetrieveDefaultValueForSetting("list").enabled).toBe(true)
+        assert(blueprint)
+        local value = blueprint:RetrieveDefaultValueForSetting("list")
+        assert(value)
+        D.expect(value.enabled).toBe(true)
     end)
 end)

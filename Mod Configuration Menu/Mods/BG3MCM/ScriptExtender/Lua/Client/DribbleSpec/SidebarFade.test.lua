@@ -1,7 +1,15 @@
 D.describe("Sidebar fade", { tags = { "sidebar_fade", "client", "unit" } }, function()
+    ---@class FakeSidebarWindow : ExtuiChildWindow
+    ---@field alpha number
+    ---@field writes integer
+    ---@field StatusFlags string[]
+
+    ---@class FakeSidebarController : DualPaneController
+    ---@field menuScrollChildWindow FakeSidebarWindow
+
     ---@param ctx table DribbleSpec test context
     ---@param opacity number
-    ---@return DualPaneController controller
+    ---@return FakeSidebarController controller
     ---@return table clock
     local function fixture(ctx, opacity)
         local clock = { now = 0, callbacks = {} }
@@ -12,16 +20,19 @@ D.describe("Sidebar fade", { tags = { "sidebar_fade", "client", "unit" } }, func
             table.insert(clock.callbacks, callback)
         end)
         ctx.stub(MCMAPI, "GetSettingValue", function() return true end)
+        ---@type FakeSidebarWindow
         local window = { alpha = opacity, Visible = true, writes = 0, StatusFlags = {} }
         function window:GetStyle() return self.alpha end
         function window:SetStyle(_, value) self.alpha = value; self.writes = self.writes + 1 end
-        local controller = setmetatable({
+        ---@type FakeSidebarController
+        local controller = {
             menuScrollChildWindow = window,
             rightPane = { IsCurrentModDetached = function() return false end },
             windowOpacity = opacity,
             isHovered = false,
             userHasInteracted = true,
-        }, DualPaneController)
+        }
+        setmetatable(controller, DualPaneController)
         return controller, clock
     end
 

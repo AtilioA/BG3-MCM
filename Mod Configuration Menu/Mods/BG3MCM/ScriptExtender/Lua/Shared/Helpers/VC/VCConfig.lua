@@ -28,7 +28,7 @@
     SOFTWARE.
 ]]
 
----@class HelperConfig: nil
+---@class HelperConfig: MetaClass
 --- @field folderName string|nil The folder where the configuration files are located.
 --- @field configFilePath string|nil The path to the configuration JSON file.
 --- @field defaultConfig table The default configuration values for the mod, utilized when the configuration file is not found or when missing keys are detected.

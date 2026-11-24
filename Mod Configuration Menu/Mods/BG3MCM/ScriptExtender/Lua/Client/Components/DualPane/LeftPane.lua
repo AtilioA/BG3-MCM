@@ -9,7 +9,8 @@
 ---@field section boolean|nil True for a Pinned heading or boundary, whose reference entry only positions the drop
 
 ---@class LeftPane
----@field parent ExtuiStyledRenderable
+---@field parent ExtuiTreeParent
+---@field expandedGroups table<string, boolean>
 ---@field modEntriesGroup ExtuiGroup|nil Holds only mod entries, so they can be rebuilt without touching other entries
 ---@field hiddenModsHeader ExtuiTree|nil Hidden mods header inside modEntriesGroup
 ---@field modEntryMenu ExtuiPopup|nil Right-click menu shared by all mod entries
@@ -167,7 +168,7 @@ function LeftPane:OpenFolderNamePopup(folderId, modUUID)
     local function submit()
         local saved, message = self:SaveFolderName(input.Text, folderId, modUUID, selectedFolder)
         if not saved then
-            errorText.Label = message
+            errorText.Label = message or ""
             errorText.Visible = true
             return
         end
@@ -301,7 +302,7 @@ end
 ---@param isHidden boolean Whether the entry is in Hidden mods
 function LeftPane:OpenModEntryMenu(modUUID, isHidden)
     self:resetEntryMenu()
-    local title = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName())
+    local title = self.modEntryMenu:AddText(self.mods[modUUID].blueprint:GetModName() or modUUID)
     title:SetColor("Text", Color.NormalizedRGBA(255, 255, 255, 1))
     holdSidebarWhileHovered(title)
     self.modEntryMenu:AddSeparator()
@@ -581,7 +582,7 @@ function LeftPane:createModEntries(modUUIDs, container, isHidden, createdUUIDs, 
         local success, err = xpcall(function()
             local blueprint = self.mods[modUUID].blueprint
             local modDescription = VCString:AddNewlinesAfterPeriods(blueprint:GetModDescription())
-            local button = self:CreateMenuButton(blueprint:GetModName(), modDescription, modUUID, container)
+            local button = self:CreateMenuButton(blueprint:GetModName() or modUUID, modDescription, modUUID, container)
             self.entryButtons[modUUID] = button
             self:ConfigureModListDrag(button, "mod", modUUID, groupId)
             button.OnRightClick = function()

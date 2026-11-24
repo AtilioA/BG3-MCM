@@ -40,7 +40,7 @@ end
 ---@param path string
 ---@return table document The JSON on the Sandbox's disk
 local function ReadFile(path)
-    return Ext.Json.Parse(Ext.IO.LoadFile(path))
+    return Ext.Json.Parse(assert(Ext.IO.LoadFile(path)))
 end
 
 D.describe("Mod list move over the real Store", { tags = { "store", "mod_list_sorting", "client", "unit" } }, function()
@@ -88,7 +88,7 @@ D.describe("Mod list move over the real Store", { tags = { "store", "mod_list_so
     ---@return ModListMoveFailure|nil reason
     local function DragFolderOntoMod(state)
         local resolved = state:Resolve(MODS)
-        return state:Move(Entry(resolved, "x"), "Main", "Main", Entry(resolved, MOD_A), resolved)
+        return state:Move(assert(Entry(resolved, "x")), "Main", "Main", assert(Entry(resolved, MOD_A)), resolved)
     end
 
     --- Assert the mode, grouping and displayed order the player would see.
@@ -204,7 +204,7 @@ D.describe("Mod list move over the real Store", { tags = { "store", "mod_list_so
     D.test("TestFolderCounterSurvivesDeleteAndFreshLoad", function()
         local state = NewState({ SortMode = "manual" })
         for _, expected in ipairs({ "fld-1", "fld-2" }) do
-            local id = state:NextFolderId(state:Resolve(MODS))
+            local id = assert(state:NextFolderId(state:Resolve(MODS)))
             D.expect(id).toBe(expected)
             D.expect(state:CreateFolder(id, expected)).toBe(true)
         end

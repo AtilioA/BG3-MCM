@@ -48,7 +48,7 @@ local releaseClaims = { Keyboard = nil, Mouse = nil }
 local CAPTURE_TIMEOUT_MS = 10000
 local RELEASE_CLAIM_TIMEOUT_MS = 30000
 
----@param e EclLuaKeyInputEvent|EclLuaMouseButtonEvent
+---@param e EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams
 local function claimEvent(e)
     if e.PreventAction then e:PreventAction() end
     if e.StopPropagation then e:StopPropagation() end
@@ -122,8 +122,14 @@ end
 ---Registers all temporary resources owned by this session.
 function KeybindingCaptureSession:RegisterSubscriptions()
     local subscriptions = self.Subscriptions
-    subscriptions.KeyInput = Ext.Events.KeyInput:Subscribe(function(e) self:HandleKeyInput(e) end)
-    subscriptions.MouseButtonInput = Ext.Events.MouseButtonInput:Subscribe(function(e) self:HandleMouseInput(e) end)
+    subscriptions.KeyInput = Ext.Events.KeyInput:Subscribe(function(e)
+        ---@cast e EclLuaKeyInputEventParams
+        self:HandleKeyInput(e)
+    end)
+    subscriptions.MouseButtonInput = Ext.Events.MouseButtonInput:Subscribe(function(e)
+        ---@cast e EclLuaMouseButtonEventParams
+        self:HandleMouseInput(e)
+    end)
     subscriptions.WindowClosed = ModEventManager:Subscribe(EventChannels.MCM_WINDOW_CLOSED, function()
         self:Close(Reason.WindowClosed)
     end)
@@ -180,7 +186,7 @@ function KeybindingCaptureSession:NotifyModifiersChanged()
 end
 
 ---Handles keyboard capture and records one binding or cancellation outcome.
----@param e EclLuaKeyInputEvent
+---@param e EclLuaKeyInputEventParams
 function KeybindingCaptureSession:HandleKeyInput(e)
     local key = tostring(e.Key):upper()
     local claimed = self.ClaimedInput
@@ -212,7 +218,7 @@ function KeybindingCaptureSession:HandleKeyInput(e)
 end
 
 ---Handles mouse capture and records one binding outcome.
----@param e EclLuaMouseButtonEvent
+---@param e EclLuaMouseButtonEventParams
 function KeybindingCaptureSession:HandleMouseInput(e)
     local claimed = self.ClaimedInput
     if claimed and claimed.Device == "Mouse" and not e.Pressed and e.Button == claimed.Input then

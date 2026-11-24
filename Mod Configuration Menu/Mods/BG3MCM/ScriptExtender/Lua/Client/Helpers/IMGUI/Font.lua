@@ -41,7 +41,7 @@ local appliedFont = nil
 function Font.ApplyMCMFont(typeface, fontSize)
     local path = FONT_DEFINITIONS[typeface or ""]
     local size = Font.GetSizeValue(fontSize)
-    if not path or not Font.GetSizeKey(fontSize) then
+    if not path or not size or not Font.GetSizeKey(fontSize) then
         return false
     end
     return Ext.IMGUI.LoadFont("BG3MCM_Font", path, size)

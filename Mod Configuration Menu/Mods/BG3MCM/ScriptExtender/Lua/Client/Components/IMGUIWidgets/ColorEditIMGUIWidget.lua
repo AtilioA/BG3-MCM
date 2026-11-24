@@ -1,4 +1,5 @@
 ---@class ColorEditIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiColorEdit
 ColorEditIMGUIWidget = _Class:Create("ColorEditIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,6 +9,7 @@ ColorEditIMGUIWidget = _Class:Create("ColorEditIMGUIWidget", IMGUIWidget)
 ---@return ColorEditIMGUIWidget
 function ColorEditIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = ColorEditIMGUIWidget })
+    ---@cast instance ColorEditIMGUIWidget
     local rgb = { initialValue[1], initialValue[2], initialValue[3] }
     instance.Widget = group:AddColorEdit("", rgb)
     instance.Widget.OnChange = function(value)

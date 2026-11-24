@@ -288,7 +288,7 @@ end
 
 --- Update a localized message with dynamic content.
 ---@param handle string The handle of the localized message to update
----@vararg string|table Dynamic content values to replace placeholders [1], [2], [3], etc., and optional settings table {updateHandle = false}
+---@vararg unknown Dynamic content values to replace placeholders [1], [2], [3], etc., and optional settings table {updateHandle = false}
 function VCString:InterpolateLocalizedMessage(handle, ...)
     local currentMessage = Ext.Loca.GetTranslatedString(handle)
     local updatedMessage = currentMessage

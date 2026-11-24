@@ -230,6 +230,7 @@ D.describe("BlueprintCache", { tags = { "blueprint-cache", "blueprint", "unit" }
         BlueprintCache:InvalidateAll()
 
         local setting = blueprint:GetSettingById("dynamic-enum")
+        assert(setting)
         setting:GetOptions().Choices = { "option-1", "option-2" }
 
         D.expect(blueprint:GetSettingById("dynamic-enum"):GetOptions().Choices).toEqual({ "option-1", "option-2" })

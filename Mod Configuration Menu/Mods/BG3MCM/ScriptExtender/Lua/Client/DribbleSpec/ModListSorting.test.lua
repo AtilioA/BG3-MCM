@@ -6,9 +6,11 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
     local PREFERENCES = "ModListPreferences"
 
     --- In-memory stand-in for MCM.Store; `refused` names variables whose writes fail
-    ---@param values? table<string, any>
+    ---@class FakeStore : MCMStoreAPI
+    ---@field values table
+    ---@param values? table
     ---@param refused? table<string, boolean>
-    ---@return table store
+    ---@return FakeStore store
     local function FakeStore(values, refused)
         values = values or {}
         return {
@@ -491,7 +493,7 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         local saved = store.values[PREFERENCES]
         store.values[PREFERENCES] = nil
         local fresh = ModListState:New(store)
-        local id = fresh:NextFolderId({ main = {} })
+        local id = assert(fresh:NextFolderId({ main = {} }))
         D.expect(id).toBe("fld-3")
         D.expect(fresh:CreateFolder(id, "New")).toBe(true)
         store.values[PREFERENCES] = saved
@@ -509,13 +511,14 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         end
         local store = FakeStore({ UI = { NextFolder = 5 } }, { UI = true })
         local state = ModListState:New(store)
-        D.expect(state:CreateFolder(state:NextFolderId({ main = {} }), "New")).toBe(false)
+        local nextFolderId = assert(state:NextFolderId({ main = {} }))
+        D.expect(state:CreateFolder(nextFolderId, "New")).toBe(false)
         D.expect(store.values.UI).toEqual({ NextFolder = 5 })
     end)
 
     --- A list button wired to stand-ins for the pane's navigation
     ---@param ctx table
-    ---@param store table
+    ---@param store FakeStore
     ---@param active string|nil Page shown before the activation
     ---@param uuid string
     ---@return table button
@@ -668,8 +671,13 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         D.expect(rebuilt).toBe(1)
     end)
 
+    ---@class FakeSettingsPane : LeftPane
+    ---@field rebuilt integer
+
+    ---@class FakeSettingsParent : ExtuiTreeParent
+
     --- A Mod list section rendered on stand-in widgets
-    ---@param store table
+    ---@param store FakeStore
     ---@return ModListSettings settings
     ---@return table pane
     local function Settings(store)
@@ -681,7 +689,9 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         function group:AddRadioButton(label, active) return { Label = label, Active = active } end
         function group:AddCheckbox(label, checked) return { Label = label, Checked = checked } end
         function group:AddButton(label) return { Label = label } end
+        ---@type FakeSettingsParent
         local parent = { AddGroup = function() return group end, AddDummy = noop }
+        ---@type FakeSettingsPane
         local pane = { visibility = ModListState:New(store), mods = {}, rebuilt = 0 }
         function pane:RebuildModEntries() self.rebuilt = self.rebuilt + 1 end
         return ModListSettings:New(parent, pane), pane

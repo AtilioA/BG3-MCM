@@ -1,4 +1,7 @@
 ---@class SliderIntIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiSliderInt
+---@field PreviousButton ExtuiButton|ExtuiImageButton
+---@field NextButton ExtuiButton|ExtuiImageButton
 SliderIntIMGUIWidget = _Class:Create("SliderIntIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -8,6 +11,7 @@ SliderIntIMGUIWidget = _Class:Create("SliderIntIMGUIWidget", IMGUIWidget)
 ---@return SliderIntIMGUIWidget
 function SliderIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = SliderIntIMGUIWidget })
+    ---@cast instance SliderIntIMGUIWidget
 
     -- Get step value from options, default to 1 if not specified
     local step = setting.Options.Step or 1
@@ -53,7 +57,7 @@ function SliderIntIMGUIWidget:UpdateCurrentValue(value)
     self.Widget.Value = { value, value, value, value }
 end
 
---- @param widget IMGUIWidget
+--- @param widget ExtuiStyledRenderable
 --- @param setting BlueprintSetting
 function SliderIntIMGUIWidget:SetupTooltip(widget, setting)
     return IMGUIHelpers.AddTooltipWithRange(widget, setting, "%s")

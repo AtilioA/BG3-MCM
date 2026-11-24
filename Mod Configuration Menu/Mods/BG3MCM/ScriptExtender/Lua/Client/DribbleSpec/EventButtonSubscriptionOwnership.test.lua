@@ -4,10 +4,25 @@ D.describe("Event button subscription ownership", { tags = { "event_button_subsc
     local SETTING_ID = "event-button-fixture"
     local STALE_HANDLE = "IMGUI object no longer exists"
 
+    ---@class SubscriptionTestElement : ExtuiGroup
+    ---@field Children SubscriptionTestElement[]
+    ---@field DestroyCalls integer
+    ---@field Destroyed? boolean
+    ---@field Kind? string
+    ---@field Label? string
+    ---@field Disabled? boolean
+    ---@field IDContext? string
+    ---@field Image? table
+    ---@field AddGroup fun(self: SubscriptionTestElement, label: string): SubscriptionTestElement
+    ---@field AddButton fun(self: SubscriptionTestElement, label: string): SubscriptionTestElement
+    ---@field AddText fun(self: SubscriptionTestElement, label: string): SubscriptionTestElement
+    ---@field SetColor fun(self: SubscriptionTestElement)
+    ---@field Destroy fun(self: SubscriptionTestElement)
+
     --- Fake IMGUI element whose handle throws once its tree is dead, as a destroyed BG3SE element does
-    ---@param tree table Shared { dead = boolean }
+    ---@param tree { dead: boolean } Shared tree state
     ---@param fields? table
-    ---@return table element
+    ---@return SubscriptionTestElement element
     local function FakeElement(tree, fields)
         local state = fields or {}
         state.Children = {}
@@ -29,7 +44,7 @@ D.describe("Event button subscription ownership", { tags = { "event_button_subsc
             state.Destroyed = true
         end
 
-        return setmetatable({}, {
+        local element = setmetatable({}, {
             __index = function(_, key)
                 if tree.dead then error(STALE_HANDLE) end
                 return state[key]
@@ -39,15 +54,24 @@ D.describe("Event button subscription ownership", { tags = { "event_button_subsc
                 state[key] = value
             end,
         })
+        ---@cast element SubscriptionTestElement
+        return element
     end
 
+    ---@param options? table
+    ---@return BlueprintSetting
     local function FakeSetting(options)
-        return {
-            GetOptions = function() return options or {} end,
-            GetHandles = function() return {} end,
-            GetLocaName = function() return "Setting name" end,
-            GetId = function() return SETTING_ID end,
-        }
+        local setting = BlueprintSetting:New({
+            Id = SETTING_ID,
+            Name = "Setting name",
+            Type = "event_button",
+            Options = options or {},
+        })
+        setting.GetOptions = function() return options or {} end
+        setting.GetHandles = function() return {} end
+        setting.GetLocaName = function() return "Setting name" end
+        setting.GetId = function() return SETTING_ID end
+        return setting
     end
 
     --- Replaces the registry's subject and widget map, so no test touches the live coordinator
@@ -158,6 +182,7 @@ D.describe("Event button subscription ownership", { tags = { "event_button_subsc
         local entry = { eventButtonCallback = function() end }
         EventButtonRegistry.Registry[MOD_UUID] = { [SETTING_ID] = entry }
 
+        ---@diagnostic disable-next-line: param-type-mismatch -- This invalid tooltip exercises the registry's fallback behavior.
         local accepted = EventButtonRegistry.SetDisabled(MOD_UUID, SETTING_ID, true, {})
         local disabled, tooltip, warningCount = entry.disabled, entry.disabledTooltip, warnings
         EventButtonRegistry.SetDisabled(MOD_UUID, SETTING_ID, true, "Reason")

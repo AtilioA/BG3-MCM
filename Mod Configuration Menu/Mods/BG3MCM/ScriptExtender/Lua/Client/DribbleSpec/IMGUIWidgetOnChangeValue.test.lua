@@ -4,9 +4,22 @@ D.describe("IMGUIWidget OnChange value", { tags = { "imgui_widget_onchange", "cl
     local DEFAULT_COLOR = { 1, 1, 1, 1 }
     local CHANGED_COLOR = { 0.25, 0.5, 0.75, 0.4 }
 
+    ---@class OnChangeTestElement : ExtuiTreeParent
+    ---@field added table<string, table[]>
+    ---@field Image? table
+    ---@field IDContext? string
+    ---@field Color? vec4
+    ---@field Tooltip fun(self: OnChangeTestElement): OnChangeTestElement
+    ---@field SetColor fun(self: OnChangeTestElement)
+    ---@field SetStyle fun(self: OnChangeTestElement)
+    ---@field Destroy fun(self: OnChangeTestElement)
+
+    ---@class FakeEnumExtractWidget : IMGUIWidget
+    ---@field Widget { UserData: { OptionsLookup: table<string, MCMSettingValue> } }
+
     --- Engine-free element: every Add* call returns a recorded child element
     ---@param fields? table
-    ---@return table element
+    ---@return OnChangeTestElement element
     local function FakeElement(fields)
         local element = fields or {}
         local noop = function() end
@@ -15,7 +28,7 @@ D.describe("IMGUIWidget OnChange value", { tags = { "imgui_widget_onchange", "cl
         element.SetStyle = noop
         element.Destroy = noop
         function element:Tooltip() return FakeElement() end
-        return setmetatable(element, {
+        local fakeElement = setmetatable(element, {
             __index = function(_, key)
                 if type(key) ~= "string" or key:sub(1, 3) ~= "Add" then return nil end
                 return function(self)
@@ -26,24 +39,31 @@ D.describe("IMGUIWidget OnChange value", { tags = { "imgui_widget_onchange", "cl
                 end
             end,
         })
+        ---@cast fakeElement OnChangeTestElement
+        return fakeElement
     end
 
     ---@param settingType string
-    ---@param default any
+    ---@param default MCMSettingValue
     ---@param options? table
-    ---@return any setting
+    ---@return BlueprintSetting setting
     local function FakeSetting(settingType, default, options)
-        return {
+        local setting = BlueprintSetting:New({
             Id = SETTING_ID,
-            GetId = function() return SETTING_ID end,
-            GetLocaName = function() return "Test setting" end,
-            GetType = function() return settingType end,
-            GetOptions = function() return options or {} end,
-            GetDefault = function() return default end,
-            GetDescription = function() return nil end,
-            GetTooltip = function() return nil end,
-            GetHandles = function() return {} end,
-        }
+            Name = "Test setting",
+            Type = settingType,
+            Default = default,
+            Options = options or {},
+        })
+        setting.GetId = function() return SETTING_ID end
+        setting.GetLocaName = function() return "Test setting" end
+        setting.GetType = function() return settingType end
+        setting.GetOptions = function() return options or {} end
+        setting.GetDefault = function() return default end
+        setting.GetDescription = function() return nil end
+        setting.GetTooltip = function() return nil end
+        setting.GetHandles = function() return {} end
+        return setting
     end
 
     ---@param ctx table
@@ -57,22 +77,25 @@ D.describe("IMGUIWidget OnChange value", { tags = { "imgui_widget_onchange", "cl
     end
 
     ---@param settingType string
-    ---@param default any
-    ---@param initial any
-    ---@param widgetClass table
+    ---@param default MCMSettingValue
+    ---@param initial MCMSettingValue
+    ---@param widgetClass IMGUIWidget
     ---@param options? table
     ---@return table widget
     local function CreateWidget(settingType, default, initial, widgetClass, options)
         local setting = FakeSetting(settingType, default, options)
-        return IMGUIWidget:Create(FakeElement({ IDContext = "group" }), setting, initial, MOD_UUID, widgetClass)
+        local widget = IMGUIWidget:Create(FakeElement({ IDContext = "group" }), setting, initial, MOD_UUID,
+            widgetClass)
+        assert(widget)
+        return widget
     end
 
     D.test("extractors return the literal value of each event shape", function()
         local numericEvent = { Value = { 3, 0, 0, 0 } }
-        ---@type any
         local enumWidget = setmetatable({
             Widget = { UserData = { OptionsLookup = { ["Label B"] = "second" } } },
         }, { __index = EnumIMGUIWidget })
+        ---@cast enumWidget FakeEnumExtractWidget
         local cases = {
             { CheckboxIMGUIWidget, { Checked = false }, false },
             { IntIMGUIWidget, numericEvent, 3 },

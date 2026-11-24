@@ -37,6 +37,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
         end)
 
         D.expect(ok).toBe(false)
+        assert(err)
         D.expect(err.code).toBe("JSONParseError")
         D.expect(err.message).toBe(
             "Failed to load MCM blueprint JSON file for mod: Example Mod. Please contact Example Author about this issue.")
@@ -48,6 +49,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
         end)
 
         D.expect(ok).toBe(false)
+        assert(err)
         D.expect(err.code).toBe("FileNotFoundError")
         D.expect(err.message).toBe("Blueprint file not found for mod: Example Mod")
     end)
@@ -58,6 +60,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
         end)
 
         D.expect(ok).toBe(false)
+        assert(err)
         D.expect(err.code).toBe("FileNotFoundError")
         D.expect(err.message).toBe("Blueprint file not found for mod: DribbleSpec Fixture Mod")
     end)
@@ -68,6 +71,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
         end)
 
         D.expect(ok).toBe(false)
+        assert(err)
         D.expect(err.code).toBe("JSONParseError")
         D.expect(err.message).toBe(
             "Failed to load MCM blueprint JSON file for mod: DribbleSpec Fixture Mod. " ..
@@ -77,6 +81,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
     D.test("LoadBlueprintForMod parses the packaged fixture file", function()
         local data = JsonLayer:LoadBlueprintForMod(fixtureModData("Valid"))
 
+        assert(data)
         D.expect(data.SchemaVersion).toBe(1)
         D.expect(data.ModName).toBe("Loader Fixture")
         D.expect(data.Settings[1].Id).toBe("loader-fixture-checkbox")
@@ -93,6 +98,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
 
     D.test("TryParseModBlueprintJSON parses JSON, and returns nil without a mod UUID or for malformed JSON", function()
         D.expect(JsonLayer:TryParseModBlueprintJSON('{"a":1}', ModuleUUID)).toEqual({ a = 1 })
+        ---@diagnostic disable-next-line: param-type-mismatch -- Intentionally test missing-UUID handling.
         D.expect(JsonLayer:TryParseModBlueprintJSON("{}", nil)).toBeNil()
         D.expect(JsonLayer:TryParseModBlueprintJSON("{", ModuleUUID)).toBeNil()
     end)
@@ -100,10 +106,12 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
     D.test("LoadBlueprintForMod rejects mod data without a directory", function()
         for _, modData in ipairs({ false, {}, { Info = {} } }) do
             local ok, err = pcall(function()
+                ---@diagnostic disable-next-line: param-type-mismatch -- Invalid mod data is deliberately passed to test rejection.
                 JsonLayer:LoadBlueprintForMod(modData or nil)
             end)
 
             D.expect(ok).toBe(false)
+            assert(err)
             D.expect(err.code).toBe("FileNotFoundError")
         end
     end)
@@ -117,6 +125,7 @@ D.describe("JsonLayer", { tags = { "json-layer", "blueprint", "unit" } }, functi
         end)
 
         D.expect(ok).toBe(false)
+        assert(err)
         D.expect(err.code).toBe("JSONParseError")
     end)
 

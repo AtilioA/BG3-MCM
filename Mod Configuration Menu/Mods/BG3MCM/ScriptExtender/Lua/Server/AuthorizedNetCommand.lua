@@ -1,5 +1,6 @@
 -- Authorized NetCommand interface
 ---@class AuthorizedNetCommand : NetCommand
+---@field callback function
 AuthorizedNetCommand = setmetatable({}, { __index = NetCommand })
 AuthorizedNetCommand.__index = AuthorizedNetCommand
 

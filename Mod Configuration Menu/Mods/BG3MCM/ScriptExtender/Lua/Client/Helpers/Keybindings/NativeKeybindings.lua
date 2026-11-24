@@ -36,7 +36,7 @@ local VERIFIED_MOUSE_INPUTS = {
     middle = 2
 }
 local _initialized = false
----@type InputManager|nil
+---@type InputInputManager|nil
 local _inputManager = nil
 
 ---Returns the SDL button for a verified native mouse input name.
@@ -117,7 +117,7 @@ function NativeKeybindings.GetAll()
     end
 
     --- Gets the description from an input definition
-    ---@param def InputDefinition
+    ---@param def InputInputEventDesc
     ---@return string
     local function getDefinitionDescription(def)
         if not def.EventDesc or type(def.EventDesc.Get) ~= "function" then
@@ -136,7 +136,7 @@ function NativeKeybindings.GetAll()
     end
 
     --- Extract bindings for a given input definition
-    ---@param def InputDefinition
+    ---@param def InputInputEventDesc
     ---@return NativeKeybindingBinding[]
     local function extractBindings(def)
         local eventId = tostring(def.EventID)

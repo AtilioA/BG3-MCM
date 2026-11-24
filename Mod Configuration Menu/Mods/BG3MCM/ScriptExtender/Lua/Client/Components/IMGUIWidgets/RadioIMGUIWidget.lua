@@ -1,17 +1,19 @@
 ---@class RadioIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiRadioButton[]
 RadioIMGUIWidget = _Class:Create("RadioIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
 ---@param setting BlueprintSetting
 ---@param initialValue string
 ---@param modUUID string
----@return RadioIMGUIWidget
+---@return RadioIMGUIWidget|nil
 function RadioIMGUIWidget:new(group, setting, initialValue, modUUID)
     if not group or not setting or not modUUID then
         return nil
     end
 
     local instance = setmetatable({}, { __index = RadioIMGUIWidget })
+    ---@cast instance RadioIMGUIWidget
     instance.Widget = self:CreateRadioButtons(group, setting, initialValue)
     instance:SetRadioButtonCallbacks(instance.Widget, setting, modUUID)
     return instance
@@ -34,6 +36,7 @@ function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
     for i, option in ipairs(options) do
         local isActive = option == initialValue
         local localizedValue = self:getLocalizedValue(setting, i)
+        ---@cast localizedValue string
         local radioButton = group:AddRadioButton(localizedValue, isActive)
         radioButton.UserData = { OriginalValue = option }
         radioButton.IDContext = string.format("radioButton_%s_%s", setting:GetId(), i)
@@ -45,6 +48,7 @@ function RadioIMGUIWidget:CreateRadioButtons(group, setting, initialValue)
     return buttons
 end
 
+---@return string|nil
 function RadioIMGUIWidget:getLocalizedValue(setting, index)
     local settingHandles = setting:GetHandles()
     local choices = setting:GetOptions().Choices

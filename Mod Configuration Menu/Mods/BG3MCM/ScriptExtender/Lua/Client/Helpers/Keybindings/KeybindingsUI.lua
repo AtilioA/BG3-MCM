@@ -31,10 +31,12 @@ local function resolveKeybindingBindings(setting, currentBinding)
         return currentBinding.Keyboard, currentBinding.Mouse
     end
 
-    return Fallback_Value(
+    local keyboard = Fallback_Value(
         setting:GetDefault() and setting:GetDefault().Keyboard,
         { Key = "", ModifierKeys = {} }
-    ), setting:GetDefault() and setting:GetDefault().Mouse
+    )
+    ---@cast keyboard table|nil
+    return keyboard, setting:GetDefault() and setting:GetDefault().Mouse
 end
 
 --- Resolves the enabled and conflict flags for one keybinding setting.

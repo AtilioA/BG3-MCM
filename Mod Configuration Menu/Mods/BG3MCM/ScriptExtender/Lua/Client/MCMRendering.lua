@@ -85,6 +85,7 @@ function MCMRendering:ApplyWindowOpacity()
     end
 
     local opacity = MCM.Get("window_opacity")
+    ---@cast opacity number
     MCM_WINDOW:SetStyle("Alpha", opacity)
     DualPane:SetWindowOpacity(opacity)
 end
@@ -320,7 +321,7 @@ function MCMRendering:ConvertModTablesToBlueprints()
             MCMWarn(1, "Skipping blueprint conversion for mod '%s': mod config is not a table", tostring(modUUID))
         elseif type(config.blueprint) ~= "table" then
             MCMWarn(1, "Skipping blueprint conversion for mod '%s': blueprint is missing or invalid", tostring(modUUID))
-        elseif config.blueprint._ClassName == "Blueprint" and type(config.blueprint.GetModName) == "function" then
+        elseif _Class:GetClassName(config.blueprint) == "Blueprint" and type(config.blueprint.GetModName) == "function" then
             -- Already converted.
         else
             config.blueprint = Blueprint:New(config.blueprint)
@@ -436,7 +437,7 @@ function MCMRendering:CreateModMenuSubTab(modTabs, blueprintTab, modSettings, mo
         MCMError(0, "No tab bar found for mod %s", modUUID)
         return
     end
-    local tabName = blueprintTab:GetLocaName()
+    local tabName = blueprintTab:GetLocaName() or blueprintTab:GetTabName()
     local tabDescription = blueprintTab:GetTabDescription()
     local imguiTab = modTabs:AddTabItem(tabName)
     imguiTab.IDContext = DualPaneController:GenerateTabId(modUUID, blueprintTab:GetTabName())
@@ -622,6 +623,7 @@ function MCMRendering:CreateKeybindingsPage()
     -- KeybindingsRegistry:GetSubject() replays synchronously into FilterActions()/RefreshUI().
     local hotkeysGroup
     local success, err = xpcall(function()
+        ---@cast DualPane DualPaneController
         hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
     end, debug.traceback)
     if not success then

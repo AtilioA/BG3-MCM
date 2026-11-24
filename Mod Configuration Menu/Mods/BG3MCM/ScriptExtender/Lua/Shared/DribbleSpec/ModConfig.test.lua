@@ -48,10 +48,12 @@ D.describe("ModConfig", { tags = { "modconfig", "blueprint", "unit" } }, functio
         ctx.stub(JsonLayer, "SaveJSONFile", function(_, path, value) files[path] = value end)
         manager.SaveProfileValuesToConfig = function() end
 
+        ---@cast manager ProfileManager
         D.expect(manager:SetCurrentProfile("Away")).toBe(true)
         ModConfig:LoadSettingsForMod(modUUID, blueprint)
         ModConfig:LoadSettingsForMod(modUUID, blueprint)
         local values = ModConfig.mods[modUUID].settingsValues
+        assert(values)
         D.expect(values.list.elements[1].name).toBe("kept")
         D.expect(values.list.elements[1].enabled).toBe(false)
         D.expect(values.enabled).toBe(false)
@@ -93,6 +95,7 @@ D.describe("ModConfig", { tags = { "modconfig", "blueprint", "unit" } }, functio
         ctx.stub(JsonLayer, "SaveJSONFile", function(_, path) writes[path] = true end)
         manager.SaveProfileValuesToConfig = function() profileWrites = profileWrites + 1 end
 
+        ---@cast manager ProfileManager
         D.expect(manager:SetCurrentProfile("Away")).toBe(false)
         D.expect(manager.SelectedProfile).toBe("Home")
         D.expect(ModConfig.mods[good].settingsValues.enabled).toBe(true)
@@ -206,6 +209,7 @@ D.describe("ModConfig", { tags = { "modconfig", "blueprint", "unit" } }, functio
 
         ModConfig:SaveSettingsForMod(modUUID)
 
+        assert(capturedData)
         D.expect(capturedData["root-setting"]).toBe(true)
     end)
 
@@ -283,7 +287,7 @@ D.describe("ModConfig", { tags = { "modconfig", "blueprint", "unit" } }, functio
         end)
 
         ModConfig:SaveSettingsForMod(modUUID)
-        savedData = Ext.Json.Parse(Ext.IO.LoadFile(path))
+        savedData = Ext.Json.Parse(assert(Ext.IO.LoadFile(path)))
         ModConfig.mods[modUUID].settingsValues = { [settingId] = true }
         ModConfig:LoadSettingsForMod(modUUID, blueprint)
         reloadedValue = ModConfig.mods[modUUID].settingsValues[settingId]

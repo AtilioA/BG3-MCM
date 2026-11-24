@@ -82,7 +82,7 @@ D.describe("MCM.Store save failure", { tags = { "store", "unit" } }, function()
 
         D.expect(MCM.Store.Set("later", 1)).toBe(true)
 
-        local saved = Ext.Json.Parse(Ext.IO.LoadFile(StoreFilePath()))
+        local saved = Ext.Json.Parse(assert(Ext.IO.LoadFile(StoreFilePath())))
         D.expect(saved.later).toBe(1)
         D.expect(saved.lost).toBeNil()
     end)

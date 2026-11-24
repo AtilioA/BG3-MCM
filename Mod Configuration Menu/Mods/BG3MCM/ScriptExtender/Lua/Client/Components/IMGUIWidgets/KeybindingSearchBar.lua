@@ -13,8 +13,8 @@ KeybindingSearchBar.SearchSubject = nil
 ---@param onSearchChanged? function Optional callback when search text changes
 ---@return KeybindingSearchBar
 function KeybindingSearchBar:new(onSearchChanged)
-    ---@type KeybindingSearchBar
     local instance = setmetatable({}, KeybindingSearchBar)
+    ---@cast instance KeybindingSearchBar
 
     instance._searchText = ""
     instance.SearchSubject = ReplaySubject.Create(1)

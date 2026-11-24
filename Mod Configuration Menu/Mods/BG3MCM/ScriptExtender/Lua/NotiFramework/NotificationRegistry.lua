@@ -1,6 +1,6 @@
 -- Manages the lifecycle and tracking of active notifications
 
----@class NotificationRegistry
+---@class NotificationRegistry : MetaClass
 ---@field private _activeNotifications NotificationManager[]
 NotificationRegistry = _Class:Create("NotificationRegistry", nil, {
     _activeNotifications = {}

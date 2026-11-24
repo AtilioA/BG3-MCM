@@ -108,7 +108,10 @@ function ModVarAdapter:EnsureRegistered(varName, moduleUUID, storageConfig, skip
     end
 
     -- Register with SE
-    Ext.Vars.RegisterModVariable(moduleUUID, varName, config)
+    ---@type unknown
+    local modVarConfig = config
+    ---@cast modVarConfig UserVariableOptions
+    Ext.Vars.RegisterModVariable(moduleUUID, varName, modVarConfig)
     self._registered[moduleUUID][varName] = true
 
     MCMDebug(2, "ModVarAdapter: Registered '%s' for module %s with config: %s",

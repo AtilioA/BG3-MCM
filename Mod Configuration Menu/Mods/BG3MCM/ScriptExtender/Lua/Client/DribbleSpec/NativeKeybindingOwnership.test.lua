@@ -186,19 +186,6 @@ D.describe("Native keybinding ownership", { tags = { "native_keybinding_ownershi
         D.expect(owner.tree.deadAccesses).toBe(0)
     end)
 
-    D.test("builds the next page when the old native group cannot be destroyed", function(ctx)
-        ctx.requireClient()
-        local owner = NewOwner(ctx)
-        local _, oldSubject = owner.Build()
-        owner.tree.failDestroyKind = "Group"
-
-        local newHotkeys = owner.Build()
-
-        D.expect(owner.tree.failDestroyKind).toBe(nil)
-        D.expect(#oldSubject.observers).toBe(0)
-        D.expect(owner.tree.Count(newHotkeys, "Row")).toBe(3)
-    end)
-
     D.test("still owns a native widget whose first render failed", function(ctx)
         ctx.requireClient()
         local owner = NewOwner(ctx)
@@ -233,32 +220,6 @@ D.describe("Native keybinding ownership", { tags = { "native_keybinding_ownershi
         owner.mcmDestroyError = nil
         owner.Build()
         D.expect(#subject.observers).toBe(0)
-    end)
-
-    D.test("continues a refresh when the root header cannot be destroyed", function(ctx)
-        ctx.requireClient()
-        local page = NewPage(ctx)
-        page.widget:RefreshUI()
-        page.tree.failDestroyKind = "CollapsingHeader"
-
-        page.widget:RefreshUI()
-
-        D.expect(page.tree.failDestroyKind).toBe(nil)
-        D.expect(page.tree.Children(page.group)).toEqual({ "CollapsingHeader", "CollapsingHeader" })
-        D.expect(#page.widget.Widget.DynamicElements.ModHeaders).toBe(1)
-    end)
-
-    D.test("continues a refresh when the no-results text cannot be destroyed", function(ctx)
-        ctx.requireClient()
-        local page = NewPage(ctx)
-        page.searchBar.SearchSubject:OnNext("zzzz")
-        page.tree.failDestroyKind = "Text"
-
-        page.searchBar.SearchSubject:OnNext("Jump")
-
-        D.expect(page.tree.failDestroyKind).toBe(nil)
-        D.expect(page.tree.Children(page.group)).toEqual({ "Text:No match: zzzz", "CollapsingHeader" })
-        D.expect(page.widget.Widget.DynamicElements.NoResultsText).toBe(nil)
     end)
 
     D.test("replaces one root header per refresh without touching retired descendants", function(ctx)

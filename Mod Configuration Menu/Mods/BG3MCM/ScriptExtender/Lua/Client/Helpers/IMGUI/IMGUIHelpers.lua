@@ -88,6 +88,7 @@ function IMGUIHelpers.AddTooltipWithRange(widget, setting, numberFormat)
     if not tt then
         return
     end
+    ---@cast tt ExtuiTooltip
 
     -- Match AddTooltip cursor offset on first line, empty for now; raise to indent
     local isFirstLine = table.isEmpty(tt.Children)
@@ -170,6 +171,7 @@ function IMGUIHelpers:ApplyCustomTabStyles(element)
     end
 
     if customTabStyles.ParentTypes[objectType] then
+        ---@cast element ExtuiTreeParent
         for _, child in ipairs(element.Children) do
             self:ApplyCustomTabStyles(child)
         end

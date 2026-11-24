@@ -286,6 +286,7 @@ D.describe("LoadedSettingsRepair", { tags = { "preprocessing", "unit" } }, funct
         local saved
         ctx.stub(config, "GetSettingsFilePath", function() return "mock/settings.json" end)
         ctx.stub(JsonLayer, "SaveJSONFile", function(_, _, data) saved = data end)
+        ---@cast config ModConfig
         config:SaveSettingsForMod(modUUID)
         D.expect(saved.A.list).toEqual(list)
         D.expect(saved.list.enabled).toBe(false)

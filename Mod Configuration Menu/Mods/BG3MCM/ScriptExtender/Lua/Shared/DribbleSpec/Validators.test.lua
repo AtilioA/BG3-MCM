@@ -52,7 +52,11 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
     D.test("TestValidateIntRejectsNonNumericString", function(ctx)
         local setting = BlueprintSetting:New({ Id = "test-int", Type = "int", Default = 1 })
 
+        -- Pass a string to the integer validator.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(IntValidator.Validate(setting, "abc")).toBe(false)
+        -- Pass a table to the integer validator.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(IntValidator.Validate(setting, {})).toBe(false)
     end)
 
@@ -305,8 +309,14 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
     end)
 
     D.test("TestValidateColorRejectsWrongLengthAndNonNumericChannels", function(ctx)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ColorValidator.Validate(nil, { 1, 0, 0, 1, 1 })).toBe(false)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ColorValidator.Validate(nil, { "a", 0, 0, 1 })).toBe(false)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ColorValidator.Validate(nil, { -0.1, 0, 0, 1 })).toBe(false)
     end)
 
@@ -515,6 +525,8 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
         })).toBe(false)
 
         D.expect(KeybindingV2Validator.Validate(setting, {
+            -- Pass a string mouse button.
+            ---@diagnostic disable-next-line: assign-type-mismatch
             Mouse = { Button = "3", ModifierKeys = {} },
             Enabled = true
         })).toBe(false)
@@ -526,18 +538,38 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
     end)
 
     D.test("TestValidateKeybindingV2OptionalFields", function(ctx)
+        -- Exercise optional binding fields without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { ModifierKeys = {} } })).toBe(true)
+        -- Exercise optional binding fields without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { Key = "A" } })).toBe(true)
+        -- Exercise optional binding fields without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { ModifierKeys = {} } })).toBe(true)
+        -- Exercise optional binding fields without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { Button = 3 } })).toBe(true)
     end)
 
     D.test("TestValidateKeybindingV2RejectsWrongFieldTypes", function(ctx)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, nil)).toBe(false)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, 5)).toBe(false)
+        -- Pass a numeric key with no setting.
+        ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { Key = 5 } })).toBe(false)
+        -- Pass scalar keyboard modifiers with no setting.
+        ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Keyboard = { Key = "A", ModifierKeys = "LCTRL" } })).toBe(false)
+        -- Pass a string mouse button with no setting.
+        ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { Button = "x" } })).toBe(false)
+        -- Pass scalar mouse modifiers with no setting.
+        ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
         D.expect(KeybindingV2Validator.Validate(nil, { Mouse = { Button = 3, ModifierKeys = "LCTRL" } })).toBe(false)
     end)
 
@@ -615,10 +647,20 @@ D.describe("Setting validators", { tags = { "validators", "unit" } }, function()
     end)
 
     D.test("TestValidateListV2RejectsWrongShapes", function(ctx)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ListV2Validator.Validate(nil, 5)).toBe(false)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = "x" })).toBe(false)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = { 5 } })).toBe(false)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = { { name = "A", enabled = "yes" } } })).toBe(false)
+        -- Exercise invalid input without a setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(ListV2Validator.Validate(nil, { enabled = true, elements = { { name = 5, enabled = true } } })).toBe(false)
     end)
 

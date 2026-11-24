@@ -1,4 +1,10 @@
 D.describe("setting write outcome", { tags = { "settings", "client", "unit" } }, function()
+    ---@class ForwardedSettingWrite
+    ---@field settingId string
+    ---@field value number
+    ---@field modUUID string
+    ---@field setUIValue fun()
+    ---@field shouldEmitEvent boolean
 
     D.test("reports local saved and rejected outcomes", function(ctx)
         local shouldAccept = true
@@ -27,6 +33,7 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
     end)
 
     D.test("queues remote writes without touching the UI", function(ctx)
+        ---@type fun(response: table)|nil
         local reply = nil
         local reconciled = {}
         local emitted = {}
@@ -48,6 +55,7 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
         D.expect(receipt).toEqual({ accepted = true, state = "queued", value = "second" })
 
         -- The response only logs. Rollback arrives through the authoritative broadcast.
+        assert(reply)
         reply({ success = false, error = "rejected" })
         D.expect(#reconciled).toBe(0)
         D.expect(#emitted).toBe(0)
@@ -57,6 +65,7 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
     -- Keybindings.test.lua separately guards load-subscription churn.
     D.test("forwards the write to the proxy", function(ctx)
         local receipt = { accepted = true, state = "queued", value = 7 }
+        ---@type ForwardedSettingWrite|nil
         local forwarded = nil
         local uiCallback = function() end
         ctx.stub(MCMProxy, "SetSettingValue", function(_, settingId, value, modUUID, setUIValue, shouldEmitEvent)
@@ -73,6 +82,7 @@ D.describe("setting write outcome", { tags = { "settings", "client", "unit" } },
         local result = IMGUIAPI:SetSettingValue("setting", 7, "test-mod", uiCallback, true)
 
         D.expect(result).toBe(receipt)
+        assert(forwarded)
         D.expect(forwarded.settingId).toBe("setting")
         D.expect(forwarded.value).toBe(7)
         D.expect(forwarded.modUUID).toBe("test-mod")

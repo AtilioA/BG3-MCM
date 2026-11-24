@@ -2,8 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
   "runtime.version": "Lua 5.3",
   "workspace.library": [
-    "C:\\Modding\\BG3\\ReferenceScripts",
-    "C:\\Modding\\BG3\\ReferenceScripts\\ExtIdeHelpers.lua"
+    "../BG3-lint/luals/bg3se/library/ExtIdeHelpers.lua",
+    "../BG3-lint/luals/bg3se/library/Osi.lua",
+    "tools/luals/BG3SESupplement.meta.lua"
   ],
   "workspace.ignoreDir": [
     ".vscode",

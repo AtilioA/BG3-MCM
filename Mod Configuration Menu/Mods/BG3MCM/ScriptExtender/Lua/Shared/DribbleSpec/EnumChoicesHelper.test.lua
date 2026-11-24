@@ -47,20 +47,26 @@ D.describe("Enum choices", { tags = { "enum-choices", "unit" } }, function()
             GetHandles = function(self) return self.handles end,
             SetHandles = function(self, value) self.handles = value end,
         }
-        D.expect(EnumChoicesHelper.ApplyChoices(setting, { "a" }, { "handle" })).toBe(true)
+        D.expect(EnumChoicesHelper.ApplyChoices(setting --[[@as BlueprintSetting]], { "a" }, { "handle" })).toBe(true)
         D.expect(setting.options.Choices[1]).toBe("a")
         D.expect(setting.handles.ChoicesHandles[1]).toBe("handle")
     end)
 
     D.test("rejects invalid applications without changing options", function()
         local setting = BlueprintSetting:New({ Type = "enum", Options = { Choices = { "old" } } })
+        -- Exercise an absent setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(EnumChoicesHelper.ApplyChoices(nil, {})).toBe(false)
         D.expect(EnumChoicesHelper.ApplyChoices(BlueprintSetting:New({ Type = "text" }), {})).toBe(false)
+        -- Reject a numeric choice.
+        ---@diagnostic disable-next-line: assign-type-mismatch
         D.expect(EnumChoicesHelper.ApplyChoices(setting, { 1 })).toBe(false)
         D.expect(setting:GetOptions().Choices[1]).toBe("old")
     end)
 
     D.test("checks values against static and dynamic choices", function()
+        -- Exercise an absent setting.
+        ---@diagnostic disable-next-line: param-type-mismatch
         D.expect(EnumChoicesHelper.IsValueValid(nil, "x")).toBe(false)
         local setting = BlueprintSetting:New({ Type = "enum", Options = {} })
         D.expect(EnumChoicesHelper.IsValueValid(setting, "x")).toBe(false)

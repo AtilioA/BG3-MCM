@@ -12,15 +12,15 @@ local FADE_OUT_DURATION = 2
 local FRAME_INTERVAL = 1000 / 60
 local ICON_SIZE = 64
 
----@class NotificationManager
----@field IMGUIwindow ExtuiWindow
+---@class NotificationManager : MetaClass
+---@field IMGUIwindow ExtuiWindow|nil
 ---@field id string
 ---@field notificationSeverity NotificationSeverity
 ---@field message string
 ---@field title string
 ---@field options NotificationOptions
 ---@field private _alpha number
----@field private _timer number
+---@field private _timer number|nil
 ---@field modUUID string
 NotificationManager = _Class:Create("NotificationManager", nil, {
     IMGUIwindow = nil,
@@ -362,7 +362,8 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
             MCMDebug(2, "Notification with same title but different message found. Using modified title: %s", title)
         else
             -- Exact duplicate found, return the existing one
-            MCMDebug(2, "Notification suppressed - exact duplicate found (ID: %s, Title: %s, Message: %s)", id, title, message)
+            MCMDebug(2, "Notification suppressed - exact duplicate found (ID: %s, Title: %s, Message: %s)", id, title,
+                message)
             return existingNotification
         end
     end
@@ -371,7 +372,8 @@ function NotificationManager:CreateIMGUINotification(id, severity, title, messag
     local newNotification = NotificationManager:new(id, severity, title, message, options, modUUID)
     if newNotification then
         notificationRegistry:Add(newNotification)
-        MCMDebug(3, "Created new notification (ID: %s, Title: %s, Active notifications: %d)", id, title, notificationRegistry:Count())
+        MCMDebug(3, "Created new notification (ID: %s, Title: %s, Active notifications: %d)", id, title,
+            notificationRegistry:Count())
     end
 
     return newNotification
@@ -393,7 +395,8 @@ function NotificationManager:InjectNotificationManagerToModTable(modUUID)
     end
 
     if modTable.NotificationManager then
-        MCMPrint(1, "NotificationManager already exists in mod table for modUUID: %s. Skipping metatable injection.", modUUID)
+        MCMPrint(1, "NotificationManager already exists in mod table for modUUID: %s. Skipping metatable injection.",
+            modUUID)
         return
     end
 

@@ -7,7 +7,7 @@
 --- Loading and saving profile data to the MCM configuration file
 --- Creating new profiles
 --- Setting the current profile
----@class ProfileManager
+---@class ProfileManager : MetaClass
 ---@field DefaultProfile string The name of the default profile
 ---@field SelectedProfile string The name of the currently selected profile
 ---@field Profiles string[] A list of profile names
@@ -29,6 +29,8 @@ ProfileManager = _Class:Create("ProfileManager", nil, {
     }
 })
 
+---@param mcmParams table|nil
+---@return ProfileManager|nil
 function ProfileManager:Create(mcmParams)
     local profile = ProfileManager:New()
 
@@ -199,7 +201,7 @@ function ProfileManager:DeleteProfile(profileName)
 end
 
 --- Generates the full path to a settings file, starting from the Script Extender folder.
---- @param modUUID GUIDSTRING The mod's UUID to get the path for.
+--- @param modUUID string The mod's UUID to get the path for.
 --- @param profileName? string Profile to use, or the current profile when omitted.
 --- @return string The full path to the settings file.
 function ProfileManager:GetModProfileSettingsPath(modUUID, profileName)

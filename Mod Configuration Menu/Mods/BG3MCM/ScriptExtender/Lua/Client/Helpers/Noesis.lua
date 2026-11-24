@@ -80,11 +80,16 @@ local isBindScheduled = false
 local isSubscribing = false
 local isListening = false
 
+---@class NoesisChildContainer : NoesisBaseComponent
+---@field ChildrenCount integer
+---@field Child fun(self: NoesisChildContainer, index: integer): NoesisVisual
+
 --- Calls fn(widgetName, button, buttonConfig) for each MCM button in the open menu widgets. Run inside Ext.UI.Defer.
 local function forEachMCMButton(fn)
     local root = Ext.UI.GetRoot()
     local contentRoot = root and root:Find("ContentRoot")
     if not contentRoot then return end
+    ---@cast contentRoot NoesisChildContainer
     for i = 1, contentRoot.ChildrenCount do
         local widget = contentRoot:Child(i)
         local buttonConfig = MCM_BUTTONS[widget.Name]
@@ -107,6 +112,7 @@ local function bindMCMButtons()
         if button.DataContext and button.DataContext.Type == "se::MCMButtonDC" then return end
 
         local ctx = Ext.UI.Instantiate("se::MCMButtonDC")
+        if not ctx then return end
         local onButtonPress = createMCMButtonPressTracker(buttonConfig.hasServer)
         ctx.CustomEvent:SetHandler(function()
             onButtonPress()

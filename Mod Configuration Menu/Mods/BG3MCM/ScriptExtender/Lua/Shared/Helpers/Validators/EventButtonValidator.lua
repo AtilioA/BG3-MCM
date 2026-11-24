@@ -3,8 +3,7 @@ EventButtonValidator = {}
 
 --- Validates value for event_button settings
 --- Event buttons don't actually have a value to validate, as they don't store state
---- They always pass validation if the value is nil or a valid table structure 
---- (for future extensibility)
+--- They always pass validation if the value is nil or a valid table structure (for future extensibility).
 ---@param setting BlueprintSetting The setting to validate
 ---@param value unknown The value to validate
 ---@return boolean True if the value is valid, false otherwise

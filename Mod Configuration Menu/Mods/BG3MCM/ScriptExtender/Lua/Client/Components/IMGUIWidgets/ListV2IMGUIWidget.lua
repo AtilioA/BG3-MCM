@@ -9,9 +9,11 @@
 ---@field indexInElements number
 
 ---@class ListV2IMGUIWidget: IMGUIWidget
+---@field Widget ListV2IMGUIWidget.Widget
 ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 
 ---@class ListV2IMGUIWidget.Widget
+---@field instance ListV2IMGUIWidget The widget instance
 ---@field Group ExtuiGroup The main IMGUI group for the widget
 ---@field ModUUID string The UUID of the mod owning this widget
 ---@field Setting BlueprintSetting The setting associated with this widget
@@ -28,7 +30,15 @@ ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 ---@field TableGroup ExtuiGroup The table group
 ---@field InputGroup ExtuiGroup|nil The input group (nil if ReadOnly)
 ---@field ResetGroup ExtuiGroup|nil The reset group (nil if ReadOnly)
----@field ConfirmationPopup ExtuiGroup|nil The confirmation popup group (if open)
+---@field ConfirmationPopup ExtuiPopup|nil The confirmation popup (if open)
+---@field ResetConfirmationPopup ExtuiPopup|nil The reset confirmation popup (if open)
+---@field Suggestions string[] The list of suggestions
+---@field SearchInput ExtuiInputText|nil The search input field
+---@field NewElementInput ExtuiInputText|nil The new element input field
+---@field NewElementName string|nil The current text in the new element input
+---@field SearchResultsGroup ExtuiGroup|nil The search results group
+---@field SearchResultsCurrentPage number|nil The current page of search results
+---@field SearchResults string[]|nil The filtered search results
 
 ---Creates a new instance of ListV2IMGUIWidget
 ---@param group ExtuiGroup The parent IMGUI group
@@ -38,6 +48,7 @@ ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 ---@return ListV2IMGUIWidget instance The new instance of ListV2IMGUIWidget
 function ListV2IMGUIWidget:new(group, setting, initialValue, ModUUID)
     local instance = setmetatable({}, { __index = ListV2IMGUIWidget })
+    ---@cast instance ListV2IMGUIWidget
     instance.Widget = {}
     instance.Widget.instance = instance
     instance.Widget.Group = group
@@ -449,6 +460,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     end
 
     -- Previous Button
+    ---@type ExtuiImageButton|ExtuiButton
     local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
     prevButton.IDContext = self.Widget.ModUUID .. "_PrevPage_" .. self.Widget.Setting.Id
     if not prevButton.Image or prevButton.Image.Icon == "" then
@@ -503,6 +515,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     end
 
     -- Next Button
+    ---@type ExtuiImageButton|ExtuiButton
     local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
     nextButton.IDContext = self.Widget.ModUUID .. "_NextPage_" .. self.Widget.Setting.Id
     if not nextButton.Image or nextButton.Image.Icon == "" then
@@ -589,6 +602,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:AddInputAndAddButton()
     local inputGroup = self.Widget.InputGroup
+    ---@cast inputGroup ExtuiGroup
     inputGroup:AddText(Ext.Loca.GetTranslatedString("hf10161d75da04360907b151e4eb07054f8cb"))
 
     -- Input field for adding new elements; NewElementName outlives the input across rebuilds
@@ -605,6 +619,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end
 
     -- Add button
+    ---@type ExtuiImageButton|ExtuiButton
     local addButton = inputGroup:AddImageButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"),
         "ico_plus_d", IMGUIWidget:GetIconSizes())
     addButton.IDContext = self.Widget.ModUUID .. "_AddElementButton_" .. self.Widget.Setting.Id
@@ -645,7 +660,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
 end
 
 ---Creates the search results table
----@param parentGroup ExtuiGroup The parent group to which the table is added
+---@param parentGroup ExtuiTreeParent The parent group to which the table is added
 ---@return ExtuiTable imguiTable The created IMGUI table
 function ListV2IMGUIWidget:CreateSearchResultsTable(parentGroup)
     local imguiTable = parentGroup:AddTable("", 2)
@@ -713,7 +728,7 @@ function ListV2IMGUIWidget:RenderSearchResultRow(imguiTable, result)
 end
 
 ---Renders pagination controls for the search results
----@param parentGroup ExtuiGroup The parent group to which pagination controls are added
+---@param parentGroup ExtuiTreeParent The parent group to which pagination controls are added
 ---@param totalPages number The total number of pages
 ---@return nil
 function ListV2IMGUIWidget:RenderSearchResultsPagination(parentGroup, totalPages)
@@ -748,6 +763,7 @@ function ListV2IMGUIWidget:AddSearchResultsPaginationButtons(paginationGroup, to
     end
 
     -- Previous button
+    ---@type ExtuiImageButton|ExtuiButton
     local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
     prevButton.IDContext = self.Widget.ModUUID .. "_SearchResultsPrevPage_" .. self.Widget.Setting.Id
     if not prevButton.Image or prevButton.Image.Icon == "" then
@@ -773,6 +789,7 @@ function ListV2IMGUIWidget:AddSearchResultsPaginationButtons(paginationGroup, to
     end
 
     -- Next button
+    ---@type ExtuiImageButton|ExtuiButton
     local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
     nextButton.IDContext = self.Widget.ModUUID .. "_SearchResultsNextPage_" .. self.Widget.Setting.Id
     if not nextButton.Image or nextButton.Image.Icon == "" then
@@ -1013,6 +1030,7 @@ function ListV2IMGUIWidget:RenderSearchResults()
     end
 
     local searchResultsGroup = self.Widget.SearchResultsGroup
+    ---@cast searchResultsGroup ExtuiGroup
     -- Add "suggestions" collapsing header
     local collapsibleHeader = searchResultsGroup:AddCollapsingHeader(Ext.Loca.GetTranslatedString(
         "h2e8476727f27406c813c00ae59dfd9d08543") or "Suggestions")

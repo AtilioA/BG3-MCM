@@ -1,4 +1,15 @@
+---@class CaptureKeyInputEventStub : EclLuaKeyInputEventParams
+---@field prevented boolean
+---@field stopped boolean
+
+---@class CaptureMouseInputEventStub : EclLuaMouseButtonEventParams
+---@field prevented boolean
+---@field stopped boolean
+
 D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "unit" } }, function()
+    ---@param eventType "KeyDown"|"KeyUp"
+    ---@param key string
+    ---@return CaptureKeyInputEventStub
     local function KeyEvent(eventType, key)
         return {
             Event = eventType,
@@ -16,6 +27,9 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
         }
     end
 
+    ---@param pressed boolean
+    ---@param button integer
+    ---@return CaptureMouseInputEventStub
     local function MouseEvent(pressed, button)
         return {
             Pressed = pressed,
@@ -71,6 +85,7 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
         D.expect(window.NoMouseInputs).toBe(true)
         D.expect(KeybindingCaptureSession.Start({ OnComplete = function() end })).toBeNil()
 
+        assert(session)
         session:Cancel("cancelled")
         session:Cancel("cancelled")
         session:HandleKeyInput(KeyEvent("KeyUp", "K"))
@@ -82,6 +97,7 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
             OnComplete = function(value) table.insert(outcomes, value) end,
         })
         D.expect(window.NoMouseInputs).toBe(true)
+        assert(nextSession)
         nextSession:HandleMouseInput(MouseEvent(true, 8))
         Ext.ModEvents["BG3MCM"][EventChannels.MCM_WINDOW_CLOSED]:Throw({})
         D.expect(KeybindingCaptureSession.IsActive()).toBe(false)
@@ -105,6 +121,7 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
             end
         })
 
+        assert(session)
         local press = KeyEvent("KeyDown", "k")
         session:HandleKeyInput(press)
         D.expect(outcome).toBeNil()
@@ -137,6 +154,7 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
             end
         })
 
+        assert(session)
         session:HandleMouseInput(MouseEvent(true, 8))
         session:Cancel("timeout")
         session:Cancel("timeout")
@@ -161,6 +179,7 @@ D.describe("keybinding capture session", { tags = { "keybinding_v2", "client", "
             end
         })
 
+        assert(session)
         session:HandleKeyInput(KeyEvent("KeyDown", "ESCAPE"))
         session:HandleKeyInput(KeyEvent("KeyUp", "ESCAPE"))
         session:Cancel("cancelled")

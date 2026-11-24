@@ -1,4 +1,12 @@
 D.describe("Radio reset visibility", { tags = { "radio_reset_visibility", "client", "unit" } }, function()
+    ---@class RadioResetFakeElement : ExtuiTreeParent
+    ---@field added table<string, RadioResetFakeElement[]>
+    ---@field Image? { Icon: string }
+    ---@field SetColor fun(self: RadioResetFakeElement)
+    ---@field SetStyle fun(self: RadioResetFakeElement)
+    ---@field Destroy fun(self: RadioResetFakeElement)
+    ---@field Tooltip fun(self: RadioResetFakeElement): RadioResetFakeElement
+
     D.test("selection tracks the stored value and updates reset visibility", function(ctx)
         local modUUID = "00000000-0000-0000-0000-00000000C007"
         local writes = {}
@@ -12,25 +20,34 @@ D.describe("Radio reset visibility", { tags = { "radio_reset_visibility", "clien
             result.SetStyle = function() end
             result.Destroy = function() end
             function result:Tooltip() return element() end
-            return setmetatable(result, {
+            local fakeElement = setmetatable(result, {
                 __index = function(_, key)
                     if type(key) ~= "string" or key:sub(1, 3) ~= "Add" then return nil end
                     return function() return element({ Image = { Icon = "fake_icon" } }) end
                 end,
             })
+            ---@cast fakeElement RadioResetFakeElement
+            return fakeElement
         end
-        local setting = {
-            GetId = function() return "radio-test" end,
-            GetLocaName = function() return "Radio test" end,
-            GetType = function() return "radio" end,
-            GetOptions = function() return { Choices = { "first", "second" } } end,
-            GetDefault = function() return "first" end,
-            GetDescription = function() return nil end,
-            GetTooltip = function() return nil end,
-            GetHandles = function() return {} end,
-        }
+        local setting = BlueprintSetting:New({
+            Id = "radio-test",
+            Name = "Radio test",
+            Type = "radio",
+            Default = "first",
+            Options = { Choices = { "first", "second" } },
+        })
+        setting.GetId = function() return "radio-test" end
+        setting.GetLocaName = function() return "Radio test" end
+        setting.GetType = function() return "radio" end
+        setting.GetOptions = function() return { Choices = { "first", "second" } } end
+        setting.GetDefault = function() return "first" end
+        setting.GetDescription = function() return nil end
+        setting.GetTooltip = function() return nil end
+        setting.GetHandles = function() return {} end
         local widget = IMGUIWidget:Create(element({ IDContext = "group" }), setting, "first", modUUID,
             RadioIMGUIWidget)
+        assert(widget)
+        ---@cast widget RadioIMGUIWidget
 
         D.expect(widget._resetButton.Visible).toBe(false)
         widget.Widget[2].OnChange(widget.Widget[2])

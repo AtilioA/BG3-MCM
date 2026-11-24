@@ -2,8 +2,9 @@
 ---@field private SectionName string
 ---@field private SectionId string
 ---@field private SectionDescription string
----@field private VisibleIf VisibleIfDefinition
+---@field private VisibleIf VisibleIfDefinition|string
 ---@field private Options table
+---@field private Tabs? BlueprintTab[]
 ---@field private Settings BlueprintSetting[]
 ---@field private Handles? table
 BlueprintSection = _Class:Create("BlueprintSection", nil, {
@@ -21,8 +22,8 @@ BlueprintSection = _Class:Create("BlueprintSection", nil, {
 --- @param options table
 --- @return BlueprintSection
 function BlueprintSection:New(options)
-    ---@type BlueprintSection
     local self = setmetatable({}, BlueprintSection)
+    ---@cast self BlueprintSection
     self.SectionId = options.SectionId or ""
     self.SectionName = options.SectionName or ""
     self.SectionDescription = options.SectionDescription or ""
@@ -61,7 +62,7 @@ function BlueprintSection:GetDescription()
     return VCString:ResolveBlueprintText(self.Handles and self.Handles.DescriptionHandle, self.SectionDescription)
 end
 
----@return VisibleIfDefinition
+---@return VisibleIfDefinition|string
 function BlueprintSection:GetVisibleIf()
     return self.VisibleIf
 end

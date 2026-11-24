@@ -1,4 +1,5 @@
 ---@class CheckboxIMGUIWidget: IMGUIWidget
+---@field Widget ExtuiCheckbox
 CheckboxIMGUIWidget = _Class:Create("CheckboxIMGUIWidget", IMGUIWidget)
 
 ---@param group ExtuiGroup
@@ -9,6 +10,7 @@ CheckboxIMGUIWidget = _Class:Create("CheckboxIMGUIWidget", IMGUIWidget)
 function CheckboxIMGUIWidget:new(group, setting, initialValue, modUUID)
     -- Ensure Widget is an instance-specific property. This is some Lua nonsense that I don't understand. Try designing a better language next time. /hj
     local instance = setmetatable({}, { __index = CheckboxIMGUIWidget })
+    ---@cast instance CheckboxIMGUIWidget
 
     instance.UserData = {
         ModUUID = modUUID,

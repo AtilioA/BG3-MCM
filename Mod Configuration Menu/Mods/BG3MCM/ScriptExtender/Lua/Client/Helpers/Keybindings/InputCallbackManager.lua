@@ -28,7 +28,7 @@ InputCallbackManager.KeybindingsLoadedSubject = RX.ReplaySubject.Create(1)
 --- REVIEW: Maybe we don't want separate event type registrations. Still thinking about that.
 ---@param modUUID string The mod's unique identifier.
 ---@param actionId string The key of the action.
----@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) The raw input event callback.
+---@param callback fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams) The raw input event callback.
 ---@param eventType? string Optional event type: "KeyDown", "KeyUp", or nil for both (backward compatible)
 function InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback, eventType)
     if InputCallbackManager._KeybindingsLoaded then
@@ -93,7 +93,7 @@ end
 --- Registers a keybinding callback for KeyDown events only.
 ---@param modUUID string The mod's unique identifier.
 ---@param actionId string The key of the action.
----@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) The raw key-down or mouse-press callback.
+---@param callback fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams) The raw key-down or mouse-press callback.
 function InputCallbackManager.SetKeyDownCallback(modUUID, actionId, callback)
     InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback, "KeyDown")
 end
@@ -101,7 +101,7 @@ end
 --- Registers a keybinding callback for KeyUp events only.
 ---@param modUUID string The mod's unique identifier.
 ---@param actionId string The key of the action.
----@param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent) The raw key-up or mouse-release callback.
+---@param callback fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams) The raw key-up or mouse-release callback.
 function InputCallbackManager.SetKeyUpCallback(modUUID, actionId, callback)
     InputCallbackManager.SetKeybindingCallback(modUUID, actionId, callback, "KeyUp")
 end
@@ -154,7 +154,7 @@ end
 --- Registers a keyboard/mouse callback by delegating to the registry.
 --- @param modUUID string
 --- @param actionId string
---- @param callback fun(e:EclLuaKeyInputEvent|EclLuaMouseButtonEvent)
+--- @param callback fun(e:EclLuaKeyInputEventParams|EclLuaMouseButtonEventParams)
 --- @param eventType? string Optional event type: "KeyDown", "KeyUp", or nil for both
 function InputCallbackManager.RegisterKeybinding(modUUID, actionId, callback, eventType)
     return KeybindingsRegistry.RegisterCallback(modUUID, actionId, "KeyboardMouse", callback, eventType)

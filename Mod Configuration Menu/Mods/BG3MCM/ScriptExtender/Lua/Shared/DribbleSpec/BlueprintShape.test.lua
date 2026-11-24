@@ -8,6 +8,7 @@ D.describe("BlueprintShape isolated traversal", { tags = { "blueprint-shape", "u
         local root = { Settings = { first }, Sections = {
             { SectionId = "section", Tabs = { { TabId = "tab", Settings = { second, anonymous } } } },
         } }
+        ---@cast root Blueprint
         local ordered = BlueprintShape:GetAllSettingsOrdered(root)
         D.expect(#ordered).toBe(3)
         D.expect(ordered[1]).toBe(first)
@@ -19,6 +20,7 @@ D.describe("BlueprintShape isolated traversal", { tags = { "blueprint-shape", "u
         D.expect(BlueprintShape:GetSettingById(root, "nested")).toBe(second)
         local path = BlueprintShape:GetPathForSetting(root, "nested")
         D.expect(#path).toBe(2)
+        assert(path)
         D.expect(path[1]).toBe("section")
         D.expect(path[2]).toBe("tab")
         D.expect(BlueprintShape:GetPathForSetting(root, "missing")).toBe(nil)
@@ -33,6 +35,7 @@ D.describe("BlueprintShape isolated traversal", { tags = { "blueprint-shape", "u
         local tab = { TabId = "outer", Tabs = { nested } }
         local root = { Tabs = { tab } }
         local tabs, sections, elements = {}, {}, {}
+        ---@cast root Blueprint
         BlueprintShape:ForEachTab(root, function(value) table.insert(tabs, value) end)
         BlueprintShape:ForEachSection(root, function(value) table.insert(sections, value) end)
         BlueprintShape:ForEachElement(root, function(_, kind) table.insert(elements, kind) end)
@@ -49,6 +52,7 @@ D.describe("BlueprintShape isolated traversal", { tags = { "blueprint-shape", "u
     D.test("uses accessors and preserves siblings when writing values", function()
         local setting = { GetId = function() return "choice" end, GetDefault = function() return false end }
         local root = { GetSettings = function() return { setting } end }
+        ---@cast root Blueprint
         D.expect(BlueprintShape:RetrieveDefaultValueForSetting(root, "choice")).toBe(false)
         D.expect(BlueprintShape:GetSettingById(root, "choice")).toBe(setting)
         local output = { a = { sibling = 7 } }
@@ -75,6 +79,7 @@ D.describe("BlueprintShape isolated traversal", { tags = { "blueprint-shape", "u
         local innerTab = { TabId = "inner" }
         local root = { Sections = { { SectionId = "", Sections = { leaf }, Tabs = { innerTab } } } }
         local tabs, sections, settings, kinds = {}, {}, {}, {}
+        ---@cast root Blueprint
         BlueprintShape:ForEachTab(root, function(v) table.insert(tabs, v) end)
         BlueprintShape:ForEachSection(root, function(v) table.insert(sections, v) end)
         BlueprintShape:ForEachSetting(root, function(v) table.insert(settings, v) end)
@@ -87,12 +92,14 @@ D.describe("BlueprintShape isolated traversal", { tags = { "blueprint-shape", "u
         D.expect(kinds[4]).toBe("setting")
         local path = BlueprintShape:GetPathForSetting(root, "leaf")
         D.expect(#path).toBe(1)
+        assert(path)
         D.expect(path[1]).toBe("leaf-section")
     end)
     D.test("visits tabs inside a tab section and delegates invalidation", function(ctx)
         local nested = { TabId = "nested" }
         local root = { Tabs = { { Sections = { { Tabs = { nested } } } } } }
         local tabs = {}
+        ---@cast root Blueprint
         BlueprintShape:ForEachTab(root, function(tab) table.insert(tabs, tab) end)
         D.expect(#tabs).toBe(2)
         D.expect(tabs[2]).toBe(nested)

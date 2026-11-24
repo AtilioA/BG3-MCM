@@ -8,3 +8,9 @@ repos:
         files: '(\.lua|(^|/)MCM_blueprint\.json)$'
         # These test fixtures are not real mod blueprints.
         exclude: '/DribbleSpec/Fixtures/'
+      - id: luals-check
+        name: luals-check
+        entry: powershell -NoProfile -File tools/luals/check.ps1
+        language: system
+        pass_filenames: false
+        files: '\.lua$'

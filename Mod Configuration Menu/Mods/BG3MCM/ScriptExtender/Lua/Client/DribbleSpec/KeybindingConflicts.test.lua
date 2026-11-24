@@ -62,7 +62,9 @@ D.describe("keybinding native catalog reuse", { tags = { "keybinding_v2", "clien
             }
         end)
 
+        ---@type KeybindingUIMod
         local mod = { ModUUID = MOD_A, ModName = "M" }
+        ---@type KeybindingUIAction
         local action = { ActionId = "a1", ActionName = "a1", AllowConflict = false }
 
         -- One shared fetch, reused across rows.
@@ -77,10 +79,12 @@ D.describe("keybinding native catalog reuse", { tags = { "keybinding_v2", "clien
             { Key = "Z", ModifierKeys = {} }, mod, action, "KeyboardMouse", nativeData)
 
         D.expect(type(sharedMcm)).toBe("table")
+        assert(sharedMcm)
         D.expect(sharedMcm.ActionName).toBe("b1")
         D.expect(sharedMcm.Keybinding.Key).toBe("K")
         D.expect(sharedMcm.Keybinding.ModifierKeys).toEqual({})
         D.expect(type(sharedNative)).toBe("table")
+        assert(sharedNative)
         D.expect(sharedNative.ActionName).toBe("NativeJump")
         D.expect(sharedNative.Keybinding.Key).toBe("J")
         D.expect(sharedMiss).toBeNil()
@@ -90,8 +94,10 @@ D.describe("keybinding native catalog reuse", { tags = { "keybinding_v2", "clien
             { Key = "K", ModifierKeys = {} }, mod, action, "KeyboardMouse")
         local freshNative = KeybindingConflictService:CheckForConflicts(
             { Key = "J", ModifierKeys = {} }, mod, action, "KeyboardMouse")
+        assert(freshMcm)
         D.expect(freshMcm.ActionName).toBe("b1")
         D.expect(freshMcm.Keybinding.Key).toBe("K")
+        assert(freshNative)
         D.expect(freshNative.ActionName).toBe("NativeFly")
         D.expect(freshNative.Keybinding.Key).toBe("J")
     end)
