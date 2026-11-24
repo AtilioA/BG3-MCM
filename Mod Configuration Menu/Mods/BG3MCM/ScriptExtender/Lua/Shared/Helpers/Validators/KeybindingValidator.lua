@@ -4,6 +4,10 @@ KeybindingValidator = _Class:Create("KeybindingValidator", Validator)
 ---@param value Keybinding
 ---@return boolean
 function KeybindingValidator.Validate(config, value)
+    if type(value) ~= "table" then
+        return false
+    end
+
     local isScanCodeString = type(value.ScanCode) == "string"
     if not isScanCodeString then
         return false

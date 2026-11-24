@@ -1201,7 +1201,12 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         D.expect(sanitizedBlueprint).toBeNil()
     end)
 
-    D.test("TestBlueprintVisibleIfRejectsAdditionalGroupFields", function()
+    D.test("TestBlueprintVisibleIfWarnsOnAdditionalGroupFields", function(ctx)
+        local warnings = {}
+        ctx.stub(_G, "MCMWarn", function(_, fmt, ...)
+            table.insert(warnings, select("#", ...) > 0 and string.format(fmt, ...) or tostring(fmt))
+        end)
+
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -1229,10 +1234,16 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         })
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(table.concat(warnings, "\n")).toContain("ExtraField")
     end)
 
-    D.test("TestBlueprintVisibleIfRejectsAdditionalConditionFields", function()
+    D.test("TestBlueprintVisibleIfWarnsOnAdditionalConditionFields", function(ctx)
+        local warnings = {}
+        ctx.stub(_G, "MCMWarn", function(_, fmt, ...)
+            table.insert(warnings, select("#", ...) > 0 and string.format(fmt, ...) or tostring(fmt))
+        end)
+
         local blueprint = Blueprint:New({
             SchemaVersion = 1,
             Settings = {
@@ -1260,7 +1271,8 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
         })
 
         local sanitizedBlueprint = BlueprintPreprocessing:SanitizeBlueprint(blueprint, TestConstants.ModuleUUIDs[1])
-        D.expect(sanitizedBlueprint).toBeNil()
+        D.expect(sanitizedBlueprint).Not.toBeNil()
+        D.expect(table.concat(warnings, "\n")).toContain("ExtraField")
     end)
 
     D.test("TestBlueprintVisibleIfAllowsNumberExpectedValue", function()
@@ -2174,10 +2186,17 @@ D.describe("List enabled blueprint regression", { tags = { "list-enabled-regress
         D.expect(blueprint).toBeNil()
     end)
 
-    D.test("rejects invalid enabled types", function()
+    D.test("rejects invalid enabled types and coerces string element enabled", function()
         D.expect(build({ Enabled = 42, elements = {} })).toBeNil()
         D.expect(build({ enabled = "yes", elements = {} })).toBeNil()
-        D.expect(build({ enabled = true, elements = { { name = "one", enabled = "true" } } })).toBeNil()
+        D.expect(build({ enabled = true, elements = { { name = "one", enabled = "yes" } } })).toBeNil()
+
+        local coerced = build({ enabled = true, elements = { { name = "one", enabled = "true" } } })
+        D.expect(coerced).Not.toBeNil()
+        assert(coerced)
+        local value = coerced:RetrieveDefaultValueForSetting("list")
+        assert(value)
+        D.expect(value.elements[1].enabled).toBe(true)
     end)
 
     D.test("lowercase string whole-list boolean converts", function()

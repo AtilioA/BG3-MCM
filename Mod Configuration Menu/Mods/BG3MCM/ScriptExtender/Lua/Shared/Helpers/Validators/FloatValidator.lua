@@ -6,11 +6,13 @@ function FloatValidator.Validate(config, value)
         return false
     end
     local options = config:GetOptions()
-    if options.Min and not FloatUtils.isWithinEpsilon(value, options.Min, nil) then
-        return false
-    end
-    if options.Max and not FloatUtils.isWithinEpsilon(value, nil, options.Max) then
-        return false
+    if type(options) == "table" then
+        if type(options.Min) == "number" and not FloatUtils.isWithinEpsilon(value, options.Min, nil) then
+            return false
+        end
+        if type(options.Max) == "number" and not FloatUtils.isWithinEpsilon(value, nil, options.Max) then
+            return false
+        end
     end
     return true
 end
