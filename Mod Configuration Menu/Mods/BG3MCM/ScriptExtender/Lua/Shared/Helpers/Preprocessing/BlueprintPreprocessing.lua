@@ -1085,7 +1085,10 @@ local function checkRequiredOptions(self, setting, label)
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
-    if not checkRequiredOptions(self, setting, "Enum") or type(setting.Options.Choices) ~= "table" then
+    if not checkRequiredOptions(self, setting, "Enum") then
+        return false
+    end
+    if type(setting.Options.Choices) ~= "table" then
         MCMWarn(0,
             "Enum setting '%s' must have 'Options.Choices' defined. %s",
             setting:GetId(), contactAuthor(self))
@@ -1127,9 +1130,10 @@ function BlueprintPreprocessing:BlueprintDynamicFlagForEnumShouldBeBoolean(setti
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
-    if not checkRequiredOptions(self, setting, "Radio")
-        or type(setting.Options.Choices) ~= "table"
-        or #setting.Options.Choices == 0 then
+    if not checkRequiredOptions(self, setting, "Radio") then
+        return false
+    end
+    if type(setting.Options.Choices) ~= "table" or #setting.Options.Choices == 0 then
         MCMWarn(0,
             "Radio setting '" .. setting:GetId() .. "' must have 'Options.Choices' defined.")
         return false

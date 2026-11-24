@@ -122,16 +122,14 @@ def check_keywords(node: dict[str, Any], allowed: set[str], context: str) -> Non
         raise ContractError(f"Unrecognized keyword(s) {sorted(unknown)} in {context}.")
 
 
-def extract_object_keys(
-    root: dict[str, Any], node: dict[str, Any], context: str, require_closed: bool = True
-) -> list[str]:
+def extract_object_keys(root: dict[str, Any], node: dict[str, Any], context: str) -> list[str]:
     if "$ref" in node and set(node.keys()) - {"$ref", "markdownDescription", "description"}:
         raise ContractError(f"Unsupported sibling keyword(s) next to $ref in {context}: {sorted(node.keys())}")
     resolved = resolve_ref(root, node)
     check_keywords(resolved, ALLOWED_NON_OPTION_OBJECT_KEYWORDS, context)
     if resolved.get("type") != "object":
         raise ContractError(f"Expected object schema for {context}.")
-    if require_closed and resolved.get("additionalProperties") is not False:
+    if resolved.get("additionalProperties") is not False:
         raise ContractError(f"{context} must set additionalProperties=false.")
     props = resolved.get("properties")
     if not isinstance(props, dict):
