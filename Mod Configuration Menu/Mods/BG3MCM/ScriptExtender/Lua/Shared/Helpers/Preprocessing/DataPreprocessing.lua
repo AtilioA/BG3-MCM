@@ -120,6 +120,19 @@ local function coerceLegacyBooleanOptions(tbl)
     end
 end
 
+---@param modUUID string|nil
+---@return string modDisplayName
+---@return string contactSuffix
+local function formatModAttribution(modUUID)
+    local mod = modUUID and Ext.Mod.GetMod(modUUID) or nil
+    local info = mod and mod.Info or nil
+    local modName = (info and info.Name and info.Name ~= "") and ("'" .. info.Name .. "'") or tostring(modUUID)
+    local contactSuffix = (info and info.Author and info.Author ~= "")
+        and (" Please contact " .. info.Author .. " about this issue.")
+        or ""
+    return modName, contactSuffix
+end
+
 ---@param tbl table|nil
 ---@param allowedKeys table<string, boolean>|nil
 ---@param scopeLabel string
@@ -128,9 +141,10 @@ local function warnUnknownKeys(tbl, allowedKeys, scopeLabel, modUUID)
     if type(tbl) ~= "table" or type(allowedKeys) ~= "table" then
         return
     end
+    local modName, contactSuffix = formatModAttribution(modUUID)
     for key, _ in pairs(tbl) do
         if type(key) ~= "string" or not allowedKeys[key] then
-            MCMWarn(0, "Unknown blueprint key '%s' in %s for mod %s.", tostring(key), scopeLabel, tostring(modUUID))
+            MCMWarn(0, "Unknown blueprint key '%s' in %s for mod %s.%s", tostring(key), scopeLabel, modName, contactSuffix)
         end
     end
 end
