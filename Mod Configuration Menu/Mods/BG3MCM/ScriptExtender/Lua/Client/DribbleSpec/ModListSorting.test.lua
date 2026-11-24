@@ -6,11 +6,11 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
     local PREFERENCES = "ModListPreferences"
 
     --- In-memory stand-in for MCM.Store; `refused` names variables whose writes fail
-    ---@class FakeStore : MCMStoreAPI
+    ---@class ModListSortingFakeStore : MCMStoreAPI
     ---@field values table
     ---@param values? table
     ---@param refused? table<string, boolean>
-    ---@return FakeStore store
+    ---@return ModListSortingFakeStore store
     local function FakeStore(values, refused)
         values = values or {}
         return {
@@ -364,7 +364,7 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
     D.test("preferences use their own client-only file, away from the shareable layout", function()
         local registered = {}
         local store = FakeStore()
-        store.RegisterVar = function(var, options) registered[var] = options end
+        store.RegisterVar = function(var, options) registered[var] = options; return true end
         local state = ModListState:New(store)
         local config = registered[PREFERENCES].storageConfig
         D.expect(config.fileName).toBe("MCM_mod_list_preferences.json")
@@ -472,14 +472,14 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         local state = ModListState:New(store)
         local ids = {}
         for index = 1, 3 do
-            ids[index] = state:NextFolderId({ main = {} })
+            ids[index] = state:NextFolderId({ main = {}, hidden = {} })
             D.expect(state:CreateFolder(ids[index], "Folder " .. index)).toBe(true)
         end
         D.expect(ids).toEqual({ "fld-1", "fld-2", "fld-3" })
         D.expect(store.values.UI.NextFolder).toBe(4)
         D.expect(state:DeleteFolder("fld-3")).toBe(true)
         D.expect(store.values.UI.NextFolder).toBe(4)
-        D.expect(state:NextFolderId({ main = {} })).toBe("fld-4")
+        D.expect(state:NextFolderId({ main = {}, hidden = {} })).toBe("fld-4")
         D.expect(state:CreateFolder("custom", "Not numbered")).toBe(true)
         D.expect(store.values.UI.NextFolder).toBe(4)
     end)
@@ -493,7 +493,7 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         local saved = store.values[PREFERENCES]
         store.values[PREFERENCES] = nil
         local fresh = ModListState:New(store)
-        local id = assert(fresh:NextFolderId({ main = {} }))
+        local id = assert(fresh:NextFolderId({ main = {}, hidden = {} }))
         D.expect(id).toBe("fld-3")
         D.expect(fresh:CreateFolder(id, "New")).toBe(true)
         store.values[PREFERENCES] = saved
@@ -505,20 +505,20 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
             local document = { NextFolder = bad }
             local store = FakeStore({ UI = document })
             local state = ModListState:New(store)
-            D.expect(state:NextFolderId({ main = {} })).toBeNil()
+            D.expect(state:NextFolderId({ main = {}, hidden = {} })).toBeNil()
             D.expect(state:CreateFolder("fld-1", "New")).toBe(false)
             D.expect(store.values.UI).toBe(document)
         end
         local store = FakeStore({ UI = { NextFolder = 5 } }, { UI = true })
         local state = ModListState:New(store)
-        local nextFolderId = assert(state:NextFolderId({ main = {} }))
+        local nextFolderId = assert(state:NextFolderId({ main = {}, hidden = {} }))
         D.expect(state:CreateFolder(nextFolderId, "New")).toBe(false)
         D.expect(store.values.UI).toEqual({ NextFolder = 5 })
     end)
 
     --- A list button wired to stand-ins for the pane's navigation
     ---@param ctx table
-    ---@param store FakeStore
+    ---@param store ModListSortingFakeStore
     ---@param active string|nil Page shown before the activation
     ---@param uuid string
     ---@return table button
@@ -671,13 +671,18 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         D.expect(rebuilt).toBe(1)
     end)
 
-    ---@class FakeSettingsPane : LeftPane
+    ---@class FakeSettingsPane
+    ---@field visibility ModListState
+    ---@field mods table
     ---@field rebuilt integer
+    ---@field RebuildModEntries? fun(self: FakeSettingsPane)
 
-    ---@class FakeSettingsParent : ExtuiTreeParent
+    ---@class FakeSettingsParent
+    ---@field AddGroup fun(self: FakeSettingsParent): table
+    ---@field AddDummy fun()
 
     --- A Mod list section rendered on stand-in widgets
-    ---@param store FakeStore
+    ---@param store ModListSortingFakeStore
     ---@return ModListSettings settings
     ---@return table pane
     local function Settings(store)
@@ -694,6 +699,8 @@ D.describe("Mod list sorting", { tags = { "mod_list_sorting", "client", "unit" }
         ---@type FakeSettingsPane
         local pane = { visibility = ModListState:New(store), mods = {}, rebuilt = 0 }
         function pane:RebuildModEntries() self.rebuilt = self.rebuilt + 1 end
+        ---@cast parent ExtuiTreeParent
+        ---@cast pane LeftPane
         return ModListSettings:New(parent, pane), pane
     end
 

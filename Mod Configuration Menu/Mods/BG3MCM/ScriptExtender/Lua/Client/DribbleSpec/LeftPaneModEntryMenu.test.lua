@@ -3,11 +3,11 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     local MOD_B = "00000000-0000-0000-0000-00000000B002"
 
     --- In-memory stand-in for MCM.Store, so tests never touch the player's MCM_state.json
-    ---@class FakeStore : MCMStoreAPI
+    ---@class LeftPaneMenuFakeStore : MCMStoreAPI
     ---@field values table
     ---@param values? table Initial Store values, e.g. { UI = ... }
     ---@param unreadable? boolean Whether the state file failed to parse, so Store refuses writes
-    ---@return FakeStore store
+    ---@return LeftPaneMenuFakeStore store
     local function FakeStore(values, unreadable)
         values = values or {}
         return {
@@ -64,7 +64,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
     end
 
     --- Open the right-click menu for MOD_A
-    ---@param store FakeStore Store stand-in from FakeStore
+    ---@param store LeftPaneMenuFakeStore Store stand-in from FakeStore
     ---@param authorHidden boolean The mod's blueprint HiddenFromList
     ---@param isHidden boolean Whether the entry is in Hidden mods
     ---@return table popup Rows the menu offers; the last row is the visibility action
@@ -158,7 +158,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local popup = FakePopup()
         local pane = setmetatable({ expandedGroups = {}, parent = { AddPopup = function() return popup end },
             visibility = ModListState:New(store), mods = {}, RebuildModEntries = function() end }, LeftPane)
-        pane:OpenFolderMenu({ id = "f", name = "Folder", items = { { id = MOD_A } }, members = { MOD_A } })
+        pane:OpenFolderMenu({ kind = "folder", id = "f", name = "Folder", items = { { kind = "mod", id = MOD_A, name = "A" } }, members = { MOD_A } })
         D.expect(#popup.items).toBe(3)
         popup.items[2].OnClick()
         D.expect(store.values.UI.Folders.f).toBe(nil)
@@ -173,7 +173,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         pane.OpenFolderNamePopup = function(_, folder, mod)
             opened = folder == nil and mod == nil
         end
-        pane:OpenFolderMenu({ id = "Main", name = "Main list" })
+        pane:OpenFolderMenu({ kind = "folder", id = "Main", name = "Main list" })
         D.expect(#popup.items).toBe(1)
         popup.items[1].OnClick()
         D.expect(opened).toBe(true)
@@ -186,7 +186,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local pane = setmetatable({ parent = { AddPopup = function() return popup end },
             visibility = ModListState:New(FakeStore({}, true)), mods = {},
             RebuildModEntries = function() error("must not rebuild") end }, LeftPane)
-        pane:OpenFolderMenu({ id = "f", name = "Folder", members = {} })
+        pane:OpenFolderMenu({ kind = "folder", id = "f", name = "Folder", members = {} })
         popup.items[2].OnClick()
         D.expect(warnings).toBe(1)
     end)
@@ -348,7 +348,12 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
 
     ---@class FakeContainer : ExtuiTreeParent
 
-    ---@class FakeStyledRenderable : ExtuiStyledRenderable
+    ---@class FakeStyledRenderable
+    ---@field Label string|nil
+    ---@field CanDrag boolean|nil
+    ---@field OnDragStart fun(self: FakeStyledRenderable, preview: table)|nil
+    ---@field OnDragDrop fun(self: FakeStyledRenderable, source: FakeStyledRenderable)|nil
+    ---@field OnDragEnd fun(self: FakeStyledRenderable)|nil
     ---@field previewText string|nil
 
     --- Sidebar container stand-in that records added widgets in order
@@ -647,8 +652,11 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local source = {}
         ---@type FakeStyledRenderable
         local target = {}
-        pane:ConfigureModListDrag(source, "folder", "second", "Main")
-        pane:ConfigureModListDrag(target, "folder", "first", "Main")
+        local uiSource, uiTarget = source, target
+        ---@cast uiSource ExtuiStyledRenderable
+        ---@cast uiTarget ExtuiStyledRenderable
+        pane:ConfigureModListDrag(uiSource, "folder", "second", "Main")
+        pane:ConfigureModListDrag(uiTarget, "folder", "first", "Main")
         target.OnDragDrop(target, source)
         D.expect(moved).toEqual({ second, "Main", "Main", first })
     end)
@@ -668,8 +676,11 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local source = {}
         ---@type FakeStyledRenderable
         local target = {}
-        pane:ConfigureModListDrag(source, "folder", "folder", "Main")
-        pane:ConfigureModListDrag(target, "group", "Hidden", "Hidden")
+        local uiSource, uiTarget = source, target
+        ---@cast uiSource ExtuiStyledRenderable
+        ---@cast uiTarget ExtuiStyledRenderable
+        pane:ConfigureModListDrag(uiSource, "folder", "folder", "Main")
+        pane:ConfigureModListDrag(uiTarget, "group", "Hidden", "Hidden")
         target.OnDragDrop(target, source)
         D.expect(refusal).toBe("nested")
     end)
@@ -685,7 +696,9 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         pane:RebuildModEntries({})
         ---@type FakeStyledRenderable
         local source = { Label = "> Mod" }
-        pane:ConfigureModListDrag(source, "mod", MOD_A, "folder-1")
+        local uiSource = source
+        ---@cast uiSource ExtuiStyledRenderable
+        pane:ConfigureModListDrag(uiSource, "mod", MOD_A, "folder-1")
         local preview = { AddText = function(_, text) source.previewText = text end }
         source.OnDragStart(source, preview)
         D.expect(source.previewText).toBe("Mod")
@@ -760,7 +773,9 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         ctx.stub(DualPane, "HoldSidebar", function(_, _, value) held = value end)
         -- ctx.stub replaces only functions; this field is a table, and the menu reads its detached windows.
         local previousRightPane = DualPane.rightPane
-        DualPane.rightPane = { detachedWindows = {} }
+        local fakeRightPane = { detachedWindows = {} }
+        ---@cast fakeRightPane RightPane
+        DualPane.rightPane = fakeRightPane
         ctx.sandbox:TrackRestore(function() DualPane.rightPane = previousRightPane end)
         for _, kind in ipairs({ "folder", "mod" }) do
             local popup = FakePopup()
@@ -768,7 +783,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
                 mods = { [ModuleUUID] = { blueprint = { GetModName = function() return "MCM" end } } },
                 visibility = ModListState:New(FakeStore()) }, LeftPane)
             if kind == "folder" then
-                pane:OpenFolderMenu({ id = "Main", name = "Main list" })
+                pane:OpenFolderMenu({ kind = "folder", id = "Main", name = "Main list" })
             else
                 pane:OpenModEntryMenu(ModuleUUID, false)
             end
@@ -787,7 +802,7 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         local clicked = false
         local pane = setmetatable({ parent = { AddPopup = function() return popup end },
             visibility = ModListState:New(FakeStore()), resolved = { main = {} } }, LeftPane)
-        pane:OpenFolderMenu({ id = "Main", name = "Main" })
+        pane:OpenFolderMenu({ kind = "folder", id = "Main", name = "Main" })
         local row = popup.items[1]
         row.OnHoverEnter()
         D.expect(held).toBe(true)
@@ -865,7 +880,9 @@ D.describe("LeftPane mod entry menu", { tags = { "mod_list_visibility", "client"
         D.expect(#popup.items).toBe(1)
         ---@type FakeStyledRenderable
         local widget = {}
-        pane:ConfigureModListDrag(widget, "mod", ModuleUUID, "Main")
+        local uiWidget = widget
+        ---@cast uiWidget ExtuiStyledRenderable
+        pane:ConfigureModListDrag(uiWidget, "mod", ModuleUUID, "Main")
         D.expect(widget.CanDrag).toBe(false)
         D.expect(widget.OnDragDrop ~= nil).toBe(true)
     end)

@@ -2,13 +2,14 @@
 KeybindingV2Validator = _Class:Create("KeybindingV2Validator", Validator)
 
 ---@param config BlueprintSetting
----@param value KeybindingV2Value
+---@param value MCMSettingValue
 ---@return boolean
 function KeybindingV2Validator.Validate(config, value)
     if type(value) ~= "table" then
         MCMWarn(0, "Validation failed: value is not a table.")
         return false
     end
+    ---@cast value table
 
     local keyboard = value.Keyboard
     local mouse = value.Mouse

@@ -13,7 +13,7 @@ function ColorEditIMGUIWidget:new(group, setting, initialValue, modUUID)
     local rgb = { initialValue[1], initialValue[2], initialValue[3] }
     instance.Widget = group:AddColorEdit("", rgb)
     instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Color, modUUID)
+        IMGUIAPI:SetSettingValue(setting:GetId(), value.Color, modUUID)
     end
     return instance
 end

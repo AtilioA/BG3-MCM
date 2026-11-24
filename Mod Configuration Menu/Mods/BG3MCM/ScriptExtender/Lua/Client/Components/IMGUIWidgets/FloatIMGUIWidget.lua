@@ -12,7 +12,7 @@ function FloatIMGUIWidget:new(group, setting, initialValue, modUUID)
     ---@cast instance FloatIMGUIWidget
     instance.Widget = group:AddInputScalar("", initialValue)
     instance.Widget.OnChange = VCTimer:Debounce(200, function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
+        IMGUIAPI:SetSettingValue(setting:GetId(), value.Value[1], modUUID)
     end)
     return instance
 end

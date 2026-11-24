@@ -206,7 +206,7 @@ function ModVarAdapter:_doSetValue(key, value, moduleUUID, storageConfig)
         -- Immediate sync if configured
         local syncOnWrite = storageConfig and storageConfig.SyncOnWrite
         if syncOnWrite then
-            Ext.Vars.SyncModVariables(moduleUUID)
+            Ext.Vars.SyncModVariables()
         end
         -- Otherwise sync happens on next tick (SyncOnTick = true by default)
         MCMDebug(1, "ModVarAdapter:SetValue() - Set value for '%s' to '%s' for module %s", key, tostring(value), moduleUUID)

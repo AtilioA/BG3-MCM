@@ -32,10 +32,19 @@ end
 ---@param currentAllowConflict? boolean
 ---@return KeybindingV2Value
 function KeybindingsRegistry.BuildKeyboardPayload(binding, currentEnabled, currentAllowConflict)
+    local key
+    local modifierKeys
+    if type(binding) == "string" then
+        key = binding
+        modifierKeys = {}
+    else
+        key = binding.Key
+        modifierKeys = binding.ModifierKeys or {}
+    end
     return KeybindingsRegistry.CanonicalizeValue({
         Keyboard = {
-            Key = binding.Key or binding,
-            ModifierKeys = binding.ModifierKeys or {}
+            Key = key,
+            ModifierKeys = modifierKeys
         },
         Enabled = currentEnabled,
         AllowConflict = currentAllowConflict

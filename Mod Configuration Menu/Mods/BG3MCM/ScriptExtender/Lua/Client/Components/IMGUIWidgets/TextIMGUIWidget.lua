@@ -13,12 +13,13 @@ function TextIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     instance.Widget = group:AddInputText("", initialValue)
     instance.Widget.OnDeactivate = function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Text, modUUID)
+        IMGUIAPI:SetSettingValue(setting:GetId(), value.Text, modUUID)
     end
 
     instance.Widget.AutoSelectAll = true
 
-    if setting.Options and setting.Options.Multiline then
+    local options = setting:GetOptions()
+    if options and options.Multiline then
         instance.Widget.Multiline = true
     end
 

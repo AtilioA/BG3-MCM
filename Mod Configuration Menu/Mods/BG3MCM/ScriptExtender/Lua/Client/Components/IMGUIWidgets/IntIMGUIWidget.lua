@@ -13,6 +13,8 @@ function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = IntIMGUIWidget })
     ---@cast instance IntIMGUIWidget
 
+    local settingId = setting:GetId()
+
     -- Helper function to create increment/decrement buttons (int field)
     local function createIncrementButton(label, icon, increment, tooltip)
         ---@type ExtuiButton|ExtuiImageButton
@@ -23,14 +25,14 @@ function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
             button = group:AddButton(label)
         end
 
-        button.IDContext = modUUID .. (increment < 0 and "PreviousButton_" or "NextButton_") .. setting.Id
+        button.IDContext = modUUID .. (increment < 0 and "PreviousButton_" or "NextButton_") .. settingId
         button.OnClick = function()
             local newValue = instance.Widget.Value[1] + increment
             instance:UpdateCurrentValue(newValue)
-            IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
+            IMGUIAPI:SetSettingValue(settingId, newValue, modUUID)
         end
         if tooltip then
-            IMGUIHelpers.AddTooltip(button, tooltip, modUUID .. "WidgetTooltip_" .. setting.Id)
+            IMGUIHelpers.AddTooltip(button, tooltip, modUUID .. "WidgetTooltip_" .. settingId)
         end
         return button
     end
@@ -43,7 +45,7 @@ function IntIMGUIWidget:new(group, setting, initialValue, modUUID)
     -- Actual int input widget
     instance.Widget = group:AddInputInt("", initialValue)
     instance.Widget.OnChange = VCTimer:Debounce(200, function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
+        IMGUIAPI:SetSettingValue(settingId, value.Value[1], modUUID)
     end)
     instance.Widget.SameLine = true
 

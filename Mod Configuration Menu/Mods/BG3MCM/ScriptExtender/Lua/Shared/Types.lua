@@ -44,13 +44,13 @@
 
 ---Represents an assigned keyboard key and its modifiers.
 ---@class KeybindingKeyboardBinding
----@field Key string
----@field ModifierKeys string[]
+---@field Key? string
+---@field ModifierKeys? string[]
 
 ---Represents an assigned mouse button and its keyboard modifiers.
 ---@class KeybindingMouseBinding
----@field Button integer
----@field ModifierKeys string[]
+---@field Button? integer
+---@field ModifierKeys? string[]
 
 ---Stores a complete keyboard-backed keybinding_v2 value.
 ---@class KeybindingV2KeyboardValue

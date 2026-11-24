@@ -63,9 +63,14 @@ D.describe("keybinding native catalog reuse", { tags = { "keybinding_v2", "clien
         end)
 
         ---@type KeybindingUIMod
-        local mod = { ModUUID = MOD_A, ModName = "M" }
-        ---@type KeybindingUIAction
+        local mod = {
+            ModUUID = MOD_A,
+            ModName = "M",
+            Actions = {},
+            KeybindingSortMode = KeybindingSortMode.DEFAULT,
+        }
         local action = { ActionId = "a1", ActionName = "a1", AllowConflict = false }
+        ---@cast action KeybindingUIAction
 
         -- One shared fetch, reused across rows.
         local nativeData = NativeKeybindings.GetAll()

@@ -16,7 +16,7 @@ function EnumIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = EnumIMGUIWidget })
     ---@cast instance EnumIMGUIWidget
     instance.Setting = setting
-    instance.Widget = group:AddCombo("", initialValue) --[[@as EnumIMGUIWidgetCombo]]
+    instance.Widget = group:AddCombo("") --[[@as EnumIMGUIWidgetCombo]]
     instance.Widget.UserData = {
         OptionsLookup = {}
     }

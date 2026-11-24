@@ -6,11 +6,11 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
     local ABSENT_MOD = "00000000-0000-0000-0000-00000000E005"
 
     --- In-memory stand-in for MCM.Store, so tests never touch the player's MCM_state.json
-    ---@class FakeStore : MCMStoreAPI
+    ---@class ModListStateFakeStore : MCMStoreAPI
     ---@field values table
     ---@param values? table Initial Store values, e.g. { UI = ... }
     ---@param unreadable? boolean Whether the state file failed to parse, so Store refuses writes
-    ---@return FakeStore store
+    ---@return ModListStateFakeStore store
     local function FakeStore(values, unreadable)
         values = values or {}
         return {
@@ -224,7 +224,7 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(result.main[3].id).toBe(MOD_B)
         D.expect(state:Move(a, "Main", "f", nil, result)).toBe(true)
         result = state:Resolve(mods)
-        D.expect(state:Move({ kind = "folder", id = "f" }, "Main", "f", nil, result)).toBe(false)
+        D.expect(state:Move({ kind = "folder", id = "f", name = "Folder" }, "Main", "f", nil, result)).toBe(false)
         D.expect(state:Resolve(mods).main[3].id).toBe(MOD_B)
     end)
 
@@ -507,7 +507,7 @@ D.describe("ModListState", { tags = { "mod_list_visibility", "client", "unit" } 
         D.expect(reason).toBe("unchanged")
         _, reason = state:Move(result.main[1], "Main", "Main", nil, result)
         D.expect(reason).toBe("unchanged")
-        _, reason = state:Move({ kind = "folder", id = "f" }, "Main", "Hidden", nil, result)
+        _, reason = state:Move({ kind = "folder", id = "f", name = "Folder" }, "Main", "Hidden", nil, result)
         D.expect(reason).toBe("nested")
         D.expect(store.values).toEqual(before)
     end)

@@ -1,11 +1,23 @@
 D.describe("Sidebar fade", { tags = { "sidebar_fade", "client", "unit" } }, function()
-    ---@class FakeSidebarWindow : ExtuiChildWindow
+    ---@class FakeSidebarWindow
     ---@field alpha number
+    ---@field Visible boolean
     ---@field writes integer
     ---@field StatusFlags string[]
+    ---@field GetStyle? fun(self: FakeSidebarWindow, ...): number
+    ---@field SetStyle? fun(self: FakeSidebarWindow, ...)
 
-    ---@class FakeSidebarController : DualPaneController
+    ---@class FakeSidebarController
     ---@field menuScrollChildWindow FakeSidebarWindow
+    ---@field rightPane { IsCurrentModDetached: fun(self: table): boolean }
+    ---@field windowOpacity number
+    ---@field isHovered boolean
+    ---@field userHasInteracted boolean
+    ---@field FadeSidebarOutAlpha fun(self: FakeSidebarController, ...)
+    ---@field HoldSidebar fun(self: FakeSidebarController, ...)
+    ---@field _startLeaveCountdown fun(self: FakeSidebarController)
+    ---@field CancelAutoCollapse fun(self: FakeSidebarController)
+    ---@field ScheduleAutoCollapse fun(self: FakeSidebarController)
 
     ---@param ctx table DribbleSpec test context
     ---@param opacity number
@@ -24,7 +36,6 @@ D.describe("Sidebar fade", { tags = { "sidebar_fade", "client", "unit" } }, func
         local window = { alpha = opacity, Visible = true, writes = 0, StatusFlags = {} }
         function window:GetStyle() return self.alpha end
         function window:SetStyle(_, value) self.alpha = value; self.writes = self.writes + 1 end
-        ---@type FakeSidebarController
         local controller = {
             menuScrollChildWindow = window,
             rightPane = { IsCurrentModDetached = function() return false end },
@@ -33,6 +44,7 @@ D.describe("Sidebar fade", { tags = { "sidebar_fade", "client", "unit" } }, func
             userHasInteracted = true,
         }
         setmetatable(controller, DualPaneController)
+        ---@cast controller FakeSidebarController
         return controller, clock
     end
 
@@ -76,7 +88,7 @@ D.describe("Sidebar fade", { tags = { "sidebar_fade", "client", "unit" } }, func
     end)
 
     ---@param ctx table DribbleSpec test context
-    ---@param controller DualPaneController
+    ---@param controller FakeSidebarController
     ---@return table counts
     local function countCollapseStarts(ctx, controller)
         local counts = { scheduled = 0 }

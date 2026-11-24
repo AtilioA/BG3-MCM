@@ -2,8 +2,15 @@
 ---@field Widget { Modifier?: string, ScanCode?: string, ModifierWidget?: ExtuiCombo, ScanCodeWidget?: ExtuiCombo }
 KeybindingIMGUIWidget = _Class:Create("KeybindingIMGUIWidget", IMGUIWidget)
 
+---@param group ExtuiGroup
+---@param setting BlueprintSetting
+---@param initialValue { Modifier?: string, ScanCode?: string }
+---@param modUUID string
+---@return KeybindingIMGUIWidget
 function KeybindingIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = KeybindingIMGUIWidget })
+    ---@cast instance KeybindingIMGUIWidget
+    local settingId = setting:GetId()
 
     instance.Widget = {
         Modifier = nil,
@@ -12,14 +19,14 @@ function KeybindingIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     -- Create the combo box for the modifier
     group:AddText(Ext.Loca.GetTranslatedString("h88508a0d202548d39742531d1ecadb2e911e") or "Modifier (optional)")
-    instance.Widget.ModifierWidget = group:AddCombo("", initialValue.Modifier or "")
-    instance.Widget.ModifierWidget.IDContext = setting.Id .. "_Modifier"
+    instance.Widget.ModifierWidget = group:AddCombo("")
+    instance.Widget.ModifierWidget.IDContext = settingId .. "_Modifier"
     instance.Widget.ModifierWidget.Options = SDLKeys.Modifiers
 
     -- Create the combo box for the scan code
     group:AddText(Ext.Loca.GetTranslatedString("h494d0797cc724b3481b61f0f7f99b5d4b3gb") or "Key")
-    instance.Widget.ScanCodeWidget = group:AddCombo("", initialValue.ScanCode or "")
-    instance.Widget.ScanCodeWidget.IDContext = setting.Id .. "_ScanCode"
+    instance.Widget.ScanCodeWidget = group:AddCombo("")
+    instance.Widget.ScanCodeWidget.IDContext = settingId .. "_ScanCode"
     instance.Widget.ScanCodeWidget.Options = SDLKeys.ScanCodes
 
     -- Set initial selection
@@ -81,6 +88,9 @@ function KeybindingIMGUIWidget:UpdateCurrentValue(value)
     end
 end
 
+---@param setting BlueprintSetting
+---@param newValue table
+---@param modUUID string
 function KeybindingIMGUIWidget:UpdateKeybindingValue(setting, newValue, modUUID)
-    IMGUIAPI:SetSettingValue(setting.Id, newValue, modUUID)
+    IMGUIAPI:SetSettingValue(setting:GetId(), newValue, modUUID)
 end

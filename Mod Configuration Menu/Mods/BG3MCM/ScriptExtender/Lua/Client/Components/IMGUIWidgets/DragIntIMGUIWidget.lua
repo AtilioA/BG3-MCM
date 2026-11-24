@@ -10,9 +10,10 @@ DragIntIMGUIWidget = _Class:Create("DragIntIMGUIWidget", IMGUIWidget)
 function DragIntIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = DragIntIMGUIWidget })
     ---@cast instance DragIntIMGUIWidget
-    instance.Widget = group:AddDragInt("", initialValue, setting.Options.Min, setting.Options.Max)
+    local options = setting:GetOptions()
+    instance.Widget = group:AddDragInt("", initialValue, options.Min, options.Max)
     instance.Widget.OnChange = VCTimer:Throttle(33, function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Value[1], modUUID)
+        IMGUIAPI:SetSettingValue(setting:GetId(), value.Value[1], modUUID)
     end)
     return instance
 end

@@ -623,8 +623,9 @@ function MCMRendering:CreateKeybindingsPage()
     -- KeybindingsRegistry:GetSubject() replays synchronously into FilterActions()/RefreshUI().
     local hotkeysGroup
     local success, err = xpcall(function()
-        ---@cast DualPane DualPaneController
-        hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(DualPane)
+        local dualPane = DualPane
+        ---@cast dualPane DualPaneController
+        hotkeysGroup = KeybindingsUI.CreateKeybindingsPage(dualPane)
     end, debug.traceback)
     if not success then
         MCMError(0, "Failed to render keybindings page: %s", err)

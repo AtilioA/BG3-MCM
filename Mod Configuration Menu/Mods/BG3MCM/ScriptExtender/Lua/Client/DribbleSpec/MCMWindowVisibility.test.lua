@@ -94,11 +94,13 @@ D.describe("MCM window visibility", { tags = { "visibility", "client", "unit" } 
     ---@return table session
     local function RankingSession(ctx, visible)
         local values = { ModListPreferences = { SortMode = "recent" } }
-        local state = ModListState:New({
+        local store = {
             RegisterVar = function() return true end,
             Get = function(var) return values[var] end,
             Set = function(var, value) values[var] = value; return true end,
-        })
+        }
+        ---@cast store MCMStoreAPI
+        local state = ModListState:New(store)
         state:Resolve(MODS)
         state.preferences:RecordOpen(MOD_B)
         local session = { state = state, rebuilds = 0, main = { Visible = visible, Open = visible } }

@@ -49,34 +49,34 @@ ListV2IMGUIWidget = _Class:Create("ListV2IMGUIWidget", IMGUIWidget)
 function ListV2IMGUIWidget:new(group, setting, initialValue, ModUUID)
     local instance = setmetatable({}, { __index = ListV2IMGUIWidget })
     ---@cast instance ListV2IMGUIWidget
-    instance.Widget = {}
-    instance.Widget.instance = instance
-    instance.Widget.Group = group
-    instance.Widget.ModUUID = ModUUID
-    instance.Widget.Setting = setting
 
     initialValue = initialValue or {}
-    instance.Widget.Enabled = initialValue.enabled ~= false
-    instance.Widget.Elements = initialValue.elements or {}
+    local options = setting:GetOptions()
+    local pageSize = math.min((options and options.PageSize) or 5, 20)
+    if pageSize < 5 then pageSize = 5 end
+    local readOnly = (options and options.ReadOnly) == true
+    local settingId = setting:GetId()
 
-    instance.Widget.PageSize = math.min((setting:GetOptions() and setting:GetOptions().PageSize) or 5, 20)
-    if instance.Widget.PageSize < 5 then instance.Widget.PageSize = 5 end
-    instance.Widget.ShowSearchBar = (setting:GetOptions() and setting:GetOptions().ShowSearchBar) ~= false
-    instance.Widget.AllowReordering = (setting:GetOptions() and setting:GetOptions().AllowReordering) == true
-    instance.Widget.ReadOnly = (setting:GetOptions() and setting:GetOptions().ReadOnly) == true
-    instance.Widget.Suggestions = (setting:GetOptions() and setting:GetOptions().Suggestions) or {}
-
-    instance.Widget.CurrentPage = 1
-    instance.Widget.FilteredElements = {}
-    instance.Widget.SearchText = ""
-
-    -- Add groups
-    instance.Widget.HeaderGroup = group:AddGroup("ListHeaderGroup_" .. setting.Id)
-    instance.Widget.TableGroup = group:AddGroup("ListTableGroup_" .. setting.Id)
-    if not instance.Widget.ReadOnly then
-        instance.Widget.InputGroup = group:AddGroup("ListInputGroup_" .. setting.Id)
-        instance.Widget.ResetGroup = group:AddGroup("ListResetGroup_" .. setting.Id)
-    end
+    instance.Widget = {
+        instance = instance,
+        Group = group,
+        ModUUID = ModUUID,
+        Setting = setting,
+        Enabled = initialValue.enabled ~= false,
+        Elements = initialValue.elements or {},
+        PageSize = pageSize,
+        ShowSearchBar = (options and options.ShowSearchBar) ~= false,
+        AllowReordering = (options and options.AllowReordering) == true,
+        ReadOnly = readOnly,
+        Suggestions = (options and options.Suggestions) or {},
+        CurrentPage = 1,
+        FilteredElements = {},
+        SearchText = "",
+        HeaderGroup = group:AddGroup("ListHeaderGroup_" .. settingId),
+        TableGroup = group:AddGroup("ListTableGroup_" .. settingId),
+        InputGroup = not readOnly and group:AddGroup("ListInputGroup_" .. settingId) or nil,
+        ResetGroup = not readOnly and group:AddGroup("ListResetGroup_" .. settingId) or nil,
+    }
 
     instance:FilterElements()
     instance:RenderHeader()
@@ -98,7 +98,7 @@ function ListV2IMGUIWidget:RenderHeader()
     -- Enable/disable entire list
     local enabledCheckbox = headerGroup:AddCheckbox(Ext.Loca.GetTranslatedString("h4ffde733fba3492387caa52d9c585d57f177"))
     IMGUIHelpers:ApplyInputStyle(enabledCheckbox, "checkbox")
-    enabledCheckbox.IDContext = self.Widget.ModUUID .. "_EnableCheckbox_" .. self.Widget.Setting.Id
+    enabledCheckbox.IDContext = self.Widget.ModUUID .. "_EnableCheckbox_" .. self.Widget.Setting:GetId()
     IMGUIHelpers.AddTooltip(enabledCheckbox, Ext.Loca.GetTranslatedString("h17e2c93763d54f3f9b5da8722d09cf90fab9"),
         self.Widget.ModUUID .. "_EnableCheckbox_TOOLTIP")
     enabledCheckbox.Checked = self.Widget.Enabled
@@ -108,7 +108,7 @@ function ListV2IMGUIWidget:RenderHeader()
             enabled = self.Widget.Enabled,
             elements = self.Widget.Elements
         }
-        IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.ModUUID)
+        IMGUIAPI:SetSettingValue(self.Widget.Setting:GetId(), settingValue, self.Widget.ModUUID)
         self:Refresh()
     end
     enabledCheckbox.SameLine = false
@@ -120,7 +120,7 @@ function ListV2IMGUIWidget:RenderHeader()
         if not self.Widget.SearchInput then
             self.Widget.SearchInput = headerGroup:AddInputText("", self.Widget.SearchText)
             IMGUIHelpers:ApplyInputStyle(self.Widget.SearchInput, "default")
-            self.Widget.SearchInput.IDContext = self.Widget.ModUUID .. "_SearchInput_" .. self.Widget.Setting.Id
+            self.Widget.SearchInput.IDContext = self.Widget.ModUUID .. "_SearchInput_" .. self.Widget.Setting:GetId()
             self.Widget.SearchInput.OnChange = VCTimer:Debounce(50, function(input)
                 self.Widget.SearchText = input.Text
                 self:FilterElements()
@@ -151,7 +151,7 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
     -- Create a new group for popup confirmation
     self.Widget.ConfirmationPopup = self.Widget.Group:AddPopup("ConfirmDeleteAllPopup")
     self.Widget.ConfirmationPopup:SetStyle("ItemSpacing", 8, 6)
-    self.Widget.ConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAllPopup_" .. self.Widget.Setting.Id
+    self.Widget.ConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAllPopup_" .. self.Widget.Setting:GetId()
 
     local text = self.Widget.ConfirmationPopup:AddText(Ext.Loca.GetTranslatedString(
         "h60c5e6f97c914061887ad783cccf5ac3371f"))
@@ -159,17 +159,17 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     local confirmButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hb2adccb2f863414991f8475d5b394dbb5f65"))
-    confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id
+    confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting:GetId()
     confirmButton.Size = { -1, 0 }
     IMGUIHelpers.AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("he9e1eaf8a127430bba164fd001b3131aa5c1"),
-        self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting.Id .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_ConfirmDeleteAll_" .. self.Widget.Setting:GetId() .. "_TOOLTIP")
     confirmButton.OnClick = function()
         self.Widget.Elements = {}
         local settingValue = {
             enabled = self.Widget.Enabled,
             elements = self.Widget.Elements
         }
-        IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.ModUUID)
+        IMGUIAPI:SetSettingValue(self.Widget.Setting:GetId(), settingValue, self.Widget.ModUUID)
         self:FilterElements()
         self:Refresh()
         self.Widget.ConfirmationPopup:Destroy()
@@ -177,9 +177,9 @@ function ListV2IMGUIWidget:ShowDeleteAllConfirmationPopup()
 
     local cancelButton = self.Widget.ConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "h3481631a19f94c1181c338b3ce88cfff5805"))
-    cancelButton.IDContext = self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id
+    cancelButton.IDContext = self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting:GetId()
     IMGUIHelpers.AddTooltip(cancelButton, Ext.Loca.GetTranslatedString("h390af8814d814ef89fd24feb697262452agc"),
-        self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting.Id .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_CancelDeleteAll_" .. self.Widget.Setting:GetId() .. "_TOOLTIP")
     cancelButton.OnClick = function()
         self.Widget.ConfirmationPopup:Destroy()
     end
@@ -315,7 +315,7 @@ function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
     local enabledCheckbox = checkboxCell:AddCheckbox("")
     IMGUIHelpers:ApplyInputStyle(enabledCheckbox, "checkbox")
     enabledCheckbox.IDContext = self.Widget.ModUUID ..
-        "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name
+        "_ElementEnabled_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     enabledCheckbox.Checked = element.enabled ~= false
     enabledCheckbox.OnChange = function(checkbox)
         element.enabled = checkbox.Checked
@@ -327,7 +327,7 @@ function ListV2IMGUIWidget:AddCheckboxCell(tableRow, element)
         VCString:InterpolateLocalizedMessage("h5fbaa1934264475183db962866b0ffdda1d4", element.name) or
         VCString:InterpolateLocalizedMessage("h939aa7402ac94d3a914df12627e0fcf7g6dd", element.name)
     IMGUIHelpers.AddTooltip(enabledCheckbox, tooltipText,
-        self.Widget.ModUUID .. "_ElementEnabled_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_ElementEnabled_" .. self.Widget.Setting:GetId() .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled then
         enabledCheckbox.Disabled = true
@@ -345,32 +345,32 @@ function ListV2IMGUIWidget:AddMoveButtons(tableRow, indexInElements, element)
 
     -- Move up button
     local moveUpButton = moveCell:AddImageButton("^", "panner_up_h", IMGUIWidget:GetIconSizes())
-    moveUpButton.IDContext = self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name
+    moveUpButton.IDContext = self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     if not moveUpButton.Image or moveUpButton.Image.Icon == "" then
         moveUpButton:Destroy()
         moveUpButton = moveCell:AddButton(Ext.Loca.GetTranslatedString("h9d7807ea594c4e5cb10d616f4a100c94341g"))
         moveUpButton.IDContext = self.Widget.ModUUID ..
-            "_MoveUp_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
+            "_MoveUp_Button_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     end
     moveUpButton.OnClick = function() self:MoveElement(indexInElements, 'up') end
     IMGUIHelpers.AddTooltip(moveUpButton,
         VCString:InterpolateLocalizedMessage("he22ddc287c2d45b09f226b97c4325995aebe", element.name),
-        self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_MoveUp_" .. self.Widget.Setting:GetId() .. "_" .. element.name .. "_TOOLTIP")
 
     -- Move down button
     local moveDownButton = moveCell:AddImageButton("v", "panner_down_h", IMGUIWidget:GetIconSizes())
-    moveDownButton.IDContext = self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name
+    moveDownButton.IDContext = self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     moveDownButton.SameLine = true
     if not moveDownButton.Image or moveDownButton.Image.Icon == "" then
         moveDownButton:Destroy()
         moveDownButton = moveCell:AddButton(Ext.Loca.GetTranslatedString("h5259f8b44fdd4186bccca1948332cf250ac3"))
         moveDownButton.IDContext = self.Widget.ModUUID ..
-            "_MoveDown_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
+            "_MoveDown_Button_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     end
     moveDownButton.OnClick = function() self:MoveElement(indexInElements, 'down') end
     IMGUIHelpers.AddTooltip(moveDownButton,
         VCString:InterpolateLocalizedMessage("hdd1c9c4bd6cb4c5bbb4a297c9074019cbdcf", element.name),
-        self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_MoveDown_" .. self.Widget.Setting:GetId() .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled or element.enabled == false then
         moveUpButton.Disabled = true
@@ -387,7 +387,7 @@ end
 function ListV2IMGUIWidget:AddNameCell(tableRow, element)
     local nameCell = tableRow:AddCell()
     local nameText = nameCell:AddText(element.name)
-    nameText.IDContext = self.Widget.ModUUID .. "_ElementName_" .. self.Widget.Setting.Id .. "_" .. element.name
+    nameText.IDContext = self.Widget.ModUUID .. "_ElementName_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     if not self.Widget.Enabled or element.enabled == false then
         self:ApplyDisabledStyle(nameText)
     end
@@ -401,12 +401,12 @@ end
 function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
     local removeCell = tableRow:AddCell()
     local removeButton = removeCell:AddImageButton("X", "popin_closeIco_d", IMGUIWidget:GetIconSizes())
-    removeButton.IDContext = self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name
+    removeButton.IDContext = self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     if not removeButton.Image or removeButton.Image.Icon == "" then
         removeButton:Destroy()
         removeButton = removeCell:AddButton(Ext.Loca.GetTranslatedString("hc8ac6fff0508437d936bb1ae51e9a3dfc8a0"))
         removeButton.IDContext = self.Widget.ModUUID ..
-            "_Remove_Button_" .. self.Widget.Setting.Id .. "_" .. element.name
+            "_Remove_Button_" .. self.Widget.Setting:GetId() .. "_" .. element.name
     end
     removeButton.OnClick = function()
         table.remove(self.Widget.Elements, indexInElements)
@@ -417,7 +417,7 @@ function ListV2IMGUIWidget:AddRemoveButton(tableRow, indexInElements, element)
 
     IMGUIHelpers.AddTooltip(removeButton,
         VCString:InterpolateLocalizedMessage("hb5b5a421b3504260bcd72028b4311c4352a8", element.name),
-        self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting.Id .. "_" .. element.name .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_Remove_" .. self.Widget.Setting:GetId() .. "_" .. element.name .. "_TOOLTIP")
 
     if not self.Widget.Enabled then
         removeButton.Disabled = true
@@ -431,7 +431,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:RenderPaginationControls(tableGroup, totalPages)
     local paginationGroup = tableGroup:AddGroup("PaginationGroup")
-    paginationGroup.IDContext = self.Widget.ModUUID .. "_PaginationGroup_" .. self.Widget.Setting.Id
+    paginationGroup.IDContext = self.Widget.ModUUID .. "_PaginationGroup_" .. self.Widget.Setting:GetId()
     paginationGroup:AddSpacing()
     if totalPages > 1 then
         self:AddPaginationButtons(paginationGroup, totalPages)
@@ -447,7 +447,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     local function addPageButton(label, pageNumber, disabled)
         local paddedLabel = " " .. label .. " "
         local button = paginationGroup:AddButton(paddedLabel)
-        button.IDContext = self.Widget.ModUUID .. "_PageButton_" .. self.Widget.Setting.Id .. "_" .. pageNumber
+        button.IDContext = self.Widget.ModUUID .. "_PageButton_" .. self.Widget.Setting:GetId() .. "_" .. pageNumber
         button.OnClick = function()
             self.Widget.CurrentPage = pageNumber
             self:Refresh()
@@ -462,11 +462,11 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     -- Previous Button
     ---@type ExtuiImageButton|ExtuiButton
     local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
-    prevButton.IDContext = self.Widget.ModUUID .. "_PrevPage_" .. self.Widget.Setting.Id
+    prevButton.IDContext = self.Widget.ModUUID .. "_PrevPage_" .. self.Widget.Setting:GetId()
     if not prevButton.Image or prevButton.Image.Icon == "" then
         prevButton:Destroy()
         prevButton = paginationGroup:AddButton("<")
-        prevButton.IDContext = self.Widget.ModUUID .. "_PrevPage_Button_" .. self.Widget.Setting.Id
+        prevButton.IDContext = self.Widget.ModUUID .. "_PrevPage_Button_" .. self.Widget.Setting:GetId()
     end
     prevButton.OnClick = function()
         if self.Widget.CurrentPage > 1 then
@@ -487,7 +487,7 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     if currentPage <= totalPages - 2 or currentPage >= 3 then
         local pageInput = paginationGroup:AddInputText("", tostring(currentPage))
         IMGUIHelpers:ApplyInputStyle(pageInput, "default")
-        pageInput.IDContext = self.Widget.ModUUID .. "_PageInput_" .. self.Widget.Setting.Id
+        pageInput.IDContext = self.Widget.ModUUID .. "_PageInput_" .. self.Widget.Setting:GetId()
         pageInput.Text = tostring(currentPage or "...")
         pageInput.SizeHint = { IMGUIWidget:GetIconSizes()[1] * 1.5, 0 }
         pageInput:Tooltip():AddText(Ext.Loca.GetTranslatedString("hb22eb0c6c4ed41b28966287ab5b20c7b35a3"))
@@ -517,11 +517,11 @@ function ListV2IMGUIWidget:AddPaginationButtons(paginationGroup, totalPages)
     -- Next Button
     ---@type ExtuiImageButton|ExtuiButton
     local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
-    nextButton.IDContext = self.Widget.ModUUID .. "_NextPage_" .. self.Widget.Setting.Id
+    nextButton.IDContext = self.Widget.ModUUID .. "_NextPage_" .. self.Widget.Setting:GetId()
     if not nextButton.Image or nextButton.Image.Icon == "" then
         nextButton:Destroy()
         nextButton = paginationGroup:AddButton(">")
-        nextButton.IDContext = self.Widget.ModUUID .. "_NextPage_Button_" .. self.Widget.Setting.Id
+        nextButton.IDContext = self.Widget.ModUUID .. "_NextPage_Button_" .. self.Widget.Setting:GetId()
     end
     nextButton.OnClick = function()
         if self.Widget.CurrentPage < totalPages then
@@ -563,7 +563,7 @@ function ListV2IMGUIWidget:UpdateSettings()
         enabled = self.Widget.Enabled,
         elements = self.Widget.Elements
     }
-    IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, settingValue, self.Widget.ModUUID)
+    IMGUIAPI:SetSettingValue(self.Widget.Setting:GetId(), settingValue, self.Widget.ModUUID)
 end
 
 ---Moves an element within the list
@@ -608,7 +608,7 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     -- Input field for adding new elements; NewElementName outlives the input across rebuilds
     self.Widget.NewElementInput = inputGroup:AddInputText("", self.Widget.NewElementName or "")
     IMGUIHelpers:ApplyInputStyle(self.Widget.NewElementInput, "default")
-    self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting.Id
+    self.Widget.NewElementInput.IDContext = self.Widget.ModUUID .. "_AddElementInput_" .. self.Widget.Setting:GetId()
     self.Widget.NewElementInput.AutoSelectAll = true
     self.Widget.NewElementInput.SameLine = true
     self.Widget.NewElementInput.OnChange = function(input)
@@ -622,11 +622,11 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     ---@type ExtuiImageButton|ExtuiButton
     local addButton = inputGroup:AddImageButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"),
         "ico_plus_d", IMGUIWidget:GetIconSizes())
-    addButton.IDContext = self.Widget.ModUUID .. "_AddElementButton_" .. self.Widget.Setting.Id
+    addButton.IDContext = self.Widget.ModUUID .. "_AddElementButton_" .. self.Widget.Setting:GetId()
     if not addButton.Image or addButton.Image.Icon == "" then
         addButton:Destroy()
         addButton = inputGroup:AddButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"))
-        addButton.IDContext = self.Widget.ModUUID .. "_AddElement_Button_" .. self.Widget.Setting.Id
+        addButton.IDContext = self.Widget.ModUUID .. "_AddElement_Button_" .. self.Widget.Setting:GetId()
     end
     addButton.SameLine = true
     addButton.OnClick = function()
@@ -652,9 +652,9 @@ function ListV2IMGUIWidget:AddInputAndAddButton()
     end
 
     -- Recreate the search results group: Refresh() destroys the previous one with the rest of InputGroup
-    self.Widget.SearchResultsGroup = inputGroup:AddGroup("SearchResultsGroup_" .. self.Widget.Setting.Id)
+    self.Widget.SearchResultsGroup = inputGroup:AddGroup("SearchResultsGroup_" .. self.Widget.Setting:GetId())
     self.Widget.SearchResultsGroup.IDContext = self.Widget.ModUUID ..
-        "_SearchResultsGroup_" .. self.Widget.Setting.Id
+        "_SearchResultsGroup_" .. self.Widget.Setting:GetId()
 
     self:RenderSearchResults()
 end
@@ -699,17 +699,17 @@ function ListV2IMGUIWidget:RenderSearchResultRow(imguiTable, result)
     -- Name cell
     local nameCell = tableRow:AddCell()
     local nameText = nameCell:AddText(result)
-    nameText.IDContext = self.Widget.ModUUID .. "_SearchResultName_" .. self.Widget.Setting.Id .. "_" .. result
+    nameText.IDContext = self.Widget.ModUUID .. "_SearchResultName_" .. self.Widget.Setting:GetId() .. "_" .. result
 
     -- Add button cell
     local addCell = tableRow:AddCell()
     local addButton = addCell:AddImageButton("+", "ico_plus_d", IMGUIWidget:GetIconSizes())
-    addButton.IDContext = self.Widget.ModUUID .. "_AddSearchResult_" .. self.Widget.Setting.Id .. "_" .. result
+    addButton.IDContext = self.Widget.ModUUID .. "_AddSearchResult_" .. self.Widget.Setting:GetId() .. "_" .. result
     if not addButton.Image or addButton.Image.Icon == "" then
         addButton:Destroy()
         addButton = addCell:AddButton(Ext.Loca.GetTranslatedString("h4b543fe6f0fd4d8199950d7a16b3879ca7d1"))
         addButton.IDContext = self.Widget.ModUUID ..
-            "_AddSearchResult_Button_" .. self.Widget.Setting.Id .. "_" .. result
+            "_AddSearchResult_Button_" .. self.Widget.Setting:GetId() .. "_" .. result
     end
 
     addButton.OnClick = function()
@@ -733,7 +733,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:RenderSearchResultsPagination(parentGroup, totalPages)
     local paginationGroup = parentGroup:AddGroup("SearchResultsPaginationGroup")
-    paginationGroup.IDContext = self.Widget.ModUUID .. "_SearchResultsPaginationGroup_" .. self.Widget.Setting.Id
+    paginationGroup.IDContext = self.Widget.ModUUID .. "_SearchResultsPaginationGroup_" .. self.Widget.Setting:GetId()
     paginationGroup:AddSpacing()
     if totalPages > 1 then
         self:AddSearchResultsPaginationButtons(paginationGroup, totalPages)
@@ -750,7 +750,7 @@ function ListV2IMGUIWidget:AddSearchResultsPaginationButtons(paginationGroup, to
         local paddedLabel = " " .. label .. " "
         local button = paginationGroup:AddButton(paddedLabel)
         button.IDContext = self.Widget.ModUUID ..
-            "_SearchResultsPageButton_" .. self.Widget.Setting.Id .. "_" .. pageNumber
+            "_SearchResultsPageButton_" .. self.Widget.Setting:GetId() .. "_" .. pageNumber
         button.OnClick = function()
             self.Widget.SearchResultsCurrentPage = pageNumber
             self:RefreshSearchResults()
@@ -765,11 +765,11 @@ function ListV2IMGUIWidget:AddSearchResultsPaginationButtons(paginationGroup, to
     -- Previous button
     ---@type ExtuiImageButton|ExtuiButton
     local prevButton = paginationGroup:AddImageButton("<", "input_slider_arrowL_d", IMGUIWidget:GetIconSizes())
-    prevButton.IDContext = self.Widget.ModUUID .. "_SearchResultsPrevPage_" .. self.Widget.Setting.Id
+    prevButton.IDContext = self.Widget.ModUUID .. "_SearchResultsPrevPage_" .. self.Widget.Setting:GetId()
     if not prevButton.Image or prevButton.Image.Icon == "" then
         prevButton:Destroy()
         prevButton = paginationGroup:AddButton("<")
-        prevButton.IDContext = self.Widget.ModUUID .. "_SearchResultsPrevPage_Button_" .. self.Widget.Setting.Id
+        prevButton.IDContext = self.Widget.ModUUID .. "_SearchResultsPrevPage_Button_" .. self.Widget.Setting:GetId()
     end
     prevButton.OnClick = function()
         if self.Widget.SearchResultsCurrentPage > 1 then
@@ -791,11 +791,11 @@ function ListV2IMGUIWidget:AddSearchResultsPaginationButtons(paginationGroup, to
     -- Next button
     ---@type ExtuiImageButton|ExtuiButton
     local nextButton = paginationGroup:AddImageButton(">", "input_slider_arrowR_d", IMGUIWidget:GetIconSizes())
-    nextButton.IDContext = self.Widget.ModUUID .. "_SearchResultsNextPage_" .. self.Widget.Setting.Id
+    nextButton.IDContext = self.Widget.ModUUID .. "_SearchResultsNextPage_" .. self.Widget.Setting:GetId()
     if not nextButton.Image or nextButton.Image.Icon == "" then
         nextButton:Destroy()
         nextButton = paginationGroup:AddButton(">")
-        nextButton.IDContext = self.Widget.ModUUID .. "_SearchResultsNextPage_Button_" .. self.Widget.Setting.Id
+        nextButton.IDContext = self.Widget.ModUUID .. "_SearchResultsNextPage_Button_" .. self.Widget.Setting:GetId()
     end
     nextButton.OnClick = function()
         if self.Widget.SearchResultsCurrentPage < totalPages then
@@ -945,7 +945,7 @@ end
 ---@return nil
 function ListV2IMGUIWidget:AddDeleteAllButton(group, ModUUID)
     local deleteAllButton = group:AddButton(Ext.Loca.GetTranslatedString("hfdeffc59d25b4fa0910682fd3bb78f7b4d04"))
-    deleteAllButton.IDContext = ModUUID .. "_" .. "DeleteAllButton_" .. self.Widget.Setting.Id
+    deleteAllButton.IDContext = ModUUID .. "_" .. "DeleteAllButton_" .. self.Widget.Setting:GetId()
     deleteAllButton:Tooltip():AddText(Ext.Loca.GetTranslatedString("he16594af5abf4f44b6545facfa654b669g0a"))
     deleteAllButton.OnClick = function()
         self:ShowDeleteAllConfirmationPopup()
@@ -972,8 +972,8 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
     -- Create a new group for popup confirmation
     self.Widget.ResetConfirmationPopup = self.Widget.Group:AddPopup("ConfirmResetPopup")
     self.Widget.ResetConfirmationPopup:SetStyle("ItemSpacing", 8, 6)
-    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID .. "_ConfirmResetPopup_" .. self.Widget.Setting
-        .Id
+    self.Widget.ResetConfirmationPopup.IDContext = self.Widget.ModUUID ..
+        "_ConfirmResetPopup_" .. self.Widget.Setting:GetId()
 
     local text = self.Widget.ResetConfirmationPopup:AddText(
         Ext.Loca.GetTranslatedString("h983f2fd776cd40ab844efcca6300d9c87eb5"))
@@ -981,10 +981,10 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
 
     local confirmButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "hc22c8995c3d34cb69b677e2c52a7ec3a4691"))
-    confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id
+    confirmButton.IDContext = self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting:GetId()
     confirmButton.Size = { -1, 0 }
     IMGUIHelpers.AddTooltip(confirmButton, Ext.Loca.GetTranslatedString("h6ca43c8ed1ec4292af8c51472528c21ed0gd"),
-        self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting.Id .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_ConfirmReset_" .. self.Widget.Setting:GetId() .. "_TOOLTIP")
     confirmButton.OnClick = function()
         IMGUIAPI:ResetSettingValue(setting:GetId(), ModUUID)
 
@@ -1001,9 +1001,9 @@ function ListV2IMGUIWidget:ShowResetConfirmationPopup(setting, ModUUID)
 
     local cancelButton = self.Widget.ResetConfirmationPopup:AddButton(Ext.Loca.GetTranslatedString(
         "h8886849a4a674633a14df972d408cb71d012"))
-    cancelButton.IDContext = self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting.Id
+    cancelButton.IDContext = self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting:GetId()
     IMGUIHelpers.AddTooltip(cancelButton, Ext.Loca.GetTranslatedString("hdf197961585844d394b3e372417ac6fd66eg"),
-        self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting.Id .. "_TOOLTIP")
+        self.Widget.ModUUID .. "_CancelReset_" .. self.Widget.Setting:GetId() .. "_TOOLTIP")
     cancelButton.OnClick = function()
         self.Widget.ResetConfirmationPopup:Destroy()
     end
@@ -1035,7 +1035,7 @@ function ListV2IMGUIWidget:RenderSearchResults()
     local collapsibleHeader = searchResultsGroup:AddCollapsingHeader(Ext.Loca.GetTranslatedString(
         "h2e8476727f27406c813c00ae59dfd9d08543") or "Suggestions")
     collapsibleHeader.DefaultOpen = true
-    collapsibleHeader.IDContext = self.Widget.ModUUID .. "_SearchResultsHeader_" .. self.Widget.Setting.Id
+    collapsibleHeader.IDContext = self.Widget.ModUUID .. "_SearchResultsHeader_" .. self.Widget.Setting:GetId()
 
     -- Pagination parameters
     local pageSize = self.Widget.PageSize

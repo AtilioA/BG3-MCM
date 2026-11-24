@@ -70,7 +70,9 @@ D.describe("BlueprintShape isolated traversal", { tags = { "blueprint-shape", "u
         D.expect(BlueprintShape:GetSections(root)[1]).toBe(section)
         D.expect(#BlueprintShape:GetTabs({ GetTabs = function() return nil end })).toBe(0)
         D.expect(#BlueprintShape:GetSections({ GetSections = function() return nil end })).toBe(0)
-        D.expect(BlueprintShape:RetrieveDefaultValueForSetting({}, "missing")).toBe(nil)
+        local emptyRoot = {}
+        ---@cast emptyRoot Blueprint
+        D.expect(BlueprintShape:RetrieveDefaultValueForSetting(emptyRoot, "missing")).toBe(nil)
     end)
 
     D.test("visits tabs in sections and sections in sections", function()

@@ -54,7 +54,12 @@ function IMGUIWidget:GetIconSizes(multiplier)
     return { iconSize, iconSize }
 end
 
-function IMGUIWidget:new()
+---@param group ExtuiTreeParent
+---@param setting BlueprintSetting
+---@param initialValue MCMSettingValue
+---@param modUUID string
+---@return IMGUIWidget|nil
+function IMGUIWidget:new(group, setting, initialValue, modUUID)
     error(
         "This is an abstract class and cannot be instantiated directly. IMGUIWidget:New() must be overridden in a derived class")
 end

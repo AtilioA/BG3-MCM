@@ -8,7 +8,7 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
     ---@field Image? table
     ---@field IDContext? string
     ---@field OnClick? fun()
-    ---@field Destroy fun(self: FakeEventButton)
+    ---@field Destroy? fun(self: FakeEventButton)
 
     ---@class FakeCooldownGroup
     ---@field Name string
@@ -19,7 +19,7 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
     ---@field destroyThrows? boolean
     ---@field imageData? table
 
-    ---@class FakeEventButtonContainer : ExtuiGroup
+    ---@class FakeEventButtonContainer
     ---@field buttons FakeEventButton[]
     ---@field groups FakeCooldownGroup[]
     ---@field imageCalls table[]
@@ -36,7 +36,6 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
     ---@return FakeEventButtonContainer container
     local function FakeContainer(behavior)
         behavior = behavior or {}
-        ---@type FakeEventButtonContainer
         local container = { buttons = {}, groups = {}, imageCalls = {}, destroyCalls = 0 }
 
         ---@param button FakeEventButton
@@ -84,6 +83,7 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
             return group
         end
 
+        ---@cast container FakeEventButtonContainer
         return container
     end
 
@@ -103,7 +103,7 @@ D.describe("Event button construction", { tags = { "event_button_construction", 
         return setting
     end
 
-    ---@param container ExtuiGroup
+    ---@param container FakeEventButtonContainer
     ---@param options table
     ---@return FakeEventButtonWidget widget
     local function FakeWidget(container, options)

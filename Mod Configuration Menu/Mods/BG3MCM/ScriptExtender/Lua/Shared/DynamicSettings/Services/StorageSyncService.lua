@@ -6,9 +6,9 @@
 ---@field storageConfig? StorageConfig
 
 ---@class StorageSyncService
----@field private _cache table<string, table<string, table<string, StorageValue>>> cache[storageType][moduleUUID][varName]
+---@field _cache table<string, table<string, table<string, StorageValue>>> cache[storageType][moduleUUID][varName]
 ---@field private _adapters table<string, IStorageAdapter>
----@field private _applyingRemote boolean
+---@field _applyingRemote boolean
 StorageSyncService = {
     _cache = {},
     _adapters = {},

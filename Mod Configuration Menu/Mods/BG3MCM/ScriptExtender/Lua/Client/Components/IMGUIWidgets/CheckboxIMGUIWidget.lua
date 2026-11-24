@@ -19,7 +19,7 @@ function CheckboxIMGUIWidget:new(group, setting, initialValue, modUUID)
 
     instance.Widget = group:AddCheckbox("", initialValue)
     instance.Widget.OnChange = function(value)
-        IMGUIAPI:SetSettingValue(setting.Id, value.Checked, modUUID)
+        IMGUIAPI:SetSettingValue(setting:GetId(), value.Checked, modUUID)
     end
     instance.Widget.SameLine = false
 
@@ -42,7 +42,7 @@ function CheckboxIMGUIWidget:_addLabelWidget(group, setting, modUUID)
     local checkboxLabelWidget = group:AddText(LabelWidget)
 
     checkboxLabelWidget.OnClick = function()
-        IMGUIAPI:SetSettingValue(setting.Id, not self.Widget.Checked, modUUID)
+        IMGUIAPI:SetSettingValue(setting:GetId(), not self.Widget.Checked, modUUID)
     end
 
     checkboxLabelWidget.OnHoverEnter = function()

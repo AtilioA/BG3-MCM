@@ -21,10 +21,9 @@ function NativeKeybindingIMGUIWidget:new(group)
     ---@cast instance NativeKeybindingIMGUIWidget
     instance.Widget = {
         Group = group,
-        DynamicElements = { ModHeaders = {}, NoResultsText = nil }
+        DynamicElements = { ModHeaders = {}, NoResultsText = nil },
+        SearchText = ""
     }
-    -- subscribe to search subject for dynamic filtering
-    instance.Widget.SearchText = ""
     if KeybindingsUI.SearchBar and KeybindingsUI.SearchBar.SearchSubject then
         instance._searchSubscription = KeybindingsUI.SearchBar.SearchSubject:Subscribe(function(searchText)
             instance.Widget.SearchText = searchText

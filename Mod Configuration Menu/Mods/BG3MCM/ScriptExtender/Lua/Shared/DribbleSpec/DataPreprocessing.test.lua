@@ -1738,9 +1738,9 @@ D.describe("DataPreprocessing", { tags = { "data-preprocessing", "preprocessing"
             SchemaVersion = "1"
         })
 
-        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(validData, TestConstants.ModuleUUIDs[1])).toBe(true)
-        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData1, TestConstants.ModuleUUIDs[1])).toBe(false)
-        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData2, TestConstants.ModuleUUIDs[1])).toBe(false)
+        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(validData)).toBe(true)
+        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData1)).toBe(false)
+        D.expect(BlueprintPreprocessing:HasSchemaVersionsEntry(invalidData2)).toBe(false)
     end)
 
     local function buildPreprocessTestData()
@@ -2134,9 +2134,10 @@ D.describe("List enabled blueprint regression", { tags = { "list-enabled-regress
     ---@param default table<string, any>
     ---@return Blueprint|nil
     local function build(default)
-        return preprocessAndSanitize({ SchemaVersion = 1, Settings = {
+        local blueprint = preprocessAndSanitize({ SchemaVersion = 1, Settings = {
             { Id = "list", Type = "list_v2", Default = default },
         } }, TestConstants.ModuleUUIDs[1])
+        return blueprint
     end
 
     D.test("aliases preserve false and default omitted item state", function()

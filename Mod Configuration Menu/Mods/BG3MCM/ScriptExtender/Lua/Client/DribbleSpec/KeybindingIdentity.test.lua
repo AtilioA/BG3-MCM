@@ -40,11 +40,11 @@ D.describe("keybinding identities", { tags = { "keybinding_identity", "client" }
         ctx.stub(IMGUIHelpers, "AddTooltip", function(_, _, id) table.insert(ids, id) end)
         local row = {}
         ---@type KeybindingUIMod
-        local a = { ModUUID = "mod-a", ModName = "Same name" }
+        local a = { ModUUID = "mod-a", ModName = "Same name", Actions = {}, KeybindingSortMode = KeybindingSortMode.DEFAULT }
         ---@type KeybindingUIMod
-        local b = { ModUUID = "mod-b", ModName = "Same name" }
-        ---@type KeybindingUIAction
+        local b = { ModUUID = "mod-b", ModName = "Same name", Actions = {}, KeybindingSortMode = KeybindingSortMode.DEFAULT }
         local action = { ActionId = "action", Enabled = true }
+        ---@cast action KeybindingUIAction
         local controls = {}
         function row:AddCell()
             return { AddCheckbox = function()

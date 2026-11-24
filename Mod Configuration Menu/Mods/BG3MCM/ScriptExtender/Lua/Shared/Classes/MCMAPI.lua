@@ -36,9 +36,7 @@ end
 --- Create a new MCM profile
 ---@param profileName string The name of the new profile
 function MCMAPI:CreateProfile(profileName)
-    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    ---@cast ModConfig.profileManager ProfileManager
-    local success, errorMessage = ModConfig.profileManager:CreateProfile(profileName)
+    local success, errorMessage = ModConfig:GetProfiles():CreateProfile(profileName)
 
     if success then
         if Ext.IsServer() then
@@ -64,9 +62,7 @@ end
 --- Get the current MCM profile's name
 ---@return string The name of the current profile
 function MCMAPI:GetCurrentProfile()
-    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    ---@cast ModConfig.profileManager ProfileManager
-    return ModConfig.profileManager:GetCurrentProfile()
+    return ModConfig:GetProfiles():GetCurrentProfile()
 end
 
 --- Set the current MCM profile to the specified profile. This will also update the settings to reflect the new profile settings. If the profile does not exist, it will be created.
@@ -74,9 +70,7 @@ end
 ---@return boolean success Whether the profile was successfully set
 function MCMAPI:SetProfile(profileName)
     local currentProfile = self:GetCurrentProfile()
-    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    ---@cast ModConfig.profileManager ProfileManager
-    local success = ModConfig.profileManager:SetCurrentProfile(profileName)
+    local success = ModConfig:GetProfiles():SetCurrentProfile(profileName)
 
     if success then
         MCMDebug(1, "Set profile to %s", profileName)
@@ -96,9 +90,7 @@ end
 ---@param profileName string The name of the profile to delete
 ---@return boolean success Whether the profile was successfully deleted
 function MCMAPI:DeleteProfile(profileName)
-    -- TODO: properly call ModConfig method instead of bastardizing the already bad OOP
-    ---@cast ModConfig.profileManager ProfileManager
-    local success = ModConfig.profileManager:DeleteProfile(profileName)
+    local success = ModConfig:GetProfiles():DeleteProfile(profileName)
 
     return success
 end

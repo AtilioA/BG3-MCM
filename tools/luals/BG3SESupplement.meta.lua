@@ -28,3 +28,7 @@
 -- ExtIdeHelpers types AddSlider and AddDrag as returning ExtuiSlider and ExtuiDrag, which it never defines; the runtime types are SliderScalar and DragScalar.
 ---@alias ExtuiSlider ExtuiSliderScalar
 ---@alias ExtuiDrag ExtuiDragScalar
+
+-- RegisterType only requires Type per property; ExtIdeHelpers marks every UiCustomPropertyDefn field required.
+---@class Ext_ClientUI
+---@field RegisterType fun(name: string, properties: table<string, { Type: string, Name?: string, Notify?: boolean, WriteCallback?: function }>, baseType?: string): boolean

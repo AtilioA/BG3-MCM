@@ -1,7 +1,10 @@
 param(
     [string[]]$Files = @(),
     [string]$Filter = "",
-    [string]$LuaLSPath = ""
+    [string]$LuaLSPath = "",
+    # 1 = errors only, 2 = errors and warnings.
+    [ValidateRange(1, 2)]
+    [int]$MaxSeverity = 2
 )
 
 $ErrorActionPreference = "Stop"
@@ -73,6 +76,13 @@ $version = (& $exe --version 2>&1) | Out-String
 Write-Output "LuaLS: $exe ($($version.Trim()))"
 
 $configPath = (Resolve-Path -LiteralPath ".luarc.json").Path
+
+# Without the BG3SE stubs LuaLS treats BG3SE types as unknown and reports a false 0.
+$stubPath = Join-Path $repoRoot "../BG3-lint/luals/bg3se/library/ExtIdeHelpers.lua"
+if (-not (Test-Path -LiteralPath $stubPath -PathType Leaf)) {
+    Write-Warning "Skipping LuaLS check: BG3SE stubs not found at $stubPath. Clone BG3-lint next to this repo to enable it."
+    exit 0
+}
 $tmpJson = Join-Path ([System.IO.Path]::GetTempPath()) ("luals-check-" + [System.Guid]::NewGuid().ToString("N") + ".json")
 
 try {
@@ -85,7 +95,7 @@ try {
 
     $rawJson = Get-Content -LiteralPath $tmpJson -Raw
     if ([string]::IsNullOrWhiteSpace($rawJson)) {
-        Write-Output "Total Severity-1 errors: 0 across 0 files"
+        Write-Output "Total diagnostics (severity <= $MaxSeverity): 0 across 0 files"
         exit 0
     }
 
@@ -133,7 +143,7 @@ try {
             continue
         }
 
-        $sev1 = @($diags | Where-Object { $_.severity -eq 1 })
+        $sev1 = @($diags | Where-Object { $_.severity -le $MaxSeverity })
         if ($sev1.Count -eq 0) { continue }
 
         $filesWithErrors++
@@ -145,11 +155,12 @@ try {
             }
             $code = if ($d.code) { $d.code } else { "unknown" }
             $msg = ($d.message -replace '\r?\n', ' ').Trim()
-            Write-Output "${relPath}:${line} [$code] $msg"
+            $level = if ($d.severity -eq 1) { "error" } else { "warning" }
+            Write-Output "${relPath}:${line} $level [$code] $msg"
         }
     }
 
-    Write-Output "Total Severity-1 errors: $totalErrors across $filesWithErrors files"
+    Write-Output "Total diagnostics (severity <= $MaxSeverity): $totalErrors across $filesWithErrors files"
     if ($totalErrors -eq 0) {
         exit 0
     } else {

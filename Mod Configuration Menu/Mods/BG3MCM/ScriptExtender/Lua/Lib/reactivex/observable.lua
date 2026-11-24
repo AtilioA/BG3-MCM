@@ -13,7 +13,7 @@ Observable.__tostring = util.Constant('Observable')
 Observable.___isa = { Observable }
 
 --- Creates a new Observable. Please note that the Observable does not do any work right after creation, but only after calling a `subscribe` on it.
----@param subscribe fun(observer: Observer)? any # The subscription function that produces values. It is called when the Observable is initially subscribed to. This function is given an Observer, to which new values can be `onNext`ed, or an `onError` method can be called to raise an error, or `onCompleted` can be called to notify of a successful completion.
+---@param subscribe (fun(observer: Observer): Subscription?)? # The subscription function that produces values. It is called when the Observable is initially subscribed to. This function is given an Observer, to which new values can be `onNext`ed, or an `onError` method can be called to raise an error, or `onCompleted` can be called to notify of a successful completion.
 ---@return Observable
 function Observable.Create(subscribe)
     local self = {}
@@ -410,8 +410,7 @@ end
 --- Returns a new Observable that runs a combinator function on the most recent values from a set
 --- of Observables whenever any of them produce a new value. The results of the combinator function
 --- are produced by the new Observable.
---- @param ... Observable - One or more Observables to combine.
---- @param ... combinator - last arg = A function that combines the latest result from each Observable and returns a single value.
+--- @param ... Observable|function - One or more Observables to combine, optionally followed by a combinator function as the last argument.
 ---@return Observable
 function Observable:CombineLatest(...)
     local sources = { ... }

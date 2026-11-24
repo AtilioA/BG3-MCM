@@ -98,6 +98,7 @@ function VisibilityManager.evaluateConditionWithInfo(modName, modAuthor, modUUID
         elseif op == "<=" then
             return numCurrent <= numExpected
         end
+        return false
     else
         MCMWarn(0, "Invalid comparison operator: '" .. op ..
             "' for mod '" .. modName .. "' in setting '" .. cond.SettingId ..

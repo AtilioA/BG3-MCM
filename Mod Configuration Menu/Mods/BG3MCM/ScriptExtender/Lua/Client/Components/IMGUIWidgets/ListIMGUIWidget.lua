@@ -18,13 +18,15 @@ ListIMGUIWidget = _Class:Create("ListIMGUIWidget", IMGUIWidget)
 function ListIMGUIWidget:new(group, setting, initialValue, modUUID)
     local instance = setmetatable({}, { __index = ListIMGUIWidget })
     ---@cast instance ListIMGUIWidget
-    instance.Widget = { List = initialValue or {} }
-    instance.Widget.Group = group
-    instance.Widget.modUUID = modUUID
-    instance.Widget.Setting = setting
-
-    instance.Widget.TableGroup = group:AddGroup("ListTableGroup" .. setting.Id)
-    instance.Widget.InputGroup = group:AddGroup("ListInputGroup" .. setting.Id)
+    local settingId = setting:GetId()
+    instance.Widget = {
+        List = initialValue or {},
+        Group = group,
+        modUUID = modUUID,
+        Setting = setting,
+        TableGroup = group:AddGroup("ListTableGroup" .. settingId),
+        InputGroup = group:AddGroup("ListInputGroup" .. settingId),
+    }
 
     instance:RenderList()
     instance:AddInputAndAddButton()
@@ -55,7 +57,7 @@ function ListIMGUIWidget:RenderList()
         tooltip:AddText(VCString:InterpolateLocalizedMessage("hb5b5a421b3504260bcd72028b4311c4352a8", value))
         removeButton.OnClick = function()
             table.remove(self.Widget.List, i)
-            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.modUUID)
+            IMGUIAPI:SetSettingValue(self.Widget.Setting:GetId(), self.Widget.List, self.Widget.modUUID)
             self:Refresh()
         end
     end
@@ -93,7 +95,7 @@ function ListIMGUIWidget:AddInputAndAddButton()
             end
 
             table.insert(self.Widget.List, newText)
-            IMGUIAPI:SetSettingValue(self.Widget.Setting.Id, self.Widget.List, self.Widget.modUUID)
+            IMGUIAPI:SetSettingValue(self.Widget.Setting:GetId(), self.Widget.List, self.Widget.modUUID)
             self:Refresh()
         end
     end

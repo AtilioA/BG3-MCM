@@ -19,7 +19,7 @@ BlueprintTab = _Class:Create("BlueprintTab", nil, {
 })
 
 --- Constructor for the BlueprintTab class.
---- @param options BlueprintTab
+--- @param options table
 function BlueprintTab:New(options)
     local self = setmetatable({}, BlueprintTab)
     self.TabId = options.TabId or ""

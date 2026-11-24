@@ -170,7 +170,7 @@ end
 
 ---Canonicalizes a complete keybinding value to one device and complete flags.
 ---@param value KeybindingV2Value|nil
----@param fallback? KeybindingV2Value
+---@param fallback? { Enabled?: boolean, AllowConflict?: boolean } Flags used when value omits them
 ---@return KeybindingV2Value
 function KeybindingManager:CanonicalizeV2Value(value, fallback)
     value = value or {}

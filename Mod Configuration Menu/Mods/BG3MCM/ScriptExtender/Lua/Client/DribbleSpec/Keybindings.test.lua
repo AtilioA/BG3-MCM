@@ -87,6 +87,7 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             prevented = false,
             stopped = false,
             PreventAction = function(self) self.prevented = true end,
+            ---@param self KeyInputEventStub
             StopPropagation = function(self)
                 self.stopped = true
                 self.Stopped = true
@@ -168,7 +169,9 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Enabled = false,
             AllowConflict = true
         })
-        D.expect(KeybindingsRegistry.CanonicalizeValue({})).toEqual({
+        local emptyInput = {}
+        ---@cast emptyInput KeybindingV2Value
+        D.expect(KeybindingsRegistry.CanonicalizeValue(emptyInput)).toEqual({
             Keyboard = { Key = "", ModifierKeys = {} },
             Enabled = true,
             AllowConflict = false
@@ -350,8 +353,19 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Modifiers = { "LALT", "LCTRL" },
             Event = "KeyDown",
             Repeat = false,
+            Pressed = true,
+            ActionPrevented = false,
+            CanPreventAction = true,
+            Name = "KeyInput",
+            Stopped = false,
             prevented = false,
-            PreventAction = function(self) self.prevented = true end
+            stopped = false,
+            PreventAction = function(self) self.prevented = true end,
+            ---@param self KeyInputEventStub
+            StopPropagation = function(self)
+                self.stopped = true
+                self.Stopped = true
+            end
         }
         KeybindingsRegistry.DispatchKeyboardEvent(event)
 
@@ -366,15 +380,21 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
     ---@param eventType? "KeyDown"|"KeyUp"
     ---@return KeyInputEventStub
     local function KeyEvent(key, modifiers, eventType)
+        local resolvedType = eventType or "KeyDown"
         return {
             Key = key,
             Modifiers = modifiers,
-            Event = eventType or "KeyDown",
+            Event = resolvedType,
             Repeat = false,
+            Pressed = resolvedType == "KeyDown",
+            ActionPrevented = false,
+            CanPreventAction = true,
+            Name = "KeyInput",
             Stopped = false,
             prevented = false,
             stopped = false,
             PreventAction = function(self) self.prevented = true end,
+            ---@param self KeyInputEventStub
             StopPropagation = function(self)
                 self.stopped = true
                 self.Stopped = true
@@ -591,9 +611,11 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         })
         KeybindingsRegistry.GetRegistry()[TEST_MOD_UUID]["hidden-conflict"].visible = false
 
+        local checkAction = { ActionId = "visible-conflict" }
+        ---@cast checkAction KeybindingUIAction
         local conflict = KeybindingConflictService:CheckMCMForConflicts(
             { Button = 5, ModifierKeys = {} },
-            { ActionId = "visible-conflict" },
+            checkAction,
             TEST_MOD_UUID
         )
 
@@ -640,9 +662,9 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
         D.expect(release.stopped).toBeTruthy()
         assert(outcome)
         D.expect(outcome.kind).toBe("binding")
-        assert(outcome.binding)
-        ---@cast outcome.binding KeybindingMouseBinding
-        D.expect(outcome.binding.Button).toBe(1)
+        local binding = assert(outcome.binding)
+        ---@cast binding KeybindingMouseBinding
+        D.expect(binding.Button).toBe(1)
     end)
 
     D.test("retains the claimed release after selection", function()
@@ -695,8 +717,15 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             return capturedSession
         end)
         InputCallbackManager._HeldModifiers = { LCTRL = true }
+        ---@type KeybindingUIMod
+        local captureMod = {
+            ModUUID = TEST_MOD_UUID,
+            ModName = "Capture test",
+            Actions = {},
+            KeybindingSortMode = KeybindingSortMode.DEFAULT,
+        }
         widget:StartListeningForInput(
-            { ModUUID = TEST_MOD_UUID, ModName = "Capture test" },
+            captureMod,
             action,
             "KeyboardMouse",
             button
@@ -725,9 +754,11 @@ D.describe("keybinding_v2 runtime", { tags = { "keybinding_v2", "client", "unit"
             Button = 5,
             ModifierKeys = { "LCTRL", "LALT" }
         }) })
+        local otherAction = { ActionId = "other-action" }
+        ---@cast otherAction KeybindingUIAction
         local conflict = KeybindingConflictService:CheckMCMForConflicts(
             { Button = 5, ModifierKeys = { "LALT", "LCTRL" } },
-            { ActionId = "other-action" }, "other-mod"
+            otherAction, "other-mod"
         )
         D.expect(conflict).toBeTruthy()
         assert(conflict)

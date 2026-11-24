@@ -65,7 +65,7 @@ function MessageBox:Create(title, message, mode, modUUID, contextId)
         YesLabel = nil,
         NoLabel = nil,
         ModUUID = modUUID or ModuleUUID,
-        ContextId = contextId or "MessageBox_" .. tostring(math.random(1000000)),
+        ContextId = contextId or ("MessageBox_" .. tostring(math.random(1000000))),
     }
 
     setmetatable(instance, { __index = self })
