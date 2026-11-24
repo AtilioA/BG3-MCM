@@ -94,6 +94,7 @@ D.describe("Blueprint validation hardening (#58)", { tags = { "preprocessing", "
         }, modB))
 
         local throwingBlueprint = {
+            SchemaVersion = 1,
             GetTabs = function()
                 error("boom")
             end,
@@ -104,12 +105,32 @@ D.describe("Blueprint validation hardening (#58)", { tags = { "preprocessing", "
             [modB] = { blueprint = validBlueprint },
         }
 
-        captureMCMWarnings(function()
+        local warnings = captureMCMWarnings(function()
             BlueprintPreprocessing:SanitizeBlueprints(mods)
         end)
 
         D.expect(mods[modA]).toBeNil()
         D.expect(mods[modB]).Not.toBeNil()
+        D.expect(hasWarningMatching(warnings, "threw an error")).toBe(true)
+    end)
+
+    D.test("unknown setting Type warns only and keeps valid settings in the mod", function()
+        local modUUID = TestConstants.ModuleUUIDs[1]
+        local sanitized
+        local warnings = captureMCMWarnings(function()
+            sanitized = preprocessAndSanitize({
+                SchemaVersion = 1,
+                Settings = {
+                    { Id = "future_widget", Name = "Future", Type = "future_type", Default = "x" },
+                    { Id = "valid_chk", Name = "Valid", Type = "checkbox", Default = true },
+                },
+            }, modUUID)
+        end)
+
+        D.expect(sanitized).Not.toBeNil()
+        assert(sanitized)
+        D.expect(sanitized:GetAllSettings()["valid_chk"]).Not.toBeNil()
+        D.expect(hasWarningMatching(warnings, "unsupported type")).toBe(true)
     end)
 
     D.test("C9: legacy bool canonicalizes, soft float/color/keybinding warn only, event_button skips Default", function()

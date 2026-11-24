@@ -37,6 +37,13 @@ ALLOWED_OBJECT_KEYWORDS = {
     "$comment",
 }
 
+ALLOWED_NON_OPTION_OBJECT_KEYWORDS = ALLOWED_OBJECT_KEYWORDS | {
+    "$schema",
+    "allOf",
+    "anyOf",
+    "definitions",
+}
+
 ALLOWED_OPTION_LEAF_KEYWORDS = {
     "$ref",
     "type",
@@ -115,10 +122,17 @@ def check_keywords(node: dict[str, Any], allowed: set[str], context: str) -> Non
         raise ContractError(f"Unrecognized keyword(s) {sorted(unknown)} in {context}.")
 
 
-def extract_object_keys(root: dict[str, Any], node: dict[str, Any], context: str) -> list[str]:
+def extract_object_keys(
+    root: dict[str, Any], node: dict[str, Any], context: str, require_closed: bool = True
+) -> list[str]:
+    if "$ref" in node and set(node.keys()) - {"$ref", "markdownDescription", "description"}:
+        raise ContractError(f"Unsupported sibling keyword(s) next to $ref in {context}: {sorted(node.keys())}")
     resolved = resolve_ref(root, node)
+    check_keywords(resolved, ALLOWED_NON_OPTION_OBJECT_KEYWORDS, context)
     if resolved.get("type") != "object":
         raise ContractError(f"Expected object schema for {context}.")
+    if require_closed and resolved.get("additionalProperties") is not False:
+        raise ContractError(f"{context} must set additionalProperties=false.")
     props = resolved.get("properties")
     if not isinstance(props, dict):
         raise ContractError(f"Expected object 'properties' for {context}.")
@@ -189,16 +203,25 @@ def extract_contract(schema: dict[str, Any]) -> dict[str, Any]:
     for branch in setting_all_of:
         if not isinstance(branch, dict):
             continue
+        check_keywords(branch, {"if", "then", "else"}, "Setting.allOf branch")
         if_clause = branch.get("if")
         then_clause = branch.get("then")
         if not isinstance(if_clause, dict) or not isinstance(then_clause, dict):
-            continue
+            raise ContractError(f"Setting.allOf branch must have 'if' and 'then' objects: {branch!r}")
+        check_keywords(if_clause, {"properties", "required"}, "Setting.allOf 'if' clause")
         if_required = if_clause.get("required")
         if not isinstance(if_required, list) or "Type" not in if_required:
             raise ContractError(f"Setting.allOf 'if' branch must require 'Type': {if_clause!r}")
-        type_const = if_clause.get("properties", {}).get("Type", {}).get("const")
+        if_props = if_clause.get("properties", {})
+        if not isinstance(if_props, dict) or set(if_props.keys()) != {"Type"}:
+            raise ContractError(f"Setting.allOf 'if' properties must contain only 'Type': {if_clause!r}")
+        type_node = if_props["Type"]
+        if not isinstance(type_node, dict) or set(type_node.keys()) != {"const"}:
+            raise ContractError(f"Setting.allOf 'if.properties.Type' must contain only 'const': {if_clause!r}")
+        type_const = type_node["const"]
         if not isinstance(type_const, str):
-            raise ContractError(f"Setting.allOf 'if' branch must specify Type.const: {if_clause!r}")
+            raise ContractError(f"Setting.allOf 'if' branch must specify string Type.const: {if_clause!r}")
+        check_keywords(then_clause, {"properties", "required"}, f"Setting.allOf 'then' for '{type_const}'")
         if type_const in branches_by_type:
             raise ContractError(f"Duplicate Setting.allOf branch for Type '{type_const}'.")
         branches_by_type[type_const] = then_clause
@@ -219,6 +242,11 @@ def extract_contract(schema: dict[str, Any]) -> dict[str, Any]:
         options_node = then_clause.get("properties", {}).get("Options")
         if not isinstance(options_node, dict):
             raise ContractError(f"Setting.allOf branch for '{setting_type}' missing properties.Options.")
+        if "$ref" in options_node and set(options_node.keys()) != {"$ref"}:
+            raise ContractError(
+                f"Setting.allOf Options for '{setting_type}' has unsupported sibling keyword(s) next to $ref: "
+                f"{sorted(options_node.keys())}"
+            )
         resolved_opts = resolve_ref(schema, options_node)
         check_keywords(resolved_opts, ALLOWED_OBJECT_KEYWORDS, f"Options for '{setting_type}'")
         if resolved_opts.get("type") != "object":
@@ -405,7 +433,7 @@ def main(argv: list[str] | None = None) -> int:
         if not args.output.exists():
             print(f"sync_blueprint_contract: missing generated file: {args.output}", file=sys.stderr)
             return 1
-        existing = args.output.read_bytes().decode("utf-8")
+        existing = args.output.read_bytes().decode("utf-8").replace("\r\n", "\n")
         if existing != rendered:
             print(
                 f"sync_blueprint_contract: {args.output} is out of date. Run: python scripts/sync_blueprint_contract.py",

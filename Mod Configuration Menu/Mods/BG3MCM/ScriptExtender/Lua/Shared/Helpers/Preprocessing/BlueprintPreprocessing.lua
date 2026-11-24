@@ -246,9 +246,8 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
             end
 
             if not BlueprintContract.SettingTypes[settingType] and not LegacyCompat.Types[settingType] then
-                MCMWarn(0, "Setting '%s' has unsupported type '%s'. %s",
+                MCMWarn(0, "Setting '%s' has unsupported type '%s'; skipping setting validation. %s",
                     setting:GetId(), tostring(settingType), contactAuthor(self))
-                isValid = false
                 return
             end
 
@@ -1057,13 +1056,39 @@ function BlueprintPreprocessing:BlueprintStepShouldBeNonZeroNumber(setting)
     return true
 end
 
+---@param self HelperBlueprintPreprocessing
+---@param setting BlueprintSetting
+---@param label string
+---@return boolean
+local function checkRequiredOptions(self, setting, label)
+    local requiredKeys = BlueprintContract.RequiredOptionsByType[setting:GetType()]
+    if not requiredKeys then
+        return true
+    end
+
+    local opts = setting:GetOptions()
+    if type(opts) ~= "table" then
+        MCMWarn(0, "%s setting '%s' must have Options (%s) defined. %s",
+            label, setting:GetId(), table.concat(requiredKeys, ", "), contactAuthor(self))
+        return false
+    end
+
+    for _, key in ipairs(requiredKeys) do
+        if opts[key] == nil then
+            MCMWarn(0, "%s setting '%s' must have 'Options.%s' defined. %s",
+                label, setting:GetId(), key, contactAuthor(self))
+            return false
+        end
+    end
+
+    return true
+end
+
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
-    if type(setting.Options) ~= "table" or type(setting.Options.Choices) ~= "table" then
+    if not checkRequiredOptions(self, setting, "Enum") or type(setting.Options.Choices) ~= "table" then
         MCMWarn(0,
-            "Enum setting '" ..
-            setting:GetId() ..
-            "' must have 'Options.Choices' defined. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "Enum setting '%s' must have 'Options.Choices' defined. %s",
+            setting:GetId(), contactAuthor(self))
         return false
     end
 
@@ -1084,10 +1109,8 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForEnum(setting)
 
     if not table.contains(setting.Options.Choices, setting.Default) then
         MCMWarn(0,
-            "Enum setting '" ..
-            setting:GetId() ..
-            "' must have a 'Default' value that is one of the 'Options.Choices'. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "Enum setting '%s' must have a 'Default' value that is one of the 'Options.Choices'. %s",
+            setting:GetId(), contactAuthor(self))
         return false
     end
     return true
@@ -1104,7 +1127,9 @@ function BlueprintPreprocessing:BlueprintDynamicFlagForEnumShouldBeBoolean(setti
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
-    if type(setting.Options) ~= "table" or type(setting.Options.Choices) ~= "table" or #setting.Options.Choices == 0 then
+    if not checkRequiredOptions(self, setting, "Radio")
+        or type(setting.Options.Choices) ~= "table"
+        or #setting.Options.Choices == 0 then
         MCMWarn(0,
             "Radio setting '" .. setting:GetId() .. "' must have 'Options.Choices' defined.")
         return false
@@ -1113,9 +1138,8 @@ function BlueprintPreprocessing:BlueprintShouldHaveOptionsForRadio(setting)
     -- Radio choices are static, so the default must be one of them, as with enum settings.
     if not table.contains(setting.Options.Choices, setting.Default) then
         MCMWarn(0,
-            "Radio setting '" .. setting:GetId() ..
-            "' must have a 'Default' value that is one of the 'Options.Choices'. Please contact " ..
-            Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "Radio setting '%s' must have a 'Default' value that is one of the 'Options.Choices'. %s",
+            setting:GetId(), contactAuthor(self))
         return false
     end
 
@@ -1156,12 +1180,7 @@ function BlueprintPreprocessing:BlueprintOptionsForRadioShouldHaveAChoicesArrayO
 end
 
 function BlueprintPreprocessing:BlueprintShouldHaveMinAndMaxForSlider(setting)
-    if type(setting.Options) ~= "table" or setting.Options.Min == nil or setting.Options.Max == nil then
-        MCMWarn(0,
-            "Slider setting '%s' must have 'Options.Min' and 'Options.Max' defined.", setting:GetId())
-        return false
-    end
-    return true
+    return checkRequiredOptions(self, setting, "Slider")
 end
 
 function BlueprintPreprocessing:BlueprintMinAndMaxForSliderShouldBeNumbers(setting)
