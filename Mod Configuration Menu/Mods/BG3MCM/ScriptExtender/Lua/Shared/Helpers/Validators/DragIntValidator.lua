@@ -2,11 +2,14 @@
 DragIntValidator = _Class:Create("DragIntValidator", Validator)
 
 function DragIntValidator.Validate(config, value)
-    local isValueNumber = type(value) == "number"
-    if not isValueNumber then
+    if type(value) ~= "number" or math.floor(value) ~= value then
         return false
     end
 
-    local isValueWithinRange = value >= config.Options.Min and value <= config.Options.Max
-    return isValueWithinRange
+    local options = config:GetOptions()
+    if type(options) ~= "table" or type(options.Min) ~= "number" or type(options.Max) ~= "number" then
+        return false
+    end
+
+    return value >= options.Min and value <= options.Max
 end

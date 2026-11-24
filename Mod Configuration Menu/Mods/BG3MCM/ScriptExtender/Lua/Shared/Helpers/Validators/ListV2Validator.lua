@@ -13,14 +13,14 @@ function ListV2Validator.Validate(config, value)
         return false
     end
 
-    if not value.elements or type(value.elements) ~= "table" then
-        MCMWarn(1, "list_v2's 'elements' must be a table.")
+    if not value.elements or type(value.elements) ~= "table" or not table.isArray(value.elements) then
+        MCMWarn(1, "list_v2's 'elements' must be an array table.")
         return false
     end
 
     for _key, element in ipairs(value.elements) do
         if type(element) ~= "table" or element.enabled == nil or type(element.enabled) ~= "boolean" or element.name == nil or type(element.name) ~= "string" or element.name == "" then
-            MCMWarn(0, "Each list_v2's element must be a table with an 'enabled' boolean")
+            MCMWarn(0, "Each list_v2 element must be a table with a non-empty 'name' string and an 'enabled' boolean")
             return false
         end
     end

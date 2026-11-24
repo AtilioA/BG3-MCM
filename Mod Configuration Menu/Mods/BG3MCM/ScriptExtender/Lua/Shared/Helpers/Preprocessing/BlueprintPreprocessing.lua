@@ -9,7 +9,9 @@ BlueprintPreprocessing.currentmodUUID = nil
 ---@param self HelperBlueprintPreprocessing The preprocessing instance
 ---@return string
 local function contactAuthor(self)
-    return "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue."
+    local mod = self.currentmodUUID and Ext.Mod.GetMod(self.currentmodUUID)
+    local author = mod and mod.Info and mod.Info.Author or "the mod author"
+    return "Please contact " .. author .. " about this issue."
 end
 
 --- TODO: clean this up, but currently better than nothing
@@ -223,7 +225,6 @@ function BlueprintPreprocessing:VerifyIDUniqueness(blueprint)
         self:VerifySettingKeyUniqueness(blueprint)
 end
 
--- REFACTOR: this is way uglier and repetitive than it needs to be. Especially since we have validation functions for each type already. However, I'm too tired to refactor this. It is just validation, it is kinda fine.
 --- Validate the setting data in the blueprint (e.g.: ensure that all IDs are unique, default values are valid, etc.)
 ---@param blueprint Blueprint The blueprint data to validate
 function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
@@ -235,12 +236,22 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                 return
             end
 
-            if not self:BlueprintCheckDefaultType(setting) then
+            local settingType = setting:GetType()
+            if LegacyCompat.CanonicalTypeAliases[settingType] then
+                local canonicalType = LegacyCompat.CanonicalTypeAliases[settingType]
+                MCMWarn(1, "Setting '%s' uses deprecated type '%s'; treating it as '%s'. %s",
+                    setting:GetId(), settingType, canonicalType, contactAuthor(self))
+                setting.Type = canonicalType
+                settingType = canonicalType
+            end
+
+            if not BlueprintContract.SettingTypes[settingType] and not LegacyCompat.Types[settingType] then
+                MCMWarn(0, "Setting '%s' has unsupported type '%s'. %s",
+                    setting:GetId(), tostring(settingType), contactAuthor(self))
                 isValid = false
                 return
             end
 
-            local settingType = setting:GetType()
             if settingType == "enum" then
                 if not self:ValidateEnumSetting(setting) then
                     isValid = false
@@ -276,6 +287,11 @@ function BlueprintPreprocessing:ValidateBlueprintSettings(blueprint)
                     isValid = false
                     return
                 end
+            end
+
+            if not self:ValidateSettingDefault(setting) then
+                isValid = false
+                return
             end
 
             -- Validate VisibleIf for the setting
@@ -373,10 +389,6 @@ function BlueprintPreprocessing:ValidateSliderSetting(setting)
     end
 
     if not self:BlueprintMinIsLessThanMaxForSlider(setting) then
-        return false
-    end
-
-    if not self:BlueprintDefaultShouldBeWithinRange(setting) then
         return false
     end
 
@@ -496,17 +508,6 @@ function BlueprintPreprocessing:ValidateEventButtonSetting(setting)
     return isValid
 end
 
-local KeybindingBooleanOptions = {
-    "ShouldTriggerOnRepeat",
-    "IsDeveloperOnly",
-    "ShouldTriggerOnKeyUp",
-    "ShouldTriggerOnKeyDown",
-    "BlockIfLevelNotStarted",
-    "PreventAction",
-    "SkipCallback",
-    "AllowConflict",
-}
-
 ---@param self HelperBlueprintPreprocessing The preprocessing instance
 ---@param setting BlueprintSetting The setting to validate
 ---@param options table The setting options
@@ -591,14 +592,15 @@ end
 ---@return boolean True if the setting is valid, false otherwise
 function BlueprintPreprocessing:ValidateKeybindingV2Setting(setting)
     local options = setting:GetOptions() or {}
+    local optionTypes = BlueprintContract.OptionTypesByType.keybinding_v2 or {}
 
-    for _, optionKey in ipairs(KeybindingBooleanOptions) do
-        if not validateKeybindingBooleanOption(self, setting, options, optionKey) then
+    for optionKey, optionType in pairs(optionTypes) do
+        if optionType == "boolean" and not validateKeybindingBooleanOption(self, setting, options, optionKey) then
             return false
         end
     end
 
-    return validateKeybindingV2Default(self, setting)
+    return true
 end
 
 --- Validates VisibleIf conditions for all tabs and their nested sections
@@ -622,37 +624,17 @@ function BlueprintPreprocessing:ValidateTabsVisibleIf(blueprint)
     return isValid
 end
 
-local VisibleIfAllowedGroupKeys = {
-    LogicalOperator = true,
-    Conditions = true,
-}
-
-local VisibleIfAllowedConditionKeys = {
-    SettingId = true,
-    Operator = true,
-    ExpectedValue = true,
-}
-
-local VisibleIfAllowedOperators = {
-    ["=="] = true,
-    ["!="] = true,
-    [">"] = true,
-    ["<"] = true,
-    [">="] = true,
-    ["<="] = true,
-}
-
 ---@param value table
 ---@param allowed table<string, boolean>
----@return boolean, string|nil
-local function hasOnlyAllowedKeys(value, allowed)
+---@return string[]
+local function collectUnknownKeys(value, allowed)
+    local unknown = {}
     for key, _ in pairs(value) do
         if type(key) ~= "string" or not allowed[key] then
-            return false, tostring(key)
+            table.insert(unknown, tostring(key))
         end
     end
-
-    return true, nil
+    return unknown
 end
 
 ---@param condition table
@@ -742,11 +724,9 @@ function BlueprintPreprocessing:ValidateVisibleIf(visibleIf, blueprint, elementT
         return false
     end
 
-    local onlyAllowedGroupKeys, invalidGroupKey = hasOnlyAllowedKeys(visibleIf, VisibleIfAllowedGroupKeys)
-    if not onlyAllowedGroupKeys then
-        MCMWarn(0, elementType .. " '" .. elementId .. "' has invalid VisibleIf field '" .. invalidGroupKey ..
-            "'. Only 'LogicalOperator' and 'Conditions' are allowed. " .. contactAuthor(self))
-        return false
+    for _, invalidGroupKey in ipairs(collectUnknownKeys(visibleIf, BlueprintContract.AllowedKeys.VisibleIf)) do
+        MCMWarn(0, elementType .. " '" .. elementId .. "' has unknown VisibleIf field '" .. invalidGroupKey ..
+            "'. Only 'LogicalOperator' and 'Conditions' are defined in the schema. " .. contactAuthor(self))
     end
 
     if visibleIf.LogicalOperator ~= nil then
@@ -776,19 +756,16 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
     if type(condition) ~= "table" then
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has invalid condition #" .. conditionIndex ..
-            " in VisibleIf.Conditions (not a table). " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            " in VisibleIf.Conditions (not a table). " .. contactAuthor(self))
         return false
     end
 
-    local onlyAllowedConditionKeys, invalidConditionKey = hasOnlyAllowedKeys(condition, VisibleIfAllowedConditionKeys)
-    if not onlyAllowedConditionKeys then
+    for _, invalidConditionKey in ipairs(collectUnknownKeys(condition, BlueprintContract.AllowedKeys.VisibleIfCondition)) do
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
-            " with invalid field '" .. invalidConditionKey .. "'. " ..
-            "Only 'SettingId', 'Operator', and 'ExpectedValue' are allowed. " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
-        return false
+            " with unknown field '" .. invalidConditionKey .. "'. " ..
+            "Only 'SettingId', 'Operator', and 'ExpectedValue' are defined in the schema. " ..
+            contactAuthor(self))
     end
 
     -- Validate SettingId
@@ -836,12 +813,11 @@ function BlueprintPreprocessing:ValidateVisibilityCondition(condition, blueprint
         return false
     end
 
-    if not VisibleIfAllowedOperators[condition.Operator] then
+    if not BlueprintContract.VisibleIfOperators[condition.Operator] then
         MCMWarn(0,
             elementType .. " '" .. elementId .. "' has VisibleIf condition #" .. conditionIndex ..
             " with invalid Operator '" .. condition.Operator .. "'. " ..
-            "Must be one of: ==, !=, >, <, >=, <=. " ..
-            "Please contact " .. Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+            "Must be one of: ==, !=, >, <, >=, <=. " .. contactAuthor(self))
         return false
     end
 
@@ -877,12 +853,6 @@ local function warnDefaultType(self, setting, expected)
     MCMWarn(0, "Default value for setting '" .. setting:GetId() .. "' must be " .. expected .. ". " ..
         contactAuthor(self))
     return false
-end
-
----@param value unknown
----@return boolean
-local function isInteger(value)
-    return type(value) == "number" and math.floor(value) == value
 end
 
 ---@param value unknown
@@ -951,6 +921,17 @@ local function validateKeybindingV2DefaultValue(self, setting)
     return true
 end
 
+---@param value unknown
+---@return unknown
+local function coerceBooleanString(value)
+    if value == "true" then
+        return true
+    elseif value == "false" then
+        return false
+    end
+    return value
+end
+
 --- Validates the default of a list_v2 setting and normalizes its field names.
 ---@param self HelperBlueprintPreprocessing The preprocessing instance
 ---@param setting BlueprintSetting The setting to validate
@@ -966,12 +947,10 @@ local function validateListV2DefaultValue(self, setting)
         end
         default.Elements = nil
         default.Enabled = nil
+        default.enabled = coerceBooleanString(default.enabled)
     end
 
-    local enabled = type(default) == "table" and default.enabled
-    -- SanitizeBlueprint converts "true"/"false" after validation; accept only those strings here.
-    if type(default) ~= "table" or type(default.elements) ~= "table"
-        or (type(enabled) ~= "boolean" and enabled ~= "true" and enabled ~= "false") then
+    if type(default) ~= "table" or type(default.elements) ~= "table" or type(default.enabled) ~= "boolean" then
         MCMWarn(0, "Default value for setting '" .. setting:GetId() ..
             "' must be a table with boolean 'Enabled' and table 'Elements'. " .. contactAuthor(self))
         return false
@@ -983,24 +962,37 @@ local function validateListV2DefaultValue(self, setting)
                 "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
             return false
         end
-        if element.enabled ~= nil and type(element.enabled) ~= "boolean" then
+        element.enabled = coerceBooleanString(element.enabled)
+        if element.enabled == nil then
+            element.enabled = true
+        elseif type(element.enabled) ~= "boolean" then
             MCMWarn(0, "Element " .. Ext.DumpExport(element) .. " for setting '" .. setting:GetId() ..
                 "' must be a table with 'name' as a non-empty string and 'enabled' as a boolean.")
             return false
         end
-        if element.enabled == nil then
-            element.enabled = true
-        end
     end
 
-    return true
+    return SettingValidators.list_v2(setting, default)
 end
 
---- Checks that a setting default matches the setting type.
+local DelegatedValidators = {
+    int = true,
+    checkbox = true,
+    text = true,
+    slider_int = true,
+    slider_float = true,
+    drag_int = true,
+    drag_float = true,
+    enum = true,
+    radio = true,
+}
+
+--- Validates that a setting's blueprint Default matches its type and constraints.
 ---@param setting BlueprintSetting The setting to validate
 ---@return boolean True if the default is valid
-function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
-    if setting.Type == "event_button" then
+function BlueprintPreprocessing:ValidateSettingDefault(setting)
+    local settingType = setting.Type
+    if settingType == "event_button" then
         return true
     end
 
@@ -1010,39 +1002,46 @@ function BlueprintPreprocessing:BlueprintCheckDefaultType(setting)
     end
 
     local default = setting.Default
-    local settingType = setting.Type
 
-    -- REFACTOR: Replace this long if-elseif chain
-    if settingType == "bool" or settingType == "checkbox" then
-        if type(default) ~= "boolean" then return warnDefaultType(self, setting, "a boolean") end
-    elseif settingType == "int" or settingType == "slider_int" or settingType == "drag_int" then
-        if not isInteger(default) then return warnDefaultType(self, setting, "an integer") end
-    elseif settingType == "float" or settingType == "slider_float" or settingType == "drag_float" then
-        if type(default) ~= "number" then return warnDefaultType(self, setting, "a number") end
-    elseif settingType == "text" or settingType == "enum" or settingType == "radio" then
-        if type(default) ~= "string" then return warnDefaultType(self, setting, "a string") end
+    if settingType == "float" then
+        if type(default) ~= "number" then
+            return warnDefaultType(self, setting, "a number")
+        end
+        if not SettingValidators.float(setting, default) then
+            MCMWarn(0, "Default value for float setting '%s' is outside its optional Min/Max bounds. %s",
+                setting:GetId(), contactAuthor(self))
+        end
+        return true
     elseif settingType == "color_picker" or settingType == "color_edit" then
-        if not isColorArray(default) then return warnDefaultType(self, setting, "a table of 4 numbers") end
-    elseif settingType == "keybinding_v2" then
-        return validateKeybindingV2DefaultValue(self, setting)
+        if not isColorArray(default) then
+            return warnDefaultType(self, setting, "a table of 4 numbers")
+        end
+        if not SettingValidators[settingType](setting, default) then
+            MCMWarn(0, "Default color for setting '%s' has channel(s) outside [0, 1]. %s",
+                setting:GetId(), contactAuthor(self))
+        end
+        return true
     elseif settingType == "list_v2" then
         return validateListV2DefaultValue(self, setting)
-    end
-
-    return true
-end
-
-function BlueprintPreprocessing:BlueprintDefaultShouldBeWithinRange(setting)
-    if type(setting.Options) == "table" and type(setting.Options.Min) == "number" and type(setting.Options.Max) == "number" then
-        if setting.Default < setting.Options.Min or setting.Default > setting.Options.Max then
-            MCMWarn(0,
-                "Default value for setting '" ..
-                setting:GetId() ..
-                "' must be within the range of 'Options.Min' and 'Options.Max'. Please contact " ..
-                Ext.Mod.GetMod(self.currentmodUUID).Info.Author .. " about this issue.")
+    elseif settingType == "list" then
+        return true
+    elseif settingType == "keybinding" then
+        if not SettingValidators.keybinding(setting, default) then
+            MCMWarn(1, "Legacy keybinding setting '%s' has an invalid default value. %s",
+                setting:GetId(), contactAuthor(self))
+        end
+        return true
+    elseif settingType == "keybinding_v2" then
+        return validateKeybindingV2DefaultValue(self, setting) and validateKeybindingV2Default(self, setting)
+    elseif DelegatedValidators[settingType] then
+        if not SettingValidators[settingType](setting, default) then
+            MCMWarn(0, "Invalid default value for %s setting '%s'. %s",
+                settingType, setting:GetId(), contactAuthor(self))
             return false
         end
+        return true
     end
+
     return true
 end
 
@@ -1198,7 +1197,7 @@ function BlueprintPreprocessing:BlueprintMinIsLessThanMaxForSlider(setting)
     return true
 end
 
---- Sanitizes blueprint data by removing elements without SchemaVersions and converting string booleans
+--- Sanitizes blueprint data by validating structure, IDs, and settings.
 ---@param blueprint Blueprint The blueprint data to sanitize
 ---@param modUUID string The mod's unique identifier
 function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
@@ -1209,29 +1208,28 @@ function BlueprintPreprocessing:SanitizeBlueprint(blueprint, modUUID)
 
     if self:HasIncorrectStructure(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod '%s' has incorrect structure and can't be used. Please contact %s about this issue.",
-            Ext.Mod.GetMod(modUUID).Info.Name,
-            Ext.Mod.GetMod(modUUID).Info.Author)
+            "Blueprint for mod '%s' has incorrect structure and can't be used. %s",
+            Ext.Mod.GetMod(modUUID) and Ext.Mod.GetMod(modUUID).Info.Name or tostring(modUUID),
+            contactAuthor(self))
         return
     end
 
     if not self:VerifyIDUniqueness(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod '%s' has duplicate IDs and can't be used. Please contact %s about this issue.",
-            Ext.Mod.GetMod(modUUID).Info.Name,
-            Ext.Mod.GetMod(modUUID).Info.Author)
+            "Blueprint for mod '%s' has duplicate IDs and can't be used. %s",
+            Ext.Mod.GetMod(modUUID) and Ext.Mod.GetMod(modUUID).Info.Name or tostring(modUUID),
+            contactAuthor(self))
         return
     end
 
     if not self:ValidateBlueprintSettings(blueprint) then
         MCMWarn(0,
-            "Blueprint for mod '%s' has invalid settings and can't be used. Please contact %s about this issue.",
-            Ext.Mod.GetMod(modUUID).Info.Name,
-            Ext.Mod.GetMod(modUUID).Info.Author)
+            "Blueprint for mod '%s' has invalid settings and can't be used. %s",
+            Ext.Mod.GetMod(modUUID) and Ext.Mod.GetMod(modUUID).Info.Name or tostring(modUUID),
+            contactAuthor(self))
         return
     end
 
-    table.convertStringBooleans(blueprint)
     return blueprint
 end
 
@@ -1239,12 +1237,25 @@ end
 ---@param mods table<string, table> The mods data to sanitize
 function BlueprintPreprocessing:SanitizeBlueprints(mods)
     for modUUID, mcmTable in pairs(mods) do
-        if not self:SanitizeBlueprint(mcmTable.blueprint, modUUID) then
+        -- Isolate per-mod blueprint sanitization errors so one malformed mod does not block others.
+        local ok, sanitized = pcall(self.SanitizeBlueprint, self, mcmTable.blueprint, modUUID)
+        if not ok or not sanitized then
             mods[modUUID] = nil
-            MCMWarn(0,
-                "Blueprint validation failed for mod: %s. Please contact %s about this issue.",
-                Ext.Mod.GetMod(modUUID).Info.Name,
-                Ext.Mod.GetMod(modUUID).Info.Author)
+            local mod = Ext.Mod.GetMod(modUUID)
+            local modName = mod and mod.Info and mod.Info.Name or tostring(modUUID)
+            local modAuthor = mod and mod.Info and mod.Info.Author or "the mod author"
+            if not ok then
+                MCMWarn(0,
+                    "Blueprint sanitization threw an error for mod %s (%s). Please contact %s about this issue.",
+                    modName,
+                    tostring(sanitized),
+                    modAuthor)
+            else
+                MCMWarn(0,
+                    "Blueprint validation failed for mod: %s. Please contact %s about this issue.",
+                    modName,
+                    modAuthor)
+            end
         end
     end
 end

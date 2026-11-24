@@ -18,6 +18,7 @@ if Mods.Dribbles then
 
     Ext.Require("Shared/DribbleSpec/BlueprintShape.test.lua")
     Ext.Require("Shared/DribbleSpec/BlueprintContractParity.test.lua")
+    Ext.Require("Shared/DribbleSpec/BlueprintValidationHardening.test.lua")
     Ext.Require("Shared/DribbleSpec/EnumChoicesHelper.test.lua")
     Ext.Require("Shared/DribbleSpec/ConfigDefinition.test.lua")
     Ext.Require("Shared/DribbleSpec/BlueprintCache.test.lua")
