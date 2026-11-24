@@ -14,3 +14,9 @@ repos:
         language: system
         pass_filenames: false
         files: '\.lua$'
+      - id: sync-blueprint-contract
+        name: sync-blueprint-contract
+        entry: python scripts/sync_blueprint_contract.py --check
+        language: system
+        pass_filenames: false
+        files: '^(\.vscode/schema\.json|scripts/sync_blueprint_contract\.py|Mod Configuration Menu/Mods/BG3MCM/ScriptExtender/Lua/Shared/Helpers/Preprocessing/BlueprintContract\.lua)$'
